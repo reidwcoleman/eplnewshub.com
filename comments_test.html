@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,9 +20,9 @@
 <div id="poll-results"></div>
 
 <h2>Leave a Comment</h2>
-<form id="comment-form" onsubmit="addComment(event, 'comments')" action="#">
+<form id="comment-form">
     <textarea id="comment" rows="4" cols="50"></textarea><br>
-    <input type="submit" value="Submit">
+    <input type="button" value="Submit" onclick="addComment()">
 </form>
 <div id="comments"></div>
 
@@ -38,7 +40,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         disableButtons();
         displayResults();
     }
-    displayComments('comments');
+    displayComments();
 });
 
 function vote(team) {
@@ -91,8 +93,7 @@ function getCookie(name) {
     return null;
 }
 
-function addComment(event, section) {
-    event.preventDefault();
+function addComment() {
     const comment = document.getElementById('comment').value;
 
     // Fetch the current comments from the Gist
@@ -102,12 +103,30 @@ function addComment(event, section) {
             let comments = JSON.parse(data.files['comments.json'].content) || [];
             comments.push({ comment, timestamp: new Date().toISOString() });
             // Update the Gist with the new comments
-            updateComments(comments);
+            fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    files: {
+                        'comments.json': {
+                            content: JSON.stringify(comments)
+                        }
+                    }
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Comments updated:', data);
+                displayComments(); // Update the displayed comments after updating
+            })
+            .catch(error => console.error('Error updating comments:', error));
         })
         .catch(error => console.error('Error:', error));
 }
 
-function displayComments(section) {
+function displayComments() {
     // Fetch the current comments from the Gist
     fetch(`https://api.github.com/gists/${GIST_ID}`)
         .then(response => response.json())
@@ -120,29 +139,6 @@ function displayComments(section) {
             document.getElementById('comments').innerHTML = commentsHTML;
         })
         .catch(error => console.error('Error:', error));
-}
-
-function updateComments(comments) {
-    // Update the Gist with the new comments
-    fetch(`https://api.github.com/gists/${GIST_ID}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-            files: {
-                'comments.json': {
-                    content: JSON.stringify(comments)
-                }
-            }
-        }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Comments updated:', data);
-        displayComments('comments'); // Update the displayed comments after updating
-    })
-    .catch(error => console.error('Error updating comments:', error));
 }
 </script>
 </body>
