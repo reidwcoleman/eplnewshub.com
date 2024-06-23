@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         disableButtons();
         displayResults();
     }
+    displayComments('poll');
 });
 
 function vote(team) {
@@ -60,4 +61,24 @@ function getCookie(name) {
         if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
     }
     return null;
+}
+
+// Comments functionality
+function addComment(event, section) {
+    event.preventDefault();
+    const comment = document.getElementById('comment').value;
+    let comments = JSON.parse(localStorage.getItem(`${section}-comments`)) || [];
+    comments.push(comment);
+    localStorage.setItem(`${section}-comments`, JSON.stringify(comments));
+    displayComments(section);
+    document.getElementById('comment-form').reset();
+}
+
+function displayComments(section) {
+    const comments = JSON.parse(localStorage.getItem(`${section}-comments`)) || [];
+    let commentsHTML = '<h3>Comments:</h3>';
+    comments.forEach(comment => {
+        commentsHTML += `<p>${comment}</p>`;
+    });
+    document.getElementById('comments').innerHTML = commentsHTML;
 }
