@@ -1,8 +1,8 @@
 let votes = {
-    'Team A': 0,
-    'Team B': 0,
-    'Team C': 0,
-    'Team D': 0
+    'France': 0,
+    'England': 0,
+    'Germany': 0,
+    'Spain': 0
 };
 
 document.addEventListener('DOMContentLoaded', (event) => {
