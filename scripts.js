@@ -1,4 +1,4 @@
-const GIST_ID = 'your_gist_id_here';
+const GIST_ID = '4e0ec7226e86b66dc9e40e84988db67e';
 let votes = {};
 
 document.addEventListener('DOMContentLoaded', (event) => {
