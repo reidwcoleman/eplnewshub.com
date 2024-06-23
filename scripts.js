@@ -1,33 +1,45 @@
 const GIST_ID = '4e0ec7226e86b66dc9e40e84988db67e';
 let votes = {};
+let hasVoted = false;
 
 document.addEventListener('DOMContentLoaded', (event) => {
     loadVotes();
 });
 
 function loadVotes() {
-    fetch(`https://api.github.com/gists/${GIST_ID}`)
+    fetch(`https://api.github.com/gists/${4e0ec7226e86b66dc9e40e84988db67e}`)
         .then(response => response.json())
         .then(data => {
             const content = data.files['votes.json'].content;
             votes = JSON.parse(content);
+            hasVoted = checkIfVoted();
             displayResults();
         })
         .catch(error => console.error('Error:', error));
 }
 
-function vote(team) {
-    if (!votes[team]) {
-        votes[team] = 1;
-    } else {
-        votes[team]++;
-    }
+function checkIfVoted() {
+    // You can implement your own logic here to check if the user has voted
+    // For now, let's just return false
+    return false;
+}
 
-    updateVotes();
+function vote(team) {
+    if (!hasVoted) {
+        if (!votes[team]) {
+            votes[team] = 1;
+        } else {
+            votes[team]++;
+        }
+        hasVoted = true;
+        updateVotes();
+    } else {
+        alert('You have already voted!');
+    }
 }
 
 function updateVotes() {
-    fetch(`https://api.github.com/gists/${GIST_ID}`, {
+    fetch(`https://api.github.com/gists/${4e0ec7226e86b66dc9e40e84988db67e}`, {
         method: 'PATCH',
         body: JSON.stringify({
             files: {
