@@ -1,4 +1,10 @@
 const GIST_ID = 'c0f6f46e5df492379408eb54d9d1a34e';
+let votes = {
+    'Team A': 0,
+    'Team B': 0,
+    'Team C': 0,
+    'Team D': 0
+};
 
 document.addEventListener('DOMContentLoaded', (event) => {
     if (getCookie('voted') === 'true') {
