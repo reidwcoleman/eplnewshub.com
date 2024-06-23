@@ -1,16 +1,11 @@
-let votes = {
-    'France': 0,
-    'England': 0,
-    'Germany': 0,
-    'Spain': 0
-};
+const GIST_ID = 'c0f6f46e5df492379408eb54d9d1a34e';
 
 document.addEventListener('DOMContentLoaded', (event) => {
     if (getCookie('voted') === 'true') {
         disableButtons();
         displayResults();
     }
-    displayComments('poll');
+    loadComments('poll');
 });
 
 function vote(team) {
@@ -67,18 +62,53 @@ function getCookie(name) {
 function addComment(event, section) {
     event.preventDefault();
     const comment = document.getElementById('comment').value;
-    let comments = JSON.parse(localStorage.getItem(`${section}-comments`)) || [];
-    comments.push(comment);
-    localStorage.setItem(`${section}-comments`, JSON.stringify(comments));
-    displayComments(section);
-    document.getElementById('comment-form').reset();
+
+    // Fetch the current comments from the Gist
+    fetch(`https://api.github.com/gists/${GIST_ID}`)
+        .then(response => response.json())
+        .then(data => {
+            let comments = JSON.parse(data.files['comments.json'].content) || [];
+            comments.push({ comment, timestamp: new Date().toISOString() });
+            // Update the Gist with the new comments
+            updateComments(comments);
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 function displayComments(section) {
-    const comments = JSON.parse(localStorage.getItem(`${section}-comments`)) || [];
-    let commentsHTML = '<h3>Comments:</h3>';
-    comments.forEach(comment => {
-        commentsHTML += `<p>${comment}</p>`;
-    });
-    document.getElementById('comments').innerHTML = commentsHTML;
+    // Fetch the current comments from the Gist
+    fetch(`https://api.github.com/gists/${GIST_ID}`)
+        .then(response => response.json())
+        .then(data => {
+            let comments = JSON.parse(data.files['comments.json'].content) || [];
+            let commentsHTML = '<h3>Comments:</h3>';
+            comments.forEach(commentObj => {
+                commentsHTML += `<p>${commentObj.comment}</p>`;
+            });
+            document.getElementById('comments').innerHTML = commentsHTML;
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function updateComments(comments) {
+    // Update the Gist with the new comments
+    fetch(`https://api.github.com/gists/${GIST_ID}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+            files: {
+                'comments.json': {
+                    content: JSON.stringify(comments)
+                }
+            }
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Comments updated:', data);
+        displayComments('poll'); // Update the displayed comments after updating
+    })
+    .catch(error => console.error('Error updating comments:', error));
 }
