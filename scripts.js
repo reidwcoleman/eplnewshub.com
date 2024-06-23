@@ -1,4 +1,3 @@
-const GIST_ID = '52e27b174981baa175d833d27d4a1c28';
 let votes = {
     'Team A': 0,
     'Team B': 0,
@@ -11,7 +10,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         disableButtons();
         displayResults();
     }
-    loadComments('poll');
 });
 
 function vote(team) {
@@ -62,59 +60,4 @@ function getCookie(name) {
         if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
     }
     return null;
-}
-
-// Comments functionality
-function addComment(event, section) {
-    event.preventDefault();
-    const comment = document.getElementById('comment').value;
-
-    // Fetch the current comments from the Gist
-    fetch(`https://api.github.com/gists/${GIST_ID}`)
-        .then(response => response.json())
-        .then(data => {
-            let comments = JSON.parse(data.files['comments.json'].content) || [];
-            comments.push({ comment, timestamp: new Date().toISOString() });
-            // Update the Gist with the new comments
-            updateComments(comments);
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-function displayComments(section) {
-    // Fetch the current comments from the Gist
-    fetch(`https://api.github.com/gists/${GIST_ID}`)
-        .then(response => response.json())
-        .then(data => {
-            let comments = JSON.parse(data.files['comments.json'].content) || [];
-            let commentsHTML = '<h3>Comments:</h3>';
-            comments.forEach(commentObj => {
-                commentsHTML += `<p>${commentObj.comment}</p>`;
-            });
-            document.getElementById('comments').innerHTML = commentsHTML;
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-function updateComments(comments) {
-    // Update the Gist with the new comments
-    fetch(`https://api.github.com/gists/${GIST_ID}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-            files: {
-                'comments.json': {
-                    content: JSON.stringify(comments)
-                }
-            }
-        }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Comments updated:', data);
-        displayComments('poll'); // Update the displayed comments after updating
-    })
-    .catch(error => console.error('Error updating comments:', error));
 }
