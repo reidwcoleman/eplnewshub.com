@@ -1,4 +1,4 @@
-const GIST_ID = 'c0f6f46e5df492379408eb54d9d1a34e';
+const GIST_ID = '52e27b174981baa175d833d27d4a1c28';
 let votes = {
     'Team A': 0,
     'Team B': 0,
