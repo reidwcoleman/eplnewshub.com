@@ -1,34 +1,26 @@
 const express = require('express');
-const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
-const port = 3000;
+const PORT = 3000;
 
-app.use(cors());
+// Middleware
 app.use(bodyParser.json());
 
-let votes = {
-    france: 0,
-    england: 0,
-    spain: 0,
-    germany: 0
-};
+// Endpoint to handle subscription
+app.post('/subscribe', (req, res) => {
+    const { name, email, address } = req.body;
 
-app.get('/results', (req, res) => {
-    res.json(votes);
+    // Store the data in a database or file
+    // Example: Save to a JSON file
+    const fs = require('fs');
+    const subscriptions = JSON.parse(fs.readFileSync('subscriptions.json', 'utf8'));
+    subscriptions.push({ name, email, address });
+    fs.writeFileSync('subscriptions.json', JSON.stringify(subscriptions));
+
+    res.json({ message: 'Subscription successful!' });
 });
 
-app.post('/vote', (req, res) => {
-    const team = req.body.team;
-    if (votes[team] !== undefined) {
-        votes[team] += 1;
-        res.status(200).send('Vote counted');
-    } else {
-        res.status(400).send('Invalid team');
-    }
-});
-
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });
