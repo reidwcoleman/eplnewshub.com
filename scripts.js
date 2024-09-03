@@ -1,39 +1,36 @@
-// script.js
+// Show the popup form
+function showPopup() {
+    document.getElementById('popupForm').style.display = 'block';
+}
 
-document.getElementById('pollForm').addEventListener('submit', function(event) {
+// Close the popup form
+function closePopup() {
+    document.getElementById('popupForm').style.display = 'none';
+}
+
+// Handle form submission
+document.getElementById('subscriptionForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const formData = new FormData(event.target);
-    const selectedTeam = formData.get('team');
-    
-    if (selectedTeam) {
-        const franceVotes = localStorage.getItem('france') || 0;
-        const englandVotes = localStorage.getItem('england') || 0;
-        const spainVotes = localStorage.getItem('spain') || 0;
-        const germanyVotes = localStorage.getItem('germany') || 0;
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const address = document.getElementById('address').value;
 
-        if (selectedTeam === 'France') {
-            localStorage.setItem('france', parseInt(franceVotes) + 1);
-        } else if (selectedTeam === 'England') {
-            localStorage.setItem('england', parseInt(englandVotes) + 1);
-        } else if (selectedTeam === 'Spain') {
-            localStorage.setItem('spain', parseInt(spainVotes) + 1);
-        } else if (selectedTeam === 'Germany') {
-            localStorage.setItem('germany', parseInt(germanyVotes) + 1);
-        }
-
-        document.getElementById('france').innerText = localStorage.getItem('france');
-        document.getElementById('england').innerText = localStorage.getItem('england');
-        document.getElementById('spain').innerText = localStorage.getItem('spain');
-        document.getElementById('germany').innerText = localStorage.getItem('germany');
-        document.getElementById('poll').classList.add('hidden');
-        document.getElementById('results').classList.remove('hidden');
-    }
-});
-
-window.addEventListener('load', function() {
-    document.getElementById('france').innerText = localStorage.getItem('france') || 0;
-    document.getElementById('england').innerText = localStorage.getItem('england') || 0;
-    document.getElementById('spain').innerText = localStorage.getItem('spain') || 0;
-    document.getElementById('germany').innerText = localStorage.getItem('germany') || 0;
+    // Send data to the backend server
+    fetch('/subscribe', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email, address })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Subscription successful!');
+        closePopup();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while subscribing.');
+    });
 });
