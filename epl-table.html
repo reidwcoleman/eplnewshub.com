@@ -1,5 +1,23 @@
-
-/* NYT-inspired styling matching stats.html */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Premier League standings on EPL News Hub with live data from Scoreaxis.">
+    <title>Premier League Standings</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
+    <style>
+        /* NYT-inspired styling matching stats.html */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -36,23 +54,6 @@
             border-bottom: 1px solid #D3D3D3;
             padding-bottom: 8px;
             letter-spacing: 0.02em;
-        }
-        .article-section {
-            font-family: Arial, sans-serif;
-            font-size: 0.875rem;
-            color: #333;
-            line-height: 1.6;
-        }
-        .article-section p {
-            margin-bottom: 16px;
-        }
-        .article-section a {
-            color: #326891;
-            text-decoration: none;
-        }
-        .article-section a:hover {
-            text-decoration: underline;
-            color: #2a5576;
         }
         .widget-container {
             margin-bottom: 24px;
@@ -114,7 +115,12 @@
     </style>
 </head>
 <body>
-          
+    <div class="header" include="/header.html"></div>
+    <div class="top-nav" include="/top-nav.html"></div>
+    <div class="container">
+        <div class="main">
+            <h1>Premier League Standings</h1>
+        </div>
         <div class="sidebar">
             <!-- Embedded Scoreaxis Standings Widget -->
             <div class="widget-container">
@@ -126,16 +132,16 @@
             </div>
         </div>
     </div>
+    <div class="footer" include="/footer.html"></div>
+    <script src="/index.js"></script>
     <script>
         // Scoreaxis widget height adjustment
-        window.addEventListener("DOMContentLoaded", event => {
-            window.addEventListener("message", event => {
-                if (event.data.appHeight && event.data.inst === "4954e") {
-                    let container = document.querySelector("#scoreaxis-widget-4954e iframe");
-                    container && (container.style.height = parseInt(event.data.appHeight) + "px");
-                }
-            }, false);
-        });
+        window.addEventListener("message", event => {
+            if (event.data.appHeight && event.data.inst === "4954e") {
+                let container = document.querySelector("#scoreaxis-widget-4954e iframe");
+                container && (container.style.height = parseInt(event.data.appHeight) + "px");
+            }
+        }, false);
     </script>
 </body>
 </html>
