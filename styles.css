@@ -76,18 +76,92 @@ p {
     align-items: center;
 }
 
+/* Search Container */
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#search-input {
+    padding: 8px 12px;
+    border: 2px solid #e2e2e2;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    width: 250px;
+    outline: none;
+    transition: all 0.2s ease;
+    font-family: 'Helvetica Neue', sans-serif;
+}
+
+#search-input:focus {
+    border-color: #0066cc;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
 .search-btn, .menu-btn {
     background: none;
     border: none;
     font-size: 1.2rem;
     cursor: pointer;
     padding: 8px;
-    border-radius: 4px;
+    border-radius: 50%;
     transition: background-color 0.2s ease;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .search-btn:hover, .menu-btn:hover {
     background-color: #f5f5f5;
+}
+
+/* Search Results */
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e2e2;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1001;
+    display: none;
+    margin-top: 5px;
+}
+
+.search-result-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.search-result-item:hover {
+    background-color: #f8f9fa;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-title {
+    font-weight: 600;
+    color: #121212;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+}
+
+.search-result-excerpt {
+    color: #666;
+    font-size: 0.85rem;
+    line-height: 1.4;
 }
 
 /* NYT-Style Navigation */
@@ -203,10 +277,12 @@ p {
 
 /* Trending Section */
 .trending-section {
-    background-color: #f8f9fa;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     padding: 25px;
-    border-radius: 8px;
+    border-radius: 12px;
     margin-bottom: 30px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .trending-section h3 {
@@ -252,14 +328,15 @@ p {
 
 /* Ad Space */
 .ad-space {
-    background-color: #f0f0f0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     padding: 20px;
     text-align: center;
-    border-radius: 8px;
+    border-radius: 12px;
     min-height: 300px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid #dee2e6;
 }
 
 /* Article Styling */
@@ -275,17 +352,22 @@ p {
 }
 
 .main_headline a:hover {
-    opacity: 0.8;
+    opacity: 0.95;
+}
+
+.main_headline a:hover img {
+    transform: scale(1.02);
 }
 
 .main_headline img {
     width: 100%;
     height: auto;
     max-height: 400px;
-    object-fit: contain;
-    border-radius: 4px;
+    object-fit: cover;
+    border-radius: 8px;
     margin-bottom: 20px;
-    background-color: #f8f9fa;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
 }
 
 .main_headline h1 {
@@ -294,6 +376,11 @@ p {
     line-height: 1.2;
     margin-bottom: 15px;
     color: #121212;
+    transition: color 0.2s ease;
+}
+
+.main_headline a:hover h1 {
+    color: #0066cc;
 }
 
 .main_headline p {
@@ -323,17 +410,21 @@ p {
 }
 
 .main_subheadline a:hover {
-    opacity: 0.8;
+    opacity: 0.95;
+}
+
+.main_subheadline a:hover img {
+    transform: scale(1.05);
 }
 
 .main_subheadline img {
     width: 200px;
-    height: auto;
-    max-height: 150px;
-    object-fit: contain;
-    border-radius: 4px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
     flex-shrink: 0;
-    background-color: #f8f9fa;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
 }
 
 .main_subheadline h1 {
@@ -342,6 +433,11 @@ p {
     line-height: 1.3;
     margin-bottom: 10px;
     color: #121212;
+    transition: color 0.2s ease;
+}
+
+.main_subheadline a:hover h1 {
+    color: #0066cc;
 }
 
 .main_subheadline p {
@@ -496,6 +592,26 @@ p {
 @media (max-width: 768px) {
     .logo h1 {
         font-size: 1.8rem;
+    }
+    
+    #search-input {
+        width: 180px;
+        font-size: 0.85rem;
+    }
+    
+    .header-content {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .search-container {
+        order: 3;
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    #search-input {
+        width: calc(100% - 50px);
     }
     
     .nav-links {
