@@ -56,6 +56,11 @@ injectAll();
 // Search functionality
 const articles = [
     {
+        title: "Premier League Transfer Window: Latest Rumors & Breaking News",
+        url: "articles/premier-league-transfer-window-latest-rumors-07-20-2025.html",
+        excerpt: "The Premier League transfer window is in full swing with Manchester United targeting Kvaratskhelia, Arsenal pursuing Šeško, and Liverpool rebuilding their midfield."
+    },
+    {
         title: "Victor Gyokeres New Transfer News and Rumoured Clubs",
         url: "articles/victor-gyokeres-premier-league-giants-in-hot-pursuit-05-25-25.html",
         excerpt: "Viktor Gyökeres has taken European football by storm in the 2024-25 season, cementing his status as one of the continent's most lethal strikers."
