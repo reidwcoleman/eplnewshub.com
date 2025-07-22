@@ -17,6 +17,7 @@
     <title>Sign In | EPL News Hub</title>
     <link rel="stylesheet" href="styles.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="apple-touch-icon" href="reidsnbest.webp">
     <link rel="icon" type="image/webp" href="reidsnbest.webp">
     <style>
@@ -183,7 +184,8 @@
             </div>
 
             <div class="social-signin">
-                <button class="social-btn google-btn" onclick="signInWithGoogle()">
+                <div id="google-signin-btn" style="margin-bottom: 10px;"></div>
+                <button class="social-btn google-btn" onclick="signInWithGoogle()" style="display: none;">
                     <span>🔍</span>
                     <span>Continue with Google</span>
                 </button>
@@ -219,8 +221,43 @@
         }
         
         function signInWithGoogle() {
-            alert('Google Sign In coming soon!');
+            window.location.href = '/auth/google';
         }
+        
+        function handleCredentialResponse(response) {
+            fetch('/auth/google/callback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ credential: response.credential })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Successfully signed in with Google!');
+                    window.location.href = '/';
+                } else {
+                    alert('Google Sign In failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Google Sign In failed. Please try again.');
+            });
+        }
+        
+        window.onload = function() {
+            google.accounts.id.initialize({
+                client_id: "YOUR_GOOGLE_CLIENT_ID",
+                callback: handleCredentialResponse
+            });
+            
+            google.accounts.id.renderButton(
+                document.getElementById("google-signin-btn"),
+                { theme: "outline", size: "large", width: "100%" }
+            );
+        };
         
         function signInWithFacebook() {
             alert('Facebook Sign In coming soon!');

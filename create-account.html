@@ -17,6 +17,7 @@
     <title>Create Account | EPL News Hub</title>
     <link rel="stylesheet" href="styles.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="apple-touch-icon" href="reidsnbest.webp">
     <link rel="icon" type="image/webp" href="reidsnbest.webp">
     <style>
@@ -136,6 +137,37 @@
         
         .auth-links a:hover {
             text-decoration: underline;
+        }
+        
+        .social-signin {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .social-btn {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .social-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .google-btn {
+            border-color: #db4437;
+            color: #db4437;
         }
         
         .password-strength {
@@ -322,6 +354,14 @@
                 <button type="submit" class="signup-btn" id="signupBtn">Create Account</button>
             </form>
 
+            <div class="social-signin">
+                <div id="google-signin-btn" style="margin-bottom: 10px;"></div>
+                <button class="social-btn google-btn" onclick="signUpWithGoogle()" style="display: none;">
+                    <span>🔍</span>
+                    <span>Sign up with Google</span>
+                </button>
+            </div>
+            
             <div class="auth-links">
                 <p>Already have an account? <a href="/signin.html">Sign in here</a></p>
             </div>
@@ -508,6 +548,45 @@
             if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
             return strength;
         }
+        
+        function signUpWithGoogle() {
+            window.location.href = '/auth/google';
+        }
+        
+        function handleCredentialResponse(response) {
+            fetch('/auth/google/callback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ credential: response.credential })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Successfully signed up with Google!');
+                    window.location.href = '/';
+                } else {
+                    alert('Google Sign Up failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Google Sign Up failed. Please try again.');
+            });
+        }
+        
+        window.onload = function() {
+            google.accounts.id.initialize({
+                client_id: "YOUR_GOOGLE_CLIENT_ID",
+                callback: handleCredentialResponse
+            });
+            
+            google.accounts.id.renderButton(
+                document.getElementById("google-signin-btn"),
+                { theme: "outline", size: "large", width: "100%" }
+            );
+        };
         
         function showError(fieldId, message) {
             const field = document.getElementById(fieldId);
