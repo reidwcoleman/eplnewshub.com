@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Live Premier League statistics, real-time scores, player performances, and match data from EPL News Hub.">
+    <meta name="keywords" content="Premier League live stats, EPL scores, live football data, match statistics, player stats">
+    <title>Live Premier League Stats | EPL News Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
+    <link rel="apple-touch-icon" href="reidsnbest.webp">
+    <link rel="icon" type="image/webp" href="reidsnbest.webp">
+    <style>
+        .live-stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .page-header h1 {
+            font-family: Georgia, serif;
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .live-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #ff0000;
+            border-radius: 50%;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #0066cc;
+        }
+        
+        .stat-card h3 {
+            font-family: Georgia, serif;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .live-matches {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .match-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.3s ease;
+        }
+        
+        .match-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .match-item:last-child {
+            border-bottom: none;
+        }
+        
+        .match-teams {
+            flex: 1;
+        }
+        
+        .match-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin: 0 20px;
+        }
+        
+        .match-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .match-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-live {
+            background: #ff0000;
+            color: white;
+        }
+        
+        .status-finished {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-upcoming {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .table-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .live-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .live-table th,
+        .live-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .live-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .live-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .position {
+            width: 40px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .team-name {
+            font-weight: bold;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .refresh-btn {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            background: #0052a3;
+        }
+        
+        .last-updated {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .match-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .live-table {
+                font-size: 0.85rem;
+            }
+            
+            .live-table th,
+            .live-table td {
+                padding: 8px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header" include="./header.html"></div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="live-stats-container">
+            <div class="page-header">
+                <h1>📊 Live Premier League Stats<span class="live-indicator"></span></h1>
+                <p>Real-time statistics and match data updated every 30 seconds</p>
+            </div>
+
+            <div class="controls">
+                <button class="refresh-btn" onclick="refreshData()">🔄 Refresh Now</button>
+                <div class="auto-refresh">
+                    <input type="checkbox" id="autoRefresh" checked>
+                    <label for="autoRefresh">Auto-refresh (30s)</label>
+                </div>
+                <div class="last-updated" id="lastUpdated">Last updated: --:--</div>
+            </div>
+
+            <!-- Live Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>🔥 Goals Today</h3>
+                    <div class="stat-value" id="goalsToday">7</div>
+                    <div class="stat-label">Across all matches</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>⚽ Top Scorer</h3>
+                    <div class="stat-value" id="topScorer">Haaland</div>
+                    <div class="stat-label">24 goals this season</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>🏃‍♂️ Most Minutes</h3>
+                    <div class="stat-value" id="mostMinutes">Van Dijk</div>
+                    <div class="stat-label">3,420 minutes played</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>🥅 Clean Sheets</h3>
+                    <div class="stat-value" id="cleanSheets">Alisson</div>
+                    <div class="stat-label">16 clean sheets</div>
+                </div>
+            </div>
+
+            <!-- Live Matches -->
+            <div class="live-matches">
+                <h2>🔴 Live Matches & Results</h2>
+                <div id="matchesContainer">
+                    <div class="match-item">
+                        <div class="match-teams">
+                            <strong>Liverpool vs Arsenal</strong>
+                        </div>
+                        <div class="match-score">2-1</div>
+                        <div class="match-time">85'</div>
+                        <div class="match-status status-live">LIVE</div>
+                    </div>
+                    
+                    <div class="match-item">
+                        <div class="match-teams">
+                            <strong>Manchester City vs Brighton</strong>
+                        </div>
+                        <div class="match-score">3-0</div>
+                        <div class="match-time">FT</div>
+                        <div class="match-status status-finished">FINISHED</div>
+                    </div>
+                    
+                    <div class="match-item">
+                        <div class="match-teams">
+                            <strong>Chelsea vs Newcastle</strong>
+                        </div>
+                        <div class="match-score">15:30</div>
+                        <div class="match-time">Today</div>
+                        <div class="match-status status-upcoming">UPCOMING</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live League Table -->
+            <div class="table-section">
+                <h2>📈 Live League Table</h2>
+                <table class="live-table" id="liveTable">
+                    <thead>
+                        <tr>
+                            <th class="position">Pos</th>
+                            <th>Team</th>
+                            <th>GP</th>
+                            <th>W</th>
+                            <th>D</th>
+                            <th>L</th>
+                            <th>GF</th>
+                            <th>GA</th>
+                            <th>GD</th>
+                            <th>Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td class="position">1</td>
+                            <td class="team-name">Liverpool</td>
+                            <td>22</td>
+                            <td>19</td>
+                            <td>2</td>
+                            <td>1</td>
+                            <td>58</td>
+                            <td>21</td>
+                            <td>+37</td>
+                            <td>59</td>
+                        </tr>
+                        <tr>
+                            <td class="position">2</td>
+                            <td class="team-name">Arsenal</td>
+                            <td>22</td>
+                            <td>14</td>
+                            <td>7</td>
+                            <td>1</td>
+                            <td>48</td>
+                            <td>24</td>
+                            <td>+24</td>
+                            <td>49</td>
+                        </tr>
+                        <tr>
+                            <td class="position">3</td>
+                            <td class="team-name">Newcastle</td>
+                            <td>22</td>
+                            <td>14</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td>45</td>
+                            <td>28</td>
+                            <td>+17</td>
+                            <td>46</td>
+                        </tr>
+                        <tr>
+                            <td class="position">4</td>
+                            <td class="team-name">Manchester City</td>
+                            <td>22</td>
+                            <td>13</td>
+                            <td>6</td>
+                            <td>3</td>
+                            <td>52</td>
+                            <td>32</td>
+                            <td>+20</td>
+                            <td>45</td>
+                        </tr>
+                        <tr>
+                            <td class="position">5</td>
+                            <td class="team-name">Chelsea</td>
+                            <td>22</td>
+                            <td>12</td>
+                            <td>7</td>
+                            <td>3</td>
+                            <td>43</td>
+                            <td>29</td>
+                            <td>+14</td>
+                            <td>43</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="footer" include="./footer.html"></div>
+    <script src="./index.js"></script>
+    <script>
+        let autoRefreshInterval;
+        
+        // Sample data for live updates simulation
+        let liveData = {
+            goalsToday: 7,
+            matches: [
+                { home: 'Liverpool', away: 'Arsenal', homeScore: 2, awayScore: 1, time: "85'", status: 'live' },
+                { home: 'Manchester City', away: 'Brighton', homeScore: 3, awayScore: 0, time: 'FT', status: 'finished' },
+                { home: 'Chelsea', away: 'Newcastle', homeScore: null, awayScore: null, time: '15:30', status: 'upcoming' }
+            ]
+        };
+        
+        function refreshData() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            const lastUpdated = document.getElementById('lastUpdated');
+            
+            // Show loading state
+            refreshBtn.textContent = '🔄 Refreshing...';
+            refreshBtn.disabled = true;
+            
+            // Simulate data fetching
+            setTimeout(() => {
+                // Update goals count randomly
+                liveData.goalsToday += Math.random() < 0.3 ? 1 : 0;
+                document.getElementById('goalsToday').textContent = liveData.goalsToday;
+                
+                // Update match times for live matches
+                liveData.matches.forEach((match, index) => {
+                    if (match.status === 'live') {
+                        const currentMinute = parseInt(match.time.replace("'", ""));
+                        if (currentMinute < 90) {
+                            match.time = (currentMinute + 1) + "'";
+                            
+                            // Random chance of goal
+                            if (Math.random() < 0.05) {
+                                if (Math.random() < 0.5) {
+                                    match.homeScore++;
+                                } else {
+                                    match.awayScore++;
+                                }
+                                liveData.goalsToday++;
+                            }
+                        }
+                    }
+                });
+                
+                updateMatchDisplay();
+                updateLastUpdated();
+                
+                refreshBtn.textContent = '🔄 Refresh Now';
+                refreshBtn.disabled = false;
+                
+                // Visual feedback
+                const container = document.querySelector('.live-stats-container');
+                container.style.transition = 'background-color 0.3s ease';
+                container.style.backgroundColor = '#f0f9ff';
+                setTimeout(() => {
+                    container.style.backgroundColor = '';
+                }, 1000);
+                
+            }, 1000);
+        }
+        
+        function updateMatchDisplay() {
+            const container = document.getElementById('matchesContainer');
+            container.innerHTML = '';
+            
+            liveData.matches.forEach(match => {
+                const matchDiv = document.createElement('div');
+                matchDiv.className = 'match-item';
+                
+                let scoreDisplay, statusClass, statusText;
+                
+                if (match.status === 'live') {
+                    scoreDisplay = `${match.homeScore}-${match.awayScore}`;
+                    statusClass = 'status-live';
+                    statusText = 'LIVE';
+                } else if (match.status === 'finished') {
+                    scoreDisplay = `${match.homeScore}-${match.awayScore}`;
+                    statusClass = 'status-finished';
+                    statusText = 'FINISHED';
+                } else {
+                    scoreDisplay = match.time;
+                    statusClass = 'status-upcoming';
+                    statusText = 'UPCOMING';
+                }
+                
+                matchDiv.innerHTML = `
+                    <div class="match-teams">
+                        <strong>${match.home} vs ${match.away}</strong>
+                    </div>
+                    <div class="match-score">${scoreDisplay}</div>
+                    <div class="match-time">${match.status === 'upcoming' ? 'Today' : match.time}</div>
+                    <div class="match-status ${statusClass}">${statusText}</div>
+                `;
+                
+                container.appendChild(matchDiv);
+            });
+        }
+        
+        function updateLastUpdated() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('lastUpdated').textContent = `Last updated: ${timeString}`;
+        }
+        
+        function setupAutoRefresh() {
+            const checkbox = document.getElementById('autoRefresh');
+            
+            if (checkbox.checked) {
+                autoRefreshInterval = setInterval(refreshData, 30000); // 30 seconds
+            } else {
+                clearInterval(autoRefreshInterval);
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLastUpdated();
+            updateMatchDisplay();
+            
+            // Setup auto-refresh toggle
+            const autoRefreshCheckbox = document.getElementById('autoRefresh');
+            autoRefreshCheckbox.addEventListener('change', setupAutoRefresh);
+            setupAutoRefresh();
+            
+            // Initial refresh after 2 seconds
+            setTimeout(refreshData, 2000);
+        });
+        
+        // Cleanup interval on page unload
+        window.addEventListener('beforeunload', function() {
+            clearInterval(autoRefreshInterval);
+        });
+    </script>
+</body>
+</html>

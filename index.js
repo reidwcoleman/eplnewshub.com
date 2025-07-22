@@ -112,6 +112,22 @@ const articles = [
     }
 ];
 
+// Mobile Menu Toggle
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('mobile-sidebar');
+    const overlay = document.getElementById('mobile-sidebar-overlay');
+    
+    if (sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    } else {
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
 function performSearch() {
     const query = document.getElementById('search-input').value.toLowerCase().trim();
     const resultsContainer = document.getElementById('search-results');
