@@ -1,26 +1,216 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = 3000;
 
 // Middleware
 app.use(bodyParser.json());
+app.use(express.static('./')); // Serve static files
+
+// Ensure data files exist
+const usersFile = path.join(__dirname, 'users.json');
+const subscriptionsFile = path.join(__dirname, 'subscriptions.json');
+
+if (!fs.existsSync(usersFile)) {
+    fs.writeFileSync(usersFile, JSON.stringify([]));
+}
+
+if (!fs.existsSync(subscriptionsFile)) {
+    fs.writeFileSync(subscriptionsFile, JSON.stringify([]));
+}
+
+// Helper functions
+function readUsers() {
+    try {
+        return JSON.parse(fs.readFileSync(usersFile, 'utf8'));
+    } catch (error) {
+        console.error('Error reading users file:', error);
+        return [];
+    }
+}
+
+function writeUsers(users) {
+    try {
+        fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+        return true;
+    } catch (error) {
+        console.error('Error writing users file:', error);
+        return false;
+    }
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function generateUserId() {
+    return crypto.randomBytes(16).toString('hex');
+}
+
+// Endpoint to create account
+app.post('/api/create-account', async (req, res) => {
+    try {
+        const { 
+            firstName, 
+            lastName, 
+            email, 
+            password, 
+            country, 
+            favoriteTeams, 
+            newsletter,
+            createdAt 
+        } = req.body;
+
+        // Validation
+        if (!firstName || firstName.trim().length < 2) {
+            return res.status(400).json({ message: 'First name must be at least 2 characters long' });
+        }
+
+        if (!lastName || lastName.trim().length < 2) {
+            return res.status(400).json({ message: 'Last name must be at least 2 characters long' });
+        }
+
+        if (!email || !isValidEmail(email)) {
+            return res.status(400).json({ message: 'Please provide a valid email address' });
+        }
+
+        if (!password || password.length < 8) {
+            return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+        }
+
+        if (!country) {
+            return res.status(400).json({ message: 'Please select your country' });
+        }
+
+        // Check if user already exists
+        const users = readUsers();
+        const existingUser = users.find(user => user.email.toLowerCase() === email.toLowerCase());
+        
+        if (existingUser) {
+            return res.status(409).json({ message: 'An account with this email already exists' });
+        }
+
+        // Hash password
+        const saltRounds = 12;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // Create user object
+        const newUser = {
+            id: generateUserId(),
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.toLowerCase().trim(),
+            password: hashedPassword,
+            country,
+            favoriteTeams: favoriteTeams || [],
+            newsletter: Boolean(newsletter),
+            createdAt: createdAt || new Date().toISOString(),
+            verified: false,
+            verificationToken: crypto.randomBytes(32).toString('hex'),
+            lastLogin: null,
+            isActive: true
+        };
+
+        // Add user to database
+        users.push(newUser);
+        
+        if (!writeUsers(users)) {
+            return res.status(500).json({ message: 'Failed to save user data. Please try again.' });
+        }
+
+        // If user subscribed to newsletter, add to subscriptions
+        if (newsletter) {
+            try {
+                const subscriptions = JSON.parse(fs.readFileSync(subscriptionsFile, 'utf8'));
+                subscriptions.push({
+                    name: `${firstName} ${lastName}`,
+                    email: email,
+                    source: 'account_creation',
+                    createdAt: new Date().toISOString()
+                });
+                fs.writeFileSync(subscriptionsFile, JSON.stringify(subscriptions, null, 2));
+            } catch (error) {
+                console.error('Error adding to newsletter:', error);
+            }
+        }
+
+        // Log successful account creation (without sensitive data)
+        console.log(`New account created: ${email} at ${new Date().toISOString()}`);
+
+        // Send success response (excluding sensitive data)
+        res.status(201).json({
+            message: 'Account created successfully',
+            user: {
+                id: newUser.id,
+                firstName: newUser.firstName,
+                lastName: newUser.lastName,
+                email: newUser.email,
+                country: newUser.country,
+                favoriteTeams: newUser.favoriteTeams,
+                newsletter: newUser.newsletter,
+                createdAt: newUser.createdAt
+            }
+        });
+
+    } catch (error) {
+        console.error('Account creation error:', error);
+        res.status(500).json({ message: 'Internal server error. Please try again later.' });
+    }
+});
 
 // Endpoint to handle subscription
 app.post('/subscribe', (req, res) => {
     const { name, email, address } = req.body;
 
-    // Store the data in a database or file
-    // Example: Save to a JSON file
-    const fs = require('fs');
-    const subscriptions = JSON.parse(fs.readFileSync('subscriptions.json', 'utf8'));
-    subscriptions.push({ name, email, address });
-    fs.writeFileSync('subscriptions.json', JSON.stringify(subscriptions));
+    try {
+        const subscriptions = JSON.parse(fs.readFileSync(subscriptionsFile, 'utf8'));
+        subscriptions.push({ 
+            name, 
+            email, 
+            address,
+            source: 'newsletter_signup',
+            createdAt: new Date().toISOString()
+        });
+        fs.writeFileSync(subscriptionsFile, JSON.stringify(subscriptions, null, 2));
+        res.json({ message: 'Subscription successful!' });
+    } catch (error) {
+        console.error('Subscription error:', error);
+        res.status(500).json({ message: 'Subscription failed. Please try again.' });
+    }
+});
 
-    res.json({ message: 'Subscription successful!' });
+// Endpoint to get user statistics (for admin)
+app.get('/api/admin/stats', (req, res) => {
+    try {
+        const users = readUsers();
+        const subscriptions = JSON.parse(fs.readFileSync(subscriptionsFile, 'utf8'));
+        
+        const stats = {
+            totalUsers: users.length,
+            totalSubscriptions: subscriptions.length,
+            verifiedUsers: users.filter(user => user.verified).length,
+            activeUsers: users.filter(user => user.isActive).length,
+            usersByCountry: users.reduce((acc, user) => {
+                acc[user.country] = (acc[user.country] || 0) + 1;
+                return acc;
+            }, {}),
+            usersWithNewsletter: users.filter(user => user.newsletter).length
+        };
+        
+        res.json(stats);
+    } catch (error) {
+        console.error('Stats error:', error);
+        res.status(500).json({ message: 'Failed to fetch statistics' });
+    }
 });
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+    console.log('Account creation API available at: POST /api/create-account');
 });

@@ -199,6 +199,32 @@
             cursor: pointer;
             font-size: 0.85rem;
         }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        .global-message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .global-message.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .global-message.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
     </style>
 </head>
 <body>
@@ -344,34 +370,200 @@
             }
         }
         
-        function handleCreateAccount(event) {
+        async function handleCreateAccount(event) {
             event.preventDefault();
             
+            // Clear any previous error messages
+            clearErrorMessages();
+            
+            // Get form data
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
+            const country = document.getElementById('country').value;
+            const terms = document.getElementById('terms').checked;
+            const newsletter = document.getElementById('newsletter').checked;
             
-            if (password !== confirmPassword) {
-                alert('Passwords do not match!');
-                return;
+            // Validation
+            let isValid = true;
+            
+            if (!firstName || firstName.length < 2) {
+                showError('firstName', 'First name must be at least 2 characters long');
+                isValid = false;
             }
             
-            if (password.length < 8) {
-                alert('Password must be at least 8 characters long!');
-                return;
+            if (!lastName || lastName.length < 2) {
+                showError('lastName', 'Last name must be at least 2 characters long');
+                isValid = false;
             }
             
-            const formData = new FormData(event.target);
-            const userData = Object.fromEntries(formData.entries());
+            if (!email || !isValidEmail(email)) {
+                showError('email', 'Please enter a valid email address');
+                isValid = false;
+            }
+            
+            if (!password || password.length < 8) {
+                showError('password', 'Password must be at least 8 characters long');
+                isValid = false;
+            }
+            
+            if (!confirmPassword || password !== confirmPassword) {
+                showError('confirmPassword', 'Passwords do not match');
+                isValid = false;
+            }
+            
+            if (!country) {
+                showError('country', 'Please select your country');
+                isValid = false;
+            }
+            
+            if (!terms) {
+                showError('terms', 'You must agree to the Terms of Service and Privacy Policy');
+                isValid = false;
+            }
+            
+            // Check password strength
+            const passwordStrength = getPasswordStrength(password);
+            if (passwordStrength < 3) {
+                showError('password', 'Password is too weak. Please use a stronger password.');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                return;
+            }
             
             // Get selected teams
             const selectedTeams = Array.from(document.querySelectorAll('input[name="teams"]:checked'))
                 .map(cb => cb.value);
             
-            userData.favoriteTeams = selectedTeams;
+            // Prepare user data
+            const userData = {
+                firstName,
+                lastName,
+                email,
+                password,
+                country,
+                favoriteTeams: selectedTeams,
+                newsletter,
+                createdAt: new Date().toISOString()
+            };
             
-            // Simulate account creation
-            alert('Account creation functionality coming soon! For now, this is a demo.');
-            console.log('Account creation attempt:', userData);
+            // Show loading state
+            const submitBtn = document.getElementById('signupBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Creating Account...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Send data to server
+                const response = await fetch('/api/create-account', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Success
+                    showSuccessMessage('Account created successfully! Please check your email to verify your account.');
+                    
+                    // Reset form
+                    event.target.reset();
+                    
+                    // Redirect to sign in page after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = '/signin.html';
+                    }, 3000);
+                } else {
+                    // Error from server
+                    showGlobalError(result.message || 'Failed to create account. Please try again.');
+                }
+            } catch (error) {
+                console.error('Account creation error:', error);
+                showGlobalError('Network error. Please check your connection and try again.');
+            } finally {
+                // Reset button state
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+        
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        function getPasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+            return strength;
+        }
+        
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            
+            // Remove any existing error message
+            const existingError = field.parentNode.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Add error styling to field
+            field.style.borderColor = '#dc3545';
+            field.parentNode.appendChild(errorDiv);
+        }
+        
+        function clearErrorMessages() {
+            // Remove all error messages
+            document.querySelectorAll('.error-message').forEach(el => el.remove());
+            
+            // Reset field styling
+            document.querySelectorAll('input, select').forEach(field => {
+                field.style.borderColor = '';
+            });
+            
+            // Hide global messages
+            const globalError = document.getElementById('globalError');
+            const globalSuccess = document.getElementById('globalSuccess');
+            if (globalError) globalError.style.display = 'none';
+            if (globalSuccess) globalSuccess.style.display = 'none';
+        }
+        
+        function showGlobalError(message) {
+            let errorDiv = document.getElementById('globalError');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.id = 'globalError';
+                errorDiv.className = 'global-message error';
+                document.querySelector('.auth-container').insertBefore(errorDiv, document.querySelector('.auth-form'));
+            }
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function showSuccessMessage(message) {
+            let successDiv = document.getElementById('globalSuccess');
+            if (!successDiv) {
+                successDiv = document.createElement('div');
+                successDiv.id = 'globalSuccess';
+                successDiv.className = 'global-message success';
+                document.querySelector('.auth-container').insertBefore(successDiv, document.querySelector('.auth-form'));
+            }
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
         }
     </script>
 </body>
