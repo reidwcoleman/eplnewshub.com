@@ -5,6 +5,7 @@ import Footer from './components/Footer'
 import Home from './pages/Home'
 import ArticlePage from './pages/ArticlePage'
 import NewsletterPopup from './components/NewsletterPopup'
+import InstallPrompt from './components/InstallPrompt'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         </Routes>
         <Footer />
         <NewsletterPopup />
+        <InstallPrompt />
       </div>
     </Router>
   )

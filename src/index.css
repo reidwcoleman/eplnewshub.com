@@ -1710,3 +1710,151 @@ p {
         width: 100px;
     }
 }
+
+/* PWA and Mobile Optimizations */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+input, textarea, select {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Remove iOS Safari bounce effect */
+html, body {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Better touch targets for mobile */
+button, a, .clickable {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+}
+
+/* PWA splash screen styles */
+@media (display-mode: standalone) {
+  body {
+    background-color: #0066cc;
+  }
+  
+  .site-header {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Mobile-first responsive improvements */
+@media (max-width: 768px) {
+  .main_headline img,
+  .main_subheadline img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  .popup-content {
+    margin: 10px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .header-utils {
+    gap: 10px;
+  }
+  
+  .search-container input {
+    min-width: 200px;
+  }
+}
+
+/* Install Prompt Styles */
+.install-prompt {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #0066cc, #004499);
+  color: white;
+  z-index: 1001;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+}
+
+.install-prompt-content {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 16px;
+}
+
+.install-prompt-icon {
+  font-size: 2rem;
+}
+
+.install-prompt-text {
+  flex: 1;
+}
+
+.install-prompt-text h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.1rem;
+  color: white;
+}
+
+.install-prompt-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.install-prompt-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.install-btn, .dismiss-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.install-btn {
+  background: white;
+  color: #0066cc;
+}
+
+.install-btn:hover {
+  background: #f0f0f0;
+}
+
+.dismiss-btn {
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.dismiss-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+@media (max-width: 768px) {
+  .install-prompt-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .install-prompt-actions {
+    width: 100%;
+    justify-content: center;
+  }
+}
