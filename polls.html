@@ -162,5 +162,304 @@
 
     <div class="footer" include="./footer.html"></div>
     <script src="./index.js"></script>
+    <script>
+        // Poll data structure
+        const pollsData = {
+            title: {
+                question: "Who will win the Premier League title this season?",
+                votes: {
+                    city: 892,
+                    arsenal: 713,
+                    liverpool: 560,
+                    united: 382
+                },
+                totalVotes: 2547,
+                userVoted: false,
+                userChoice: null
+            },
+            signing: {
+                question: "Best Premier League signing this summer?",
+                votes: {
+                    kvaratskhelia: 770,
+                    gyokeres: 568,
+                    other: 494
+                },
+                totalVotes: 1832,
+                userVoted: false,
+                userChoice: null
+            },
+            top4: {
+                question: "Which team will finish in the top 4?",
+                votes: {
+                    city: 2890,
+                    arsenal: 2654,
+                    liverpool: 2341,
+                    united: 1876,
+                    chelsea: 1654,
+                    spurs: 1432
+                },
+                totalVotes: 3421,
+                userVoted: false,
+                userChoice: []
+            }
+        };
+
+        // Load data from localStorage
+        function loadPollData() {
+            const saved = localStorage.getItem('eplNewsHubPolls');
+            if (saved) {
+                const savedData = JSON.parse(saved);
+                Object.assign(pollsData, savedData);
+            }
+        }
+
+        // Save data to localStorage
+        function savePollData() {
+            localStorage.setItem('eplNewsHubPolls', JSON.stringify(pollsData));
+        }
+
+        // Calculate percentages
+        function calculatePercentages(pollKey) {
+            const poll = pollsData[pollKey];
+            const percentages = {};
+            
+            for (const option in poll.votes) {
+                percentages[option] = poll.totalVotes > 0 ? 
+                    Math.round((poll.votes[option] / poll.totalVotes) * 100) : 0;
+            }
+            
+            return percentages;
+        }
+
+        // Update poll display
+        function updatePollDisplay(pollKey) {
+            const poll = pollsData[pollKey];
+            const percentages = calculatePercentages(pollKey);
+            
+            // Update vote bars and percentages
+            for (const option in poll.votes) {
+                const optionElement = document.querySelector(`input[value="${option}"]`);
+                if (optionElement) {
+                    const pollOption = optionElement.closest('.poll-option');
+                    const fillBar = pollOption.querySelector('.poll-fill');
+                    const percentageSpan = pollOption.querySelector('.poll-percentage');
+                    
+                    if (fillBar) fillBar.style.width = `${percentages[option]}%`;
+                    if (percentageSpan) percentageSpan.textContent = `${percentages[option]}%`;
+                }
+            }
+            
+            // Update total votes
+            const pollCard = document.querySelector(`input[name="${pollKey}"]`).closest('.poll-card');
+            const votesElement = pollCard.querySelector('.poll-votes');
+            if (votesElement) {
+                votesElement.textContent = `${poll.totalVotes.toLocaleString()} votes`;
+            }
+            
+            // Update vote button
+            const voteBtn = pollCard.querySelector('.vote-btn');
+            if (poll.userVoted) {
+                voteBtn.textContent = 'Thank You!';
+                voteBtn.disabled = true;
+                voteBtn.style.background = '#28a745';
+                voteBtn.style.cursor = 'not-allowed';
+                
+                // Highlight user's choice
+                if (pollKey === 'top4') {
+                    poll.userChoice.forEach(choice => {
+                        const choiceElement = document.querySelector(`input[value="${choice}"]`);
+                        if (choiceElement) {
+                            choiceElement.closest('.poll-option').style.background = 'rgba(40, 167, 69, 0.1)';
+                            choiceElement.closest('.poll-option').style.border = '2px solid #28a745';
+                        }
+                    });
+                } else {
+                    const choiceElement = document.querySelector(`input[value="${poll.userChoice}"]`);
+                    if (choiceElement) {
+                        choiceElement.closest('.poll-option').style.background = 'rgba(40, 167, 69, 0.1)';
+                        choiceElement.closest('.poll-option').style.border = '2px solid #28a745';
+                        choiceElement.checked = true;
+                    }
+                }
+            }
+        }
+
+        // Handle voting
+        function handleVote(pollKey) {
+            const poll = pollsData[pollKey];
+            
+            if (poll.userVoted) {
+                alert('You have already voted in this poll!');
+                return;
+            }
+            
+            let selectedOptions = [];
+            
+            if (pollKey === 'top4') {
+                // Multi-select poll
+                const checkedBoxes = document.querySelectorAll(`input[name="${pollKey}"]:checked`);
+                if (checkedBoxes.length === 0) {
+                    alert('Please select at least one team!');
+                    return;
+                }
+                if (checkedBoxes.length > 4) {
+                    alert('Please select maximum 4 teams!');
+                    return;
+                }
+                
+                checkedBoxes.forEach(box => selectedOptions.push(box.value));
+            } else {
+                // Single-select poll
+                const selectedOption = document.querySelector(`input[name="${pollKey}"]:checked`);
+                if (!selectedOption) {
+                    alert('Please select an option!');
+                    return;
+                }
+                selectedOptions = [selectedOption.value];
+            }
+            
+            // Update vote counts
+            selectedOptions.forEach(option => {
+                poll.votes[option]++;
+                poll.totalVotes++;
+            });
+            
+            // Mark as voted
+            poll.userVoted = true;
+            poll.userChoice = pollKey === 'top4' ? selectedOptions : selectedOptions[0];
+            
+            // Save and update display
+            savePollData();
+            updatePollDisplay(pollKey);
+            
+            // Show success message
+            showVoteSuccess(pollKey);
+        }
+
+        // Show vote success message
+        function showVoteSuccess(pollKey) {
+            const pollCard = document.querySelector(`input[name="${pollKey}"]`).closest('.poll-card');
+            const successMsg = document.createElement('div');
+            successMsg.className = 'vote-success';
+            successMsg.innerHTML = '✅ Your vote has been recorded! Thank you for participating.';
+            successMsg.style.cssText = `
+                background: linear-gradient(135deg, #28a745, #20c997);
+                color: white;
+                padding: 15px;
+                border-radius: 8px;
+                margin-top: 15px;
+                text-align: center;
+                font-weight: 600;
+                animation: fadeIn 0.5s ease-in;
+            `;
+            
+            pollCard.appendChild(successMsg);
+            
+            // Remove success message after 3 seconds
+            setTimeout(() => {
+                if (successMsg.parentNode) {
+                    successMsg.remove();
+                }
+            }, 3000);
+        }
+
+        // Add winner indicators
+        function addWinnerIndicators() {
+            Object.keys(pollsData).forEach(pollKey => {
+                const poll = pollsData[pollKey];
+                const percentages = calculatePercentages(pollKey);
+                
+                // Find the winner(s)
+                let maxPercentage = 0;
+                let winners = [];
+                
+                for (const option in percentages) {
+                    if (percentages[option] > maxPercentage) {
+                        maxPercentage = percentages[option];
+                        winners = [option];
+                    } else if (percentages[option] === maxPercentage) {
+                        winners.push(option);
+                    }
+                }
+                
+                // Add winner crown to leading option(s)
+                winners.forEach(winner => {
+                    const winnerElement = document.querySelector(`input[value="${winner}"]`);
+                    if (winnerElement && maxPercentage > 0) {
+                        const label = winnerElement.nextElementSibling;
+                        if (label && !label.querySelector('.winner-crown')) {
+                            const crown = document.createElement('span');
+                            crown.className = 'winner-crown';
+                            crown.innerHTML = ' 👑';
+                            crown.style.cssText = 'color: #ffc107; font-size: 1.2em; animation: bounce 2s infinite;';
+                            label.appendChild(crown);
+                        }
+                    }
+                });
+            });
+        }
+
+        // Initialize polls
+        function initializePolls() {
+            loadPollData();
+            
+            // Update all poll displays
+            Object.keys(pollsData).forEach(pollKey => {
+                updatePollDisplay(pollKey);
+            });
+            
+            // Add winner indicators
+            addWinnerIndicators();
+            
+            // Add event listeners to vote buttons
+            document.querySelectorAll('.vote-btn').forEach((btn, index) => {
+                const pollKeys = ['title', 'signing', 'top4'];
+                const pollKey = pollKeys[index];
+                
+                btn.addEventListener('click', () => {
+                    handleVote(pollKey);
+                });
+            });
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            @keyframes bounce {
+                0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                40% { transform: translateY(-5px); }
+                60% { transform: translateY(-3px); }
+            }
+            
+            .poll-option {
+                transition: all 0.3s ease;
+                border: 2px solid transparent;
+                border-radius: 8px;
+                padding: 10px;
+                margin: 5px 0;
+            }
+            
+            .poll-option:hover {
+                background: rgba(55, 0, 60, 0.05);
+            }
+            
+            .vote-btn:disabled {
+                opacity: 0.8;
+            }
+            
+            .poll-fill {
+                transition: width 0.8s ease-out;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializePolls);
+    </script>
 </body>
 </html>
