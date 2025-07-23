@@ -455,3 +455,70 @@ function addAuthModalStyles() {
     `;
     document.head.appendChild(style);
 }
+
+// Enhanced visual interactions for static site
+function addVisualEnhancements() {
+    // Add loading animation to images
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        if (img.complete) {
+            img.style.opacity = '1';
+            img.style.transform = 'scale(1)';
+        } else {
+            img.addEventListener('load', function() {
+                this.style.opacity = '1';
+                this.style.transform = 'scale(1)';
+            });
+            
+            // Set initial state
+            img.style.opacity = '0';
+            img.style.transform = 'scale(0.95)';
+            img.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        }
+    });
+
+    // Add intersection observer for scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                entry.target.classList.add('animate-in');
+            }
+        });
+    }, observerOptions);
+
+    // Observe elements for scroll animations
+    const animatedElements = document.querySelectorAll('.main_headline, .main_subheadline, .main_subheadline2, .main_subheadline3, .story-card, .featured-main');
+    animatedElements.forEach(el => {
+        if (!el.classList.contains('animate-in')) {
+            el.style.opacity = '0.3';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        }
+    });
+
+    // Add smooth hover effects for buttons
+    const buttons = document.querySelectorAll('button, .newsletter-form button');
+    buttons.forEach(btn => {
+        btn.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+        
+        btn.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+}
+
+// Initialize enhancements when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Small delay to ensure all content is loaded
+    setTimeout(addVisualEnhancements, 500);
+});
