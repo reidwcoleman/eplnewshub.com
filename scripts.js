@@ -8,6 +8,11 @@ function closePopup() {
     document.getElementById('popupForm').style.display = 'none';
 }
 
+// Show popup on page load
+window.addEventListener('load', function() {
+    showPopup();
+});
+
 // Handle form submission
 document.getElementById('subscriptionForm').addEventListener('submit', function(event) {
     event.preventDefault();
