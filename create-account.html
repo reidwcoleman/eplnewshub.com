@@ -577,15 +577,30 @@
         }
         
         window.onload = function() {
-            google.accounts.id.initialize({
-                client_id: "YOUR_GOOGLE_CLIENT_ID",
-                callback: handleCredentialResponse
-            });
-            
-            google.accounts.id.renderButton(
-                document.getElementById("google-signin-btn"),
-                { theme: "outline", size: "large", width: "100%" }
-            );
+            // Check if Google OAuth is configured
+            fetch('/api/google-config')
+                .then(response => response.json())
+                .then(config => {
+                    if (config.clientId && config.clientId !== "YOUR_GOOGLE_CLIENT_ID") {
+                        google.accounts.id.initialize({
+                            client_id: config.clientId,
+                            callback: handleCredentialResponse
+                        });
+                        
+                        google.accounts.id.renderButton(
+                            document.getElementById("google-signin-btn"),
+                            { theme: "outline", size: "large", width: "100%" }
+                        );
+                    } else {
+                        // Hide Google Sign-In if not configured
+                        document.getElementById("google-signin-btn").style.display = "none";
+                        console.warn("Google OAuth not configured. Please set GOOGLE_CLIENT_ID in .env file.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Failed to load Google config:", error);
+                    document.getElementById("google-signin-btn").style.display = "none";
+                });
         };
         
         function showError(fieldId, message) {

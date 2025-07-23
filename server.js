@@ -4,13 +4,25 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const session = require('express-session');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+require('dotenv').config();
 
 const app = express();
 const PORT = 3000;
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static('./')); // Serve static files
+app.use(express.static('./'));
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } // Set to true in production with HTTPS
+}));
+app.use(passport.initialize());
+app.use(passport.session()); // Serve static files
 
 // Ensure data files exist
 const usersFile = path.join(__dirname, 'users.json');
@@ -52,6 +64,63 @@ function isValidEmail(email) {
 function generateUserId() {
     return crypto.randomBytes(16).toString('hex');
 }
+
+// Passport configuration
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "/auth/google/callback",
+    scope: ['profile', 'email']
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        const users = readUsers();
+        
+        // Check if user already exists
+        let user = users.find(u => u.email === profile.emails[0].value);
+        
+        if (user) {
+            // Update last login
+            user.lastLogin = new Date().toISOString();
+            writeUsers(users);
+            return done(null, user);
+        } else {
+            // Create new user
+            const newUser = {
+                id: generateUserId(),
+                firstName: profile.name.givenName,
+                lastName: profile.name.familyName,
+                email: profile.emails[0].value,
+                password: null, // No password for Google users
+                country: 'Unknown',
+                favoriteTeams: [],
+                newsletter: false,
+                createdAt: new Date().toISOString(),
+                verified: true, // Google accounts are pre-verified
+                verificationToken: null,
+                lastLogin: new Date().toISOString(),
+                isActive: true,
+                provider: 'google',
+                googleId: profile.id
+            };
+            
+            users.push(newUser);
+            writeUsers(users);
+            return done(null, newUser);
+        }
+    } catch (error) {
+        return done(error, null);
+    }
+}));
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+    const users = readUsers();
+    const user = users.find(u => u.id === id);
+    done(null, user);
+});
 
 // Endpoint to create account
 app.post('/api/create-account', async (req, res) => {
@@ -210,7 +279,57 @@ app.get('/api/admin/stats', (req, res) => {
     }
 });
 
+// Google OAuth configuration endpoint
+app.get('/api/google-config', (req, res) => {
+    res.json({
+        clientId: process.env.GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID",
+        configured: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
+    });
+});
+
+// Check authentication status
+app.get('/api/auth/status', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.json({
+            authenticated: true,
+            user: {
+                id: req.user.id,
+                firstName: req.user.firstName,
+                lastName: req.user.lastName,
+                email: req.user.email
+            }
+        });
+    } else {
+        res.json({ authenticated: false });
+    }
+});
+
+// Google OAuth routes
+app.get('/auth/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+app.get('/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/signin.html' }),
+    (req, res) => {
+        // Successful authentication
+        res.redirect('/');
+    }
+);
+
+// Logout route
+app.get('/logout', (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Logout failed' });
+        }
+        res.redirect('/');
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
     console.log('Account creation API available at: POST /api/create-account');
+    console.log('Google OAuth available at: GET /auth/google');
+    console.log(`Google OAuth configured: ${!!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)}`);
 });
