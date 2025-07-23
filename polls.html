@@ -30,6 +30,7 @@
             <div class="page-header">
                 <h1 class="page-title">🗳️ Premier League Polls</h1>
                 <div class="page-divider"></div>
+                <button id="resetPolls" style="position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; opacity: 0.7;">Reset Polls</button>
             </div>
 
             <!-- Active Polls Section -->
@@ -163,53 +164,63 @@
     <div class="footer" include="./footer.html"></div>
     <script src="./index.js"></script>
     <script>
-        // Poll data structure
-        const pollsData = {
+        // Poll data structure - Starting fresh with 0 votes
+        const defaultPollsData = {
             title: {
                 question: "Who will win the Premier League title this season?",
                 votes: {
-                    city: 892,
-                    arsenal: 713,
-                    liverpool: 560,
-                    united: 382
+                    city: 0,
+                    arsenal: 0,
+                    liverpool: 0,
+                    united: 0
                 },
-                totalVotes: 2547,
+                totalVotes: 0,
                 userVoted: false,
                 userChoice: null
             },
             signing: {
                 question: "Best Premier League signing this summer?",
                 votes: {
-                    kvaratskhelia: 770,
-                    gyokeres: 568,
-                    other: 494
+                    kvaratskhelia: 0,
+                    gyokeres: 0,
+                    other: 0
                 },
-                totalVotes: 1832,
+                totalVotes: 0,
                 userVoted: false,
                 userChoice: null
             },
             top4: {
                 question: "Which team will finish in the top 4?",
                 votes: {
-                    city: 2890,
-                    arsenal: 2654,
-                    liverpool: 2341,
-                    united: 1876,
-                    chelsea: 1654,
-                    spurs: 1432
+                    city: 0,
+                    arsenal: 0,
+                    liverpool: 0,
+                    united: 0,
+                    chelsea: 0,
+                    spurs: 0
                 },
-                totalVotes: 3421,
+                totalVotes: 0,
                 userVoted: false,
                 userChoice: []
             }
         };
+        
+        let pollsData = { ...defaultPollsData };
 
         // Load data from localStorage
         function loadPollData() {
             const saved = localStorage.getItem('eplNewsHubPolls');
             if (saved) {
                 const savedData = JSON.parse(saved);
-                Object.assign(pollsData, savedData);
+                // Merge saved data with default structure to ensure all properties exist
+                for (const pollKey in defaultPollsData) {
+                    if (savedData[pollKey]) {
+                        pollsData[pollKey] = { ...defaultPollsData[pollKey], ...savedData[pollKey] };
+                    }
+                }
+            } else {
+                // First time visitor - use default data with 0 votes
+                pollsData = { ...defaultPollsData };
             }
         }
 
@@ -229,6 +240,24 @@
             }
             
             return percentages;
+        }
+        
+        // Reset all polls (for testing/admin purposes)
+        function resetPolls() {
+            if (confirm('Are you sure you want to reset all polls? This will clear all votes.')) {
+                localStorage.removeItem('eplNewsHubPolls');
+                pollsData = { ...defaultPollsData };
+                
+                // Update all displays
+                Object.keys(pollsData).forEach(pollKey => {
+                    updatePollDisplay(pollKey);
+                });
+                
+                // Remove all winner crowns
+                document.querySelectorAll('.winner-crown').forEach(crown => crown.remove());
+                
+                alert('All polls have been reset!');
+            }
         }
 
         // Update poll display
@@ -253,7 +282,8 @@
             const pollCard = document.querySelector(`input[name="${pollKey}"]`).closest('.poll-card');
             const votesElement = pollCard.querySelector('.poll-votes');
             if (votesElement) {
-                votesElement.textContent = `${poll.totalVotes.toLocaleString()} votes`;
+                const voteText = poll.totalVotes === 1 ? 'vote' : 'votes';
+                votesElement.textContent = `${poll.totalVotes.toLocaleString()} ${voteText}`;
             }
             
             // Update vote button
@@ -321,8 +351,14 @@
             // Update vote counts
             selectedOptions.forEach(option => {
                 poll.votes[option]++;
-                poll.totalVotes++;
             });
+            
+            // For multi-select polls, only increment total votes once per vote session
+            if (pollKey === 'top4') {
+                poll.totalVotes++;
+            } else {
+                poll.totalVotes++;
+            }
             
             // Mark as voted
             poll.userVoted = true;
@@ -420,6 +456,9 @@
                     handleVote(pollKey);
                 });
             });
+            
+            // Add event listener to reset button
+            document.getElementById('resetPolls').addEventListener('click', resetPolls);
         }
 
         // Add CSS animations
