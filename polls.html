@@ -38,78 +38,87 @@
                 <div class="polls-container">
                     <div class="poll-card">
                         <h3 class="poll-question">Who will win the Premier League title this season?</h3>
+                        <div class="poll-leader">
+                            <span class="leader-text">🏆 Current Leader: <span class="leader-name">No votes yet</span></span>
+                        </div>
                         <div class="poll-options">
                             <div class="poll-option">
                                 <input type="radio" id="city" name="title" value="city">
                                 <label for="city">Manchester City</label>
                                 <div class="poll-bar">
-                                    <div class="poll-fill" style="width: 35%;"></div>
+                                    <div class="poll-fill" style="width: 0%;"></div>
                                 </div>
-                                <span class="poll-percentage">35%</span>
+                                <span class="poll-percentage">0%</span>
                             </div>
                             <div class="poll-option">
                                 <input type="radio" id="arsenal" name="title" value="arsenal">
                                 <label for="arsenal">Arsenal</label>
                                 <div class="poll-bar">
-                                    <div class="poll-fill" style="width: 28%;"></div>
+                                    <div class="poll-fill" style="width: 0%;"></div>
                                 </div>
-                                <span class="poll-percentage">28%</span>
+                                <span class="poll-percentage">0%</span>
                             </div>
                             <div class="poll-option">
                                 <input type="radio" id="liverpool" name="title" value="liverpool">
                                 <label for="liverpool">Liverpool</label>
                                 <div class="poll-bar">
-                                    <div class="poll-fill" style="width: 22%;"></div>
+                                    <div class="poll-fill" style="width: 0%;"></div>
                                 </div>
-                                <span class="poll-percentage">22%</span>
+                                <span class="poll-percentage">0%</span>
                             </div>
                             <div class="poll-option">
                                 <input type="radio" id="united" name="title" value="united">
                                 <label for="united">Manchester United</label>
                                 <div class="poll-bar">
-                                    <div class="poll-fill" style="width: 15%;"></div>
+                                    <div class="poll-fill" style="width: 0%;"></div>
                                 </div>
-                                <span class="poll-percentage">15%</span>
+                                <span class="poll-percentage">0%</span>
                             </div>
                         </div>
                         <button class="vote-btn">Vote Now</button>
-                        <p class="poll-votes">2,547 votes</p>
+                        <p class="poll-votes">0 votes</p>
                     </div>
 
                     <div class="poll-card">
                         <h3 class="poll-question">Best Premier League signing this summer?</h3>
+                        <div class="poll-leader">
+                            <span class="leader-text">🏆 Current Leader: <span class="leader-name">No votes yet</span></span>
+                        </div>
                         <div class="poll-options">
                             <div class="poll-option">
                                 <input type="radio" id="kvaratskhelia" name="signing" value="kvaratskhelia">
                                 <label for="kvaratskhelia">Khvicha Kvaratskhelia (Man United)</label>
                                 <div class="poll-bar">
-                                    <div class="poll-fill" style="width: 42%;"></div>
+                                    <div class="poll-fill" style="width: 0%;"></div>
                                 </div>
-                                <span class="poll-percentage">42%</span>
+                                <span class="poll-percentage">0%</span>
                             </div>
                             <div class="poll-option">
                                 <input type="radio" id="gyokeres" name="signing" value="gyokeres">
                                 <label for="gyokeres">Viktor Gyökeres (Arsenal)</label>
                                 <div class="poll-bar">
-                                    <div class="poll-fill" style="width: 31%;"></div>
+                                    <div class="poll-fill" style="width: 0%;"></div>
                                 </div>
-                                <span class="poll-percentage">31%</span>
+                                <span class="poll-percentage">0%</span>
                             </div>
                             <div class="poll-option">
                                 <input type="radio" id="other" name="signing" value="other">
                                 <label for="other">Other</label>
                                 <div class="poll-bar">
-                                    <div class="poll-fill" style="width: 27%;"></div>
+                                    <div class="poll-fill" style="width: 0%;"></div>
                                 </div>
-                                <span class="poll-percentage">27%</span>
+                                <span class="poll-percentage">0%</span>
                             </div>
                         </div>
                         <button class="vote-btn">Vote Now</button>
-                        <p class="poll-votes">1,832 votes</p>
+                        <p class="poll-votes">0 votes</p>
                     </div>
 
                     <div class="poll-card">
                         <h3 class="poll-question">Which team will finish in the top 4?</h3>
+                        <div class="poll-leader">
+                            <span class="leader-text">🏆 Most Popular: <span class="leader-name">No votes yet</span></span>
+                        </div>
                         <div class="poll-options">
                             <div class="poll-option">
                                 <input type="checkbox" id="city-top4" name="top4" value="city">
@@ -137,7 +146,7 @@
                             </div>
                         </div>
                         <button class="vote-btn">Vote Now</button>
-                        <p class="poll-votes">3,421 votes</p>
+                        <p class="poll-votes">0 votes</p>
                     </div>
                 </div>
             </section>
@@ -312,6 +321,9 @@
                     }
                 }
             }
+            
+            // Update winner indicators for this poll
+            updateWinnerIndicators(pollKey);
         }
 
         // Handle voting
@@ -399,6 +411,71 @@
             }, 3000);
         }
 
+        // Update winner indicators for a specific poll
+        function updateWinnerIndicators(pollKey) {
+            const poll = pollsData[pollKey];
+            const percentages = calculatePercentages(pollKey);
+            
+            // Remove existing crowns for this poll
+            const pollCard = document.querySelector(`input[name="${pollKey}"]`).closest('.poll-card');
+            pollCard.querySelectorAll('.winner-crown').forEach(crown => crown.remove());
+            
+            // Find the winner(s)
+            let maxPercentage = 0;
+            let winners = [];
+            
+            for (const option in percentages) {
+                if (percentages[option] > maxPercentage) {
+                    maxPercentage = percentages[option];
+                    winners = [option];
+                } else if (percentages[option] === maxPercentage && percentages[option] > 0) {
+                    winners.push(option);
+                }
+            }
+            
+            // Update leader display
+            const leaderNameElement = pollCard.querySelector('.leader-name');
+            if (leaderNameElement) {
+                if (maxPercentage > 0) {
+                    const leaderNames = winners.map(winner => getOptionDisplayName(winner, pollKey));
+                    if (leaderNames.length === 1) {
+                        leaderNameElement.textContent = `${leaderNames[0]} (${maxPercentage}%)`;
+                    } else {
+                        leaderNameElement.textContent = `${leaderNames.join(' & ')} (${maxPercentage}% each)`;
+                    }
+                } else {
+                    leaderNameElement.textContent = 'No votes yet';
+                }
+            }
+            
+            // Add winner crown to leading option(s) only if there are votes
+            if (maxPercentage > 0) {
+                winners.forEach(winner => {
+                    const winnerElement = document.querySelector(`input[value="${winner}"]`);
+                    if (winnerElement) {
+                        const label = winnerElement.nextElementSibling;
+                        if (label && !label.querySelector('.winner-crown')) {
+                            const crown = document.createElement('span');
+                            crown.className = 'winner-crown';
+                            crown.innerHTML = ' 👑';
+                            crown.style.cssText = 'color: #ffc107; font-size: 1.3em; animation: bounce 2s infinite; text-shadow: 0 2px 4px rgba(0,0,0,0.3);';
+                            label.appendChild(crown);
+                        }
+                    }
+                });
+            }
+        }
+
+        // Helper function to get display name for options
+        function getOptionDisplayName(value, pollKey) {
+            const optionElement = document.querySelector(`input[value="${value}"]`);
+            if (optionElement) {
+                const label = optionElement.nextElementSibling;
+                return label ? label.textContent : value;
+            }
+            return value;
+        }
+
         // Add winner indicators
         function addWinnerIndicators() {
             Object.keys(pollsData).forEach(pollKey => {
@@ -473,6 +550,33 @@
                 0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
                 40% { transform: translateY(-5px); }
                 60% { transform: translateY(-3px); }
+            }
+            
+            /* Poll Leader Display */
+            .poll-leader {
+                background: linear-gradient(135deg, #ffc107, #fd7e14);
+                color: #212529;
+                padding: 12px 20px;
+                border-radius: 8px;
+                margin: 15px 0 20px 0;
+                text-align: center;
+                box-shadow: 0 2px 10px rgba(255, 193, 7, 0.3);
+                border: 2px solid rgba(255, 255, 255, 0.2);
+            }
+            
+            .leader-text {
+                font-weight: 700;
+                font-size: 1rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .leader-name {
+                color: #37003c;
+                font-weight: 800;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.1);
             }
             
             .poll-option {
