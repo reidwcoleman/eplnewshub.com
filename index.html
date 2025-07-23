@@ -438,6 +438,28 @@
                             </div>
                         </div>
                         
+                        <!-- Newsletter Signup -->
+                        <div class="newsletter-signup">
+                            <h3 class="sidebar-title">📧 Stay Updated</h3>
+                            <div class="newsletter-content">
+                                <p class="newsletter-description">Get the latest Premier League news, transfer updates, and analysis delivered straight to your inbox.</p>
+                                <form id="newsletter-form" class="newsletter-form">
+                                    <div class="form-group">
+                                        <input type="text" id="newsletter-name" placeholder="Your Name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="email" id="newsletter-email" placeholder="Your Email Address" required>
+                                    </div>
+                                    <button type="submit" class="newsletter-btn">
+                                        <span class="btn-text">🚀 Subscribe Now</span>
+                                        <span class="btn-loader" style="display: none;">📩 Subscribing...</span>
+                                    </button>
+                                </form>
+                                <div id="newsletter-message" class="newsletter-message" style="display: none;"></div>
+                                <p class="newsletter-privacy">✅ No spam, unsubscribe anytime</p>
+                            </div>
+                        </div>
+
                         <!-- Sidebar Ad -->
                         <div class="ad-sidebar">
                             <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
@@ -936,7 +958,7 @@
             gap: 25px;
         }
         
-        .trending-section, .social-feed {
+        .trending-section, .social-feed, .newsletter-signup {
             background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
             border-radius: 16px;
             padding: 25px;
@@ -1067,6 +1089,99 @@
             color: #888;
         }
         
+        /* Newsletter Signup Styles */
+        .newsletter-description {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .newsletter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(55,0,60,0.1);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #37003c;
+            box-shadow: 0 0 0 3px rgba(55,0,60,0.1);
+        }
+        
+        .form-group input::placeholder {
+            color: #999;
+        }
+        
+        .newsletter-btn {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .newsletter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(55,0,60,0.3);
+        }
+        
+        .newsletter-btn:active {
+            transform: translateY(0);
+        }
+        
+        .newsletter-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .newsletter-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .newsletter-message.success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .newsletter-message.error {
+            background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+            color: #721c24;
+            border: 1px solid #f1b0b7;
+        }
+        
+        .newsletter-privacy {
+            font-size: 0.8rem;
+            color: #888;
+            text-align: center;
+            margin-top: 15px;
+            margin-bottom: 0;
+        }
+        
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .featured-grid, .news-sidebar-grid {
@@ -1104,5 +1219,100 @@
             }
         }
     </style>
+    
+    <script>
+        // Newsletter signup functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const newsletterForm = document.getElementById('newsletter-form');
+            const messageDiv = document.getElementById('newsletter-message');
+            const submitBtn = newsletterForm.querySelector('.newsletter-btn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoader = submitBtn.querySelector('.btn-loader');
+
+            newsletterForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const name = document.getElementById('newsletter-name').value.trim();
+                const email = document.getElementById('newsletter-email').value.trim();
+
+                // Basic validation
+                if (!name || !email) {
+                    showMessage('Please fill in all fields.', 'error');
+                    return;
+                }
+
+                if (!isValidEmail(email)) {
+                    showMessage('Please enter a valid email address.', 'error');
+                    return;
+                }
+
+                // Show loading state
+                submitBtn.disabled = true;
+                btnText.style.display = 'none';
+                btnLoader.style.display = 'inline';
+
+                try {
+                    const response = await fetch('/subscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            email: email,
+                            address: 'Homepage Newsletter Signup'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        showMessage('🎉 Successfully subscribed! Welcome to the EPL News Hub family!', 'success');
+                        newsletterForm.reset();
+                        
+                        // Change button to success state
+                        setTimeout(() => {
+                            btnText.textContent = '✅ Subscribed!';
+                            btnText.style.display = 'inline';
+                            btnLoader.style.display = 'none';
+                            submitBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                        }, 1000);
+                    } else {
+                        throw new Error(data.message || 'Subscription failed');
+                    }
+                } catch (error) {
+                    console.error('Newsletter subscription error:', error);
+                    showMessage('❌ Failed to subscribe. Please try again later.', 'error');
+                } finally {
+                    // Reset loading state after 2 seconds if not successful
+                    setTimeout(() => {
+                        if (submitBtn.disabled && btnText.textContent !== '✅ Subscribed!') {
+                            submitBtn.disabled = false;
+                            btnText.style.display = 'inline';
+                            btnLoader.style.display = 'none';
+                        }
+                    }, 2000);
+                }
+            });
+
+            function showMessage(message, type) {
+                messageDiv.textContent = message;
+                messageDiv.className = `newsletter-message ${type}`;
+                messageDiv.style.display = 'block';
+                
+                // Auto-hide success messages after 5 seconds
+                if (type === 'success') {
+                    setTimeout(() => {
+                        messageDiv.style.display = 'none';
+                    }, 5000);
+                }
+            }
+
+            function isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+        });
+    </script>
 </body>
 </html>
