@@ -279,6 +279,28 @@ app.get('/api/admin/stats', (req, res) => {
     }
 });
 
+// Endpoint to get all newsletter subscribers (for admin)
+app.get('/api/admin/subscribers', (req, res) => {
+    try {
+        const subscriptions = JSON.parse(fs.readFileSync(subscriptionsFile, 'utf8'));
+        res.json(subscriptions);
+    } catch (error) {
+        console.error('Subscribers fetch error:', error);
+        res.status(500).json({ message: 'Failed to fetch subscribers' });
+    }
+});
+
+// Endpoint to clear all subscribers (for admin)
+app.delete('/api/admin/clear-subscribers', (req, res) => {
+    try {
+        fs.writeFileSync(subscriptionsFile, JSON.stringify([]));
+        res.json({ message: 'All subscribers cleared successfully' });
+    } catch (error) {
+        console.error('Clear subscribers error:', error);
+        res.status(500).json({ message: 'Failed to clear subscribers' });
+    }
+});
+
 // Google OAuth configuration endpoint
 app.get('/api/google-config', (req, res) => {
     res.json({

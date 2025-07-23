@@ -1505,7 +1505,12 @@
                 btnLoader.style.display = 'inline';
 
                 try {
-                    const response = await fetch('/subscribe', {
+                    // Determine the correct server URL
+                    const serverUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                        ? 'http://localhost:3000' 
+                        : '';
+                    
+                    const response = await fetch(`${serverUrl}/subscribe`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
