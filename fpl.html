@@ -234,13 +234,15 @@
         }
         
         .team-formation {
-            background: linear-gradient(180deg, #228B22 0%, #32CD32 100%);
-            border-radius: 15px;
-            padding: 30px 20px;
-            margin: 20px 0;
+            background: linear-gradient(135deg, #0f5132 0%, #198754 50%, #20c997 100%);
+            border-radius: 20px;
+            padding: 40px 25px;
+            margin: 25px 0;
             position: relative;
-            min-height: 500px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            min-height: 600px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+            border: 3px solid rgba(255,255,255,0.2);
+            overflow: hidden;
         }
         
         .team-formation::before {
@@ -249,9 +251,23 @@
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 2px;
+            width: 3px;
             height: 100%;
-            background: rgba(255,255,255,0.3);
+            background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.5) 100%);
+            box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+        
+        .team-formation::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
         
         .formation-line {
@@ -263,20 +279,43 @@
         }
         
         .player-card {
-            background: rgba(255,255,255,0.95);
-            border-radius: 12px;
-            padding: 12px 8px;
-            margin: 0 8px;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 16px;
+            padding: 16px 12px;
+            margin: 0 10px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border: 2px solid #fff;
-            min-width: 120px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.1);
+            border: 3px solid #fff;
+            min-width: 130px;
+            max-width: 140px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            backdrop-filter: blur(10px);
+            z-index: 10;
         }
         
         .player-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25), 0 8px 15px rgba(0,0,0,0.15);
+            border-color: #37003c;
+        }
+        
+        .player-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, transparent, rgba(55,0,60,0.1), transparent);
+            border-radius: 18px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .player-card:hover::before {
+            opacity: 1;
         }
         
         .player-name {
@@ -324,10 +363,26 @@
         .formation-title {
             text-align: center;
             color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 15;
+        }
+        
+        .formation-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #fff, transparent);
+            border-radius: 2px;
         }
         
         .position-group {
@@ -511,30 +566,35 @@
                     <!-- Recommended Team Selection -->
                     <div class="fpl-card">
                         <h2>⭐ Recommended Team (GW1)</h2>
-                        <p>Based on synthesizing expert drafts and fixture analysis, here's an updated balanced squad for the 2025/26 season start (total cost: ~100m, assuming initial pricing):</p>
+                        <p>Adjusted for the standard £100m budget using latest 2025/26 prices and value picks for balance (total cost: £100.0m):</p>
                         <div class="team-formation">
-                            <div class="formation-title">3-5-2 Formation</div>
+                            <div class="formation-title">3-5-3 Formation</div>
                             
                             <!-- Forwards -->
                             <div class="formation-line formation-forwards">
                                 <div class="player-card">
-                                    <div class="player-name">Haaland (C)</div>
-                                    <div class="player-team">MCI</div>
-                                    <div class="player-price">£15.0m</div>
+                                    <div class="player-name">Wissa</div>
+                                    <div class="player-team">BRE</div>
+                                    <div class="player-price">£6.0m</div>
                                 </div>
                                 <div class="player-card">
-                                    <div class="player-name">Isak</div>
-                                    <div class="player-team">NEW</div>
-                                    <div class="player-price">£8.5m</div>
+                                    <div class="player-name">Mateta</div>
+                                    <div class="player-team">CRY</div>
+                                    <div class="player-price">£7.5m</div>
+                                </div>
+                                <div class="player-card">
+                                    <div class="player-name">Wood</div>
+                                    <div class="player-team">NFO</div>
+                                    <div class="player-price">£6.0m</div>
                                 </div>
                             </div>
                             
                             <!-- Midfielders -->
                             <div class="formation-line formation-midfielders">
                                 <div class="player-card">
-                                    <div class="player-name">Salah</div>
-                                    <div class="player-team">LIV</div>
-                                    <div class="player-price">£13.0m</div>
+                                    <div class="player-name">Son (C)</div>
+                                    <div class="player-team">TOT</div>
+                                    <div class="player-price">£10.0m</div>
                                 </div>
                                 <div class="player-card">
                                     <div class="player-name">Palmer</div>
@@ -547,14 +607,14 @@
                                     <div class="player-price">£10.0m</div>
                                 </div>
                                 <div class="player-card">
-                                    <div class="player-name">Nkunku</div>
-                                    <div class="player-team">CHE</div>
-                                    <div class="player-price">£7.5m</div>
+                                    <div class="player-name">Gordon</div>
+                                    <div class="player-team">NEW</div>
+                                    <div class="player-price">£7.0m</div>
                                 </div>
                                 <div class="player-card">
-                                    <div class="player-name">Eze</div>
-                                    <div class="player-team">CRY</div>
-                                    <div class="player-price">£7.0m</div>
+                                    <div class="player-name">Luiz</div>
+                                    <div class="player-team">AVL</div>
+                                    <div class="player-price">£5.5m</div>
                                 </div>
                             </div>
                             
@@ -566,14 +626,14 @@
                                     <div class="player-price">£7.0m</div>
                                 </div>
                                 <div class="player-card">
-                                    <div class="player-name">Van Dijk</div>
-                                    <div class="player-team">LIV</div>
-                                    <div class="player-price">£6.0m</div>
-                                </div>
-                                <div class="player-card">
                                     <div class="player-name">Saliba</div>
                                     <div class="player-team">ARS</div>
                                     <div class="player-price">£6.0m</div>
+                                </div>
+                                <div class="player-card">
+                                    <div class="player-name">Andersen</div>
+                                    <div class="player-team">CRY</div>
+                                    <div class="player-price">£4.5m</div>
                                 </div>
                             </div>
                             
@@ -582,34 +642,29 @@
                                 <div class="player-card">
                                     <div class="player-name">Pickford</div>
                                     <div class="player-team">EVE</div>
-                                    <div class="player-price">£5.0m</div>
+                                    <div class="player-price">£5.5m</div>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Bench Players -->
                         <div style="margin-top: 20px;">
-                            <h4 style="color: #37003c; margin-bottom: 10px;">🪑 Bench</h4>
-                            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                                <div class="player-card" style="background: #f8f9fa; border-color: #ddd;">
+                            <h4 style="color: #37003c; margin-bottom: 15px; font-size: 1.1rem;">🪑 Bench</h4>
+                            <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                                <div class="player-card" style="background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%); border-color: #6c757d; opacity: 0.8;">
                                     <div class="player-name">Flekken</div>
                                     <div class="player-team">BRE</div>
                                     <div class="player-price">£4.5m</div>
                                 </div>
-                                <div class="player-card" style="background: #f8f9fa; border-color: #ddd;">
-                                    <div class="player-name">Gabriel</div>
-                                    <div class="player-team">ARS</div>
-                                    <div class="player-price">£6.0m</div>
-                                </div>
-                                <div class="player-card" style="background: #f8f9fa; border-color: #ddd;">
-                                    <div class="player-name">Munoz</div>
-                                    <div class="player-team">CRY</div>
+                                <div class="player-card" style="background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%); border-color: #6c757d; opacity: 0.8;">
+                                    <div class="player-name">Lewis</div>
+                                    <div class="player-team">MCI</div>
                                     <div class="player-price">£4.5m</div>
                                 </div>
-                                <div class="player-card" style="background: #f8f9fa; border-color: #ddd;">
-                                    <div class="player-name">Wood</div>
-                                    <div class="player-team">NFO</div>
-                                    <div class="player-price">£6.0m</div>
+                                <div class="player-card" style="background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%); border-color: #6c757d; opacity: 0.8;">
+                                    <div class="player-name">Munoz</div>
+                                    <div class="player-team">CRY</div>
+                                    <div class="player-price">£5.5m</div>
                                 </div>
                             </div>
                         </div>
