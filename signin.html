@@ -17,9 +17,38 @@
     <title>Sign In | EPL News Hub</title>
     <link rel="stylesheet" href="styles.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="apple-touch-icon" href="reidsnbest.webp">
     <link rel="icon" type="image/webp" href="reidsnbest.webp">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        // TODO: Replace with your Firebase config
+        // Get this from Firebase Console > Project Settings > General > Your apps
+        const firebaseConfig = {
+            apiKey: "your-api-key-here",
+            authDomain: "your-project-id.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project-id.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id-here"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        // Make auth available globally
+        window.auth = auth;
+        window.googleProvider = googleProvider;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signInWithPopup = signInWithPopup;
+        window.onAuthStateChanged = onAuthStateChanged;
+    </script>
     <style>
         .auth-container {
             max-width: 400px;
@@ -152,6 +181,48 @@
             border-color: #4267B2;
             color: #4267B2;
         }
+        
+        .auth-divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .auth-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #ddd;
+        }
+        
+        .auth-divider span {
+            background: white;
+            padding: 0 15px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .global-message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .global-message.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .global-message.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
     </style>
 </head>
 <body>
@@ -165,6 +236,8 @@
                 <p>Welcome back to EPL News Hub</p>
             </div>
 
+            <div id="auth-message" class="global-message" style="display: none;"></div>
+
             <form class="auth-form" onsubmit="handleSignIn(event)">
                 <div class="form-group">
                     <label for="email">Email Address</label>
@@ -176,24 +249,24 @@
                     <input type="password" id="password" name="password" placeholder="Enter your password" required>
                 </div>
 
-                <button type="submit" class="signin-btn">Sign In</button>
+                <button type="submit" class="signin-btn" id="signin-btn">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-loader" style="display: none;">Signing In...</span>
+                </button>
             </form>
 
             <div class="forgot-password">
                 <a href="#" onclick="showForgotPassword()">Forgot your password?</a>
             </div>
 
-            <div class="social-signin">
-                <div id="google-signin-btn" style="margin-bottom: 10px;"></div>
-                <button class="social-btn google-btn" onclick="signInWithGoogle()" style="display: none;">
-                    <span>🔍</span>
-                    <span>Continue with Google</span>
-                </button>
-                <button class="social-btn facebook-btn" onclick="signInWithFacebook()">
-                    <span>📘</span>
-                    <span>Continue with Facebook</span>
-                </button>
+            <div class="auth-divider">
+                <span>or</span>
             </div>
+            
+            <button id="google-signin-btn" class="social-btn google-btn">
+                <span>🔍</span>
+                <span>Continue with Google</span>
+            </button>
 
             <div class="auth-links">
                 <p>Don't have an account? <a href="/create-account.html">Create one here</a></p>
@@ -204,85 +277,175 @@
     <div class="footer" include="./footer.html"></div>
     <script src="./index.js"></script>
     <script>
-        function handleSignIn(event) {
-            event.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+        document.addEventListener('DOMContentLoaded', function() {
+            const signinForm = document.querySelector('.auth-form');
+            const googleSigninBtn = document.getElementById('google-signin-btn');
+            const messageDiv = document.getElementById('auth-message');
+            const signinBtn = document.getElementById('signin-btn');
+            const btnText = signinBtn.querySelector('.btn-text');
+            const btnLoader = signinBtn.querySelector('.btn-loader');
             
-            // Simple validation
+            // Check if user is already signed in
+            if (window.onAuthStateChanged && window.auth) {
+                window.onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        // User is signed in, redirect to homepage
+                        showMessage('Welcome back! Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1500);
+                    }
+                });
+            }
+            
+            // Email/Password Sign In
+            signinForm.addEventListener('submit', handleSignIn);
+            
+            // Google Sign In
+            googleSigninBtn.addEventListener('click', async function() {
+                try {
+                    if (window.signInWithPopup && window.auth && window.googleProvider) {
+                        const result = await window.signInWithPopup(window.auth, window.googleProvider);
+                        const user = result.user;
+                        
+                        showMessage('Google sign in successful! Redirecting...', 'success');
+                        
+                        // Store user info in localStorage
+                        localStorage.setItem('user', JSON.stringify({
+                            uid: user.uid,
+                            email: user.email,
+                            displayName: user.displayName,
+                            photoURL: user.photoURL,
+                            signedInAt: new Date().toISOString()
+                        }));
+                        
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1500);
+                    } else {
+                        throw new Error('Firebase not properly initialized');
+                    }
+                } catch (error) {
+                    console.error('Google sign in error:', error);
+                    if (error.code !== 'auth/popup-closed-by-user') {
+                        showMessage('Google sign in failed. Please try again.', 'error');
+                    }
+                }
+            });
+        });
+        
+        async function handleSignIn(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const signinBtn = document.getElementById('signin-btn');
+            const btnText = signinBtn.querySelector('.btn-text');
+            const btnLoader = signinBtn.querySelector('.btn-loader');
+            
             if (!email || !password) {
-                alert('Please fill in all fields');
+                showMessage('Please fill in all fields.', 'error');
                 return;
             }
             
-            // Simulate sign in process
-            alert('Sign in functionality coming soon! For now, this is a demo.');
-            console.log('Sign in attempt:', { email });
-        }
-        
-        function signInWithGoogle() {
-            window.location.href = '/auth/google';
-        }
-        
-        function handleCredentialResponse(response) {
-            fetch('/auth/google/callback', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ credential: response.credential })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Successfully signed in with Google!');
-                    window.location.href = '/';
+            if (!isValidEmail(email)) {
+                showMessage('Please enter a valid email address.', 'error');
+                return;
+            }
+            
+            // Show loading state
+            setLoadingState(true);
+            
+            try {
+                if (window.signInWithEmailAndPassword && window.auth) {
+                    const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
+                    const user = userCredential.user;
+                    
+                    showMessage('Sign in successful! Redirecting...', 'success');
+                    
+                    // Store user info in localStorage for the site
+                    localStorage.setItem('user', JSON.stringify({
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName || email.split('@')[0],
+                        signedInAt: new Date().toISOString()
+                    }));
+                    
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1500);
                 } else {
-                    alert('Google Sign In failed: ' + data.message);
+                    // Fallback for when Firebase is not configured
+                    showMessage('⚠️ Firebase authentication not configured. Please set up your Firebase project first.', 'error');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Google Sign In failed. Please try again.');
-            });
+            } catch (error) {
+                console.error('Sign in error:', error);
+                let errorMessage = 'Sign in failed. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email. Please create an account first.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Incorrect password. Please try again.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many failed attempts. Please try again later.';
+                        break;
+                }
+                
+                showMessage(errorMessage, 'error');
+            } finally {
+                setLoadingState(false);
+            }
         }
         
-        window.onload = function() {
-            // Check if Google OAuth is configured
-            fetch('/api/google-config')
-                .then(response => response.json())
-                .then(config => {
-                    if (config.clientId && config.clientId !== "YOUR_GOOGLE_CLIENT_ID") {
-                        google.accounts.id.initialize({
-                            client_id: config.clientId,
-                            callback: handleCredentialResponse
-                        });
-                        
-                        google.accounts.id.renderButton(
-                            document.getElementById("google-signin-btn"),
-                            { theme: "outline", size: "large", width: "100%" }
-                        );
-                    } else {
-                        // Hide Google Sign-In if not configured
-                        document.getElementById("google-signin-btn").style.display = "none";
-                        console.warn("Google OAuth not configured. Please set GOOGLE_CLIENT_ID in .env file.");
-                    }
-                })
-                .catch(error => {
-                    console.error("Failed to load Google config:", error);
-                    document.getElementById("google-signin-btn").style.display = "none";
-                });
-        };
+        function setLoadingState(loading) {
+            const signinBtn = document.getElementById('signin-btn');
+            const btnText = signinBtn.querySelector('.btn-text');
+            const btnLoader = signinBtn.querySelector('.btn-loader');
+            
+            signinBtn.disabled = loading;
+            if (loading) {
+                btnText.style.display = 'none';
+                btnLoader.style.display = 'inline';
+            } else {
+                btnText.style.display = 'inline';
+                btnLoader.style.display = 'none';
+            }
+        }
         
-        function signInWithFacebook() {
-            alert('Facebook Sign In coming soon!');
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('auth-message');
+            messageDiv.textContent = message;
+            messageDiv.className = `global-message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
         }
         
         function showForgotPassword() {
-            const email = prompt('Enter your email address to reset your password:');
-            if (email) {
-                alert('Password reset link would be sent to: ' + email);
+            const email = document.getElementById('email').value.trim();
+            
+            if (!email) {
+                showMessage('Please enter your email address first.', 'error');
+                return;
             }
+            
+            // This would implement password reset with Firebase
+            showMessage('Password reset functionality will be implemented with Firebase. Please contact support for now.', 'error');
         }
     </script>
 </body>
