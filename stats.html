@@ -136,46 +136,6 @@
             background: #FFF;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        .statsfc-top-scorers-container {
-            border: 1px solid #D3D3D3;
-            border-radius: 8px;
-            padding: 20px;
-            background: #FFF;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin-bottom: 12px;
-        }
-        .statsfc-top-scorers {
-            width: 100%;
-        }
-        .statsfc-top-scorers table {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: Arial, sans-serif;
-        }
-        .statsfc-top-scorers th {
-            background: #F8F9FA;
-            padding: 12px;
-            text-align: left;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #333;
-            border-bottom: 1px solid #D3D3D3;
-        }
-        .statsfc-top-scorers td {
-            padding: 12px;
-            border-bottom: 1px solid #F0F0F0;
-            font-size: 0.875rem;
-            color: #333;
-        }
-        .statsfc-top-scorers tr:hover {
-            background: #F8F9FA;
-        }
-        .statsfc-top-scorers img {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
         .tab-btn {
             padding: 12px 20px;
             background: #F8F9FA;
@@ -367,13 +327,6 @@
                 max-width: 100%;
                 height: 600px;
             }
-            .statsfc-top-scorers-container {
-                padding: 15px;
-            }
-            .statsfc-top-scorers th, .statsfc-top-scorers td {
-                padding: 8px 6px;
-                font-size: 0.75rem;
-            }
         }
 
         @media (max-width: 480px) {
@@ -408,18 +361,6 @@
             .live-scores-widget iframe {
                 height: 500px;
                 max-width: 100%;
-            }
-            .statsfc-top-scorers-container {
-                padding: 12px;
-            }
-            .statsfc-top-scorers th, .statsfc-top-scorers td {
-                padding: 6px 4px;
-                font-size: 0.7rem;
-            }
-            .statsfc-top-scorers img {
-                width: 16px;
-                height: 16px;
-                margin-right: 6px;
             }
         }
     </style>
@@ -502,26 +443,18 @@
             <!-- Stats Navigation -->
             <section class="widget-container">
                 <div class="stats-tabs" style="border-bottom: 2px solid #D3D3D3; margin-bottom: 20px;">
-                    <button class="tab-btn active" onclick="showStatsTab('top-scorers')" data-tab="top-scorers">Top Scorers</button>
+                    <button class="tab-btn active" onclick="showStatsTab('goals-assists')" data-tab="goals-assists">Goals & Assists</button>
                     <button class="tab-btn" onclick="showStatsTab('league-table')" data-tab="league-table">League Table</button>
                 </div>
             </section>
 
-            <!-- Top Scorers Section -->
-            <section class="widget-container" id="top-scorers-tab">
-                <h2><span class="section-icon">⚽</span>Top Scorers</h2>
-                <div class="statsfc-top-scorers-container">
-                    <div class="statsfc-top-scorers"
-                        data-key="CUjAmK7Rzsw6iAddv2bwQo_C2sWqGVGzzVZnpwlj"
-                        data-competition="EPL"
-                        data-season="2025/26"
-                        data-show-badges="true"
-                        data-omit-errors="false"
-                        data-use-default-css="false"
-                        data-lang="en">
-                    </div>
+            <!-- Top Goals and Assists Section -->
+            <section class="widget-container" id="goals-assists-tab">
+                <h2><span class="section-icon">⚽</span>Top Goals and Assists</h2>
+                <div id="scoreaxis-widget-f3d95" style="border-width:1px;border-color:rgba(0, 0, 0, 0.15);border-style:solid;border-radius:8px;padding:10px;background:rgb(255, 255, 255);width:100%">
+                    <iframe id="Iframe" src="https://www.scoreaxis.com/widget/league-top-players/8?autoHeight=1&playersNumber=5&teamLogo=1&inst=f3d95" style="width:100%;border:none;transition:all 300ms ease"></iframe>
                 </div>
-                <div class="scoreaxis-credit">Data by <a target="_blank" href="https://statsfc.com/">StatsFC</a></div>
+                <div class="scoreaxis-credit">League data by <a target="_blank" href="https://www.scoreaxis.com/">Scoreaxis</a></div>
             </section>
 
 
@@ -553,17 +486,6 @@
     <div class="footer" include="/footer.html"></div>
     <script src="/index.js"></script>
     
-    <!-- Load jQuery -->
-    <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
-
-    <!-- Load Stats FC Top Scorers SDK -->
-    <script>(function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
-        js.src = "https://cdn.statsfc.com/js/top-scorers.js";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, "script", "statsfc-top-scorers-js"));</script>
 
     <script>
         // StatsFC widget functionality
@@ -592,8 +514,8 @@
             // Set initial last updated time
             document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
             
-            // Show top-scorers tab by default
-            showStatsTab('top-scorers');
+            // Show goals-assists tab by default
+            showStatsTab('goals-assists');
         });
 
         // Scoreaxis widget height adjustment for both widgets
