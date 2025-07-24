@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Newsletter Signups</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .signup { padding: 10px; border-bottom: 1px solid #eee; }
+        .timestamp { color: #666; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <h1>Newsletter Signups</h1>
+    <div id="signups"></div>
+    
+    <script>
+        // Simple way to collect signups in localStorage for testing
+        const signups = JSON.parse(localStorage.getItem('newsletter-signups') || '[]');
+        
+        function displaySignups() {
+            const container = document.getElementById('signups');
+            container.innerHTML = '';
+            
+            signups.forEach(signup => {
+                const div = document.createElement('div');
+                div.className = 'signup';
+                div.innerHTML = `
+                    <strong>${signup.name}</strong> - ${signup.email}
+                    <div class="timestamp">${signup.timestamp}</div>
+                `;
+                container.appendChild(div);
+            });
+            
+            if (signups.length === 0) {
+                container.innerHTML = '<p>No signups yet.</p>';
+            }
+        }
+        
+        displaySignups();
+        
+        // Auto-refresh every 5 seconds to check for new signups
+        setInterval(() => {
+            const newSignups = JSON.parse(localStorage.getItem('newsletter-signups') || '[]');
+            if (newSignups.length !== signups.length) {
+                signups.length = 0;
+                signups.push(...newSignups);
+                displaySignups();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
