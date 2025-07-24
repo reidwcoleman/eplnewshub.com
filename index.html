@@ -1526,26 +1526,21 @@
                 btnLoader.style.display = 'inline';
 
                 try {
-                    // Determine the correct server URL
-                    const serverUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-                        ? 'http://localhost:3000' 
-                        : '';
-                    
-                    const response = await fetch(`${serverUrl}/subscribe`, {
+                    // Use Netlify function endpoint
+                    const response = await fetch('/.netlify/functions/newsletter', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
                             name: name,
-                            email: email,
-                            address: 'Homepage Newsletter Signup'
+                            email: email
                         })
                     });
 
                     const data = await response.json();
 
-                    if (response.ok) {
+                    if (response.ok && data.success) {
                         showMessage(messageDiv, '🎉 Successfully subscribed! Welcome to the EPL News Hub family!', 'success');
                         form.reset();
                         
@@ -1564,7 +1559,7 @@
                             }
                         }, 1000);
                     } else {
-                        throw new Error(data.message || 'Subscription failed');
+                        throw new Error(data.error || 'Subscription failed');
                     }
                 } catch (error) {
                     console.error('Newsletter subscription error:', error);

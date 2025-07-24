@@ -1,0 +1,47 @@
+name: Newsletter Signup Handler
+
+on:
+  repository_dispatch:
+    types: [newsletter-signup]
+
+jobs:
+  save-email:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Save email to file
+        env:
+          EMAIL: ${{ github.event.client_payload.email }}
+          NAME: ${{ github.event.client_payload.name }}
+        run: |
+          # Create emails directory if it doesn't exist
+          mkdir -p emails
+          
+          # Create or append to emails.txt file
+          echo "$(date -u '+%Y-%m-%d %H:%M:%S UTC') - Name: $NAME, Email: $EMAIL" >> emails/newsletter-signups.txt
+          
+          # Sort and remove duplicates based on email
+          sort emails/newsletter-signups.txt | awk '!seen[$NF]++' > emails/newsletter-signups-temp.txt
+          mv emails/newsletter-signups-temp.txt emails/newsletter-signups.txt
+          
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add emails/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Add newsletter signup: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            git push
+          fi
