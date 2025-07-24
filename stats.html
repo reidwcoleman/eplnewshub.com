@@ -22,41 +22,85 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
      crossorigin="anonymous"></script>
     <style>
-        /* NYT-inspired styling for stats section */
+        /* Enhanced Stats Page Styles */
+        .stats-hero {
+            background: linear-gradient(135deg, #37003c 0%, #6f42c1 50%, #20c997 100%);
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .stats-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stats-hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .live-stats-indicator {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 20px;
+            border-radius: 25px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: inline-block;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 16px;
-            display: flex;
-            flex-wrap: wrap;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
         }
+        
         .main {
-            flex: 3;
-            min-width: 300px;
-            padding: 24px;
-            background: #FFF;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
         }
+        
         .sidebar {
-            flex: 1;
-            min-width: 250px;
-            padding: 24px;
+            display: none; /* Hide sidebar for cleaner mobile design */
         }
         h1 {
             font-family: Georgia, serif;
-            font-size: 2.5rem;
-            color: #333;
-            margin-bottom: 24px;
+            font-size: 2rem;
+            color: #37003c;
+            margin-bottom: 20px;
             text-align: center;
             font-weight: 700;
         }
         h2 {
             font-family: Georgia, serif;
-            font-size: 1.5rem;
-            color: #333;
-            margin-bottom: 16px;
+            font-size: 1.4rem;
+            color: #37003c;
+            margin-bottom: 20px;
             font-weight: 600;
-            border-bottom: 1px solid #D3D3D3;
-            padding-bottom: 8px;
+            border-bottom: 2px solid #37003c;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-icon {
+            font-size: 1.6rem;
         }
         h3 {
             font-family: Georgia, serif;
@@ -213,46 +257,117 @@
             background: #326891;
             border-radius: 2px;
         }
+        /* Enhanced Mobile Responsiveness */
         @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
+            .stats-hero {
+                padding: 30px 15px;
+                margin-bottom: 20px;
             }
-            .main, .sidebar {
-                padding: 16px;
-            }
-            h1 {
+            
+            .stats-hero h1 {
                 font-size: 2rem;
             }
+            
+            .stats-hero p {
+                font-size: 1rem;
+            }
+            
+            .container {
+                padding: 0 15px;
+                gap: 20px;
+            }
+            
+            .main {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
             h2 {
-                font-size: 1.25rem;
+                font-size: 1.2rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
             }
             h3 {
                 font-size: 1.1rem;
             }
             .tab-btn {
                 padding: 10px 16px;
-                font-size: 0.75rem;
+                font-size: 0.8rem;
                 margin-right: 3px;
+                margin-bottom: 5px;
+            }
+            .stats-table {
+                font-size: 0.8rem;
             }
             .stats-table th, .stats-table td {
-                padding: 8px;
+                padding: 8px 6px;
                 font-size: 0.75rem;
+            }
+            .stats-tabs {
+                padding-bottom: 10px;
+            }
+            .widget-container {
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .main {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .tab-btn {
+                padding: 8px 12px;
+                font-size: 0.75rem;
+                margin-bottom: 8px;
+            }
+            
+            .stats-table th, .stats-table td {
+                padding: 6px 4px;
+                font-size: 0.7rem;
+            }
+            
+            .stats-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
             }
         }
     </style>
 </head>
 <body>
     <div class="header" include="/header.html"></div>
+    
+    <!-- Hero Section -->
+    <section class="stats-hero">
+        <h1>📊 Premier League 2024/2025 Stats</h1>
+        <p>Comprehensive statistics, live data, and in-depth analysis of the Premier League season</p>
+        <div class="live-stats-indicator">
+            <span class="live-indicator"></span>
+            <strong>Live Data</strong> • Updated every 15 seconds
+        </div>
+    </section>
+    
     <div class="container">
         <div class="main">
-            <h1>Premier League 2024/2025 Stats</h1>
 
             <!-- Banner Ad -->
             <div class="ad-banner" include="./ad-components/banner-ad.html"></div>
 
             <!-- Article Section -->
             <section class="article-section">
-                <h2>Premier League 2024-2025: Trophies, Standings, and Awards Overview</h2>
+                <h2><span class="section-icon">🏆</span>Premier League 2024-2025: Trophies, Standings, and Awards Overview</h2>
                 <p>The <strong>Premier League 2024-2025</strong> season delivered thrilling football, with <strong>Liverpool</strong> clinching the title, <strong>Crystal Palace</strong> surprising in the FA Cup, and <strong>Newcastle United</strong> ending a long trophy drought. This article recaps the <strong>EPL standings</strong>, major trophies, and individual awards, spotlighting stars like <strong>Mohamed Salah</strong> and managers like <strong>Arne Slot</strong>. Explore the season’s highs and lows, from European qualification to relegation battles, below. <a href="https://www.premierleague.com/" target="_blank">Premier League official site</a> for more.</p>
 
                 <h3>Trophies: Premier League and Domestic Cups</h3>
@@ -286,7 +401,7 @@
             <!-- Live Stats Controls -->
             <section class="widget-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h2 style="margin: 0;">Live Premier League Stats<span class="live-indicator"></span></h2>
+                    <h2 style="margin: 0;"><span class="section-icon">⚡</span>Live Premier League Stats<span class="live-indicator"></span></h2>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <button id="refreshBtn" onclick="refreshStats()" style="padding: 8px 16px; background: #326891; color: white; border: none; border-radius: 4px; cursor: pointer;">Refresh</button>
                         <label style="display: flex; align-items: center; gap: 5px; font-size: 0.875rem;">
@@ -312,7 +427,7 @@
 
             <!-- Top Goals and Assists Section -->
             <section class="widget-container" id="goals-assists-tab">
-                <h2>Top Goals and Assists</h2>
+                <h2><span class="section-icon">⚽</span>Top Goals and Assists</h2>
                 <div id="scoreaxis-widget-f3d95" style="border-width:1px;border-color:rgba(0, 0, 0, 0.15);border-style:solid;border-radius:8px;padding:10px;background:rgb(255, 255, 255);width:100%">
                     <iframe id="Iframe" src="https://www.scoreaxis.com/widget/league-top-players/8?autoHeight=1&playersNumber=5&teamLogo=1&inst=f3d95" style="width:100%;border:none;transition:all 300ms ease"></iframe>
                 </div>
@@ -321,7 +436,7 @@
 
             <!-- Minutes Played Section -->
             <section class="widget-container" id="minutes-played-tab" style="display: none;">
-                <h2>Most Minutes Played</h2>
+                <h2><span class="section-icon">⏱️</span>Most Minutes Played</h2>
                 <div id="minutes-stats-container">
                     <div class="loading-spinner">Loading minutes played data...</div>
                 </div>
@@ -329,7 +444,7 @@
 
             <!-- xG Stats Section -->
             <section class="widget-container" id="xg-stats-tab" style="display: none;">
-                <h2>Expected Goals (xG) Leaders</h2>
+                <h2><span class="section-icon">🎯</span>Expected Goals (xG) Leaders</h2>
                 <div id="xg-stats-container">
                     <div class="loading-spinner">Loading xG data...</div>
                 </div>
@@ -337,7 +452,7 @@
 
             <!-- Defensive Stats Section -->
             <section class="widget-container" id="defensive-stats-tab" style="display: none;">
-                <h2>Defensive Leaders</h2>
+                <h2><span class="section-icon">🛡️</span>Defensive Leaders</h2>
                 <div id="defensive-stats-container">
                     <div class="loading-spinner">Loading defensive data...</div>
                 </div>
@@ -345,7 +460,7 @@
 
             <!-- Clean Sheets Section -->
             <section class="widget-container" id="clean-sheets-tab" style="display: none;">
-                <h2>Clean Sheets Leaders</h2>
+                <h2><span class="section-icon">🥅</span>Clean Sheets Leaders</h2>
                 <div id="clean-sheets-container">
                     <div class="loading-spinner">Loading clean sheets data...</div>
                 </div>
@@ -353,7 +468,7 @@
 
             <!-- Discipline Section -->
             <section class="widget-container" id="discipline-tab" style="display: none;">
-                <h2>Cards & Discipline</h2>
+                <h2><span class="section-icon">🟨</span>Cards & Discipline</h2>
                 <div id="discipline-container">
                     <div class="loading-spinner">Loading discipline data...</div>
                 </div>
@@ -361,7 +476,7 @@
 
             <!-- League Table Section -->
             <section class="widget-container" id="league-table-tab" style="display: none;">
-                <h2>Premier League Table</h2>
+                <h2><span class="section-icon">📊</span>Premier League Table</h2>
                 <div id="scoreaxis-widget-4954e">
                     <iframe id="Iframe" src="https://www.scoreaxis.com/widget/standings-widget/8?autoHeight=1&inst=4954e" style="width:100%;border:none;transition:all 300ms ease"></iframe>
                 </div>
@@ -370,7 +485,7 @@
 
             <!-- Notes Section -->
             <section class="notes-section">
-                <h2>Season Notes</h2>
+                <h2><span class="section-icon">📝</span>Season Notes</h2>
                 <ul>
                     <li>12 hat-tricks were scored in the 2024/2025 Premier League season.</li>
                     <li>Southampton were relegated to the EFL Championship on April 6, 2025, with 10 points from 31 games.</li>

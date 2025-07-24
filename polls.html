@@ -20,25 +20,447 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
     <link rel="apple-touch-icon" href="reidsnbest.webp">
     <link rel="icon" type="image/webp" href="reidsnbest.webp">
+    
+    <style>
+        /* Enhanced Polls Page Styles */
+        .polls-hero {
+            background: linear-gradient(135deg, #37003c 0%, #6f42c1 50%, #20c997 100%);
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .polls-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .polls-hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+            line-height: 1.6;
+        }
+
+        .polls-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .polls-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .poll-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .poll-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+
+        .poll-question {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #37003c;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .poll-icon {
+            font-size: 1.6rem;
+        }
+
+        .poll-leader {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: #212529;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin: 15px 0 25px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .leader-text {
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .leader-name {
+            color: #37003c;
+            font-weight: 800;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .poll-options {
+            margin-bottom: 25px;
+        }
+
+        .poll-option {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.8);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .poll-option:hover {
+            background: rgba(55, 0, 60, 0.05);
+            border-color: rgba(55, 0, 60, 0.2);
+            transform: translateX(5px);
+        }
+
+        .poll-option input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .poll-option label {
+            flex: 1;
+            font-weight: 600;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .poll-bar {
+            width: 120px;
+            height: 25px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .poll-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            border-radius: 15px;
+            transition: width 0.8s ease-out;
+            position: relative;
+        }
+
+        .poll-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .poll-percentage {
+            font-weight: 700;
+            color: #37003c;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .vote-btn {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .vote-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(55, 0, 60, 0.3);
+        }
+
+        .vote-btn:disabled {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .poll-votes {
+            text-align: center;
+            color: #666;
+            font-weight: 600;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(55, 0, 60, 0.05);
+            border-radius: 8px;
+        }
+
+        .poll-results {
+            margin-top: 40px;
+            padding: 30px 20px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #37003c;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .results-container {
+            display: grid;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .result-item {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #37003c;
+        }
+
+        .result-item h4 {
+            color: #37003c;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .result-date {
+            color: #888;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .vote-success {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .polls-hero {
+                padding: 30px 15px;
+                margin-bottom: 20px;
+            }
+
+            .polls-hero h1 {
+                font-size: 2rem;
+            }
+
+            .polls-hero p {
+                font-size: 1rem;
+            }
+
+            .polls-stats {
+                gap: 20px;
+            }
+
+            .stat-item {
+                padding: 12px 16px;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .polls-container {
+                gap: 20px;
+                padding: 0 15px;
+            }
+
+            .poll-card {
+                padding: 20px;
+            }
+
+            .poll-question {
+                font-size: 1.2rem;
+            }
+
+            .poll-option {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .poll-bar {
+                width: 100px;
+                height: 20px;
+            }
+
+            .vote-btn {
+                padding: 12px 25px;
+                font-size: 0.9rem;
+            }
+
+            .poll-results {
+                padding: 20px 15px;
+            }
+
+            .section-title {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .polls-hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .polls-stats {
+                gap: 15px;
+            }
+
+            .stat-item {
+                padding: 10px 15px;
+                min-width: 80px;
+            }
+
+            .poll-card {
+                padding: 15px;
+            }
+
+            .poll-option {
+                padding: 12px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .poll-bar {
+                width: 80px;
+                height: 18px;
+            }
+
+            .poll-percentage {
+                min-width: 35px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Reset button styling */
+        #resetPolls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+
+        #resetPolls:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 <body>
     <div class="header" include="./header.html"></div>
 
+    <!-- Hero Section -->
+    <section class="polls-hero">
+        <h1>🗳️ Premier League Polls</h1>
+        <p>Voice your opinion on the biggest Premier League topics and see what the community thinks</p>
+        <div class="polls-stats">
+            <div class="stat-item">
+                <span class="stat-number" id="total-votes">0</span>
+                <span class="stat-label">Total Votes</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">3</span>
+                <span class="stat-label">Active Polls</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="participation-rate">0%</span>
+                <span class="stat-label">Participation</span>
+            </div>
+        </div>
+        <button id="resetPolls">🔄 Reset All Polls</button>
+    </section>
+
     <!-- Main Content Area -->
     <main class="main-content">
         <div class="content-wrapper">
-            <!-- Page Title -->
-            <div class="page-header">
-                <h1 class="page-title">🗳️ Premier League Polls</h1>
-                <div class="page-divider"></div>
-                <button id="resetPolls" style="position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; opacity: 0.7;">Reset Polls</button>
-            </div>
 
             <!-- Active Polls Section -->
             <section class="polls-section">
                 <div class="polls-container">
                     <div class="poll-card">
-                        <h3 class="poll-question">Who will win the Premier League title this season?</h3>
+                        <h3 class="poll-question"><span class="poll-icon">🏆</span>Who will win the Premier League title this season?</h3>
                         <div class="poll-leader">
                             <span class="leader-text">🏆 Current Leader: <span class="leader-name">No votes yet</span></span>
                         </div>
@@ -81,7 +503,7 @@
                     </div>
 
                     <div class="poll-card">
-                        <h3 class="poll-question">Best Premier League signing this summer?</h3>
+                        <h3 class="poll-question"><span class="poll-icon">⚡</span>Best Premier League signing this summer?</h3>
                         <div class="poll-leader">
                             <span class="leader-text">🏆 Current Leader: <span class="leader-name">No votes yet</span></span>
                         </div>
@@ -116,7 +538,7 @@
                     </div>
 
                     <div class="poll-card">
-                        <h3 class="poll-question">Which team will finish in the top 4?</h3>
+                        <h3 class="poll-question"><span class="poll-icon">🎯</span>Which team will finish in the top 4?</h3>
                         <div class="poll-leader">
                             <span class="leader-text">🏆 Most Popular: <span class="leader-name">No votes yet</span></span>
                         </div>
@@ -263,6 +685,9 @@
                     updatePollDisplay(pollKey);
                 });
                 
+                // Update hero stats
+                updateHeroStats();
+                
                 // Remove all winner crowns
                 document.querySelectorAll('.winner-crown').forEach(crown => crown.remove());
                 
@@ -380,6 +805,7 @@
             // Save and update display
             savePollData();
             updatePollDisplay(pollKey);
+            updateHeroStats();
             
             // Show success message
             showVoteSuccess(pollKey);
@@ -513,6 +939,26 @@
             });
         }
 
+        // Update hero statistics
+        function updateHeroStats() {
+            const totalVotes = Object.values(pollsData).reduce((sum, poll) => sum + poll.totalVotes, 0);
+            const totalPolls = Object.keys(pollsData).length;
+            const votedPolls = Object.values(pollsData).filter(poll => poll.userVoted).length;
+            const participationRate = totalPolls > 0 ? Math.round((votedPolls / totalPolls) * 100) : 0;
+            
+            document.getElementById('total-votes').textContent = totalVotes.toLocaleString();
+            document.getElementById('participation-rate').textContent = participationRate + '%';
+            
+            // Add animation to updated stats
+            document.getElementById('total-votes').style.transform = 'scale(1.1)';
+            document.getElementById('participation-rate').style.transform = 'scale(1.1)';
+            
+            setTimeout(() => {
+                document.getElementById('total-votes').style.transform = 'scale(1)';
+                document.getElementById('participation-rate').style.transform = 'scale(1)';
+            }, 300);
+        }
+
         // Initialize polls
         function initializePolls() {
             loadPollData();
@@ -524,6 +970,9 @@
             
             // Add winner indicators
             addWinnerIndicators();
+            
+            // Update hero stats
+            updateHeroStats();
             
             // Add event listeners to vote buttons
             document.querySelectorAll('.vote-btn').forEach((btn, index) => {
