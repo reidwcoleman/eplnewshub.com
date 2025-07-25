@@ -638,6 +638,9 @@
         // Initialize Stripe with live publishable key
         const stripe = Stripe('pk_live_51RSKcBR10Q6bz3BHDJ7b0hniY7eCnnakbMNBlpEVyOVWDiA8A0MI22YMaaSpGaAMIv8NnaK6bLfGdNM0Xt8rpK1200itJbMZNm');
         
+        // Make stripe accessible globally for debugging
+        window.stripe = stripe;
+        
         document.addEventListener('DOMContentLoaded', function() {
             checkAuthState();
         });
@@ -683,7 +686,9 @@
         }
         
         async function selectPlan(planType, priceId) {
-            if (!window.auth.currentUser) {
+            console.log('selectPlan called with:', { planType, priceId });
+            
+            if (!window.auth || !window.auth.currentUser) {
                 alert('Please sign in first to purchase a membership.');
                 window.location.href = '/signin.html';
                 return;
@@ -698,20 +703,32 @@
             try {
                 // For Starter plan, redirect to Stripe Checkout
                 if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv') {
-                    const { error } = await stripe.redirectToCheckout({
+                    console.log('Starting Stripe checkout for Starter plan');
+                    
+                    // Check if stripe is loaded
+                    if (!window.stripe) {
+                        throw new Error('Stripe not loaded');
+                    }
+                    
+                    const checkoutOptions = {
                         lineItems: [{
                             price: priceId,
                             quantity: 1,
                         }],
                         mode: 'subscription',
-                        successUrl: window.location.origin + '/membership-success.html',
-                        cancelUrl: window.location.origin + '/membership.html',
+                        successUrl: window.location.protocol + '//' + window.location.host + '/membership-success.html',
+                        cancelUrl: window.location.protocol + '//' + window.location.host + '/membership.html',
                         customerEmail: window.auth.currentUser.email,
-                    });
+                        allowPromotionCodes: true,
+                    };
                     
-                    if (error) {
-                        console.error('Stripe checkout error:', error);
-                        alert('Payment processing failed. Please try again.');
+                    console.log('Checkout options:', checkoutOptions);
+                    
+                    const result = await stripe.redirectToCheckout(checkoutOptions);
+                    
+                    if (result.error) {
+                        console.error('Stripe checkout error:', result.error);
+                        alert('Payment processing failed: ' + result.error.message);
                     }
                 } else {
                     // For other plans that don't have price IDs yet
@@ -719,8 +736,8 @@
                 }
                 
             } catch (error) {
-                console.error('Error:', error);
-                alert('Payment processing failed. Please try again.');
+                console.error('Error in selectPlan:', error);
+                alert('Payment processing failed. Please try again. Error: ' + error.message);
             } finally {
                 button.textContent = originalText;
                 button.disabled = false;
