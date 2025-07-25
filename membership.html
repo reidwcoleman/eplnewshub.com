@@ -701,33 +701,43 @@
             button.disabled = true;
             
             try {
-                // For Starter plan, redirect to Stripe Checkout
+                // For Starter plan, create a temporary workaround
                 if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv') {
                     console.log('Starting Stripe checkout for Starter plan');
                     
-                    // Check if stripe is loaded
-                    if (!window.stripe) {
-                        throw new Error('Stripe not loaded');
-                    }
+                    // Alternative approach: Create a payment link or use backend
+                    // For now, show instructions to enable client-only integration
+                    const userEmail = window.auth.currentUser.email;
+                    const message = `To complete your subscription setup:\n\n` +
+                        `1. Go to: https://dashboard.stripe.com/account/checkout/settings\n` +
+                        `2. Enable "Client-only integration"\n` +
+                        `3. Save settings and try again\n\n` +
+                        `Or contact support at support@eplnewshub.com with your email (${userEmail}) to manually set up your subscription.`;
                     
-                    const checkoutOptions = {
-                        lineItems: [{
-                            price: priceId,
-                            quantity: 1,
-                        }],
-                        mode: 'subscription',
-                        successUrl: window.location.protocol + '//' + window.location.host + '/membership-success.html',
-                        cancelUrl: window.location.protocol + '//' + window.location.host + '/membership.html',
-                        customerEmail: window.auth.currentUser.email,
-                    };
+                    alert(message);
                     
-                    console.log('Checkout options:', checkoutOptions);
-                    
-                    const result = await stripe.redirectToCheckout(checkoutOptions);
-                    
-                    if (result.error) {
-                        console.error('Stripe checkout error:', result.error);
-                        alert('Payment processing failed: ' + result.error.message);
+                    // Optionally, you can try the checkout anyway in case they've enabled it
+                    try {
+                        if (window.stripe) {
+                            const checkoutOptions = {
+                                lineItems: [{
+                                    price: priceId,
+                                    quantity: 1,
+                                }],
+                                mode: 'subscription',
+                                successUrl: window.location.protocol + '//' + window.location.host + '/membership-success.html',
+                                cancelUrl: window.location.protocol + '//' + window.location.host + '/membership.html',
+                                customerEmail: userEmail,
+                            };
+                            
+                            const result = await stripe.redirectToCheckout(checkoutOptions);
+                            
+                            if (result.error) {
+                                console.error('Stripe checkout error:', result.error);
+                            }
+                        }
+                    } catch (fallbackError) {
+                        console.error('Fallback checkout failed:', fallbackError);
                     }
                 } else {
                     // For other plans that don't have price IDs yet
