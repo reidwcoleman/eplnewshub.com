@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Join EPL News Hub Premium for exclusive Premier League content, analysis, and insider access. Choose from our flexible membership plans.">
+    <meta name="keywords" content="EPL News Hub membership, Premium Premier League content, exclusive football analysis, subscription">
+    <meta name="author" content="EPL News Hub">
+    <title>Premium Membership | EPL News Hub - Exclusive Premier League Content</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="apple-touch-icon" href="reidsnbest.webp">
+    <link rel="icon" type="image/webp" href="reidsnbest.webp">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyOey0l27yQP68oybpoodMVcvayhIHt2I",
+            authDomain: "epl-news-hub-94c09.firebaseapp.com",
+            projectId: "epl-news-hub-94c09",
+            storageBucket: "epl-news-hub-94c09.firebasestorage.app",
+            messagingSenderId: "674703933278",
+            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf",
+            measurementId: "G-ECM6BCQCS8"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        window.auth = auth;
+        window.onAuthStateChanged = onAuthStateChanged;
+    </script>
+    
+    <!-- Stripe SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header" include="./header.html"></div>
+
+    <!-- Membership Hero Section -->
+    <section class="membership-hero">
+        <div class="hero-content">
+            <h1>🏆 Join EPL News Hub Premium</h1>
+            <p class="hero-subtitle">Get exclusive access to in-depth analysis, insider content, and premium Premier League coverage</p>
+            <div class="hero-features">
+                <div class="feature-item">📰 Exclusive Articles</div>
+                <div class="feature-item">🎯 Transfer Insider Info</div>
+                <div class="feature-item">📊 Advanced Analytics</div>
+                <div class="feature-item">🎥 Premium Video Content</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auth Check Message -->
+    <div id="auth-check" class="auth-check" style="display: none;">
+        <div class="auth-message">
+            <h3>🔐 Sign In Required</h3>
+            <p>Please <a href="/signin.html">sign in</a> or <a href="/create-account.html">create an account</a> to purchase a membership.</p>
+        </div>
+    </div>
+
+    <!-- Membership Plans -->
+    <section class="membership-plans" id="membership-plans" style="display: none;">
+        <div class="plans-container">
+            <div class="section-header">
+                <h2>Choose Your Plan</h2>
+                <p>Select the perfect membership for your Premier League passion</p>
+            </div>
+            
+            <div class="plans-grid">
+                <!-- Starter Plan -->
+                <div class="plan-card starter">
+                    <div class="plan-badge">Most Popular</div>
+                    <div class="plan-header">
+                        <h3>⚽ Starter</h3>
+                        <div class="plan-price">
+                            <span class="currency">£</span>
+                            <span class="amount">4.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="plan-features">
+                        <ul>
+                            <li>✅ 5 exclusive articles per week</li>
+                            <li>✅ Basic transfer rumors</li>
+                            <li>✅ Weekly team analysis</li>
+                            <li>✅ Priority newsletter access</li>
+                            <li>✅ Ad-free browsing</li>
+                        </ul>
+                    </div>
+                    
+                    <button class="plan-button" onclick="selectPlan('starter', 'price_starter_monthly')">
+                        Choose Starter
+                    </button>
+                </div>
+                
+                <!-- Pro Plan -->
+                <div class="plan-card pro featured">
+                    <div class="plan-badge premium">Best Value</div>
+                    <div class="plan-header">
+                        <h3>🏆 Pro</h3>
+                        <div class="plan-price">
+                            <span class="currency">£</span>
+                            <span class="amount">9.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="plan-features">
+                        <ul>
+                            <li>✅ Unlimited exclusive articles</li>
+                            <li>✅ Premium transfer insider info</li>
+                            <li>✅ Match prediction analytics</li>
+                            <li>✅ Tactical analysis videos</li>
+                            <li>✅ Live chat during matches</li>
+                            <li>✅ Early access to content</li>
+                            <li>✅ Monthly virtual Q&A sessions</li>
+                        </ul>
+                    </div>
+                    
+                    <button class="plan-button" onclick="selectPlan('pro', 'price_pro_monthly')">
+                        Choose Pro
+                    </button>
+                </div>
+                
+                <!-- Elite Plan -->
+                <div class="plan-card elite">
+                    <div class="plan-badge elite">Elite</div>
+                    <div class="plan-header">
+                        <h3>👑 Elite</h3>
+                        <div class="plan-price">
+                            <span class="currency">£</span>
+                            <span class="amount">19.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="plan-features">
+                        <ul>
+                            <li>✅ Everything in Pro</li>
+                            <li>✅ Personal match analysis</li>
+                            <li>✅ Direct contact with writers</li>
+                            <li>✅ Exclusive podcast access</li>
+                            <li>✅ Transfer window special reports</li>
+                            <li>✅ Season predictions & betting tips</li>
+                            <li>✅ Private Discord community</li>
+                            <li>✅ Annual meet & greet events</li>
+                        </ul>
+                    </div>
+                    
+                    <button class="plan-button" onclick="selectPlan('elite', 'price_elite_monthly')">
+                        Choose Elite
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Annual Plans -->
+            <div class="annual-plans">
+                <div class="annual-header">
+                    <h3>💰 Save with Annual Plans</h3>
+                    <p>Get 2 months free when you pay annually</p>
+                </div>
+                
+                <div class="annual-grid">
+                    <div class="annual-plan">
+                        <h4>Starter Annual</h4>
+                        <div class="annual-price">£49.99/year <span class="savings">Save £9.89</span></div>
+                        <button class="annual-button" onclick="selectPlan('starter-annual', 'price_starter_annual')">
+                            Choose Annual
+                        </button>
+                    </div>
+                    
+                    <div class="annual-plan featured">
+                        <h4>Pro Annual</h4>
+                        <div class="annual-price">£99.99/year <span class="savings">Save £19.89</span></div>
+                        <button class="annual-button" onclick="selectPlan('pro-annual', 'price_pro_annual')">
+                            Choose Annual
+                        </button>
+                    </div>
+                    
+                    <div class="annual-plan">
+                        <h4>Elite Annual</h4>
+                        <div class="annual-price">£199.99/year <span class="savings">Save £39.89</span></div>
+                        <button class="annual-button" onclick="selectPlan('elite-annual', 'price_elite_annual')">
+                            Choose Annual
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Current Membership Status -->
+    <section class="current-membership" id="current-membership" style="display: none;">
+        <div class="membership-status">
+            <h2>Your Current Membership</h2>
+            <div class="status-card">
+                <div class="status-info">
+                    <h3 id="current-plan">Loading...</h3>
+                    <p id="membership-details">Checking membership status...</p>
+                </div>
+                <div class="status-actions">
+                    <button class="manage-button" onclick="manageMembership()">
+                        Manage Subscription
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Showcase -->
+    <section class="features-showcase">
+        <div class="showcase-container">
+            <h2>What You Get with Premium</h2>
+            
+            <div class="features-grid">
+                <div class="feature-showcase">
+                    <div class="feature-icon">📰</div>
+                    <h3>Exclusive Articles</h3>
+                    <p>In-depth analysis and exclusive stories you won't find anywhere else. Our writers have inside access to clubs and players.</p>
+                </div>
+                
+                <div class="feature-showcase">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Transfer Insider</h3>
+                    <p>Get the real story behind transfers before they hit mainstream media. Our network of contacts brings you the inside scoop.</p>
+                </div>
+                
+                <div class="feature-showcase">
+                    <div class="feature-icon">📊</div>
+                    <h3>Advanced Analytics</h3>
+                    <p>Professional-grade statistics and analysis tools that give you deeper insights into team and player performance.</p>
+                </div>
+                
+                <div class="feature-showcase">
+                    <div class="feature-icon">🎥</div>
+                    <h3>Premium Videos</h3>
+                    <p>Tactical breakdowns, match analysis, and exclusive interviews with former players and managers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="footer" include="./footer.html"></div>
+
+    <script src="./index.js"></script>
+    
+    <style>
+        /* Membership Hero Section */
+        .membership-hero {
+            background: linear-gradient(135deg, #37003c 0%, #6f42c1 50%, #20c997 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.95;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-features {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .feature-item {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        /* Auth Check */
+        .auth-check {
+            background: #f8f9fa;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        .auth-message {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        
+        .auth-message h3 {
+            color: #37003c;
+            margin-bottom: 15px;
+        }
+        
+        .auth-message a {
+            color: #37003c;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .auth-message a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Membership Plans */
+        .membership-plans {
+            padding: 80px 20px;
+            background: #f8f9fa;
+        }
+        
+        .plans-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-header h2 {
+            font-size: 2.5rem;
+            color: #37003c;
+            margin-bottom: 15px;
+        }
+        
+        .section-header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+        
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+        
+        .plan-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            position: relative;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        
+        .plan-card.featured {
+            border-color: #37003c;
+            transform: scale(1.05);
+        }
+        
+        .plan-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #37003c;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .plan-badge.premium {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+        }
+        
+        .plan-badge.elite {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+        }
+        
+        .plan-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .plan-header h3 {
+            font-size: 1.8rem;
+            color: #37003c;
+            margin-bottom: 15px;
+        }
+        
+        .plan-price {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .currency {
+            font-size: 1.5rem;
+            color: #666;
+        }
+        
+        .amount {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #37003c;
+        }
+        
+        .period {
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .plan-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 40px 0;
+        }
+        
+        .plan-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .plan-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .plan-button {
+            width: 100%;
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .plan-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(55,0,60,0.3);
+        }
+        
+        /* Annual Plans */
+        .annual-plans {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .annual-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .annual-header h3 {
+            color: #37003c;
+            margin-bottom: 10px;
+        }
+        
+        .annual-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .annual-plan {
+            text-align: center;
+            padding: 30px 20px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .annual-plan:hover {
+            border-color: #37003c;
+        }
+        
+        .annual-plan.featured {
+            border-color: #37003c;
+            background: linear-gradient(135deg, #f8f9ff, #fff);
+        }
+        
+        .annual-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #37003c;
+            margin: 15px 0;
+        }
+        
+        .savings {
+            display: block;
+            font-size: 0.9rem;
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .annual-button {
+            background: #37003c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .annual-button:hover {
+            background: #6f42c1;
+        }
+        
+        /* Current Membership */
+        .current-membership {
+            padding: 60px 20px;
+            background: white;
+        }
+        
+        .membership-status {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .status-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 40px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .manage-button {
+            background: #37003c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .manage-button:hover {
+            background: #6f42c1;
+        }
+        
+        /* Features Showcase */
+        .features-showcase {
+            padding: 80px 20px;
+            background: white;
+        }
+        
+        .showcase-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .showcase-container h2 {
+            font-size: 2.5rem;
+            color: #37003c;
+            margin-bottom: 60px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+        }
+        
+        .feature-showcase {
+            padding: 40px 20px;
+            background: #f8f9fa;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-showcase:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .feature-showcase h3 {
+            color: #37003c;
+            margin-bottom: 15px;
+        }
+        
+        .feature-showcase p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .hero-features {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .plans-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .plan-card.featured {
+                transform: none;
+            }
+            
+            .status-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .annual-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    
+    <script>
+        // Initialize Stripe (you'll need to replace with your publishable key)
+        const stripe = Stripe('pk_test_your_stripe_publishable_key_here');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthState();
+        });
+        
+        function checkAuthState() {
+            if (window.onAuthStateChanged && window.auth) {
+                window.onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        // User is signed in
+                        document.getElementById('auth-check').style.display = 'none';
+                        document.getElementById('membership-plans').style.display = 'block';
+                        
+                        // Check if user has existing membership
+                        checkMembershipStatus(user);
+                    } else {
+                        // User is not signed in
+                        document.getElementById('auth-check').style.display = 'block';
+                        document.getElementById('membership-plans').style.display = 'none';
+                        document.getElementById('current-membership').style.display = 'none';
+                    }
+                });
+            } else {
+                // Firebase not loaded, show auth check
+                document.getElementById('auth-check').style.display = 'block';
+            }
+        }
+        
+        function checkMembershipStatus(user) {
+            // Check localStorage for membership info (in production, check with your backend)
+            const membershipInfo = localStorage.getItem('membership');
+            
+            if (membershipInfo) {
+                const membership = JSON.parse(membershipInfo);
+                showCurrentMembership(membership);
+            }
+        }
+        
+        function showCurrentMembership(membership) {
+            document.getElementById('current-membership').style.display = 'block';
+            document.getElementById('current-plan').textContent = `${membership.plan} Member`;
+            document.getElementById('membership-details').textContent = 
+                `Active since ${new Date(membership.startDate).toLocaleDateString()}. Next billing: ${new Date(membership.nextBilling).toLocaleDateString()}`;
+        }
+        
+        async function selectPlan(planType, priceId) {
+            // In production, you'd call your backend to create a Stripe checkout session
+            // For now, we'll simulate the process
+            
+            if (!window.auth.currentUser) {
+                alert('Please sign in first to purchase a membership.');
+                window.location.href = '/signin.html';
+                return;
+            }
+            
+            // Show loading state
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Processing...';
+            button.disabled = true;
+            
+            try {
+                // Simulate API call to create Stripe session
+                // In production, replace this with actual Stripe integration
+                await simulateStripeCheckout(planType, priceId);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Payment processing failed. Please try again.');
+            } finally {
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        async function simulateStripeCheckout(planType, priceId) {
+            // This simulates what would happen with real Stripe integration
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // Simulate successful payment
+                    const membership = {
+                        plan: planType.charAt(0).toUpperCase() + planType.slice(1),
+                        priceId: priceId,
+                        startDate: new Date().toISOString(),
+                        nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+                        status: 'active'
+                    };
+                    
+                    // Store membership info
+                    localStorage.setItem('membership', JSON.stringify(membership));
+                    
+                    // Update user data
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    user.membership = membership;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    
+                    alert(`🎉 Welcome to EPL News Hub ${membership.plan}! Your membership is now active.`);
+                    
+                    // Refresh the page to show membership status
+                    window.location.reload();
+                    
+                    resolve();
+                }, 2000);
+            });
+        }
+        
+        function manageMembership() {
+            // In production, this would redirect to Stripe customer portal
+            alert('Membership management feature coming soon! Contact support for billing changes.');
+        }
+    </script>
+</body>
+</html>
