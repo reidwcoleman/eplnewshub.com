@@ -86,7 +86,7 @@
                     <div class="plan-header">
                         <h3>⚽ Starter</h3>
                         <div class="plan-price">
-                            <span class="currency">£</span>
+                            <span class="currency">$</span>
                             <span class="amount">2.00</span>
                             <span class="period">/month</span>
                         </div>
@@ -113,7 +113,7 @@
                     <div class="plan-header">
                         <h3>🏆 Pro</h3>
                         <div class="plan-price">
-                            <span class="currency">£</span>
+                            <span class="currency">$</span>
                             <span class="amount">7.00</span>
                             <span class="period">/month</span>
                         </div>
@@ -131,7 +131,7 @@
                         </ul>
                     </div>
                     
-                    <button class="plan-button" onclick="selectPlan('pro', 'price_pro_monthly')">
+                    <button class="plan-button" onclick="selectPlan('pro', 'price_pro_placeholder')">
                         Choose Pro
                     </button>
                 </div>
@@ -148,7 +148,7 @@
                 <div class="annual-grid">
                     <div class="annual-plan">
                         <h4>Starter Annual</h4>
-                        <div class="annual-price">£20.00/year <span class="savings">Save £4.00</span></div>
+                        <div class="annual-price">$20.00/year <span class="savings">Save $4.00</span></div>
                         <button class="annual-button" onclick="selectPlan('starter-annual', 'price_starter_annual')">
                             Choose Annual
                         </button>
@@ -156,7 +156,7 @@
                     
                     <div class="annual-plan featured">
                         <h4>Pro Annual</h4>
-                        <div class="annual-price">£70.00/year <span class="savings">Save £14.00</span></div>
+                        <div class="annual-price">$70.00/year <span class="savings">Save $14.00</span></div>
                         <button class="annual-button" onclick="selectPlan('pro-annual', 'price_pro_annual')">
                             Choose Annual
                         </button>
@@ -683,9 +683,6 @@
         }
         
         async function selectPlan(planType, priceId) {
-            // In production, you'd call your backend to create a Stripe checkout session
-            // For now, we'll simulate the process
-            
             if (!window.auth.currentUser) {
                 alert('Please sign in first to purchase a membership.');
                 window.location.href = '/signin.html';
@@ -699,9 +696,27 @@
             button.disabled = true;
             
             try {
-                // Simulate API call to create Stripe session
-                // In production, replace this with actual Stripe integration
-                await simulateStripeCheckout(planType, priceId);
+                // For Starter plan, redirect to Stripe Checkout
+                if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv') {
+                    const { error } = await stripe.redirectToCheckout({
+                        lineItems: [{
+                            price: priceId,
+                            quantity: 1,
+                        }],
+                        mode: 'subscription',
+                        successUrl: window.location.origin + '/membership-success.html',
+                        cancelUrl: window.location.origin + '/membership.html',
+                        customerEmail: window.auth.currentUser.email,
+                    });
+                    
+                    if (error) {
+                        console.error('Stripe checkout error:', error);
+                        alert('Payment processing failed. Please try again.');
+                    }
+                } else {
+                    // For other plans that don't have price IDs yet
+                    alert('This plan is coming soon! Please contact support for early access.');
+                }
                 
             } catch (error) {
                 console.error('Error:', error);
@@ -712,36 +727,6 @@
             }
         }
         
-        async function simulateStripeCheckout(planType, priceId) {
-            // This simulates what would happen with real Stripe integration
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    // Simulate successful payment
-                    const membership = {
-                        plan: planType.charAt(0).toUpperCase() + planType.slice(1),
-                        priceId: priceId,
-                        startDate: new Date().toISOString(),
-                        nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-                        status: 'active'
-                    };
-                    
-                    // Store membership info
-                    localStorage.setItem('membership', JSON.stringify(membership));
-                    
-                    // Update user data
-                    const user = JSON.parse(localStorage.getItem('user') || '{}');
-                    user.membership = membership;
-                    localStorage.setItem('user', JSON.stringify(user));
-                    
-                    alert(`🎉 Welcome to EPL News Hub ${membership.plan}! Your membership is now active.`);
-                    
-                    // Refresh the page to show membership status
-                    window.location.reload();
-                    
-                    resolve();
-                }, 2000);
-            });
-        }
         
         function manageMembership() {
             // In production, this would redirect to Stripe customer portal
