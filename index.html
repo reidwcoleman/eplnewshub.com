@@ -188,6 +188,25 @@
         <button class="newsletter-banner-close" onclick="closeBanner()">×</button>
     </div>
 
+    <!-- Premium Membership Banner -->
+    <div class="premium-banner">
+        <div class="premium-banner-content">
+            <div class="premium-banner-text">
+                <h2 class="premium-banner-title">👑 Unlock Premium EPL Content</h2>
+                <p class="premium-banner-description">Get exclusive transfer insider info, advanced analytics, and premium articles from £4.99/month. Join the elite community of EPL fans with insider access.</p>
+            </div>
+            <div class="premium-banner-actions">
+                <a href="/membership.html" class="premium-banner-btn primary">
+                    <span class="premium-btn-text">🚀 Go Premium</span>
+                </a>
+                <a href="/articles/exclusive-arsenal-transfer-insider-07-25-2025.html" class="premium-banner-btn secondary">
+                    <span class="premium-btn-text">👀 Preview Exclusive</span>
+                </a>
+            </div>
+        </div>
+        <button class="premium-banner-close" onclick="closePremiumBanner()">×</button>
+    </div>
+
     <!-- Main Content Area -->
     <main class="main-content">
         <div class="content-wrapper">
@@ -645,6 +664,116 @@
             display: none;
         }
         
+        /* Premium Banner Styles */
+        .premium-banner {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffb347 100%);
+            color: white;
+            padding: 25px 0;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(255,107,53,0.2);
+            border-bottom: 3px solid rgba(255,255,255,0.1);
+        }
+        
+        .premium-banner-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 40px;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .premium-banner-text {
+            flex: 1;
+        }
+        
+        .premium-banner-title {
+            font-size: 1.9rem;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .premium-banner-description {
+            font-size: 1.1rem;
+            margin: 0;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+        
+        .premium-banner-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .premium-banner-btn {
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .premium-banner-btn.primary {
+            background: rgba(255,255,255,0.95);
+            color: #ff6b35;
+            border: 2px solid transparent;
+        }
+        
+        .premium-banner-btn.primary:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .premium-banner-btn.secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .premium-banner-btn.secondary:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-1px);
+        }
+        
+        .premium-banner-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.3rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .premium-banner-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+        
+        .premium-banner.hidden {
+            display: none;
+        }
+        
         
         /* Desktop Layout Constraints */
         @media (min-width: 1025px) {
@@ -779,6 +908,36 @@
             /* Newsletter Banner Mobile */
             .newsletter-banner {
                 padding: 15px 0;
+            }
+            
+            /* Premium Banner Mobile */
+            .premium-banner {
+                padding: 20px 0;
+            }
+            
+            .premium-banner-content {
+                grid-template-columns: 1fr;
+                gap: 25px;
+                text-align: center;
+                padding: 0 15px;
+            }
+            
+            .premium-banner-title {
+                font-size: 1.6rem;
+            }
+            
+            .premium-banner-description {
+                font-size: 1rem;
+            }
+            
+            .premium-banner-actions {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .premium-banner-btn {
+                width: 100%;
+                padding: 12px 20px;
             }
             
             .newsletter-banner-content {
@@ -1890,9 +2049,20 @@
             banner.style.display = 'none';
             // Removed localStorage so banner shows on every page load
         }
+        
+        // Close premium banner functionality
+        function closePremiumBanner() {
+            const banner = document.querySelector('.premium-banner');
+            banner.style.display = 'none';
+            // Store preference so it doesn't show again for this session
+            sessionStorage.setItem('premiumBannerClosed', 'true');
+        }
 
         // Newsletter signup functionality
         document.addEventListener('DOMContentLoaded', function() {
+            // Check if premium banner should be shown
+            checkPremiumBannerVisibility();
+            
             // Banner now shows on every page load - localStorage check removed
 
             // Banner form handler
@@ -2060,6 +2230,28 @@
             function isValidEmail(email) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 return emailRegex.test(email);
+            }
+            
+            function checkPremiumBannerVisibility() {
+                // Check if user closed banner this session
+                if (sessionStorage.getItem('premiumBannerClosed') === 'true') {
+                    document.querySelector('.premium-banner').style.display = 'none';
+                    return;
+                }
+                
+                // Check if user already has premium membership
+                const membershipInfo = localStorage.getItem('membership');
+                if (membershipInfo) {
+                    const membership = JSON.parse(membershipInfo);
+                    if (membership.status === 'active') {
+                        // User has active membership, hide banner
+                        document.querySelector('.premium-banner').style.display = 'none';
+                        return;
+                    }
+                }
+                
+                // Show banner for non-premium users
+                document.querySelector('.premium-banner').style.display = 'block';
             }
         });
     </script>
