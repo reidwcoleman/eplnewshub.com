@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Subscription - EPL News Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Georgia, serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            color: #000;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            text-decoration: none;
+        }
+        .subscription-form {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="email"], input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #1e7e34;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .success-message {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info-message {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .subscription-status {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .status-indicator {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .subscribed {
+            color: #28a745;
+        }
+        .not-subscribed {
+            color: #dc3545;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        .action-buttons {
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="logo">EPL News Hub</a>
+            <h1>Manage Your Subscription</h1>
+            <p>Check your subscription status and manage your newsletter preferences.</p>
+        </div>
+
+        <div class="subscription-form">
+            <div id="messages"></div>
+
+            <div id="emailForm">
+                <div class="form-group">
+                    <label for="email">Email Address:</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email address">
+                </div>
+                
+                <button type="button" id="checkStatusBtn" class="btn btn-primary">Check Status</button>
+            </div>
+
+            <div id="statusDisplay" style="display: none;">
+                <div class="subscription-status">
+                    <div id="statusIndicator" class="status-indicator"></div>
+                    <div id="statusDetails"></div>
+                </div>
+
+                <div id="actionButtons" class="action-buttons">
+                    <button type="button" id="unsubscribeBtn" class="btn btn-danger">Unsubscribe</button>
+                    <button type="button" id="resubscribeBtn" class="btn btn-success">Resubscribe</button>
+                </div>
+
+                <button type="button" id="checkAnotherBtn" class="btn btn-primary" style="margin-top: 15px;">Check Another Email</button>
+            </div>
+        </div>
+
+        <div class="back-link">
+            <a href="/">← Back to EPL News Hub</a>
+        </div>
+    </div>
+
+    <script>
+        const emailInput = document.getElementById('email');
+        const checkStatusBtn = document.getElementById('checkStatusBtn');
+        const emailForm = document.getElementById('emailForm');
+        const statusDisplay = document.getElementById('statusDisplay');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusDetails = document.getElementById('statusDetails');
+        const actionButtons = document.getElementById('actionButtons');
+        const unsubscribeBtn = document.getElementById('unsubscribeBtn');
+        const resubscribeBtn = document.getElementById('resubscribeBtn');
+        const checkAnotherBtn = document.getElementById('checkAnotherBtn');
+        const messagesDiv = document.getElementById('messages');
+
+        function showMessage(message, type = 'info') {
+            messagesDiv.innerHTML = `<div class="message ${type}-message" style="display: block;">${message}</div>`;
+        }
+
+        function clearMessages() {
+            messagesDiv.innerHTML = '';
+        }
+
+        checkStatusBtn.addEventListener('click', function() {
+            const email = emailInput.value.trim();
+            
+            if (!email) {
+                showMessage('Please enter an email address.', 'error');
+                return;
+            }
+
+            checkStatusBtn.textContent = 'Checking...';
+            checkStatusBtn.disabled = true;
+            clearMessages();
+
+            fetch(`/api/subscription-status/${encodeURIComponent(email)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        emailForm.style.display = 'none';
+                        statusDisplay.style.display = 'block';
+                        
+                        if (data.subscribed) {
+                            statusIndicator.textContent = '✅ Subscribed';
+                            statusIndicator.className = 'status-indicator subscribed';
+                            statusDetails.innerHTML = `
+                                <p>You are currently subscribed to our newsletter.</p>
+                                <p><strong>Email:</strong> ${email}</p>
+                                ${data.subscription && data.subscription.createdAt ? 
+                                    `<p><strong>Subscribed on:</strong> ${new Date(data.subscription.createdAt).toLocaleDateString()}</p>` : 
+                                    ''
+                                }
+                            `;
+                            unsubscribeBtn.style.display = 'inline-block';
+                            resubscribeBtn.style.display = 'none';
+                        } else {
+                            statusIndicator.textContent = '❌ Not Subscribed';
+                            statusIndicator.className = 'status-indicator not-subscribed';
+                            statusDetails.innerHTML = `
+                                <p>You are not currently subscribed to our newsletter.</p>
+                                <p><strong>Email:</strong> ${email}</p>
+                            `;
+                            unsubscribeBtn.style.display = 'none';
+                            resubscribeBtn.style.display = 'inline-block';
+                        }
+                        actionButtons.style.display = 'block';
+                    } else {
+                        showMessage(data.message || 'An error occurred while checking subscription status.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('An error occurred while checking subscription status.', 'error');
+                })
+                .finally(() => {
+                    checkStatusBtn.textContent = 'Check Status';
+                    checkStatusBtn.disabled = false;
+                });
+        });
+
+        unsubscribeBtn.addEventListener('click', function() {
+            if (!confirm('Are you sure you want to unsubscribe from our newsletter?')) {
+                return;
+            }
+
+            const email = emailInput.value.trim();
+            unsubscribeBtn.textContent = 'Unsubscribing...';
+            unsubscribeBtn.disabled = true;
+
+            fetch('/api/unsubscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('Successfully unsubscribed from newsletter.', 'success');
+                    statusIndicator.textContent = '❌ Not Subscribed';
+                    statusIndicator.className = 'status-indicator not-subscribed';
+                    statusDetails.innerHTML = `
+                        <p>You have been unsubscribed from our newsletter.</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                    `;
+                    unsubscribeBtn.style.display = 'none';
+                    resubscribeBtn.style.display = 'inline-block';
+                } else {
+                    showMessage(data.message || 'An error occurred while unsubscribing.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('An error occurred while unsubscribing.', 'error');
+            })
+            .finally(() => {
+                unsubscribeBtn.textContent = 'Unsubscribe';
+                unsubscribeBtn.disabled = false;
+            });
+        });
+
+        resubscribeBtn.addEventListener('click', function() {
+            const email = emailInput.value.trim();
+            resubscribeBtn.textContent = 'Subscribing...';
+            resubscribeBtn.disabled = true;
+
+            fetch('/api/resubscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('Successfully subscribed to newsletter.', 'success');
+                    statusIndicator.textContent = '✅ Subscribed';
+                    statusIndicator.className = 'status-indicator subscribed';
+                    statusDetails.innerHTML = `
+                        <p>You are now subscribed to our newsletter.</p>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Subscribed on:</strong> ${new Date().toLocaleDateString()}</p>
+                    `;
+                    unsubscribeBtn.style.display = 'inline-block';
+                    resubscribeBtn.style.display = 'none';
+                } else {
+                    showMessage(data.message || 'An error occurred while subscribing.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('An error occurred while subscribing.', 'error');
+            })
+            .finally(() => {
+                resubscribeBtn.textContent = 'Resubscribe';
+                resubscribeBtn.disabled = false;
+            });
+        });
+
+        checkAnotherBtn.addEventListener('click', function() {
+            emailForm.style.display = 'block';
+            statusDisplay.style.display = 'none';
+            emailInput.value = '';
+            clearMessages();
+        });
+
+        // Auto-populate email from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const emailParam = urlParams.get('email');
+        if (emailParam) {
+            emailInput.value = decodeURIComponent(emailParam);
+        }
+
+        // Allow Enter key to check status
+        emailInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                checkStatusBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>

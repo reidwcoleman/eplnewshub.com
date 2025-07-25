@@ -301,6 +301,153 @@ app.delete('/api/admin/clear-subscribers', (req, res) => {
     }
 });
 
+// Endpoint to unsubscribe from newsletter
+app.post('/api/unsubscribe', (req, res) => {
+    const { email } = req.body;
+
+    if (!email || !isValidEmail(email)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Please provide a valid email address' 
+        });
+    }
+
+    try {
+        const subscriptions = JSON.parse(fs.readFileSync(subscriptionsFile, 'utf8'));
+        const emailLower = email.toLowerCase().trim();
+        
+        // Find subscription by email
+        const subscriptionIndex = subscriptions.findIndex(sub => 
+            sub.email.toLowerCase() === emailLower
+        );
+
+        if (subscriptionIndex === -1) {
+            return res.json({ 
+                success: false, 
+                message: 'Email address not found in our subscriber list' 
+            });
+        }
+
+        // Remove subscription
+        subscriptions.splice(subscriptionIndex, 1);
+        fs.writeFileSync(subscriptionsFile, JSON.stringify(subscriptions, null, 2));
+
+        // Also update user newsletter preference if they have an account
+        const users = readUsers();
+        const userIndex = users.findIndex(user => user.email.toLowerCase() === emailLower);
+        if (userIndex !== -1) {
+            users[userIndex].newsletter = false;
+            writeUsers(users);
+        }
+
+        console.log(`User unsubscribed: ${email} at ${new Date().toISOString()}`);
+        res.json({ 
+            success: true, 
+            message: 'Successfully unsubscribed from newsletter' 
+        });
+
+    } catch (error) {
+        console.error('Unsubscribe error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'An error occurred while processing your request. Please try again.' 
+        });
+    }
+});
+
+// Endpoint to check subscription status
+app.get('/api/subscription-status/:email', (req, res) => {
+    const email = req.params.email;
+
+    if (!email || !isValidEmail(email)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Please provide a valid email address' 
+        });
+    }
+
+    try {
+        const subscriptions = JSON.parse(fs.readFileSync(subscriptionsFile, 'utf8'));
+        const emailLower = email.toLowerCase().trim();
+        
+        const subscription = subscriptions.find(sub => 
+            sub.email.toLowerCase() === emailLower
+        );
+
+        res.json({
+            success: true,
+            subscribed: !!subscription,
+            subscription: subscription || null
+        });
+
+    } catch (error) {
+        console.error('Subscription status error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'An error occurred while checking subscription status' 
+        });
+    }
+});
+
+// Endpoint to resubscribe
+app.post('/api/resubscribe', (req, res) => {
+    const { email, name } = req.body;
+
+    if (!email || !isValidEmail(email)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Please provide a valid email address' 
+        });
+    }
+
+    try {
+        const subscriptions = JSON.parse(fs.readFileSync(subscriptionsFile, 'utf8'));
+        const emailLower = email.toLowerCase().trim();
+        
+        // Check if already subscribed
+        const existingSubscription = subscriptions.find(sub => 
+            sub.email.toLowerCase() === emailLower
+        );
+
+        if (existingSubscription) {
+            return res.json({ 
+                success: false, 
+                message: 'This email is already subscribed to our newsletter' 
+            });
+        }
+
+        // Add new subscription
+        subscriptions.push({
+            name: name || 'Subscriber',
+            email: emailLower,
+            source: 'resubscribe',
+            createdAt: new Date().toISOString()
+        });
+        fs.writeFileSync(subscriptionsFile, JSON.stringify(subscriptions, null, 2));
+
+        // Update user newsletter preference if they have an account
+        const users = readUsers();
+        const userIndex = users.findIndex(user => user.email.toLowerCase() === emailLower);
+        if (userIndex !== -1) {
+            users[userIndex].newsletter = true;
+            writeUsers(users);
+        }
+
+        console.log(`User resubscribed: ${email} at ${new Date().toISOString()}`);
+        res.json({ 
+            success: true, 
+            message: 'Successfully resubscribed to newsletter' 
+        });
+
+    } catch (error) {
+        console.error('Resubscribe error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'An error occurred while processing your request. Please try again.' 
+        });
+    }
+});
+
 // Google OAuth configuration endpoint
 app.get('/api/google-config', (req, res) => {
     res.json({
