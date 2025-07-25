@@ -1,0 +1,338 @@
+<!-- In-Article Promotional Inserts -->
+
+<!-- Compact Newsletter Insert -->
+<div class="in-article-newsletter">
+    <div class="promo-content">
+        <span class="promo-icon">📧</span>
+        <div class="promo-text">
+            <strong>Stay Updated!</strong> Get weekly EPL insights delivered to your inbox.
+        </div>
+        <a href="#newsletter-signup" class="promo-btn" onclick="showNewsletterPopup()">Subscribe</a>
+    </div>
+</div>
+
+<!-- Compact Premium Insert -->
+<div class="in-article-premium">
+    <div class="promo-content">
+        <span class="promo-icon">👑</span>
+        <div class="promo-text">
+            <strong>Want More?</strong> Get exclusive transfer news and premium analysis.
+        </div>
+        <a href="/membership.html" class="promo-btn">Go Premium</a>
+    </div>
+</div>
+
+<!-- Newsletter + Premium Combo Insert -->
+<div class="in-article-combo">
+    <div class="combo-header">
+        <h4>🚀 Don't Miss Out!</h4>
+        <p>Join thousands of EPL fans getting insider access</p>
+    </div>
+    <div class="combo-options">
+        <div class="combo-option">
+            <div class="combo-icon">📧</div>
+            <div class="combo-details">
+                <strong>Free Newsletter</strong>
+                <span>Weekly insights & analysis</span>
+            </div>
+            <button class="combo-btn newsletter" onclick="showNewsletterPopup()">Subscribe</button>
+        </div>
+        <div class="combo-divider">OR</div>
+        <div class="combo-option">
+            <div class="combo-icon">👑</div>
+            <div class="combo-details">
+                <strong>Premium Access</strong>
+                <span>Exclusive content from $2/mo</span>
+            </div>
+            <a href="/membership.html" class="combo-btn premium">Upgrade</a>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Subscribe Bar -->
+<div class="floating-subscribe-bar" id="floatingBar" style="display: none;">
+    <div class="floating-content">
+        <span class="floating-text">📧 <strong>Free EPL Newsletter</strong> - Weekly insights delivered Saturday mornings</span>
+        <div class="floating-actions">
+            <button class="floating-btn" onclick="showNewsletterPopup()">Subscribe Free</button>
+            <button class="floating-close" onclick="hideFloatingBar()">×</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Compact In-Article Promotions */
+.in-article-newsletter,
+.in-article-premium {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-left: 4px solid #37003c;
+    border-radius: 8px;
+    margin: 30px 0;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.in-article-premium {
+    border-left-color: #20c997;
+}
+
+.promo-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.promo-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.promo-text {
+    flex: 1;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.promo-btn {
+    background: #37003c;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.promo-btn:hover {
+    background: #6f42c1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(55,0,60,0.3);
+}
+
+/* Combo Promotion */
+.in-article-combo {
+    background: linear-gradient(135deg, #37003c 0%, #6f42c1 100%);
+    color: white;
+    border-radius: 16px;
+    margin: 40px 0;
+    padding: 25px;
+    box-shadow: 0 8px 25px rgba(55,0,60,0.3);
+}
+
+.combo-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.combo-header h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.3rem;
+}
+
+.combo-header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.combo-options {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.combo-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.combo-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+}
+
+.combo-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.combo-details strong {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.combo-details span {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.combo-btn {
+    background: white;
+    color: #37003c;
+    text-decoration: none;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.combo-btn:hover {
+    background: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.combo-divider {
+    background: rgba(255,255,255,0.3);
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+/* Floating Subscribe Bar */
+.floating-subscribe-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #37003c, #6f42c1);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 50px;
+    box-shadow: 0 8px 25px rgba(55,0,60,0.4);
+    z-index: 1000;
+    max-width: 90vw;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+.floating-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.floating-text {
+    font-size: 0.9rem;
+}
+
+.floating-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.floating-btn {
+    background: white;
+    color: #37003c;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.floating-btn:hover {
+    background: #f8f9fa;
+    transform: translateY(-1px);
+}
+
+.floating-close {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.floating-close:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .promo-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .combo-options {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .combo-option {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .combo-divider {
+        transform: rotate(90deg);
+    }
+    
+    .floating-content {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+    
+    .floating-text {
+        font-size: 0.8rem;
+    }
+}
+</style>
+
+<script>
+// Show floating subscribe bar after user scrolls
+let hasShownFloatingBar = false;
+
+window.addEventListener('scroll', function() {
+    if (!hasShownFloatingBar && window.scrollY > 500) {
+        setTimeout(() => {
+            document.getElementById('floatingBar').style.display = 'block';
+            hasShownFloatingBar = true;
+        }, 1000);
+    }
+});
+
+function hideFloatingBar() {
+    document.getElementById('floatingBar').style.display = 'none';
+}
+
+function showNewsletterPopup() {
+    // This should trigger your existing newsletter popup
+    // You can integrate this with your existing newsletter functionality
+    alert('Newsletter signup popup would appear here!');
+}
+</script>

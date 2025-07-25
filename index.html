@@ -418,6 +418,24 @@
                     </div>
                     
                     <aside class="enhanced-sidebar">
+                        <!-- Newsletter Widget -->
+                        <div class="sidebar-newsletter-widget">
+                            <div class="widget-header">
+                                <h4>📧 Free EPL Newsletter</h4>
+                            </div>
+                            <div class="widget-content">
+                                <p>Weekly Premier League insights delivered every Saturday morning.</p>
+                                <form class="widget-form" onsubmit="subscribeNewsletter(event)">
+                                    <input type="email" placeholder="Your email" required>
+                                    <button type="submit">Subscribe</button>
+                                </form>
+                                <div class="widget-stats">
+                                    <span>✅ 12,000+ subscribers</span>
+                                    <span>🚫 No spam</span>
+                                </div>
+                            </div>
+                        </div>
+                    
                         <div class="trending-section">
                             <h3 class="sidebar-title">🔥 Trending Now</h3>
                             <ul class="trending-list">
@@ -495,6 +513,22 @@
                                 </form>
                                 <div id="newsletter-message" class="newsletter-message" style="display: none;"></div>
                                 <p class="newsletter-privacy">✅ Weekly Saturday delivery • No spam, unsubscribe anytime</p>
+                            </div>
+                        </div>
+
+                        <!-- Premium Widget -->
+                        <div class="sidebar-premium-widget">
+                            <div class="widget-header premium">
+                                <h4>👑 Go Premium</h4>
+                            </div>
+                            <div class="widget-content">
+                                <div class="premium-highlights">
+                                    <div class="highlight">🎯 Exclusive transfers</div>
+                                    <div class="highlight">📊 Advanced stats</div>
+                                    <div class="highlight">📰 Premium articles</div>
+                                </div>
+                                <div class="widget-price">Starting at $2/month</div>
+                                <a href="/membership.html" class="widget-premium-btn">Upgrade Now</a>
                             </div>
                         </div>
 
@@ -1237,6 +1271,127 @@
         body > ins[class*="adsbygoogle"]:first-child,
         body > ins[class*="adsbygoogle"]:nth-child(2) {
             display: none !important;
+        }
+        
+        /* Sidebar Promotional Widgets */
+        .sidebar-newsletter-widget,
+        .sidebar-premium-widget {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .widget-header {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+
+        .widget-header.premium {
+            background: linear-gradient(135deg, #20c997, #17a2b8);
+        }
+
+        .widget-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .widget-content {
+            padding: 20px;
+        }
+
+        .widget-content p {
+            margin: 0 0 15px 0;
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .widget-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .widget-form input {
+            padding: 10px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .widget-form input:focus {
+            outline: none;
+            border-color: #37003c;
+        }
+
+        .widget-form button {
+            background: #37003c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .widget-form button:hover {
+            background: #6f42c1;
+        }
+
+        .widget-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .widget-stats span {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .premium-highlights {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .highlight {
+            font-size: 0.9rem;
+            color: #666;
+            padding: 5px 0;
+        }
+
+        .widget-price {
+            color: #20c997;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .widget-premium-btn {
+            display: block;
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .widget-premium-btn:hover {
+            background: linear-gradient(135deg, #6f42c1, #37003c);
+            transform: translateY(-1px);
         }
         
         /* Auth Links Styling */
@@ -2293,6 +2448,21 @@
                 document.querySelector('.premium-banner').style.display = 'block';
             }
         });
+        
+        // Newsletter subscription function
+        function subscribeNewsletter(event) {
+            event.preventDefault();
+            const email = event.target.querySelector('input[type="email"]').value;
+            
+            // Show success message
+            alert('Thank you for subscribing! You\'ll receive our weekly EPL newsletter every Saturday.');
+            
+            // Reset form
+            event.target.reset();
+            
+            // You can integrate this with your actual newsletter service
+            console.log('Newsletter subscription for:', email);
+        }
     </script>
 </body>
 </html>
