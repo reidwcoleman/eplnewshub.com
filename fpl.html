@@ -1568,6 +1568,21 @@
         }
         
         function checkMembershipStatus(user) {
+            // Special admin account with Pro membership
+            if (user.email === 'reidwcoleman@gmail.com') {
+                // Grant Pro membership access to admin account
+                const adminMembership = {
+                    plan: 'pro',
+                    status: 'active',
+                    startDate: new Date().toISOString(),
+                    nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
+                };
+                localStorage.setItem('membership', JSON.stringify(adminMembership));
+                userHasPremium = true;
+                hidePremiumGate();
+                return;
+            }
+            
             // Check localStorage for membership info
             const membershipInfo = localStorage.getItem('membership');
             
