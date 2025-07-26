@@ -131,7 +131,7 @@
                         </ul>
                     </div>
                     
-                    <button class="plan-button" onclick="selectPlan('pro', 'price_pro_placeholder')">
+                    <button class="plan-button" onclick="selectPlan('pro', 'price_1Rox4aR10Q6bz3BHxohJtpcO')">
                         Choose Pro
                     </button>
                 </div>
@@ -702,9 +702,10 @@
             button.disabled = true;
             
             try {
-                // For Starter plan, redirect to Stripe Checkout
-                if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv') {
-                    console.log('Starting Stripe checkout for Starter plan');
+                // For Starter and Pro plans, redirect to Stripe Checkout
+                if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv' || priceId === 'price_1Rox4aR10Q6bz3BHxohJtpcO') {
+                    const planName = priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv' ? 'Starter' : 'Pro';
+                    console.log(`Starting Stripe checkout for ${planName} plan`);
                     
                     // Check if stripe is loaded
                     if (!window.stripe) {
