@@ -1502,22 +1502,206 @@
             font-weight: 500;
         }
         
-        .reset-team-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #dc3545, #e74c3c);
-            color: white;
+        .team-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .team-action-btn {
+            padding: 10px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 15px;
+            font-size: 0.9rem;
         }
-        
-        .reset-team-btn:hover {
+
+        .save-btn {
+            background: linear-gradient(135deg, #2ed573, #1dd1a1);
+            color: white;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46,213,115,0.3);
+        }
+
+        .load-btn {
+            background: linear-gradient(135deg, #3742fa, #2f3542);
+            color: white;
+        }
+
+        .load-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(55,66,250,0.3);
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+        }
+
+        .reset-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(220,53,69,0.3);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: calc(80vh - 80px);
+            overflow-y: auto;
+        }
+
+        .player-search {
+            margin-bottom: 15px;
+        }
+
+        .player-search input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .player-search input:focus {
+            outline: none;
+            border-color: #37003c;
+        }
+
+        .position-filter {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .position-filter select {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .players-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .player-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .player-option:hover {
+            border-color: #37003c;
+            background: #f8f9fa;
+        }
+
+        .player-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .player-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .player-team {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .player-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .player-points {
+            font-size: 0.9rem;
+            color: #37003c;
+            font-weight: 600;
+        }
+
+        .player-price {
+            font-size: 0.9rem;
+            color: #2ed573;
+            font-weight: 700;
         }
         
         /* Enhanced Animations */
@@ -1630,28 +1814,6 @@
             position: relative;
         }
 
-        .refresh-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 4px 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            position: absolute;
-            right: 0;
-            top: 0;
-            transition: all 0.3s ease;
-        }
-
-        .refresh-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: rotate(180deg);
-        }
-
-        .refresh-btn:active {
-            transform: rotate(360deg) scale(0.95);
-        }
         
         .info-label {
             font-size: 0.8rem;
@@ -1806,11 +1968,11 @@
                     </div>
                     <div class="stat-info">
                         <span class="info-label">Status:</span>
-                        <span class="info-value" id="api-status">🟢 Live</span>
-                        <button id="refresh-stats" class="refresh-btn" title="Refresh live data">🔄</button>
+                        <span class="info-value">📊 Static Data</span>
                     </div>
                     <div class="stat-info">
-                        <span class="info-label" id="last-refresh">Last updated: Never</span>
+                        <span class="info-label">Last Season Data</span>
+                        <span class="info-value">2023/24</span>
                     </div>
                 </div>
             </div>
@@ -2230,7 +2392,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <button class="reset-team-btn" onclick="resetTeam()">Reset Team</button>
+                            <div class="team-actions">
+                                <button class="team-action-btn save-btn" onclick="saveTeam()">💾 Save Team</button>
+                                <button class="team-action-btn load-btn" onclick="loadTeam()">📁 Load Team</button>
+                                <button class="team-action-btn reset-btn" onclick="resetTeam()">🔄 Reset Team</button>
+                            </div>
                         </div>
                     </div>
 
@@ -3065,13 +3231,19 @@
         }
 
         // Team builder data
-        let teamBudget = 100.0;
+        let currentSelection = { position: '', slot: 0 };
         let selectedPlayers = {
             gk: [null, null],
             def: [null, null, null, null, null],
             mid: [null, null, null, null, null],
             fwd: [null, null, null]
         };
+        let teamBudget = 100.0;
+
+        function initializeTeamBuilder() {
+            updateTeamDisplay();
+            updateBudgetDisplay();
+        }
 
         // Enhanced Player Comparison with Live FPL Data
         let allPlayers = [];
@@ -3454,21 +3626,266 @@
 
         // Team builder functionality
         function openPlayerSelector(position, slot) {
-            // Simple alert for demo - in real app would open modal with player selection
-            const playerName = prompt(`Select a ${position.toUpperCase()} for slot ${slot + 1}:`);
-            if (playerName) {
-                addPlayerToTeam(position, slot, playerName, 5.0); // Demo price
+            currentSelection = { position, slot };
+            
+            // Create and show player selection modal
+            const modal = createPlayerSelectionModal(position);
+            document.body.appendChild(modal);
+            
+            // Populate modal with players for this position
+            populatePlayerModal(position);
+        }
+
+        function createPlayerSelectionModal(position) {
+            const modal = document.createElement('div');
+            modal.id = 'player-selection-modal';
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Select ${position.toUpperCase()}</h3>
+                        <button class="close-btn" onclick="closePlayerModal()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="player-search">
+                            <input type="text" id="player-search" placeholder="Search players..." onkeyup="filterPlayers()">
+                        </div>
+                        <div class="position-filter">
+                            <label>Sort by:</label>
+                            <select id="sort-filter" onchange="sortPlayers()">
+                                <option value="points">Total Points</option>
+                                <option value="price">Price (Low to High)</option>
+                                <option value="price-desc">Price (High to Low)</option>
+                                <option value="name">Name</option>
+                            </select>
+                        </div>
+                        <div class="players-list" id="players-list">
+                            <!-- Players will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            `;
+            return modal;
+        }
+
+        function closePlayerModal() {
+            const modal = document.getElementById('player-selection-modal');
+            if (modal) {
+                modal.remove();
             }
         }
 
-        function addPlayerToTeam(position, slot, name, price) {
+        function populatePlayerModal(position) {
+            // Map position abbreviations to element types
+            const positionMap = {
+                'gk': 1,    // Goalkeeper
+                'def': 2,   // Defender  
+                'mid': 3,   // Midfielder
+                'fwd': 4    // Forward
+            };
+            
+            const elementType = positionMap[position];
+            if (!elementType) return;
+            
+            // Get players for this position from fallback data
+            const fallbackData = fplLiveStats.getFallbackBootstrap();
+            const allPlayers = fallbackData.elements || [];
+            const positionPlayers = allPlayers.filter(player => player.element_type === elementType);
+            
+            // Add more players to each position for better selection
+            const additionalPlayers = generateAdditionalPlayersForPosition(elementType);
+            const combinedPlayers = [...positionPlayers, ...additionalPlayers];
+            
+            displayPlayersInModal(combinedPlayers);
+        }
+
+        function generateAdditionalPlayersForPosition(elementType) {
+            const teams = fplLiveStats.getFallbackTeams();
+            const additionalPlayers = [];
+            
+            switch(elementType) {
+                case 1: // Goalkeepers
+                    additionalPlayers.push(
+                        { id: 101, web_name: 'Pickford', team: 8, element_type: 1, now_cost: 50, total_points: 134, goals_scored: 0, assists: 1, selected_by_percent: '8.2' },
+                        { id: 102, web_name: 'Pope', team: 15, element_type: 1, now_cost: 55, total_points: 121, goals_scored: 0, assists: 0, selected_by_percent: '6.1' },
+                        { id: 103, web_name: 'Areola', team: 19, element_type: 1, now_cost: 45, total_points: 98, goals_scored: 0, assists: 0, selected_by_percent: '3.4' }
+                    );
+                    break;
+                case 2: // Defenders
+                    additionalPlayers.push(
+                        { id: 201, web_name: 'Van Dijk', team: 12, element_type: 2, now_cost: 65, total_points: 143, goals_scored: 3, assists: 2, selected_by_percent: '15.7' },
+                        { id: 202, web_name: 'Walker', team: 13, element_type: 2, now_cost: 55, total_points: 134, goals_scored: 1, assists: 3, selected_by_percent: '12.3' },
+                        { id: 203, web_name: 'Robertson', team: 12, element_type: 2, now_cost: 60, total_points: 128, goals_scored: 2, assists: 5, selected_by_percent: '14.2' },
+                        { id: 204, web_name: 'Trippier', team: 15, element_type: 2, now_cost: 58, total_points: 125, goals_scored: 1, assists: 7, selected_by_percent: '11.8' }
+                    );
+                    break;
+                case 3: // Midfielders
+                    additionalPlayers.push(
+                        { id: 301, web_name: 'De Bruyne', team: 13, element_type: 3, now_cost: 120, total_points: 176, goals_scored: 6, assists: 18, selected_by_percent: '23.4' },
+                        { id: 302, web_name: 'Bruno Fernandes', team: 14, element_type: 3, now_cost: 85, total_points: 168, goals_scored: 10, assists: 8, selected_by_percent: '18.9' },
+                        { id: 303, web_name: 'Maddison', team: 18, element_type: 3, now_cost: 75, total_points: 134, goals_scored: 4, assists: 9, selected_by_percent: '13.2' }
+                    );
+                    break;
+                case 4: // Forwards
+                    additionalPlayers.push(
+                        { id: 401, web_name: 'Kane', team: 18, element_type: 4, now_cost: 110, total_points: 213, goals_scored: 30, assists: 3, selected_by_percent: '31.2' },
+                        { id: 402, web_name: 'Nunez', team: 12, element_type: 4, now_cost: 75, total_points: 142, goals_scored: 15, assists: 4, selected_by_percent: '16.7' },
+                        { id: 403, web_name: 'Wilson', team: 15, element_type: 4, now_cost: 70, total_points: 121, goals_scored: 14, assists: 2, selected_by_percent: '8.9' }
+                    );
+                    break;
+            }
+            
+            return additionalPlayers;
+        }
+
+        function displayPlayersInModal(players) {
+            const playersList = document.getElementById('players-list');
+            if (!playersList) return;
+            
+            playersList.innerHTML = players.map(player => `
+                <div class="player-option" onclick="selectPlayer(${player.id}, '${player.web_name}', ${player.now_cost / 10})">
+                    <div class="player-info">
+                        <div class="player-name">${player.web_name}</div>
+                        <div class="player-team">${getTeamName(player.team)}</div>
+                    </div>
+                    <div class="player-stats">
+                        <div class="player-points">${player.total_points} pts</div>
+                        <div class="player-price">£${(player.now_cost / 10).toFixed(1)}m</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getTeamName(teamId) {
+            const teams = fplLiveStats.getFallbackTeams();
+            const team = teams.find(t => t.id === teamId);
+            return team ? team.short_name : 'UNK';
+        }
+
+        function selectPlayer(playerId, playerName, price) {
+            const { position, slot } = currentSelection;
+            addPlayerToTeam(position, slot, playerName, price, playerId);
+            closePlayerModal();
+        }
+
+        function filterPlayers() {
+            const searchTerm = document.getElementById('player-search').value.toLowerCase();
+            const playerOptions = document.querySelectorAll('.player-option');
+            
+            playerOptions.forEach(option => {
+                const playerName = option.querySelector('.player-name').textContent.toLowerCase();
+                const playerTeam = option.querySelector('.player-team').textContent.toLowerCase();
+                
+                if (playerName.includes(searchTerm) || playerTeam.includes(searchTerm)) {
+                    option.style.display = 'flex';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        }
+
+        function sortPlayers() {
+            const sortBy = document.getElementById('sort-filter').value;
+            const playersList = document.getElementById('players-list');
+            const players = Array.from(playersList.querySelectorAll('.player-option'));
+            
+            players.sort((a, b) => {
+                switch(sortBy) {
+                    case 'points':
+                        const pointsA = parseInt(a.querySelector('.player-points').textContent);
+                        const pointsB = parseInt(b.querySelector('.player-points').textContent);
+                        return pointsB - pointsA;
+                    case 'price':
+                        const priceA = parseFloat(a.querySelector('.player-price').textContent.replace('£', '').replace('m', ''));
+                        const priceB = parseFloat(b.querySelector('.player-price').textContent.replace('£', '').replace('m', ''));
+                        return priceA - priceB;
+                    case 'price-desc':
+                        const priceA2 = parseFloat(a.querySelector('.player-price').textContent.replace('£', '').replace('m', ''));
+                        const priceB2 = parseFloat(b.querySelector('.player-price').textContent.replace('£', '').replace('m', ''));
+                        return priceB2 - priceA2;
+                    case 'name':
+                        const nameA = a.querySelector('.player-name').textContent;
+                        const nameB = b.querySelector('.player-name').textContent;
+                        return nameA.localeCompare(nameB);
+                    default:
+                        return 0;
+                }
+            });
+            
+            // Clear and re-append sorted players
+            playersList.innerHTML = '';
+            players.forEach(player => playersList.appendChild(player));
+        }
+
+        function addPlayerToTeam(position, slot, name, price, playerId) {
+            // Validate team constraints
+            const validation = validateTeamConstraints(position, price, playerId);
+            if (!validation.valid) {
+                alert(validation.message);
+                return;
+            }
+            
             if (teamBudget >= price) {
-                selectedPlayers[position][slot] = { name, price };
+                // Remove previous player if slot was occupied
+                if (selectedPlayers[position][slot]) {
+                    teamBudget += selectedPlayers[position][slot].price;
+                }
+                
+                selectedPlayers[position][slot] = { name, price, id: playerId };
                 teamBudget -= price;
                 updateTeamDisplay();
                 updateBudgetDisplay();
+                
+                // Check if team is complete
+                checkTeamCompletion();
             } else {
-                alert('Not enough budget remaining!');
+                alert('Not enough budget! You need £' + (price - teamBudget).toFixed(1) + 'm more.');
+            }
+        }
+
+        function validateTeamConstraints(position, price, playerId) {
+            // Check max 3 players from same team rule
+            const fallbackData = fplLiveStats.getFallbackBootstrap();
+            const allPlayers = fallbackData.elements || [];
+            const additionalPlayers = [
+                ...generateAdditionalPlayersForPosition(1),
+                ...generateAdditionalPlayersForPosition(2),
+                ...generateAdditionalPlayersForPosition(3),
+                ...generateAdditionalPlayersForPosition(4)
+            ];
+            const combinedPlayers = [...allPlayers, ...additionalPlayers];
+            const selectedPlayer = combinedPlayers.find(p => p.id === playerId);
+            
+            if (selectedPlayer) {
+                const playersFromSameTeam = Object.values(selectedPlayers)
+                    .flat()
+                    .filter(player => {
+                        if (!player) return false;
+                        const playerInfo = combinedPlayers.find(p => p.id === player.id);
+                        return playerInfo && playerInfo.team === selectedPlayer.team;
+                    });
+                
+                if (playersFromSameTeam.length >= 3) {
+                    const teamName = getTeamName(selectedPlayer.team);
+                    return { 
+                        valid: false, 
+                        message: `You can only have 3 players from ${teamName}. You already have ${playersFromSameTeam.length}.` 
+                    };
+                }
+            }
+            
+            return { valid: true };
+        }
+
+        function checkTeamCompletion() {
+            const totalPlayers = Object.values(selectedPlayers)
+                .flat()
+                .filter(player => player !== null).length;
+            
+            if (totalPlayers === 15) {
+                setTimeout(() => {
+                    alert('🎉 Team Complete! You have selected all 15 players. Budget remaining: £' + teamBudget.toFixed(1) + 'm');
+                }, 500);
             }
         }
 
@@ -3501,24 +3918,53 @@
             }
         }
 
-        function resetTeam() {
-            selectedPlayers = {
-                gk: [null, null],
-                def: [null, null, null, null, null],
-                mid: [null, null, null, null, null],
-                fwd: [null, null, null]
+        function saveTeam() {
+            const teamData = {
+                players: selectedPlayers,
+                budget: teamBudget,
+                savedAt: new Date().toISOString()
             };
-            teamBudget = 100.0;
             
-            // Reset visual display
-            document.querySelectorAll('.player-slot').forEach(slot => {
-                slot.classList.remove('filled');
-                const position = slot.getAttribute('onclick').match(/'(\w+)'/)[1];
-                const slotNum = slot.getAttribute('onclick').match(/(\d+)/)[1];
-                slot.innerHTML = `<span class="slot-text">+ Add ${position.toUpperCase()}</span>`;
-            });
+            localStorage.setItem('fpl-team', JSON.stringify(teamData));
+            alert('🎉 Team saved successfully! You can load it anytime.');
+        }
+
+        function loadTeam() {
+            const savedTeam = localStorage.getItem('fpl-team');
+            if (!savedTeam) {
+                alert('No saved team found. Save a team first!');
+                return;
+            }
             
-            updateBudgetDisplay();
+            try {
+                const teamData = JSON.parse(savedTeam);
+                
+                if (confirm(`Load your saved team from ${new Date(teamData.savedAt).toLocaleDateString()}?`)) {
+                    selectedPlayers = teamData.players;
+                    teamBudget = teamData.budget;
+                    updateTeamDisplay();
+                    updateBudgetDisplay();
+                    alert('✅ Team loaded successfully!');
+                }
+            } catch (error) {
+                alert('Error loading saved team. The saved data may be corrupted.');
+            }
+        }
+
+        function resetTeam() {
+            if (confirm('Are you sure you want to reset your team? This will remove all selected players.')) {
+                selectedPlayers = {
+                    gk: [null, null],
+                    def: [null, null, null, null, null],
+                    mid: [null, null, null, null, null],
+                    fwd: [null, null, null]
+                };
+                teamBudget = 100.0;
+                
+                updateTeamDisplay();
+                updateBudgetDisplay();
+                alert('Team reset successfully!');
+            }
         }
 
 
@@ -3598,44 +4044,27 @@
             // Initialize live stats system
             console.log('Initializing FPL Live Stats System...');
             
-            // Load initial data with comprehensive testing
-            updateLiveStats().then(() => {
-                console.log('Initial live stats loaded successfully');
-                
-                // Test API endpoints
-                return testAPIIntegration();
-            }).then(() => {
-                console.log('API integration test completed');
-                
-                // Populate player comparison dropdowns after stats load
-                return populatePlayerDropdowns();
-            }).then(() => {
-                console.log('Player dropdowns populated successfully');
-                showNotification('FPL Live API integrated successfully!', 'success');
-            }).catch(error => {
-                console.error('Failed to load initial stats:', error);
-                showErrorMessage('Failed to load live stats. Using fallback data.');
-            });
+            // Initialize static player data
+            console.log('Initializing FPL Team Builder...');
             
-            // Initialize comparison tool with live data
+            // Load static player data from fallback
+            const fallbackData = fplLiveStats.getFallbackBootstrap();
+            const players = fallbackData.elements || [];
+            const teams = fallbackData.teams || [];
+            playerData = fplLiveStats.formatPlayerData(players, teams);
+            
+            // Initialize team builder
+            initializeTeamBuilder();
+            
+            // Populate player comparison dropdowns
+            populatePlayerDropdowns();
+            
+            // Initialize comparison tool
             setTimeout(() => {
                 updateComparison();
-            }, 2000);
+            }, 1000);
 
-            // Set up auto-refresh for live data (every 5 minutes)
-            setInterval(() => {
-                console.log('Auto-refreshing FPL data...');
-                updateLiveStats();
-            }, 5 * 60 * 1000);
-
-            // Add manual refresh button handler
-            const refreshButton = document.getElementById('refresh-stats');
-            if (refreshButton) {
-                refreshButton.addEventListener('click', () => {
-                    console.log('Manual refresh triggered');
-                    updateLiveStats();
-                });
-            }
+            console.log('FPL Team Builder initialized successfully');
             
             // Animate header stats on load
             setTimeout(animateStatBubbles, 1500);
