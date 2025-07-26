@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="styles.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
      crossorigin="anonymous"></script>
+    <script src="./fpl-api.js"></script>
     
     <!-- Firebase SDK -->
     <script type="module">
@@ -64,38 +65,30 @@
 
                 <h2>🏆 This Week's Captain Picks</h2>
                 <div class="fantasy-section">
-                    <div class="captain-picks">
-                        <div class="player-card premium">
-                            <h3>Premium Pick: Erling Haaland (C)</h3>
-                            <p><strong>Team:</strong> Manchester City | <strong>Price:</strong> £15.1m</p>
-                            <p><strong>Fixture:</strong> vs Brighton (H)</p>
-                            <p>City's goal machine faces a leaky Brighton defense at home. With 24 goals in 28 games and City's attacking dominance, Haaland is the standout captaincy choice.</p>
-                        </div>
-                        
-                        <div class="player-card budget">
-                            <h3>Budget Pick: Chris Wood (C)</h3>
-                            <p><strong>Team:</strong> Newcastle | <strong>Price:</strong> £6.8m</p>
-                            <p><strong>Fixture:</strong> vs Fulham (H)</p>
-                            <p>Wood's incredible form continues with 20 goals this season. Newcastle's home advantage makes him an excellent differential captain pick.</p>
-                        </div>
+                    <div id="captain-picks-loading" class="loading-message">
+                        <p>Loading live captain recommendations...</p>
+                    </div>
+                    <div id="captain-picks" class="captain-picks" style="display: none;">
+                        <!-- Captain picks will be populated by JavaScript -->
                     </div>
                 </div>
 
                 <h2>📈 This Week's Transfers</h2>
                 <div class="fantasy-section">
-                    <h3>Players to Buy</h3>
-                    <ul class="transfer-list buy">
-                        <li><strong>Alexander Isak (£8.9m)</strong> - Newcastle's star striker with excellent fixtures</li>
-                        <li><strong>Bukayo Saka (£9.7m)</strong> - Arsenal's key player returning from injury</li>
-                        <li><strong>Virgil van Dijk (£6.1m)</strong> - Liverpool's defensive rock with clean sheet potential</li>
-                    </ul>
-                    
-                    <h3>Players to Sell</h3>
-                    <ul class="transfer-list sell">
-                        <li><strong>Darwin Núñez (£7.8m)</strong> - Rotation risk with Liverpool's deep squad</li>
-                        <li><strong>Bruno Fernandes (£8.3m)</strong> - Manchester United's poor form continues</li>
-                        <li><strong>James Maddison (£7.9m)</strong> - Inconsistent returns for Tottenham</li>
-                    </ul>
+                    <div id="transfers-loading" class="loading-message">
+                        <p>Loading live transfer recommendations...</p>
+                    </div>
+                    <div id="transfers-content" style="display: none;">
+                        <h3>Players to Buy</h3>
+                        <ul id="transfers-in" class="transfer-list buy">
+                            <!-- Transfer targets will be populated by JavaScript -->
+                        </ul>
+                        
+                        <h3>Players to Sell</h3>
+                        <ul id="transfers-out" class="transfer-list sell">
+                            <!-- Transfer outs will be populated by JavaScript -->
+                        </ul>
+                    </div>
                 </div>
 
                 <h2>⚽ Premium vs Budget Picks</h2>
@@ -125,27 +118,34 @@
 
                 <h2>📊 Key Statistics</h2>
                 <div class="fantasy-section">
-                    <div class="stats-grid">
+                    <div id="stats-loading" class="loading-message">
+                        <p>Loading live FPL statistics...</p>
+                    </div>
+                    <div id="stats-grid" class="stats-grid" style="display: none;">
                         <div class="stat-card">
                             <h3>Top Scorers (FPL Points)</h3>
-                            <ol>
-                                <li>Erling Haaland - 245 pts</li>
-                                <li>Mohamed Salah - 218 pts</li>
-                                <li>Chris Wood - 167 pts</li>
-                                <li>Alexander Isak - 159 pts</li>
-                                <li>Cole Palmer - 152 pts</li>
+                            <ol id="top-scorers">
+                                <!-- Top scorers will be populated by JavaScript -->
                             </ol>
                         </div>
                         
                         <div class="stat-card">
                             <h3>Best Value Players (Pts/£m)</h3>
-                            <ol>
-                                <li>Chris Wood - 24.6 pts/£m</li>
-                                <li>Bryan Mbeumo - 23.1 pts/£m</li>
-                                <li>Yoane Wissa - 22.8 pts/£m</li>
-                                <li>Alexander Isak - 17.9 pts/£m</li>
-                                <li>Morgan Gibbs-White - 17.2 pts/£m</li>
+                            <ol id="best-value">
+                                <!-- Best value players will be populated by JavaScript -->
                             </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>📅 Upcoming Fixtures</h2>
+                <div class="fantasy-section">
+                    <div id="fixtures-loading" class="loading-message">
+                        <p>Loading upcoming fixtures...</p>
+                    </div>
+                    <div id="fixtures-content" style="display: none;">
+                        <div id="next-gameweek-fixtures" class="fixtures-grid">
+                            <!-- Fixtures will be populated by JavaScript -->
                         </div>
                     </div>
                 </div>
@@ -556,9 +556,293 @@
                 font-size: 1.1rem;
             }
         }
+
+        /* Loading animation styles */
+        .loading-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .loading-message::after {
+            content: "";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0066cc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #ffe6e6;
+            color: #cc0000;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #cc0000;
+        }
+
+        .fixtures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .fixture-card {
+            background: white;
+            border: 1px solid #e2e2e2;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .fixture-teams {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .fixture-time {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .fixture-difficulty {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .difficulty-1, .difficulty-2 {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .difficulty-3 {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .difficulty-4, .difficulty-5 {
+            background: #f8d7da;
+            color: #721c24;
+        }
     </style>
 
     <script>
+        // FPL Data Integration
+        let fplService;
+
+        async function initializeFPLData() {
+            try {
+                fplService = new FPLDataService();
+                await Promise.all([
+                    loadCaptainPicks(),
+                    loadTransferRecommendations(),
+                    loadStatistics(),
+                    loadFixtures()
+                ]);
+            } catch (error) {
+                console.error('Failed to initialize FPL data:', error);
+                showErrorMessages();
+            }
+        }
+
+        async function loadCaptainPicks() {
+            try {
+                const captains = await fplService.getCaptainCandidates(2);
+                const captainPicksContainer = document.getElementById('captain-picks');
+                const loadingElement = document.getElementById('captain-picks-loading');
+                
+                if (captains.length >= 2) {
+                    const premium = captains[0];
+                    const budget = captains[1];
+                    
+                    captainPicksContainer.innerHTML = `
+                        <div class="player-card premium">
+                            <h3>Premium Pick: ${fplService.formatPlayerName(premium.first_name, premium.second_name)} (C)</h3>
+                            <p><strong>Team:</strong> ${premium.team_name} | <strong>Price:</strong> ${fplService.formatPrice(premium.now_cost)}</p>
+                            <p><strong>Fixture:</strong> vs ${premium.fixture.opponent} ${premium.fixture.is_home ? '(H)' : '(A)}</p>
+                            <p><strong>Form:</strong> ${premium.form} | <strong>Total Points:</strong> ${premium.total_points}</p>
+                            <p>Strong form player with favorable upcoming fixture. Current form: ${premium.form}/10 points per game.</p>
+                        </div>
+                        
+                        <div class="player-card budget">
+                            <h3>Budget Pick: ${fplService.formatPlayerName(budget.first_name, budget.second_name)} (C)</h3>
+                            <p><strong>Team:</strong> ${budget.team_name} | <strong>Price:</strong> ${fplService.formatPrice(budget.now_cost)}</p>
+                            <p><strong>Fixture:</strong> vs ${budget.fixture.opponent} ${budget.fixture.is_home ? '(H)' : '(A)}</p>
+                            <p><strong>Form:</strong> ${budget.form} | <strong>Total Points:</strong> ${budget.total_points}</p>
+                            <p>Excellent value pick with good fixture difficulty. Great differential captain option.</p>
+                        </div>
+                    `;
+                } else {
+                    captainPicksContainer.innerHTML = `
+                        <div class="player-card premium">
+                            <h3>Captain recommendations will be updated before the next gameweek</h3>
+                            <p>Check back closer to the deadline for live captain picks based on current form and fixtures.</p>
+                        </div>
+                    `;
+                }
+                
+                loadingElement.style.display = 'none';
+                captainPicksContainer.style.display = 'grid';
+            } catch (error) {
+                console.error('Error loading captain picks:', error);
+                document.getElementById('captain-picks-loading').innerHTML = '<div class="error-message">Unable to load captain picks. Please try again later.</div>';
+            }
+        }
+
+        async function loadTransferRecommendations() {
+            try {
+                const transfers = await fplService.getTransferTargets();
+                const transfersContent = document.getElementById('transfers-content');
+                const transfersLoading = document.getElementById('transfers-loading');
+                const transfersIn = document.getElementById('transfers-in');
+                const transfersOut = document.getElementById('transfers-out');
+                
+                transfersIn.innerHTML = transfers.transfersIn.map(player => {
+                    const teams = fplService.cache.get('bootstrap')?.data?.teams || [];
+                    const teamName = fplService.getTeamName(player.team, teams);
+                    const position = fplService.getPositionName(player.element_type);
+                    return `<li><strong>${fplService.formatPlayerName(player.first_name, player.second_name)} (${fplService.formatPrice(player.now_cost)})</strong> - ${teamName} ${position}, Form: ${player.form}, Points: ${player.total_points}</li>`;
+                }).join('');
+                
+                transfersOut.innerHTML = transfers.transfersOut.map(player => {
+                    const teams = fplService.cache.get('bootstrap')?.data?.teams || [];
+                    const teamName = fplService.getTeamName(player.team, teams);
+                    const position = fplService.getPositionName(player.element_type);
+                    return `<li><strong>${fplService.formatPlayerName(player.first_name, player.second_name)} (${fplService.formatPrice(player.now_cost)})</strong> - ${teamName} ${position}, Form: ${player.form}, Difficult fixtures</li>`;
+                }).join('');
+                
+                transfersLoading.style.display = 'none';
+                transfersContent.style.display = 'block';
+            } catch (error) {
+                console.error('Error loading transfers:', error);
+                document.getElementById('transfers-loading').innerHTML = '<div class="error-message">Unable to load transfer recommendations. Please try again later.</div>';
+            }
+        }
+
+        async function loadStatistics() {
+            try {
+                const [topPlayers, bestValue] = await Promise.all([
+                    fplService.getTopPlayers(5),
+                    fplService.getBestValuePlayers(5)
+                ]);
+                
+                const topScorersElement = document.getElementById('top-scorers');
+                const bestValueElement = document.getElementById('best-value');
+                const statsLoading = document.getElementById('stats-loading');
+                const statsGrid = document.getElementById('stats-grid');
+                
+                topScorersElement.innerHTML = topPlayers.map(player => 
+                    `<li>${fplService.formatPlayerName(player.first_name, player.second_name)} - ${player.total_points} pts</li>`
+                ).join('');
+                
+                bestValueElement.innerHTML = bestValue.map(player => 
+                    `<li>${fplService.formatPlayerName(player.first_name, player.second_name)} - ${player.value_ratio.toFixed(1)} pts/£m</li>`
+                ).join('');
+                
+                statsLoading.style.display = 'none';
+                statsGrid.style.display = 'grid';
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+                document.getElementById('stats-loading').innerHTML = '<div class="error-message">Unable to load statistics. Please try again later.</div>';
+            }
+        }
+
+        async function loadFixtures() {
+            try {
+                const [bootstrap, fixtures] = await Promise.all([
+                    fplService.getBootstrapData(),
+                    fplService.getUpcomingFixtures()
+                ]);
+                
+                const currentGW = await fplService.getCurrentGameweek();
+                if (!currentGW) return;
+                
+                const nextFixtures = fixtures
+                    .filter(f => f.event === currentGW.id)
+                    .slice(0, 10)
+                    .map(fixture => {
+                        const homeTeam = bootstrap.teams.find(t => t.id === fixture.team_h);
+                        const awayTeam = bootstrap.teams.find(t => t.id === fixture.team_a);
+                        return {
+                            ...fixture,
+                            home_team: homeTeam?.name || 'TBD',
+                            away_team: awayTeam?.name || 'TBD',
+                            home_short: homeTeam?.short_name || 'TBD',
+                            away_short: awayTeam?.short_name || 'TBD'
+                        };
+                    });
+                
+                const fixturesContainer = document.getElementById('next-gameweek-fixtures');
+                const fixturesLoading = document.getElementById('fixtures-loading');
+                const fixturesContent = document.getElementById('fixtures-content');
+                
+                if (nextFixtures.length > 0) {
+                    fixturesContainer.innerHTML = nextFixtures.map(fixture => {
+                        const kickoffTime = fixture.kickoff_time ? 
+                            new Date(fixture.kickoff_time).toLocaleDateString('en-GB', {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            }) : 'TBD';
+                        
+                        return `
+                            <div class="fixture-card">
+                                <div class="fixture-teams">${fixture.home_short} vs ${fixture.away_short}</div>
+                                <div class="fixture-time">${kickoffTime}</div>
+                                <div class="fixture-difficulty difficulty-${fixture.team_h_difficulty}">
+                                    ${fixture.home_team} Difficulty: ${fixture.team_h_difficulty}/5
+                                </div>
+                                <div class="fixture-difficulty difficulty-${fixture.team_a_difficulty}">
+                                    ${fixture.away_team} Difficulty: ${fixture.team_a_difficulty}/5
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    fixturesContainer.innerHTML = '<div class="fixture-card"><div class="fixture-teams">Fixtures will be available closer to the next gameweek</div></div>';
+                }
+                
+                fixturesLoading.style.display = 'none';
+                fixturesContent.style.display = 'block';
+            } catch (error) {
+                console.error('Error loading fixtures:', error);
+                document.getElementById('fixtures-loading').innerHTML = '<div class="error-message">Unable to load fixtures. Please try again later.</div>';
+            }
+        }
+
+        function showErrorMessages() {
+            const errorHtml = '<div class="error-message">Unable to load live FPL data. Please check your internet connection and try again.</div>';
+            document.getElementById('captain-picks-loading').innerHTML = errorHtml;
+            document.getElementById('transfers-loading').innerHTML = errorHtml;
+            document.getElementById('stats-loading').innerHTML = errorHtml;
+            document.getElementById('fixtures-loading').innerHTML = errorHtml;
+        }
+
+        // Initialize FPL data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Delay initialization to allow premium gate to load first
+            setTimeout(initializeFPLData, 1000);
+        });
+
         // Premium membership gate functionality
         let userAuthenticated = false;
         let userHasPremium = false;
