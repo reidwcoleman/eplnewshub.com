@@ -20,6 +20,28 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
     <link rel="apple-touch-icon" href="reidsnbest.webp">
     <link rel="icon" type="image/webp" href="reidsnbest.webp">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyOey0l27yQP68oybpoodMVcvayhIHt2I",
+            authDomain: "epl-news-hub-94c09.firebaseapp.com",
+            projectId: "epl-news-hub-94c09",
+            storageBucket: "epl-news-hub-94c09.firebasestorage.app",
+            messagingSenderId: "674703933278",
+            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf",
+            measurementId: "G-ECM6BCQCS8"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        window.auth = auth;
+        window.onAuthStateChanged = onAuthStateChanged;
+    </script>
     <style>
         .fpl-container {
             max-width: 1200px;
@@ -1017,6 +1039,41 @@
 <body>
     <div class="header" include="./header.html"></div>
 
+    <!-- Premium Membership Gate -->
+    <div id="premium-gate" class="premium-gate-overlay" style="display: none;">
+        <div class="premium-gate-content">
+            <div class="gate-header">
+                <h2>🔒 Premium FPL Content Ahead!</h2>
+                <p>This Fantasy Premier League hub is exclusive to our Premium Starter members</p>
+            </div>
+            
+            <div class="gate-benefits">
+                <h3>Join Premium Starter for only <span class="price">$2.00/month</span></h3>
+                <p class="benefits-intro">Get exclusive access to:</p>
+                <ul class="benefits-list">
+                    <li>✅ <strong>5 exclusive articles per week</strong> - In-depth analysis you won't find anywhere else</li>
+                    <li>✅ <strong>Latest transfer rumors</strong> - Breaking news before it hits mainstream media</li>
+                    <li>✅ <strong>Weekly team and match analysis</strong> - Expert tactical breakdowns</li>
+                    <li>✅ <strong>Access to all articles</strong> - Full archive of premium content</li>
+                    <li>✅ <strong>FPL pro advice and suggested teams</strong> - Weekly fantasy lineups from experts</li>
+                    <li>✅ <strong>Ad-free browsing</strong> - Clean, uninterrupted reading experience</li>
+                    <li>✅ <strong>Premium Fantasy Football Hub</strong> - Advanced FPL strategies and insider tips</li>
+                </ul>
+            </div>
+            
+            <div class="gate-actions">
+                <button class="join-premium-btn" onclick="joinPremiumStarter()">
+                    Join Premium Starter - $2/month
+                </button>
+                <p class="gate-subtext">Cancel anytime • Instant access • 30-day money-back guarantee</p>
+            </div>
+            
+            <div class="gate-footer">
+                <p>Already a member? <a href="/signin.html" class="signin-link">Sign in here</a></p>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content Area -->
     <main class="main-content">
         <div class="fpl-container">
@@ -1325,6 +1382,295 @@
     <div class="footer" include="./footer.html"></div>
     <script src="./index.js"></script>
     <script src="./ad-target-blank.js"></script>
+    
+    <style>
+        /* Premium Gate Styles */
+        .premium-gate-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .premium-gate-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 3px solid #37003c;
+            text-align: center;
+            animation: gateSlideIn 0.5s ease-out;
+        }
+        
+        @keyframes gateSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .gate-header h2 {
+            color: #37003c;
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+        
+        .gate-header p {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        
+        .gate-benefits h3 {
+            color: #37003c;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .price {
+            color: #28a745;
+            font-weight: 800;
+            font-size: 1.8rem;
+        }
+        
+        .benefits-intro {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .benefits-list {
+            text-align: left;
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .benefits-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .benefits-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .join-premium-btn {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            border: none;
+            padding: 18px 36px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 8px 25px rgba(55, 0, 60, 0.3);
+        }
+        
+        .join-premium-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(55, 0, 60, 0.4);
+        }
+        
+        .gate-subtext {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 15px;
+        }
+        
+        .gate-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .signin-link {
+            color: #37003c;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .signin-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Hide main content when gate is active */
+        .content-blocked {
+            filter: blur(5px);
+            pointer-events: none;
+            user-select: none;
+        }
+        
+        /* Mobile responsiveness for gate */
+        @media (max-width: 768px) {
+            .premium-gate-content {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            .gate-header h2 {
+                font-size: 1.8rem;
+            }
+            
+            .join-premium-btn {
+                padding: 16px 28px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+
+    <script>
+        // Premium membership gate functionality
+        let userAuthenticated = false;
+        let userHasPremium = false;
+        
+        // Check authentication and membership status
+        function checkPremiumAccess() {
+            if (window.onAuthStateChanged && window.auth) {
+                window.onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        userAuthenticated = true;
+                        // Check for premium membership status
+                        checkMembershipStatus(user);
+                    } else {
+                        // User not signed in - show gate
+                        showPremiumGate();
+                    }
+                });
+            } else {
+                // Firebase not loaded - show gate
+                setTimeout(checkPremiumAccess, 1000);
+            }
+        }
+        
+        function checkMembershipStatus(user) {
+            // Check localStorage for membership info
+            const membershipInfo = localStorage.getItem('membership');
+            
+            if (membershipInfo) {
+                const membership = JSON.parse(membershipInfo);
+                // Check if user has starter or pro membership
+                if (membership.plan === 'starter' || membership.plan === 'pro' || 
+                    membership.plan === 'starter-annual' || membership.plan === 'pro-annual') {
+                    userHasPremium = true;
+                    hidePremiumGate();
+                } else {
+                    showPremiumGate();
+                }
+            } else {
+                // No membership found - show gate
+                showPremiumGate();
+            }
+        }
+        
+        function showPremiumGate() {
+            const gate = document.getElementById('premium-gate');
+            const mainContent = document.querySelector('.main-content');
+            
+            gate.style.display = 'flex';
+            if (mainContent) {
+                mainContent.classList.add('content-blocked');
+            }
+            
+            // Prevent scrolling on background
+            document.body.style.overflow = 'hidden';
+            
+            // Disable right-click and keyboard shortcuts
+            document.addEventListener('contextmenu', preventDefaultAction);
+            document.addEventListener('keydown', preventKeyboardShortcuts);
+        }
+        
+        function hidePremiumGate() {
+            const gate = document.getElementById('premium-gate');
+            const mainContent = document.querySelector('.main-content');
+            
+            gate.style.display = 'none';
+            if (mainContent) {
+                mainContent.classList.remove('content-blocked');
+            }
+            
+            // Re-enable scrolling
+            document.body.style.overflow = 'auto';
+            
+            // Re-enable right-click and keyboard shortcuts
+            document.removeEventListener('contextmenu', preventDefaultAction);
+            document.removeEventListener('keydown', preventKeyboardShortcuts);
+        }
+        
+        function preventDefaultAction(e) {
+            e.preventDefault();
+            return false;
+        }
+        
+        function preventKeyboardShortcuts(e) {
+            // Prevent common shortcuts like F12, Ctrl+U, Ctrl+Shift+I, etc.
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.key === 'u') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+                (e.ctrlKey && e.key === 's')) {
+                e.preventDefault();
+                return false;
+            }
+        }
+        
+        function joinPremiumStarter() {
+            // Redirect to membership page with starter plan pre-selected
+            window.location.href = '/membership.html#starter';
+        }
+        
+        // Prevent gate dismissal attempts
+        document.addEventListener('click', function(e) {
+            const gate = document.getElementById('premium-gate');
+            const gateContent = document.querySelector('.premium-gate-content');
+            
+            if (gate.style.display === 'flex' && 
+                !gateContent.contains(e.target) && 
+                !userHasPremium) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        });
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkPremiumAccess();
+        });
+        
+        // Prevent closing gate with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !userHasPremium) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+    
     <script>
         // Countdown timer functionality
         function updateCountdown() {
