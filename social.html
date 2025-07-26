@@ -335,6 +335,134 @@
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
 
+        /* News Feed Styles */
+        .news-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .news-item {
+            background: rgba(55, 0, 60, 0.02);
+            border: 1px solid rgba(55, 0, 60, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .news-item:hover {
+            background: rgba(55, 0, 60, 0.05);
+            transform: translateY(-3px);
+            border-color: rgba(55, 0, 60, 0.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .news-category {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .news-time {
+            color: #666;
+            font-size: 0.9rem;
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .news-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #37003c;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .news-excerpt {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .news-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .news-tag {
+            background: rgba(55, 0, 60, 0.1);
+            color: #37003c;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .news-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .news-stats span {
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .news-stats span:hover {
+            color: #37003c;
+        }
+
+        .load-more-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .load-more-btn {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .load-more-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(55, 0, 60, 0.3);
+        }
+
+        .load-more-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .social-hero {
@@ -487,48 +615,14 @@
                         </div>
                     </div>
 
-                    <!-- Latest Tweets -->
+                    <!-- Latest EPL News Feed -->
                     <div class="social-card">
-                        <h3><span class="card-icon">🐦</span>Latest from Premier League Twitter</h3>
-                        <div class="tweets-container">
-                            <div class="tweet-card">
-                                <div class="tweet-header">
-                                    <strong>@premierleague</strong>
-                                    <span class="tweet-time">2h</span>
-                                </div>
-                                <p class="tweet-text">🚨 TRANSFER ALERT: Manchester United have agreed a fee with Napoli for Khvicha Kvaratskhelia! More details to follow... #MUFC #TransferNews</p>
-                                <div class="tweet-stats">
-                                    <span>❤️ 12.4K</span>
-                                    <span>🔁 3.2K</span>
-                                    <span>💬 892</span>
-                                </div>
-                            </div>
-
-                            <div class="tweet-card">
-                                <div class="tweet-header">
-                                    <strong>@Arsenal</strong>
-                                    <span class="tweet-time">4h</span>
-                                </div>
-                                <p class="tweet-text">Training update from London Colney ahead of our Premier League clash this weekend 💪 #Arsenal #COYG</p>
-                                <div class="tweet-stats">
-                                    <span>❤️ 8.7K</span>
-                                    <span>🔁 1.9K</span>
-                                    <span>💬 543</span>
-                                </div>
-                            </div>
-
-                            <div class="tweet-card">
-                                <div class="tweet-header">
-                                    <strong>@ManCity</strong>
-                                    <span class="tweet-time">6h</span>
-                                </div>
-                                <p class="tweet-text">Pep Guardiola: "Every game in the Premier League is difficult. We must be ready for the challenge ahead." 🔵 #ManCity</p>
-                                <div class="tweet-stats">
-                                    <span>❤️ 9.1K</span>
-                                    <span>🔁 2.3K</span>
-                                    <span>💬 712</span>
-                                </div>
-                            </div>
+                        <h3><span class="card-icon">📰</span>Latest EPL News from Our Hub</h3>
+                        <div class="news-container" id="news-feed">
+                            <!-- News items will be loaded here dynamically -->
+                        </div>
+                        <div class="load-more-container">
+                            <button class="load-more-btn" onclick="loadMoreNews()">📖 Load More News</button>
                         </div>
                     </div>
 
@@ -602,6 +696,79 @@
     <script src="./ad-target-blank.js"></script>
     
     <script>
+        // EPL News Articles Database
+        const eplNewsArticles = [
+            {
+                title: "Marcus Rashford's Barcelona Move Shakes Premier League Transfer Window",
+                excerpt: "Marcus Rashford's stunning season-long loan move to Barcelona from Manchester United headlines the most explosive transfer window in Premier League history. The 27-year-old England international joins the Catalan giants with a €30m option to buy, while clubs across the league spend over £1 billion on new signings.",
+                url: "articles/marcus-rashford-barcelona-transfer-and-premier-league-updates-07-26-2025.html",
+                category: "Transfer News",
+                time: "2h",
+                tags: ["Marcus Rashford", "Barcelona", "Transfers"],
+                views: "15.2K",
+                shares: "3.4K",
+                comments: "892"
+            },
+            {
+                title: "Premier League 2025/26 Season Preview: Title Race & New Arrivals",
+                excerpt: "As the 2025/26 Premier League season approaches with Liverpool hosting Bournemouth on August 15, defending champions Liverpool look to retain their crown with blockbuster signings including Florian Wirtz (£100m) and Milos Kerkez. Arsenal and Manchester City remain fierce challengers.",
+                url: "articles/premier-league-2025-26-season-preview-07-23-2025.html",
+                category: "Season Preview",
+                time: "1d",
+                tags: ["Season Preview", "Liverpool", "Arsenal"],
+                views: "22.8K",
+                shares: "5.1K",
+                comments: "1.2K"
+            },
+            {
+                title: "EXCLUSIVE: Arsenal's €90M Secret Signing Revealed",
+                excerpt: "In a stunning development that has been kept under wraps for the past three weeks, Arsenal have successfully completed negotiations for Real Madrid midfielder Eduardo Camavinga in a deal worth €90 million plus performance-related add-ons.",
+                url: "articles/exclusive-arsenal-transfer-insider-07-25-2025.html",
+                category: "Premium Exclusive",
+                time: "1d",
+                tags: ["Arsenal", "Camavinga", "Exclusive"],
+                views: "18.5K",
+                shares: "4.2K",
+                comments: "756"
+            },
+            {
+                title: "Premier League Transfer Window: Latest Rumors & Breaking News",
+                excerpt: "The Premier League transfer window is in full swing with clubs across England making moves to strengthen their squads for the 2025-26 season. Manchester United are reportedly close to securing Khvicha Kvaratskhelia for €85 million, while Arsenal intensify their hunt for Benjamin Šeško.",
+                url: "articles/premier-league-transfer-window-latest-rumors-07-20-2025.html",
+                category: "Transfer News",
+                time: "3d",
+                tags: ["Transfers", "Man United", "Arsenal"],
+                views: "24.1K",
+                shares: "6.8K",
+                comments: "1.5K"
+            },
+            {
+                title: "Enhanced Premier League Final Day Drama",
+                excerpt: "The final day of the Premier League season delivered unprecedented drama as Liverpool secured their second title under Arne Slot with a thrilling 3-2 victory over Chelsea at Anfield, while the relegation battle went down to the final minutes.",
+                url: "articles/enhanced-premier-league-final-day-drama.html",
+                category: "Match Report",
+                time: "1w",
+                tags: ["Liverpool", "Final Day", "Drama"],
+                views: "31.7K",
+                shares: "8.9K",
+                comments: "2.1K"
+            },
+            {
+                title: "Victor Gyökeres: Premier League Giants in Hot Pursuit",
+                excerpt: "Sporting CP striker Viktor Gyökeres has emerged as the most sought-after player in European football, with Arsenal, Manchester United, and Chelsea all preparing substantial bids for the Swedish sensation who scored 43 goals last season.",
+                url: "articles/victor-gyokeres-premier-league-giants-in-hot-pursuit-05-25-25.html",
+                category: "Transfer News",
+                time: "2w",
+                tags: ["Gyökeres", "Arsenal", "Transfers"],
+                views: "19.3K",
+                shares: "4.7K",
+                comments: "923"
+            }
+        ];
+
+        let currentNewsIndex = 0;
+        const newsPerLoad = 3;
+
         // Enhanced Social Page Functionality
         function refreshSocialFeeds() {
             const button = event.target;
@@ -611,8 +778,11 @@
             button.textContent = '⏳ Refreshing...';
             button.disabled = true;
             
-            // Simulate refresh
+            // Refresh the news feed
             setTimeout(() => {
+                currentNewsIndex = 0;
+                loadNews();
+                
                 button.textContent = '✅ Updated!';
                 
                 // Show brief success message
@@ -631,6 +801,104 @@
                 });
             }, 2000);
         }
+
+        function loadNews() {
+            const newsContainer = document.getElementById('news-feed');
+            const loadMoreBtn = document.querySelector('.load-more-btn');
+            
+            // Clear existing news on refresh
+            if (currentNewsIndex === 0) {
+                newsContainer.innerHTML = '';
+            }
+            
+            // Load next batch of news
+            const endIndex = Math.min(currentNewsIndex + newsPerLoad, eplNewsArticles.length);
+            const newsToLoad = eplNewsArticles.slice(currentNewsIndex, endIndex);
+            
+            newsToLoad.forEach(article => {
+                const newsItem = createNewsItem(article);
+                newsContainer.appendChild(newsItem);
+            });
+            
+            currentNewsIndex = endIndex;
+            
+            // Hide load more button if all news loaded
+            if (currentNewsIndex >= eplNewsArticles.length) {
+                loadMoreBtn.style.display = 'none';
+            } else {
+                loadMoreBtn.style.display = 'block';
+            }
+        }
+
+        function createNewsItem(article) {
+            const newsItem = document.createElement('div');
+            newsItem.className = 'news-item';
+            newsItem.onclick = () => window.open(article.url, '_blank');
+            
+            newsItem.innerHTML = `
+                <div class="news-header">
+                    <span class="news-category">${article.category}</span>
+                    <span class="news-time">${article.time}</span>
+                </div>
+                <div class="news-title">${article.title}</div>
+                <div class="news-excerpt">${article.excerpt}</div>
+                <div class="news-meta">
+                    <div class="news-tags">
+                        ${article.tags.map(tag => `<span class="news-tag">#${tag}</span>`).join('')}
+                    </div>
+                    <div class="news-stats">
+                        <span onclick="event.stopPropagation(); updateStat(this, 'views')">👁️ ${article.views}</span>
+                        <span onclick="event.stopPropagation(); updateStat(this, 'shares')">🔗 ${article.shares}</span>
+                        <span onclick="event.stopPropagation(); updateStat(this, 'comments')">💬 ${article.comments}</span>
+                    </div>
+                </div>
+            `;
+            
+            return newsItem;
+        }
+
+        function loadMoreNews() {
+            const button = event.target;
+            const originalText = button.textContent;
+            
+            button.textContent = '⏳ Loading...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                loadNews();
+                button.textContent = originalText;
+                button.disabled = false;
+            }, 1000);
+        }
+
+        function updateStat(element, type) {
+            const currentValue = element.textContent.match(/[\d,\.]+[K]?/)[0];
+            let number = parseFloat(currentValue.replace(/[K,]/g, ''));
+            if (currentValue.includes('K')) {
+                number *= 1000;
+            }
+            
+            const increment = Math.floor(Math.random() * 50) + 10;
+            const newNumber = number + increment;
+            const emoji = element.textContent.match(/[👁️🔗💬]/)[0];
+            
+            const formattedNumber = newNumber >= 1000 ? (newNumber/1000).toFixed(1) + 'K' : newNumber;
+            element.textContent = `${emoji} ${formattedNumber}`;
+            
+            // Visual feedback
+            element.style.color = '#28a745';
+            element.style.transform = 'scale(1.2)';
+            
+            setTimeout(() => {
+                element.style.color = '#37003c';
+                element.style.transform = 'scale(1)';
+            }, 500);
+        }
+
+        // Initialize news feed on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNews();
+        });
         
         function searchTopic(topic) {
             // Visual feedback for clicked topic
