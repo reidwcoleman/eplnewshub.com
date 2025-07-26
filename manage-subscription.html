@@ -145,12 +145,25 @@
         <div class="header">
             <a href="/" class="logo">EPL News Hub</a>
             <h1>Manage Your Subscription</h1>
-            <p>Check your subscription status and manage your newsletter preferences.</p>
+            <p>Check your subscription status and manage your newsletter preferences and premium memberships.</p>
         </div>
 
         <div class="subscription-form">
             <div id="messages"></div>
 
+            <!-- Premium Subscription Management -->
+            <div id="premiumSection" style="margin-bottom: 30px; padding: 20px; background: #e8f4f8; border-radius: 8px; border-left: 4px solid #37003c;">
+                <h3 style="color: #37003c; margin-top: 0;">🏆 Premium Subscription Management</h3>
+                <p>For premium subscription management (Starter, Pro plans), please contact our support team or use Stripe's secure customer portal:</p>
+                <div style="margin: 15px 0;">
+                    <button type="button" id="contactSupport" class="btn btn-primary" style="margin-right: 10px;">Contact Support</button>
+                    <a href="/membership.html" class="btn btn-success">View Premium Plans</a>
+                </div>
+                <p><small><strong>Note:</strong> Premium subscription billing, cancellation, and plan changes are handled through Stripe's secure platform for your security.</small></p>
+            </div>
+
+            <!-- Newsletter Subscription Management -->
+            <h3 style="color: #37003c;">📧 Newsletter Subscription</h3>
             <div id="emailForm">
                 <div class="form-group">
                     <label for="email">Email Address:</label>
@@ -193,6 +206,7 @@
         const resubscribeBtn = document.getElementById('resubscribeBtn');
         const checkAnotherBtn = document.getElementById('checkAnotherBtn');
         const messagesDiv = document.getElementById('messages');
+        const contactSupportBtn = document.getElementById('contactSupport');
 
         function showMessage(message, type = 'info') {
             messagesDiv.innerHTML = `<div class="message ${type}-message" style="display: block;">${message}</div>`;
@@ -395,6 +409,33 @@
             if (event.key === 'Enter') {
                 checkStatusBtn.click();
             }
+        });
+
+        // Contact support functionality
+        contactSupportBtn.addEventListener('click', function() {
+            const supportEmail = 'support@eplnewshub.com';
+            const subject = 'Premium Subscription Management Request';
+            const body = `Hello EPL News Hub Support,
+
+I need assistance with my premium subscription management. Please help me with:
+
+[ ] Billing questions
+[ ] Plan changes 
+[ ] Cancellation
+[ ] Account access issues
+[ ] Other: _______________
+
+My account email: ________________
+
+Thank you!`;
+
+            const mailtoUrl = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            // Try to open email client
+            window.location.href = mailtoUrl;
+            
+            // Show confirmation message
+            showMessage('Opening your email client to contact support. If this doesn\'t work, please email support@eplnewshub.com directly.', 'info');
         });
     </script>
 </body>

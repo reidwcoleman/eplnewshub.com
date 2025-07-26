@@ -778,9 +778,68 @@
         }
         
         
-        function manageMembership() {
-            // In production, this would redirect to Stripe customer portal
-            alert('Membership management feature coming soon! Contact support for billing changes.');
+        async function manageMembership() {
+            if (!window.auth || !window.auth.currentUser) {
+                alert('Please sign in first to manage your subscription.');
+                window.location.href = '/signin.html';
+                return;
+            }
+
+            const user = window.auth.currentUser;
+            
+            try {
+                // Show loading state
+                const button = document.querySelector('.manage-button');
+                const originalText = button.textContent;
+                button.textContent = 'Loading...';
+                button.disabled = true;
+
+                // For a full implementation, you would create a backend endpoint that:
+                // 1. Finds the customer in Stripe using the user's email
+                // 2. Creates a Stripe Customer Portal session
+                // 3. Returns the portal URL
+
+                // For now, we'll create a simple management page
+                const customerEmail = user.email;
+                const portalUrl = createCustomerPortalUrl(customerEmail);
+                
+                if (portalUrl) {
+                    window.location.href = portalUrl;
+                } else {
+                    // Fallback to basic management
+                    window.location.href = `/manage-subscription.html?email=${encodeURIComponent(customerEmail)}`;
+                }
+
+            } catch (error) {
+                console.error('Error managing membership:', error);
+                alert('Unable to open subscription management. Please contact support.');
+            } finally {
+                // Reset button state
+                const button = document.querySelector('.manage-button');
+                if (button) {
+                    button.textContent = 'Manage Subscription';
+                    button.disabled = false;
+                }
+            }
+        }
+
+        function createCustomerPortalUrl(email) {
+            // In a full implementation, this would call your backend to create a Stripe Customer Portal URL
+            // For now, we'll return null to use the fallback
+            
+            // Example of what your backend endpoint would do:
+            // 1. Call Stripe API to find customer by email
+            // 2. Create a billing portal session
+            // 3. Return the portal URL
+            
+            // Backend code would look like:
+            // const session = await stripe.billingPortal.sessions.create({
+            //     customer: customerId,
+            //     return_url: 'https://eplnewshub.com/membership',
+            // });
+            // return session.url;
+            
+            return null; // Use fallback for now
         }
     </script>
 </body>
