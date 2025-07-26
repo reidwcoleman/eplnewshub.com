@@ -521,4 +521,498 @@ function addVisualEnhancements() {
 document.addEventListener('DOMContentLoaded', function() {
     // Small delay to ensure all content is loaded
     setTimeout(addVisualEnhancements, 500);
+    
+    // Initialize membership system
+    initializeMembershipSystem();
 });
+
+// ===== MEMBERSHIP SYSTEM =====
+
+/**
+ * Global function to check if user has active membership
+ */
+window.checkMembership = function() {
+    const membership = localStorage.getItem('eplMembership');
+    if (membership) {
+        const data = JSON.parse(membership);
+        return data.status === 'active' ? data : null;
+    }
+    return null;
+};
+
+/**
+ * Global function to check if user has specific plan access
+ */
+window.hasPlanAccess = function(requiredPlan) {
+    const membership = window.checkMembership();
+    if (!membership) return false;
+    
+    const planHierarchy = {
+        'starter': 1,
+        'starter-annual': 1,
+        'pro': 2,
+        'pro-annual': 2
+    };
+    
+    const userPlanLevel = planHierarchy[membership.plan] || 0;
+    const requiredLevel = planHierarchy[requiredPlan] || 0;
+    
+    return userPlanLevel >= requiredLevel;
+};
+
+/**
+ * Function to show/hide premium content based on membership
+ */
+function initializeMembershipSystem() {
+    // Handle premium content visibility
+    handlePremiumContent();
+    
+    // Add membership badges to content
+    addMembershipBadges();
+    
+    // Initialize premium content access controls
+    initializePremiumContentAccess();
+}
+
+/**
+ * Handle showing/hiding premium content
+ */
+function handlePremiumContent() {
+    const premiumElements = document.querySelectorAll('[data-premium]');
+    const membership = window.checkMembership();
+    
+    premiumElements.forEach(element => {
+        const requiredPlan = element.getAttribute('data-premium');
+        
+        if (!membership || !window.hasPlanAccess(requiredPlan)) {
+            // User doesn't have access, show upgrade prompt
+            showUpgradePrompt(element, requiredPlan);
+        } else {
+            // User has access, show content
+            element.style.display = 'block';
+            element.classList.add('premium-unlocked');
+        }
+    });
+}
+
+/**
+ * Show upgrade prompt for premium content
+ */
+function showUpgradePrompt(element, requiredPlan) {
+    const planNames = {
+        'starter': 'Starter',
+        'pro': 'Pro'
+    };
+    
+    const planName = planNames[requiredPlan] || 'Premium';
+    
+    // Hide original content
+    element.style.display = 'none';
+    
+    // Create upgrade prompt
+    const upgradePrompt = document.createElement('div');
+    upgradePrompt.className = 'premium-upgrade-prompt';
+    upgradePrompt.innerHTML = `
+        <div class="upgrade-content">
+            <div class="upgrade-icon">🔒</div>
+            <h3>Premium Content</h3>
+            <p>This content requires a ${planName} membership to access.</p>
+            <div class="upgrade-benefits">
+                <span class="benefit">📰 Exclusive articles</span>
+                <span class="benefit">🎯 Transfer insider info</span>
+                <span class="benefit">📊 Advanced analytics</span>
+            </div>
+            <div class="upgrade-buttons">
+                <a href="/membership.html" class="upgrade-btn primary">Upgrade to ${planName}</a>
+                <button onclick="this.parentElement.parentElement.parentElement.style.display='none'" class="upgrade-btn secondary">Maybe Later</button>
+            </div>
+        </div>
+    `;
+    
+    // Insert after the premium element
+    element.parentNode.insertBefore(upgradePrompt, element.nextSibling);
+    
+    // Add CSS for upgrade prompt if not already added
+    if (!document.getElementById('premium-styles')) {
+        addPremiumStyles();
+    }
+}
+
+/**
+ * Add membership badges to content
+ */
+function addMembershipBadges() {
+    const membership = window.checkMembership();
+    
+    if (membership) {
+        const planNames = {
+            'starter': 'Starter',
+            'starter-annual': 'Starter',
+            'pro': 'Pro',
+            'pro-annual': 'Pro'
+        };
+        
+        const planName = planNames[membership.plan] || 'Premium';
+        
+        // Add membership badge to header if it exists
+        const header = document.querySelector('.header, nav, .top-nav');
+        if (header && !header.querySelector('.membership-badge')) {
+            const badge = document.createElement('div');
+            badge.className = 'membership-badge';
+            badge.innerHTML = `✨ ${planName} Member`;
+            badge.title = `Active ${planName} membership`;
+            header.appendChild(badge);
+        }
+    }
+}
+
+/**
+ * Initialize premium content access controls
+ */
+function initializePremiumContentAccess() {
+    // Add premium indicators to articles
+    const articleLinks = document.querySelectorAll('a[href*="/articles/"]');
+    
+    articleLinks.forEach(link => {
+        // Check if this article should be premium (you can customize this logic)
+        const href = link.getAttribute('href');
+        
+        // Mark certain articles as premium (you can expand this logic)
+        if (href.includes('exclusive') || href.includes('insider') || href.includes('premium')) {
+            if (!window.hasPlanAccess('starter')) {
+                // Add premium indicator
+                const premiumIndicator = document.createElement('span');
+                premiumIndicator.className = 'premium-indicator';
+                premiumIndicator.innerHTML = '👑 Premium';
+                premiumIndicator.title = 'Requires membership';
+                
+                link.appendChild(premiumIndicator);
+                
+                // Add click handler to show upgrade prompt
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showMembershipModal();
+                });
+            }
+        }
+    });
+}
+
+/**
+ * Show membership upgrade modal
+ */
+function showMembershipModal() {
+    const modal = document.createElement('div');
+    modal.className = 'membership-modal';
+    modal.innerHTML = `
+        <div class="membership-modal-content">
+            <div class="membership-header">
+                <h2>🔒 Premium Content</h2>
+                <button class="close-membership" onclick="this.parentElement.parentElement.parentElement.remove()">×</button>
+            </div>
+            <div class="membership-body">
+                <p>This article requires a premium membership to read.</p>
+                <div class="membership-benefits">
+                    <div class="benefit-item">📰 Unlimited exclusive articles</div>
+                    <div class="benefit-item">🎯 Premium transfer insider info</div>
+                    <div class="benefit-item">📊 Advanced match analytics</div>
+                    <div class="benefit-item">🏆 Early access to content</div>
+                </div>
+                <div class="membership-actions">
+                    <a href="/membership.html" class="membership-btn primary">View Membership Plans</a>
+                    <button onclick="this.parentElement.parentElement.parentElement.parentElement.remove()" class="membership-btn secondary">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    if (!document.getElementById('membership-modal-styles')) {
+        addMembershipModalStyles();
+    }
+}
+
+/**
+ * Add CSS styles for premium content
+ */
+function addPremiumStyles() {
+    const style = document.createElement('style');
+    style.id = 'premium-styles';
+    style.textContent = `
+        .premium-upgrade-prompt {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #37003c;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(55,0,60,0.1);
+        }
+        
+        .upgrade-content .upgrade-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+        
+        .upgrade-content h3 {
+            color: #37003c;
+            margin: 0 0 12px 0;
+            font-size: 1.4rem;
+        }
+        
+        .upgrade-content p {
+            color: #666;
+            margin-bottom: 16px;
+        }
+        
+        .upgrade-benefits {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .benefit {
+            background: rgba(55,0,60,0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #37003c;
+            font-weight: 500;
+        }
+        
+        .upgrade-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .upgrade-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upgrade-btn.primary {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+        }
+        
+        .upgrade-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(55,0,60,0.3);
+        }
+        
+        .upgrade-btn.secondary {
+            background: transparent;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+        
+        .upgrade-btn.secondary:hover {
+            background: #f8f9fa;
+        }
+        
+        .membership-badge {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: auto;
+            display: inline-block;
+        }
+        
+        .premium-indicator {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+            display: inline-block;
+        }
+        
+        .premium-unlocked {
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 12px;
+            background: rgba(40,167,69,0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .upgrade-benefits {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .upgrade-buttons {
+                flex-direction: column;
+            }
+            
+            .upgrade-btn {
+                width: 100%;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+/**
+ * Add CSS styles for membership modal
+ */
+function addMembershipModalStyles() {
+    const style = document.createElement('style');
+    style.id = 'membership-modal-styles';
+    style.textContent = `
+        .membership-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .membership-modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+        
+        .membership-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .membership-header h2 {
+            margin: 0;
+            color: #37003c;
+            font-size: 1.5rem;
+        }
+        
+        .close-membership {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 5px;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-membership:hover {
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .membership-body {
+            padding: 24px;
+        }
+        
+        .membership-body p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .membership-benefits {
+            margin-bottom: 24px;
+        }
+        
+        .benefit-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .benefit-item:last-child {
+            border-bottom: none;
+        }
+        
+        .membership-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .membership-btn {
+            padding: 14px 28px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .membership-btn.primary {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+        }
+        
+        .membership-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(55,0,60,0.3);
+        }
+        
+        .membership-btn.secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+        
+        .membership-btn.secondary:hover {
+            background: #e9ecef;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .membership-actions {
+                flex-direction: column;
+            }
+            
+            .membership-btn {
+                width: 100%;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}

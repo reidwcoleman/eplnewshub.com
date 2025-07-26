@@ -713,8 +713,16 @@
             console.log('selectPlan called with:', { planType, priceId });
             
             if (!window.auth || !window.auth.currentUser) {
-                alert('Please sign in first to purchase a membership.');
-                window.location.href = '/signin.html';
+                // Enhanced authentication prompt
+                const userChoice = confirm('You need to create an account or sign in to purchase a membership. Click OK to create an account, or Cancel to sign in with an existing account.');
+                
+                if (userChoice) {
+                    // User chose to create account
+                    window.location.href = '/create-account.html';
+                } else {
+                    // User chose to sign in
+                    window.location.href = '/signin.html';
+                }
                 return;
             }
             
@@ -750,9 +758,15 @@
                             quantity: 1,
                         }],
                         mode: 'subscription',
-                        successUrl: window.location.protocol + '//' + window.location.host + '/membership-success.html',
+                        successUrl: window.location.protocol + '//' + window.location.host + `/membership-success.html?plan=${planType}&email=${encodeURIComponent(window.auth.currentUser.email)}`,
                         cancelUrl: window.location.protocol + '//' + window.location.host + '/membership.html',
                         customerEmail: window.auth.currentUser.email,
+                        clientReferenceId: window.auth.currentUser.uid, // Firebase user ID for tracking
+                        metadata: {
+                            firebaseUserId: window.auth.currentUser.uid,
+                            planType: planType,
+                            userEmail: window.auth.currentUser.email
+                        }
                     };
                     
                     console.log('Checkout options:', checkoutOptions);

@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Premium | EPL News Hub</title>
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyOey0l27yQP68oybpoodMVcvayhIHt2I",
+            authDomain: "epl-news-hub-94c09.firebaseapp.com",
+            projectId: "epl-news-hub-94c09",
+            storageBucket: "epl-news-hub-94c09.firebasestorage.app",
+            messagingSenderId: "674703933278",
+            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf",
+            measurementId: "G-ECM6BCQCS8"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        window.auth = auth;
+        window.onAuthStateChanged = onAuthStateChanged;
+    </script>
     <style>
         .success-container {
             max-width: 600px;
@@ -65,5 +87,147 @@
         </p>
         <a href="/index.html" class="success-button">Start Exploring Premium Content</a>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get plan and email from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const planType = urlParams.get('plan');
+            const userEmail = urlParams.get('email');
+            
+            // Initialize membership tracking
+            initializeMembership(planType, userEmail);
+            
+            // Update page content based on plan
+            updateContentForPlan(planType);
+        });
+        
+        function initializeMembership(planType, userEmail) {
+            // Create membership record in localStorage (in production, this would be stored in a database)
+            const membershipData = {
+                plan: planType || 'premium',
+                status: 'active',
+                startDate: new Date().toISOString(),
+                email: userEmail,
+                features: getPlanFeatures(planType),
+                subscriptionSource: 'stripe'
+            };
+            
+            // Store membership data
+            localStorage.setItem('eplMembership', JSON.stringify(membershipData));
+            
+            // Log for debugging
+            console.log('Membership initialized:', membershipData);
+            
+            // Check authentication state
+            if (window.onAuthStateChanged && window.auth) {
+                window.onAuthStateChanged(window.auth, (user) => {
+                    if (user && userEmail && user.email === userEmail) {
+                        // User is properly authenticated, membership is valid
+                        console.log('Authenticated user matches subscription email');
+                        
+                        // Store user-specific membership data
+                        const userMembershipKey = `eplMembership_${user.uid}`;
+                        localStorage.setItem(userMembershipKey, JSON.stringify(membershipData));
+                    }
+                });
+            }
+        }
+        
+        function getPlanFeatures(planType) {
+            const features = {
+                'starter': [
+                    '5 exclusive articles per week',
+                    'Latest transfer rumors',
+                    'Weekly team and match analysis',
+                    'Access to all articles',
+                    'FPL pro advice and suggested teams',
+                    'Ad-free browsing'
+                ],
+                'starter-annual': [
+                    '5 exclusive articles per week',
+                    'Latest transfer rumors',
+                    'Weekly team and match analysis',
+                    'Access to all articles',
+                    'FPL pro advice and suggested teams',
+                    'Ad-free browsing'
+                ],
+                'pro': [
+                    'Everything included in Starter',
+                    'Unlimited exclusive articles',
+                    'Premium transfer insider info',
+                    'Early access to content',
+                    'Fantasy Premier League exclusive team of the week'
+                ],
+                'pro-annual': [
+                    'Everything included in Starter',
+                    'Unlimited exclusive articles',
+                    'Premium transfer insider info',
+                    'Early access to content',
+                    'Fantasy Premier League exclusive team of the week'
+                ]
+            };
+            
+            return features[planType] || features['starter'];
+        }
+        
+        function updateContentForPlan(planType) {
+            const planNames = {
+                'starter': 'Starter',
+                'starter-annual': 'Starter Annual',
+                'pro': 'Pro',
+                'pro-annual': 'Pro Annual'
+            };
+            
+            const planName = planNames[planType] || 'Premium';
+            
+            // Update title and message
+            const titleElement = document.querySelector('.success-title');
+            const messageElement = document.querySelector('.success-message');
+            
+            if (titleElement) {
+                titleElement.textContent = `Welcome to ${planName}!`;
+            }
+            
+            if (messageElement) {
+                const features = getPlanFeatures(planType);
+                const featureText = features.length > 3 ? 
+                    `including ${features.slice(0, 3).join(', ')} and more` : 
+                    `including ${features.join(', ')}`;
+                
+                messageElement.innerHTML = `
+                    Thank you for subscribing to EPL News Hub ${planName}! Your membership is now active and you have access to exclusive content ${featureText}.
+                `;
+            }
+        }
+        
+        // Global function to check if user has membership (can be used by other pages)
+        window.checkMembership = function() {
+            const membership = localStorage.getItem('eplMembership');
+            if (membership) {
+                const data = JSON.parse(membership);
+                return data.status === 'active' ? data : null;
+            }
+            return null;
+        };
+        
+        // Global function to check if user has specific plan access
+        window.hasPlanAccess = function(requiredPlan) {
+            const membership = window.checkMembership();
+            if (!membership) return false;
+            
+            const planHierarchy = {
+                'starter': 1,
+                'starter-annual': 1,
+                'pro': 2,
+                'pro-annual': 2
+            };
+            
+            const userPlanLevel = planHierarchy[membership.plan] || 0;
+            const requiredLevel = planHierarchy[requiredPlan] || 0;
+            
+            return userPlanLevel >= requiredLevel;
+        };
+    </script>
 </body>
 </html>
