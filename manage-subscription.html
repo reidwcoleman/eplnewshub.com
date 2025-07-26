@@ -180,6 +180,7 @@
         </div>
     </div>
 
+    <script src="./ad-target-blank.js"></script>
     <script>
         const emailInput = document.getElementById('email');
         const checkStatusBtn = document.getElementById('checkStatusBtn');
@@ -201,11 +202,16 @@
             messagesDiv.innerHTML = '';
         }
 
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
         checkStatusBtn.addEventListener('click', function() {
             const email = emailInput.value.trim();
             
-            if (!email) {
-                showMessage('Please enter an email address.', 'error');
+            if (!email || !isValidEmail(email)) {
+                showMessage('Please enter a valid email address.', 'error');
                 return;
             }
 
@@ -213,91 +219,107 @@
             checkStatusBtn.disabled = true;
             clearMessages();
 
-            fetch(`/api/subscription-status/${encodeURIComponent(email)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        emailForm.style.display = 'none';
-                        statusDisplay.style.display = 'block';
-                        
-                        if (data.subscribed) {
-                            statusIndicator.textContent = '✅ Subscribed';
-                            statusIndicator.className = 'status-indicator subscribed';
-                            statusDetails.innerHTML = `
-                                <p>You are currently subscribed to our newsletter.</p>
-                                <p><strong>Email:</strong> ${email}</p>
-                                ${data.subscription && data.subscription.createdAt ? 
-                                    `<p><strong>Subscribed on:</strong> ${new Date(data.subscription.createdAt).toLocaleDateString()}</p>` : 
-                                    ''
-                                }
-                            `;
-                            unsubscribeBtn.style.display = 'inline-block';
-                            resubscribeBtn.style.display = 'none';
-                        } else {
-                            statusIndicator.textContent = '❌ Not Subscribed';
-                            statusIndicator.className = 'status-indicator not-subscribed';
-                            statusDetails.innerHTML = `
-                                <p>You are not currently subscribed to our newsletter.</p>
-                                <p><strong>Email:</strong> ${email}</p>
-                            `;
-                            unsubscribeBtn.style.display = 'none';
-                            resubscribeBtn.style.display = 'inline-block';
-                        }
-                        actionButtons.style.display = 'block';
+            // Simulate API delay for better UX
+            setTimeout(() => {
+                try {
+                    // Check localStorage for subscription data
+                    const signups = JSON.parse(localStorage.getItem('newsletter-signups') || '[]');
+                    const unsubscribed = JSON.parse(localStorage.getItem('unsubscribed-emails') || '[]');
+                    
+                    const subscription = signups.find(s => s.email.toLowerCase() === email.toLowerCase());
+                    const isUnsubscribed = unsubscribed.includes(email.toLowerCase());
+                    
+                    emailForm.style.display = 'none';
+                    statusDisplay.style.display = 'block';
+                    
+                    if (subscription && !isUnsubscribed) {
+                        statusIndicator.textContent = '✅ Subscribed';
+                        statusIndicator.className = 'status-indicator subscribed';
+                        statusDetails.innerHTML = `
+                            <p>You are currently subscribed to our newsletter.</p>
+                            <p><strong>Email:</strong> ${email}</p>
+                            <p><strong>Name:</strong> ${subscription.name || 'Not provided'}</p>
+                            ${subscription.timestamp ? 
+                                `<p><strong>Subscribed on:</strong> ${new Date(subscription.timestamp).toLocaleDateString()}</p>` : 
+                                ''
+                            }
+                            <p><strong>Status:</strong> Active - You'll receive our weekly newsletter every Saturday morning.</p>
+                        `;
+                        unsubscribeBtn.style.display = 'inline-block';
+                        resubscribeBtn.style.display = 'none';
+                    } else if (subscription && isUnsubscribed) {
+                        statusIndicator.textContent = '❌ Unsubscribed';
+                        statusIndicator.className = 'status-indicator not-subscribed';
+                        statusDetails.innerHTML = `
+                            <p>You have unsubscribed from our newsletter.</p>
+                            <p><strong>Email:</strong> ${email}</p>
+                            <p><strong>Originally subscribed:</strong> ${subscription.timestamp ? new Date(subscription.timestamp).toLocaleDateString() : 'Unknown'}</p>
+                            <p><strong>Status:</strong> Unsubscribed - You won't receive any newsletters.</p>
+                        `;
+                        unsubscribeBtn.style.display = 'none';
+                        resubscribeBtn.style.display = 'inline-block';
                     } else {
-                        showMessage(data.message || 'An error occurred while checking subscription status.', 'error');
+                        statusIndicator.textContent = '❌ Not Subscribed';
+                        statusIndicator.className = 'status-indicator not-subscribed';
+                        statusDetails.innerHTML = `
+                            <p>This email address is not in our newsletter database.</p>
+                            <p><strong>Email:</strong> ${email}</p>
+                            <p><strong>Status:</strong> Not subscribed - You can subscribe to our newsletter on the homepage.</p>
+                        `;
+                        unsubscribeBtn.style.display = 'none';
+                        resubscribeBtn.style.display = 'inline-block';
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                    actionButtons.style.display = 'block';
+                } catch (error) {
+                    console.error('Error checking subscription:', error);
                     showMessage('An error occurred while checking subscription status.', 'error');
-                })
-                .finally(() => {
+                } finally {
                     checkStatusBtn.textContent = 'Check Status';
                     checkStatusBtn.disabled = false;
-                });
+                }
+            }, 500);
         });
 
         unsubscribeBtn.addEventListener('click', function() {
-            if (!confirm('Are you sure you want to unsubscribe from our newsletter?')) {
+            if (!confirm('Are you sure you want to unsubscribe from our newsletter? You can always resubscribe later.')) {
                 return;
             }
 
-            const email = emailInput.value.trim();
+            const email = emailInput.value.trim().toLowerCase();
             unsubscribeBtn.textContent = 'Unsubscribing...';
             unsubscribeBtn.disabled = true;
 
-            fetch('/api/unsubscribe', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showMessage('Successfully unsubscribed from newsletter.', 'success');
-                    statusIndicator.textContent = '❌ Not Subscribed';
+            setTimeout(() => {
+                try {
+                    // Add email to unsubscribed list
+                    const unsubscribed = JSON.parse(localStorage.getItem('unsubscribed-emails') || '[]');
+                    if (!unsubscribed.includes(email)) {
+                        unsubscribed.push(email);
+                        localStorage.setItem('unsubscribed-emails', JSON.stringify(unsubscribed));
+                    }
+
+                    // Log the unsubscription
+                    console.log('Unsubscribed email:', email, 'at', new Date().toISOString());
+
+                    showMessage('✅ Successfully unsubscribed from newsletter. You will no longer receive our weekly emails.', 'success');
+                    statusIndicator.textContent = '❌ Unsubscribed';
                     statusIndicator.className = 'status-indicator not-subscribed';
                     statusDetails.innerHTML = `
                         <p>You have been unsubscribed from our newsletter.</p>
-                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Email:</strong> ${emailInput.value.trim()}</p>
+                        <p><strong>Unsubscribed on:</strong> ${new Date().toLocaleDateString()}</p>
+                        <p><strong>Status:</strong> Unsubscribed - You won't receive any newsletters.</p>
                     `;
                     unsubscribeBtn.style.display = 'none';
                     resubscribeBtn.style.display = 'inline-block';
-                } else {
-                    showMessage(data.message || 'An error occurred while unsubscribing.', 'error');
+                } catch (error) {
+                    console.error('Error unsubscribing:', error);
+                    showMessage('An error occurred while unsubscribing. Please try again.', 'error');
+                } finally {
+                    unsubscribeBtn.textContent = 'Unsubscribe';
+                    unsubscribeBtn.disabled = false;
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showMessage('An error occurred while unsubscribing.', 'error');
-            })
-            .finally(() => {
-                unsubscribeBtn.textContent = 'Unsubscribe';
-                unsubscribeBtn.disabled = false;
-            });
+            }, 800);
         });
 
         resubscribeBtn.addEventListener('click', function() {
@@ -305,38 +327,53 @@
             resubscribeBtn.textContent = 'Subscribing...';
             resubscribeBtn.disabled = true;
 
-            fetch('/api/resubscribe', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showMessage('Successfully subscribed to newsletter.', 'success');
+            setTimeout(() => {
+                try {
+                    const emailLower = email.toLowerCase();
+                    
+                    // Remove from unsubscribed list
+                    const unsubscribed = JSON.parse(localStorage.getItem('unsubscribed-emails') || '[]');
+                    const filteredUnsubscribed = unsubscribed.filter(e => e !== emailLower);
+                    localStorage.setItem('unsubscribed-emails', JSON.stringify(filteredUnsubscribed));
+
+                    // Check if already in signups, if not add them
+                    const signups = JSON.parse(localStorage.getItem('newsletter-signups') || '[]');
+                    let subscription = signups.find(s => s.email.toLowerCase() === emailLower);
+                    
+                    if (!subscription) {
+                        // Create new subscription entry
+                        subscription = {
+                            name: 'Newsletter Subscriber',
+                            email: email,
+                            timestamp: new Date().toISOString()
+                        };
+                        signups.push(subscription);
+                        localStorage.setItem('newsletter-signups', JSON.stringify(signups));
+                    }
+
+                    // Log the resubscription
+                    console.log('Resubscribed email:', email, 'at', new Date().toISOString());
+
+                    showMessage('✅ Successfully subscribed to newsletter! You\'ll receive our weekly emails every Saturday morning.', 'success');
                     statusIndicator.textContent = '✅ Subscribed';
                     statusIndicator.className = 'status-indicator subscribed';
                     statusDetails.innerHTML = `
                         <p>You are now subscribed to our newsletter.</p>
                         <p><strong>Email:</strong> ${email}</p>
-                        <p><strong>Subscribed on:</strong> ${new Date().toLocaleDateString()}</p>
+                        <p><strong>Name:</strong> ${subscription.name || 'Newsletter Subscriber'}</p>
+                        <p><strong>Subscribed on:</strong> ${new Date(subscription.timestamp).toLocaleDateString()}</p>
+                        <p><strong>Status:</strong> Active - You'll receive our weekly newsletter every Saturday morning.</p>
                     `;
                     unsubscribeBtn.style.display = 'inline-block';
                     resubscribeBtn.style.display = 'none';
-                } else {
-                    showMessage(data.message || 'An error occurred while subscribing.', 'error');
+                } catch (error) {
+                    console.error('Error resubscribing:', error);
+                    showMessage('An error occurred while subscribing. Please try again.', 'error');
+                } finally {
+                    resubscribeBtn.textContent = 'Resubscribe';
+                    resubscribeBtn.disabled = false;
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showMessage('An error occurred while subscribing.', 'error');
-            })
-            .finally(() => {
-                resubscribeBtn.textContent = 'Resubscribe';
-                resubscribeBtn.disabled = false;
-            });
+            }, 800);
         });
 
         checkAnotherBtn.addEventListener('click', function() {

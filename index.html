@@ -2419,6 +2419,13 @@
                     return;
                 }
 
+                // Check if email is unsubscribed
+                const unsubscribed = JSON.parse(localStorage.getItem('unsubscribed-emails') || '[]');
+                if (unsubscribed.includes(email.toLowerCase())) {
+                    showMessage(messageDiv, '⚠️ This email was previously unsubscribed. Please use our <a href="manage-subscription.html?email=' + encodeURIComponent(email) + '" target="_blank">Manage Subscription</a> page to resubscribe.', 'error');
+                    return;
+                }
+
                 // Show loading state
                 submitBtn.disabled = true;
                 btnText.style.display = 'none';
@@ -2468,8 +2475,14 @@
                         const signup = { name, email, timestamp: new Date().toISOString() };
                         const signups = JSON.parse(localStorage.getItem('newsletter-signups') || '[]');
                         
-                        // Check for duplicates
-                        if (!signups.find(s => s.email === email)) {
+                        // Check for duplicates and unsubscribed status
+                        const unsubscribed = JSON.parse(localStorage.getItem('unsubscribed-emails') || '[]');
+                        if (unsubscribed.includes(email.toLowerCase())) {
+                            showMessage(messageDiv, '⚠️ This email was previously unsubscribed. Please use our <a href="manage-subscription.html?email=' + encodeURIComponent(email) + '" target="_blank">Manage Subscription</a> page to resubscribe.', 'error');
+                            return;
+                        }
+                        
+                        if (!signups.find(s => s.email.toLowerCase() === email.toLowerCase())) {
                             signups.push(signup);
                             localStorage.setItem('newsletter-signups', JSON.stringify(signups));
                             console.log('Newsletter Signup saved to localStorage:', signup);
