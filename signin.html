@@ -318,13 +318,17 @@
                         showMessage('Google sign in successful! Redirecting...', 'success');
                         
                         // Store user info in localStorage
-                        localStorage.setItem('user', JSON.stringify({
+                        const userData = {
                             uid: user.uid,
                             email: user.email,
                             displayName: user.displayName,
                             photoURL: user.photoURL,
                             signedInAt: new Date().toISOString()
-                        }));
+                        };
+                        localStorage.setItem('user', JSON.stringify(userData));
+                        
+                        // Check for existing membership data and associate with user
+                        checkAndUpdateMembershipData(user.uid, user.email);
                         
                         setTimeout(() => {
                             window.location.href = '/';
@@ -371,12 +375,16 @@
                     showMessage('Sign in successful! Redirecting...', 'success');
                     
                     // Store user info in localStorage for the site
-                    localStorage.setItem('user', JSON.stringify({
+                    const userData = {
                         uid: user.uid,
                         email: user.email,
                         displayName: user.displayName || email.split('@')[0],
                         signedInAt: new Date().toISOString()
-                    }));
+                    };
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    
+                    // Check for existing membership data and associate with user
+                    checkAndUpdateMembershipData(user.uid, user.email);
                     
                     setTimeout(() => {
                         window.location.href = '/';
@@ -453,6 +461,39 @@
             
             // This would implement password reset with Firebase
             showMessage('Password reset functionality will be implemented with Firebase. Please contact support for now.', 'error');
+        }
+        
+        function checkAndUpdateMembershipData(userUid, userEmail) {
+            try {
+                // Check for existing membership data in localStorage
+                const membershipInfo = localStorage.getItem('membership');
+                const eplMembership = localStorage.getItem('eplMembership');
+                
+                let membership = null;
+                
+                // Check both possible storage keys
+                if (membershipInfo) {
+                    membership = JSON.parse(membershipInfo);
+                } else if (eplMembership) {
+                    membership = JSON.parse(eplMembership);
+                }
+                
+                if (membership) {
+                    // Associate membership with current user
+                    membership.userId = userUid;
+                    membership.userEmail = userEmail;
+                    membership.lastUpdated = new Date().toISOString();
+                    
+                    // Store under user-specific key for better organization
+                    const userMembershipKey = `membership_${userUid}`;
+                    localStorage.setItem(userMembershipKey, JSON.stringify(membership));
+                    localStorage.setItem('membership', JSON.stringify(membership)); // Keep for backward compatibility
+                    
+                    console.log('Membership data associated with user:', membership);
+                }
+            } catch (error) {
+                console.error('Error checking membership data:', error);
+            }
         }
     </script>
 </body>

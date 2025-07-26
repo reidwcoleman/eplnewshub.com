@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Premium exclusive content for EPL News Hub members - insider analysis, transfer news, and FPL tips.">
+    <meta name="keywords" content="EPL premium content, exclusive Premier League analysis, insider transfer news">
+    <title>Premium Content | EPL News Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="apple-touch-icon" href="reidsnbest.webp">
+    <link rel="icon" type="image/webp" href="reidsnbest.webp">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyOey0l27yQP68oybpoodMVcvayhIHt2I",
+            authDomain: "epl-news-hub-94c09.firebaseapp.com",
+            projectId: "epl-news-hub-94c09",
+            storageBucket: "epl-news-hub-94c09.firebasestorage.app",
+            messagingSenderId: "674703933278",
+            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf",
+            measurementId: "G-ECM6BCQCS8"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        window.auth = auth;
+        window.onAuthStateChanged = onAuthStateChanged;
+    </script>
+    
+    <style>
+        .premium-hero {
+            background: linear-gradient(135deg, #37003c 0%, #6f42c1 50%, #20c997 100%);
+            color: white;
+            padding: 80px 20px 60px 20px;
+            text-align: center;
+        }
+        
+        .premium-hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .premium-hero p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+        }
+        
+        .ad-free-banner {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .premium-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .content-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .category-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .category-header {
+            padding: 30px 20px 20px 20px;
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            text-align: center;
+        }
+        
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .category-subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .category-content {
+            padding: 30px 20px;
+        }
+        
+        .article-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .article-list li {
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .article-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .article-title {
+            font-weight: 600;
+            color: #37003c;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        
+        .article-excerpt {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        
+        .article-meta {
+            font-size: 0.8rem;
+            color: #999;
+        }
+        
+        .read-more {
+            color: #37003c;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .read-more:hover {
+            text-decoration: underline;
+        }
+        
+        .locked-content {
+            opacity: 0.6;
+            position: relative;
+        }
+        
+        .lock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border-radius: 16px;
+        }
+        
+        .lock-icon {
+            font-size: 3rem;
+            color: #ffc107;
+            margin-bottom: 15px;
+        }
+        
+        .unlock-message {
+            text-align: center;
+            color: #37003c;
+        }
+        
+        .unlock-btn {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .unlock-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .premium-features {
+            background: #f8f9fa;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 40px auto 0 auto;
+        }
+        
+        .feature-item {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #37003c;
+            margin-bottom: 10px;
+        }
+        
+        .feature-description {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .auth-prompt {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 12px;
+            margin: 40px 0;
+        }
+        
+        .auth-prompt h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .auth-buttons {
+            margin-top: 20px;
+        }
+        
+        .auth-btn {
+            background: #37003c;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 10px;
+            font-weight: 600;
+        }
+        
+        .auth-btn:hover {
+            background: #6f42c1;
+        }
+        
+        @media (max-width: 768px) {
+            .premium-hero h1 {
+                font-size: 2rem;
+            }
+            
+            .premium-hero p {
+                font-size: 1.1rem;
+            }
+            
+            .content-categories {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header" include="./header.html"></div>
+
+    <div id="loading" class="loading">
+        <h2>Loading premium content...</h2>
+        <p>Please wait while we verify your membership.</p>
+    </div>
+
+    <div id="premium-content" class="hidden">
+        <div class="premium-hero">
+            <h1>🏆 Premium Content</h1>
+            <p>Exclusive analysis, insider news, and advanced insights for EPL News Hub premium members</p>
+        </div>
+
+        <div id="ad-free-banner" class="ad-free-banner hidden">
+            🚫 <strong>Ad-Free Experience</strong> - You're enjoying EPL News Hub without any advertisements as a premium member!
+        </div>
+
+        <div class="premium-container">
+            <div class="content-categories" id="content-categories">
+                <!-- Content will be loaded here based on membership -->
+            </div>
+        </div>
+
+        <div class="premium-features">
+            <h2>Why Premium Members Love EPL News Hub</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">📰</div>
+                    <div class="feature-title">Exclusive Articles</div>
+                    <div class="feature-description">In-depth analysis and exclusive stories you won't find anywhere else</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-title">Transfer Insider</div>
+                    <div class="feature-description">Get the real story behind transfers before they hit mainstream media</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">Advanced Analytics</div>
+                    <div class="feature-description">Professional-grade statistics and analysis tools</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎮</div>
+                    <div class="feature-title">FPL Pro Tips</div>
+                    <div class="feature-description">Expert Fantasy Premier League advice and team selections</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="auth-prompt" class="premium-container auth-prompt hidden">
+        <h3>🔐 Sign In Required</h3>
+        <p>Please sign in to access premium content. Don't have an account? Create one to get started!</p>
+        <div class="auth-buttons">
+            <a href="/signin.html" class="auth-btn">Sign In</a>
+            <a href="/create-account.html" class="auth-btn">Create Account</a>
+        </div>
+    </div>
+
+    <div class="footer" include="./footer.html"></div>
+    <script src="./index.js"></script>
+    <script>
+        let currentUser = null;
+        let userMembership = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthAndLoadContent();
+        });
+
+        function checkAuthAndLoadContent() {
+            if (window.onAuthStateChanged && window.auth) {
+                window.onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        loadPremiumContent(user);
+                    } else {
+                        showAuthPrompt();
+                    }
+                });
+            } else {
+                // Fallback: check localStorage for user data
+                const userData = localStorage.getItem('user');
+                if (userData) {
+                    try {
+                        currentUser = JSON.parse(userData);
+                        loadPremiumContent(currentUser);
+                    } catch (error) {
+                        console.error('Error parsing user data:', error);
+                        showAuthPrompt();
+                    }
+                } else {
+                    showAuthPrompt();
+                }
+            }
+        }
+
+        function showAuthPrompt() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('premium-content').classList.add('hidden');
+            document.getElementById('auth-prompt').classList.remove('hidden');
+        }
+
+        function loadPremiumContent(user) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('auth-prompt').classList.add('hidden');
+            document.getElementById('premium-content').classList.remove('hidden');
+
+            // Load membership data
+            loadMembershipData(user);
+            
+            // Load content based on membership
+            loadContentCategories();
+        }
+
+        function loadMembershipData(user) {
+            try {
+                // Check for user-specific membership data first
+                const userMembershipKey = `membership_${user.uid}`;
+                let membershipData = localStorage.getItem(userMembershipKey);
+                
+                // Fallback to general membership key
+                if (!membershipData) {
+                    membershipData = localStorage.getItem('membership') || localStorage.getItem('eplMembership');
+                }
+                
+                if (membershipData) {
+                    userMembership = JSON.parse(membershipData);
+                    
+                    // Show ad-free banner for premium members (hide ads)
+                    if (userMembership.plan && userMembership.plan !== 'free') {
+                        document.getElementById('ad-free-banner').classList.remove('hidden');
+                        hideAds();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading membership data:', error);
+            }
+        }
+
+        function hideAds() {
+            // Hide all ad elements on the page
+            const adElements = document.querySelectorAll('.adsbygoogle, [class*="ad-"], [id*="ad-"], [class*="advertisement"]');
+            adElements.forEach(ad => {
+                ad.style.display = 'none';
+            });
+        }
+
+        function loadContentCategories() {
+            const container = document.getElementById('content-categories');
+            const hasPremiumAccess = userMembership && userMembership.plan && userMembership.plan !== 'free';
+            
+            if (hasPremiumAccess) {
+                // Show full premium content for premium users
+                container.innerHTML = `
+                    <div class="category-card">
+                        <div class="category-header">
+                            <div class="category-icon">🎯</div>
+                            <div class="category-title">Transfer Insider</div>
+                            <div class="category-subtitle">Exclusive transfer news and rumors</div>
+                        </div>
+                        <div class="category-content">
+                            <ul class="article-list">
+                                <li>
+                                    <div class="article-title">Arsenal's Winter Window Targets Revealed</div>
+                                    <div class="article-excerpt">Inside sources reveal Arsenal's top 3 January transfer targets...</div>
+                                    <div class="article-meta">Exclusive • 2 hours ago</div>
+                                    <a href="/articles/exclusive-arsenal-transfer-insider-07-25-2025.html" class="read-more">Read Full Article →</a>
+                                </li>
+                                <li>
+                                    <div class="article-title">Manchester United's £80m Striker Hunt</div>
+                                    <div class="article-excerpt">United preparing massive bid for top European striker...</div>
+                                    <div class="article-meta">Transfer News • 6 hours ago</div>
+                                    <a href="#" class="read-more">Read Full Article →</a>
+                                </li>
+                                <li>
+                                    <div class="article-title">Chelsea's Secret Defender Negotiations</div>
+                                    <div class="article-excerpt">Exclusive details on Chelsea's pursuit of top La Liga defender...</div>
+                                    <div class="article-meta">Insider Info • 1 day ago</div>
+                                    <a href="#" class="read-more">Read Full Article →</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="category-card">
+                        <div class="category-header">
+                            <div class="category-icon">📊</div>
+                            <div class="category-title">FPL Pro Zone</div>
+                            <div class="category-subtitle">Expert Fantasy Premier League advice</div>
+                        </div>
+                        <div class="category-content">
+                            <ul class="article-list">
+                                <li>
+                                    <div class="article-title">FPL Team of the Week - Gameweek 21</div>
+                                    <div class="article-excerpt">Our premium team selection with captain picks and transfer tips...</div>
+                                    <div class="article-meta">FPL Analysis • 1 day ago</div>
+                                    <a href="#" class="read-more">View Team →</a>
+                                </li>
+                                <li>
+                                    <div class="article-title">Hidden FPL Gems: Budget Options</div>
+                                    <div class="article-excerpt">Discover undervalued players perfect for your FPL squad...</div>
+                                    <div class="article-meta">FPL Tips • 2 days ago</div>
+                                    <a href="#" class="read-more">Read Analysis →</a>
+                                </li>
+                                <li>
+                                    <div class="article-title">Injury Updates & FPL Impact</div>
+                                    <div class="article-excerpt">Latest injury news and how it affects your FPL decisions...</div>
+                                    <div class="article-meta">FPL News • 3 days ago</div>
+                                    <a href="#" class="read-more">Read Report →</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="category-card">
+                        <div class="category-header">
+                            <div class="category-icon">🧠</div>
+                            <div class="category-title">Tactical Analysis</div>
+                            <div class="category-subtitle">Deep-dive tactical breakdowns</div>
+                        </div>
+                        <div class="category-content">
+                            <ul class="article-list">
+                                <li>
+                                    <div class="article-title">Arsenal's New Formation Masterclass</div>
+                                    <div class="article-excerpt">How Arteta's tactical switch revolutionized Arsenal's attack...</div>
+                                    <div class="article-meta">Tactics • 1 day ago</div>
+                                    <a href="#" class="read-more">Read Analysis →</a>
+                                </li>
+                                <li>
+                                    <div class="article-title">City's Pressing Triggers Decoded</div>
+                                    <div class="article-excerpt">Breaking down Manchester City's intricate pressing system...</div>
+                                    <div class="article-meta">Tactical Study • 3 days ago</div>
+                                    <a href="#" class="read-more">Read Study →</a>
+                                </li>
+                                <li>
+                                    <div class="article-title">Liverpool's Counter-Attack Blueprint</div>
+                                    <div class="article-excerpt">The science behind Liverpool's devastating counter-attacks...</div>
+                                    <div class="article-meta">Analysis • 4 days ago</div>
+                                    <a href="#" class="read-more">Read Blueprint →</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="category-card">
+                        <div class="category-header">
+                            <div class="category-icon">📈</div>
+                            <div class="category-title">Market Analysis</div>
+                            <div class="category-subtitle">Player valuations and market trends</div>
+                        </div>
+                        <div class="category-content">
+                            <ul class="article-list">
+                                <li>
+                                    <div class="article-title">January Transfer Window Valuations</div>
+                                    <div class="article-excerpt">How much are the most sought-after players really worth?</div>
+                                    <div class="article-meta">Market Report • 1 day ago</div>
+                                    <a href="#" class="read-more">View Report →</a>
+                                </li>
+                                <li>
+                                    <div class="article-title">Rising Stars: Future Market Winners</div>
+                                    <div class="article-excerpt">Young players set to explode in value this season...</div>
+                                    <div class="article-meta">Investment Tips • 2 days ago</div>
+                                    <a href="#" class="read-more">Read Analysis →</a>
+                                </li>
+                                <li>
+                                    <div class="article-title">Contract Situations to Watch</div>
+                                    <div class="article-excerpt">Players entering final contract years and transfer implications...</div>
+                                    <div class="article-meta">Contract Watch • 5 days ago</div>
+                                    <a href="#" class="read-more">Read Report →</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Show locked content for free users
+                container.innerHTML = `
+                    <div class="category-card locked-content">
+                        <div class="category-header">
+                            <div class="category-icon">🎯</div>
+                            <div class="category-title">Transfer Insider</div>
+                            <div class="category-subtitle">Exclusive transfer news and rumors</div>
+                        </div>
+                        <div class="category-content">
+                            <ul class="article-list">
+                                <li>
+                                    <div class="article-title">Arsenal's Winter Window Targets Revealed</div>
+                                    <div class="article-excerpt">Inside sources reveal Arsenal's top 3 January transfer targets...</div>
+                                    <div class="article-meta">Exclusive • 2 hours ago</div>
+                                </li>
+                                <li>
+                                    <div class="article-title">Manchester United's £80m Striker Hunt</div>
+                                    <div class="article-excerpt">United preparing massive bid for top European striker...</div>
+                                    <div class="article-meta">Transfer News • 6 hours ago</div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="lock-overlay">
+                            <div class="lock-icon">🔒</div>
+                            <div class="unlock-message">
+                                <h3>Premium Content</h3>
+                                <p>Unlock exclusive transfer insider news</p>
+                                <a href="/membership.html" class="unlock-btn">Upgrade to Premium</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category-card locked-content">
+                        <div class="category-header">
+                            <div class="category-icon">📊</div>
+                            <div class="category-title">FPL Pro Zone</div>
+                            <div class="category-subtitle">Expert Fantasy Premier League advice</div>
+                        </div>
+                        <div class="category-content">
+                            <ul class="article-list">
+                                <li>
+                                    <div class="article-title">FPL Team of the Week - Gameweek 21</div>
+                                    <div class="article-excerpt">Our premium team selection with captain picks...</div>
+                                    <div class="article-meta">FPL Analysis • 1 day ago</div>
+                                </li>
+                                <li>
+                                    <div class="article-title">Hidden FPL Gems: Budget Options</div>
+                                    <div class="article-excerpt">Discover undervalued players perfect for your FPL squad...</div>
+                                    <div class="article-meta">FPL Tips • 2 days ago</div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="lock-overlay">
+                            <div class="lock-icon">🔒</div>
+                            <div class="unlock-message">
+                                <h3>FPL Pro Content</h3>
+                                <p>Get expert FPL tips and team selections</p>
+                                <a href="/membership.html" class="unlock-btn">Upgrade to Premium</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category-card locked-content">
+                        <div class="category-header">
+                            <div class="category-icon">🧠</div>
+                            <div class="category-title">Tactical Analysis</div>
+                            <div class="category-subtitle">Deep-dive tactical breakdowns</div>
+                        </div>
+                        <div class="category-content">
+                            <ul class="article-list">
+                                <li>
+                                    <div class="article-title">Arsenal's New Formation Masterclass</div>
+                                    <div class="article-excerpt">How Arteta's tactical switch revolutionized Arsenal's attack...</div>
+                                    <div class="article-meta">Tactics • 1 day ago</div>
+                                </li>
+                                <li>
+                                    <div class="article-title">City's Pressing Triggers Decoded</div>
+                                    <div class="article-excerpt">Breaking down Manchester City's intricate pressing system...</div>
+                                    <div class="article-meta">Tactical Study • 3 days ago</div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="lock-overlay">
+                            <div class="lock-icon">🔒</div>
+                            <div class="unlock-message">
+                                <h3>Tactical Analysis</h3>
+                                <p>Access in-depth tactical breakdowns</p>
+                                <a href="/membership.html" class="unlock-btn">Upgrade to Premium</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Global functions for membership checking
+        function hasActiveMembership() {
+            return userMembership && userMembership.plan && userMembership.plan !== 'free';
+        }
+
+        function getMembershipLevel() {
+            if (!userMembership || !userMembership.plan || userMembership.plan === 'free') {
+                return 'free';
+            }
+            return userMembership.plan;
+        }
+
+        // Make functions available globally
+        window.hasActiveMembership = hasActiveMembership;
+        window.getMembershipLevel = getMembershipLevel;
+    </script>
+</body>
+</html>
