@@ -24,7 +24,7 @@
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -49,6 +49,12 @@
         window.signInWithPopup = signInWithPopup;
         window.updateProfile = updateProfile;
         window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut;
+        
+        // Force sign out when user visits this page to ensure fresh account creation
+        signOut(auth).catch((error) => {
+            console.log('Sign out on page load (if any):', error);
+        });
     </script>
     <style>
         .auth-container {

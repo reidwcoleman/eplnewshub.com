@@ -157,6 +157,7 @@
                 <p>For premium subscription management (Starter, Pro plans), please contact our support team or use Stripe's secure customer portal:</p>
                 <div style="margin: 15px 0;">
                     <button type="button" id="contactSupport" class="btn btn-primary" style="margin-right: 10px;">Contact Support</button>
+                    <button type="button" id="cancelSubscription" class="btn btn-danger" style="margin-right: 10px;">Cancel Subscription</button>
                     <a href="/membership.html" class="btn btn-success">View Premium Plans</a>
                 </div>
                 <p><small><strong>Note:</strong> Premium subscription billing, cancellation, and plan changes are handled through Stripe's secure platform for your security.</small></p>
@@ -207,6 +208,7 @@
         const checkAnotherBtn = document.getElementById('checkAnotherBtn');
         const messagesDiv = document.getElementById('messages');
         const contactSupportBtn = document.getElementById('contactSupport');
+        const cancelSubscriptionBtn = document.getElementById('cancelSubscription');
 
         function showMessage(message, type = 'info') {
             messagesDiv.innerHTML = `<div class="message ${type}-message" style="display: block;">${message}</div>`;
@@ -413,15 +415,15 @@
 
         // Contact support functionality
         contactSupportBtn.addEventListener('click', function() {
-            const supportEmail = 'support@eplnewshub.com';
+            const supportEmail = 'reidwcoleman@gmail.com';
             const subject = 'Premium Subscription Management Request';
-            const body = `Hello EPL News Hub Support,
+            const body = `Hello Reid,
 
 I need assistance with my premium subscription management. Please help me with:
 
 [ ] Billing questions
 [ ] Plan changes 
-[ ] Cancellation
+[ ] Technical issues
 [ ] Account access issues
 [ ] Other: _______________
 
@@ -435,7 +437,33 @@ Thank you!`;
             window.location.href = mailtoUrl;
             
             // Show confirmation message
-            showMessage('Opening your email client to contact support. If this doesn\'t work, please email support@eplnewshub.com directly.', 'info');
+            showMessage('Opening your email client to contact reidwcoleman@gmail.com for support. If this doesn\'t work, please email reidwcoleman@gmail.com directly.', 'info');
+        });
+
+        // Cancel subscription functionality
+        cancelSubscriptionBtn.addEventListener('click', function() {
+            const supportEmail = 'reidwcoleman@gmail.com';
+            const subject = 'Subscription Cancellation Request';
+            const body = `Hello Reid,
+
+I would like to cancel my premium subscription to EPL News Hub.
+
+My account details:
+- Email: ________________
+- Current Plan: ________________
+- Reason for cancellation (optional): ________________
+
+Please confirm the cancellation and let me know when it will take effect.
+
+Thank you!`;
+
+            const mailtoUrl = `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            // Try to open email client
+            window.location.href = mailtoUrl;
+            
+            // Show confirmation message
+            showMessage('Opening your email client to request subscription cancellation from reidwcoleman@gmail.com. If this doesn\'t work, please email reidwcoleman@gmail.com directly.', 'info');
         });
     </script>
 </body>
