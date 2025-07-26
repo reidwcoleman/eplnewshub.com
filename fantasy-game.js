@@ -8,69 +8,123 @@ let currentTeam = {
     totalValue: 0
 };
 
-// Player database with current Premier League players
-const playerDatabase = {
-    GK: [
-        {id: 1, name: 'Alisson Becker', team: 'LIV', price: 5.5, stats: {saves: 89, cleanSheets: 12}},
-        {id: 2, name: 'Ederson', team: 'MCI', price: 5.2, stats: {saves: 67, cleanSheets: 15}},
-        {id: 3, name: 'David Raya', team: 'ARS', price: 5.1, stats: {saves: 102, cleanSheets: 11}},
-        {id: 4, name: 'Andre Onana', team: 'MUN', price: 4.8, stats: {saves: 118, cleanSheets: 8}},
-        {id: 5, name: 'Nick Pope', team: 'NEW', price: 4.6, stats: {saves: 134, cleanSheets: 7}},
-        {id: 6, name: 'Robert Sanchez', team: 'CHE', price: 4.4, stats: {saves: 95, cleanSheets: 9}},
-        {id: 7, name: 'Guglielmo Vicario', team: 'TOT', price: 4.5, stats: {saves: 112, cleanSheets: 8}},
-        {id: 8, name: 'Jordan Pickford', team: 'EVE', price: 4.3, stats: {saves: 126, cleanSheets: 6}},
-        {id: 9, name: 'Alphonse Areola', team: 'WHU', price: 4.2, stats: {saves: 98, cleanSheets: 5}},
-        {id: 10, name: 'Mark Flekken', team: 'BRE', price: 4.1, stats: {saves: 87, cleanSheets: 7}}
-    ],
-    DEF: [
-        {id: 11, name: 'Virgil van Dijk', team: 'LIV', price: 6.1, stats: {goals: 3, assists: 2, cleanSheets: 12}},
-        {id: 12, name: 'William Saliba', team: 'ARS', price: 5.8, stats: {goals: 2, assists: 1, cleanSheets: 11}},
-        {id: 13, name: 'Ruben Dias', team: 'MCI', price: 5.7, stats: {goals: 1, assists: 3, cleanSheets: 15}},
-        {id: 14, name: 'Josko Gvardiol', team: 'MCI', price: 5.6, stats: {goals: 4, assists: 2, cleanSheets: 15}},
-        {id: 15, name: 'Gabriel Magalhaes', team: 'ARS', price: 5.5, stats: {goals: 5, assists: 1, cleanSheets: 11}},
-        {id: 16, name: 'Antonee Robinson', team: 'FUL', price: 4.8, stats: {goals: 2, assists: 6, cleanSheets: 4}},
-        {id: 17, name: 'Lewis Dunk', team: 'BHA', price: 4.5, stats: {goals: 3, assists: 2, cleanSheets: 6}},
-        {id: 18, name: 'Jarrad Branthwaite', team: 'EVE', price: 4.6, stats: {goals: 2, assists: 1, cleanSheets: 6}},
-        {id: 19, name: 'Fabian Schar', team: 'NEW', price: 4.7, stats: {goals: 4, assists: 2, cleanSheets: 7}},
-        {id: 20, name: 'Marc Guehi', team: 'CRY', price: 4.4, stats: {goals: 1, assists: 2, cleanSheets: 5}},
-        {id: 21, name: 'Yerry Mina', team: 'BHA', price: 4.3, stats: {goals: 2, assists: 1, cleanSheets: 6}},
-        {id: 22, name: 'Trent Alexander-Arnold', team: 'LIV', price: 7.2, stats: {goals: 3, assists: 12, cleanSheets: 12}},
-        {id: 23, name: 'Kyle Walker', team: 'MCI', price: 5.4, stats: {goals: 1, assists: 4, cleanSheets: 15}},
-        {id: 24, name: 'Ben White', team: 'ARS', price: 5.3, stats: {goals: 2, assists: 3, cleanSheets: 11}},
-        {id: 25, name: 'Kieran Trippier', team: 'NEW', price: 5.1, stats: {goals: 2, assists: 8, cleanSheets: 7}}
-    ],
-    MID: [
-        {id: 26, name: 'Mohamed Salah', team: 'LIV', price: 12.8, stats: {goals: 21, assists: 14, points: 218}},
-        {id: 27, name: 'Cole Palmer', team: 'CHE', price: 10.2, stats: {goals: 15, assists: 11, points: 152}},
-        {id: 28, name: 'Bukayo Saka', team: 'ARS', price: 9.7, stats: {goals: 12, assists: 9, points: 148}},
-        {id: 29, name: 'Bruno Fernandes', team: 'MUN', price: 8.3, stats: {goals: 9, assists: 12, points: 134}},
-        {id: 30, name: 'Martin Odegaard', team: 'ARS', price: 8.1, stats: {goals: 8, assists: 10, points: 125}},
-        {id: 31, name: 'Phil Foden', team: 'MCI', price: 8.9, stats: {goals: 11, assists: 7, points: 142}},
-        {id: 32, name: 'Bernardo Silva', team: 'MCI', price: 7.8, stats: {goals: 7, assists: 9, points: 118}},
-        {id: 33, name: 'Bryan Mbeumo', team: 'BRE', price: 6.2, stats: {goals: 13, assists: 6, points: 143}},
-        {id: 34, name: 'Morgan Gibbs-White', team: 'NFO', price: 5.9, stats: {goals: 8, assists: 7, points: 101}},
-        {id: 35, name: 'James Maddison', team: 'TOT', price: 7.9, stats: {goals: 6, assists: 8, points: 89}},
-        {id: 36, name: 'Eberechi Eze', team: 'CRY', price: 6.8, stats: {goals: 9, assists: 5, points: 92}},
-        {id: 37, name: 'Jarrod Bowen', team: 'WHU', price: 7.1, stats: {goals: 11, assists: 4, points: 98}},
-        {id: 38, name: 'Anthony Gordon', team: 'NEW', price: 6.5, stats: {goals: 8, assists: 8, points: 87}},
-        {id: 39, name: 'Dejan Kulusevski', team: 'TOT', price: 6.9, stats: {goals: 7, assists: 9, points: 94}},
-        {id: 40, name: 'Son Heung-min', team: 'TOT', price: 9.1, stats: {goals: 12, assists: 6, points: 126}}
-    ],
-    FWD: [
-        {id: 41, name: 'Erling Haaland', team: 'MCI', price: 15.1, stats: {goals: 24, assists: 3, points: 245}},
-        {id: 42, name: 'Alexander Isak', team: 'NEW', price: 8.9, stats: {goals: 17, assists: 4, points: 159}},
-        {id: 43, name: 'Chris Wood', team: 'NEW', price: 6.8, stats: {goals: 20, assists: 2, points: 167}},
-        {id: 44, name: 'Nicolas Jackson', team: 'CHE', price: 7.4, stats: {goals: 14, assists: 5, points: 123}},
-        {id: 45, name: 'Darwin Nunez', team: 'LIV', price: 7.8, stats: {goals: 13, assists: 7, points: 118}},
-        {id: 46, name: 'Yoane Wissa', team: 'BRE', price: 6.1, stats: {goals: 12, assists: 3, points: 139}},
-        {id: 47, name: 'Ollie Watkins', team: 'AVL', price: 8.2, stats: {goals: 15, assists: 6, points: 132}},
-        {id: 48, name: 'Kai Havertz', team: 'ARS', price: 8.0, stats: {goals: 11, assists: 4, points: 108}},
-        {id: 49, name: 'Dominic Solanke', team: 'TOT', price: 7.6, stats: {goals: 9, assists: 3, points: 87}},
-        {id: 50, name: 'Jamie Vardy', team: 'LEI', price: 5.8, stats: {goals: 8, assists: 2, points: 72}},
-        {id: 51, name: 'Jean-Philippe Mateta', team: 'CRY', price: 6.3, stats: {goals: 10, assists: 4, points: 89}},
-        {id: 52, name: 'Raul Jimenez', team: 'FUL', price: 6.0, stats: {goals: 9, assists: 3, points: 78}}
-    ]
+// Live player database from FPL API
+let playerDatabase = {
+    GK: [],
+    DEF: [],
+    MID: [],
+    FWD: []
 };
+
+// FPL Data Service instance
+let fplService;
+
+// Initialize FPL data
+async function initializeFPLData() {
+    try {
+        fplService = new FPLDataService();
+        const bootstrap = await fplService.getBootstrapData();
+        
+        // Clear existing database
+        playerDatabase = { GK: [], DEF: [], MID: [], FWD: [] };
+        
+        // Process players from FPL API
+        bootstrap.elements.forEach(player => {
+            const team = bootstrap.teams.find(t => t.id === player.team);
+            const position = getPositionFromElementType(player.element_type);
+            
+            const processedPlayer = {
+                id: player.id,
+                name: `${player.first_name} ${player.second_name}`,
+                web_name: player.web_name,
+                team: team ? team.short_name : 'UNK',
+                team_name: team ? team.name : 'Unknown',
+                price: player.now_cost / 10, // Convert from pence to pounds
+                element_type: player.element_type,
+                stats: {
+                    goals: player.goals_scored || 0,
+                    assists: player.assists || 0,
+                    points: player.total_points || 0,
+                    saves: player.saves || 0,
+                    cleanSheets: player.clean_sheets || 0,
+                    form: parseFloat(player.form) || 0,
+                    selected_by_percent: parseFloat(player.selected_by_percent) || 0
+                },
+                // Additional FPL data
+                total_points: player.total_points,
+                form: player.form,
+                selected_by_percent: player.selected_by_percent,
+                now_cost: player.now_cost
+            };
+            
+            if (playerDatabase[position]) {
+                playerDatabase[position].push(processedPlayer);
+            }
+        });
+        
+        // Sort players by price (descending) in each position
+        Object.keys(playerDatabase).forEach(position => {
+            playerDatabase[position].sort((a, b) => b.price - a.price);
+        });
+        
+        console.log('FPL player database loaded:', Object.keys(playerDatabase).map(pos => `${pos}: ${playerDatabase[pos].length}`));
+        return true;
+    } catch (error) {
+        console.error('Failed to load FPL data:', error);
+        
+        // Load fallback static data
+        loadFallbackPlayerData();
+        return false;
+    }
+}
+
+// Fallback static player data (simplified version for offline use)
+function loadFallbackPlayerData() {
+    playerDatabase = {
+        GK: [
+            {id: 1, name: 'Alisson Becker', team: 'LIV', price: 5.5, stats: {saves: 89, cleanSheets: 12, points: 120, form: 5.2}},
+            {id: 2, name: 'Ederson', team: 'MCI', price: 5.2, stats: {saves: 67, cleanSheets: 15, points: 130, form: 5.8}},
+            {id: 3, name: 'David Raya', team: 'ARS', price: 5.1, stats: {saves: 102, cleanSheets: 11, points: 115, form: 4.9}},
+            {id: 4, name: 'Andre Onana', team: 'MUN', price: 4.8, stats: {saves: 118, cleanSheets: 8, points: 95, form: 4.2}},
+            {id: 5, name: 'Nick Pope', team: 'NEW', price: 4.6, stats: {saves: 134, cleanSheets: 7, points: 85, form: 4.1}},
+            {id: 6, name: 'Robert Sanchez', team: 'CHE', price: 4.4, stats: {saves: 95, cleanSheets: 9, points: 90, form: 4.3}},
+            {id: 7, name: 'Guglielmo Vicario', team: 'TOT', price: 4.5, stats: {saves: 112, cleanSheets: 8, points: 88, form: 4.0}},
+            {id: 8, name: 'Jordan Pickford', team: 'EVE', price: 4.3, stats: {saves: 126, cleanSheets: 6, points: 82, form: 3.9}}
+        ],
+        DEF: [
+            {id: 11, name: 'Virgil van Dijk', team: 'LIV', price: 6.1, stats: {goals: 3, assists: 2, cleanSheets: 12, points: 145, form: 5.5}},
+            {id: 12, name: 'William Saliba', team: 'ARS', price: 5.8, stats: {goals: 2, assists: 1, cleanSheets: 11, points: 135, form: 5.2}},
+            {id: 13, name: 'Ruben Dias', team: 'MCI', price: 5.7, stats: {goals: 1, assists: 3, cleanSheets: 15, points: 140, form: 5.3}},
+            {id: 14, name: 'Josko Gvardiol', team: 'MCI', price: 5.6, stats: {goals: 4, assists: 2, cleanSheets: 15, points: 155, form: 6.1}},
+            {id: 22, name: 'Trent Alexander-Arnold', team: 'LIV', price: 7.2, stats: {goals: 3, assists: 12, cleanSheets: 12, points: 165, form: 6.8}}
+        ],
+        MID: [
+            {id: 26, name: 'Mohamed Salah', team: 'LIV', price: 12.8, stats: {goals: 21, assists: 14, points: 218, form: 7.2}},
+            {id: 27, name: 'Cole Palmer', team: 'CHE', price: 10.2, stats: {goals: 15, assists: 11, points: 152, form: 6.8}},
+            {id: 28, name: 'Bukayo Saka', team: 'ARS', price: 9.7, stats: {goals: 12, assists: 9, points: 148, form: 6.5}},
+            {id: 29, name: 'Bruno Fernandes', team: 'MUN', price: 8.3, stats: {goals: 9, assists: 12, points: 134, form: 5.9}},
+            {id: 33, name: 'Bryan Mbeumo', team: 'BRE', price: 6.2, stats: {goals: 13, assists: 6, points: 143, form: 7.1}}
+        ],
+        FWD: [
+            {id: 41, name: 'Erling Haaland', team: 'MCI', price: 15.1, stats: {goals: 24, assists: 3, points: 245, form: 8.2}},
+            {id: 42, name: 'Alexander Isak', team: 'NEW', price: 8.9, stats: {goals: 17, assists: 4, points: 159, form: 7.1}},
+            {id: 43, name: 'Chris Wood', team: 'NEW', price: 6.8, stats: {goals: 20, assists: 2, points: 167, form: 7.5}},
+            {id: 46, name: 'Yoane Wissa', team: 'BRE', price: 6.1, stats: {goals: 12, assists: 3, points: 139, form: 6.9}},
+            {id: 47, name: 'Ollie Watkins', team: 'AVL', price: 8.2, stats: {goals: 15, assists: 6, points: 132, form: 6.3}}
+        ]
+    };
+}
+
+// Convert FPL element_type to position string
+function getPositionFromElementType(elementType) {
+    const positions = {
+        1: 'GK',
+        2: 'DEF',
+        3: 'MID',
+        4: 'FWD'
+    };
+    return positions[elementType] || 'MID';
+}
 
 // Team constraints
 const teamConstraints = {
@@ -103,9 +157,71 @@ const positionSlots = {
 };
 
 // Initialize the game when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    // Show loading message
+    showLoadingMessage();
+    
+    // Initialize FPL data
+    const fplLoaded = await initializeFPLData();
+    
+    if (fplLoaded) {
+        console.log('✅ Live FPL data loaded successfully');
+        hideLoadingMessage();
+    } else {
+        console.warn('⚠️ Using fallback player data');
+        showFallbackMessage();
+    }
+    
     updateTeamSummary();
 });
+
+// Loading message functions
+function showLoadingMessage() {
+    const gameHeader = document.querySelector('.game-header');
+    if (gameHeader) {
+        const loadingDiv = document.createElement('div');
+        loadingDiv.id = 'fpl-loading';
+        loadingDiv.style.cssText = `
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            color: white;
+        `;
+        loadingDiv.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <div style="width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <span>Loading live FPL player data...</span>
+            </div>
+            <style>
+                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            </style>
+        `;
+        gameHeader.appendChild(loadingDiv);
+    }
+}
+
+function hideLoadingMessage() {
+    const loadingDiv = document.getElementById('fpl-loading');
+    if (loadingDiv) {
+        loadingDiv.remove();
+    }
+}
+
+function showFallbackMessage() {
+    const loadingDiv = document.getElementById('fpl-loading');
+    if (loadingDiv) {
+        loadingDiv.innerHTML = `
+            <div style="color: #FFD700;">
+                ⚠️ Using cached player data - Some prices may not be current
+            </div>
+        `;
+        setTimeout(() => {
+            loadingDiv.remove();
+        }, 3000);
+    }
+}
 
 // Show player selector modal
 function showPlayerSelector(position, slotNumber) {
@@ -213,14 +329,14 @@ function getPlayerStatsDisplay(player) {
     
     switch (position) {
         case 'GK':
-            return `${player.stats.saves} saves • ${player.stats.cleanSheets} clean sheets`;
+            return `${player.stats.saves} saves • ${player.stats.cleanSheets} CS • ${player.stats.points} pts`;
         case 'DEF':
-            return `${player.stats.goals} goals • ${player.stats.assists} assists • ${player.stats.cleanSheets} clean sheets`;
+            return `${player.stats.goals} goals • ${player.stats.assists} assists • ${player.stats.cleanSheets} CS • ${player.stats.points} pts`;
         case 'MID':
         case 'FWD':
-            return `${player.stats.goals} goals • ${player.stats.assists} assists`;
+            return `${player.stats.goals} goals • ${player.stats.assists} assists • ${player.stats.points} pts • Form: ${player.stats.form}`;
         default:
-            return '';
+            return `${player.stats.points} pts • Form: ${player.stats.form}`;
     }
 }
 
@@ -330,13 +446,14 @@ function updatePlayerSlot(position, slotNumber, player) {
 
 // Get team logo abbreviation
 function getTeamLogo(team) {
+    // Handle common abbreviations from FPL API
     const teamLogos = {
-        'MCI': 'MC', 'LIV': 'LIV', 'ARS': 'ARS', 'CHE': 'CHE', 'MUN': 'MU',
+        'MCI': 'MC', 'MAN': 'MU', 'LIV': 'LIV', 'ARS': 'ARS', 'CHE': 'CHE', 
         'TOT': 'TOT', 'NEW': 'NEW', 'BRE': 'BRE', 'WHU': 'WHU', 'AVL': 'AVL',
-        'BHA': 'BHA', 'EVE': 'EVE', 'FUL': 'FUL', 'CRY': 'CRY', 'LEI': 'LEI',
-        'NFO': 'NFO', 'WOL': 'WOL', 'BOU': 'BOU', 'SOU': 'SOU', 'IPS': 'IPS'
+        'BHA': 'BRI', 'EVE': 'EVE', 'FUL': 'FUL', 'CRY': 'CRY', 'LEI': 'LEI',
+        'NFO': 'FOR', 'WOL': 'WOL', 'BOU': 'BOU', 'SOU': 'SOU', 'IPS': 'IPS'
     };
-    return teamLogos[team] || team;
+    return teamLogos[team] || team.substring(0, 3);
 }
 
 // Update team summary display

@@ -1613,47 +1613,6 @@
             gap: 15px;
         }
         
-        .refresh-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid rgba(255,255,255,0.3);
-            padding: 8px 16px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-        
-        .refresh-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .refresh-btn:active {
-            animation: spin 0.5s ease-in-out;
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .auto-refresh-toggle {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.9);
-        }
-        
-        .auto-refresh-toggle input {
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
         
         .live-stats-info {
             display: flex;
@@ -1814,13 +1773,6 @@
                 <div class="live-stats-header">
                     <h3>📡 Live FPL Data</h3>
                     <div class="live-stats-controls">
-                        <button id="refresh-stats-btn" onclick="updateLiveStats()" class="refresh-btn">
-                            🔄 Refresh Data
-                        </button>
-                        <label class="auto-refresh-toggle">
-                            <input type="checkbox" id="auto-refresh-toggle" onchange="toggleAutoRefresh()">
-                            <span>Auto-refresh (5min)</span>
-                        </label>
                     </div>
                 </div>
                 <div class="live-stats-info">
@@ -3363,27 +3315,6 @@
             updateBudgetDisplay();
         }
 
-        // Auto-refresh functionality
-        let autoRefreshInterval = null;
-        const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
-
-        function toggleAutoRefresh() {
-            const checkbox = document.getElementById('auto-refresh-toggle');
-            const statusEl = document.getElementById('api-status');
-            
-            if (checkbox.checked) {
-                autoRefreshInterval = setInterval(updateLiveStats, AUTO_REFRESH_INTERVAL);
-                statusEl.textContent = '🟢 Live (Auto)';
-                showSuccessMessage('Auto-refresh enabled (5min intervals)');
-            } else {
-                if (autoRefreshInterval) {
-                    clearInterval(autoRefreshInterval);
-                    autoRefreshInterval = null;
-                }
-                statusEl.textContent = '🟡 Manual';
-                showNotification('Auto-refresh disabled', 'info');
-            }
-        }
 
         // Enhanced interactive features
         function animateStatBubbles() {
@@ -3523,13 +3454,6 @@
                     updateLiveStats();
                 }
                 
-                // Ctrl+A to toggle auto-refresh
-                if (e.ctrlKey && e.key === 'a') {
-                    e.preventDefault();
-                    const checkbox = document.getElementById('auto-refresh-toggle');
-                    checkbox.checked = !checkbox.checked;
-                    toggleAutoRefresh();
-                }
             });
 
             // Animate cards on scroll
