@@ -564,27 +564,44 @@
         let userHasPremium = false;
         
         // Check authentication and membership status
+        let checkAttempts = 0;
+        const maxAttempts = 5;
+        
         function checkPremiumAccess() {
+            checkAttempts++;
+            console.log('Checking premium access, attempt:', checkAttempts);
+            
             if (window.onAuthStateChanged && window.auth) {
+                console.log('Firebase loaded, checking auth state');
                 window.onAuthStateChanged(window.auth, (user) => {
                     if (user) {
+                        console.log('User authenticated:', user.email);
                         userAuthenticated = true;
                         // Check for premium membership status
                         checkMembershipStatus(user);
                     } else {
+                        console.log('User not authenticated, showing gate');
                         // User not signed in - show gate
                         showPremiumGate();
                     }
                 });
-            } else {
-                // Firebase not loaded - show gate
+            } else if (checkAttempts < maxAttempts) {
+                console.log('Firebase not loaded yet, retrying...');
+                // Firebase not loaded yet - retry
                 setTimeout(checkPremiumAccess, 1000);
+            } else {
+                console.log('Firebase failed to load, showing gate as fallback');
+                // Firebase failed to load after max attempts - show gate as fallback
+                showPremiumGate();
             }
         }
         
         function checkMembershipStatus(user) {
+            console.log('Checking membership status for:', user.email);
+            
             // Special admin accounts with Pro membership
             if (user.email === 'reidwcoleman@gmail.com' || user.email === 'brianpcoleman@gmail.com') {
+                console.log('Admin account detected, granting Pro access');
                 // Grant Pro membership access to admin accounts
                 const adminMembership = {
                     plan: 'pro',
@@ -600,28 +617,40 @@
             
             // Check localStorage for membership info
             const membershipInfo = localStorage.getItem('membership');
+            console.log('Membership info from localStorage:', membershipInfo);
             
             if (membershipInfo) {
                 const membership = JSON.parse(membershipInfo);
+                console.log('Parsed membership:', membership);
                 // Check if user has starter or pro membership
                 if (membership.plan === 'starter' || membership.plan === 'pro' || 
                     membership.plan === 'starter-annual' || membership.plan === 'pro-annual') {
+                    console.log('Valid membership found, hiding gate');
                     userHasPremium = true;
                     hidePremiumGate();
                 } else {
+                    console.log('Invalid membership plan, showing gate');
                     showPremiumGate();
                 }
             } else {
+                console.log('No membership found, showing gate');
                 // No membership found - show gate
                 showPremiumGate();
             }
         }
         
         function showPremiumGate() {
+            console.log('Showing premium gate');
             const gate = document.getElementById('premium-gate');
             const mainContent = document.querySelector('main');
             
-            gate.style.display = 'flex';
+            if (gate) {
+                gate.style.display = 'flex';
+                console.log('Gate display set to flex');
+            } else {
+                console.error('Premium gate element not found');
+            }
+            
             if (mainContent) {
                 mainContent.classList.add('content-blocked');
             }
@@ -635,10 +664,15 @@
         }
         
         function hidePremiumGate() {
+            console.log('Hiding premium gate');
             const gate = document.getElementById('premium-gate');
             const mainContent = document.querySelector('main');
             
-            gate.style.display = 'none';
+            if (gate) {
+                gate.style.display = 'none';
+                console.log('Gate display set to none');
+            }
+            
             if (mainContent) {
                 mainContent.classList.remove('content-blocked');
             }
@@ -689,6 +723,8 @@
         
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
+            // Show gate by default, then hide it only if user has access
+            showPremiumGate();
             checkPremiumAccess();
         });
         
