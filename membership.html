@@ -149,7 +149,7 @@
                     <div class="annual-plan">
                         <h4>Starter Annual</h4>
                         <div class="annual-price">$20.00/year <span class="savings">Save $4.00</span></div>
-                        <button class="annual-button" onclick="selectPlan('starter-annual', 'price_starter_annual')">
+                        <button class="annual-button" onclick="selectPlan('starter-annual', 'price_1RoaG1R10Q6bz3BHC2hDRKLv')">
                             Choose Annual
                         </button>
                     </div>
@@ -702,9 +702,14 @@
             button.disabled = true;
             
             try {
-                // For Starter and Pro plans, redirect to Stripe Checkout
+                // For Starter, Pro, and Starter Annual plans, redirect to Stripe Checkout
                 if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv' || priceId === 'price_1Rox4aR10Q6bz3BHxohJtpcO') {
-                    const planName = priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv' ? 'Starter' : 'Pro';
+                    let planName;
+                    if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv') {
+                        planName = planType === 'starter-annual' ? 'Starter Annual' : 'Starter';
+                    } else {
+                        planName = 'Pro';
+                    }
                     console.log(`Starting Stripe checkout for ${planName} plan`);
                     
                     // Check if stripe is loaded
