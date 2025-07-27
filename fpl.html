@@ -3723,7 +3723,7 @@
             document.querySelectorAll('.field-player-slot').forEach(slot => {
                 slot.addEventListener('click', function(e) {
                     const position = this.dataset.position;
-                    const slotIndex = this.dataset.slot;
+                    const slotIndex = parseInt(this.dataset.slot);
                     
                     // Check if slot is occupied and if user wants to see stats
                     const isOccupied = this.classList.contains('occupied');
@@ -3743,7 +3743,7 @@
                 slot.addEventListener('contextmenu', function(e) {
                     e.preventDefault();
                     const position = this.dataset.position;
-                    const slotIndex = this.dataset.slot;
+                    const slotIndex = parseInt(this.dataset.slot);
                     const isOccupied = this.classList.contains('occupied');
                     
                     if (isOccupied) {
@@ -3756,7 +3756,7 @@
             document.querySelectorAll('.bench-slot').forEach(slot => {
                 slot.addEventListener('click', function(e) {
                     const position = this.dataset.position;
-                    const slotIndex = this.dataset.slot;
+                    const slotIndex = parseInt(this.dataset.slot);
                     
                     // Check if slot is occupied and if user wants to see stats
                     const isOccupied = this.classList.contains('occupied');
@@ -3776,7 +3776,7 @@
                 slot.addEventListener('contextmenu', function(e) {
                     e.preventDefault();
                     const position = this.dataset.position;
-                    const slotIndex = this.dataset.slot;
+                    const slotIndex = parseInt(this.dataset.slot);
                     const isOccupied = this.classList.contains('occupied');
                     
                     if (isOccupied) {
@@ -4942,7 +4942,7 @@
                 const teamColors = team ? { primary: team.shirt_color, secondary: team.secondary_color } : { primary: '#333', secondary: '#fff' };
                 
                 return `
-                    <div class="player-option" onclick="selectPlayer(${player.id}, '${player.web_name}', ${player.now_cost / 10})">
+                    <div class="player-option" onclick="selectTeamBuilderPlayer(${player.id}, '${player.web_name}', ${player.now_cost / 10})">
                         <div class="player-jersey">
                             <div class="jersey-shirt" style="background: ${teamColors.primary}; border: 2px solid ${teamColors.secondary};">
                                 <span class="jersey-number" style="color: ${teamColors.secondary};">⚽</span>
@@ -4973,7 +4973,7 @@
             return teams.find(t => t.id === teamId);
         }
 
-        function selectPlayer(playerId, playerName, price) {
+        function selectTeamBuilderPlayer(playerId, playerName, price) {
             const { position, slot } = currentSelection;
             addPlayerToTeam(position, slot, playerName, price, playerId);
             closePlayerModal();
