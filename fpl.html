@@ -1748,6 +1748,166 @@
             vertical-align: middle;
             box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
+
+        /* Football Field Styles */
+        .football-field {
+            background: linear-gradient(135deg, #228B22, #32CD32, #228B22);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .football-field::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at center, rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px, 30px 30px, 30px 30px;
+            pointer-events: none;
+        }
+
+        .field-background {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            min-height: 400px;
+        }
+
+        .field-position {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .goalkeeper-pos {
+            justify-content: center;
+        }
+
+        .defenders-line {
+            justify-content: space-between;
+        }
+
+        .midfielders-line {
+            justify-content: space-around;
+        }
+
+        .forwards-line {
+            justify-content: space-around;
+        }
+
+        .field-player-slot {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 3px solid #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .field-player-slot:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .field-player-slot.occupied {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #37003c;
+        }
+
+        .field-slot-text {
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: #000;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .field-player-name {
+            font-weight: bold;
+            font-size: 0.7rem;
+            color: #000;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .field-jersey-mini {
+            width: 25px;
+            height: 30px;
+            border-radius: 12px 12px 4px 4px;
+            margin-bottom: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* Update all text colors to black */
+        .player-name {
+            color: #000 !important;
+        }
+
+        .player-team {
+            color: #000 !important;
+        }
+
+        .slot-text {
+            color: #000 !important;
+        }
+
+        .formation-info p {
+            color: #000 !important;
+        }
+
+        /* Starting XI Selection Modal */
+        .starting-xi-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .starting-xi-option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .starting-xi-option:hover {
+            border-color: #37003c;
+            background: #f8f9fa;
+            transform: translateY(-2px);
+        }
+
+        .starting-xi-option .player-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .starting-xi-option .player-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .starting-xi-option .player-price {
+            font-weight: 600;
+            color: #2ed573;
+        }
         
         /* Enhanced Animations */
         @keyframes pulse {
@@ -2420,6 +2580,69 @@
                                 <button class="team-action-btn load-btn" onclick="loadTeam()">📁 Load Team</button>
                                 <button class="team-action-btn reset-btn" onclick="resetTeam()">🔄 Reset Team</button>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Football Field Formation Display -->
+                    <div class="fpl-card">
+                        <h3>⚽ Starting XI Formation</h3>
+                        <p style="font-size: 0.9rem; margin-bottom: 15px; color: #000;">Your selected starting 11 on the field</p>
+                        <div class="football-field">
+                            <div class="field-background">
+                                <!-- Goalkeeper -->
+                                <div class="field-position goalkeeper-pos">
+                                    <div class="field-player-slot" data-position="gk" data-slot="0">
+                                        <span class="field-slot-text">GK</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Defenders (4) -->
+                                <div class="field-position defenders-line">
+                                    <div class="field-player-slot" data-position="def" data-slot="0">
+                                        <span class="field-slot-text">DEF</span>
+                                    </div>
+                                    <div class="field-player-slot" data-position="def" data-slot="1">
+                                        <span class="field-slot-text">DEF</span>
+                                    </div>
+                                    <div class="field-player-slot" data-position="def" data-slot="2">
+                                        <span class="field-slot-text">DEF</span>
+                                    </div>
+                                    <div class="field-player-slot" data-position="def" data-slot="3">
+                                        <span class="field-slot-text">DEF</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Midfielders (3) -->
+                                <div class="field-position midfielders-line">
+                                    <div class="field-player-slot" data-position="mid" data-slot="0">
+                                        <span class="field-slot-text">MID</span>
+                                    </div>
+                                    <div class="field-player-slot" data-position="mid" data-slot="1">
+                                        <span class="field-slot-text">MID</span>
+                                    </div>
+                                    <div class="field-player-slot" data-position="mid" data-slot="2">
+                                        <span class="field-slot-text">MID</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Forwards (3) -->
+                                <div class="field-position forwards-line">
+                                    <div class="field-player-slot" data-position="fwd" data-slot="0">
+                                        <span class="field-slot-text">FWD</span>
+                                    </div>
+                                    <div class="field-player-slot" data-position="fwd" data-slot="1">
+                                        <span class="field-slot-text">FWD</span>
+                                    </div>
+                                    <div class="field-player-slot" data-position="fwd" data-slot="2">
+                                        <span class="field-slot-text">FWD</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="formation-info">
+                            <p style="color: #000; font-size: 0.8rem; text-align: center; margin-top: 10px;">
+                                4-3-3 Formation • Click players above to select for starting XI
+                            </p>
                         </div>
                     </div>
 
@@ -3262,10 +3485,143 @@
             fwd: [null, null, null]
         };
         let teamBudget = 100.0;
+        
+        // Starting XI data (4-3-3 formation)
+        let startingXI = {
+            gk: null,      // 1 goalkeeper
+            def: [null, null, null, null],  // 4 defenders
+            mid: [null, null, null],        // 3 midfielders  
+            fwd: [null, null, null]         // 3 forwards
+        };
 
         function initializeTeamBuilder() {
             updateTeamDisplay();
             updateBudgetDisplay();
+            updateFieldDisplay();
+            addFieldClickHandlers();
+        }
+
+        function addFieldClickHandlers() {
+            // Add click handlers to field player slots
+            document.querySelectorAll('.field-player-slot').forEach(slot => {
+                slot.addEventListener('click', function() {
+                    const position = this.dataset.position;
+                    const slotIndex = this.dataset.slot;
+                    openStartingXISelector(position, slotIndex);
+                });
+            });
+        }
+
+        function openStartingXISelector(position, slotIndex) {
+            // Get available players from the selected squad for this position
+            const availablePlayers = selectedPlayers[position].filter(player => player !== null);
+            
+            if (availablePlayers.length === 0) {
+                alert(`No ${position.toUpperCase()} players selected in your squad! Please add players first.`);
+                return;
+            }
+
+            // Create selection modal for starting XI
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Select ${position.toUpperCase()} for Starting XI</h3>
+                        <button class="close-btn" onclick="this.closest('.modal-overlay').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="starting-xi-options">
+                            ${availablePlayers.map((player, index) => `
+                                <div class="starting-xi-option" onclick="selectForStartingXI('${position}', ${slotIndex}, ${index})">
+                                    <div class="player-info">
+                                        <div class="player-name" style="color: #000;">${player.name}</div>
+                                        <div class="player-price" style="color: #000;">£${player.price}m</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                            <div class="starting-xi-option" onclick="removeFromStartingXI('${position}', ${slotIndex})">
+                                <div class="player-info">
+                                    <div class="player-name" style="color: #666;">Remove Player</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function selectForStartingXI(position, fieldSlot, playerIndex) {
+            const player = selectedPlayers[position][playerIndex];
+            if (position === 'gk') {
+                startingXI.gk = player;
+            } else {
+                startingXI[position][fieldSlot] = player;
+            }
+            
+            updateFieldDisplay();
+            document.querySelector('.modal-overlay').remove();
+        }
+
+        function removeFromStartingXI(position, fieldSlot) {
+            if (position === 'gk') {
+                startingXI.gk = null;
+            } else {
+                startingXI[position][fieldSlot] = null;
+            }
+            
+            updateFieldDisplay();
+            document.querySelector('.modal-overlay').remove();
+        }
+
+        function updateFieldDisplay() {
+            // Update goalkeeper
+            const gkSlot = document.querySelector('.field-player-slot[data-position="gk"]');
+            if (startingXI.gk && gkSlot) {
+                const team = getPlayerTeam(startingXI.gk.id);
+                const teamColors = team ? { primary: team.shirt_color, secondary: team.secondary_color } : { primary: '#333', secondary: '#fff' };
+                
+                gkSlot.classList.add('occupied');
+                gkSlot.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <div class="field-jersey-mini" style="background: ${teamColors.primary}; border: 1px solid ${teamColors.secondary};"></div>
+                        <span class="field-player-name">${startingXI.gk.name}</span>
+                    </div>
+                `;
+            } else if (gkSlot) {
+                gkSlot.classList.remove('occupied');
+                gkSlot.innerHTML = '<span class="field-slot-text">GK</span>';
+            }
+
+            // Update outfield players
+            ['def', 'mid', 'fwd'].forEach(position => {
+                startingXI[position].forEach((player, index) => {
+                    const slot = document.querySelector(`.field-player-slot[data-position="${position}"][data-slot="${index}"]`);
+                    if (player && slot) {
+                        const team = getPlayerTeam(player.id);
+                        const teamColors = team ? { primary: team.shirt_color, secondary: team.secondary_color } : { primary: '#333', secondary: '#fff' };
+                        
+                        slot.classList.add('occupied');
+                        slot.innerHTML = `
+                            <div style="display: flex; flex-direction: column; align-items: center;">
+                                <div class="field-jersey-mini" style="background: ${teamColors.primary}; border: 1px solid ${teamColors.secondary};"></div>
+                                <span class="field-player-name">${player.name}</span>
+                            </div>
+                        `;
+                    } else if (slot) {
+                        slot.classList.remove('occupied');
+                        slot.innerHTML = `<span class="field-slot-text">${position.toUpperCase()}</span>`;
+                    }
+                });
+            });
+        }
+
+        function getPlayerTeam(playerId) {
+            const fallbackData = fplLiveStats.getFallbackBootstrap();
+            const allPlayers = [...fallbackData.elements, ...generateAdditionalPlayersForPosition(1), ...generateAdditionalPlayersForPosition(2), ...generateAdditionalPlayersForPosition(3), ...generateAdditionalPlayersForPosition(4)];
+            const playerData = allPlayers.find(p => p.id === playerId);
+            return getTeamData(playerData?.team);
         }
 
         // Enhanced Player Comparison with Live FPL Data
@@ -4173,10 +4529,17 @@
                     mid: [null, null, null, null, null],
                     fwd: [null, null, null]
                 };
+                startingXI = {
+                    gk: null,
+                    def: [null, null, null, null],
+                    mid: [null, null, null],
+                    fwd: [null, null, null]
+                };
                 teamBudget = 100.0;
                 
                 updateTeamDisplay();
                 updateBudgetDisplay();
+                updateFieldDisplay();
                 alert('Team reset successfully!');
             }
         }
