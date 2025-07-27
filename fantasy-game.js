@@ -16,6 +16,12 @@ let playerDatabase = {
     FWD: []
 };
 
+// Fixture data for next 3 gameweeks
+let fixtureData = [];
+
+// Team mapping for fixture display
+let teamMapping = {};
+
 // FPL Data Service instance
 let fplService;
 
@@ -24,14 +30,28 @@ async function initializeFPLData() {
     try {
         fplService = new FPLDataService();
         const bootstrap = await fplService.getBootstrapData();
+        const fixtures = await fplService.getUpcomingFixtures();
         
         // Clear existing database
         playerDatabase = { GK: [], DEF: [], MID: [], FWD: [] };
+        fixtureData = fixtures;
         
-        // Process players from FPL API
+        // Build team mapping
+        teamMapping = {};
+        bootstrap.teams.forEach(team => {
+            teamMapping[team.id] = {
+                short_name: team.short_name,
+                name: team.name
+            };
+        });
+        
+        // Process ALL players from FPL API (not just a subset)
         bootstrap.elements.forEach(player => {
             const team = bootstrap.teams.find(t => t.id === player.team);
             const position = getPositionFromElementType(player.element_type);
+            
+            // Get next 3 fixtures for this player's team
+            const teamFixtures = getNext3Fixtures(player.team, fixtures, bootstrap.teams);
             
             const processedPlayer = {
                 id: player.id,
@@ -39,6 +59,7 @@ async function initializeFPLData() {
                 web_name: player.web_name,
                 team: team ? team.short_name : 'UNK',
                 team_name: team ? team.name : 'Unknown',
+                team_id: player.team,
                 price: player.now_cost / 10, // Convert from pence to pounds
                 element_type: player.element_type,
                 stats: {
@@ -48,13 +69,21 @@ async function initializeFPLData() {
                     saves: player.saves || 0,
                     cleanSheets: player.clean_sheets || 0,
                     form: parseFloat(player.form) || 0,
-                    selected_by_percent: parseFloat(player.selected_by_percent) || 0
+                    selected_by_percent: parseFloat(player.selected_by_percent) || 0,
+                    minutes: player.minutes || 0,
+                    bonus: player.bonus || 0,
+                    yellow_cards: player.yellow_cards || 0,
+                    red_cards: player.red_cards || 0
                 },
+                fixtures: teamFixtures,
                 // Additional FPL data
                 total_points: player.total_points,
                 form: player.form,
                 selected_by_percent: player.selected_by_percent,
-                now_cost: player.now_cost
+                now_cost: player.now_cost,
+                status: player.status,
+                news: player.news || '',
+                photo: player.photo || ''
             };
             
             if (playerDatabase[position]) {
@@ -62,12 +91,13 @@ async function initializeFPLData() {
             }
         });
         
-        // Sort players by price (descending) in each position
+        // Sort players by total points (descending) in each position for better relevance
         Object.keys(playerDatabase).forEach(position => {
-            playerDatabase[position].sort((a, b) => b.price - a.price);
+            playerDatabase[position].sort((a, b) => b.stats.points - a.stats.points);
         });
         
         console.log('FPL player database loaded:', Object.keys(playerDatabase).map(pos => `${pos}: ${playerDatabase[pos].length}`));
+        console.log('Total players loaded:', Object.values(playerDatabase).reduce((sum, pos) => sum + pos.length, 0));
         return true;
     } catch (error) {
         console.error('Failed to load FPL data:', error);
@@ -78,39 +108,56 @@ async function initializeFPLData() {
     }
 }
 
-// Fallback static player data (simplified version for offline use)
+// Fallback static player data (comprehensive version for offline use)
 function loadFallbackPlayerData() {
     playerDatabase = {
         GK: [
-            {id: 1, name: 'Alisson Becker', team: 'LIV', price: 5.5, stats: {saves: 89, cleanSheets: 12, points: 120, form: 5.2}},
-            {id: 2, name: 'Ederson', team: 'MCI', price: 5.2, stats: {saves: 67, cleanSheets: 15, points: 130, form: 5.8}},
-            {id: 3, name: 'David Raya', team: 'ARS', price: 5.1, stats: {saves: 102, cleanSheets: 11, points: 115, form: 4.9}},
-            {id: 4, name: 'Andre Onana', team: 'MUN', price: 4.8, stats: {saves: 118, cleanSheets: 8, points: 95, form: 4.2}},
-            {id: 5, name: 'Nick Pope', team: 'NEW', price: 4.6, stats: {saves: 134, cleanSheets: 7, points: 85, form: 4.1}},
-            {id: 6, name: 'Robert Sanchez', team: 'CHE', price: 4.4, stats: {saves: 95, cleanSheets: 9, points: 90, form: 4.3}},
-            {id: 7, name: 'Guglielmo Vicario', team: 'TOT', price: 4.5, stats: {saves: 112, cleanSheets: 8, points: 88, form: 4.0}},
-            {id: 8, name: 'Jordan Pickford', team: 'EVE', price: 4.3, stats: {saves: 126, cleanSheets: 6, points: 82, form: 3.9}}
+            {id: 1, name: 'Alisson Becker', web_name: 'Alisson', team: 'LIV', team_name: 'Liverpool', price: 5.5, stats: {saves: 89, cleanSheets: 12, points: 120, form: 5.2}, fixtures: [{opponent: 'MCI', is_home: true, difficulty: 4}, {opponent: 'ARS', is_home: false, difficulty: 3}]},
+            {id: 2, name: 'Ederson', web_name: 'Ederson', team: 'MCI', team_name: 'Manchester City', price: 5.2, stats: {saves: 67, cleanSheets: 15, points: 130, form: 5.8}, fixtures: [{opponent: 'LIV', is_home: false, difficulty: 4}, {opponent: 'CHE', is_home: true, difficulty: 3}]},
+            {id: 3, name: 'David Raya', web_name: 'Raya', team: 'ARS', team_name: 'Arsenal', price: 5.1, stats: {saves: 102, cleanSheets: 11, points: 115, form: 4.9}, fixtures: [{opponent: 'TOT', is_home: true, difficulty: 3}, {opponent: 'LIV', is_home: true, difficulty: 4}]},
+            {id: 4, name: 'Andre Onana', web_name: 'Onana', team: 'MUN', team_name: 'Manchester Utd', price: 4.8, stats: {saves: 118, cleanSheets: 8, points: 95, form: 4.2}, fixtures: [{opponent: 'WHU', is_home: true, difficulty: 2}, {opponent: 'NEW', is_home: false, difficulty: 3}]},
+            {id: 5, name: 'Nick Pope', web_name: 'Pope', team: 'NEW', team_name: 'Newcastle', price: 4.6, stats: {saves: 134, cleanSheets: 7, points: 85, form: 4.1}, fixtures: [{opponent: 'BRE', is_home: true, difficulty: 2}, {opponent: 'MUN', is_home: true, difficulty: 3}]},
+            {id: 6, name: 'Robert Sanchez', web_name: 'Sánchez', team: 'CHE', team_name: 'Chelsea', price: 4.4, stats: {saves: 95, cleanSheets: 9, points: 90, form: 4.3}, fixtures: [{opponent: 'FUL', is_home: false, difficulty: 2}, {opponent: 'MCI', is_home: false, difficulty: 4}]},
+            {id: 7, name: 'Guglielmo Vicario', web_name: 'Vicario', team: 'TOT', team_name: 'Tottenham', price: 4.5, stats: {saves: 112, cleanSheets: 8, points: 88, form: 4.0}, fixtures: [{opponent: 'ARS', is_home: false, difficulty: 4}, {opponent: 'EVE', is_home: true, difficulty: 2}]},
+            {id: 8, name: 'Jordan Pickford', web_name: 'Pickford', team: 'EVE', team_name: 'Everton', price: 4.3, stats: {saves: 126, cleanSheets: 6, points: 82, form: 3.9}, fixtures: [{opponent: 'BOU', is_home: true, difficulty: 2}, {opponent: 'TOT', is_home: false, difficulty: 3}]},
+            {id: 9, name: 'Matz Sels', web_name: 'Sels', team: 'NFO', team_name: 'Nottingham Forest', price: 4.4, stats: {saves: 145, cleanSheets: 10, points: 98, form: 4.5}, fixtures: [{opponent: 'CRY', is_home: true, difficulty: 2}, {opponent: 'AVL', is_home: false, difficulty: 3}]},
+            {id: 10, name: 'Mark Flekken', web_name: 'Flekken', team: 'BRE', team_name: 'Brentford', price: 4.2, stats: {saves: 119, cleanSheets: 6, points: 84, form: 4.0}, fixtures: [{opponent: 'NEW', is_home: false, difficulty: 3}, {opponent: 'LEI', is_home: true, difficulty: 2}]}
         ],
         DEF: [
-            {id: 11, name: 'Virgil van Dijk', team: 'LIV', price: 6.1, stats: {goals: 3, assists: 2, cleanSheets: 12, points: 145, form: 5.5}},
-            {id: 12, name: 'William Saliba', team: 'ARS', price: 5.8, stats: {goals: 2, assists: 1, cleanSheets: 11, points: 135, form: 5.2}},
-            {id: 13, name: 'Ruben Dias', team: 'MCI', price: 5.7, stats: {goals: 1, assists: 3, cleanSheets: 15, points: 140, form: 5.3}},
-            {id: 14, name: 'Josko Gvardiol', team: 'MCI', price: 5.6, stats: {goals: 4, assists: 2, cleanSheets: 15, points: 155, form: 6.1}},
-            {id: 22, name: 'Trent Alexander-Arnold', team: 'LIV', price: 7.2, stats: {goals: 3, assists: 12, cleanSheets: 12, points: 165, form: 6.8}}
+            {id: 11, name: 'Virgil van Dijk', web_name: 'van Dijk', team: 'LIV', team_name: 'Liverpool', price: 6.1, stats: {goals: 3, assists: 2, cleanSheets: 12, points: 145, form: 5.5}, fixtures: [{opponent: 'MCI', is_home: true, difficulty: 4}, {opponent: 'ARS', is_home: false, difficulty: 3}]},
+            {id: 12, name: 'William Saliba', web_name: 'Saliba', team: 'ARS', team_name: 'Arsenal', price: 5.8, stats: {goals: 2, assists: 1, cleanSheets: 11, points: 135, form: 5.2}, fixtures: [{opponent: 'TOT', is_home: true, difficulty: 3}, {opponent: 'LIV', is_home: true, difficulty: 4}]},
+            {id: 13, name: 'Ruben Dias', web_name: 'Rúben Dias', team: 'MCI', team_name: 'Manchester City', price: 5.7, stats: {goals: 1, assists: 3, cleanSheets: 15, points: 140, form: 5.3}, fixtures: [{opponent: 'LIV', is_home: false, difficulty: 4}, {opponent: 'CHE', is_home: true, difficulty: 3}]},
+            {id: 14, name: 'Josko Gvardiol', web_name: 'Gvardiol', team: 'MCI', team_name: 'Manchester City', price: 5.6, stats: {goals: 4, assists: 2, cleanSheets: 15, points: 155, form: 6.1}, fixtures: [{opponent: 'LIV', is_home: false, difficulty: 4}, {opponent: 'CHE', is_home: true, difficulty: 3}]},
+            {id: 15, name: 'Trent Alexander-Arnold', web_name: 'Alexander-Arnold', team: 'LIV', team_name: 'Liverpool', price: 7.2, stats: {goals: 3, assists: 12, cleanSheets: 12, points: 165, form: 6.8}, fixtures: [{opponent: 'MCI', is_home: true, difficulty: 4}, {opponent: 'ARS', is_home: false, difficulty: 3}]},
+            {id: 16, name: 'Gabriel Magalhães', web_name: 'Gabriel', team: 'ARS', team_name: 'Arsenal', price: 5.9, stats: {goals: 4, assists: 1, cleanSheets: 11, points: 142, form: 5.4}, fixtures: [{opponent: 'TOT', is_home: true, difficulty: 3}, {opponent: 'LIV', is_home: true, difficulty: 4}]},
+            {id: 17, name: 'Lewis Dunk', web_name: 'Dunk', team: 'BHA', team_name: 'Brighton', price: 4.8, stats: {goals: 2, assists: 2, cleanSheets: 8, points: 98, form: 4.2}, fixtures: [{opponent: 'WOL', is_home: true, difficulty: 2}, {opponent: 'SOU', is_home: false, difficulty: 2}]},
+            {id: 18, name: 'Murillo', web_name: 'Murillo', team: 'NFO', team_name: 'Nottingham Forest', price: 4.9, stats: {goals: 3, assists: 3, cleanSheets: 10, points: 125, form: 5.8}, fixtures: [{opponent: 'CRY', is_home: true, difficulty: 2}, {opponent: 'AVL', is_home: false, difficulty: 3}]},
+            {id: 19, name: 'Antonee Robinson', web_name: 'Robinson', team: 'FUL', team_name: 'Fulham', price: 4.7, stats: {goals: 1, assists: 4, cleanSheets: 7, points: 89, form: 4.3}, fixtures: [{opponent: 'CHE', is_home: true, difficulty: 3}, {opponent: 'IPS', is_home: false, difficulty: 2}]},
+            {id: 20, name: 'Dan Burn', web_name: 'Burn', team: 'NEW', team_name: 'Newcastle', price: 4.5, stats: {goals: 1, assists: 2, cleanSheets: 7, points: 78, form: 3.8}, fixtures: [{opponent: 'BRE', is_home: true, difficulty: 2}, {opponent: 'MUN', is_home: true, difficulty: 3}]}
         ],
         MID: [
-            {id: 26, name: 'Mohamed Salah', team: 'LIV', price: 12.8, stats: {goals: 21, assists: 14, points: 218, form: 7.2}},
-            {id: 27, name: 'Cole Palmer', team: 'CHE', price: 10.2, stats: {goals: 15, assists: 11, points: 152, form: 6.8}},
-            {id: 28, name: 'Bukayo Saka', team: 'ARS', price: 9.7, stats: {goals: 12, assists: 9, points: 148, form: 6.5}},
-            {id: 29, name: 'Bruno Fernandes', team: 'MUN', price: 8.3, stats: {goals: 9, assists: 12, points: 134, form: 5.9}},
-            {id: 33, name: 'Bryan Mbeumo', team: 'BRE', price: 6.2, stats: {goals: 13, assists: 6, points: 143, form: 7.1}}
+            {id: 26, name: 'Mohamed Salah', web_name: 'Salah', team: 'LIV', team_name: 'Liverpool', price: 12.8, stats: {goals: 21, assists: 14, points: 218, form: 7.2}, fixtures: [{opponent: 'MCI', is_home: true, difficulty: 4}, {opponent: 'ARS', is_home: false, difficulty: 3}]},
+            {id: 27, name: 'Cole Palmer', web_name: 'Palmer', team: 'CHE', team_name: 'Chelsea', price: 10.2, stats: {goals: 15, assists: 11, points: 152, form: 6.8}, fixtures: [{opponent: 'FUL', is_home: false, difficulty: 2}, {opponent: 'MCI', is_home: false, difficulty: 4}]},
+            {id: 28, name: 'Bukayo Saka', web_name: 'Saka', team: 'ARS', team_name: 'Arsenal', price: 9.7, stats: {goals: 12, assists: 9, points: 148, form: 6.5}, fixtures: [{opponent: 'TOT', is_home: true, difficulty: 3}, {opponent: 'LIV', is_home: true, difficulty: 4}]},
+            {id: 29, name: 'Bruno Fernandes', web_name: 'Bruno F.', team: 'MUN', team_name: 'Manchester Utd', price: 8.3, stats: {goals: 9, assists: 12, points: 134, form: 5.9}, fixtures: [{opponent: 'WHU', is_home: true, difficulty: 2}, {opponent: 'NEW', is_home: false, difficulty: 3}]},
+            {id: 30, name: 'Bryan Mbeumo', web_name: 'Mbeumo', team: 'BRE', team_name: 'Brentford', price: 6.2, stats: {goals: 13, assists: 6, points: 143, form: 7.1}, fixtures: [{opponent: 'NEW', is_home: false, difficulty: 3}, {opponent: 'LEI', is_home: true, difficulty: 2}]},
+            {id: 31, name: 'Morgan Gibbs-White', web_name: 'Gibbs-White', team: 'NFO', team_name: 'Nottingham Forest', price: 6.1, stats: {goals: 7, assists: 9, points: 118, form: 6.2}, fixtures: [{opponent: 'CRY', is_home: true, difficulty: 2}, {opponent: 'AVL', is_home: false, difficulty: 3}]},
+            {id: 32, name: 'Antoine Semenyo', web_name: 'Semenyo', team: 'BOU', team_name: 'Bournemouth', price: 5.4, stats: {goals: 9, assists: 3, points: 102, form: 5.8}, fixtures: [{opponent: 'EVE', is_home: false, difficulty: 2}, {opponent: 'WOL', is_home: true, difficulty: 2}]},
+            {id: 33, name: 'Kaoru Mitoma', web_name: 'Mitoma', team: 'BHA', team_name: 'Brighton', price: 5.8, stats: {goals: 4, assists: 6, points: 87, form: 4.9}, fixtures: [{opponent: 'WOL', is_home: true, difficulty: 2}, {opponent: 'SOU', is_home: false, difficulty: 2}]},
+            {id: 34, name: 'Marcus Rashford', web_name: 'Rashford', team: 'MUN', team_name: 'Manchester Utd', price: 6.8, stats: {goals: 8, assists: 4, points: 89, form: 4.1}, fixtures: [{opponent: 'WHU', is_home: true, difficulty: 2}, {opponent: 'NEW', is_home: false, difficulty: 3}]},
+            {id: 35, name: 'Phil Foden', web_name: 'Foden', team: 'MCI', team_name: 'Manchester City', price: 9.2, stats: {goals: 6, assists: 8, points: 92, form: 4.8}, fixtures: [{opponent: 'LIV', is_home: false, difficulty: 4}, {opponent: 'CHE', is_home: true, difficulty: 3}]}
         ],
         FWD: [
-            {id: 41, name: 'Erling Haaland', team: 'MCI', price: 15.1, stats: {goals: 24, assists: 3, points: 245, form: 8.2}},
-            {id: 42, name: 'Alexander Isak', team: 'NEW', price: 8.9, stats: {goals: 17, assists: 4, points: 159, form: 7.1}},
-            {id: 43, name: 'Chris Wood', team: 'NEW', price: 6.8, stats: {goals: 20, assists: 2, points: 167, form: 7.5}},
-            {id: 46, name: 'Yoane Wissa', team: 'BRE', price: 6.1, stats: {goals: 12, assists: 3, points: 139, form: 6.9}},
-            {id: 47, name: 'Ollie Watkins', team: 'AVL', price: 8.2, stats: {goals: 15, assists: 6, points: 132, form: 6.3}}
+            {id: 41, name: 'Erling Haaland', web_name: 'Haaland', team: 'MCI', team_name: 'Manchester City', price: 15.1, stats: {goals: 24, assists: 3, points: 245, form: 8.2}, fixtures: [{opponent: 'LIV', is_home: false, difficulty: 4}, {opponent: 'CHE', is_home: true, difficulty: 3}]},
+            {id: 42, name: 'Alexander Isak', web_name: 'Isak', team: 'NEW', team_name: 'Newcastle', price: 8.9, stats: {goals: 17, assists: 4, points: 159, form: 7.1}, fixtures: [{opponent: 'BRE', is_home: true, difficulty: 2}, {opponent: 'MUN', is_home: true, difficulty: 3}]},
+            {id: 43, name: 'Chris Wood', web_name: 'Wood', team: 'NFO', team_name: 'Nottingham Forest', price: 6.8, stats: {goals: 20, assists: 2, points: 167, form: 7.5}, fixtures: [{opponent: 'CRY', is_home: true, difficulty: 2}, {opponent: 'AVL', is_home: false, difficulty: 3}]},
+            {id: 44, name: 'Yoane Wissa', web_name: 'Wissa', team: 'BRE', team_name: 'Brentford', price: 6.1, stats: {goals: 12, assists: 3, points: 139, form: 6.9}, fixtures: [{opponent: 'NEW', is_home: false, difficulty: 3}, {opponent: 'LEI', is_home: true, difficulty: 2}]},
+            {id: 45, name: 'Ollie Watkins', web_name: 'Watkins', team: 'AVL', team_name: 'Aston Villa', price: 8.2, stats: {goals: 15, assists: 6, points: 132, form: 6.3}, fixtures: [{opponent: 'BOU', is_home: true, difficulty: 2}, {opponent: 'NFO', is_home: true, difficulty: 2}]},
+            {id: 46, name: 'Nicolas Jackson', web_name: 'Jackson', team: 'CHE', team_name: 'Chelsea', price: 7.8, stats: {goals: 14, assists: 5, points: 128, form: 6.1}, fixtures: [{opponent: 'FUL', is_home: false, difficulty: 2}, {opponent: 'MCI', is_home: false, difficulty: 4}]},
+            {id: 47, name: 'Dominic Solanke', web_name: 'Solanke', team: 'BOU', team_name: 'Bournemouth', price: 7.3, stats: {goals: 11, assists: 2, points: 98, form: 5.4}, fixtures: [{opponent: 'EVE', is_home: false, difficulty: 2}, {opponent: 'WOL', is_home: true, difficulty: 2}]},
+            {id: 48, name: 'Danny Welbeck', web_name: 'Welbeck', team: 'BHA', team_name: 'Brighton', price: 5.9, stats: {goals: 9, assists: 3, points: 89, form: 5.1}, fixtures: [{opponent: 'WOL', is_home: true, difficulty: 2}, {opponent: 'SOU', is_home: false, difficulty: 2}]},
+            {id: 49, name: 'Kai Havertz', web_name: 'Havertz', team: 'ARS', team_name: 'Arsenal', price: 8.1, stats: {goals: 11, assists: 7, points: 124, form: 5.9}, fixtures: [{opponent: 'TOT', is_home: true, difficulty: 3}, {opponent: 'LIV', is_home: true, difficulty: 4}]},
+            {id: 50, name: 'Rasmus Højlund', web_name: 'Højlund', team: 'MUN', team_name: 'Manchester Utd', price: 6.9, stats: {goals: 8, assists: 2, points: 76, form: 4.2}, fixtures: [{opponent: 'WHU', is_home: true, difficulty: 2}, {opponent: 'NEW', is_home: false, difficulty: 3}]}
         ]
     };
 }
@@ -124,6 +171,30 @@ function getPositionFromElementType(elementType) {
         4: 'FWD'
     };
     return positions[elementType] || 'MID';
+}
+
+// Get next 3 fixtures for a team
+function getNext3Fixtures(teamId, fixtures, teams) {
+    const teamFixtures = fixtures
+        .filter(fixture => fixture.team_h === teamId || fixture.team_a === teamId)
+        .slice(0, 3)
+        .map(fixture => {
+            const isHome = fixture.team_h === teamId;
+            const opponentId = isHome ? fixture.team_a : fixture.team_h;
+            const opponent = teams.find(t => t.id === opponentId);
+            const difficulty = isHome ? fixture.team_h_difficulty : fixture.team_a_difficulty;
+            
+            return {
+                gameweek: fixture.event,
+                opponent: opponent ? opponent.short_name : 'TBD',
+                opponent_name: opponent ? opponent.name : 'TBD',
+                is_home: isHome,
+                difficulty: difficulty,
+                kickoff_time: fixture.kickoff_time
+            };
+        });
+    
+    return teamFixtures;
 }
 
 // Team constraints
@@ -173,7 +244,37 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     updateTeamSummary();
+    
+    // Setup search functionality
+    setupSearchFunctionality();
 });
+
+// Setup search functionality
+function setupSearchFunctionality() {
+    // Add event listener for search input if it exists
+    const searchInput = document.getElementById('player-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', searchPlayers);
+        searchInput.addEventListener('keyup', searchPlayers);
+    }
+    
+    // Set up mutation observer to handle dynamically added search inputs
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    const searchInput = node.querySelector ? node.querySelector('#player-search') : null;
+                    if (searchInput) {
+                        searchInput.addEventListener('input', searchPlayers);
+                        searchInput.addEventListener('keyup', searchPlayers);
+                    }
+                }
+            });
+        });
+    });
+    
+    observer.observe(document.body, { childList: true, subtree: true });
+}
 
 // Loading message functions
 function showLoadingMessage() {
@@ -326,18 +427,42 @@ function getPlayerPosition(playerId) {
 // Get player stats display
 function getPlayerStatsDisplay(player) {
     const position = getPlayerPosition(player.id);
+    let stats = '';
     
     switch (position) {
         case 'GK':
-            return `${player.stats.saves} saves • ${player.stats.cleanSheets} CS • ${player.stats.points} pts`;
+            stats = `${player.stats.saves} saves • ${player.stats.cleanSheets} CS • ${player.stats.points} pts`;
+            break;
         case 'DEF':
-            return `${player.stats.goals} goals • ${player.stats.assists} assists • ${player.stats.cleanSheets} CS • ${player.stats.points} pts`;
+            stats = `${player.stats.goals} goals • ${player.stats.assists} assists • ${player.stats.cleanSheets} CS • ${player.stats.points} pts`;
+            break;
         case 'MID':
         case 'FWD':
-            return `${player.stats.goals} goals • ${player.stats.assists} assists • ${player.stats.points} pts • Form: ${player.stats.form}`;
+            stats = `${player.stats.goals} goals • ${player.stats.assists} assists • ${player.stats.points} pts • Form: ${player.stats.form}`;
+            break;
         default:
-            return `${player.stats.points} pts • Form: ${player.stats.form}`;
+            stats = `${player.stats.points} pts • Form: ${player.stats.form}`;
     }
+    
+    // Add fixture information
+    if (player.fixtures && player.fixtures.length > 0) {
+        const fixtureText = player.fixtures.map(fixture => {
+            const homeAway = fixture.is_home ? 'vs' : '@';
+            const difficultyIcon = getDifficultyIcon(fixture.difficulty);
+            return `${homeAway} ${fixture.opponent} ${difficultyIcon}`;
+        }).join(', ');
+        stats += `<br><span style="color: #666; font-size: 0.9em;">Next: ${fixtureText}</span>`;
+    }
+    
+    return stats;
+}
+
+// Get difficulty icon based on difficulty rating
+function getDifficultyIcon(difficulty) {
+    if (difficulty <= 2) return '🟢';
+    if (difficulty === 3) return '🟡';
+    if (difficulty >= 4) return '🔴';
+    return '';
 }
 
 // Check if player is already selected
@@ -438,6 +563,7 @@ function updatePlayerSlot(position, slotNumber, player) {
         <div class="player-name">${player.name.split(' ').pop()}</div>
         <div class="player-price">£${player.price}m</div>
         <div class="team-logo">${getTeamLogo(player.team)}</div>
+        ${getPlayerFixtureDisplay(player)}
     `;
     
     // Update click handler to allow player replacement
@@ -454,6 +580,21 @@ function getTeamLogo(team) {
         'NFO': 'FOR', 'WOL': 'WOL', 'BOU': 'BOU', 'SOU': 'SOU', 'IPS': 'IPS'
     };
     return teamLogos[team] || team.substring(0, 3);
+}
+
+// Get player fixture display for starting XI
+function getPlayerFixtureDisplay(player) {
+    if (!player.fixtures || player.fixtures.length === 0) {
+        return '<div class="player-fixtures" style="font-size: 0.7em; color: #666; margin-top: 2px;">No fixtures</div>';
+    }
+    
+    const fixtureText = player.fixtures.slice(0, 2).map(fixture => {
+        const homeAway = fixture.is_home ? 'vs' : '@';
+        const difficultyIcon = getDifficultyIcon(fixture.difficulty);
+        return `${homeAway}${fixture.opponent}${difficultyIcon}`;
+    }).join(' ');
+    
+    return `<div class="player-fixtures" style="font-size: 0.7em; color: #666; margin-top: 2px;">${fixtureText}</div>`;
 }
 
 // Update team summary display
@@ -517,27 +658,43 @@ function validateTeamConstraints() {
 
 // Search players
 function searchPlayers() {
-    const query = document.getElementById('player-search').value.toLowerCase().trim();
-    const activeFilter = document.querySelector('.filter-btn.active').dataset.position;
+    const searchInput = document.getElementById('player-search');
+    if (!searchInput) return;
     
-    let players = activeFilter === 'ALL' ? getAllPlayers() : playerDatabase[activeFilter];
+    const query = searchInput.value.toLowerCase().trim();
+    const activeFilterBtn = document.querySelector('.filter-btn.active');
+    const activeFilter = activeFilterBtn ? activeFilterBtn.dataset.position : 'ALL';
+    
+    let players = activeFilter === 'ALL' ? getAllPlayers() : (playerDatabase[activeFilter] || []);
     
     if (query) {
-        players = players.filter(player => 
-            player.name.toLowerCase().includes(query) || 
-            player.team.toLowerCase().includes(query)
-        );
+        players = players.filter(player => {
+            const searchableText = [
+                player.name || '',
+                player.web_name || '',
+                player.team || '',
+                player.team_name || ''
+            ].join(' ').toLowerCase();
+            
+            return searchableText.includes(query);
+        });
     }
     
     const playerList = document.getElementById('player-list');
+    if (!playerList) return;
     
     if (players.length === 0) {
-        playerList.innerHTML = '<div class="no-players">No players found</div>';
+        playerList.innerHTML = '<div class="no-players">No players found matching your search</div>';
         return;
     }
     
-    // Sort players by price (descending)
-    const sortedPlayers = [...players].sort((a, b) => b.price - a.price);
+    // Sort players by total points (descending) for better relevance
+    const sortedPlayers = [...players].sort((a, b) => {
+        // Prioritize players with higher points and form
+        const aScore = (a.stats.points || 0) + (parseFloat(a.stats.form || 0) * 10);
+        const bScore = (b.stats.points || 0) + (parseFloat(b.stats.form || 0) * 10);
+        return bScore - aScore;
+    });
     
     playerList.innerHTML = sortedPlayers.map(player => createPlayerOptionHTML(player)).join('');
 }
