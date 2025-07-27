@@ -3015,6 +3015,194 @@
                             Select a formation and click analyze to see recommendations
                         </div>
                     </div>
+
+                    <!-- New Game 4: Player Performance Predictor -->
+                    <div class="fpl-card">
+                        <h3>🔮 Player Performance Predictor</h3>
+                        <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">Predict a player's points for the next gameweek</p>
+                        <div style="margin-bottom: 15px;">
+                            <select id="predictor-player-select" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                <option value="">Select a player to predict</option>
+                                <option value="salah">Mohamed Salah</option>
+                                <option value="haaland">Erling Haaland</option>
+                                <option value="palmer">Cole Palmer</option>
+                                <option value="saka">Bukayo Saka</option>
+                                <option value="son">Son Heung-min</option>
+                                <option value="isak">Alexander Isak</option>
+                                <option value="bruno">Bruno Fernandes</option>
+                                <option value="watkins">Ollie Watkins</option>
+                            </select>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                            <input type="number" id="goals-prediction" placeholder="Goals" min="0" max="5" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                            <input type="number" id="assists-prediction" placeholder="Assists" min="0" max="5" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                            <select id="bonus-prediction" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                <option value="0">No Bonus</option>
+                                <option value="1">1 Bonus Point</option>
+                                <option value="2">2 Bonus Points</option>
+                                <option value="3">3 Bonus Points</option>
+                            </select>
+                            <select id="minutes-prediction" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                <option value="0">Didn't Play</option>
+                                <option value="1">1-60 minutes</option>
+                                <option value="2">60+ minutes</option>
+                            </select>
+                        </div>
+                        <button onclick="calculatePrediction()" style="width: 100%; background: #6f42c1; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 15px;">
+                            Calculate Points
+                        </button>
+                        <div id="prediction-result" style="min-height: 80px; background: #f8f9fa; border-radius: 8px; padding: 15px; color: #666;">
+                            Make your predictions and calculate expected points!
+                        </div>
+                    </div>
+
+                    <!-- New Game 5: Budget Optimizer Challenge -->
+                    <div class="fpl-card">
+                        <h3>💰 Budget Optimizer Challenge</h3>
+                        <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">Build the highest scoring team within budget constraints</p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #37003c;">Budget Limit</label>
+                                <select id="budget-limit" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                    <option value="100">£100.0m (Standard)</option>
+                                    <option value="90">£90.0m (Hard)</option>
+                                    <option value="80">£80.0m (Expert)</option>
+                                    <option value="70">£70.0m (Impossible)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #37003c;">Target Points</label>
+                                <select id="target-points" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                    <option value="60">60+ Points</option>
+                                    <option value="70">70+ Points</option>
+                                    <option value="80">80+ Points</option>
+                                    <option value="90">90+ Points</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button onclick="generateOptimalTeam()" style="width: 100%; background: #fd7e14; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 15px;">
+                            Generate Optimal Team
+                        </button>
+                        <div id="budget-optimizer-result" style="min-height: 120px; background: #f8f9fa; border-radius: 8px; padding: 15px; color: #666;">
+                            Select your constraints and generate an optimal team!
+                        </div>
+                    </div>
+
+                    <!-- New Game 6: Fixture Difficulty Calculator -->
+                    <div class="fpl-card">
+                        <h3>📊 Fixture Difficulty Calculator</h3>
+                        <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">Calculate team difficulty over next 5 gameweeks</p>
+                        <div style="margin-bottom: 15px;">
+                            <select id="fdr-team-select" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                <option value="">Select a team</option>
+                                <option value="arsenal">Arsenal</option>
+                                <option value="villa">Aston Villa</option>
+                                <option value="liverpool">Liverpool</option>
+                                <option value="city">Manchester City</option>
+                                <option value="united">Manchester United</option>
+                                <option value="newcastle">Newcastle</option>
+                                <option value="tottenham">Tottenham</option>
+                                <option value="chelsea">Chelsea</option>
+                            </select>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                            <button onclick="calculateFDR('attack')" style="background: #28a745; color: white; border: none; padding: 8px; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                                Attacking FDR
+                            </button>
+                            <button onclick="calculateFDR('defense')" style="background: #dc3545; color: white; border: none; padding: 8px; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                                Defensive FDR
+                            </button>
+                        </div>
+                        <div id="fdr-result" style="min-height: 100px; background: #f8f9fa; border-radius: 8px; padding: 15px; color: #666;">
+                            Select a team and calculation type to see fixture difficulty
+                        </div>
+                    </div>
+
+                    <!-- New Game 7: Transfer Market Simulator -->
+                    <div class="fpl-card">
+                        <h3>🔄 Transfer Market Simulator</h3>
+                        <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">Simulate price changes and transfer timing</p>
+                        <div style="margin-bottom: 15px;">
+                            <input type="text" id="transfer-search" placeholder="Search for player to transfer..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: #666;">Transfer Out</label>
+                                <select id="transfer-out-player" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                    <option value="">Select player</option>
+                                    <option value="salah,13.0">Salah (£13.0m)</option>
+                                    <option value="haaland,14.0">Haaland (£14.0m)</option>
+                                    <option value="palmer,10.5">Palmer (£10.5m)</option>
+                                    <option value="saka,10.0">Saka (£10.0m)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: #666;">Transfer In</label>
+                                <select id="transfer-in-player" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                    <option value="">Select player</option>
+                                    <option value="son,10.0">Son (£10.0m)</option>
+                                    <option value="isak,8.5">Isak (£8.5m)</option>
+                                    <option value="watkins,9.0">Watkins (£9.0m)</option>
+                                    <option value="bruno,8.5">Bruno (£8.5m)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button onclick="simulateTransfer()" style="width: 100%; background: #20c997; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 15px;">
+                            Simulate Transfer
+                        </button>
+                        <div id="transfer-result" style="min-height: 100px; background: #f8f9fa; border-radius: 8px; padding: 15px; color: #666;">
+                            Select players to simulate transfer and see financial impact
+                        </div>
+                    </div>
+
+                    <!-- New Game 8: Gameweek Points Predictor -->
+                    <div class="fpl-card">
+                        <h3>🎯 Gameweek Points Predictor</h3>
+                        <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">Predict your team's total points for the upcoming gameweek</p>
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: #666;">Captain Choice</label>
+                                    <select id="captain-choice" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                        <option value="salah,16">Salah (16 pts)</option>
+                                        <option value="haaland,18">Haaland (18 pts)</option>
+                                        <option value="palmer,12">Palmer (12 pts)</option>
+                                        <option value="saka,10">Saka (10 pts)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: #666;">Difficulty Level</label>
+                                    <select id="difficulty-level" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                        <option value="easy">Easy Fixtures</option>
+                                        <option value="medium">Medium Fixtures</option>
+                                        <option value="hard">Hard Fixtures</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: #666;">Risk Level</label>
+                            <div style="display: flex; gap: 10px;">
+                                <label style="display: flex; align-items: center; font-size: 0.9rem;">
+                                    <input type="radio" name="risk-level" value="safe" style="margin-right: 5px;"> Safe (60-70 pts)
+                                </label>
+                                <label style="display: flex; align-items: center; font-size: 0.9rem;">
+                                    <input type="radio" name="risk-level" value="balanced" checked style="margin-right: 5px;"> Balanced (70-85 pts)
+                                </label>
+                                <label style="display: flex; align-items: center; font-size: 0.9rem;">
+                                    <input type="radio" name="risk-level" value="aggressive" style="margin-right: 5px;"> Aggressive (85+ pts)
+                                </label>
+                            </div>
+                        </div>
+                        <button onclick="predictGameweekPoints()" style="width: 100%; background: #e83e8c; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 15px;">
+                            Predict Points
+                        </button>
+                        <div id="gameweek-prediction-result" style="min-height: 100px; background: #f8f9fa; border-radius: 8px; padding: 15px; color: #666;">
+                            Configure your team settings and get a gameweek points prediction!
+                        </div>
+                    </div>
                     
                     <!-- Team Builder with Formation and Bench -->
                     <div class="fpl-card">
@@ -5820,6 +6008,305 @@
                         <div style="font-weight: bold; margin-bottom: 5px;">💡 Recommended Strategy:</div>
                         <div>${data.recommended.join(', ')}</div>
                         <div style="margin-top: 5px;"><strong>Budget:</strong> ${data.budget}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // New Game 4: Player Performance Predictor
+        function calculatePrediction() {
+            const player = document.getElementById('predictor-player-select').value;
+            const goals = parseInt(document.getElementById('goals-prediction').value) || 0;
+            const assists = parseInt(document.getElementById('assists-prediction').value) || 0;
+            const bonus = parseInt(document.getElementById('bonus-prediction').value) || 0;
+            const minutes = parseInt(document.getElementById('minutes-prediction').value) || 0;
+            const resultDiv = document.getElementById('prediction-result');
+            
+            if (!player) {
+                resultDiv.innerHTML = 'Please select a player first!';
+                return;
+            }
+            
+            // Calculate points based on FPL scoring system
+            let points = 0;
+            
+            // Minutes played
+            if (minutes === 2) points += 2; // 60+ minutes
+            else if (minutes === 1) points += 1; // 1-59 minutes
+            
+            // Goals (position dependent)
+            const isDefender = player === 'van-dijk' || player === 'alexander-arnold';
+            const isMidfielder = ['salah', 'palmer', 'saka', 'bruno'].includes(player);
+            const isForward = ['haaland', 'isak', 'watkins'].includes(player);
+            
+            if (isDefender) points += goals * 6;
+            else if (isMidfielder) points += goals * 5;
+            else if (isForward) points += goals * 4;
+            
+            // Assists
+            points += assists * 3;
+            
+            // Bonus points
+            points += bonus;
+            
+            const playerNames = {
+                'salah': 'Mohamed Salah',
+                'haaland': 'Erling Haaland', 
+                'palmer': 'Cole Palmer',
+                'saka': 'Bukayo Saka',
+                'son': 'Son Heung-min',
+                'isak': 'Alexander Isak',
+                'bruno': 'Bruno Fernandes',
+                'watkins': 'Ollie Watkins'
+            };
+            
+            resultDiv.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 1.2rem; font-weight: bold; color: #37003c; margin-bottom: 10px;">
+                        ${playerNames[player]} Prediction
+                    </div>
+                    <div style="font-size: 2rem; font-weight: bold; color: #6f42c1; margin: 15px 0;">
+                        ${points} Points
+                    </div>
+                    <div style="font-size: 0.9rem; color: #666;">
+                        <div>⚽ Goals: ${goals} (+${isDefender ? goals*6 : isMidfielder ? goals*5 : goals*4} pts)</div>
+                        <div>🎯 Assists: ${assists} (+${assists*3} pts)</div>
+                        <div>⏱️ Minutes: ${minutes === 2 ? '60+' : minutes === 1 ? '1-59' : '0'} (+${minutes === 2 ? 2 : minutes} pts)</div>
+                        <div>🌟 Bonus: ${bonus} (+${bonus} pts)</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // New Game 5: Budget Optimizer Challenge
+        function generateOptimalTeam() {
+            const budget = parseFloat(document.getElementById('budget-limit').value);
+            const target = parseInt(document.getElementById('target-points').value);
+            const resultDiv = document.getElementById('budget-optimizer-result');
+            
+            // Sample optimal teams for different budgets
+            const optimalTeams = {
+                100: {
+                    formation: '3-4-3',
+                    players: ['Ederson', 'Van Dijk', 'Saliba', 'Gabriel', 'Alexander-Arnold', 'Salah', 'Palmer', 'Saka', 'Haaland', 'Isak', 'Watkins'],
+                    cost: 99.5,
+                    expectedPoints: 85
+                },
+                90: {
+                    formation: '3-5-2', 
+                    players: ['Flekken', 'Van Dijk', 'Gabriel', 'Trippier', 'Palmer', 'Saka', 'Rice', 'Gordon', 'Bruno', 'Isak', 'Watkins'],
+                    cost: 89.0,
+                    expectedPoints: 75
+                },
+                80: {
+                    formation: '4-4-2',
+                    players: ['Flekken', 'Gabriel', 'Saliba', 'Trippier', 'Digne', 'Palmer', 'Gordon', 'Rice', 'Eze', 'Isak', 'Watkins'],
+                    cost: 78.5,
+                    expectedPoints: 68
+                },
+                70: {
+                    formation: '5-3-2',
+                    players: ['Flekken', 'Gabriel', 'Konsa', 'Burn', 'Digne', 'Hall', 'Gordon', 'Rice', 'Eze', 'Isak', 'Cunha'],
+                    cost: 68.0,
+                    expectedPoints: 58
+                }
+            };
+            
+            const team = optimalTeams[budget];
+            const success = team.expectedPoints >= target;
+            
+            resultDiv.innerHTML = `
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-weight: bold;">Formation: ${team.formation}</span>
+                        <span style="color: ${success ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                            ${success ? '✅ Target Achieved!' : '❌ Target Missed'}
+                        </span>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <div>💰 Total Cost: £${team.cost}m / £${budget}m</div>
+                        <div>📊 Expected Points: ${team.expectedPoints} (Target: ${target}+)</div>
+                    </div>
+                    <div style="background: #f0f8ff; padding: 8px; border-radius: 5px; font-size: 0.9rem;">
+                        <div style="font-weight: bold; margin-bottom: 5px;">Recommended XI:</div>
+                        <div>${team.players.slice(0, 11).join(', ')}</div>
+                    </div>
+                    ${!success ? '<div style="margin-top: 8px; color: #dc3545; font-size: 0.9rem;">💡 Try a lower budget or target to achieve success!</div>' : ''}
+                </div>
+            `;
+        }
+
+        // New Game 6: Fixture Difficulty Calculator
+        function calculateFDR(type) {
+            const team = document.getElementById('fdr-team-select').value;
+            const resultDiv = document.getElementById('fdr-result');
+            
+            if (!team) {
+                resultDiv.innerHTML = 'Please select a team first!';
+                return;
+            }
+            
+            // Sample fixture data for next 5 gameweeks
+            const fixtures = {
+                arsenal: {
+                    opponents: ['Brighton', 'Man City', 'Liverpool', 'Tottenham', 'Chelsea'],
+                    attackingFDR: [2, 5, 4, 3, 3],
+                    defensiveFDR: [2, 4, 4, 3, 3]
+                },
+                liverpool: {
+                    opponents: ['Bournemouth', 'Arsenal', 'Newcastle', 'Man City', 'Brighton'],
+                    attackingFDR: [2, 3, 2, 4, 2],
+                    defensiveFDR: [1, 3, 2, 5, 2]
+                },
+                city: {
+                    opponents: ['Chelsea', 'Arsenal', 'Newcastle', 'Liverpool', 'Tottenham'],
+                    attackingFDR: [2, 3, 2, 4, 2],
+                    defensiveFDR: [2, 3, 2, 4, 2]
+                }
+            };
+            
+            const teamData = fixtures[team] || {
+                opponents: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
+                attackingFDR: [3, 3, 3, 3, 3],
+                defensiveFDR: [3, 3, 3, 3, 3]
+            };
+            
+            const fdrValues = type === 'attack' ? teamData.attackingFDR : teamData.defensiveFDR;
+            const avgFDR = (fdrValues.reduce((a, b) => a + b, 0) / fdrValues.length).toFixed(1);
+            
+            const difficultyColor = avgFDR <= 2.5 ? '#28a745' : avgFDR <= 3.5 ? '#fd7e14' : '#dc3545';
+            const difficultyText = avgFDR <= 2.5 ? 'Easy' : avgFDR <= 3.5 ? 'Moderate' : 'Difficult';
+            
+            resultDiv.innerHTML = `
+                <div>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <div style="font-weight: bold; font-size: 1.1rem; text-transform: capitalize;">${team} - ${type}ing FDR</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: ${difficultyColor}; margin: 8px 0;">
+                            ${avgFDR} (${difficultyText})
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <div style="font-weight: bold; margin-bottom: 5px;">Next 5 Fixtures:</div>
+                        ${teamData.opponents.map((opp, i) => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
+                                <span>GW${i+1}: vs ${opp}</span>
+                                <span style="background: ${fdrValues[i] <= 2 ? '#28a745' : fdrValues[i] <= 3 ? '#fd7e14' : '#dc3545'}; color: white; padding: 2px 8px; border-radius: 3px; font-size: 0.8rem;">
+                                    ${fdrValues[i]}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="background: #f0f8ff; padding: 8px; border-radius: 5px; font-size: 0.9rem;">
+                        💡 ${type === 'attack' ? 'Lower values = easier for attacking returns' : 'Lower values = better for clean sheets'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // New Game 7: Transfer Market Simulator
+        function simulateTransfer() {
+            const transferOut = document.getElementById('transfer-out-player').value;
+            const transferIn = document.getElementById('transfer-in-player').value;
+            const resultDiv = document.getElementById('transfer-result');
+            
+            if (!transferOut || !transferIn) {
+                resultDiv.innerHTML = 'Please select both players to transfer!';
+                return;
+            }
+            
+            const [outPlayer, outPrice] = transferOut.split(',');
+            const [inPlayer, inPrice] = transferIn.split(',');
+            const priceDiff = parseFloat(inPrice) - parseFloat(outPrice);
+            const transferCost = -4; // -4 points for transfer
+            
+            // Simulate expected points difference
+            const expectedPointsDiff = Math.floor(Math.random() * 20) - 5; // -5 to +15 points
+            const netPointsChange = expectedPointsDiff + transferCost;
+            
+            resultDiv.innerHTML = `
+                <div>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <div style="font-weight: bold; font-size: 1.1rem;">Transfer Simulation</div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #ffe6e6; border-radius: 5px; margin-bottom: 5px;">
+                            <span>📤 ${outPlayer}</span>
+                            <span style="font-weight: bold;">-£${outPrice}m</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #e6ffe6; border-radius: 5px;">
+                            <span>📥 ${inPlayer}</span>
+                            <span style="font-weight: bold;">+£${inPrice}m</span>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <div>💰 Budget Impact: ${priceDiff >= 0 ? '+' : ''}£${priceDiff.toFixed(1)}m</div>
+                        <div>📊 Expected Points Change: ${expectedPointsDiff >= 0 ? '+' : ''}${expectedPointsDiff} pts</div>
+                        <div>🔄 Transfer Cost: ${transferCost} pts</div>
+                    </div>
+                    <div style="padding: 10px; border-radius: 5px; text-align: center; font-weight: bold; ${netPointsChange >= 0 ? 'background: #e8f5e8; color: #2d5a2d;' : 'background: #ffe6e6; color: #8b0000;'}">
+                        Net Impact: ${netPointsChange >= 0 ? '+' : ''}${netPointsChange} points
+                        ${netPointsChange >= 0 ? '✅ Recommended' : '❌ Not Recommended'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // New Game 8: Gameweek Points Predictor
+        function predictGameweekPoints() {
+            const captain = document.getElementById('captain-choice').value;
+            const difficulty = document.getElementById('difficulty-level').value;
+            const riskLevel = document.querySelector('input[name="risk-level"]:checked')?.value || 'balanced';
+            const resultDiv = document.getElementById('gameweek-prediction-result');
+            
+            const [captainName, captainPoints] = captain.split(',');
+            const captainScore = parseInt(captainPoints) * 2; // Captain gets double points
+            
+            // Base team points based on risk level
+            const basePoints = {
+                safe: 45,
+                balanced: 55,
+                aggressive: 40
+            };
+            
+            // Difficulty multiplier
+            const difficultyMultiplier = {
+                easy: 1.2,
+                medium: 1.0,
+                hard: 0.8
+            };
+            
+            // Risk variance
+            const riskVariance = {
+                safe: 10,
+                balanced: 20,
+                aggressive: 30
+            };
+            
+            const teamPoints = Math.floor(basePoints[riskLevel] * difficultyMultiplier[difficulty]);
+            const variance = Math.floor((Math.random() - 0.5) * riskVariance[riskLevel]);
+            const totalPoints = teamPoints + captainScore + variance;
+            
+            const rank = totalPoints >= 80 ? 'Top 10k' : totalPoints >= 70 ? 'Top 100k' : totalPoints >= 60 ? 'Top 500k' : 'Below Average';
+            const rankColor = totalPoints >= 80 ? '#28a745' : totalPoints >= 70 ? '#fd7e14' : totalPoints >= 60 ? '#6f42c1' : '#dc3545';
+            
+            resultDiv.innerHTML = `
+                <div>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <div style="font-weight: bold; font-size: 1.1rem;">Gameweek Prediction</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #6f42c1; margin: 10px 0;">
+                            ${totalPoints} Points
+                        </div>
+                        <div style="color: ${rankColor}; font-weight: bold;">
+                            Predicted Rank: ${rank}
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 12px; font-size: 0.9rem;">
+                        <div>👥 Team Points: ${teamPoints}</div>
+                        <div>⭐ Captain (${captainName}): ${captainScore} (doubled)</div>
+                        <div>🎲 Variance: ${variance >= 0 ? '+' : ''}${variance}</div>
+                    </div>
+                    <div style="background: #f0f8ff; padding: 8px; border-radius: 5px; font-size: 0.9rem;">
+                        💡 ${riskLevel === 'aggressive' ? 'High risk, high reward strategy!' : riskLevel === 'safe' ? 'Conservative but reliable approach.' : 'Balanced strategy with moderate risk.'}
                     </div>
                 </div>
             `;
