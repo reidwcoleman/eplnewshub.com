@@ -2947,6 +2947,74 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- New Game 1: Head-to-Head Team Analyzer -->
+                    <div class="fpl-card">
+                        <h3>⚔️ Team Head-to-Head Analyzer</h3>
+                        <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">Compare two teams' attacking and defensive stats</p>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <select id="team1-select" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                <option value="">Select Team 1</option>
+                                <option value="1">Arsenal</option>
+                                <option value="2">Aston Villa</option>
+                                <option value="12">Liverpool</option>
+                                <option value="13">Manchester City</option>
+                                <option value="14">Manchester United</option>
+                                <option value="15">Newcastle</option>
+                                <option value="18">Tottenham</option>
+                            </select>
+                            <span style="padding: 8px; color: #666;">vs</span>
+                            <select id="team2-select" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                <option value="">Select Team 2</option>
+                                <option value="1">Arsenal</option>
+                                <option value="2">Aston Villa</option>
+                                <option value="12">Liverpool</option>
+                                <option value="13">Manchester City</option>
+                                <option value="14">Manchester United</option>
+                                <option value="15">Newcastle</option>
+                                <option value="18">Tottenham</option>
+                            </select>
+                        </div>
+                        <div id="team-comparison-result" style="min-height: 60px; background: #f8f9fa; border-radius: 8px; padding: 15px; text-align: center; color: #666;">
+                            Select two teams to see head-to-head comparison
+                        </div>
+                    </div>
+
+                    <!-- New Game 2: Captain Roulette -->
+                    <div class="fpl-card">
+                        <h3>🎯 Captain Roulette</h3>
+                        <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">Spin for a surprise captain pick based on fixtures and form</p>
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <button id="spin-captain" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;">
+                                🎲 Spin Captain
+                            </button>
+                        </div>
+                        <div id="captain-result" style="min-height: 80px; background: #f8f9fa; border-radius: 8px; padding: 15px; text-align: center; color: #666;">
+                            Click spin to get your captain recommendation!
+                        </div>
+                    </div>
+
+                    <!-- New Game 3: FPL Formation Challenge -->
+                    <div class="fpl-card">
+                        <h3>🔄 Formation Challenge</h3>
+                        <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">Test different formations and see optimal player combinations</p>
+                        <div style="margin-bottom: 15px;">
+                            <select id="formation-select" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                                <option value="3-4-3">3-4-3 (Attacking)</option>
+                                <option value="3-5-2">3-5-2 (Midfield Control)</option>
+                                <option value="4-3-3">4-3-3 (Balanced)</option>
+                                <option value="4-4-2">4-4-2 (Classic)</option>
+                                <option value="4-5-1">4-5-1 (Defensive)</option>
+                                <option value="5-3-2">5-3-2 (Ultra Defensive)</option>
+                            </select>
+                        </div>
+                        <button onclick="analyzeFormation()" style="width: 100%; background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 15px;">
+                            Analyze Formation
+                        </button>
+                        <div id="formation-analysis" style="min-height: 100px; background: #f8f9fa; border-radius: 8px; padding: 15px; color: #666;">
+                            Select a formation and click analyze to see recommendations
+                        </div>
+                    </div>
                     
                     <!-- Team Builder with Formation and Bench -->
                     <div class="fpl-card">
@@ -5557,7 +5625,205 @@
                 observer.observe(card);
             });
 
+            // Initialize new game functionality
+            initializeNewGames();
         });
+
+        // New Game Functions
+        function initializeNewGames() {
+            // Team Head-to-Head Analyzer
+            document.getElementById('team1-select').addEventListener('change', updateTeamComparison);
+            document.getElementById('team2-select').addEventListener('change', updateTeamComparison);
+            
+            // Captain Roulette
+            document.getElementById('spin-captain').addEventListener('click', spinCaptain);
+        }
+
+        function updateTeamComparison() {
+            const team1Id = document.getElementById('team1-select').value;
+            const team2Id = document.getElementById('team2-select').value;
+            const resultDiv = document.getElementById('team-comparison-result');
+            
+            if (!team1Id || !team2Id) {
+                resultDiv.innerHTML = 'Select two teams to see head-to-head comparison';
+                return;
+            }
+            
+            if (team1Id === team2Id) {
+                resultDiv.innerHTML = 'Please select two different teams';
+                return;
+            }
+            
+            const teams = {
+                '1': { name: 'Arsenal', attack: 8.5, defense: 7.8, form: 8.2 },
+                '2': { name: 'Aston Villa', attack: 7.3, defense: 6.9, form: 7.1 },
+                '12': { name: 'Liverpool', attack: 9.2, defense: 7.5, form: 8.8 },
+                '13': { name: 'Manchester City', attack: 9.5, defense: 8.1, form: 8.9 },
+                '14': { name: 'Manchester United', attack: 6.8, defense: 6.2, form: 6.5 },
+                '15': { name: 'Newcastle', attack: 7.8, defense: 7.2, form: 7.5 },
+                '18': { name: 'Tottenham', attack: 8.1, defense: 6.5, form: 7.3 }
+            };
+            
+            const team1 = teams[team1Id];
+            const team2 = teams[team2Id];
+            
+            const team1Score = (team1.attack + team1.defense + team1.form) / 3;
+            const team2Score = (team2.attack + team2.defense + team2.form) / 3;
+            
+            let prediction = '';
+            if (team1Score > team2Score + 0.5) {
+                prediction = `<strong>${team1.name}</strong> favored to win`;
+            } else if (team2Score > team1Score + 0.5) {
+                prediction = `<strong>${team2.name}</strong> favored to win`;
+            } else {
+                prediction = 'Close match - could go either way';
+            }
+            
+            resultDiv.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; align-items: center;">
+                    <div style="text-align: center;">
+                        <div style="font-weight: bold; font-size: 1.1rem; color: #37003c;">${team1.name}</div>
+                        <div style="font-size: 0.9rem; margin-top: 5px;">
+                            <div>Attack: ${team1.attack}/10</div>
+                            <div>Defense: ${team1.defense}/10</div>
+                            <div>Form: ${team1.form}/10</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 1.5rem; color: #666;">VS</div>
+                    <div style="text-align: center;">
+                        <div style="font-weight: bold; font-size: 1.1rem; color: #37003c;">${team2.name}</div>
+                        <div style="font-size: 0.9rem; margin-top: 5px;">
+                            <div>Attack: ${team2.attack}/10</div>
+                            <div>Defense: ${team2.defense}/10</div>
+                            <div>Form: ${team2.form}/10</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: #e8f5e8; border-radius: 5px; text-align: center; font-weight: bold; color: #2d5a2d;">
+                    🎯 ${prediction}
+                </div>
+            `;
+        }
+
+        function spinCaptain() {
+            const button = document.getElementById('spin-captain');
+            const resultDiv = document.getElementById('captain-result');
+            
+            button.disabled = true;
+            button.innerHTML = '🎲 Spinning...';
+            
+            const captainOptions = [
+                { name: 'Mohamed Salah', team: 'Liverpool', price: '13.0m', reason: 'Home fixture and penalty duties' },
+                { name: 'Erling Haaland', team: 'Man City', price: '14.0m', reason: 'Most explosive scoring potential' },
+                { name: 'Cole Palmer', team: 'Chelsea', price: '10.5m', reason: 'Great value with penalty duties' },
+                { name: 'Bukayo Saka', team: 'Arsenal', price: '10.0m', reason: 'Consistent returns and set pieces' },
+                { name: 'Son Heung-min', team: 'Tottenham', price: '10.0m', reason: 'Home form and attacking threat' },
+                { name: 'Alexander Isak', team: 'Newcastle', price: '8.5m', reason: 'Excellent value forward option' },
+                { name: 'Bruno Fernandes', team: 'Man United', price: '8.5m', reason: 'Penalties and playmaking ability' },
+                { name: 'Ollie Watkins', team: 'Aston Villa', price: '9.0m', reason: 'In-form striker with good fixtures' }
+            ];
+            
+            setTimeout(() => {
+                const randomCaptain = captainOptions[Math.floor(Math.random() * captainOptions.length)];
+                
+                resultDiv.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.2rem; font-weight: bold; color: #37003c; margin-bottom: 8px;">
+                            🎯 ${randomCaptain.name} (C)
+                        </div>
+                        <div style="color: #666; margin-bottom: 8px;">
+                            ${randomCaptain.team} • ${randomCaptain.price}
+                        </div>
+                        <div style="background: #e8f5e8; padding: 8px; border-radius: 5px; font-size: 0.9rem; color: #2d5a2d;">
+                            💡 ${randomCaptain.reason}
+                        </div>
+                    </div>
+                `;
+                
+                button.disabled = false;
+                button.innerHTML = '🎲 Spin Again';
+            }, 1500);
+        }
+
+        function analyzeFormation() {
+            const formation = document.getElementById('formation-select').value;
+            const analysisDiv = document.getElementById('formation-analysis');
+            
+            const formationData = {
+                '3-4-3': {
+                    style: 'Attacking',
+                    pros: ['High attacking output', 'Wing-backs provide width', 'Three forwards for goals'],
+                    cons: ['Vulnerable to counter-attacks', 'Requires fit wing-backs', 'Light in midfield'],
+                    recommended: ['Premium forwards like Haaland', 'Attacking wing-backs', 'Strong defensive trio'],
+                    budget: '£25m+ on forwards'
+                },
+                '3-5-2': {
+                    style: 'Midfield Control',
+                    pros: ['Dominates midfield', 'Good defensive stability', 'Wing-backs can attack'],
+                    cons: ['Limited forward options', 'Depends on midfield scoring', 'Wing-back fitness crucial'],
+                    recommended: ['Attacking midfielders', 'Box-to-box players', 'Creative wing-backs'],
+                    budget: '£30m+ on midfield'
+                },
+                '4-3-3': {
+                    style: 'Balanced',
+                    pros: ['Well-balanced all areas', 'Good defensive shape', 'Multiple attacking outlets'],
+                    cons: ['Can lack specialist focus', 'Midfield can be outnumbered', 'Requires versatile players'],
+                    recommended: ['One premium forward', 'Creative midfielders', 'Attacking full-backs'],
+                    budget: '£20-25m on each line'
+                },
+                '4-4-2': {
+                    style: 'Classic',
+                    pros: ['Simple and effective', 'Good width from midfield', 'Two striker partnership'],
+                    cons: ['Can be outdated', 'Light in central midfield', 'Vulnerable to overloads'],
+                    recommended: ['Two complementary forwards', 'Wide midfielders', 'Solid full-backs'],
+                    budget: '£18-22m on forward pair'
+                },
+                '4-5-1': {
+                    style: 'Defensive',
+                    pros: ['Very solid defensively', 'Midfield numbers', 'Counter-attack potential'],
+                    cons: ['Limited attacking threat', 'Relies on one forward', 'Can be too cautious'],
+                    recommended: ['One premium forward', 'Defensive midfielders', 'Clean sheet defenders'],
+                    budget: '£12-15m on single forward'
+                },
+                '5-3-2': {
+                    style: 'Ultra Defensive',
+                    pros: ['Maximum defensive cover', 'Hard to break down', 'Wing-backs key'],
+                    cons: ['Very limited attack', 'Requires special circumstances', 'Boring to watch'],
+                    recommended: ['Defensive assets only', 'Premium goalkeeper', 'Wing-backs who attack'],
+                    budget: '£8-12m total on forwards'
+                }
+            };
+            
+            const data = formationData[formation];
+            
+            analysisDiv.innerHTML = `
+                <div>
+                    <div style="font-weight: bold; font-size: 1.1rem; color: #37003c; margin-bottom: 10px;">
+                        ${formation} - ${data.style} Formation
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-weight: bold; color: #28a745; margin-bottom: 5px;">✅ Pros:</div>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                            ${data.pros.map(pro => `<li>${pro}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-weight: bold; color: #dc3545; margin-bottom: 5px;">❌ Cons:</div>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                            ${data.cons.map(con => `<li>${con}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div style="background: #f0f8ff; padding: 8px; border-radius: 5px; font-size: 0.9rem;">
+                        <div style="font-weight: bold; margin-bottom: 5px;">💡 Recommended Strategy:</div>
+                        <div>${data.recommended.join(', ')}</div>
+                        <div style="margin-top: 5px;"><strong>Budget:</strong> ${data.budget}</div>
+                    </div>
+                </div>
+            `;
+        }
     </script>
     
     <style>
