@@ -3948,12 +3948,17 @@
         }
 
         function selectPlayer(playerId, position, slotIndex, targetLocation) {
+            console.log(`Selecting player ${playerId} for ${position} slot ${slotIndex} on ${targetLocation}`);
+            
             // Get player data
             const fallbackData = fplLiveStats.getFallbackBootstrap();
             const allPlayers = [...fallbackData.elements, ...generateAdditionalPlayersForPosition(1), ...generateAdditionalPlayersForPosition(2), ...generateAdditionalPlayersForPosition(3), ...generateAdditionalPlayersForPosition(4)];
             const playerData = allPlayers.find(p => p.id === playerId);
             
-            if (!playerData) return;
+            if (!playerData) {
+                console.error('Player not found!');
+                return;
+            }
             
             // Check budget constraint
             const playerPrice = playerData.now_cost / 10;
@@ -3969,12 +3974,16 @@
                 team: playerData.team
             };
             
+            console.log('Player object created:', player);
+            
             if (targetLocation === 'field') {
                 // Add to starting XI
                 if (position === 'gk') {
                     startingXI.gk = player;
+                    console.log('Added GK to starting XI:', startingXI.gk);
                 } else {
                     startingXI[position][slotIndex] = player;
+                    console.log(`Added ${position} to starting XI slot ${slotIndex}:`, startingXI[position][slotIndex]);
                 }
             } else {
                 // Add to bench
@@ -3990,10 +3999,14 @@
             // Update budget
             teamBudget -= playerPrice;
             
+            console.log('Updating displays...');
+            
             // Update displays
             updateFieldDisplay();
             updateBenchDisplay();
             updateBudgetDisplay();
+            
+            console.log('Starting XI after update:', startingXI);
             
             // Close modal
             document.querySelector('.modal-overlay').remove();
@@ -4200,11 +4213,19 @@
         }
 
         function updateFieldDisplay() {
+            console.log('updateFieldDisplay called');
+            console.log('Current startingXI:', startingXI);
+            
             // Update goalkeeper
             const gkSlot = document.querySelector('.field-player-slot[data-position="gk"]');
+            console.log('GK slot found:', gkSlot);
+            console.log('Starting XI GK:', startingXI.gk);
+            
             if (startingXI.gk && gkSlot) {
                 const team = getPlayerTeam(startingXI.gk.id);
                 const teamColors = team ? { primary: team.shirt_color, secondary: team.secondary_color } : { primary: '#333', secondary: '#fff' };
+                
+                console.log('Updating GK slot with player:', startingXI.gk.name);
                 
                 gkSlot.classList.add('occupied');
                 gkSlot.innerHTML = `
