@@ -1749,13 +1749,17 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
 
-        /* Football Field Styles */
+        /* Football Field Styles - Official FPL Design */
         .football-field {
-            background: linear-gradient(135deg, #228B22, #32CD32, #228B22);
-            border-radius: 15px;
-            padding: 20px;
+            background: linear-gradient(180deg, #00ff87 0%, #37003c 100%);
+            border-radius: 20px;
+            padding: 25px;
             position: relative;
             overflow: hidden;
+            border: 3px solid #37003c;
+            box-shadow: 
+                inset 0 0 0 2px #00ff87,
+                0 10px 30px rgba(55, 0, 60, 0.3);
         }
 
         .football-field::before {
@@ -1766,10 +1770,22 @@
             right: 0;
             bottom: 0;
             background: 
-                radial-gradient(circle at center, rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 30px 30px, 30px 30px, 30px 30px;
+                linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+            background-size: 25px 25px;
+            pointer-events: none;
+        }
+
+        .football-field::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
             pointer-events: none;
         }
 
@@ -1805,29 +1821,43 @@
         }
 
         .field-player-slot {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 3px solid #000;
+            width: 85px;
+            height: 85px;
+            background: radial-gradient(circle, #ffffff 0%, #f8f9fa 100%);
+            border: 4px solid #37003c;
             border-radius: 50%;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 
+                0 6px 20px rgba(55, 0, 60, 0.4),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
         }
 
         .field-player-slot:hover {
-            transform: scale(1.1);
-            background: rgba(255, 255, 255, 1);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transform: scale(1.15);
+            background: radial-gradient(circle, #ffffff 0%, #e9ecef 100%);
+            box-shadow: 
+                0 8px 25px rgba(55, 0, 60, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.4);
         }
 
         .field-player-slot.occupied {
-            background: rgba(255, 255, 255, 0.95);
-            border-color: #37003c;
+            background: radial-gradient(circle, #ffffff 0%, #f1f3f4 100%);
+            border-color: #00ff87;
+            box-shadow: 
+                0 6px 20px rgba(0, 255, 135, 0.3),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        }
+
+        .field-player-slot.occupied:hover {
+            box-shadow: 
+                0 8px 25px rgba(0, 255, 135, 0.4),
+                inset 0 2px 4px rgba(255, 255, 255, 0.4);
         }
 
         .field-slot-text {
@@ -1907,6 +1937,83 @@
         .starting-xi-option .player-price {
             font-weight: 600;
             color: #2ed573;
+        }
+
+        /* Player Stats Modal */
+        .player-stats-modal {
+            max-width: 500px;
+        }
+
+        .player-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #37003c;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .player-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .remove-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .remove-btn:hover {
+            background: linear-gradient(135deg, #c82333, #a71e2a);
+            transform: translateY(-2px);
+        }
+
+        .change-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+
+        .change-btn:hover {
+            background: linear-gradient(135deg, #0056b3, #004085);
+            transform: translateY(-2px);
         }
         
         /* Enhanced Animations */
@@ -2641,7 +2748,10 @@
                         </div>
                         <div class="formation-info">
                             <p style="color: #000; font-size: 0.8rem; text-align: center; margin-top: 10px;">
-                                4-3-3 Formation • Click players above to select for starting XI
+                                4-3-3 Formation • Click to select players • Right-click for stats
+                            </p>
+                            <p style="color: #666; font-size: 0.7rem; text-align: center; margin-top: 5px;">
+                                330+ players from all Premier League teams available
                             </p>
                         </div>
                     </div>
@@ -3504,12 +3614,104 @@
         function addFieldClickHandlers() {
             // Add click handlers to field player slots
             document.querySelectorAll('.field-player-slot').forEach(slot => {
-                slot.addEventListener('click', function() {
+                slot.addEventListener('click', function(e) {
                     const position = this.dataset.position;
                     const slotIndex = this.dataset.slot;
-                    openStartingXISelector(position, slotIndex);
+                    
+                    // Check if slot is occupied and if user wants to see stats
+                    const isOccupied = this.classList.contains('occupied');
+                    if (isOccupied && e.ctrlKey) {
+                        // Ctrl+Click to show player stats
+                        showPlayerStats(position, slotIndex);
+                    } else if (isOccupied && e.altKey) {
+                        // Alt+Click to remove player
+                        removeFromStartingXI(position, slotIndex);
+                    } else {
+                        // Normal click to select/change player
+                        openStartingXISelector(position, slotIndex);
+                    }
+                });
+                
+                // Add right-click for stats
+                slot.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    const position = this.dataset.position;
+                    const slotIndex = this.dataset.slot;
+                    const isOccupied = this.classList.contains('occupied');
+                    
+                    if (isOccupied) {
+                        showPlayerStats(position, slotIndex);
+                    }
                 });
             });
+        }
+
+        function showPlayerStats(position, slotIndex) {
+            let player;
+            if (position === 'gk') {
+                player = startingXI.gk;
+            } else {
+                player = startingXI[position][slotIndex];
+            }
+            
+            if (!player) return;
+            
+            // Get detailed player data
+            const fallbackData = fplLiveStats.getFallbackBootstrap();
+            const allPlayers = [...fallbackData.elements, ...generateAdditionalPlayersForPosition(1), ...generateAdditionalPlayersForPosition(2), ...generateAdditionalPlayersForPosition(3), ...generateAdditionalPlayersForPosition(4)];
+            const playerData = allPlayers.find(p => p.id === player.id);
+            const team = getTeamData(playerData?.team);
+            
+            if (!playerData) return;
+            
+            // Create stats modal
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content player-stats-modal">
+                    <div class="modal-header" style="background: ${team?.shirt_color || '#37003c'};">
+                        <h3 style="color: ${team?.secondary_color || '#fff'};">${player.name} Stats</h3>
+                        <button class="close-btn" onclick="this.closest('.modal-overlay').remove()" style="color: ${team?.secondary_color || '#fff'};">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="player-stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">${playerData.total_points}</div>
+                                <div class="stat-label">Total Points</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">£${(playerData.now_cost / 10).toFixed(1)}m</div>
+                                <div class="stat-label">Price</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${playerData.goals_scored || 0}</div>
+                                <div class="stat-label">Goals</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${playerData.assists || 0}</div>
+                                <div class="stat-label">Assists</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${playerData.selected_by_percent}%</div>
+                                <div class="stat-label">Ownership</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${team?.short_name || 'UNK'}</div>
+                                <div class="stat-label">Team</div>
+                            </div>
+                        </div>
+                        <div class="player-actions">
+                            <button class="action-btn remove-btn" onclick="removeFromStartingXI('${position}', '${slotIndex}'); this.closest('.modal-overlay').remove();">
+                                Remove from XI
+                            </button>
+                            <button class="action-btn change-btn" onclick="this.closest('.modal-overlay').remove(); openStartingXISelector('${position}', '${slotIndex}');">
+                                Change Player
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
         }
 
         function openStartingXISelector(position, slotIndex) {
@@ -4269,7 +4471,18 @@
                         { id: 428, web_name: 'Kluivert', team: 3, element_type: 4, now_cost: 50, total_points: 89, goals_scored: 5, assists: 4, selected_by_percent: '4.9' },
                         // Wolves
                         { id: 429, web_name: 'Hwang', team: 20, element_type: 4, now_cost: 55, total_points: 118, goals_scored: 12, assists: 4, selected_by_percent: '8.1' },
-                        { id: 430, web_name: 'Cunha', team: 20, element_type: 4, now_cost: 60, total_points: 134, goals_scored: 12, assists: 7, selected_by_percent: '12.8' }
+                        { id: 430, web_name: 'Cunha', team: 20, element_type: 4, now_cost: 60, total_points: 134, goals_scored: 12, assists: 7, selected_by_percent: '12.8' },
+                        // Additional popular comparison players
+                        { id: 431, web_name: 'Eze', team: 7, element_type: 3, now_cost: 70, total_points: 134, goals_scored: 11, assists: 4, selected_by_percent: '9.8' },
+                        { id: 432, web_name: 'Gordon', team: 15, element_type: 3, now_cost: 70, total_points: 118, goals_scored: 7, assists: 8, selected_by_percent: '12.4' },
+                        { id: 433, web_name: 'Luiz', team: 2, element_type: 3, now_cost: 55, total_points: 89, goals_scored: 3, assists: 5, selected_by_percent: '6.7' },
+                        { id: 434, web_name: 'Nkunku', team: 6, element_type: 4, now_cost: 65, total_points: 67, goals_scored: 3, assists: 1, selected_by_percent: '4.2' },
+                        { id: 435, web_name: 'Mahrez', team: 13, element_type: 3, now_cost: 80, total_points: 156, goals_scored: 11, assists: 12, selected_by_percent: '15.3' },
+                        { id: 436, web_name: 'Kane', team: 18, element_type: 4, now_cost: 110, total_points: 213, goals_scored: 30, assists: 3, selected_by_percent: '31.2' },
+                        { id: 437, web_name: 'Rashford', team: 14, element_type: 3, now_cost: 70, total_points: 118, goals_scored: 8, assists: 5, selected_by_percent: '9.7' },
+                        { id: 438, web_name: 'Grealish', team: 13, element_type: 3, now_cost: 65, total_points: 118, goals_scored: 3, assists: 7, selected_by_percent: '8.9' },
+                        { id: 439, web_name: 'Sterling', team: 6, element_type: 3, now_cost: 70, total_points: 118, goals_scored: 8, assists: 4, selected_by_percent: '7.6' },
+                        { id: 440, web_name: 'Firmino', team: 12, element_type: 4, now_cost: 65, total_points: 89, goals_scored: 6, assists: 4, selected_by_percent: '5.8' }
                     );
                     break;
             }
