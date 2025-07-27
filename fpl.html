@@ -1884,6 +1884,22 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
 
+        .bench-jersey-mini {
+            width: 18px;
+            height: 22px;
+            border-radius: 9px 9px 3px 3px;
+            margin-bottom: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .bench-player-name {
+            font-weight: bold;
+            font-size: 0.6rem;
+            color: #000;
+            text-align: center;
+            line-height: 1.1;
+        }
+
         /* Update all text colors to black */
         .player-name {
             color: #000 !important;
@@ -2014,6 +2030,120 @@
         .change-btn:hover {
             background: linear-gradient(135deg, #0056b3, #004085);
             transform: translateY(-2px);
+        }
+
+        /* Team Header */
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .team-header h3 {
+            margin: 0;
+            color: #000;
+        }
+
+        .budget-display {
+            text-align: center;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(55, 0, 60, 0.3);
+        }
+
+        .budget-remaining {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .budget-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        /* Substitutes Bench */
+        .substitutes-bench {
+            margin: 25px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border: 2px solid #dee2e6;
+        }
+
+        .bench-players {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+        }
+
+        .bench-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .bench-position {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .bench-player-slot {
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, #ffffff 0%, #f8f9fa 100%);
+            border: 3px solid #6c757d;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .bench-player-slot:hover {
+            transform: scale(1.1);
+            background: radial-gradient(circle, #ffffff 0%, #e9ecef 100%);
+            box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+        }
+
+        .bench-player-slot.occupied {
+            background: radial-gradient(circle, #ffffff 0%, #f1f3f4 100%);
+            border-color: #28a745;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .bench-slot-text {
+            font-weight: bold;
+            font-size: 0.7rem;
+            color: #000;
+            text-align: center;
+        }
+
+        .bench-player-name {
+            font-weight: bold;
+            font-size: 0.6rem;
+            color: #000;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .bench-jersey-mini {
+            width: 20px;
+            height: 24px;
+            border-radius: 10px 10px 3px 3px;
+            margin-bottom: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
         
         /* Enhanced Animations */
@@ -2626,74 +2756,16 @@
                         </div>
                     </div>
                     
-                    <!-- Quick Team Builder -->
+                    <!-- Team Builder with Formation and Bench -->
                     <div class="fpl-card">
-                        <h3>⚡ Quick Team Builder</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 15px;">Build your team with our interactive budget tracker</p>
-                        <div class="team-builder">
+                        <div class="team-header">
+                            <h3>⚽ Build Your Team</h3>
                             <div class="budget-display">
                                 <div class="budget-remaining" id="budget-remaining">£100.0m</div>
-                                <div class="budget-label">Remaining</div>
-                            </div>
-                            <div class="player-slots">
-                                <div class="position-slot">
-                                    <div class="slot-header">GK (2)</div>
-                                    <div class="player-slot" onclick="openPlayerSelector('gk', 0)">
-                                        <span class="slot-text">+ Add GK</span>
-                                    </div>
-                                    <div class="player-slot" onclick="openPlayerSelector('gk', 1)">
-                                        <span class="slot-text">+ Add GK</span>
-                                    </div>
-                                </div>
-                                <div class="position-slot">
-                                    <div class="slot-header">DEF (5)</div>
-                                    <div class="player-slot" onclick="openPlayerSelector('def', 0)">
-                                        <span class="slot-text">+ Add DEF</span>
-                                    </div>
-                                    <div class="player-slot" onclick="openPlayerSelector('def', 1)">
-                                        <span class="slot-text">+ Add DEF</span>
-                                    </div>
-                                    <div class="player-slot" onclick="openPlayerSelector('def', 2)">
-                                        <span class="slot-text">+ Add DEF</span>
-                                    </div>
-                                </div>
-                                <div class="position-slot">
-                                    <div class="slot-header">MID (5)</div>
-                                    <div class="player-slot" onclick="openPlayerSelector('mid', 0)">
-                                        <span class="slot-text">+ Add MID</span>
-                                    </div>
-                                    <div class="player-slot" onclick="openPlayerSelector('mid', 1)">
-                                        <span class="slot-text">+ Add MID</span>
-                                    </div>
-                                    <div class="player-slot" onclick="openPlayerSelector('mid', 2)">
-                                        <span class="slot-text">+ Add MID</span>
-                                    </div>
-                                </div>
-                                <div class="position-slot">
-                                    <div class="slot-header">FWD (3)</div>
-                                    <div class="player-slot" onclick="openPlayerSelector('fwd', 0)">
-                                        <span class="slot-text">+ Add FWD</span>
-                                    </div>
-                                    <div class="player-slot" onclick="openPlayerSelector('fwd', 1)">
-                                        <span class="slot-text">+ Add FWD</span>
-                                    </div>
-                                    <div class="player-slot" onclick="openPlayerSelector('fwd', 2)">
-                                        <span class="slot-text">+ Add FWD</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="team-actions">
-                                <button class="team-action-btn save-btn" onclick="saveTeam()">💾 Save Team</button>
-                                <button class="team-action-btn load-btn" onclick="loadTeam()">📁 Load Team</button>
-                                <button class="team-action-btn reset-btn" onclick="resetTeam()">🔄 Reset Team</button>
+                                <div class="budget-label">Remaining Budget</div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Football Field Formation Display -->
-                    <div class="fpl-card">
-                        <h3>⚽ Starting XI Formation</h3>
-                        <p style="font-size: 0.9rem; margin-bottom: 15px; color: #000;">Your selected starting 11 on the field</p>
+                        <p style="font-size: 0.9rem; margin-bottom: 20px; color: #000;">Click any position to select players • 330+ Premier League players available</p>
                         <div class="football-field">
                             <div class="field-background">
                                 <!-- Goalkeeper -->
@@ -2746,12 +2818,47 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Substitutes Bench -->
+                        <div class="substitutes-bench">
+                            <h4 style="color: #000; text-align: center; margin-bottom: 15px;">📋 Substitutes</h4>
+                            <div class="bench-players">
+                                <div class="bench-slot" data-position="gk" data-slot="1">
+                                    <div class="bench-position">GK</div>
+                                    <div class="bench-player-slot">
+                                        <span class="bench-slot-text">+ GK</span>
+                                    </div>
+                                </div>
+                                <div class="bench-slot" data-position="def" data-slot="4">
+                                    <div class="bench-position">DEF</div>
+                                    <div class="bench-player-slot">
+                                        <span class="bench-slot-text">+ DEF</span>
+                                    </div>
+                                </div>
+                                <div class="bench-slot" data-position="mid" data-slot="3">
+                                    <div class="bench-position">MID</div>
+                                    <div class="bench-player-slot">
+                                        <span class="bench-slot-text">+ MID</span>
+                                    </div>
+                                </div>
+                                <div class="bench-slot" data-position="mid" data-slot="4">
+                                    <div class="bench-position">MID</div>
+                                    <div class="bench-player-slot">
+                                        <span class="bench-slot-text">+ MID</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="team-actions">
+                            <button class="team-action-btn save-btn" onclick="saveTeam()">💾 Save Team</button>
+                            <button class="team-action-btn load-btn" onclick="loadTeam()">📁 Load Team</button>
+                            <button class="team-action-btn reset-btn" onclick="resetTeam()">🔄 Reset Team</button>
+                        </div>
+                        
                         <div class="formation-info">
-                            <p style="color: #000; font-size: 0.8rem; text-align: center; margin-top: 10px;">
-                                4-3-3 Formation • Click to select players • Right-click for stats
-                            </p>
-                            <p style="color: #666; font-size: 0.7rem; text-align: center; margin-top: 5px;">
-                                330+ players from all Premier League teams available
+                            <p style="color: #000; font-size: 0.8rem; text-align: center; margin-top: 15px;">
+                                Starting XI (4-3-3) + 4 Substitutes • Right-click players for stats
                             </p>
                         </div>
                     </div>
@@ -3628,7 +3735,7 @@
                         removeFromStartingXI(position, slotIndex);
                     } else {
                         // Normal click to select/change player
-                        openStartingXISelector(position, slotIndex);
+                        openPlayerSelector(position, slotIndex, 'field');
                     }
                 });
                 
@@ -3641,6 +3748,39 @@
                     
                     if (isOccupied) {
                         showPlayerStats(position, slotIndex);
+                    }
+                });
+            });
+
+            // Add click handlers to bench slots
+            document.querySelectorAll('.bench-slot').forEach(slot => {
+                slot.addEventListener('click', function(e) {
+                    const position = this.dataset.position;
+                    const slotIndex = this.dataset.slot;
+                    
+                    // Check if slot is occupied and if user wants to see stats
+                    const isOccupied = this.classList.contains('occupied');
+                    if (isOccupied && e.ctrlKey) {
+                        // Ctrl+Click to show player stats
+                        showBenchPlayerStats(position, slotIndex);
+                    } else if (isOccupied && e.altKey) {
+                        // Alt+Click to remove player
+                        removeFromBench(position, slotIndex);
+                    } else {
+                        // Normal click to select/change player
+                        openPlayerSelector(position, slotIndex, 'bench');
+                    }
+                });
+                
+                // Add right-click for stats
+                slot.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    const position = this.dataset.position;
+                    const slotIndex = this.dataset.slot;
+                    const isOccupied = this.classList.contains('occupied');
+                    
+                    if (isOccupied) {
+                        showBenchPlayerStats(position, slotIndex);
                     }
                 });
             });
@@ -3704,7 +3844,7 @@
                             <button class="action-btn remove-btn" onclick="removeFromStartingXI('${position}', '${slotIndex}'); this.closest('.modal-overlay').remove();">
                                 Remove from XI
                             </button>
-                            <button class="action-btn change-btn" onclick="this.closest('.modal-overlay').remove(); openStartingXISelector('${position}', '${slotIndex}');">
+                            <button class="action-btn change-btn" onclick="this.closest('.modal-overlay').remove(); openPlayerSelector('${position}', '${slotIndex}', 'field');">
                                 Change Player
                             </button>
                         </div>
@@ -3714,44 +3854,326 @@
             document.body.appendChild(modal);
         }
 
-        function openStartingXISelector(position, slotIndex) {
-            // Get available players from the selected squad for this position
-            const availablePlayers = selectedPlayers[position].filter(player => player !== null);
+        function openPlayerSelector(position, slotIndex, targetLocation) {
+            // Get all available players for this position
+            const fallbackData = fplLiveStats.getFallbackBootstrap();
+            const allPlayers = [...fallbackData.elements, ...generateAdditionalPlayersForPosition(1), ...generateAdditionalPlayersForPosition(2), ...generateAdditionalPlayersForPosition(3), ...generateAdditionalPlayersForPosition(4)];
             
-            if (availablePlayers.length === 0) {
-                alert(`No ${position.toUpperCase()} players selected in your squad! Please add players first.`);
-                return;
-            }
+            // Filter players by position
+            let positionType;
+            if (position === 'gk') positionType = 1;
+            else if (position === 'def') positionType = 2;
+            else if (position === 'mid') positionType = 3;
+            else if (position === 'fwd') positionType = 4;
+            
+            const availablePlayers = allPlayers.filter(player => player.element_type === positionType);
 
-            // Create selection modal for starting XI
+            // Create selection modal
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
             modal.innerHTML = `
-                <div class="modal-content">
+                <div class="modal-content player-selector-modal">
                     <div class="modal-header">
-                        <h3>Select ${position.toUpperCase()} for Starting XI</h3>
+                        <h3>Select ${position.toUpperCase()} for ${targetLocation === 'field' ? 'Starting XI' : 'Bench'}</h3>
                         <button class="close-btn" onclick="this.closest('.modal-overlay').remove()">×</button>
                     </div>
                     <div class="modal-body">
-                        <div class="starting-xi-options">
-                            ${availablePlayers.map((player, index) => `
-                                <div class="starting-xi-option" onclick="selectForStartingXI('${position}', ${slotIndex}, ${index})">
-                                    <div class="player-info">
-                                        <div class="player-name" style="color: #000;">${player.name}</div>
-                                        <div class="player-price" style="color: #000;">£${player.price}m</div>
+                        <div class="player-search-container" style="margin-bottom: 20px;">
+                            <input type="text" id="player-search" placeholder="Search players..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; color: #000;">
+                        </div>
+                        <div class="player-selection-grid" style="max-height: 400px; overflow-y: auto;">
+                            ${availablePlayers.map(player => {
+                                const team = getTeamData(player.team);
+                                const isAlreadySelected = isPlayerInSquad(player.id);
+                                return `
+                                    <div class="player-selection-option ${isAlreadySelected ? 'disabled' : ''}" 
+                                         onclick="${isAlreadySelected ? '' : `selectPlayer(${player.id}, '${position}', ${slotIndex}, '${targetLocation}')`}"
+                                         style="display: flex; align-items: center; padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 5px; ${isAlreadySelected ? 'opacity: 0.5; cursor: not-allowed;' : 'cursor: pointer;'} background: ${isAlreadySelected ? '#f5f5f5' : '#fff'};">
+                                        <div class="mini-jersey" style="width: 20px; height: 20px; background: ${team?.shirt_color || '#37003c'}; border-radius: 3px; margin-right: 10px; border: 1px solid ${team?.secondary_color || '#fff'};"></div>
+                                        <div style="flex: 1;">
+                                            <div style="color: #000; font-weight: bold;">${player.web_name}</div>
+                                            <div style="color: #666; font-size: 12px;">${team?.short_name || 'UNK'} - £${(player.now_cost / 10).toFixed(1)}m</div>
+                                        </div>
+                                        ${isAlreadySelected ? '<div style="color: #999; font-size: 12px;">Already Selected</div>' : ''}
                                     </div>
-                                </div>
-                            `).join('')}
-                            <div class="starting-xi-option" onclick="removeFromStartingXI('${position}', ${slotIndex})">
-                                <div class="player-info">
-                                    <div class="player-name" style="color: #666;">Remove Player</div>
-                                </div>
-                            </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button class="action-btn remove-btn" onclick="${targetLocation === 'field' ? `removeFromStartingXI('${position}', ${slotIndex})` : `removeFromBench('${position}', ${slotIndex})`}; this.closest('.modal-overlay').remove();">
+                                Remove Player
+                            </button>
                         </div>
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
+            
+            // Add search functionality
+            const searchInput = document.getElementById('player-search');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const options = document.querySelectorAll('.player-selection-option');
+                options.forEach(option => {
+                    const playerName = option.querySelector('div > div').textContent.toLowerCase();
+                    if (playerName.includes(searchTerm)) {
+                        option.style.display = 'flex';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Data structure for bench players
+        let benchPlayers = {
+            gk: null,
+            def: null,
+            mid: [null, null]
+        };
+
+        function isPlayerInSquad(playerId) {
+            // Check starting XI
+            if (startingXI.gk && startingXI.gk.id === playerId) return true;
+            for (let pos of ['def', 'mid', 'fwd']) {
+                if (startingXI[pos].some(player => player && player.id === playerId)) return true;
+            }
+            
+            // Check bench
+            if (benchPlayers.gk && benchPlayers.gk.id === playerId) return true;
+            if (benchPlayers.def && benchPlayers.def.id === playerId) return true;
+            if (benchPlayers.mid.some(player => player && player.id === playerId)) return true;
+            
+            return false;
+        }
+
+        function selectPlayer(playerId, position, slotIndex, targetLocation) {
+            // Get player data
+            const fallbackData = fplLiveStats.getFallbackBootstrap();
+            const allPlayers = [...fallbackData.elements, ...generateAdditionalPlayersForPosition(1), ...generateAdditionalPlayersForPosition(2), ...generateAdditionalPlayersForPosition(3), ...generateAdditionalPlayersForPosition(4)];
+            const playerData = allPlayers.find(p => p.id === playerId);
+            
+            if (!playerData) return;
+            
+            // Check budget constraint
+            const playerPrice = playerData.now_cost / 10;
+            if (teamBudget - playerPrice < 0) {
+                alert(`Not enough budget! Player costs £${playerPrice}m but you only have £${teamBudget.toFixed(1)}m remaining.`);
+                return;
+            }
+            
+            const player = {
+                id: playerId,
+                name: playerData.web_name,
+                price: playerPrice,
+                team: playerData.team
+            };
+            
+            if (targetLocation === 'field') {
+                // Add to starting XI
+                if (position === 'gk') {
+                    startingXI.gk = player;
+                } else {
+                    startingXI[position][slotIndex] = player;
+                }
+            } else {
+                // Add to bench
+                if (position === 'gk') {
+                    benchPlayers.gk = player;
+                } else if (position === 'def') {
+                    benchPlayers.def = player;
+                } else if (position === 'mid') {
+                    benchPlayers.mid[slotIndex] = player;
+                }
+            }
+            
+            // Update budget
+            teamBudget -= playerPrice;
+            
+            // Update displays
+            updateFieldDisplay();
+            updateBenchDisplay();
+            updateBudgetDisplay();
+            
+            // Close modal
+            document.querySelector('.modal-overlay').remove();
+            
+            showNotification(`${player.name} added to ${targetLocation === 'field' ? 'starting XI' : 'bench'}!`, 'success');
+        }
+
+        function removeFromBench(position, slotIndex) {
+            let removedPlayer;
+            
+            if (position === 'gk') {
+                removedPlayer = benchPlayers.gk;
+                benchPlayers.gk = null;
+            } else if (position === 'def') {
+                removedPlayer = benchPlayers.def;
+                benchPlayers.def = null;
+            } else if (position === 'mid') {
+                removedPlayer = benchPlayers.mid[slotIndex];
+                benchPlayers.mid[slotIndex] = null;
+            }
+            
+            if (removedPlayer) {
+                teamBudget += removedPlayer.price;
+                updateBenchDisplay();
+                updateBudgetDisplay();
+                showNotification(`${removedPlayer.name} removed from bench!`, 'info');
+            }
+        }
+
+        function showBenchPlayerStats(position, slotIndex) {
+            let player;
+            if (position === 'gk') {
+                player = benchPlayers.gk;
+            } else if (position === 'def') {
+                player = benchPlayers.def;
+            } else if (position === 'mid') {
+                player = benchPlayers.mid[slotIndex];
+            }
+            
+            if (!player) return;
+            
+            // Get detailed player data
+            const fallbackData = fplLiveStats.getFallbackBootstrap();
+            const allPlayers = [...fallbackData.elements, ...generateAdditionalPlayersForPosition(1), ...generateAdditionalPlayersForPosition(2), ...generateAdditionalPlayersForPosition(3), ...generateAdditionalPlayersForPosition(4)];
+            const playerData = allPlayers.find(p => p.id === player.id);
+            const team = getTeamData(playerData?.team);
+            
+            if (!playerData) return;
+            
+            // Create stats modal
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content player-stats-modal">
+                    <div class="modal-header" style="background: ${team?.shirt_color || '#37003c'};">
+                        <h3 style="color: ${team?.secondary_color || '#fff'};">${player.name} Stats (Bench)</h3>
+                        <button class="close-btn" onclick="this.closest('.modal-overlay').remove()" style="color: ${team?.secondary_color || '#fff'};">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="player-stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">${playerData.total_points}</div>
+                                <div class="stat-label">Total Points</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">£${(playerData.now_cost / 10).toFixed(1)}m</div>
+                                <div class="stat-label">Price</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${playerData.goals_scored || 0}</div>
+                                <div class="stat-label">Goals</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${playerData.assists || 0}</div>
+                                <div class="stat-label">Assists</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${playerData.selected_by_percent}%</div>
+                                <div class="stat-label">Ownership</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">${team?.short_name || 'UNK'}</div>
+                                <div class="stat-label">Team</div>
+                            </div>
+                        </div>
+                        <div class="player-actions">
+                            <button class="action-btn remove-btn" onclick="removeFromBench('${position}', '${slotIndex}'); this.closest('.modal-overlay').remove();">
+                                Remove from Bench
+                            </button>
+                            <button class="action-btn change-btn" onclick="this.closest('.modal-overlay').remove(); openPlayerSelector('${position}', '${slotIndex}', 'bench');">
+                                Change Player
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function updateBenchDisplay() {
+            // Update GK bench slot
+            const gkSlot = document.querySelector('.bench-slot[data-position="gk"]');
+            if (gkSlot) {
+                if (benchPlayers.gk) {
+                    const team = getTeamData(benchPlayers.gk.team);
+                    gkSlot.classList.add('occupied');
+                    gkSlot.innerHTML = `
+                        <div class="bench-position">GK</div>
+                        <div class="bench-player-slot">
+                            <div style="display: flex; flex-direction: column; align-items: center;">
+                                <div class="bench-jersey-mini" style="background: ${team?.shirt_color || '#37003c'}; border: 1px solid ${team?.secondary_color || '#fff'};"></div>
+                                <span class="bench-player-name">${benchPlayers.gk.name}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    gkSlot.classList.remove('occupied');
+                    gkSlot.innerHTML = `
+                        <div class="bench-position">GK</div>
+                        <div class="bench-player-slot">
+                            <span class="bench-slot-text">+ GK</span>
+                        </div>
+                    `;
+                }
+            }
+
+            // Update DEF bench slot
+            const defSlot = document.querySelector('.bench-slot[data-position="def"]');
+            if (defSlot) {
+                if (benchPlayers.def) {
+                    const team = getTeamData(benchPlayers.def.team);
+                    defSlot.classList.add('occupied');
+                    defSlot.innerHTML = `
+                        <div class="bench-position">DEF</div>
+                        <div class="bench-player-slot">
+                            <div style="display: flex; flex-direction: column; align-items: center;">
+                                <div class="bench-jersey-mini" style="background: ${team?.shirt_color || '#37003c'}; border: 1px solid ${team?.secondary_color || '#fff'};"></div>
+                                <span class="bench-player-name">${benchPlayers.def.name}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    defSlot.classList.remove('occupied');
+                    defSlot.innerHTML = `
+                        <div class="bench-position">DEF</div>
+                        <div class="bench-player-slot">
+                            <span class="bench-slot-text">+ DEF</span>
+                        </div>
+                    `;
+                }
+            }
+
+            // Update MID bench slots
+            ['1', '2'].forEach(slot => {
+                const midSlot = document.querySelector(`.bench-slot[data-position="mid"][data-slot="${slot}"]`);
+                const midIndex = parseInt(slot) - 1;
+                if (midSlot) {
+                    if (benchPlayers.mid[midIndex]) {
+                        const team = getTeamData(benchPlayers.mid[midIndex].team);
+                        midSlot.classList.add('occupied');
+                        midSlot.innerHTML = `
+                            <div class="bench-position">MID</div>
+                            <div class="bench-player-slot">
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div class="bench-jersey-mini" style="background: ${team?.shirt_color || '#37003c'}; border: 1px solid ${team?.secondary_color || '#fff'};"></div>
+                                    <span class="bench-player-name">${benchPlayers.mid[midIndex].name}</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        midSlot.classList.remove('occupied');
+                        midSlot.innerHTML = `
+                            <div class="bench-position">MID</div>
+                            <div class="bench-player-slot">
+                                <span class="bench-slot-text">+ MID</span>
+                            </div>
+                        `;
+                    }
+                }
+            });
         }
 
         function selectForStartingXI(position, fieldSlot, playerIndex) {
@@ -4748,11 +5170,17 @@
                     mid: [null, null, null],
                     fwd: [null, null, null]
                 };
+                benchPlayers = {
+                    gk: null,
+                    def: null,
+                    mid: [null, null]
+                };
                 teamBudget = 100.0;
                 
                 updateTeamDisplay();
                 updateBudgetDisplay();
                 updateFieldDisplay();
+                updateBenchDisplay();
                 alert('Team reset successfully!');
             }
         }
@@ -4845,6 +5273,9 @@
             
             // Initialize team builder
             initializeTeamBuilder();
+            
+            // Initialize bench display
+            updateBenchDisplay();
             
             // Populate player comparison dropdowns
             populatePlayerDropdowns();
