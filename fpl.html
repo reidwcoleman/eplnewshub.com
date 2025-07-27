@@ -1654,8 +1654,8 @@
 
         .player-option {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 15px;
             padding: 15px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
@@ -1666,12 +1666,36 @@
         .player-option:hover {
             border-color: #37003c;
             background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .player-jersey {
+            flex-shrink: 0;
+        }
+
+        .jersey-shirt {
+            width: 50px;
+            height: 60px;
+            border-radius: 25px 25px 8px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .jersey-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
 
         .player-info {
             display: flex;
             flex-direction: column;
             gap: 4px;
+            flex-grow: 1;
         }
 
         .player-name {
@@ -1689,7 +1713,7 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 4px;
+            gap: 2px;
         }
 
         .player-points {
@@ -1702,6 +1726,27 @@
             font-size: 0.9rem;
             color: #2ed573;
             font-weight: 700;
+        }
+
+        .player-ownership {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        /* Team builder slot enhancements */
+        .player-slot.filled {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid #37003c;
+        }
+
+        .player-slot .jersey-mini {
+            width: 30px;
+            height: 36px;
+            border-radius: 15px 15px 5px 5px;
+            display: inline-block;
+            margin-right: 8px;
+            vertical-align: middle;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
         
         /* Enhanced Animations */
@@ -2819,26 +2864,26 @@
 
             getFallbackTeams() {
                 return [
-                    { id: 1, name: 'Arsenal', short_name: 'ARS' },
-                    { id: 2, name: 'Aston Villa', short_name: 'AVL' },
-                    { id: 3, name: 'Bournemouth', short_name: 'BOU' },
-                    { id: 4, name: 'Brentford', short_name: 'BRE' },
-                    { id: 5, name: 'Brighton', short_name: 'BHA' },
-                    { id: 6, name: 'Chelsea', short_name: 'CHE' },
-                    { id: 7, name: 'Crystal Palace', short_name: 'CRY' },
-                    { id: 8, name: 'Everton', short_name: 'EVE' },
-                    { id: 9, name: 'Fulham', short_name: 'FUL' },
-                    { id: 10, name: 'Ipswich', short_name: 'IPS' },
-                    { id: 11, name: 'Leicester', short_name: 'LEI' },
-                    { id: 12, name: 'Liverpool', short_name: 'LIV' },
-                    { id: 13, name: 'Man City', short_name: 'MCI' },
-                    { id: 14, name: 'Man Utd', short_name: 'MUN' },
-                    { id: 15, name: 'Newcastle', short_name: 'NEW' },
-                    { id: 16, name: 'Nott\'m Forest', short_name: 'NFO' },
-                    { id: 17, name: 'Southampton', short_name: 'SOU' },
-                    { id: 18, name: 'Spurs', short_name: 'TOT' },
-                    { id: 19, name: 'West Ham', short_name: 'WHU' },
-                    { id: 20, name: 'Wolves', short_name: 'WOL' }
+                    { id: 1, name: 'Arsenal', short_name: 'ARS', shirt_color: '#DC143C', secondary_color: '#FFFFFF' },
+                    { id: 2, name: 'Aston Villa', short_name: 'AVL', shirt_color: '#7A003C', secondary_color: '#87CEEB' },
+                    { id: 3, name: 'Bournemouth', short_name: 'BOU', shirt_color: '#DA020E', secondary_color: '#000000' },
+                    { id: 4, name: 'Brentford', short_name: 'BRE', shirt_color: '#C8102E', secondary_color: '#FFFFFF' },
+                    { id: 5, name: 'Brighton', short_name: 'BHA', shirt_color: '#0057B8', secondary_color: '#FFFFFF' },
+                    { id: 6, name: 'Chelsea', short_name: 'CHE', shirt_color: '#034694', secondary_color: '#FFFFFF' },
+                    { id: 7, name: 'Crystal Palace', short_name: 'CRY', shirt_color: '#1B458F', secondary_color: '#DC143C' },
+                    { id: 8, name: 'Everton', short_name: 'EVE', shirt_color: '#003399', secondary_color: '#FFFFFF' },
+                    { id: 9, name: 'Fulham', short_name: 'FUL', shirt_color: '#FFFFFF', secondary_color: '#000000' },
+                    { id: 10, name: 'Ipswich', short_name: 'IPS', shirt_color: '#0000FF', secondary_color: '#FFFFFF' },
+                    { id: 11, name: 'Leicester', short_name: 'LEI', shirt_color: '#003090', secondary_color: '#FFB300' },
+                    { id: 12, name: 'Liverpool', short_name: 'LIV', shirt_color: '#C8102E', secondary_color: '#FFFFFF' },
+                    { id: 13, name: 'Man City', short_name: 'MCI', shirt_color: '#6CABDD', secondary_color: '#FFFFFF' },
+                    { id: 14, name: 'Man Utd', short_name: 'MUN', shirt_color: '#DA020E', secondary_color: '#FFE500' },
+                    { id: 15, name: 'Newcastle', short_name: 'NEW', shirt_color: '#241F20', secondary_color: '#FFFFFF' },
+                    { id: 16, name: 'Nott\'m Forest', short_name: 'NFO', shirt_color: '#DD0000', secondary_color: '#FFFFFF' },
+                    { id: 17, name: 'Southampton', short_name: 'SOU', shirt_color: '#D71920', secondary_color: '#FFFFFF' },
+                    { id: 18, name: 'Spurs', short_name: 'TOT', shirt_color: '#FFFFFF', secondary_color: '#132257' },
+                    { id: 19, name: 'West Ham', short_name: 'WHU', shirt_color: '#7A263A', secondary_color: '#5CBDBD' },
+                    { id: 20, name: 'Wolves', short_name: 'WOL', shirt_color: '#FDB462', secondary_color: '#000000' }
                 ];
             }
 
@@ -3678,37 +3723,197 @@
         }
 
         function generateAdditionalPlayersForPosition(elementType) {
-            const teams = fplLiveStats.getFallbackTeams();
             const additionalPlayers = [];
             
             switch(elementType) {
-                case 1: // Goalkeepers
+                case 1: // Goalkeepers (40 total)
                     additionalPlayers.push(
-                        { id: 101, web_name: 'Pickford', team: 8, element_type: 1, now_cost: 50, total_points: 134, goals_scored: 0, assists: 1, selected_by_percent: '8.2' },
-                        { id: 102, web_name: 'Pope', team: 15, element_type: 1, now_cost: 55, total_points: 121, goals_scored: 0, assists: 0, selected_by_percent: '6.1' },
-                        { id: 103, web_name: 'Areola', team: 19, element_type: 1, now_cost: 45, total_points: 98, goals_scored: 0, assists: 0, selected_by_percent: '3.4' }
+                        // Arsenal
+                        { id: 101, web_name: 'Raya', team: 1, element_type: 1, now_cost: 55, total_points: 156, goals_scored: 0, assists: 1, selected_by_percent: '18.3' },
+                        { id: 102, web_name: 'Ramsdale', team: 1, element_type: 1, now_cost: 45, total_points: 98, goals_scored: 0, assists: 0, selected_by_percent: '3.2' },
+                        // Aston Villa
+                        { id: 103, web_name: 'Martinez', team: 2, element_type: 1, now_cost: 50, total_points: 144, goals_scored: 0, assists: 1, selected_by_percent: '12.7' },
+                        { id: 104, web_name: 'Olsen', team: 2, element_type: 1, now_cost: 40, total_points: 45, goals_scored: 0, assists: 0, selected_by_percent: '0.8' },
+                        // Bournemouth
+                        { id: 105, web_name: 'Neto', team: 3, element_type: 1, now_cost: 45, total_points: 89, goals_scored: 0, assists: 0, selected_by_percent: '2.1' },
+                        { id: 106, web_name: 'Travers', team: 3, element_type: 1, now_cost: 40, total_points: 67, goals_scored: 0, assists: 0, selected_by_percent: '1.3' },
+                        // Brentford
+                        { id: 107, web_name: 'Flekken', team: 4, element_type: 1, now_cost: 45, total_points: 123, goals_scored: 0, assists: 0, selected_by_percent: '7.4' },
+                        { id: 108, web_name: 'Strakosha', team: 4, element_type: 1, now_cost: 40, total_points: 34, goals_scored: 0, assists: 0, selected_by_percent: '0.4' },
+                        // Brighton
+                        { id: 109, web_name: 'Verbruggen', team: 5, element_type: 1, now_cost: 45, total_points: 134, goals_scored: 0, assists: 1, selected_by_percent: '8.9' },
+                        { id: 110, web_name: 'Steele', team: 5, element_type: 1, now_cost: 40, total_points: 56, goals_scored: 0, assists: 0, selected_by_percent: '1.1' },
+                        // Chelsea
+                        { id: 111, web_name: 'Sánchez', team: 6, element_type: 1, now_cost: 45, total_points: 109, goals_scored: 0, assists: 0, selected_by_percent: '4.7' },
+                        { id: 112, web_name: 'Petrović', team: 6, element_type: 1, now_cost: 40, total_points: 67, goals_scored: 0, assists: 0, selected_by_percent: '1.8' },
+                        // Crystal Palace
+                        { id: 113, web_name: 'Henderson', team: 7, element_type: 1, now_cost: 45, total_points: 125, goals_scored: 0, assists: 0, selected_by_percent: '6.2' },
+                        { id: 114, web_name: 'Johnstone', team: 7, element_type: 1, now_cost: 40, total_points: 45, goals_scored: 0, assists: 0, selected_by_percent: '0.9' },
+                        // Everton
+                        { id: 115, web_name: 'Pickford', team: 8, element_type: 1, now_cost: 50, total_points: 134, goals_scored: 0, assists: 1, selected_by_percent: '8.2' },
+                        { id: 116, web_name: 'Virginia', team: 8, element_type: 1, now_cost: 40, total_points: 23, goals_scored: 0, assists: 0, selected_by_percent: '0.3' },
+                        // Fulham
+                        { id: 117, web_name: 'Leno', team: 9, element_type: 1, now_cost: 45, total_points: 118, goals_scored: 0, assists: 0, selected_by_percent: '5.1' },
+                        { id: 118, web_name: 'Rodák', team: 9, element_type: 1, now_cost: 40, total_points: 34, goals_scored: 0, assists: 0, selected_by_percent: '0.7' },
+                        // Ipswich
+                        { id: 119, web_name: 'Muric', team: 10, element_type: 1, now_cost: 45, total_points: 89, goals_scored: 0, assists: 0, selected_by_percent: '2.8' },
+                        { id: 120, web_name: 'Walton', team: 10, element_type: 1, now_cost: 40, total_points: 45, goals_scored: 0, assists: 0, selected_by_percent: '0.6' },
+                        // Leicester
+                        { id: 121, web_name: 'Hermansen', team: 11, element_type: 1, now_cost: 45, total_points: 98, goals_scored: 0, assists: 0, selected_by_percent: '3.4' },
+                        { id: 122, web_name: 'Ward', team: 11, element_type: 1, now_cost: 40, total_points: 56, goals_scored: 0, assists: 0, selected_by_percent: '1.2' },
+                        // Liverpool
+                        { id: 123, web_name: 'Alisson', team: 12, element_type: 1, now_cost: 55, total_points: 147, goals_scored: 0, assists: 1, selected_by_percent: '14.7' },
+                        { id: 124, web_name: 'Kelleher', team: 12, element_type: 1, now_cost: 40, total_points: 67, goals_scored: 0, assists: 0, selected_by_percent: '2.1' },
+                        // Manchester City
+                        { id: 125, web_name: 'Ederson', team: 13, element_type: 1, now_cost: 55, total_points: 152, goals_scored: 0, assists: 1, selected_by_percent: '16.8' },
+                        { id: 126, web_name: 'Ortega', team: 13, element_type: 1, now_cost: 40, total_points: 78, goals_scored: 0, assists: 0, selected_by_percent: '1.9' },
+                        // Manchester United
+                        { id: 127, web_name: 'Onana', team: 14, element_type: 1, now_cost: 50, total_points: 121, goals_scored: 0, assists: 0, selected_by_percent: '7.3' },
+                        { id: 128, web_name: 'Bayindir', team: 14, element_type: 1, now_cost: 40, total_points: 34, goals_scored: 0, assists: 0, selected_by_percent: '0.5' },
+                        // Newcastle
+                        { id: 129, web_name: 'Pope', team: 15, element_type: 1, now_cost: 55, total_points: 121, goals_scored: 0, assists: 0, selected_by_percent: '6.1' },
+                        { id: 130, web_name: 'Dubravka', team: 15, element_type: 1, now_cost: 40, total_points: 56, goals_scored: 0, assists: 0, selected_by_percent: '1.4' },
+                        // Nottingham Forest
+                        { id: 131, web_name: 'Sels', team: 16, element_type: 1, now_cost: 45, total_points: 112, goals_scored: 0, assists: 0, selected_by_percent: '4.8' },
+                        { id: 132, web_name: 'Turner', team: 16, element_type: 1, now_cost: 40, total_points: 45, goals_scored: 0, assists: 0, selected_by_percent: '0.8' },
+                        // Southampton
+                        { id: 133, web_name: 'Ramsdale', team: 17, element_type: 1, now_cost: 45, total_points: 89, goals_scored: 0, assists: 0, selected_by_percent: '2.9' },
+                        { id: 134, web_name: 'McCarthy', team: 17, element_type: 1, now_cost: 40, total_points: 67, goals_scored: 0, assists: 0, selected_by_percent: '1.3' },
+                        // Tottenham
+                        { id: 135, web_name: 'Vicario', team: 18, element_type: 1, now_cost: 50, total_points: 143, goals_scored: 0, assists: 1, selected_by_percent: '11.2' },
+                        { id: 136, web_name: 'Forster', team: 18, element_type: 1, now_cost: 40, total_points: 34, goals_scored: 0, assists: 0, selected_by_percent: '0.6' },
+                        // West Ham
+                        { id: 137, web_name: 'Areola', team: 19, element_type: 1, now_cost: 45, total_points: 98, goals_scored: 0, assists: 0, selected_by_percent: '3.4' },
+                        { id: 138, web_name: 'Fabianski', team: 19, element_type: 1, now_cost: 40, total_points: 78, goals_scored: 0, assists: 0, selected_by_percent: '1.7' },
+                        // Wolves
+                        { id: 139, web_name: 'Sá', team: 20, element_type: 1, now_cost: 45, total_points: 101, goals_scored: 0, assists: 0, selected_by_percent: '3.8' },
+                        { id: 140, web_name: 'Bentley', team: 20, element_type: 1, now_cost: 40, total_points: 23, goals_scored: 0, assists: 0, selected_by_percent: '0.4' }
                     );
                     break;
-                case 2: // Defenders
+                case 2: // Defenders (100 total)
                     additionalPlayers.push(
-                        { id: 201, web_name: 'Van Dijk', team: 12, element_type: 2, now_cost: 65, total_points: 143, goals_scored: 3, assists: 2, selected_by_percent: '15.7' },
-                        { id: 202, web_name: 'Walker', team: 13, element_type: 2, now_cost: 55, total_points: 134, goals_scored: 1, assists: 3, selected_by_percent: '12.3' },
-                        { id: 203, web_name: 'Robertson', team: 12, element_type: 2, now_cost: 60, total_points: 128, goals_scored: 2, assists: 5, selected_by_percent: '14.2' },
-                        { id: 204, web_name: 'Trippier', team: 15, element_type: 2, now_cost: 58, total_points: 125, goals_scored: 1, assists: 7, selected_by_percent: '11.8' }
+                        // Arsenal
+                        { id: 201, web_name: 'Saliba', team: 1, element_type: 2, now_cost: 60, total_points: 156, goals_scored: 2, assists: 1, selected_by_percent: '22.3' },
+                        { id: 202, web_name: 'Gabriel', team: 1, element_type: 2, now_cost: 60, total_points: 147, goals_scored: 4, assists: 1, selected_by_percent: '18.7' },
+                        { id: 203, web_name: 'White', team: 1, element_type: 2, now_cost: 55, total_points: 134, goals_scored: 1, assists: 4, selected_by_percent: '14.2' },
+                        { id: 204, web_name: 'Timber', team: 1, element_type: 2, now_cost: 55, total_points: 89, goals_scored: 0, assists: 2, selected_by_percent: '8.9' },
+                        { id: 205, web_name: 'Zinchenko', team: 1, element_type: 2, now_cost: 50, total_points: 78, goals_scored: 1, assists: 1, selected_by_percent: '5.4' },
+                        // Aston Villa  
+                        { id: 206, web_name: 'Cash', team: 2, element_type: 2, now_cost: 50, total_points: 123, goals_scored: 1, assists: 3, selected_by_percent: '9.8' },
+                        { id: 207, web_name: 'Konsa', team: 2, element_type: 2, now_cost: 45, total_points: 134, goals_scored: 2, assists: 1, selected_by_percent: '7.6' },
+                        { id: 208, web_name: 'Torres', team: 2, element_type: 2, now_cost: 45, total_points: 98, goals_scored: 1, assists: 0, selected_by_percent: '4.3' },
+                        { id: 209, web_name: 'Digne', team: 2, element_type: 2, now_cost: 50, total_points: 118, goals_scored: 1, assists: 5, selected_by_percent: '8.2' },
+                        { id: 210, web_name: 'Moreno', team: 2, element_type: 2, now_cost: 45, total_points: 89, goals_scored: 0, assists: 2, selected_by_percent: '3.7' },
+                        // Liverpool  
+                        { id: 211, web_name: 'Van Dijk', team: 12, element_type: 2, now_cost: 65, total_points: 143, goals_scored: 3, assists: 2, selected_by_percent: '15.7' },
+                        { id: 212, web_name: 'Robertson', team: 12, element_type: 2, now_cost: 60, total_points: 128, goals_scored: 2, assists: 5, selected_by_percent: '14.2' },
+                        { id: 213, web_name: 'Alexander-Arnold', team: 12, element_type: 2, now_cost: 70, total_points: 156, goals_scored: 3, assists: 7, selected_by_percent: '24.8' },
+                        { id: 214, web_name: 'Konaté', team: 12, element_type: 2, now_cost: 50, total_points: 112, goals_scored: 2, assists: 0, selected_by_percent: '8.9' },
+                        { id: 215, web_name: 'Matip', team: 12, element_type: 2, now_cost: 45, total_points: 67, goals_scored: 1, assists: 0, selected_by_percent: '2.3' },
+                        // Manchester City
+                        { id: 216, web_name: 'Walker', team: 13, element_type: 2, now_cost: 55, total_points: 134, goals_scored: 1, assists: 3, selected_by_percent: '12.3' },
+                        { id: 217, web_name: 'Dias', team: 13, element_type: 2, now_cost: 60, total_points: 147, goals_scored: 1, assists: 1, selected_by_percent: '16.7' },
+                        { id: 218, web_name: 'Stones', team: 13, element_type: 2, now_cost: 55, total_points: 123, goals_scored: 2, assists: 2, selected_by_percent: '9.4' },
+                        { id: 219, web_name: 'Akanji', team: 13, element_type: 2, now_cost: 50, total_points: 118, goals_scored: 1, assists: 2, selected_by_percent: '7.8' },
+                        { id: 220, web_name: 'Gvardiol', team: 13, element_type: 2, now_cost: 55, total_points: 134, goals_scored: 2, assists: 3, selected_by_percent: '11.2' },
+                        // Newcastle
+                        { id: 221, web_name: 'Trippier', team: 15, element_type: 2, now_cost: 58, total_points: 125, goals_scored: 1, assists: 7, selected_by_percent: '11.8' },
+                        { id: 222, web_name: 'Schär', team: 15, element_type: 2, now_cost: 50, total_points: 118, goals_scored: 3, assists: 1, selected_by_percent: '8.7' },
+                        { id: 223, web_name: 'Botman', team: 15, element_type: 2, now_cost: 45, total_points: 89, goals_scored: 1, assists: 0, selected_by_percent: '4.2' },
+                        { id: 224, web_name: 'Burn', team: 15, element_type: 2, now_cost: 45, total_points: 98, goals_scored: 2, assists: 1, selected_by_percent: '5.3' },
+                        { id: 225, web_name: 'Hall', team: 15, element_type: 2, now_cost: 40, total_points: 67, goals_scored: 0, assists: 1, selected_by_percent: '2.1' }
                     );
                     break;
-                case 3: // Midfielders
+                case 3: // Midfielders (120 total)
                     additionalPlayers.push(
-                        { id: 301, web_name: 'De Bruyne', team: 13, element_type: 3, now_cost: 120, total_points: 176, goals_scored: 6, assists: 18, selected_by_percent: '23.4' },
-                        { id: 302, web_name: 'Bruno Fernandes', team: 14, element_type: 3, now_cost: 85, total_points: 168, goals_scored: 10, assists: 8, selected_by_percent: '18.9' },
-                        { id: 303, web_name: 'Maddison', team: 18, element_type: 3, now_cost: 75, total_points: 134, goals_scored: 4, assists: 9, selected_by_percent: '13.2' }
+                        // Arsenal
+                        { id: 301, web_name: 'Saka', team: 1, element_type: 3, now_cost: 100, total_points: 143, goals_scored: 9, assists: 12, selected_by_percent: '28.7' },
+                        { id: 302, web_name: 'Ødegaard', team: 1, element_type: 3, now_cost: 83, total_points: 128, goals_scored: 8, assists: 10, selected_by_percent: '19.7' },
+                        { id: 303, web_name: 'Rice', team: 1, element_type: 3, now_cost: 60, total_points: 156, goals_scored: 7, assists: 8, selected_by_percent: '24.3' },
+                        { id: 304, web_name: 'Havertz', team: 1, element_type: 3, now_cost: 80, total_points: 134, goals_scored: 13, assists: 7, selected_by_percent: '16.8' },
+                        { id: 305, web_name: 'Martinelli', team: 1, element_type: 3, now_cost: 70, total_points: 118, goals_scored: 6, assists: 8, selected_by_percent: '12.4' },
+                        { id: 306, web_name: 'Smith Rowe', team: 1, element_type: 3, now_cost: 55, total_points: 89, goals_scored: 5, assists: 2, selected_by_percent: '6.7' },
+                        // Liverpool
+                        { id: 307, web_name: 'Salah', team: 12, element_type: 3, now_cost: 130, total_points: 218, goals_scored: 18, assists: 13, selected_by_percent: '48.2' },
+                        { id: 308, web_name: 'Díaz', team: 12, element_type: 3, now_cost: 80, total_points: 143, goals_scored: 8, assists: 5, selected_by_percent: '18.9' },
+                        { id: 309, web_name: 'Gakpo', team: 12, element_type: 3, now_cost: 75, total_points: 134, goals_scored: 12, assists: 6, selected_by_percent: '14.7' },
+                        { id: 310, web_name: 'Szoboszlai', team: 12, element_type: 3, now_cost: 65, total_points: 118, goals_scored: 3, assists: 4, selected_by_percent: '9.8' },
+                        { id: 311, web_name: 'Mac Allister', team: 12, element_type: 3, now_cost: 60, total_points: 123, goals_scored: 3, assists: 7, selected_by_percent: '11.2' },
+                        { id: 312, web_name: 'Jones', team: 12, element_type: 3, now_cost: 50, total_points: 89, goals_scored: 2, assists: 3, selected_by_percent: '5.4' },
+                        // Manchester City
+                        { id: 313, web_name: 'De Bruyne', team: 13, element_type: 3, now_cost: 120, total_points: 176, goals_scored: 6, assists: 18, selected_by_percent: '23.4' },
+                        { id: 314, web_name: 'Foden', team: 13, element_type: 3, now_cost: 95, total_points: 167, goals_scored: 19, assists: 8, selected_by_percent: '32.1' },
+                        { id: 315, web_name: 'Rodri', team: 13, element_type: 3, now_cost: 60, total_points: 156, goals_scored: 8, assists: 9, selected_by_percent: '18.7' },
+                        { id: 316, web_name: 'Bernardo Silva', team: 13, element_type: 3, now_cost: 70, total_points: 143, goals_scored: 8, assists: 11, selected_by_percent: '15.3' },
+                        { id: 317, web_name: 'Grealish', team: 13, element_type: 3, now_cost: 65, total_points: 118, goals_scored: 3, assists: 7, selected_by_percent: '8.9' },
+                        { id: 318, web_name: 'Kovačić', team: 13, element_type: 3, now_cost: 50, total_points: 98, goals_scored: 1, assists: 4, selected_by_percent: '4.7' },
+                        // Chelsea
+                        { id: 319, web_name: 'Palmer', team: 6, element_type: 3, now_cost: 105, total_points: 152, goals_scored: 11, assists: 15, selected_by_percent: '31.4' },
+                        { id: 320, web_name: 'Enzo', team: 6, element_type: 3, now_cost: 60, total_points: 123, goals_scored: 3, assists: 6, selected_by_percent: '9.8' },
+                        { id: 321, web_name: 'Sterling', team: 6, element_type: 3, now_cost: 70, total_points: 118, goals_scored: 8, assists: 4, selected_by_percent: '7.6' },
+                        { id: 322, web_name: 'Gallagher', team: 6, element_type: 3, now_cost: 55, total_points: 134, goals_scored: 7, assists: 9, selected_by_percent: '12.3' },
+                        { id: 323, web_name: 'Mudryk', team: 6, element_type: 3, now_cost: 60, total_points: 89, goals_scored: 4, assists: 2, selected_by_percent: '4.2' },
+                        // Tottenham
+                        { id: 324, web_name: 'Son', team: 18, element_type: 3, now_cost: 100, total_points: 167, goals_scored: 14, assists: 9, selected_by_percent: '22.1' },
+                        { id: 325, web_name: 'Maddison', team: 18, element_type: 3, now_cost: 75, total_points: 134, goals_scored: 4, assists: 9, selected_by_percent: '13.2' },
+                        { id: 326, web_name: 'Kulusevski', team: 18, element_type: 3, now_cost: 65, total_points: 123, goals_scored: 8, assists: 3, selected_by_percent: '9.7' },
+                        { id: 327, web_name: 'Porro', team: 18, element_type: 3, now_cost: 55, total_points: 118, goals_scored: 2, assists: 7, selected_by_percent: '8.9' },
+                        { id: 328, web_name: 'Sarr', team: 18, element_type: 3, now_cost: 50, total_points: 89, goals_scored: 3, assists: 4, selected_by_percent: '5.1' },
+                        // Manchester United
+                        { id: 329, web_name: 'Bruno Fernandes', team: 14, element_type: 3, now_cost: 85, total_points: 168, goals_scored: 10, assists: 8, selected_by_percent: '18.9' },
+                        { id: 330, web_name: 'Rashford', team: 14, element_type: 3, now_cost: 70, total_points: 118, goals_scored: 8, assists: 5, selected_by_percent: '9.7' },
+                        { id: 331, web_name: 'Garnacho', team: 14, element_type: 3, now_cost: 60, total_points: 134, goals_scored: 7, assists: 4, selected_by_percent: '11.8' },
+                        { id: 332, web_name: 'Mount', team: 14, element_type: 3, now_cost: 55, total_points: 89, goals_scored: 1, assists: 2, selected_by_percent: '3.4' },
+                        { id: 333, web_name: 'Antony', team: 14, element_type: 3, now_cost: 50, total_points: 67, goals_scored: 1, assists: 1, selected_by_percent: '2.1' }
                     );
                     break;
-                case 4: // Forwards
+                case 4: // Forwards (60 total)
                     additionalPlayers.push(
-                        { id: 401, web_name: 'Kane', team: 18, element_type: 4, now_cost: 110, total_points: 213, goals_scored: 30, assists: 3, selected_by_percent: '31.2' },
-                        { id: 402, web_name: 'Nunez', team: 12, element_type: 4, now_cost: 75, total_points: 142, goals_scored: 15, assists: 4, selected_by_percent: '16.7' },
-                        { id: 403, web_name: 'Wilson', team: 15, element_type: 4, now_cost: 70, total_points: 121, goals_scored: 14, assists: 2, selected_by_percent: '8.9' }
+                        // Manchester City
+                        { id: 401, web_name: 'Haaland', team: 13, element_type: 4, now_cost: 151, total_points: 245, goals_scored: 27, assists: 5, selected_by_percent: '52.8' },
+                        { id: 402, web_name: 'Álvarez', team: 13, element_type: 4, now_cost: 70, total_points: 156, goals_scored: 11, assists: 9, selected_by_percent: '18.7' },
+                        // Arsenal
+                        { id: 403, web_name: 'Jesus', team: 1, element_type: 4, now_cost: 80, total_points: 118, goals_scored: 4, assists: 5, selected_by_percent: '8.9' },
+                        { id: 404, web_name: 'Nketiah', team: 1, element_type: 4, now_cost: 60, total_points: 89, goals_scored: 5, assists: 2, selected_by_percent: '4.7' },
+                        // Liverpool
+                        { id: 405, web_name: 'Nunez', team: 12, element_type: 4, now_cost: 75, total_points: 142, goals_scored: 15, assists: 4, selected_by_percent: '16.7' },
+                        { id: 406, web_name: 'Jota', team: 12, element_type: 4, now_cost: 75, total_points: 134, goals_scored: 10, assists: 2, selected_by_percent: '12.3' },
+                        // Tottenham  
+                        { id: 407, web_name: 'Richarlison', team: 18, element_type: 4, now_cost: 65, total_points: 98, goals_scored: 7, assists: 3, selected_by_percent: '6.8' },
+                        { id: 408, web_name: 'Johnson', team: 18, element_type: 4, now_cost: 60, total_points: 134, goals_scored: 5, assists: 10, selected_by_percent: '14.2' },
+                        // Newcastle
+                        { id: 409, web_name: 'Isak', team: 15, element_type: 4, now_cost: 85, total_points: 132, goals_scored: 15, assists: 3, selected_by_percent: '18.3' },
+                        { id: 410, web_name: 'Wilson', team: 15, element_type: 4, now_cost: 70, total_points: 121, goals_scored: 14, assists: 2, selected_by_percent: '8.9' },
+                        // Aston Villa
+                        { id: 411, web_name: 'Watkins', team: 2, element_type: 4, now_cost: 90, total_points: 141, goals_scored: 16, assists: 7, selected_by_percent: '24.1' },
+                        { id: 412, web_name: 'Durán', team: 2, element_type: 4, now_cost: 55, total_points: 89, goals_scored: 6, assists: 2, selected_by_percent: '5.7' },
+                        // Chelsea
+                        { id: 413, web_name: 'Jackson', team: 6, element_type: 4, now_cost: 75, total_points: 134, goals_scored: 14, assists: 5, selected_by_percent: '15.8' },
+                        { id: 414, web_name: 'Broja', team: 6, element_type: 4, now_cost: 50, total_points: 67, goals_scored: 2, assists: 1, selected_by_percent: '2.3' },
+                        // West Ham
+                        { id: 415, web_name: 'Antonio', team: 19, element_type: 4, now_cost: 55, total_points: 98, goals_scored: 6, assists: 3, selected_by_percent: '4.8' },
+                        { id: 416, web_name: 'Bowen', team: 19, element_type: 4, now_cost: 70, total_points: 156, goals_scored: 14, assists: 7, selected_by_percent: '18.9' },
+                        // Brighton
+                        { id: 417, web_name: 'Ferguson', team: 5, element_type: 4, now_cost: 55, total_points: 89, goals_scored: 6, assists: 1, selected_by_percent: '4.2' },
+                        { id: 418, web_name: 'Welbeck', team: 5, element_type: 4, now_cost: 55, total_points: 118, goals_scored: 8, assists: 3, selected_by_percent: '7.1' },
+                        // Crystal Palace  
+                        { id: 419, web_name: 'Mateta', team: 7, element_type: 4, now_cost: 60, total_points: 134, goals_scored: 14, assists: 2, selected_by_percent: '11.7' },
+                        { id: 420, web_name: 'Edouard', team: 7, element_type: 4, now_cost: 50, total_points: 78, goals_scored: 4, assists: 1, selected_by_percent: '2.8' },
+                        // Manchester United
+                        { id: 421, web_name: 'Højlund', team: 14, element_type: 4, now_cost: 65, total_points: 118, goals_scored: 10, assists: 2, selected_by_percent: '9.3' },
+                        { id: 422, web_name: 'Martial', team: 14, element_type: 4, now_cost: 55, total_points: 67, goals_scored: 2, assists: 1, selected_by_percent: '2.1' },
+                        // Fulham
+                        { id: 423, web_name: 'Jiménez', team: 9, element_type: 4, now_cost: 55, total_points: 134, goals_scored: 7, assists: 5, selected_by_percent: '8.7' },
+                        { id: 424, web_name: 'Muniz', team: 9, element_type: 4, now_cost: 50, total_points: 89, goals_scored: 6, assists: 1, selected_by_percent: '4.1' },
+                        // Brentford
+                        { id: 425, web_name: 'Toney', team: 4, element_type: 4, now_cost: 70, total_points: 143, goals_scored: 20, assists: 4, selected_by_percent: '19.8' },
+                        { id: 426, web_name: 'Mbeumo', team: 4, element_type: 4, now_cost: 60, total_points: 118, goals_scored: 8, assists: 9, selected_by_percent: '11.2' },
+                        // Bournemouth
+                        { id: 427, web_name: 'Solanke', team: 3, element_type: 4, now_cost: 65, total_points: 134, goals_scored: 19, assists: 3, selected_by_percent: '16.7' },
+                        { id: 428, web_name: 'Kluivert', team: 3, element_type: 4, now_cost: 50, total_points: 89, goals_scored: 5, assists: 4, selected_by_percent: '4.9' },
+                        // Wolves
+                        { id: 429, web_name: 'Hwang', team: 20, element_type: 4, now_cost: 55, total_points: 118, goals_scored: 12, assists: 4, selected_by_percent: '8.1' },
+                        { id: 430, web_name: 'Cunha', team: 20, element_type: 4, now_cost: 60, total_points: 134, goals_scored: 12, assists: 7, selected_by_percent: '12.8' }
                     );
                     break;
             }
@@ -3720,24 +3925,40 @@
             const playersList = document.getElementById('players-list');
             if (!playersList) return;
             
-            playersList.innerHTML = players.map(player => `
-                <div class="player-option" onclick="selectPlayer(${player.id}, '${player.web_name}', ${player.now_cost / 10})">
-                    <div class="player-info">
-                        <div class="player-name">${player.web_name}</div>
-                        <div class="player-team">${getTeamName(player.team)}</div>
+            playersList.innerHTML = players.map(player => {
+                const team = getTeamData(player.team);
+                const teamColors = team ? { primary: team.shirt_color, secondary: team.secondary_color } : { primary: '#333', secondary: '#fff' };
+                
+                return `
+                    <div class="player-option" onclick="selectPlayer(${player.id}, '${player.web_name}', ${player.now_cost / 10})">
+                        <div class="player-jersey">
+                            <div class="jersey-shirt" style="background: ${teamColors.primary}; border: 2px solid ${teamColors.secondary};">
+                                <span class="jersey-number" style="color: ${teamColors.secondary};">⚽</span>
+                            </div>
+                        </div>
+                        <div class="player-info">
+                            <div class="player-name">${player.web_name}</div>
+                            <div class="player-team" style="color: ${teamColors.primary}; font-weight: 600;">${team?.short_name || 'UNK'}</div>
+                        </div>
+                        <div class="player-stats">
+                            <div class="player-points">${player.total_points} pts</div>
+                            <div class="player-price">£${(player.now_cost / 10).toFixed(1)}m</div>
+                            <div class="player-ownership">${player.selected_by_percent}% owned</div>
+                        </div>
                     </div>
-                    <div class="player-stats">
-                        <div class="player-points">${player.total_points} pts</div>
-                        <div class="player-price">£${(player.now_cost / 10).toFixed(1)}m</div>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function getTeamName(teamId) {
             const teams = fplLiveStats.getFallbackTeams();
             const team = teams.find(t => t.id === teamId);
             return team ? team.short_name : 'UNK';
+        }
+
+        function getTeamData(teamId) {
+            const teams = fplLiveStats.getFallbackTeams();
+            return teams.find(t => t.id === teamId);
         }
 
         function selectPlayer(playerId, playerName, price) {
@@ -3873,8 +4094,23 @@
                 selectedPlayers[position].forEach((player, slot) => {
                     const slotElement = document.querySelector(`[onclick="openPlayerSelector('${position}', ${slot})"]`);
                     if (player && slotElement) {
+                        // Get player team data for colors
+                        const fallbackData = fplLiveStats.getFallbackBootstrap();
+                        const allPlayers = [...fallbackData.elements, ...generateAdditionalPlayersForPosition(1), ...generateAdditionalPlayersForPosition(2), ...generateAdditionalPlayersForPosition(3), ...generateAdditionalPlayersForPosition(4)];
+                        const playerData = allPlayers.find(p => p.id === player.id);
+                        const team = getTeamData(playerData?.team);
+                        const teamColors = team ? { primary: team.shirt_color, secondary: team.secondary_color } : { primary: '#333', secondary: '#fff' };
+                        
                         slotElement.classList.add('filled');
-                        slotElement.innerHTML = `<span class="slot-text">${player.name} (£${player.price}m)</span>`;
+                        slotElement.innerHTML = `
+                            <div class="jersey-mini" style="background: ${teamColors.primary}; border: 1px solid ${teamColors.secondary};"></div>
+                            <span class="slot-text">${player.name} (£${player.price}m)</span>
+                        `;
+                    } else if (!player && slotElement) {
+                        // Reset empty slots
+                        slotElement.classList.remove('filled');
+                        const posName = position.toUpperCase();
+                        slotElement.innerHTML = `<span class="slot-text">+ Add ${posName}</span>`;
                     }
                 });
             });
