@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Intelligent FPL budget optimizer with AI-powered team building, value analysis, and optimal squad recommendations.">
+    <meta name="keywords" content="FPL budget optimizer, fantasy football optimizer, team builder, value picks, FPL AI assistant">
+    <meta name="author" content="EPL News Hub">
+    <title>FPL Budget Optimizer | EPL News Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
+    <script src="./fpl-api.js"></script>
+    
+    <style>
+        .optimizer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        .optimizer-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #6f42c1 0%, #17a2b8 100%);
+            color: white;
+            border-radius: 12px;
+        }
+
+        .optimizer-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .strategy-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .strategy-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .strategy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .strategy-card.selected {
+            border-color: #6f42c1;
+            background: linear-gradient(135deg, #f3e8ff, #ffffff);
+        }
+
+        .strategy-card h3 {
+            color: #37003c;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .strategy-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .constraints-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            margin-bottom: 30px;
+        }
+
+        .constraints-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .constraint-section h3 {
+            color: #37003c;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .budget-input {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .budget-input label {
+            font-weight: 600;
+            color: #333;
+            min-width: 100px;
+        }
+
+        .budget-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .budget-display {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .budget-amount {
+            font-size: 2rem;
+            font-weight: 800;
+            display: block;
+        }
+
+        .position-constraints {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .position-constraint {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .position-constraint label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .constraint-inputs {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .constraint-inputs input {
+            width: 50px;
+            padding: 5px;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .optimization-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .optimize-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #6f42c1, #17a2b8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+        }
+
+        .optimize-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(111, 66, 193, 0.4);
+        }
+
+        .optimize-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-container {
+            display: none;
+        }
+
+        .squad-display {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .squad-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .squad-stats {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .squad-stat {
+            text-align: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #37003c;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .formation-display {
+            display: grid;
+            grid-template-rows: repeat(4, 1fr);
+            gap: 20px;
+            min-height: 400px;
+            background: linear-gradient(135deg, #e8f5e8, #f0f8ff);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .position-line {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .player-slot {
+            background: white;
+            border: 2px solid #28a745;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            min-width: 140px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .player-slot:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .player-name {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+
+        .player-team {
+            color: #666;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+
+        .player-price {
+            color: #37003c;
+            font-weight: 700;
+            font-size: 0.9rem;
+            background: #f8f9fa;
+            padding: 3px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .player-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }
+
+        .stat-item {
+            color: #666;
+        }
+
+        .alternatives-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .alternatives-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .alternative-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .alternative-group h4 {
+            color: #37003c;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .alternative-player {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .alternative-info {
+            flex: 1;
+        }
+
+        .alternative-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .alternative-details {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .alternative-price {
+            color: #37003c;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .value-analysis {
+            background: linear-gradient(135deg, #17a2b8, #20c997);
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .value-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .value-metric {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #6f42c1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .optimizer-header h1 {
+                font-size: 2rem;
+            }
+            
+            .strategy-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .constraints-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .squad-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .formation-display {
+                padding: 15px;
+                gap: 15px;
+            }
+            
+            .position-line {
+                gap: 10px;
+            }
+            
+            .player-slot {
+                min-width: 120px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header" include="./header.html"></div>
+    
+    <main class="main-content">
+        <div class="optimizer-container">
+            <div class="optimizer-header">
+                <h1>🧠 AI Budget Optimizer</h1>
+                <p>Build the perfect FPL squad with intelligent budget allocation and value optimization</p>
+            </div>
+
+            <!-- Strategy Selector -->
+            <div class="strategy-selector">
+                <div class="strategy-card selected" data-strategy="balanced" onclick="selectStrategy('balanced')">
+                    <h3>⚖️ Balanced</h3>
+                    <div class="strategy-description">
+                        Mix of premium and budget players for consistent returns with good value picks
+                    </div>
+                </div>
+                
+                <div class="strategy-card" data-strategy="premium" onclick="selectStrategy('premium')">
+                    <h3>💎 Premium Heavy</h3>
+                    <div class="strategy-description">
+                        Focus on expensive star players with budget enablers to maximize points ceiling
+                    </div>
+                </div>
+                
+                <div class="strategy-card" data-strategy="value" onclick="selectStrategy('value')">
+                    <h3>💰 Value Focused</h3>
+                    <div class="strategy-description">
+                        Emphasize budget gems and high points-per-million players for maximum efficiency
+                    </div>
+                </div>
+                
+                <div class="strategy-card" data-strategy="differential" onclick="selectStrategy('differential')">
+                    <h3>🎯 Differential</h3>
+                    <div class="strategy-description">
+                        Low ownership players with high potential for catching up in mini-leagues
+                    </div>
+                </div>
+            </div>
+
+            <!-- Constraints Panel -->
+            <div class="constraints-panel">
+                <h2 style="text-align: center; color: #37003c; margin-bottom: 25px;">
+                    ⚙️ Optimization Constraints
+                </h2>
+                
+                <div class="constraints-grid">
+                    <div class="constraint-section">
+                        <h3>💰 Budget Settings</h3>
+                        <div class="budget-display">
+                            <span class="budget-amount" id="budget-display">£100.0m</span>
+                            <small>Available Budget</small>
+                        </div>
+                        <div class="budget-input">
+                            <label>Budget:</label>
+                            <input type="range" id="budget-slider" min="800" max="1000" value="1000" step="5">
+                            <span id="budget-value">£100.0m</span>
+                        </div>
+                    </div>
+                    
+                    <div class="constraint-section">
+                        <h3>🏟️ Formation</h3>
+                        <div class="position-constraints">
+                            <div class="position-constraint">
+                                <label>Goalkeepers:</label>
+                                <div class="constraint-inputs">
+                                    <input type="number" id="gkp-min" min="1" max="2" value="2">
+                                    <span>/2</span>
+                                </div>
+                            </div>
+                            <div class="position-constraint">
+                                <label>Defenders:</label>
+                                <div class="constraint-inputs">
+                                    <input type="number" id="def-play" min="3" max="5" value="5">
+                                    <span>/5</span>
+                                </div>
+                            </div>
+                            <div class="position-constraint">
+                                <label>Midfielders:</label>
+                                <div class="constraint-inputs">
+                                    <input type="number" id="mid-play" min="2" max="5" value="5">
+                                    <span>/5</span>
+                                </div>
+                            </div>
+                            <div class="position-constraint">
+                                <label>Forwards:</label>
+                                <div class="constraint-inputs">
+                                    <input type="number" id="fwd-play" min="1" max="3" value="3">
+                                    <span>/3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="constraint-section">
+                        <h3>🎯 Preferences</h3>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="include-captains" checked>
+                                <span>Include captain candidates</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="avoid-rotation" checked>
+                                <span>Avoid rotation risks</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="consider-fixtures">
+                                <span>Prioritize good fixtures</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="differential-picks">
+                                <span>Include differential picks</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimization Controls -->
+            <div class="optimization-controls">
+                <button class="optimize-btn" onclick="optimizeTeam()" id="optimize-button">
+                    🚀 Optimize My Squad
+                </button>
+            </div>
+
+            <!-- Results Container -->
+            <div class="results-container" id="results-container">
+                <!-- Squad Display -->
+                <div class="squad-display">
+                    <div class="squad-header">
+                        <h2 style="color: #37003c; margin: 0;">🏆 Optimized Squad</h2>
+                        <div class="squad-stats" id="squad-stats">
+                            <!-- Stats will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="formation-display" id="formation-display">
+                        <!-- Formation will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Value Analysis -->
+                <div class="value-analysis" id="value-analysis">
+                    <h3 style="text-align: center; margin-bottom: 10px;">📊 Value Analysis</h3>
+                    <p style="text-align: center; opacity: 0.9; margin-bottom: 20px;">
+                        Your optimized squad's performance metrics and value breakdown
+                    </p>
+                    <div class="value-metrics" id="value-metrics">
+                        <!-- Metrics will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Alternatives Section -->
+                <div class="alternatives-section" id="alternatives-section">
+                    <h3 style="color: #37003c; text-align: center; margin-bottom: 10px;">
+                        🔄 Alternative Options
+                    </h3>
+                    <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                        Similar players you can consider for your optimized positions
+                    </p>
+                    <div class="alternatives-grid" id="alternatives-grid">
+                        <!-- Alternatives will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3 style="color: #37003c; margin-bottom: 10px;">Optimizing Your Squad</h3>
+            <p style="color: #666; margin: 0;">
+                Analyzing thousands of player combinations to find your perfect team...
+            </p>
+        </div>
+    </div>
+
+    <div class="footer" include="./footer.html"></div>
+    <script src="./index.js"></script>
+
+    <script>
+        class BudgetOptimizer {
+            constructor() {
+                this.fplService = new FPLDataService();
+                this.selectedStrategy = 'balanced';
+                this.allPlayers = [];
+                this.teams = [];
+                this.optimizedSquad = null;
+                this.alternatives = {};
+            }
+
+            async initialize() {
+                try {
+                    const bootstrap = await this.fplService.getBootstrapData();
+                    this.allPlayers = bootstrap.elements;
+                    this.teams = bootstrap.teams;
+                    
+                    this.setupEventListeners();
+                    this.updateBudgetDisplay();
+                } catch (error) {
+                    console.error('Failed to initialize budget optimizer:', error);
+                    alert('Failed to load player data. Please refresh the page.');
+                }
+            }
+
+            setupEventListeners() {
+                const budgetSlider = document.getElementById('budget-slider');
+                budgetSlider.addEventListener('input', () => {
+                    this.updateBudgetDisplay();
+                });
+
+                // Formation validation
+                ['def-play', 'mid-play', 'fwd-play'].forEach(id => {
+                    document.getElementById(id).addEventListener('change', () => {
+                        this.validateFormation();
+                    });
+                });
+            }
+
+            updateBudgetDisplay() {
+                const budget = parseInt(document.getElementById('budget-slider').value);
+                const budgetText = `£${(budget / 10).toFixed(1)}m`;
+                document.getElementById('budget-display').textContent = budgetText;
+                document.getElementById('budget-value').textContent = budgetText;
+            }
+
+            validateFormation() {
+                const def = parseInt(document.getElementById('def-play').value);
+                const mid = parseInt(document.getElementById('mid-play').value);
+                const fwd = parseInt(document.getElementById('fwd-play').value);
+                
+                const total = def + mid + fwd;
+                if (total !== 10) {
+                    alert('Outfield players must total 10 (currently ' + total + ')');
+                    return false;
+                }
+                return true;
+            }
+
+            selectStrategy(strategy) {
+                this.selectedStrategy = strategy;
+                document.querySelectorAll('.strategy-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                document.querySelector(`[data-strategy="${strategy}"]`).classList.add('selected');
+            }
+
+            async optimizeTeam() {
+                if (!this.validateFormation()) return;
+
+                document.getElementById('loading-overlay').style.display = 'flex';
+                document.getElementById('optimize-button').disabled = true;
+
+                try {
+                    // Add delay for UX
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    const constraints = this.gatherConstraints();
+                    this.optimizedSquad = await this.generateOptimalSquad(constraints);
+                    this.alternatives = await this.generateAlternatives(this.optimizedSquad);
+                    
+                    this.displayResults();
+                    document.getElementById('results-container').style.display = 'block';
+                    document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
+                } catch (error) {
+                    console.error('Optimization failed:', error);
+                    alert('Optimization failed. Please try again.');
+                } finally {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    document.getElementById('optimize-button').disabled = false;
+                }
+            }
+
+            gatherConstraints() {
+                return {
+                    budget: parseInt(document.getElementById('budget-slider').value),
+                    strategy: this.selectedStrategy,
+                    formation: {
+                        gkp: 2,
+                        def: parseInt(document.getElementById('def-play').value),
+                        mid: parseInt(document.getElementById('mid-play').value),
+                        fwd: parseInt(document.getElementById('fwd-play').value)
+                    },
+                    preferences: {
+                        includeCaptains: document.getElementById('include-captains').checked,
+                        avoidRotation: document.getElementById('avoid-rotation').checked,
+                        considerFixtures: document.getElementById('consider-fixtures').checked,
+                        differentialPicks: document.getElementById('differential-picks').checked
+                    }
+                };
+            }
+
+            async generateOptimalSquad(constraints) {
+                const positionPlayers = this.categorizePlayersByPosition();
+                const squad = { 1: [], 2: [], 3: [], 4: [] };
+                let remainingBudget = constraints.budget;
+
+                // Strategy-based allocation
+                const budgetAllocation = this.getBudgetAllocation(constraints.strategy, constraints.budget);
+
+                // Optimize each position
+                for (let position = 1; position <= 4; position++) {
+                    const positionBudget = budgetAllocation[position];
+                    const requiredCount = this.getRequiredCount(position, constraints.formation);
+                    
+                    const selectedPlayers = await this.optimizePosition(
+                        positionPlayers[position],
+                        positionBudget,
+                        requiredCount,
+                        constraints
+                    );
+                    
+                    squad[position] = selectedPlayers;
+                    selectedPlayers.forEach(player => {
+                        remainingBudget -= player.now_cost;
+                    });
+                }
+
+                return {
+                    squad,
+                    totalCost: constraints.budget - remainingBudget,
+                    remainingBudget,
+                    predictedPoints: this.calculatePredictedPoints(squad),
+                    valueScore: this.calculateValueScore(squad)
+                };
+            }
+
+            categorizePlayersByPosition() {
+                const positions = { 1: [], 2: [], 3: [], 4: [] };
+                this.allPlayers.forEach(player => {
+                    if (player.total_points > 0 || player.form > 0) {
+                        positions[player.element_type].push(player);
+                    }
+                });
+                return positions;
+            }
+
+            getBudgetAllocation(strategy, totalBudget) {
+                const allocations = {
+                    balanced: { 1: 0.08, 2: 0.28, 3: 0.38, 4: 0.26 },
+                    premium: { 1: 0.06, 2: 0.24, 3: 0.35, 4: 0.35 },
+                    value: { 1: 0.10, 2: 0.32, 3: 0.35, 4: 0.23 },
+                    differential: { 1: 0.09, 2: 0.30, 3: 0.36, 4: 0.25 }
+                };
+
+                const allocation = allocations[strategy];
+                return {
+                    1: Math.floor(totalBudget * allocation[1]),
+                    2: Math.floor(totalBudget * allocation[2]),
+                    3: Math.floor(totalBudget * allocation[3]),
+                    4: Math.floor(totalBudget * allocation[4])
+                };
+            }
+
+            getRequiredCount(position, formation) {
+                const counts = { 1: formation.gkp, 2: formation.def, 3: formation.mid, 4: formation.fwd };
+                return counts[position];
+            }
+
+            async optimizePosition(players, budget, count, constraints) {
+                // Sort players by multiple criteria based on strategy
+                const scoredPlayers = players.map(player => ({
+                    ...player,
+                    score: this.calculatePlayerScore(player, constraints.strategy, constraints.preferences)
+                })).sort((a, b) => b.score - a.score);
+
+                // Use knapsack-style optimization
+                return this.knapsackOptimization(scoredPlayers, budget, count);
+            }
+
+            calculatePlayerScore(player, strategy, preferences) {
+                let score = 0;
+                
+                // Base metrics
+                const pointsScore = player.total_points / 10;
+                const formScore = parseFloat(player.form) * 2;
+                const valueScore = (player.total_points / player.now_cost) * 100;
+                
+                // Strategy adjustments
+                switch (strategy) {
+                    case 'premium':
+                        score = pointsScore * 0.6 + formScore * 0.3 + (player.now_cost / 10) * 0.1;
+                        break;
+                    case 'value':
+                        score = valueScore * 0.5 + pointsScore * 0.3 + formScore * 0.2;
+                        break;
+                    case 'differential':
+                        const ownershipScore = (100 - player.selected_by_percent) / 100 * 20;
+                        score = pointsScore * 0.4 + formScore * 0.3 + ownershipScore * 0.3;
+                        break;
+                    default: // balanced
+                        score = pointsScore * 0.4 + formScore * 0.3 + valueScore * 0.3;
+                }
+
+                // Preference adjustments
+                if (preferences.includeCaptains && player.total_points > 80) {
+                    score *= 1.2;
+                }
+                if (preferences.avoidRotation && player.minutes < 1500) {
+                    score *= 0.8;
+                }
+                if (preferences.differentialPicks && player.selected_by_percent < 10) {
+                    score *= 1.1;
+                }
+
+                return score;
+            }
+
+            knapsackOptimization(players, budget, count) {
+                // Simplified knapsack for FPL constraints
+                const selected = [];
+                let remainingBudget = budget;
+                let remainingCount = count;
+
+                // First pass: greedy selection
+                for (const player of players) {
+                    if (remainingCount === 0) break;
+                    if (player.now_cost <= remainingBudget) {
+                        selected.push(player);
+                        remainingBudget -= player.now_cost;
+                        remainingCount--;
+                    }
+                }
+
+                // Fill remaining slots with cheapest available
+                if (remainingCount > 0) {
+                    const cheapest = players
+                        .filter(p => !selected.includes(p))
+                        .sort((a, b) => a.now_cost - b.now_cost)
+                        .slice(0, remainingCount);
+                    selected.push(...cheapest);
+                }
+
+                return selected.slice(0, count);
+            }
+
+            calculatePredictedPoints(squad) {
+                let total = 0;
+                Object.values(squad).forEach(position => {
+                    position.forEach(player => {
+                        // Simple prediction based on form and recent points
+                        const predicted = parseFloat(player.form) * 1.2 + (player.total_points / 20);
+                        total += predicted;
+                    });
+                });
+                return Math.round(total);
+            }
+
+            calculateValueScore(squad) {
+                let totalValue = 0;
+                let totalCost = 0;
+                Object.values(squad).forEach(position => {
+                    position.forEach(player => {
+                        totalValue += player.total_points;
+                        totalCost += player.now_cost;
+                    });
+                });
+                return (totalValue / totalCost * 100).toFixed(1);
+            }
+
+            async generateAlternatives(optimizedSquad) {
+                const alternatives = {};
+                
+                Object.keys(optimizedSquad.squad).forEach(position => {
+                    alternatives[position] = [];
+                    const positionPlayers = this.allPlayers.filter(p => p.element_type == position);
+                    const selectedIds = optimizedSquad.squad[position].map(p => p.id);
+                    
+                    // Find similar alternatives
+                    optimizedSquad.squad[position].forEach(player => {
+                        const similar = positionPlayers
+                            .filter(p => !selectedIds.includes(p.id))
+                            .filter(p => Math.abs(p.now_cost - player.now_cost) <= 10)
+                            .sort((a, b) => b.total_points - a.total_points)
+                            .slice(0, 3);
+                        
+                        alternatives[position].push({
+                            original: player,
+                            alternatives: similar
+                        });
+                    });
+                });
+                
+                return alternatives;
+            }
+
+            displayResults() {
+                this.displaySquadStats();
+                this.displayFormation();
+                this.displayValueAnalysis();
+                this.displayAlternatives();
+            }
+
+            displaySquadStats() {
+                const stats = document.getElementById('squad-stats');
+                stats.innerHTML = `
+                    <div class="squad-stat">
+                        <span class="stat-value">£${(this.optimizedSquad.totalCost / 10).toFixed(1)}m</span>
+                        <span class="stat-label">Total Cost</span>
+                    </div>
+                    <div class="squad-stat">
+                        <span class="stat-value">${this.optimizedSquad.predictedPoints}</span>
+                        <span class="stat-label">Predicted Points</span>
+                    </div>
+                    <div class="squad-stat">
+                        <span class="stat-value">${this.optimizedSquad.valueScore}</span>
+                        <span class="stat-label">Value Score</span>
+                    </div>
+                    <div class="squad-stat">
+                        <span class="stat-value">£${(this.optimizedSquad.remainingBudget / 10).toFixed(1)}m</span>
+                        <span class="stat-label">Remaining</span>
+                    </div>
+                `;
+            }
+
+            displayFormation() {
+                const formation = document.getElementById('formation-display');
+                const positionNames = ['', 'Goalkeeper', 'Defenders', 'Midfielders', 'Forwards'];
+                
+                formation.innerHTML = '';
+                
+                for (let position = 1; position <= 4; position++) {
+                    const line = document.createElement('div');
+                    line.className = 'position-line';
+                    
+                    this.optimizedSquad.squad[position].forEach(player => {
+                        const team = this.teams.find(t => t.id === player.team);
+                        const slot = document.createElement('div');
+                        slot.className = 'player-slot';
+                        slot.innerHTML = `
+                            <div class="player-name">${player.first_name} ${player.second_name}</div>
+                            <div class="player-team">${team?.short_name || 'UNK'}</div>
+                            <div class="player-price">${this.fplService.formatPrice(player.now_cost)}</div>
+                            <div class="player-stats">
+                                <span class="stat-item">Pts: ${player.total_points}</span>
+                                <span class="stat-item">Form: ${player.form}</span>
+                            </div>
+                        `;
+                        line.appendChild(slot);
+                    });
+                    
+                    formation.appendChild(line);
+                }
+            }
+
+            displayValueAnalysis() {
+                const metrics = document.getElementById('value-metrics');
+                
+                // Calculate additional metrics
+                const totalOwnership = Object.values(this.optimizedSquad.squad).flat()
+                    .reduce((sum, p) => sum + p.selected_by_percent, 0) / 15;
+                
+                const averageForm = Object.values(this.optimizedSquad.squad).flat()
+                    .reduce((sum, p) => sum + parseFloat(p.form), 0) / 15;
+
+                metrics.innerHTML = `
+                    <div class="value-metric">
+                        <span class="metric-value">${this.optimizedSquad.valueScore}</span>
+                        <span class="metric-label">Points per £m</span>
+                    </div>
+                    <div class="value-metric">
+                        <span class="metric-value">${totalOwnership.toFixed(1)}%</span>
+                        <span class="metric-label">Avg Ownership</span>
+                    </div>
+                    <div class="value-metric">
+                        <span class="metric-value">${averageForm.toFixed(1)}</span>
+                        <span class="metric-label">Avg Form</span>
+                    </div>
+                    <div class="value-metric">
+                        <span class="metric-value">${Object.values(this.optimizedSquad.squad).flat().length}</span>
+                        <span class="metric-label">Total Players</span>
+                    </div>
+                `;
+            }
+
+            displayAlternatives() {
+                const grid = document.getElementById('alternatives-grid');
+                grid.innerHTML = '';
+                
+                const positionNames = { 1: 'Goalkeepers', 2: 'Defenders', 3: 'Midfielders', 4: 'Forwards' };
+                
+                Object.keys(this.alternatives).forEach(position => {
+                    if (this.alternatives[position].length > 0) {
+                        const group = document.createElement('div');
+                        group.className = 'alternative-group';
+                        group.innerHTML = `<h4>${positionNames[position]} Alternatives</h4>`;
+                        
+                        this.alternatives[position].slice(0, 3).forEach(item => {
+                            item.alternatives.slice(0, 2).forEach(alt => {
+                                const team = this.teams.find(t => t.id === alt.team);
+                                const altDiv = document.createElement('div');
+                                altDiv.className = 'alternative-player';
+                                altDiv.innerHTML = `
+                                    <div class="alternative-info">
+                                        <div class="alternative-name">${alt.first_name} ${alt.second_name}</div>
+                                        <div class="alternative-details">${team?.short_name} • ${alt.total_points} pts • Form: ${alt.form}</div>
+                                    </div>
+                                    <div class="alternative-price">${this.fplService.formatPrice(alt.now_cost)}</div>
+                                `;
+                                group.appendChild(altDiv);
+                            });
+                        });
+                        
+                        grid.appendChild(group);
+                    }
+                });
+            }
+        }
+
+        function selectStrategy(strategy) {
+            optimizer.selectStrategy(strategy);
+        }
+
+        function optimizeTeam() {
+            optimizer.optimizeTeam();
+        }
+
+        // Initialize the optimizer
+        let optimizer;
+        document.addEventListener('DOMContentLoaded', async function() {
+            optimizer = new BudgetOptimizer();
+            await optimizer.initialize();
+        });
+    </script>
+</body>
+</html>
