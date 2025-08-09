@@ -261,6 +261,65 @@
         .pagination span {
             color: #666;
         }
+        
+        .historical-panel {
+            background: linear-gradient(135deg, #37003c, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .historical-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .historical-content {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .historical-content.active {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .history-stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 6px;
+        }
+        
+        .history-stat-card h4 {
+            margin-top: 0;
+            color: #00ff87;
+            font-size: 0.9rem;
+        }
+        
+        .history-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .history-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        .trend-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .trend-up { color: #00ff87; }
+        .trend-down { color: #ff4757; }
     </style>
 </head>
 <body>
@@ -269,6 +328,39 @@
     <div class="container">
         <h1>FPL Player Data</h1>
         <p class="subtitle">Comprehensive player statistics and analysis</p>
+        
+        <!-- Historical Performance Panel -->
+        <div class="historical-panel" id="historicalPanel">
+            <div class="historical-toggle" onclick="toggleHistorical()">
+                <div>
+                    <h3 style="margin: 0;">📊 Historical Performance Tracker</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 0.9rem;">Compare season-by-season player statistics</p>
+                </div>
+                <div style="font-size: 1.5rem;">▼</div>
+            </div>
+            <div class="historical-content" id="historicalContent">
+                <div class="history-stat-card">
+                    <h4>2024/25 Season</h4>
+                    <div class="history-value">142 <span class="trend-indicator trend-up">↑</span></div>
+                    <div class="history-label">Total Points</div>
+                </div>
+                <div class="history-stat-card">
+                    <h4>Best Season</h4>
+                    <div class="history-value">166</div>
+                    <div class="history-label">2022/23 Points</div>
+                </div>
+                <div class="history-stat-card">
+                    <h4>Career Average</h4>
+                    <div class="history-value">134.5</div>
+                    <div class="history-label">Points Per Season</div>
+                </div>
+                <div class="history-stat-card">
+                    <h4>Clean Sheets</h4>
+                    <div class="history-value">49</div>
+                    <div class="history-label">Last 4 Seasons</div>
+                </div>
+            </div>
+        </div>
         
         <div class="filters-container">
             <div class="filter-row">
@@ -594,6 +686,16 @@
                 currentPage--;
                 renderTable();
             }
+        }
+        
+        // Toggle historical panel
+        function toggleHistorical() {
+            const content = document.getElementById('historicalContent');
+            const panel = document.getElementById('historicalPanel');
+            const arrow = panel.querySelector('.historical-toggle > div:last-child');
+            
+            content.classList.toggle('active');
+            arrow.textContent = content.classList.contains('active') ? '▲' : '▼';
         }
         
         // Load data on page load
