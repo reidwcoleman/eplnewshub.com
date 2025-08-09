@@ -1,65 +1,125 @@
 class FPLDataService {
     constructor() {
+        // Using CORS proxy to access FPL API from browser
+        this.corsProxy = 'https://corsproxy.io/?';
         this.baseUrl = 'https://fantasy.premierleague.com/api/';
         this.cache = new Map();
-        this.cacheTimeout = 10 * 60 * 1000; // 10 minutes
+        this.cacheTimeout = 2 * 60 * 1000; // 2 minutes for fresher data
+        this.lastUpdateTime = null;
+        this.isLiveData = false;
     }
 
-    async fetchWithCache(url, cacheKey) {
+    async fetchWithCache(url, cacheKey, forceRefresh = false) {
         const cached = this.cache.get(cacheKey);
-        if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+        
+        // Return cached data if valid and not forcing refresh
+        if (!forceRefresh && cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+            console.log(`Using cached data for ${cacheKey}`);
             return cached.data;
         }
 
         try {
-            const response = await fetch(url);
+            // Use CORS proxy for all API calls
+            const proxyUrl = `${this.corsProxy}${encodeURIComponent(url)}`;
+            console.log(`Fetching live data for ${cacheKey}...`);
+            
+            const response = await fetch(proxyUrl);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
             
+            // Update cache with fresh data
             this.cache.set(cacheKey, {
                 data: data,
                 timestamp: Date.now()
             });
             
+            this.lastUpdateTime = Date.now();
+            this.isLiveData = true;
+            console.log(`Live data fetched successfully for ${cacheKey}`);
+            
             return data;
         } catch (error) {
             console.error('FPL API Error:', error);
-            if (cached) {
-                console.log('Using stale cache data due to API error');
-                return cached.data;
+            
+            // Try alternate CORS proxy if first one fails
+            try {
+                const alternateProxy = 'https://api.allorigins.win/raw?url=';
+                const alternateUrl = `${alternateProxy}${encodeURIComponent(url)}`;
+                console.log('Trying alternate proxy...');
+                
+                const response = await fetch(alternateUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                this.cache.set(cacheKey, {
+                    data: data,
+                    timestamp: Date.now()
+                });
+                
+                this.lastUpdateTime = Date.now();
+                this.isLiveData = true;
+                return data;
+            } catch (altError) {
+                console.error('Alternate proxy also failed:', altError);
+                
+                // Return cached data if available
+                if (cached) {
+                    console.log('Using stale cache data due to API error');
+                    this.isLiveData = false;
+                    return cached.data;
+                }
+                
+                // Return mock data as last resort
+                console.log('Returning mock data as fallback');
+                return this.getMockData(cacheKey);
             }
-            throw error;
         }
     }
 
-    async getBootstrapData() {
+    async getBootstrapData(forceRefresh = false) {
         return await this.fetchWithCache(
             `${this.baseUrl}bootstrap-static/`,
-            'bootstrap'
+            'bootstrap',
+            forceRefresh
         );
     }
 
-    async getFixtures() {
+    async getFixtures(forceRefresh = false) {
         return await this.fetchWithCache(
             `${this.baseUrl}fixtures/`,
-            'fixtures'
+            'fixtures',
+            forceRefresh
         );
     }
 
-    async getUpcomingFixtures() {
+    async getUpcomingFixtures(forceRefresh = false) {
         return await this.fetchWithCache(
             `${this.baseUrl}fixtures/?future=1`,
-            'upcoming_fixtures'
+            'upcoming_fixtures',
+            forceRefresh
         );
     }
 
-    async getPlayerDetails(playerId) {
+    async getPlayerDetails(playerId, forceRefresh = false) {
         return await this.fetchWithCache(
             `${this.baseUrl}element-summary/${playerId}/`,
-            `player_${playerId}`
+            `player_${playerId}`,
+            forceRefresh
         );
+    }
+
+    async getLiveGameweekData() {
+        try {
+            const url = `${this.baseUrl}event-status/`;
+            return await this.fetchWithCache(url, 'live_gameweek', true);
+        } catch (error) {
+            console.error('Failed to fetch live gameweek data:', error);
+            return null;
+        }
     }
 
     async getCurrentGameweek() {
@@ -180,6 +240,25 @@ class FPLDataService {
         return { transfersIn, transfersOut };
     }
 
+    // Get mock data when API is unavailable
+    getMockData(cacheKey) {
+        if (cacheKey === 'bootstrap') {
+            return {
+                elements: [],
+                teams: [],
+                events: [{ id: 1, name: 'Gameweek 1', is_current: true }],
+                element_types: [
+                    { id: 1, singular_name: 'Goalkeeper' },
+                    { id: 2, singular_name: 'Defender' },
+                    { id: 3, singular_name: 'Midfielder' },
+                    { id: 4, singular_name: 'Forward' }
+                ]
+            };
+        }
+        return { error: 'Mock data not available' };
+    }
+
+    // Utility methods
     formatPrice(price) {
         return `£${(price / 10).toFixed(1)}m`;
     }
@@ -201,6 +280,29 @@ class FPLDataService {
             4: 'FWD'
         };
         return positions[elementType] || 'Unknown';
+    }
+
+    // Check if data is live
+    isDataLive() {
+        return this.isLiveData && this.lastUpdateTime && 
+               (Date.now() - this.lastUpdateTime) < this.cacheTimeout;
+    }
+
+    // Get last update time formatted
+    getLastUpdateTime() {
+        if (!this.lastUpdateTime) return 'Never';
+        const date = new Date(this.lastUpdateTime);
+        return date.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    }
+
+    // Clear cache to force fresh data
+    clearCache() {
+        this.cache.clear();
+        console.log('Cache cleared - will fetch fresh data on next request');
     }
 }
 
