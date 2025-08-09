@@ -793,12 +793,14 @@
                 } else {
                     // Add player
                     if (this.currentTeam[position].length >= positionLimits[position]) {
-                        alert(`You can only have ${positionLimits[position]} ${this.getPositionName(position)}.`);
+                        // Show inline message instead of alert
+                        this.showMessage(`You can only have ${positionLimits[position]} ${this.getPositionName(position)}.`);
                         return;
                     }
                     
                     if (this.budget < player.now_cost) {
-                        alert('Insufficient budget to add this player.');
+                        // Show inline message instead of alert
+                        this.showMessage('Insufficient budget to add this player.');
                         return;
                     }
                     
@@ -870,7 +872,8 @@
 
             saveTeam() {
                 localStorage.setItem('fpl-simulated-team', JSON.stringify(this.currentTeam));
-                alert('Team saved successfully!');
+                // Show inline success message instead of alert
+                this.showMessage('Team saved successfully!', 'success');
             }
 
             async generateRecommendations() {

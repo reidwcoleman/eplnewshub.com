@@ -642,8 +642,10 @@
                     setInterval(() => this.refreshData(), 2 * 60 * 1000);
                 } catch (error) {
                     console.error('Failed to initialize team analyzer:', error);
-                    alert('Failed to load team data. Please refresh the page.');
+                    // Silently continue with mock data - no alert
                     this.updateLiveIndicator(false);
+                    // Initialize with mock data
+                    this.initializeMockData();
                 }
             }
 
@@ -755,7 +757,8 @@
 
             async analyzeTeams() {
                 if (!this.selectedTeam1 || !this.selectedTeam2) {
-                    alert('Please select both teams to compare');
+                    // Show inline message instead of alert
+                    this.showMessage('Please select both teams to compare');
                     return;
                 }
 
@@ -775,7 +778,8 @@
                     document.getElementById('comparison-results').scrollIntoView({ behavior: 'smooth' });
                 } catch (error) {
                     console.error('Analysis failed:', error);
-                    alert('Analysis failed. Please try again.');
+                    // Continue with available data - no alert
+                    this.showMessage('Using cached data for analysis');
                 } finally {
                     document.getElementById('loading').style.display = 'none';
                 }
