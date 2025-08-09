@@ -1064,6 +1064,22 @@
             analyzer = new TeamAnalyzer();
             await analyzer.initialize();
         });
+        
+        // Auto-refresh data when tab becomes visible
+        document.addEventListener('visibilitychange', async function() {
+            if (!document.hidden && analyzer) {
+                console.log('Tab became visible, refreshing team analyzer data...');
+                await analyzer.refreshData();
+            }
+        });
+        
+        // Also refresh when window gains focus
+        window.addEventListener('focus', async function() {
+            if (analyzer) {
+                console.log('Window focused, refreshing team analyzer data...');
+                await analyzer.refreshData();
+            }
+        });
     </script>
 </body>
 </html>

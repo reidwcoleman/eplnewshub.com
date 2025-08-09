@@ -700,6 +700,20 @@
             arrow.textContent = content.classList.contains('active') ? '▲' : '▼';
         }
         
+        // Auto-refresh data when tab becomes visible
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                console.log('Tab became visible, refreshing player data...');
+                loadPlayerData();
+            }
+        });
+        
+        // Also refresh when window gains focus
+        window.addEventListener('focus', function() {
+            console.log('Window focused, refreshing player data...');
+            loadPlayerData();
+        });
+        
         // Load data on page load
         document.addEventListener('DOMContentLoaded', loadPlayerData);
     </script>

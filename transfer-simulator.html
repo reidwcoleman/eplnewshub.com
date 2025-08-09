@@ -946,6 +946,22 @@
             transferSimulator = new TransferSimulator();
             await transferSimulator.initialize();
         });
+        
+        // Auto-refresh data when tab becomes visible
+        document.addEventListener('visibilitychange', async function() {
+            if (!document.hidden && transferSimulator) {
+                console.log('Tab became visible, refreshing transfer simulator data...');
+                await transferSimulator.refreshData();
+            }
+        });
+        
+        // Also refresh when window gains focus
+        window.addEventListener('focus', async function() {
+            if (transferSimulator) {
+                console.log('Window focused, refreshing transfer simulator data...');
+                await transferSimulator.refreshData();
+            }
+        });
     </script>
 </body>
 </html>

@@ -997,6 +997,22 @@
             calculator = new FixtureDifficultyCalculator();
             await calculator.initialize();
         });
+        
+        // Auto-refresh data when tab becomes visible
+        document.addEventListener('visibilitychange', async function() {
+            if (!document.hidden && calculator) {
+                console.log('Tab became visible, refreshing fixture difficulty data...');
+                await calculator.refreshData();
+            }
+        });
+        
+        // Also refresh when window gains focus
+        window.addEventListener('focus', async function() {
+            if (calculator) {
+                console.log('Window focused, refreshing fixture difficulty data...');
+                await calculator.refreshData();
+            }
+        });
     </script>
 </body>
 </html>

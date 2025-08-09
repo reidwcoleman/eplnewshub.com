@@ -760,9 +760,28 @@
             }
         }
         
+        // Global tracker instance
+        let trackerInstance = null;
+        
         // Initialize tracker when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            new FixtureTracker();
+            trackerInstance = new FixtureTracker();
+        });
+        
+        // Auto-refresh data when tab becomes visible
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && trackerInstance) {
+                console.log('Tab became visible, refreshing fixture data...');
+                trackerInstance.loadData().then(() => trackerInstance.render());
+            }
+        });
+        
+        // Also refresh when window gains focus
+        window.addEventListener('focus', function() {
+            if (trackerInstance) {
+                console.log('Window focused, refreshing fixture data...');
+                trackerInstance.loadData().then(() => trackerInstance.render());
+            }
         });
     </script>
 </body>

@@ -1125,6 +1125,22 @@
             predictor = new PlayerPredictor();
             await predictor.initialize();
         });
+        
+        // Auto-refresh data when tab becomes visible
+        document.addEventListener('visibilitychange', async function() {
+            if (!document.hidden && predictor) {
+                console.log('Tab became visible, refreshing player predictor data...');
+                await predictor.refreshData();
+            }
+        });
+        
+        // Also refresh when window gains focus
+        window.addEventListener('focus', async function() {
+            if (predictor) {
+                console.log('Window focused, refreshing player predictor data...');
+                await predictor.refreshData();
+            }
+        });
     </script>
 </body>
 </html>

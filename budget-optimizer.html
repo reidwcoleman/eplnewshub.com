@@ -1180,6 +1180,22 @@
             optimizer = new BudgetOptimizer();
             await optimizer.initialize();
         });
+        
+        // Auto-refresh data when tab becomes visible
+        document.addEventListener('visibilitychange', async function() {
+            if (!document.hidden && optimizer) {
+                console.log('Tab became visible, refreshing budget optimizer data...');
+                await optimizer.refreshData();
+            }
+        });
+        
+        // Also refresh when window gains focus
+        window.addEventListener('focus', async function() {
+            if (optimizer) {
+                console.log('Window focused, refreshing budget optimizer data...');
+                await optimizer.refreshData();
+            }
+        });
     </script>
 </body>
 </html>
