@@ -63,11 +63,13 @@ class FPLDataServiceEnhanced {
         if (this.cache.has(cacheKey)) {
             const cached = this.cache.get(cacheKey);
             if (Date.now() - cached.timestamp < this.cacheTimeout) {
+                console.log('Using cached player data');
                 return cached.data;
             }
         }
 
         try {
+            console.log('Fetching live player data...');
             const data = await this.fetchWithCORS('https://fantasy.premierleague.com/api/bootstrap-static/');
             
             // Cache the successful response
@@ -76,10 +78,12 @@ class FPLDataServiceEnhanced {
                 timestamp: Date.now()
             });
             
+            console.log('Live data loaded successfully');
             return data;
         } catch (error) {
-            console.error('Failed to fetch live data, using mock data:', error);
-            return this.getMockPlayerData();
+            console.error('Failed to fetch live data, using comprehensive mock data:', error);
+            // Return full mock data with all players
+            return this.generateFullPlayerList();
         }
     }
 
@@ -504,7 +508,22 @@ class FPLDataServiceEnhanced {
         
         return fixtures;
     }
+
+    // Initialize and pre-load data
+    async initializeAndPreload() {
+        console.log('Initializing FPL Data Service...');
+        // Try to pre-load player data on service initialization
+        try {
+            await this.getPlayerData();
+            console.log('FPL data pre-loaded successfully');
+        } catch (error) {
+            console.log('Pre-load failed, will use mock data');
+        }
+    }
 }
 
 // Create global instance
 window.FPLDataServiceEnhanced = new FPLDataServiceEnhanced();
+
+// Pre-load data as soon as service is created
+window.FPLDataServiceEnhanced.initializeAndPreload();
