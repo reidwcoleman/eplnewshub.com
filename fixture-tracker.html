@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FPL Fixture Tracker - Live Match Analysis | EPL News Hub</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="./fpl-api.js"></script>
+    <script src="./fpl-data-service.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -447,21 +447,23 @@
             
             async loadData() {
                 try {
-                    // Load bootstrap data for teams and current gameweek
-                    const bootstrapData = await window.FPLDataService.getBootstrapData();
+                    // Load data using enhanced service with fallback
+                    const bootstrapData = await window.FPLDataServiceEnhanced.getPlayerData();
                     
                     // Store teams
-                    bootstrapData.teams.forEach(team => {
-                        this.teams[team.id] = team;
-                    });
+                    if (bootstrapData.teams) {
+                        bootstrapData.teams.forEach(team => {
+                            this.teams[team.id] = team;
+                        });
+                    }
                     
                     // Get current gameweek
-                    const currentEvent = bootstrapData.events.find(e => e.is_current);
+                    const currentEvent = bootstrapData.events ? bootstrapData.events.find(e => e.is_current || e.is_next) : null;
                     this.currentGameweek = currentEvent ? currentEvent.id : 1;
                     this.selectedGameweek = this.currentGameweek;
                     
                     // Load fixtures
-                    const fixturesData = await window.FPLDataService.getFixtures();
+                    const fixturesData = await window.FPLDataServiceEnhanced.getFixtures();
                     this.fixtures = fixturesData;
                     
                     // Load historical data (mock for now, would need player-specific endpoint)

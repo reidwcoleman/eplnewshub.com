@@ -466,6 +466,7 @@
     <div class="footer" include="./footer.html"></div>
     
     <script src="index.js"></script>
+    <script src="fpl-data-service.js"></script>
     <script>
         let allPlayers = [];
         let filteredPlayers = [];
@@ -476,8 +477,8 @@
         
         async function loadPlayerData() {
             try {
-                const response = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
-                const data = await response.json();
+                // Use enhanced data service with CORS handling and fallback
+                const data = await window.FPLDataServiceEnhanced.generateFullPlayerList();
                 
                 // Store teams data
                 data.teams.forEach(team => {
@@ -540,9 +541,10 @@
                 
             } catch (error) {
                 console.error('Error loading player data:', error);
+                // Should never reach here with mock data, but just in case
                 document.getElementById('loadingIndicator').innerHTML = `
                     <div class="error">
-                        Error loading player data. Please try again later.
+                        <p>Unable to load data. Please refresh the page.</p>
                     </div>
                 `;
             }
