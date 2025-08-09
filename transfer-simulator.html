@@ -685,8 +685,7 @@
                     </div>
 
                     <div class="transfer-actions">
-                        <button class="action-btn ${isInTeam ? 'transfer-out' : 'transfer-in'}" 
-                                onclick="event.stopPropagation(); transferSimulator.togglePlayer(${player.id})">
+                        <button class="action-btn ${isInTeam ? 'transfer-out' : 'transfer-in'}">
                             ${isInTeam ? 'Remove' : 'Add to Team'}
                         </button>
                     </div>
@@ -716,12 +715,15 @@
                 return Math.round(basePoints * 10) / 10;
             }
 
-            togglePlayer(playerId) {
-                const player = this.allPlayers.find(p => p.id === playerId);
+            togglePlayer(playerOrId) {
+                // Handle both player object and player ID
+                const player = typeof playerOrId === 'object' ? playerOrId : this.allPlayers.find(p => p.id === playerOrId);
+                if (!player) return;
+                
                 const position = player.element_type;
                 const positionLimits = { 1: 2, 2: 5, 3: 5, 4: 3 };
                 
-                const currentIndex = this.currentTeam[position].findIndex(p => p.id === playerId);
+                const currentIndex = this.currentTeam[position].findIndex(p => p.id === player.id);
                 
                 if (currentIndex >= 0) {
                     // Remove player

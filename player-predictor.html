@@ -1022,7 +1022,7 @@
                 `).join('');
             }
 
-            switchTab(tabName) {
+            switchTab(tabName, element = null) {
                 // Remove active class from all tabs and contents
                 document.querySelectorAll('.analysis-tab').forEach(tab => {
                     tab.classList.remove('active');
@@ -1032,7 +1032,11 @@
                 });
                 
                 // Add active class to selected tab and content
-                event.target.classList.add('active');
+                if (element) {
+                    element.classList.add('active');
+                } else if (typeof event !== 'undefined' && event.target) {
+                    event.target.classList.add('active');
+                }
                 document.getElementById(`${tabName}-tab`).classList.add('active');
             }
         }
@@ -1042,7 +1046,7 @@
         }
 
         function switchTab(tabName) {
-            predictor.switchTab(tabName);
+            predictor.switchTab(tabName, event ? event.target : null);
         }
 
         // Initialize the predictor
