@@ -1,0 +1,63 @@
+name: Update Ads.txt from Ezoic
+
+on:
+  schedule:
+    # Run every Monday at 2 AM UTC
+    - cron: '0 2 * * 1'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  update-ads-txt:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Fetch latest ads.txt from Ezoic
+      run: |
+        echo "Fetching ads.txt from Ezoic..."
+        curl -L https://srv.adstxtmanager.com/19390/eplnewshub.com -o ads.txt.tmp
+        
+        # Check if we got valid content
+        if [ -s ads.txt.tmp ]; then
+          echo "Valid ads.txt received from Ezoic"
+          
+          # Add header and your AdSense ID
+          echo "# Ezoic Ads.txt File" > ads.txt
+          echo "# Domain: eplnewshub.com" >> ads.txt
+          echo "# Last Updated: $(date +%Y-%m-%d)" >> ads.txt
+          echo "# Auto-updated via GitHub Action" >> ads.txt
+          echo "" >> ads.txt
+          echo "# Your Google AdSense Account" >> ads.txt
+          echo "google.com, pub-6480210605786899, DIRECT, f08c47fec0942fa0" >> ads.txt
+          echo "" >> ads.txt
+          
+          # Append Ezoic content
+          cat ads.txt.tmp >> ads.txt
+          rm ads.txt.tmp
+        else
+          echo "Failed to fetch valid ads.txt from Ezoic, keeping current file"
+        fi
+    
+    - name: Check for changes
+      id: verify
+      run: |
+        if git diff --quiet ads.txt; then
+          echo "No changes to ads.txt"
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "ads.txt has been updated"
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Commit and push if changed
+      if: steps.verify.outputs.has_changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add ads.txt
+        git commit -m "Auto-update ads.txt from Ezoic [skip ci]"
+        git push
