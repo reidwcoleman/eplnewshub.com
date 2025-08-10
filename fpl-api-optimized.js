@@ -1,5 +1,5 @@
 // Optimized FPL Data Service with aggressive caching and performance improvements
-class FPLDataService {
+class FPLDataServiceOptimized {
     constructor() {
         this.cache = new Map();
         this.localStorage = window.localStorage;
@@ -9,11 +9,13 @@ class FPLDataService {
         this.baseUrl = 'https://fantasy.premierleague.com/api';
         this.corsProxies = [
             'https://corsproxy.io/?',
-            'https://api.allorigins.win/raw?url='
+            'https://api.allorigins.win/raw?url=',
+            'https://cors-anywhere.herokuapp.com/'
         ];
         this.currentProxyIndex = 0;
         this.isLoadingData = false;
         this.loadPromise = null;
+        this.mockDataOnly = false;
         
         // Initialize with cached data immediately
         this.initializeFromCache();
@@ -139,29 +141,16 @@ class FPLDataService {
             }
         }
         
-        // Return mock data immediately if all fetches fail
-        console.log('All fetches failed, returning mock data');
-        return this.getMockBootstrapData();
+        throw new Error('All fetch attempts failed');
     }
 
     async getBootstrapData(forceRefresh = false) {
         // Return cached data immediately if available and fresh
-        if (!forceRefresh) {
-            // Check memory cache first
-            if (this.cache.has('bootstrap')) {
-                const cached = this.cache.get('bootstrap');
-                if (this.isDataFresh(cached.timestamp, this.cacheTimeout)) {
-                    console.log('Returning memory cached bootstrap data');
-                    return cached.data;
-                }
-            }
-            
-            // Check localStorage
-            const localData = this.getLocalStorage('fpl_bootstrap_data');
-            if (localData && this.isDataFresh(localData.timestamp, this.cacheTimeout)) {
-                this.cache.set('bootstrap', localData);
-                console.log('Returning localStorage cached bootstrap data');
-                return localData.data;
+        if (!forceRefresh && this.cache.has('bootstrap')) {
+            const cached = this.cache.get('bootstrap');
+            if (this.isDataFresh(cached.timestamp, this.cacheTimeout)) {
+                console.log('Returning cached bootstrap data');
+                return cached.data;
             }
         }
 
@@ -186,6 +175,15 @@ class FPLDataService {
 
     async loadBootstrapData(forceRefresh) {
         try {
+            // Check localStorage first (unless force refresh)
+            if (!forceRefresh) {
+                const localData = this.getLocalStorage('fpl_bootstrap_data');
+                if (localData && this.isDataFresh(localData.timestamp, this.cacheTimeout)) {
+                    this.cache.set('bootstrap', localData);
+                    return localData.data;
+                }
+            }
+
             console.log('Fetching fresh bootstrap data...');
             const data = await this.fetchWithCORS('bootstrap-static/');
             
@@ -223,12 +221,6 @@ class FPLDataService {
             }
         }
 
-        // Check localStorage
-        const localData = this.getLocalStorage('fpl_fixtures');
-        if (localData && this.isDataFresh(localData.timestamp, this.cacheTimeout)) {
-            return localData.data;
-        }
-
         try {
             const data = await this.fetchWithCORS('fixtures/');
             
@@ -243,7 +235,59 @@ class FPLDataService {
             return data;
         } catch (error) {
             console.error('Failed to fetch fixtures:', error);
+            
+            // Check localStorage for stale data
+            const staleCache = this.getLocalStorage('fpl_fixtures');
+            if (staleCache) {
+                return staleCache.data;
+            }
+            
             return this.getMockFixtures();
+        }
+    }
+
+    async getGameweekLive(gameweek) {
+        const cacheKey = `gw_live_${gameweek}`;
+        
+        // Check cache first
+        if (this.cache.has(cacheKey)) {
+            const cached = this.cache.get(cacheKey);
+            if (this.isDataFresh(cached.timestamp, 60000)) { // 1 minute cache for live data
+                return cached.data;
+            }
+        }
+
+        try {
+            const data = await this.fetchWithCORS(`event/${gameweek}/live/`);
+            
+            // Cache the result
+            const cacheEntry = {
+                data: data,
+                timestamp: Date.now()
+            };
+            this.cache.set(cacheKey, cacheEntry);
+            
+            return data;
+        } catch (error) {
+            console.error('Failed to fetch gameweek live data:', error);
+            return { elements: [] };
+        }
+    }
+
+    // Preload essential data in the background
+    async preloadData() {
+        try {
+            // Load bootstrap data in background if not cached
+            if (!this.cache.has('bootstrap')) {
+                this.getBootstrapData();
+            }
+            
+            // Preload fixtures
+            setTimeout(() => {
+                this.getFixtures();
+            }, 1000);
+        } catch (error) {
+            console.error('Preload error:', error);
         }
     }
 
@@ -307,79 +351,81 @@ class FPLDataService {
 
     getMockTeams() {
         return [
-            { id: 1, name: "Arsenal", short_name: "ARS", strength: 4, strength_overall_home: 1300, strength_overall_away: 1280 },
-            { id: 2, name: "Aston Villa", short_name: "AVL", strength: 3, strength_overall_home: 1150, strength_overall_away: 1120 },
-            { id: 3, name: "Bournemouth", short_name: "BOU", strength: 2, strength_overall_home: 1050, strength_overall_away: 1020 },
-            { id: 4, name: "Brentford", short_name: "BRE", strength: 3, strength_overall_home: 1100, strength_overall_away: 1080 },
-            { id: 5, name: "Brighton", short_name: "BHA", strength: 3, strength_overall_home: 1150, strength_overall_away: 1130 },
-            { id: 6, name: "Chelsea", short_name: "CHE", strength: 4, strength_overall_home: 1250, strength_overall_away: 1230 },
-            { id: 7, name: "Crystal Palace", short_name: "CRY", strength: 2, strength_overall_home: 1080, strength_overall_away: 1060 },
-            { id: 8, name: "Everton", short_name: "EVE", strength: 2, strength_overall_home: 1020, strength_overall_away: 1000 },
-            { id: 9, name: "Fulham", short_name: "FUL", strength: 2, strength_overall_home: 1090, strength_overall_away: 1070 },
-            { id: 10, name: "Ipswich", short_name: "IPS", strength: 1, strength_overall_home: 950, strength_overall_away: 930 },
-            { id: 11, name: "Leicester", short_name: "LEI", strength: 2, strength_overall_home: 980, strength_overall_away: 960 },
-            { id: 12, name: "Liverpool", short_name: "LIV", strength: 5, strength_overall_home: 1350, strength_overall_away: 1330 },
-            { id: 13, name: "Man City", short_name: "MCI", strength: 5, strength_overall_home: 1400, strength_overall_away: 1380 },
-            { id: 14, name: "Newcastle", short_name: "NEW", strength: 4, strength_overall_home: 1200, strength_overall_away: 1180 },
-            { id: 15, name: "Nottingham Forest", short_name: "NFO", strength: 2, strength_overall_home: 1060, strength_overall_away: 1040 },
-            { id: 16, name: "Southampton", short_name: "SOU", strength: 1, strength_overall_home: 970, strength_overall_away: 950 },
-            { id: 17, name: "Spurs", short_name: "TOT", strength: 4, strength_overall_home: 1250, strength_overall_away: 1230 },
-            { id: 18, name: "West Ham", short_name: "WHU", strength: 3, strength_overall_home: 1130, strength_overall_away: 1110 },
-            { id: 19, name: "Wolves", short_name: "WOL", strength: 2, strength_overall_home: 1040, strength_overall_away: 1020 },
-            { id: 20, name: "Man Utd", short_name: "MUN", strength: 4, strength_overall_home: 1220, strength_overall_away: 1200 }
+            { id: 1, name: "Arsenal", short_name: "ARS", strength: 4 },
+            { id: 2, name: "Aston Villa", short_name: "AVL", strength: 3 },
+            { id: 3, name: "Bournemouth", short_name: "BOU", strength: 2 },
+            { id: 4, name: "Brentford", short_name: "BRE", strength: 3 },
+            { id: 5, name: "Brighton", short_name: "BHA", strength: 3 },
+            { id: 6, name: "Chelsea", short_name: "CHE", strength: 4 },
+            { id: 7, name: "Crystal Palace", short_name: "CRY", strength: 2 },
+            { id: 8, name: "Everton", short_name: "EVE", strength: 2 },
+            { id: 9, name: "Fulham", short_name: "FUL", strength: 2 },
+            { id: 10, name: "Ipswich", short_name: "IPS", strength: 1 },
+            { id: 11, name: "Leicester", short_name: "LEI", strength: 2 },
+            { id: 12, name: "Liverpool", short_name: "LIV", strength: 5 },
+            { id: 13, name: "Man City", short_name: "MCI", strength: 5 },
+            { id: 14, name: "Newcastle", short_name: "NEW", strength: 4 },
+            { id: 15, name: "Nottingham Forest", short_name: "NFO", strength: 2 },
+            { id: 16, name: "Southampton", short_name: "SOU", strength: 1 },
+            { id: 17, name: "Spurs", short_name: "TOT", strength: 4 },
+            { id: 18, name: "West Ham", short_name: "WHU", strength: 3 },
+            { id: 19, name: "Wolves", short_name: "WOL", strength: 2 },
+            { id: 20, name: "Man Utd", short_name: "MUN", strength: 4 }
         ];
     }
 
     getMockPlayers() {
-        // Return a comprehensive but optimized set of players
-        const players = [];
-        const teams = this.getMockTeams();
-        const positions = [1, 2, 3, 4];
-        const playerNames = {
-            1: [["David", "Raya"], ["Alisson", "Becker"], ["Ederson", "Moraes"], ["Andre", "Onana"]],
-            2: [["Virgil", "van Dijk"], ["William", "Saliba"], ["Ruben", "Dias"], ["Gabriel", "Magalhaes"]],
-            3: [["Mohamed", "Salah"], ["Cole", "Palmer"], ["Bukayo", "Saka"], ["Bruno", "Fernandes"]],
-            4: [["Erling", "Haaland"], ["Darwin", "Nunez"], ["Ollie", "Watkins"], ["Alexander", "Isak"]]
-        };
-
-        let playerId = 1;
-        teams.forEach(team => {
-            positions.forEach(position => {
-                // Add 2-3 players per position per team
-                const playerCount = position === 1 ? 2 : 3;
-                for (let i = 0; i < playerCount; i++) {
-                    const namePool = playerNames[position];
-                    const nameIndex = Math.floor(Math.random() * namePool.length);
-                    const [firstName, lastName] = namePool[nameIndex];
-                    
-                    players.push({
-                        id: playerId++,
-                        first_name: firstName,
-                        second_name: `${lastName}${team.id}`,
-                        team: team.id,
-                        element_type: position,
-                        now_cost: Math.floor(Math.random() * 80) + 40,
-                        total_points: Math.floor(Math.random() * 150),
-                        form: (Math.random() * 8).toFixed(1),
-                        selected_by_percent: (Math.random() * 50).toFixed(1),
-                        minutes: Math.floor(Math.random() * 2000),
-                        goals_scored: position === 4 ? Math.floor(Math.random() * 15) : Math.floor(Math.random() * 5),
-                        assists: Math.floor(Math.random() * 10),
-                        clean_sheets: position <= 2 ? Math.floor(Math.random() * 10) : 0,
-                        bonus: Math.floor(Math.random() * 20),
-                        influence: (Math.random() * 1000).toFixed(1),
-                        creativity: (Math.random() * 1000).toFixed(1),
-                        threat: (Math.random() * 1000).toFixed(1),
-                        ict_index: (Math.random() * 100).toFixed(1),
-                        transfers_in_event: Math.floor(Math.random() * 100000),
-                        transfers_out_event: Math.floor(Math.random() * 50000),
-                        status: 'a'
-                    });
-                }
-            });
-        });
-
-        return players;
+        // Return a smaller set of key players for faster initial load
+        return [
+            {
+                id: 1,
+                first_name: "Mohamed",
+                second_name: "Salah",
+                team: 12,
+                element_type: 3,
+                now_cost: 130,
+                total_points: 142,
+                form: "7.2",
+                selected_by_percent: "45.3",
+                minutes: 1420,
+                goals_scored: 12,
+                assists: 8,
+                clean_sheets: 0,
+                bonus: 18
+            },
+            {
+                id: 2,
+                first_name: "Erling",
+                second_name: "Haaland",
+                team: 13,
+                element_type: 4,
+                now_cost: 150,
+                total_points: 156,
+                form: "8.1",
+                selected_by_percent: "62.1",
+                minutes: 1380,
+                goals_scored: 18,
+                assists: 3,
+                clean_sheets: 0,
+                bonus: 22
+            },
+            {
+                id: 3,
+                first_name: "Cole",
+                second_name: "Palmer",
+                team: 6,
+                element_type: 3,
+                now_cost: 105,
+                total_points: 128,
+                form: "6.8",
+                selected_by_percent: "38.7",
+                minutes: 1350,
+                goals_scored: 10,
+                assists: 9,
+                clean_sheets: 0,
+                bonus: 15
+            }
+        ];
     }
 
     getMockFixtures() {
@@ -406,16 +452,16 @@ class FPLDataService {
     }
 }
 
+// Create singleton instance
+const FPLDataService = FPLDataServiceOptimized;
+
 // Auto-initialize and preload on page load
 if (typeof window !== 'undefined') {
-    window.FPLDataService = FPLDataService;
+    window.FPLDataService = FPLDataServiceOptimized;
     
     // Start preloading data as soon as the service loads
-    document.addEventListener('DOMContentLoaded', () => {
-        const service = new FPLDataService();
-        // Preload data in background after page loads
-        setTimeout(() => {
-            service.getBootstrapData().catch(console.error);
-        }, 100);
-    });
+    const service = new FPLDataServiceOptimized();
+    setTimeout(() => {
+        service.preloadData();
+    }, 100);
 }
