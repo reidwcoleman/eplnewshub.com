@@ -15,15 +15,22 @@ class FPLDataService {
         // Return cached data if valid and not forcing refresh
         if (!forceRefresh && cached && Date.now() - cached.timestamp < this.cacheTimeout) {
             console.log(`Using cached data for ${cacheKey}`);
+            this.isLiveData = false;
             return cached.data;
         }
 
         try {
-            // Use CORS proxy for all API calls
-            const proxyUrl = `${this.corsProxy}${encodeURIComponent(url)}`;
-            console.log(`Fetching live data for ${cacheKey}...`);
+            // Try without CORS proxy first (in case we're on same domain or CORS is allowed)
+            console.log(`Attempting direct fetch for ${cacheKey}...`);
             
-            const response = await fetch(proxyUrl);
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                mode: 'cors'
+            });
+            
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -41,15 +48,14 @@ class FPLDataService {
             
             return data;
         } catch (error) {
-            console.error('FPL API Error:', error);
+            console.log('Direct fetch failed, trying CORS proxy...', error.message);
             
-            // Try alternate CORS proxy if first one fails
+            // Try with CORS proxy
             try {
-                const alternateProxy = 'https://api.allorigins.win/raw?url=';
-                const alternateUrl = `${alternateProxy}${encodeURIComponent(url)}`;
-                console.log('Trying alternate proxy...');
+                const proxyUrl = `${this.corsProxy}${encodeURIComponent(url)}`;
+                console.log(`Using CORS proxy for ${cacheKey}...`);
                 
-                const response = await fetch(alternateUrl);
+                const response = await fetch(proxyUrl);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -63,19 +69,43 @@ class FPLDataService {
                 this.lastUpdateTime = Date.now();
                 this.isLiveData = true;
                 return data;
-            } catch (altError) {
-                console.error('Alternate proxy also failed:', altError);
+            } catch (proxyError) {
+                console.log('CORS proxy failed, trying alternate proxy...', proxyError.message);
                 
-                // Return cached data if available
-                if (cached) {
-                    console.log('Using stale cache data due to API error');
+                // Try alternate CORS proxy
+                try {
+                    const alternateProxy = 'https://api.allorigins.win/raw?url=';
+                    const alternateUrl = `${alternateProxy}${encodeURIComponent(url)}`;
+                    
+                    const response = await fetch(alternateUrl);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    
+                    this.cache.set(cacheKey, {
+                        data: data,
+                        timestamp: Date.now()
+                    });
+                    
+                    this.lastUpdateTime = Date.now();
+                    this.isLiveData = true;
+                    return data;
+                } catch (altError) {
+                    console.log('All API attempts failed, using fallback data');
+                    
+                    // Return cached data if available
+                    if (cached) {
+                        console.log('Using stale cache data');
+                        this.isLiveData = false;
+                        return cached.data;
+                    }
+                    
+                    // Return mock data as last resort
+                    console.log('Using mock data as final fallback');
                     this.isLiveData = false;
-                    return cached.data;
+                    return this.getMockData(cacheKey);
                 }
-                
-                // Return mock data as last resort
-                console.log('Returning mock data as fallback');
-                return this.getMockData(cacheKey);
             }
         }
     }
