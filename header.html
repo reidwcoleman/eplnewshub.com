@@ -28,7 +28,7 @@
                 <li><a href="/news.html">News</a></li>
                 <li><a href="/stats.html">Stats</a></li>
                 <li class="dropdown">
-                    <a href="/fpl-premium-hub.html" class="fpl-premium-nav">
+                    <a href="#" class="fpl-premium-nav" onclick="event.preventDefault();">
                         <span class="premium-icon">⚡</span> FPL Tools
                         <span class="dropdown-arrow">▼</span>
                     </a>
@@ -419,6 +419,12 @@
                 align-items: center;
                 gap: 5px;
                 position: relative;
+                cursor: pointer;
+                transition: color 0.3s ease;
+            }
+            
+            .fpl-premium-nav:hover {
+                color: #38003c;
             }
             
             .premium-icon {
@@ -482,12 +488,16 @@
                 transition: all 0.3s ease;
                 margin-top: 10px;
                 z-index: 1000;
+                pointer-events: none;
+                border: 1px solid rgba(0,0,0,0.1);
             }
             
-            .dropdown:hover .dropdown-menu {
+            .dropdown:hover .dropdown-menu,
+            .dropdown:focus-within .dropdown-menu {
                 opacity: 1;
                 visibility: visible;
                 margin-top: 5px;
+                pointer-events: auto;
             }
             
             .dropdown-header {
@@ -512,6 +522,7 @@
             .dropdown-item:hover {
                 background: linear-gradient(135deg, #f8f9fa, #e9ecef);
                 padding-left: 25px;
+                transform: translateX(5px);
             }
             
             .dropdown-item.featured {
@@ -542,7 +553,7 @@
                 color: #666;
             }
             
-            .badge-new {
+            .badge-new, .badge-hot {
                 position: absolute;
                 right: 15px;
                 top: 50%;
@@ -554,11 +565,28 @@
                 font-size: 0.7rem;
                 font-weight: 700;
                 animation: pulse 2s infinite;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
             }
             
             @keyframes pulse {
                 0%, 100% { transform: translateY(-50%) scale(1); }
                 50% { transform: translateY(-50%) scale(1.1); }
+            }
+            
+            @keyframes fadeInDropdown {
+                from {
+                    opacity: 0;
+                    transform: translateX(-50%) translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(-50%) translateY(0);
+                }
+            }
+            
+            .dropdown:hover .dropdown-menu {
+                animation: fadeInDropdown 0.3s ease forwards;
             }
             
             .dropdown-divider {
@@ -1186,6 +1214,46 @@
             }
         }
     }
+    
+    // Handle FPL dropdown on touch devices
+    document.addEventListener('DOMContentLoaded', function() {
+        const fplDropdown = document.querySelector('.dropdown');
+        const fplLink = document.querySelector('.fpl-premium-nav');
+        
+        if (fplDropdown && fplLink) {
+            // For touch devices
+            fplLink.addEventListener('click', function(e) {
+                if (window.innerWidth <= 1024) {
+                    e.preventDefault();
+                    const dropdownMenu = fplDropdown.querySelector('.dropdown-menu');
+                    if (dropdownMenu) {
+                        const isVisible = dropdownMenu.style.opacity === '1';
+                        if (isVisible) {
+                            dropdownMenu.style.opacity = '0';
+                            dropdownMenu.style.visibility = 'hidden';
+                            dropdownMenu.style.pointerEvents = 'none';
+                        } else {
+                            dropdownMenu.style.opacity = '1';
+                            dropdownMenu.style.visibility = 'visible';
+                            dropdownMenu.style.pointerEvents = 'auto';
+                        }
+                    }
+                }
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!fplDropdown.contains(e.target)) {
+                    const dropdownMenu = fplDropdown.querySelector('.dropdown-menu');
+                    if (dropdownMenu) {
+                        dropdownMenu.style.opacity = '';
+                        dropdownMenu.style.visibility = '';
+                        dropdownMenu.style.pointerEvents = '';
+                    }
+                }
+            });
+        }
+    })
     
     // Ensure mobile menu closes on window resize
     window.addEventListener('resize', function() {
