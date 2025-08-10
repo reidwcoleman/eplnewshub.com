@@ -55,6 +55,10 @@
         signOut(auth).catch((error) => {
             console.log('Sign out on page load (if any):', error);
         });
+        
+        // Add scope for better user info
+        googleProvider.addScope('profile');
+        googleProvider.addScope('email');
     </script>
     <style>
         .auth-container {
@@ -419,8 +423,13 @@
                 <span>or</span>
             </div>
             
-            <button id="google-signup-btn" class="social-btn google-btn">
-                <span>🔍</span>
+            <button id="google-signup-btn" class="social-btn google-btn" type="button">
+                <svg style="width: 20px; height: 20px; margin-right: 8px;" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
                 <span>Sign up with Google</span>
             </button>
             
@@ -434,6 +443,34 @@
     <script src="./index.js"></script>
     <script src="./ad-target-blank.js"></script>
     <script>
+        // Wait for Firebase to be fully loaded
+        let firebaseReady = false;
+        
+        // Check Firebase initialization
+        function checkFirebase() {
+            if (window.auth && window.signInWithPopup && window.googleProvider) {
+                firebaseReady = true;
+                console.log('Firebase is ready');
+                return true;
+            }
+            console.log('Firebase not ready yet...');
+            return false;
+        }
+        
+        // Wait for Firebase with timeout
+        function waitForFirebase(callback, timeout = 5000) {
+            const startTime = Date.now();
+            const interval = setInterval(() => {
+                if (checkFirebase()) {
+                    clearInterval(interval);
+                    callback(true);
+                } else if (Date.now() - startTime > timeout) {
+                    clearInterval(interval);
+                    callback(false);
+                }
+            }, 100);
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             const createAccountForm = document.querySelector('.auth-form');
             const googleSignupBtn = document.getElementById('google-signup-btn');
@@ -455,36 +492,99 @@
             // Email/Password Sign Up
             createAccountForm.addEventListener('submit', handleCreateAccount);
             
-            // Google Sign Up
-            googleSignupBtn.addEventListener('click', async function() {
-                try {
-                    if (window.signInWithPopup && window.auth && window.googleProvider) {
+            // Google Sign Up with better error handling
+            googleSignupBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                
+                console.log('Google Sign-Up button clicked');
+                
+                // Show loading state
+                googleSignupBtn.disabled = true;
+                const originalContent = googleSignupBtn.innerHTML;
+                googleSignupBtn.innerHTML = '<span>⏳</span> <span>Connecting to Google...</span>';
+                
+                // Wait for Firebase to be ready
+                waitForFirebase(async (isReady) => {
+                    if (!isReady) {
+                        showMessage('⚠️ Firebase is still loading. Please try again in a moment.', 'error');
+                        googleSignupBtn.disabled = false;
+                        googleSignupBtn.innerHTML = originalContent;
+                        return;
+                    }
+                    
+                    try {
+                        console.log('Starting Google Sign-Up popup...');
+                        
+                        // Configure provider
+                        window.googleProvider.setCustomParameters({
+                            prompt: 'select_account'
+                        });
+                        
                         const result = await window.signInWithPopup(window.auth, window.googleProvider);
                         const user = result.user;
                         
-                        showMessage('Google sign up successful! Redirecting...', 'success');
+                        console.log('Google sign-up successful:', user);
+                        showMessage('🎉 Google sign up successful! Welcome to EPL News Hub!', 'success');
                         
-                        // Store user info in localStorage
-                        localStorage.setItem('user', JSON.stringify({
+                        // Store user info in localStorage with additional data
+                        const userData = {
                             uid: user.uid,
                             email: user.email,
                             displayName: user.displayName,
                             photoURL: user.photoURL,
-                            signedInAt: new Date().toISOString()
-                        }));
+                            createdAt: new Date().toISOString(),
+                            signedInAt: new Date().toISOString(),
+                            provider: 'google',
+                            newsletter: true // Default to newsletter subscription for Google sign-ups
+                        };
+                        localStorage.setItem('user', JSON.stringify(userData));
                         
                         setTimeout(() => {
                             window.location.href = '/';
                         }, 1500);
-                    } else {
-                        throw new Error('Firebase not properly initialized');
+                    } catch (error) {
+                        console.error('Google sign up error:', error);
+                        
+                        let errorMessage = '❌ Google sign up failed. ';
+                        
+                        switch (error.code) {
+                            case 'auth/popup-closed-by-user':
+                                errorMessage = 'Sign-up cancelled. Please try again when ready.';
+                                break;
+                            case 'auth/popup-blocked':
+                                errorMessage = '🚫 Popup was blocked. Please allow popups for this site and try again.';
+                                break;
+                            case 'auth/cancelled-popup-request':
+                                errorMessage = 'Another sign-up popup is already open.';
+                                break;
+                            case 'auth/network-request-failed':
+                                errorMessage = '🌐 Network error. Please check your connection and try again.';
+                                break;
+                            case 'auth/unauthorized-domain':
+                                errorMessage = '⚠️ This domain is not authorized. Please contact support.';
+                                break;
+                            case 'auth/operation-not-allowed':
+                                errorMessage = '⚠️ Google Sign-In is not enabled. Please contact support.';
+                                break;
+                            case 'auth/email-already-in-use':
+                                errorMessage = 'An account with this email already exists. Please sign in instead.';
+                                setTimeout(() => {
+                                    window.location.href = '/signin.html';
+                                }, 2000);
+                                break;
+                            default:
+                                errorMessage += error.message || 'Please try again.';
+                        }
+                        
+                        if (error.code !== 'auth/popup-closed-by-user') {
+                            showMessage(errorMessage, 'error');
+                        }
+                    } finally {
+                        // Reset button state
+                        googleSignupBtn.disabled = false;
+                        googleSignupBtn.innerHTML = originalContent;
                     }
-                } catch (error) {
-                    console.error('Google sign up error:', error);
-                    if (error.code !== 'auth/popup-closed-by-user') {
-                        showMessage('Google sign up failed. Please try again.', 'error');
-                    }
-                }
+                });
             });
         });
         
