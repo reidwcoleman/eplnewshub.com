@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+git pu<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Google tag (gtag.js) -->
@@ -963,80 +963,105 @@
             }
 
             async processQuery(query) {
-                const lowerQuery = query.toLowerCase();
+                // Apply spell correction
+                const spellCheck = this.correctSpelling(query);
+                let processedQuery = spellCheck.corrected;
+                const lowerQuery = processedQuery.toLowerCase();
+                
+                // Add spell-check acknowledgment to response if corrections were made
+                let spellCheckMessage = '';
+                if (spellCheck.hadCorrections) {
+                    spellCheckMessage = `*I understood you meant: ${spellCheck.corrections.join(', ')}*\n\n`;
+                    console.log('Spell corrections applied:', spellCheck.corrections);
+                }
                 
                 // Analyze query context for intelligent responses
-                if (this.isPlayerQuery(query)) {
-                    return this.getIntelligentPlayerAnalysis(query);
+                if (this.isPlayerQuery(processedQuery)) {
+                    const response = this.getIntelligentPlayerAnalysis(processedQuery);
+                    return spellCheckMessage + response;
                 }
                 
                 // Captain recommendations with real data
                 if (lowerQuery.includes('captain') || lowerQuery.includes('captaincy')) {
-                    return this.getDataDrivenCaptainPicks();
+                    const response = this.getDataDrivenCaptainPicks();
+                    return spellCheckMessage + response;
                 }
                 
                 // Transfer advice based on form and xG
                 if (lowerQuery.includes('transfer') || lowerQuery.includes('bring in') || lowerQuery.includes('sell')) {
-                    return this.getSmartTransferAdvice(query);
+                    const response = this.getSmartTransferAdvice(processedQuery);
+                    return spellCheckMessage + response;
                 }
                 
                 // Value picks with VAPM analysis
                 if (lowerQuery.includes('value') || lowerQuery.includes('budget') || lowerQuery.includes('cheap')) {
-                    return this.getValueAnalysis();
+                    const response = this.getValueAnalysis();
+                    return spellCheckMessage + response;
                 }
                 
                 // xG and advanced metrics
                 if (lowerQuery.includes('xg') || lowerQuery.includes('expected')) {
-                    return this.getXGAnalysis();
+                    const response = this.getXGAnalysis();
+                    return spellCheckMessage + response;
                 }
                 
                 // Team analysis
-                if (this.isTeamQuery(query)) {
-                    return this.getTeamAnalysis(query);
+                if (this.isTeamQuery(processedQuery)) {
+                    const response = this.getTeamAnalysis(processedQuery);
+                    return spellCheckMessage + response;
                 }
                 
                 // Differentials with ownership data
                 if (lowerQuery.includes('differential') || lowerQuery.includes('low ownership')) {
-                    return this.getDifferentialPicks();
+                    const response = this.getDifferentialPicks();
+                    return spellCheckMessage + response;
                 }
                 
                 // Chip strategy
                 if (lowerQuery.includes('wildcard') || lowerQuery.includes('chip') || lowerQuery.includes('free hit') || lowerQuery.includes('bench boost') || lowerQuery.includes('triple')) {
-                    return this.getChipStrategy(query);
+                    const response = this.getChipStrategy(processedQuery);
+                    return spellCheckMessage + response;
                 }
                 
                 // Form analysis
                 if (lowerQuery.includes('form') || lowerQuery.includes('hot') || lowerQuery.includes('cold')) {
-                    return this.getFormAnalysis();
+                    const response = this.getFormAnalysis();
+                    return spellCheckMessage + response;
                 }
                 
                 // Fixture analysis
                 if (lowerQuery.includes('fixture') || lowerQuery.includes('schedule')) {
-                    return this.getFixtureInsights();
+                    const response = this.getFixtureInsights();
+                    return spellCheckMessage + response;
                 }
                 
                 // Premium analysis
                 if (lowerQuery.includes('premium') || lowerQuery.includes('expensive')) {
-                    return this.getPremiumPlayerAnalysis();
+                    const response = this.getPremiumPlayerAnalysis();
+                    return spellCheckMessage + response;
                 }
                 
                 // Injury and rotation
                 if (lowerQuery.includes('injur') || lowerQuery.includes('rotation') || lowerQuery.includes('benched')) {
-                    return this.getInjuryRotationAdvice();
+                    const response = this.getInjuryRotationAdvice();
+                    return spellCheckMessage + response;
                 }
                 
                 // Points and scoring
                 if (lowerQuery.includes('points') || lowerQuery.includes('score') || lowerQuery.includes('blank')) {
-                    return this.getPointsAnalysis(query);
+                    const response = this.getPointsAnalysis(processedQuery);
+                    return spellCheckMessage + response;
                 }
                 
                 // Strategy questions
                 if (lowerQuery.includes('strategy') || lowerQuery.includes('approach') || lowerQuery.includes('plan')) {
-                    return this.getStrategyAdvice();
+                    const response = this.getStrategyAdvice();
+                    return spellCheckMessage + response;
                 }
                 
                 // Default: Use AI to understand intent
-                return this.getIntelligentResponse(query);
+                const response = this.getIntelligentResponse(processedQuery);
+                return spellCheckMessage + response;
             }
             
             analyzeQueryContext(query) {
@@ -1147,6 +1172,232 @@
                 ];
                 
                 return indicators.filter(Boolean).length / indicators.length;
+            }
+            
+            // Spell-checking and fuzzy matching system
+            levenshteinDistance(str1, str2) {
+                const m = str1.length;
+                const n = str2.length;
+                const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+                
+                for (let i = 0; i <= m; i++) dp[i][0] = i;
+                for (let j = 0; j <= n; j++) dp[0][j] = j;
+                
+                for (let i = 1; i <= m; i++) {
+                    for (let j = 1; j <= n; j++) {
+                        if (str1[i - 1] === str2[j - 1]) {
+                            dp[i][j] = dp[i - 1][j - 1];
+                        } else {
+                            dp[i][j] = Math.min(
+                                dp[i - 1][j] + 1,    // deletion
+                                dp[i][j - 1] + 1,    // insertion
+                                dp[i - 1][j - 1] + 1 // substitution
+                            );
+                        }
+                    }
+                }
+                
+                return dp[m][n];
+            }
+            
+            findClosestMatch(word, candidates, threshold = 3) {
+                let bestMatch = null;
+                let minDistance = threshold;
+                
+                candidates.forEach(candidate => {
+                    const distance = this.levenshteinDistance(word.toLowerCase(), candidate.toLowerCase());
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        bestMatch = candidate;
+                    }
+                });
+                
+                return bestMatch;
+            }
+            
+            correctSpelling(query) {
+                // Common misspellings dictionary
+                const commonMisspellings = {
+                    'salah': ['sala', 'sallah', 'salha', 'slaah', 'salahh', 'mohd salah', 'mo salah'],
+                    'haaland': ['haland', 'halland', 'haalnd', 'haalandd', 'erling', 'harland'],
+                    'mbeumo': ['mbuemo', 'mbeuemo', 'mbeuno', 'mbemo', 'bryan mbeumo'],
+                    'palmer': ['plamer', 'palmr', 'cole palmer', 'pamer'],
+                    'captain': ['captin', 'captian', 'capitan', 'capt', 'cpt'],
+                    'transfer': ['tranfer', 'transfers', 'transfr', 'trnasfer'],
+                    'wildcard': ['wildcrad', 'wild card', 'wc', 'wildcar'],
+                    'differentials': ['diferencials', 'diffs', 'diferentials', 'differentals'],
+                    'fixtures': ['fixutres', 'fixures', 'fixturs', 'matches'],
+                    'gameweek': ['gw', 'game week', 'gamewek', 'gmwk'],
+                    'fantasy': ['fantsy', 'fantazy', 'fpl'],
+                    'premier': ['primier', 'premeir', 'prem'],
+                    'league': ['leauge', 'legue', 'leage'],
+                    'goalkeeper': ['gk', 'goalie', 'keeper', 'goalkepper'],
+                    'defender': ['def', 'defence', 'defenders'],
+                    'midfielder': ['mid', 'midfield', 'mids'],
+                    'forward': ['fwd', 'striker', 'forwards'],
+                    'arsenal': ['aresnal', 'arsnal', 'ars', 'gunners'],
+                    'chelsea': ['chlesea', 'che', 'blues'],
+                    'liverpool': ['liverpol', 'liv', 'pool', 'reds'],
+                    'manchester': ['man', 'manc', 'machester'],
+                    'tottenham': ['spurs', 'tot', 'tottenahm', 'tottenhm'],
+                    'newcastle': ['newcastel', 'new', 'toon', 'magpies'],
+                    'brighton': ['briton', 'bha', 'seagulls'],
+                    'brentford': ['brentfrod', 'brent', 'bees'],
+                    'value': ['vaule', 'valu', 'worth'],
+                    'budget': ['budjet', 'budgt', 'money'],
+                    'points': ['ponits', 'pts', 'pints'],
+                    'bonus': ['bonnus', 'bnus', 'bnous'],
+                    'injury': ['injurie', 'injry', 'injured'],
+                    'bench': ['benc', 'bnch', 'bensh'],
+                    'triple': ['tripple', 'tripl', 'tc'],
+                    'ownership': ['ownershp', 'owned', 'ownrship'],
+                    'template': ['templat', 'templete', 'tmplate']
+                };
+                
+                // Player name variations and nicknames
+                const playerNicknames = {
+                    'salah': ['mo', 'mohamed', 'egyptian king'],
+                    'haaland': ['erling', 'robot', 'viking', 'big man'],
+                    'de bruyne': ['kdb', 'kevin', 'debruyne'],
+                    'fernandes': ['bruno', 'bf'],
+                    'alexander-arnold': ['taa', 'trent'],
+                    'son': ['sonny', 'son heung-min'],
+                    'kane': ['harry', 'h kane'],
+                    'martinelli': ['gabi', 'gabriel m'],
+                    'jesus': ['gabriel j', 'gabby'],
+                    'nunez': ['darwin', 'uruguayan'],
+                    'jota': ['diogo'],
+                    'odegaard': ['martin', 'ode'],
+                    'rashford': ['marcus', 'rashy'],
+                    'grealish': ['jack', 'jacky'],
+                    'watkins': ['ollie'],
+                    'isak': ['alex', 'alexander'],
+                    'gordon': ['anthony', 'flash'],
+                    'maddison': ['madders', 'james'],
+                    'bowen': ['jarrod'],
+                    'saka': ['bukayo', 'starboy'],
+                    'foden': ['phil', 'stockport iniesta'],
+                    'palmer': ['cole', 'cold palmer'],
+                    'diaz': ['luis', 'lucho'],
+                    'szoboszlai': ['szobo', 'dominik'],
+                    'rice': ['declan'],
+                    'bellingham': ['jude', 'bellington'],
+                    'ward-prowse': ['jwp', 'james'],
+                    'neto': ['pedro'],
+                    'cunha': ['matheus'],
+                    'mbeumo': ['bryan', 'bee'],
+                    'wood': ['chris'],
+                    'wilson': ['callum'],
+                    'mitrovic': ['mitro', 'aleksandar'],
+                    'solanke': ['dom', 'dominic']
+                };
+                
+                let correctedQuery = query;
+                let corrections = [];
+                
+                // Split query into words
+                const words = query.toLowerCase().split(/\s+/);
+                const correctedWords = [];
+                
+                words.forEach(word => {
+                    let corrected = false;
+                    
+                    // Check common misspellings
+                    for (const [correct, misspellings] of Object.entries(commonMisspellings)) {
+                        if (misspellings.some(m => {
+                            const distance = this.levenshteinDistance(word, m);
+                            return distance <= 2;
+                        })) {
+                            correctedWords.push(correct);
+                            if (word !== correct) {
+                                corrections.push(`${word} → ${correct}`);
+                            }
+                            corrected = true;
+                            break;
+                        }
+                    }
+                    
+                    // Check player nicknames
+                    if (!corrected) {
+                        for (const [player, nicknames] of Object.entries(playerNicknames)) {
+                            if (nicknames.some(n => {
+                                const distance = this.levenshteinDistance(word, n);
+                                return distance <= 1 || word === n;
+                            })) {
+                                correctedWords.push(player);
+                                if (word !== player) {
+                                    corrections.push(`${word} → ${player}`);
+                                }
+                                corrected = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Check against all player names in knowledge base
+                    if (!corrected) {
+                        const allPlayerNames = this.knowledgeBase.topScorers.map(p => 
+                            p.name.toLowerCase().split(' ')
+                        ).flat();
+                        
+                        const closestPlayer = this.findClosestMatch(word, allPlayerNames, 2);
+                        if (closestPlayer && closestPlayer !== word) {
+                            correctedWords.push(closestPlayer);
+                            corrections.push(`${word} → ${closestPlayer}`);
+                            corrected = true;
+                        }
+                    }
+                    
+                    if (!corrected) {
+                        correctedWords.push(word);
+                    }
+                });
+                
+                correctedQuery = correctedWords.join(' ');
+                
+                return {
+                    original: query,
+                    corrected: correctedQuery,
+                    corrections: corrections,
+                    hadCorrections: corrections.length > 0
+                };
+            }
+            
+            // Phonetic matching for sound-alike words
+            getPhoneticCode(word) {
+                // Simple phonetic algorithm (Soundex-inspired)
+                word = word.toUpperCase();
+                let code = word[0];
+                
+                const mapping = {
+                    'BFPV': '1', 'CGJKQSXZ': '2', 'DT': '3',
+                    'L': '4', 'MN': '5', 'R': '6'
+                };
+                
+                for (let i = 1; i < word.length; i++) {
+                    for (const [letters, num] of Object.entries(mapping)) {
+                        if (letters.includes(word[i])) {
+                            if (code[code.length - 1] !== num) {
+                                code += num;
+                            }
+                            break;
+                        }
+                    }
+                }
+                
+                return code.padEnd(4, '0').substring(0, 4);
+            }
+            
+            findPhoneticMatch(word, candidates) {
+                const wordCode = this.getPhoneticCode(word);
+                
+                for (const candidate of candidates) {
+                    if (this.getPhoneticCode(candidate) === wordCode) {
+                        return candidate;
+                    }
+                }
+                
+                return null;
             }
             
             detectUrgency(query) {
