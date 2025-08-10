@@ -687,17 +687,26 @@
             }
 
             setupEventListeners() {
+                console.log('Setting up event listeners...');
+                
                 const input = document.getElementById('chat-input');
                 const sendBtn = document.getElementById('send-btn');
                 
+                if (!input || !sendBtn) {
+                    console.error('Chat input or send button not found!');
+                    return;
+                }
+                
                 // Fix send button click event
                 sendBtn.addEventListener('click', () => {
+                    console.log('Send button clicked');
                     this.sendMessage();
                 });
                 
                 input.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
+                        console.log('Enter key pressed');
                         this.sendMessage();
                     }
                 });
@@ -710,15 +719,19 @@
                 
                 // Setup quick action buttons
                 const quickActionBtns = document.querySelectorAll('.quick-action-btn');
+                console.log(`Found ${quickActionBtns.length} quick action buttons`);
                 quickActionBtns.forEach(btn => {
                     btn.addEventListener('click', () => {
                         const question = btn.getAttribute('data-question');
+                        console.log('Quick action clicked:', question);
                         if (question) {
                             document.getElementById('chat-input').value = question;
                             this.sendMessage();
                         }
                     });
                 });
+                
+                console.log('Event listeners setup complete');
             }
 
             async processQuery(query) {
@@ -1610,7 +1623,14 @@
             }
 
             addMessage(content, isUser = false) {
+                console.log('addMessage called:', { content: content.substring(0, 50), isUser });
+                
                 const messagesContainer = document.getElementById('chat-messages');
+                if (!messagesContainer) {
+                    console.error('Messages container not found!');
+                    return;
+                }
+                
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
                 
@@ -1626,6 +1646,7 @@
                 
                 messagesContainer.appendChild(messageDiv);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                console.log('Message added to DOM');
             }
 
             formatMessage(content) {
@@ -1643,10 +1664,16 @@
                 const input = document.getElementById('chat-input');
                 const message = input.value.trim();
                 
-                if (!message || this.isTyping) return;
+                console.log('sendMessage called with:', message);
+                
+                if (!message || this.isTyping) {
+                    console.log('Message empty or already typing');
+                    return;
+                }
                 
                 // Add user message
                 this.addMessage(message, true);
+                console.log('User message added');
                 
                 // Clear input
                 input.value = '';
@@ -1654,12 +1681,22 @@
                 
                 // Show typing indicator
                 this.showTyping();
+                console.log('Typing indicator shown');
                 
                 // Process query and generate response
                 setTimeout(async () => {
-                    const response = await this.processQuery(message);
-                    this.hideTyping();
-                    this.addMessage(response);
+                    try {
+                        console.log('Processing query...');
+                        const response = await this.processQuery(message);
+                        console.log('Response generated:', response.substring(0, 100) + '...');
+                        this.hideTyping();
+                        this.addMessage(response);
+                        console.log('Response added to chat');
+                    } catch (error) {
+                        console.error('Error processing query:', error);
+                        this.hideTyping();
+                        this.addMessage('Sorry, I encountered an error processing your request. Please try again.');
+                    }
                 }, 1000 + Math.random() * 1000); // Simulate thinking time
             }
 
@@ -1692,8 +1729,14 @@
 
         // Initialize the AI Assistant
         document.addEventListener('DOMContentLoaded', async function() {
-            window.fplAI = new FPLAIAssistant();
-            await window.fplAI.initialize();
+            console.log('DOMContentLoaded - Initializing FPL AI Assistant...');
+            try {
+                window.fplAI = new FPLAIAssistant();
+                await window.fplAI.initialize();
+                console.log('FPL AI Assistant initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize FPL AI Assistant:', error);
+            }
         });
     </script>
 </body>
