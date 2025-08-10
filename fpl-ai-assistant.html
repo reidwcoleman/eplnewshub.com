@@ -377,27 +377,27 @@
 
             <!-- Quick Actions -->
             <div class="quick-actions">
-                <button class="quick-action-btn" onclick="askAI('Who should I captain this gameweek?')">
+                <button class="quick-action-btn" data-question="Who should I captain this gameweek?">
                     <span class="quick-action-icon">©️</span>
                     Captain Pick
                 </button>
-                <button class="quick-action-btn" onclick="askAI('What transfers should I make this week?')">
+                <button class="quick-action-btn" data-question="What transfers should I make this week?">
                     <span class="quick-action-icon">🔄</span>
                     Transfer Advice
                 </button>
-                <button class="quick-action-btn" onclick="askAI('Which players are the best value picks?')">
+                <button class="quick-action-btn" data-question="Which players are the best value picks?">
                     <span class="quick-action-icon">💰</span>
                     Value Picks
                 </button>
-                <button class="quick-action-btn" onclick="askAI('Who has the best fixtures coming up?')">
+                <button class="quick-action-btn" data-question="Who has the best fixtures coming up?">
                     <span class="quick-action-icon">📅</span>
                     Fixture Analysis
                 </button>
-                <button class="quick-action-btn" onclick="askAI('Which premium players should I target?')">
+                <button class="quick-action-btn" data-question="Which premium players should I target?">
                     <span class="quick-action-icon">⭐</span>
                     Premium Targets
                 </button>
-                <button class="quick-action-btn" onclick="askAI('What differential picks do you recommend?')">
+                <button class="quick-action-btn" data-question="What differential picks do you recommend?">
                     <span class="quick-action-icon">🎯</span>
                     Differentials
                 </button>
@@ -436,7 +436,7 @@
                             rows="1"
                         ></textarea>
                     </div>
-                    <button class="send-btn" id="send-btn" onclick="sendMessage()">
+                    <button class="send-btn" id="send-btn">
                         <span>Send</span>
                         <span>→</span>
                     </button>
@@ -679,6 +679,11 @@
                 const input = document.getElementById('chat-input');
                 const sendBtn = document.getElementById('send-btn');
                 
+                // Fix send button click event
+                sendBtn.addEventListener('click', () => {
+                    this.sendMessage();
+                });
+                
                 input.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -690,6 +695,18 @@
                 input.addEventListener('input', () => {
                     input.style.height = 'auto';
                     input.style.height = input.scrollHeight + 'px';
+                });
+                
+                // Setup quick action buttons
+                const quickActionBtns = document.querySelectorAll('.quick-action-btn');
+                quickActionBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const question = btn.getAttribute('data-question');
+                        if (question) {
+                            document.getElementById('chat-input').value = question;
+                            this.sendMessage();
+                        }
+                    });
                 });
             }
 
@@ -1643,10 +1660,12 @@
             }
         }
 
-        // Global functions
+        // Global functions (kept for backward compatibility)
         function askAI(question) {
-            document.getElementById('chat-input').value = question;
-            sendMessage();
+            if (window.fplAI) {
+                document.getElementById('chat-input').value = question;
+                window.fplAI.sendMessage();
+            }
         }
 
         function sendMessage() {
