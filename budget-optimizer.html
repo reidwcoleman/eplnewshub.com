@@ -524,24 +524,24 @@
                     </div>
                 </div>
                 
-                <div class="strategy-card" data-strategy="premium" onclick="selectStrategy('premium')">
-                    <h3>💎 Premium Heavy</h3>
+                <div class="strategy-card" data-strategy="best" onclick="selectStrategy('best')">
+                    <h3>🏆 Best Team</h3>
                     <div class="strategy-description">
-                        Focus on expensive star players with budget enablers to maximize points ceiling
+                        AI-optimized squad with highest predicted points for maximum performance
                     </div>
                 </div>
                 
-                <div class="strategy-card" data-strategy="value" onclick="selectStrategy('value')">
-                    <h3>💰 Value Focused</h3>
+                <div class="strategy-card" data-strategy="budget" onclick="selectStrategy('budget')">
+                    <h3>💰 Budget Team</h3>
                     <div class="strategy-description">
-                        Emphasize budget gems and high points-per-million players for maximum efficiency
+                        Cost-effective squad under £95m with focus on value and emerging talents
                     </div>
                 </div>
                 
-                <div class="strategy-card" data-strategy="differential" onclick="selectStrategy('differential')">
-                    <h3>🎯 Differential</h3>
+                <div class="strategy-card" data-strategy="wildcard" onclick="selectStrategy('wildcard')">
+                    <h3>🎰 Wildcard</h3>
                     <div class="strategy-description">
-                        Low ownership players with high potential for catching up in mini-leagues
+                        Complete squad overhaul targeting form players and fixture swings
                     </div>
                 </div>
             </div>
@@ -628,6 +628,9 @@
             <div class="optimization-controls">
                 <button class="optimize-btn" onclick="optimizeTeam()" id="optimize-button">
                     🚀 Optimize My Squad
+                </button>
+                <button class="optimize-btn" onclick="resetTeam()" id="reset-button" style="background: linear-gradient(135deg, #dc3545, #fd7e14);">
+                    🔄 Reset Team
                 </button>
             </div>
 
@@ -805,6 +808,15 @@
                 document.getElementById('optimize-button').disabled = true;
 
                 try {
+                    // Adjust budget for budget team strategy
+                    if (this.selectedStrategy === 'budget') {
+                        document.getElementById('budget-slider').value = 950; // £95m
+                        this.updateBudgetDisplay();
+                    } else if (this.selectedStrategy === 'best') {
+                        document.getElementById('budget-slider').value = 1000; // £100m
+                        this.updateBudgetDisplay();
+                    }
+                    
                     // Add delay for UX
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     
@@ -891,9 +903,9 @@
             getBudgetAllocation(strategy, totalBudget) {
                 const allocations = {
                     balanced: { 1: 0.08, 2: 0.28, 3: 0.38, 4: 0.26 },
-                    premium: { 1: 0.06, 2: 0.24, 3: 0.35, 4: 0.35 },
-                    value: { 1: 0.10, 2: 0.32, 3: 0.35, 4: 0.23 },
-                    differential: { 1: 0.09, 2: 0.30, 3: 0.36, 4: 0.25 }
+                    best: { 1: 0.07, 2: 0.26, 3: 0.37, 4: 0.30 },
+                    budget: { 1: 0.09, 2: 0.32, 3: 0.36, 4: 0.23 },
+                    wildcard: { 1: 0.08, 2: 0.27, 3: 0.38, 4: 0.27 }
                 };
 
                 const allocation = allocations[strategy];
@@ -928,21 +940,39 @@
                 const pointsScore = player.total_points / 10;
                 const formScore = parseFloat(player.form) * 2;
                 const valueScore = (player.total_points / player.now_cost) * 100;
+                const xGIScore = (parseFloat(player.expected_goals) + parseFloat(player.expected_assists)) * 10;
+                const minutesRatio = player.minutes / (player.starts || 1) / 90; // Average minutes per start
                 
                 // Strategy adjustments
                 switch (strategy) {
-                    case 'premium':
-                        score = pointsScore * 0.6 + formScore * 0.3 + (player.now_cost / 10) * 0.1;
+                    case 'best':
+                        // Focus on highest performing players regardless of cost
+                        score = pointsScore * 0.35 + formScore * 0.35 + xGIScore * 0.2 + minutesRatio * 0.1;
+                        // Bonus for consistent high scorers
+                        if (player.total_points > 100) score *= 1.3;
+                        if (player.total_points > 150) score *= 1.5;
                         break;
-                    case 'value':
-                        score = valueScore * 0.5 + pointsScore * 0.3 + formScore * 0.2;
+                    
+                    case 'budget':
+                        // Maximize value under budget constraints
+                        score = valueScore * 0.45 + formScore * 0.25 + pointsScore * 0.2 + minutesRatio * 0.1;
+                        // Boost cheaper players with good returns
+                        if (player.now_cost < 60 && player.total_points > 50) score *= 1.4;
+                        if (player.now_cost < 50 && player.total_points > 40) score *= 1.6;
                         break;
-                    case 'differential':
-                        const ownershipScore = (100 - player.selected_by_percent) / 100 * 20;
-                        score = pointsScore * 0.4 + formScore * 0.3 + ownershipScore * 0.3;
+                    
+                    case 'wildcard':
+                        // Focus on form and upcoming fixtures
+                        score = formScore * 0.45 + xGIScore * 0.25 + pointsScore * 0.2 + minutesRatio * 0.1;
+                        // Boost in-form players
+                        if (parseFloat(player.form) > 6) score *= 1.3;
+                        if (parseFloat(player.form) > 8) score *= 1.5;
+                        // Consider recent transfers
+                        if (player.transfers_in_event > player.transfers_out_event * 2) score *= 1.2;
                         break;
+                    
                     default: // balanced
-                        score = pointsScore * 0.4 + formScore * 0.3 + valueScore * 0.3;
+                        score = pointsScore * 0.35 + formScore * 0.25 + valueScore * 0.25 + xGIScore * 0.15;
                 }
 
                 // Preference adjustments
@@ -954,6 +984,13 @@
                 }
                 if (preferences.differentialPicks && player.selected_by_percent < 10) {
                     score *= 1.1;
+                }
+                if (preferences.considerFixtures) {
+                    // Boost players from teams with easier fixtures
+                    const easyFixtureTeams = [14, 17, 15, 1, 3]; // Example team IDs with easier fixtures
+                    if (easyFixtureTeams.includes(player.team)) {
+                        score *= 1.15;
+                    }
                 }
 
                 return score;
@@ -1172,6 +1209,41 @@
             if (optimizer) {
                 optimizer.refreshData();
             }
+        }
+
+        function resetTeam() {
+            // Reset all settings to default
+            document.getElementById('budget-slider').value = 1000;
+            document.getElementById('def-play').value = 5;
+            document.getElementById('mid-play').value = 5;
+            document.getElementById('fwd-play').value = 3;
+            document.getElementById('include-captains').checked = true;
+            document.getElementById('avoid-rotation').checked = true;
+            document.getElementById('consider-fixtures').checked = false;
+            document.getElementById('differential-picks').checked = false;
+            
+            // Reset strategy to balanced
+            if (optimizer) {
+                optimizer.selectStrategy('balanced');
+                optimizer.updateBudgetDisplay();
+            }
+            
+            // Hide results
+            document.getElementById('results-container').style.display = 'none';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Show confirmation
+            const resetBtn = document.getElementById('reset-button');
+            const originalText = resetBtn.innerHTML;
+            resetBtn.innerHTML = '✅ Reset Complete!';
+            resetBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+            
+            setTimeout(() => {
+                resetBtn.innerHTML = originalText;
+                resetBtn.style.background = 'linear-gradient(135deg, #dc3545, #fd7e14)';
+            }, 2000);
         }
 
         // Initialize the optimizer
