@@ -207,6 +207,21 @@
                 </div>
             </section>
 
+            <!-- Ad after Top Stories -->
+            <div class="ad-container">
+                <div class="ad-label">Advertisement</div>
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-6480210605786899"
+                     data-ad-slot="1234567890"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+
             <!-- Latest News Grid -->
             <!-- Enhanced Featured Stories Section -->
             <section class="featured-stories">
@@ -318,6 +333,21 @@
                     </div>
                 </div>
             </section>
+            
+            <!-- Ad in Middle of Content -->
+            <div class="ad-container">
+                <div class="ad-label">Advertisement</div>
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-6480210605786899"
+                     data-ad-slot="2345678901"
+                     data-ad-format="horizontal"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
             
             <!-- Quick News & Sidebar Section -->
             <section class="news-sidebar-section">
@@ -567,6 +597,20 @@
         </div>
     </main>
 
+    <!-- Ad before Footer -->
+    <div class="ad-container" style="max-width: 1200px; margin: 20px auto; padding: 0 20px;">
+        <div class="ad-label">Advertisement</div>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-6480210605786899"
+             data-ad-slot="3456789012"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
 
     <!-- Footer -->
     <footer class="site-footer">
@@ -1293,56 +1337,26 @@
             flex-direction: column;
         }
         
-        /* Hide auto-placed ads between header/nav and newsletter */
-        .site-header + ins[class*="adsbygoogle"],
-        .site-header + div[id*="google_ads"],
-        header + ins[class*="adsbygoogle"],
-        header + div[id*="google_ads"],
-        .main-nav + ins[class*="adsbygoogle"],
-        .main-nav + div[id*="google_ads"],
-        .newsletter-banner::before ins[class*="adsbygoogle"],
-        body > ins[class*="adsbygoogle"]:first-of-type,
-        body > ins[class*="adsbygoogle"]:nth-child(2),
-        body > ins[class*="adsbygoogle"]:nth-child(3),
-        .site-header ~ ins[class*="adsbygoogle"]:first-of-type,
-        .site-header ~ div[id*="google_ads"]:first-of-type,
-        header ~ ins[class*="adsbygoogle"]:first-of-type,
-        header ~ div[id*="google_ads"]:first-of-type {
-            display: none !important;
-            visibility: hidden !important;
-            height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            position: absolute !important;
-            left: -9999px !important;
+        /* Ad styling */
+        .ad-container {
+            margin: 20px 0;
+            padding: 15px 0;
+            text-align: center;
+            min-height: 90px;
         }
         
-        /* Hide any Google ads that appear at the top of the page */
-        body > div[id*="google_ads"]:first-child,
-        body > div[id*="google_ads"]:nth-child(2),
-        body > div[id*="google_ads"]:nth-child(3),
-        body > ins[class*="adsbygoogle"]:first-child,
-        body > ins[class*="adsbygoogle"]:nth-child(2),
-        body > ins[class*="adsbygoogle"]:nth-child(3) {
-            display: none !important;
-            visibility: hidden !important;
-            height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            position: absolute !important;
-            left: -9999px !important;
+        .ad-label {
+            font-size: 0.75rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
         }
         
-        /* Specifically target ads that appear before newsletter banner */
-        .newsletter-banner::before,
-        .premium-banner::before {
-            content: none !important;
-        }
-        
-        /* Hide any ads immediately before main content */
-        .main-content::before ins[class*="adsbygoogle"],
-        .main-content::before div[id*="google_ads"] {
-            display: none !important;
+        /* Ad responsive styling */
+        .adsbygoogle {
+            display: block;
+            margin: 0 auto;
         }
         
         /* Sidebar Promotional Widgets */
@@ -2571,47 +2585,12 @@
         
         // Remove auto-placed ads between header and newsletter
         function removeUnwantedAds() {
-            // Target ads that appear between header and newsletter
+            // Initialize page elements
             const header = document.querySelector('.site-header');
             const newsletter = document.querySelector('.newsletter-banner');
             
             if (header && newsletter) {
-                // Get all elements between header and newsletter
-                let current = header.nextElementSibling;
-                const elementsToRemove = [];
-                
-                while (current && current !== newsletter) {
-                    // Check if it's an ad element
-                    if (current.classList.contains('adsbygoogle') || 
-                        current.id && current.id.includes('google_ads') ||
-                        current.tagName === 'INS' && current.className.includes('adsbygoogle')) {
-                        elementsToRemove.push(current);
-                    }
-                    current = current.nextElementSibling;
-                }
-                
-                // Remove the ad elements
-                elementsToRemove.forEach(el => {
-                    el.style.display = 'none';
-                    el.style.visibility = 'hidden';
-                    el.style.height = '0';
-                    el.style.margin = '0';
-                    el.style.padding = '0';
-                    el.remove();
-                });
-            }
-            
-            // Also remove any direct child ads of body that appear early
-            const bodyChildren = document.body.children;
-            for (let i = 0; i < Math.min(5, bodyChildren.length); i++) {
-                const child = bodyChildren[i];
-                if (child.classList.contains('adsbygoogle') || 
-                    (child.id && child.id.includes('google_ads')) ||
-                    (child.tagName === 'INS' && child.className.includes('adsbygoogle'))) {
-                    child.style.display = 'none';
-                    child.style.visibility = 'hidden';
-                    child.remove();
-                }
+                console.log('Page elements initialized');
             }
         }
         

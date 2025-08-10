@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sign-In Test | EPL News Hub</title>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyOey0l27yQP68oybpoodMVcvayhIHt2I",
+            authDomain: "epl-news-hub-94c09.firebaseapp.com",
+            projectId: "epl-news-hub-94c09",
+            storageBucket: "epl-news-hub-94c09.firebasestorage.app",
+            messagingSenderId: "674703933278",
+            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf",
+            measurementId: "G-ECM6BCQCS8"
+        };
+        
+        // Initialize Firebase
+        console.log('Initializing Firebase...');
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        // Add additional scopes if needed
+        googleProvider.addScope('profile');
+        googleProvider.addScope('email');
+        
+        // Make auth available globally
+        window.auth = auth;
+        window.googleProvider = googleProvider;
+        window.signInWithPopup = signInWithPopup;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut;
+        
+        console.log('Firebase initialized successfully');
+        
+        // Monitor auth state
+        onAuthStateChanged(auth, (user) => {
+            const statusDiv = document.getElementById('auth-status');
+            const userInfoDiv = document.getElementById('user-info');
+            
+            if (user) {
+                console.log('User is signed in:', user);
+                statusDiv.innerHTML = '<span style="color: green;">✓ Signed In</span>';
+                userInfoDiv.innerHTML = `
+                    <h3>User Information:</h3>
+                    <p><strong>UID:</strong> ${user.uid}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Display Name:</strong> ${user.displayName}</p>
+                    <p><strong>Photo URL:</strong> ${user.photoURL ? `<img src="${user.photoURL}" style="width: 50px; height: 50px; border-radius: 50%;">` : 'None'}</p>
+                    <p><strong>Email Verified:</strong> ${user.emailVerified}</p>
+                    <button onclick="handleSignOut()" style="margin-top: 10px; padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">Sign Out</button>
+                `;
+            } else {
+                console.log('User is signed out');
+                statusDiv.innerHTML = '<span style="color: orange;">⚠ Not Signed In</span>';
+                userInfoDiv.innerHTML = '<p>Not signed in</p>';
+            }
+        });
+    </script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #38003c;
+            padding-bottom: 10px;
+        }
+        
+        .status-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .google-signin-btn {
+            background: white;
+            border: 1px solid #4285f4;
+            color: #4285f4;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .google-signin-btn:hover {
+            background: #4285f4;
+            color: white;
+        }
+        
+        .google-signin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .debug-section {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .debug-section h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        
+        .console-output {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        
+        .setup-instructions {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .setup-instructions h3 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+        
+        .setup-instructions ol {
+            line-height: 1.8;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Google Sign-In Test Page</h1>
+        
+        <div class="status-section">
+            <h2>System Status</h2>
+            <div class="status-item">
+                <span>Firebase SDK:</span>
+                <span id="firebase-status">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span>Auth Service:</span>
+                <span id="auth-service-status">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span>Google Provider:</span>
+                <span id="provider-status">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span>Current Auth State:</span>
+                <span id="auth-status">Loading...</span>
+            </div>
+        </div>
+        
+        <button id="google-signin-btn" class="google-signin-btn" onclick="handleGoogleSignIn()">
+            <svg class="google-icon" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Sign in with Google
+        </button>
+        
+        <div id="message-area"></div>
+        
+        <div class="status-section">
+            <h2>User Information</h2>
+            <div id="user-info">
+                <p>Not signed in</p>
+            </div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>🔧 Debug Console</h3>
+            <div id="console-output" class="console-output">
+                Console output will appear here...
+            </div>
+        </div>
+        
+        <div class="setup-instructions">
+            <h3>📋 Firebase Setup Requirements</h3>
+            <p>To make Google Sign-In work, you need to configure Firebase properly:</p>
+            <ol>
+                <li><strong>Go to Firebase Console:</strong> <a href="https://console.firebase.google.com/project/epl-news-hub-94c09/authentication/providers" target="_blank">Open Firebase Console</a></li>
+                <li><strong>Enable Google Provider:</strong>
+                    <ul>
+                        <li>Click on "Google" in the Sign-in providers list</li>
+                        <li>Toggle the "Enable" switch</li>
+                        <li>Add a support email (required)</li>
+                        <li>Click "Save"</li>
+                    </ul>
+                </li>
+                <li><strong>Add Authorized Domains:</strong>
+                    <ul>
+                        <li>Go to Authentication → Settings</li>
+                        <li>Add your domain to "Authorized domains"</li>
+                        <li>For local testing, localhost is already authorized</li>
+                        <li>For production, add: eplnewshub.com</li>
+                    </ul>
+                </li>
+                <li><strong>Configure OAuth Consent Screen:</strong>
+                    <ul>
+                        <li>May need to be done in Google Cloud Console</li>
+                        <li>Set app name, support email, and authorized domains</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+        
+        <div class="setup-instructions" style="background: #f8d7da; border-color: #f5c6cb;">
+            <h3>⚠️ Common Issues & Solutions</h3>
+            <ul>
+                <li><strong>Popup blocked:</strong> Allow popups for this site in browser settings</li>
+                <li><strong>403 Error:</strong> Google provider not enabled in Firebase Console</li>
+                <li><strong>Invalid API key:</strong> Check Firebase config in code matches your project</li>
+                <li><strong>Cross-origin error:</strong> Add domain to Firebase authorized domains</li>
+                <li><strong>Sign-in cancelled:</strong> User closed the popup before completing sign-in</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // Debug logging
+        const consoleOutput = document.getElementById('console-output');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff6b6b' : type === 'success' ? '#51cf66' : '#74c0fc';
+            consoleOutput.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            console.log(message);
+        }
+        
+        // Check Firebase status on load
+        window.addEventListener('load', () => {
+            log('Page loaded, checking Firebase status...');
+            
+            // Check Firebase SDK
+            const firebaseStatus = document.getElementById('firebase-status');
+            if (typeof window.auth !== 'undefined') {
+                firebaseStatus.innerHTML = '<span style="color: green;">✓ Loaded</span>';
+                log('Firebase SDK loaded successfully', 'success');
+            } else {
+                firebaseStatus.innerHTML = '<span style="color: red;">✗ Not Loaded</span>';
+                log('Firebase SDK not loaded!', 'error');
+            }
+            
+            // Check Auth Service
+            const authStatus = document.getElementById('auth-service-status');
+            if (window.auth) {
+                authStatus.innerHTML = '<span style="color: green;">✓ Initialized</span>';
+                log('Auth service initialized', 'success');
+            } else {
+                authStatus.innerHTML = '<span style="color: red;">✗ Not Initialized</span>';
+                log('Auth service not initialized!', 'error');
+            }
+            
+            // Check Google Provider
+            const providerStatus = document.getElementById('provider-status');
+            if (window.googleProvider) {
+                providerStatus.innerHTML = '<span style="color: green;">✓ Configured</span>';
+                log('Google provider configured', 'success');
+            } else {
+                providerStatus.innerHTML = '<span style="color: red;">✗ Not Configured</span>';
+                log('Google provider not configured!', 'error');
+            }
+        });
+        
+        async function handleGoogleSignIn() {
+            const messageArea = document.getElementById('message-area');
+            const button = document.getElementById('google-signin-btn');
+            
+            log('Starting Google Sign-In process...');
+            
+            // Clear previous messages
+            messageArea.innerHTML = '';
+            
+            // Disable button during sign-in
+            button.disabled = true;
+            button.textContent = 'Signing in...';
+            
+            try {
+                if (!window.signInWithPopup || !window.auth || !window.googleProvider) {
+                    throw new Error('Firebase not properly initialized. Check console for details.');
+                }
+                
+                log('Opening Google Sign-In popup...');
+                const result = await window.signInWithPopup(window.auth, window.googleProvider);
+                
+                // This gives you a Google Access Token. You can use it to access the Google API.
+                const credential = result.credential;
+                const token = credential?.accessToken;
+                
+                // The signed-in user info.
+                const user = result.user;
+                
+                log(`Sign-in successful! User: ${user.displayName} (${user.email})`, 'success');
+                
+                // Show success message
+                messageArea.innerHTML = `
+                    <div class="success-message">
+                        <h3>✅ Sign-In Successful!</h3>
+                        <p>Welcome, ${user.displayName}!</p>
+                        <p>Email: ${user.email}</p>
+                        <p>UID: ${user.uid}</p>
+                    </div>
+                `;
+                
+                // Store user info in localStorage
+                const userData = {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL,
+                    signedInAt: new Date().toISOString()
+                };
+                localStorage.setItem('user', JSON.stringify(userData));
+                log('User data saved to localStorage', 'success');
+                
+            } catch (error) {
+                console.error('Sign-in error:', error);
+                log(`Sign-in error: ${error.message}`, 'error');
+                
+                let errorMessage = 'An error occurred during sign-in.';
+                let errorDetails = '';
+                
+                switch (error.code) {
+                    case 'auth/popup-closed-by-user':
+                        errorMessage = 'Sign-in cancelled';
+                        errorDetails = 'You closed the sign-in popup before completing the process.';
+                        break;
+                    case 'auth/popup-blocked':
+                        errorMessage = 'Popup blocked';
+                        errorDetails = 'Please allow popups for this site and try again.';
+                        break;
+                    case 'auth/cancelled-popup-request':
+                        errorMessage = 'Multiple popup requests';
+                        errorDetails = 'Another sign-in popup is already open.';
+                        break;
+                    case 'auth/unauthorized-domain':
+                        errorMessage = 'Unauthorized domain';
+                        errorDetails = 'This domain is not authorized for OAuth operations. Add it to Firebase Console.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage = 'Google Sign-In not enabled';
+                        errorDetails = 'Enable Google Sign-In provider in Firebase Console.';
+                        break;
+                    default:
+                        errorDetails = error.message;
+                }
+                
+                messageArea.innerHTML = `
+                    <div class="error-message">
+                        <h3>❌ ${errorMessage}</h3>
+                        <p>${errorDetails}</p>
+                        <p><small>Error code: ${error.code || 'Unknown'}</small></p>
+                    </div>
+                `;
+            } finally {
+                // Re-enable button
+                button.disabled = false;
+                button.innerHTML = `
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Sign in with Google
+                `;
+            }
+        }
+        
+        async function handleSignOut() {
+            try {
+                log('Signing out...');
+                await window.signOut(window.auth);
+                localStorage.removeItem('user');
+                log('Sign-out successful', 'success');
+                
+                document.getElementById('message-area').innerHTML = `
+                    <div class="success-message">
+                        <h3>👋 Signed Out Successfully</h3>
+                        <p>You have been signed out.</p>
+                    </div>
+                `;
+            } catch (error) {
+                log(`Sign-out error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
