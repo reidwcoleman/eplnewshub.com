@@ -93,6 +93,15 @@ self.addEventListener('fetch', event => {
         return;
     }
     
+    // Skip FPL API requests and CORS proxy requests - let them go through normally
+    if (url.hostname === 'fantasy.premierleague.com' || 
+        url.hostname === 'corsproxy.io' || 
+        url.hostname === 'api.allorigins.win' ||
+        url.href.includes('corsproxy.io') ||
+        url.href.includes('allorigins.win')) {
+        return;
+    }
+    
     // Apply caching strategy based on request type
     if (CACHE_STRATEGIES.static.test(url.pathname)) {
         // Static assets - Cache First
@@ -178,7 +187,16 @@ async function staleWhileRevalidate(request) {
         })
         .catch(error => {
             console.error('Network request failed:', error);
-            return cachedResponse;
+            // Return cached response if available, otherwise return error response
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+            // Return a proper error response instead of undefined
+            return new Response(JSON.stringify({ error: 'Network request failed' }), {
+                status: 503,
+                statusText: 'Service Unavailable',
+                headers: { 'Content-Type': 'application/json' }
+            });
         });
     
     return cachedResponse || fetchPromise;

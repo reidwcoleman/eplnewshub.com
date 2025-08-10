@@ -48,7 +48,7 @@ class FPLDataService {
             
             return data;
         } catch (error) {
-            console.log('Direct fetch failed, trying CORS proxy...', error.message);
+            console.log('Direct fetch failed (CORS blocked), trying CORS proxy...', error.message);
             
             // Try with CORS proxy
             try {

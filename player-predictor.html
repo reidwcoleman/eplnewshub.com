@@ -773,16 +773,25 @@
             async initialize() {
                 try {
                     const bootstrap = await this.fplService.getBootstrapData();
-                    this.allPlayers = bootstrap.elements;
-                    this.teams = bootstrap.teams;
                     
-                    this.populateTeamFilter();
-                    this.setupEventListeners();
-                    this.performInitialSearch();
-                    this.updateLiveIndicator();
-                    
-                    // Auto-refresh every 2 minutes
-                    setInterval(() => this.refreshData(), 2 * 60 * 1000);
+                    // Check if we got valid data
+                    if (bootstrap && bootstrap.elements && bootstrap.elements.length > 0) {
+                        this.allPlayers = bootstrap.elements;
+                        this.teams = bootstrap.teams;
+                        
+                        this.populateTeamFilter();
+                        this.setupEventListeners();
+                        await this.performInitialSearch();
+                        this.updateLiveIndicator();
+                        
+                        // Auto-refresh every 2 minutes
+                        setInterval(() => this.refreshData(), 2 * 60 * 1000);
+                    } else {
+                        // Got empty or invalid data
+                        console.warn('Received empty bootstrap data, using offline mode');
+                        this.updateLiveIndicator(false);
+                        this.loadMockPlayers();
+                    }
                 } catch (error) {
                     console.error('Failed to initialize player predictor:', error);
                     // Silently continue with mock data - no alert
@@ -817,7 +826,16 @@
                 const dotEl = document.getElementById('live-dot');
                 const updateEl = document.getElementById('last-update');
                 
-                const dataIsLive = isLive !== null ? isLive : this.fplService.isDataLive();
+                // Check if fplService exists and has the methods
+                if (!this.fplService) {
+                    statusEl.textContent = 'OFFLINE';
+                    dotEl.style.background = '#ff0000';
+                    updateEl.textContent = 'Never';
+                    return;
+                }
+                
+                const dataIsLive = isLive !== null ? isLive : 
+                    (this.fplService.isDataLive ? this.fplService.isDataLive() : false);
                 
                 if (dataIsLive) {
                     statusEl.textContent = 'LIVE DATA';
@@ -827,7 +845,52 @@
                     dotEl.style.background = '#ffa500';
                 }
                 
-                updateEl.textContent = this.fplService.getLastUpdateTime();
+                updateEl.textContent = this.fplService.getLastUpdateTime ? 
+                    this.fplService.getLastUpdateTime() : 'Never';
+            }
+
+            loadMockPlayers() {
+                // Initialize with empty arrays if not already done
+                if (!this.allPlayers) this.allPlayers = [];
+                if (!this.teams) this.teams = [];
+                
+                // Add some mock teams
+                this.teams = [
+                    { id: 1, name: 'Arsenal' },
+                    { id: 2, name: 'Aston Villa' },
+                    { id: 3, name: 'Bournemouth' },
+                    { id: 4, name: 'Brentford' },
+                    { id: 5, name: 'Brighton' },
+                    { id: 6, name: 'Chelsea' },
+                    { id: 7, name: 'Crystal Palace' },
+                    { id: 8, name: 'Everton' },
+                    { id: 9, name: 'Fulham' },
+                    { id: 10, name: 'Liverpool' },
+                    { id: 11, name: 'Man City' },
+                    { id: 12, name: 'Man Utd' },
+                    { id: 13, name: 'Newcastle' },
+                    { id: 14, name: 'Nottm Forest' },
+                    { id: 15, name: 'Southampton' },
+                    { id: 16, name: 'Spurs' },
+                    { id: 17, name: 'West Ham' },
+                    { id: 18, name: 'Wolves' },
+                    { id: 19, name: 'Leicester' },
+                    { id: 20, name: 'Ipswich' }
+                ];
+                
+                // Populate team filter with mock data
+                this.populateTeamFilter();
+                this.setupEventListeners();
+                
+                // Display a message about using offline mode
+                const resultsContainer = document.getElementById('search-results');
+                resultsContainer.innerHTML = `
+                    <div class="error-message" style="padding: 20px; text-align: center; color: #ff6b6b;">
+                        <h3>Running in Offline Mode</h3>
+                        <p>Unable to connect to FPL API. The predictor will retry connection in the background.</p>
+                        <p>Some features may be limited.</p>
+                    </div>
+                `;
             }
 
             populateTeamFilter() {
