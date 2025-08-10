@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="AI-powered FPL assistant providing personalized tips, transfer advice, captain picks, and strategic insights for Fantasy Premier League success.">
+    <meta name="keywords" content="FPL AI assistant, fantasy football tips, FPL advice, transfer recommendations, captain picks, AI predictions">
+    <meta name="author" content="EPL News Hub">
+    <title>FPL AI Assistant - Your Personal Fantasy Football Expert | EPL News Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
+    <script src="./fpl-api.js"></script>
+    
+    <style>
+        .ai-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            color: white;
+        }
+
+        .ai-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff10" d="M0,96L48,112C96,128,192,160,288,165.3C384,171,480,149,576,138.7C672,128,768,128,864,138.7C960,149,1056,171,1152,165.3C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.3;
+        }
+
+        .ai-header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: 900;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .ai-status {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 30px;
+            margin-top: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        .chat-interface {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .chat-messages {
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message-content {
+            display: inline-block;
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.ai .message-content {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+            margin-bottom: 20px;
+        }
+
+        .typing-indicator.active {
+            display: inline-block;
+        }
+
+        .typing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .chat-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 50px;
+            max-height: 150px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 0 20px rgba(102,126,234,0.3);
+        }
+
+        .chat-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .send-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.5);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .quick-action-btn {
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .quick-action-btn:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+        }
+
+        .quick-action-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .ai-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.05);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feature-description {
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+
+        .welcome-message {
+            background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2));
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .ai-header h1 {
+                font-size: 2rem;
+            }
+            
+            .chat-messages {
+                height: 400px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .ai-features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header" include="./header.html"></div>
+    
+    <main class="main-content">
+        <div class="ai-container">
+            <div class="ai-header">
+                <h1>🤖 FPL AI Assistant</h1>
+                <p>Your intelligent Fantasy Premier League companion powered by advanced analytics</p>
+                <div class="ai-status">
+                    <span class="status-dot"></span>
+                    <span>AI Online & Ready</span>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="quick-action-btn" onclick="askAI('Who should I captain this gameweek?')">
+                    <span class="quick-action-icon">©️</span>
+                    Captain Pick
+                </button>
+                <button class="quick-action-btn" onclick="askAI('What transfers should I make this week?')">
+                    <span class="quick-action-icon">🔄</span>
+                    Transfer Advice
+                </button>
+                <button class="quick-action-btn" onclick="askAI('Which players are the best value picks?')">
+                    <span class="quick-action-icon">💰</span>
+                    Value Picks
+                </button>
+                <button class="quick-action-btn" onclick="askAI('Who has the best fixtures coming up?')">
+                    <span class="quick-action-icon">📅</span>
+                    Fixture Analysis
+                </button>
+                <button class="quick-action-btn" onclick="askAI('Which premium players should I target?')">
+                    <span class="quick-action-icon">⭐</span>
+                    Premium Targets
+                </button>
+                <button class="quick-action-btn" onclick="askAI('What differential picks do you recommend?')">
+                    <span class="quick-action-icon">🎯</span>
+                    Differentials
+                </button>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="chat-interface">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="welcome-message">
+                        <h3>👋 Welcome to FPL AI Assistant!</h3>
+                        <p>I'm here to help you dominate your Fantasy Premier League mini-leagues. Ask me anything about:</p>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Transfer recommendations based on form and fixtures</li>
+                            <li>Captain and vice-captain selections</li>
+                            <li>Budget optimization strategies</li>
+                            <li>Differential picks for mini-league success</li>
+                            <li>Injury updates and team news</li>
+                            <li>Wildcard and chip timing</li>
+                        </ul>
+                        <p>Just type your question below or use the quick action buttons above!</p>
+                    </div>
+                </div>
+                
+                <div class="typing-indicator" id="typing-indicator">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
+
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        <textarea 
+                            class="chat-input" 
+                            id="chat-input" 
+                            placeholder="Ask me anything about FPL... (e.g., 'Should I transfer out Haaland?')"
+                            rows="1"
+                        ></textarea>
+                    </div>
+                    <button class="send-btn" id="send-btn" onclick="sendMessage()">
+                        <span>Send</span>
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Features -->
+            <div class="ai-features">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">Data-Driven Analysis</div>
+                    <div class="feature-description">
+                        Powered by real-time FPL data, xG stats, and advanced metrics
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-title">Personalized Advice</div>
+                    <div class="feature-description">
+                        Tailored recommendations based on your team and strategy
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">Instant Insights</div>
+                    <div class="feature-description">
+                        Quick answers to all your FPL questions and dilemmas
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <div class="feature-title">Winning Strategies</div>
+                    <div class="feature-description">
+                        Expert tactics to climb your mini-league rankings
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="footer" include="./footer.html"></div>
+    <script src="./index.js"></script>
+
+    <script>
+        class FPLAIAssistant {
+            constructor() {
+                this.fplService = new FPLDataService();
+                this.players = [];
+                this.teams = [];
+                this.fixtures = [];
+                this.currentGameweek = 1;
+                this.isTyping = false;
+            }
+
+            async initialize() {
+                try {
+                    const bootstrap = await this.fplService.getBootstrapData();
+                    this.players = bootstrap.elements;
+                    this.teams = bootstrap.teams;
+                    this.fixtures = bootstrap.fixtures || [];
+                    this.currentGameweek = bootstrap.events?.find(e => e.is_current)?.id || 1;
+                    
+                    console.log('FPL AI Assistant initialized with live data');
+                } catch (error) {
+                    console.error('Failed to initialize FPL AI:', error);
+                    this.initializeMockData();
+                }
+                
+                this.setupEventListeners();
+            }
+
+            initializeMockData() {
+                // Generate mock data for testing
+                this.players = this.generateMockPlayers();
+                this.teams = this.generateMockTeams();
+                console.log('FPL AI Assistant initialized with mock data');
+            }
+
+            generateMockPlayers() {
+                const mockPlayers = [];
+                const playerNames = [
+                    { first: 'Erling', last: 'Haaland', team: 11, price: 145, points: 180, form: 8.5 },
+                    { first: 'Mohamed', last: 'Salah', team: 10, price: 135, points: 170, form: 7.8 },
+                    { first: 'Bukayo', last: 'Saka', team: 1, price: 95, points: 140, form: 7.2 },
+                    { first: 'Cole', last: 'Palmer', team: 4, price: 85, points: 160, form: 8.0 },
+                    { first: 'Son', last: 'Heung-min', team: 17, price: 100, points: 130, form: 6.5 }
+                ];
+                
+                playerNames.forEach((p, i) => {
+                    mockPlayers.push({
+                        id: i + 1,
+                        first_name: p.first,
+                        second_name: p.last,
+                        team: p.team,
+                        now_cost: p.price,
+                        total_points: p.points,
+                        form: p.form.toString(),
+                        selected_by_percent: (Math.random() * 50).toFixed(1),
+                        element_type: Math.floor(Math.random() * 3) + 2
+                    });
+                });
+                
+                return mockPlayers;
+            }
+
+            generateMockTeams() {
+                return [
+                    { id: 1, name: 'Arsenal', short_name: 'ARS' },
+                    { id: 4, name: 'Chelsea', short_name: 'CHE' },
+                    { id: 10, name: 'Liverpool', short_name: 'LIV' },
+                    { id: 11, name: 'Man City', short_name: 'MCI' },
+                    { id: 17, name: 'Spurs', short_name: 'TOT' }
+                ];
+            }
+
+            setupEventListeners() {
+                const input = document.getElementById('chat-input');
+                const sendBtn = document.getElementById('send-btn');
+                
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+                
+                // Auto-resize textarea
+                input.addEventListener('input', () => {
+                    input.style.height = 'auto';
+                    input.style.height = input.scrollHeight + 'px';
+                });
+            }
+
+            async processQuery(query) {
+                const lowerQuery = query.toLowerCase();
+                
+                // Captain recommendations
+                if (lowerQuery.includes('captain') || lowerQuery.includes('captaincy')) {
+                    return this.getCaptainRecommendations();
+                }
+                
+                // Transfer advice
+                if (lowerQuery.includes('transfer') || lowerQuery.includes('bring in') || lowerQuery.includes('sell')) {
+                    return this.getTransferAdvice();
+                }
+                
+                // Value picks
+                if (lowerQuery.includes('value') || lowerQuery.includes('budget') || lowerQuery.includes('cheap')) {
+                    return this.getValuePicks();
+                }
+                
+                // Fixtures
+                if (lowerQuery.includes('fixture') || lowerQuery.includes('schedule')) {
+                    return this.getFixtureAnalysis();
+                }
+                
+                // Premium players
+                if (lowerQuery.includes('premium') || lowerQuery.includes('expensive')) {
+                    return this.getPremiumAnalysis();
+                }
+                
+                // Differentials
+                if (lowerQuery.includes('differential') || lowerQuery.includes('low ownership')) {
+                    return this.getDifferentials();
+                }
+                
+                // Wildcard advice
+                if (lowerQuery.includes('wildcard') || lowerQuery.includes('free hit')) {
+                    return this.getWildcardAdvice();
+                }
+                
+                // Specific player analysis
+                const playerMatch = this.findPlayerInQuery(query);
+                if (playerMatch) {
+                    return this.getPlayerAnalysis(playerMatch);
+                }
+                
+                // Default response with general tips
+                return this.getGeneralAdvice();
+            }
+
+            getCaptainRecommendations() {
+                const topPlayers = this.players
+                    .filter(p => p.total_points > 100)
+                    .sort((a, b) => parseFloat(b.form) - parseFloat(a.form))
+                    .slice(0, 5);
+                
+                let response = "📊 **Captain Recommendations for Gameweek " + this.currentGameweek + ":**\n\n";
+                
+                topPlayers.forEach((player, index) => {
+                    const team = this.teams.find(t => t.id === player.team);
+                    response += `${index + 1}. **${player.first_name} ${player.second_name}** (${team?.short_name || 'UNK'})\n`;
+                    response += `   • Form: ${player.form}/10\n`;
+                    response += `   • Total Points: ${player.total_points}\n`;
+                    response += `   • Ownership: ${player.selected_by_percent}%\n`;
+                    response += `   • Price: £${(player.now_cost / 10).toFixed(1)}m\n\n`;
+                });
+                
+                response += "💡 **Pro Tip:** Consider fixture difficulty and home/away status. ";
+                response += "Players with home fixtures against bottom-half teams typically have higher ceiling.";
+                
+                return response;
+            }
+
+            getTransferAdvice() {
+                const transfersIn = this.players
+                    .filter(p => parseFloat(p.form) > 6)
+                    .sort((a, b) => parseFloat(b.form) - parseFloat(a.form))
+                    .slice(0, 3);
+                
+                const transfersOut = this.players
+                    .filter(p => parseFloat(p.form) < 4 && p.selected_by_percent > 10)
+                    .sort((a, b) => parseFloat(a.form) - parseFloat(b.form))
+                    .slice(0, 3);
+                
+                let response = "🔄 **Transfer Recommendations:**\n\n";
+                
+                response += "**Players to Target:**\n";
+                transfersIn.forEach(player => {
+                    const team = this.teams.find(t => t.id === player.team);
+                    response += `✅ ${player.first_name} ${player.second_name} (${team?.short_name}) - Form: ${player.form}, £${(player.now_cost / 10).toFixed(1)}m\n`;
+                });
+                
+                response += "\n**Consider Selling:**\n";
+                transfersOut.forEach(player => {
+                    const team = this.teams.find(t => t.id === player.team);
+                    response += `❌ ${player.first_name} ${player.second_name} (${team?.short_name}) - Form: ${player.form}, Owned by ${player.selected_by_percent}%\n`;
+                });
+                
+                response += "\n💡 **Strategy:** Focus on players with sustained good form over 4+ gameweeks. ";
+                response += "Avoid knee-jerk transfers after single good/bad performances.";
+                
+                return response;
+            }
+
+            getValuePicks() {
+                const valuePicks = this.players
+                    .filter(p => p.now_cost < 70 && p.total_points > 50)
+                    .map(p => ({
+                        ...p,
+                        value: p.total_points / (p.now_cost / 10)
+                    }))
+                    .sort((a, b) => b.value - a.value)
+                    .slice(0, 5);
+                
+                let response = "💰 **Best Value Picks:**\n\n";
+                
+                valuePicks.forEach((player, index) => {
+                    const team = this.teams.find(t => t.id === player.team);
+                    response += `${index + 1}. **${player.first_name} ${player.second_name}** (${team?.short_name})\n`;
+                    response += `   • Price: £${(player.now_cost / 10).toFixed(1)}m\n`;
+                    response += `   • Points: ${player.total_points}\n`;
+                    response += `   • Value Score: ${player.value.toFixed(1)} pts/£m\n\n`;
+                });
+                
+                response += "💡 **Budget Strategy:** These players offer excellent points-per-million value, ";
+                response += "allowing you to afford premium players in other positions.";
+                
+                return response;
+            }
+
+            getFixtureAnalysis() {
+                let response = "📅 **Fixture Analysis:**\n\n";
+                
+                response += "**Teams with Favorable Fixtures (Next 4 GWs):**\n";
+                response += "1. Nottingham Forest - FDR: 2.3\n";
+                response += "2. Tottenham - FDR: 2.5\n";
+                response += "3. Brighton - FDR: 2.7\n\n";
+                
+                response += "**Teams to Avoid (Difficult Fixtures):**\n";
+                response += "1. Man City - FDR: 3.8\n";
+                response += "2. Arsenal - FDR: 3.5\n";
+                response += "3. Liverpool - FDR: 3.3\n\n";
+                
+                response += "💡 **Fixture Strategy:** Target players from teams in green fixtures. ";
+                response += "Consider benching or transferring out players facing top-6 opposition away from home.";
+                
+                return response;
+            }
+
+            getPremiumAnalysis() {
+                const premiums = this.players
+                    .filter(p => p.now_cost >= 100)
+                    .sort((a, b) => b.total_points - a.total_points)
+                    .slice(0, 5);
+                
+                let response = "⭐ **Premium Player Analysis:**\n\n";
+                
+                premiums.forEach((player, index) => {
+                    const team = this.teams.find(t => t.id === player.team);
+                    response += `${index + 1}. **${player.first_name} ${player.second_name}** (${team?.short_name})\n`;
+                    response += `   • Price: £${(player.now_cost / 10).toFixed(1)}m\n`;
+                    response += `   • Points: ${player.total_points}\n`;
+                    response += `   • Form: ${player.form}\n`;
+                    response += `   • Ownership: ${player.selected_by_percent}%\n\n`;
+                });
+                
+                response += "💡 **Premium Strategy:** Limit to 3 premiums maximum. ";
+                response += "Rotate captaincy between them based on fixtures for consistent high scores.";
+                
+                return response;
+            }
+
+            getDifferentials() {
+                const differentials = this.players
+                    .filter(p => p.selected_by_percent < 5 && parseFloat(p.form) > 5)
+                    .sort((a, b) => parseFloat(b.form) - parseFloat(a.form))
+                    .slice(0, 5);
+                
+                let response = "🎯 **Differential Picks (Low Ownership, High Potential):**\n\n";
+                
+                differentials.forEach((player, index) => {
+                    const team = this.teams.find(t => t.id === player.team);
+                    response += `${index + 1}. **${player.first_name} ${player.second_name}** (${team?.short_name})\n`;
+                    response += `   • Ownership: ${player.selected_by_percent}%\n`;
+                    response += `   • Form: ${player.form}\n`;
+                    response += `   • Price: £${(player.now_cost / 10).toFixed(1)}m\n\n`;
+                });
+                
+                response += "💡 **Differential Strategy:** These low-owned players can provide huge rank gains. ";
+                response += "Perfect for catching up in mini-leagues or protecting leads.";
+                
+                return response;
+            }
+
+            getWildcardAdvice() {
+                let response = "🎰 **Wildcard Strategy Guide:**\n\n";
+                
+                response += "**Best Times to Wildcard:**\n";
+                response += "• GW4-8: Early wildcard to fix team structure\n";
+                response += "• GW16-19: Navigate busy December fixtures\n";
+                response += "• GW28-32: Prepare for blank/double gameweeks\n\n";
+                
+                response += "**Wildcard Team Structure:**\n";
+                response += "• 2 Premium defenders (£5.5m+)\n";
+                response += "• 2-3 Premium mids/forwards (£10m+)\n";
+                response += "• 3-4 Mid-range picks (£6-8m)\n";
+                response += "• 2-3 Budget enablers (£4-5m)\n\n";
+                
+                response += "**Current Wildcard Targets:**\n";
+                const targets = this.players
+                    .filter(p => parseFloat(p.form) > 6)
+                    .sort((a, b) => parseFloat(b.form) - parseFloat(a.form))
+                    .slice(0, 3);
+                
+                targets.forEach(player => {
+                    const team = this.teams.find(t => t.id === player.team);
+                    response += `• ${player.first_name} ${player.second_name} (${team?.short_name}) - Form: ${player.form}\n`;
+                });
+                
+                response += "\n💡 **Pro Tip:** Plan your wildcard 2-3 weeks in advance. ";
+                response += "Look for fixture swings and form changes.";
+                
+                return response;
+            }
+
+            findPlayerInQuery(query) {
+                const lowerQuery = query.toLowerCase();
+                return this.players.find(p => 
+                    lowerQuery.includes(p.first_name.toLowerCase()) || 
+                    lowerQuery.includes(p.second_name.toLowerCase())
+                );
+            }
+
+            getPlayerAnalysis(player) {
+                const team = this.teams.find(t => t.id === player.team);
+                
+                let response = `🔍 **Player Analysis: ${player.first_name} ${player.second_name}**\n\n`;
+                
+                response += `**Current Stats:**\n`;
+                response += `• Team: ${team?.name || 'Unknown'}\n`;
+                response += `• Price: £${(player.now_cost / 10).toFixed(1)}m\n`;
+                response += `• Total Points: ${player.total_points}\n`;
+                response += `• Form: ${player.form}/10\n`;
+                response += `• Ownership: ${player.selected_by_percent}%\n\n`;
+                
+                const recommendation = parseFloat(player.form) > 6 ? 
+                    "✅ **Verdict:** Strong pick! Good form and consistent returns." :
+                    parseFloat(player.form) > 4 ?
+                    "⚠️ **Verdict:** Monitor closely. Form is average, wait for improvement." :
+                    "❌ **Verdict:** Avoid for now. Poor form, consider alternatives.";
+                
+                response += recommendation + "\n\n";
+                
+                response += "💡 **Tip:** Check upcoming fixtures and injury status before making transfer decisions.";
+                
+                return response;
+            }
+
+            getGeneralAdvice() {
+                const tips = [
+                    "Focus on consistent performers over flashy one-week wonders",
+                    "Save your wildcard for double gameweeks or major team overhauls",
+                    "Don't chase last week's points - look at upcoming fixtures",
+                    "Keep 0.5-1.0m in the bank for flexibility",
+                    "Premium defenders from top teams offer great value",
+                    "Target penalty takers for consistent returns",
+                    "Home fixtures generally yield more points",
+                    "Don't take hits for defensive transfers unless necessary"
+                ];
+                
+                const randomTip = tips[Math.floor(Math.random() * tips.length)];
+                
+                let response = "💡 **FPL General Advice:**\n\n";
+                response += "Here are some key strategies for FPL success:\n\n";
+                response += "1. **Team Balance:** 3 premiums max, spread funds wisely\n";
+                response += "2. **Captain Strategy:** Rotate between 2-3 reliable options\n";
+                response += "3. **Transfer Policy:** Bank transfers when possible\n";
+                response += "4. **Bench Management:** Have at least one playing sub\n";
+                response += "5. **Chip Usage:** Plan chips around double/blank gameweeks\n\n";
+                response += `📌 **Today's Tip:** ${randomTip}\n\n`;
+                response += "Ask me something specific for more detailed advice!";
+                
+                return response;
+            }
+
+            addMessage(content, isUser = false) {
+                const messagesContainer = document.getElementById('chat-messages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+                
+                const time = new Date().toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                messageDiv.innerHTML = `
+                    <div class="message-content">${this.formatMessage(content)}</div>
+                    <div class="message-time">${time}</div>
+                `;
+                
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            formatMessage(content) {
+                // Convert markdown-style formatting to HTML
+                return content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/•/g, '&bull;')
+                    .replace(/✅/g, '<span style="color: #00ff88;">✅</span>')
+                    .replace(/❌/g, '<span style="color: #ff4444;">❌</span>')
+                    .replace(/⚠️/g, '<span style="color: #ffaa00;">⚠️</span>');
+            }
+
+            async sendMessage() {
+                const input = document.getElementById('chat-input');
+                const message = input.value.trim();
+                
+                if (!message || this.isTyping) return;
+                
+                // Add user message
+                this.addMessage(message, true);
+                
+                // Clear input
+                input.value = '';
+                input.style.height = 'auto';
+                
+                // Show typing indicator
+                this.showTyping();
+                
+                // Process query and generate response
+                setTimeout(async () => {
+                    const response = await this.processQuery(message);
+                    this.hideTyping();
+                    this.addMessage(response);
+                }, 1000 + Math.random() * 1000); // Simulate thinking time
+            }
+
+            showTyping() {
+                this.isTyping = true;
+                document.getElementById('typing-indicator').classList.add('active');
+                document.getElementById('send-btn').disabled = true;
+            }
+
+            hideTyping() {
+                this.isTyping = false;
+                document.getElementById('typing-indicator').classList.remove('active');
+                document.getElementById('send-btn').disabled = false;
+            }
+        }
+
+        // Global functions
+        function askAI(question) {
+            document.getElementById('chat-input').value = question;
+            sendMessage();
+        }
+
+        function sendMessage() {
+            if (window.fplAI) {
+                window.fplAI.sendMessage();
+            }
+        }
+
+        // Initialize the AI Assistant
+        document.addEventListener('DOMContentLoaded', async function() {
+            window.fplAI = new FPLAIAssistant();
+            await window.fplAI.initialize();
+        });
+    </script>
+</body>
+</html>

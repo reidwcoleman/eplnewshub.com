@@ -514,6 +514,7 @@
                     <h3>⚙️ Actions</h3>
                     <button class="action-btn transfer-in" onclick="resetTeam()">Reset Team</button>
                     <button class="action-btn transfer-out" onclick="saveTeam()">Save Team</button>
+                    <button class="action-btn" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;" onclick="aiOptimizeTeam()">🤖 AI Optimize</button>
                     <button class="action-btn" style="background: #17a2b8; color: white;" onclick="generateRecommendations()">Get Recommendations</button>
                 </div>
             </div>
@@ -912,6 +913,174 @@
 
                 document.getElementById('recommendations').style.display = 'block';
             }
+
+            async aiOptimizeTeam() {
+                this.showMessage('🤖 AI is optimizing your team for maximum expected points...', 'info');
+                
+                // Reset team first
+                this.currentTeam = { 1: [], 2: [], 3: [], 4: [] };
+                this.budget = 1000;
+                
+                // Calculate expected points for each player
+                const playersWithExpectedPoints = this.allPlayers.map(player => {
+                    const expectedPoints = this.calculateExpectedPoints(player);
+                    return { ...player, expectedPoints };
+                }).sort((a, b) => b.expectedPoints - a.expectedPoints);
+                
+                // Optimal formation for most points: 3-5-2 or 3-4-3
+                const formations = [
+                    { gkp: 2, def: 5, mid: 5, fwd: 3 }, // Standard
+                    { gkp: 2, def: 4, mid: 5, fwd: 4 }, // Attack heavy
+                    { gkp: 2, def: 5, mid: 4, fwd: 4 }  // Balanced attack
+                ];
+                
+                let bestTeam = null;
+                let bestPoints = 0;
+                
+                // Try each formation
+                for (const formation of formations) {
+                    const team = this.buildOptimalTeam(playersWithExpectedPoints, formation);
+                    const points = this.calculateTeamExpectedPoints(team);
+                    
+                    if (points > bestPoints) {
+                        bestPoints = points;
+                        bestTeam = team;
+                    }
+                }
+                
+                // Apply the best team
+                if (bestTeam) {
+                    this.currentTeam = bestTeam;
+                    this.calculateBudget();
+                    this.updateDisplay();
+                    this.filterAndDisplayPlayers();
+                    
+                    this.showMessage(`✅ AI Optimization Complete! Expected ${Math.round(bestPoints)} points next gameweek.`, 'success');
+                } else {
+                    this.showMessage('❌ Unable to optimize team. Please try again.', 'error');
+                }
+            }
+            
+            buildOptimalTeam(sortedPlayers, formation) {
+                const team = { 1: [], 2: [], 3: [], 4: [] };
+                let remainingBudget = 1000;
+                const usedPlayerIds = new Set();
+                
+                // Position requirements
+                const requirements = {
+                    1: formation.gkp,
+                    2: formation.def,
+                    3: formation.mid,
+                    4: formation.fwd
+                };
+                
+                // Fill each position with best available players
+                for (let position = 1; position <= 4; position++) {
+                    const needed = requirements[position];
+                    const positionPlayers = sortedPlayers.filter(p => 
+                        p.element_type === position && 
+                        !usedPlayerIds.has(p.id)
+                    );
+                    
+                    // Smart selection: mix premium and budget
+                    const premiumCount = position === 1 ? 1 : Math.ceil(needed * 0.4);
+                    const budgetCount = needed - premiumCount;
+                    
+                    // Add premium players
+                    for (let i = 0; i < premiumCount && team[position].length < needed; i++) {
+                        const player = positionPlayers[i];
+                        if (player && player.now_cost <= remainingBudget) {
+                            team[position].push(player);
+                            remainingBudget -= player.now_cost;
+                            usedPlayerIds.add(player.id);
+                        }
+                    }
+                    
+                    // Add value players (good points per million)
+                    const valuePlayers = positionPlayers
+                        .filter(p => !usedPlayerIds.has(p.id))
+                        .map(p => ({
+                            ...p,
+                            value: p.expectedPoints / (p.now_cost / 10)
+                        }))
+                        .sort((a, b) => b.value - a.value);
+                    
+                    for (const player of valuePlayers) {
+                        if (team[position].length >= needed) break;
+                        if (player.now_cost <= remainingBudget) {
+                            team[position].push(player);
+                            remainingBudget -= player.now_cost;
+                            usedPlayerIds.add(player.id);
+                        }
+                    }
+                    
+                    // Fill remaining with cheapest if needed
+                    if (team[position].length < needed) {
+                        const cheapest = positionPlayers
+                            .filter(p => !usedPlayerIds.has(p.id))
+                            .sort((a, b) => a.now_cost - b.now_cost);
+                        
+                        for (const player of cheapest) {
+                            if (team[position].length >= needed) break;
+                            team[position].push(player);
+                            remainingBudget -= player.now_cost;
+                            usedPlayerIds.add(player.id);
+                        }
+                    }
+                }
+                
+                return team;
+            }
+            
+            calculateExpectedPoints(player) {
+                // Advanced expected points calculation
+                const form = parseFloat(player.form) || 0;
+                const totalPoints = player.total_points || 0;
+                const gamesPlayed = player.starts || 1;
+                const avgPoints = totalPoints / Math.max(gamesPlayed, 1);
+                
+                // Expected goals and assists
+                const xG = parseFloat(player.expected_goals) || 0;
+                const xA = parseFloat(player.expected_assists) || 0;
+                const xGI = (xG + xA) / Math.max(gamesPlayed, 1);
+                
+                // Position-based multipliers
+                const positionMultiplier = {
+                    1: 0.8,  // GKP - less variance
+                    2: 1.0,  // DEF - standard
+                    3: 1.2,  // MID - higher ceiling
+                    4: 1.3   // FWD - highest ceiling
+                }[player.element_type] || 1;
+                
+                // Calculate expected points (weighted average)
+                let expectedPoints = (
+                    form * 0.4 +           // Recent form (40%)
+                    avgPoints * 0.3 +      // Season average (30%)
+                    xGI * 10 * 0.2 +       // Expected goals/assists (20%)
+                    (player.bonus || 0) * 0.1  // Bonus points tendency (10%)
+                ) * positionMultiplier;
+                
+                // Fixture difficulty adjustment (simplified)
+                const fixtureMultiplier = 1.0; // Would need real fixture data
+                expectedPoints *= fixtureMultiplier;
+                
+                // Ownership differential bonus
+                if (player.selected_by_percent < 5 && expectedPoints > 4) {
+                    expectedPoints *= 1.1; // 10% bonus for differentials
+                }
+                
+                return Math.max(expectedPoints, 2); // Minimum 2 points
+            }
+            
+            calculateTeamExpectedPoints(team) {
+                let total = 0;
+                Object.values(team).forEach(position => {
+                    position.forEach(player => {
+                        total += this.calculateExpectedPoints(player);
+                    });
+                });
+                return total;
+            }
         }
 
         function selectPosition(position) {
@@ -935,6 +1104,12 @@
 
         function generateRecommendations() {
             transferSimulator.generateRecommendations();
+        }
+
+        async function aiOptimizeTeam() {
+            if (transferSimulator) {
+                await transferSimulator.aiOptimizeTeam();
+            }
         }
 
         function refreshData() {
