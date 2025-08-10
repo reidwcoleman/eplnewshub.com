@@ -414,6 +414,30 @@
                 position: relative;
             }
             
+            /* Ensure header doesn't clip dropdown */
+            .site-header {
+                position: relative;
+                z-index: 100;
+                overflow: visible !important;
+            }
+            
+            .header-top {
+                overflow: visible !important;
+            }
+            
+            .main-nav {
+                position: relative;
+                overflow: visible !important;
+            }
+            
+            .nav-content {
+                overflow: visible !important;
+            }
+            
+            .nav-links {
+                overflow: visible !important;
+            }
+            
             .fpl-premium-nav {
                 display: flex;
                 align-items: center;
@@ -476,18 +500,17 @@
             
             .dropdown-menu {
                 position: absolute;
-                top: 100%;
+                top: calc(100% + 5px);
                 left: 50%;
                 transform: translateX(-50%);
                 background: white;
                 border-radius: 12px;
                 box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                min-width: 280px;
+                min-width: 320px;
                 opacity: 0;
                 visibility: hidden;
                 transition: all 0.3s ease;
-                margin-top: 10px;
-                z-index: 1000;
+                z-index: 99999;
                 pointer-events: none;
                 border: 1px solid rgba(0,0,0,0.1);
             }
@@ -496,7 +519,6 @@
             .dropdown:focus-within .dropdown-menu {
                 opacity: 1;
                 visibility: visible;
-                margin-top: 5px;
                 pointer-events: auto;
             }
             
@@ -583,10 +605,6 @@
                     opacity: 1;
                     transform: translateX(-50%) translateY(0);
                 }
-            }
-            
-            .dropdown:hover .dropdown-menu {
-                animation: fadeInDropdown 0.3s ease forwards;
             }
             
             .dropdown-divider {
@@ -929,6 +947,9 @@
                 border-top: 1px solid #e9ecef;
                 border-bottom: 1px solid #e9ecef;
                 padding: 10px 0;
+                position: relative;
+                z-index: 1000;
+                overflow: visible !important;
             }
             
             /* Tablet styles */
@@ -1083,6 +1104,12 @@
                 z-index: 10000;
                 overflow-y: auto;
                 display: none;
+            }
+            
+            /* Ensure dropdown appears above all page content */
+            .fpl-dropdown {
+                position: absolute !important;
+                z-index: 99999 !important;
             }
             
             .mobile-sidebar.active {
