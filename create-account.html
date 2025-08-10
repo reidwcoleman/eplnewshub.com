@@ -20,9 +20,46 @@
     <link rel="apple-touch-icon" href="reidsnbest.webp">
     <link rel="icon" type="image/webp" href="reidsnbest.webp">
     
-    <!-- Google Sign-In (New Google Identity Services) -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyOey0l27yQP68oybpoodMVcvayhIHt2I",
+            authDomain: "epl-news-hub-94c09.firebaseapp.com",
+            projectId: "epl-news-hub-94c09",
+            storageBucket: "epl-news-hub-94c09.firebasestorage.app",
+            messagingSenderId: "674703933278",
+            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf",
+            measurementId: "G-ECM6BCQCS8"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        // Make auth available globally
+        window.auth = auth;
+        window.googleProvider = googleProvider;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithPopup = signInWithPopup;
+        window.updateProfile = updateProfile;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut;
+        
+        // Force sign out when user visits this page to ensure fresh account creation
+        signOut(auth).catch((error) => {
+            console.log('Sign out on page load (if any):', error);
+        });
+        
+        // Add scope for better user info
+        googleProvider.addScope('profile');
+        googleProvider.addScope('email');
+    </script>
     <style>
         .auth-container {
             max-width: 450px;
@@ -142,6 +179,37 @@
             text-decoration: underline;
         }
         
+        .social-signin {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .social-btn {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .social-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .google-btn {
+            border-color: #db4437;
+            color: #db4437;
+        }
+        
         .password-strength {
             font-size: 0.8rem;
             margin-top: 5px;
@@ -232,7 +300,7 @@
         
         .auth-divider {
             text-align: center;
-            margin: 25px 0;
+            margin: 20px 0;
             position: relative;
         }
         
@@ -251,46 +319,6 @@
             padding: 0 15px;
             color: #666;
             font-size: 0.9rem;
-            position: relative;
-        }
-        
-        /* Google Sign-In Button Container */
-        .google-signin-container {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        
-        /* Override Google's button styles for consistency */
-        #googleSignUpDiv {
-            width: 100%;
-        }
-        
-        .google-signin-fallback {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #4285f4;
-            border-radius: 5px;
-            background: white;
-            color: #4285f4;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .google-signin-fallback:hover {
-            background: #4285f4;
-            color: white;
-        }
-        
-        .google-signin-fallback svg {
-            width: 20px;
-            height: 20px;
         }
     </style>
 </head>
@@ -395,23 +423,15 @@
                 <span>or</span>
             </div>
             
-            <!-- Google Sign-Up Button -->
-            <div class="google-signin-container">
-                <div id="googleSignUpDiv"></div>
-            </div>
-            
-            <!-- Fallback button if Google Sign-In doesn't load -->
-            <div id="googleSignUpFallback" style="display: none;">
-                <button onclick="showGoogleSignInError()" class="google-signin-fallback">
-                    <svg viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
-                    Sign up with Google
-                </button>
-            </div>
+            <button id="google-signup-btn" class="social-btn google-btn" type="button">
+                <svg style="width: 20px; height: 20px; margin-right: 8px;" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                <span>Sign up with Google</span>
+            </button>
             
             <div class="auth-links">
                 <p>Already have an account? <a href="/signin.html">Sign in here</a></p>
@@ -423,108 +443,150 @@
     <script src="./index.js"></script>
     <script src="./ad-target-blank.js"></script>
     <script>
-        // Google Sign-In Configuration
-        const GOOGLE_CLIENT_ID = '674703933278-vvsh5g0h5fh1qll3qhe59qdvnqfm3vd1.apps.googleusercontent.com';
+        // Wait for Firebase to be fully loaded
+        let firebaseReady = false;
         
-        // Initialize Google Sign-In
-        window.onload = function() {
+        // Check Firebase initialization
+        function checkFirebase() {
+            if (window.auth && window.signInWithPopup && window.googleProvider) {
+                firebaseReady = true;
+                console.log('Firebase is ready');
+                return true;
+            }
+            console.log('Firebase not ready yet...');
+            return false;
+        }
+        
+        // Wait for Firebase with timeout
+        function waitForFirebase(callback, timeout = 5000) {
+            const startTime = Date.now();
+            const interval = setInterval(() => {
+                if (checkFirebase()) {
+                    clearInterval(interval);
+                    callback(true);
+                } else if (Date.now() - startTime > timeout) {
+                    clearInterval(interval);
+                    callback(false);
+                }
+            }, 100);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const createAccountForm = document.querySelector('.auth-form');
+            const googleSignupBtn = document.getElementById('google-signup-btn');
+            const messageDiv = document.getElementById('auth-message');
+            
             // Check if user is already signed in
-            const user = localStorage.getItem('user');
-            if (user) {
-                const userData = JSON.parse(user);
-                if (userData.signedInAt) {
-                    // Check if session is still valid (24 hours)
-                    const signedInTime = new Date(userData.signedInAt);
-                    const now = new Date();
-                    const hoursDiff = (now - signedInTime) / (1000 * 60 * 60);
-                    
-                    if (hoursDiff < 24) {
+            if (window.onAuthStateChanged && window.auth) {
+                window.onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        // User is signed in, redirect to homepage
                         showMessage('You are already signed in! Redirecting...', 'success');
                         setTimeout(() => {
                             window.location.href = '/';
                         }, 1500);
-                        return;
-                    } else {
-                        // Session expired, clear user data
-                        localStorage.removeItem('user');
                     }
-                }
-            }
-            
-            // Initialize Google Sign-In
-            if (typeof google !== 'undefined' && google.accounts) {
-                google.accounts.id.initialize({
-                    client_id: GOOGLE_CLIENT_ID,
-                    callback: handleGoogleSignUp,
-                    auto_select: false,
-                    cancel_on_tap_outside: true,
                 });
-                
-                // Render the Google Sign-Up button
-                google.accounts.id.renderButton(
-                    document.getElementById("googleSignUpDiv"),
-                    { 
-                        theme: "outline",
-                        size: "large",
-                        text: "signup_with",
-                        width: "100%",
-                        logo_alignment: "left"
-                    }
-                );
-            } else {
-                // Google Sign-In didn't load, show fallback button
-                console.error('Google Sign-In failed to load');
-                document.getElementById('googleSignUpDiv').style.display = 'none';
-                document.getElementById('googleSignUpFallback').style.display = 'block';
             }
-        }
-        
-        // Handle Google Sign-Up response
-        function handleGoogleSignUp(response) {
-            console.log('Google Sign-Up response:', response);
             
-            // Decode the JWT credential
-            const credential = response.credential;
-            const payload = parseJwt(credential);
+            // Email/Password Sign Up
+            createAccountForm.addEventListener('submit', handleCreateAccount);
             
-            console.log('User info:', payload);
-            
-            // Store user information
-            const userData = {
-                uid: payload.sub, // Google user ID
-                email: payload.email,
-                displayName: payload.name,
-                firstName: payload.given_name,
-                lastName: payload.family_name,
-                photoURL: payload.picture,
-                emailVerified: payload.email_verified,
-                createdAt: new Date().toISOString(),
-                signedInAt: new Date().toISOString(),
-                provider: 'google',
-                newsletter: true, // Default to newsletter subscription for Google sign-ups
-                country: 'Unknown' // Would need to detect or ask separately
-            };
-            
-            localStorage.setItem('user', JSON.stringify(userData));
-            
-            showMessage('🎉 Account created successfully! Welcome to EPL News Hub, ' + payload.given_name + '!', 'success');
-            
-            // Redirect to homepage
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 2000);
-        }
-        
-        // Parse JWT token
-        function parseJwt(token) {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            
-            return JSON.parse(jsonPayload);
-        }
+            // Google Sign Up with better error handling
+            googleSignupBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                
+                console.log('Google Sign-Up button clicked');
+                
+                // Show loading state
+                googleSignupBtn.disabled = true;
+                const originalContent = googleSignupBtn.innerHTML;
+                googleSignupBtn.innerHTML = '<span>⏳</span> <span>Connecting to Google...</span>';
+                
+                // Wait for Firebase to be ready
+                waitForFirebase(async (isReady) => {
+                    if (!isReady) {
+                        showMessage('⚠️ Firebase is still loading. Please try again in a moment.', 'error');
+                        googleSignupBtn.disabled = false;
+                        googleSignupBtn.innerHTML = originalContent;
+                        return;
+                    }
+                    
+                    try {
+                        console.log('Starting Google Sign-Up popup...');
+                        
+                        // Configure provider
+                        window.googleProvider.setCustomParameters({
+                            prompt: 'select_account'
+                        });
+                        
+                        const result = await window.signInWithPopup(window.auth, window.googleProvider);
+                        const user = result.user;
+                        
+                        console.log('Google sign-up successful:', user);
+                        showMessage('🎉 Google sign up successful! Welcome to EPL News Hub!', 'success');
+                        
+                        // Store user info in localStorage with additional data
+                        const userData = {
+                            uid: user.uid,
+                            email: user.email,
+                            displayName: user.displayName,
+                            photoURL: user.photoURL,
+                            createdAt: new Date().toISOString(),
+                            signedInAt: new Date().toISOString(),
+                            provider: 'google',
+                            newsletter: true // Default to newsletter subscription for Google sign-ups
+                        };
+                        localStorage.setItem('user', JSON.stringify(userData));
+                        
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1500);
+                    } catch (error) {
+                        console.error('Google sign up error:', error);
+                        
+                        let errorMessage = '❌ Google sign up failed. ';
+                        
+                        switch (error.code) {
+                            case 'auth/popup-closed-by-user':
+                                errorMessage = 'Sign-up cancelled. Please try again when ready.';
+                                break;
+                            case 'auth/popup-blocked':
+                                errorMessage = '🚫 Popup was blocked. Please allow popups for this site and try again.';
+                                break;
+                            case 'auth/cancelled-popup-request':
+                                errorMessage = 'Another sign-up popup is already open.';
+                                break;
+                            case 'auth/network-request-failed':
+                                errorMessage = '🌐 Network error. Please check your connection and try again.';
+                                break;
+                            case 'auth/unauthorized-domain':
+                                errorMessage = '⚠️ This domain is not authorized. Please contact support.';
+                                break;
+                            case 'auth/operation-not-allowed':
+                                errorMessage = '⚠️ Google Sign-In is not enabled. Please contact support.';
+                                break;
+                            case 'auth/email-already-in-use':
+                                errorMessage = 'An account with this email already exists. Please sign in instead.';
+                                setTimeout(() => {
+                                    window.location.href = '/signin.html';
+                                }, 2000);
+                                break;
+                            default:
+                                errorMessage += error.message || 'Please try again.';
+                        }
+                        
+                        if (error.code !== 'auth/popup-closed-by-user') {
+                            showMessage(errorMessage, 'error');
+                        }
+                    } finally {
+                        // Reset button state
+                        googleSignupBtn.disabled = false;
+                        googleSignupBtn.innerHTML = originalContent;
+                    }
+                });
+            });
+        });
         
         function checkPasswordStrength() {
             const password = document.getElementById('password').value;
@@ -640,41 +702,71 @@
             submitBtn.textContent = 'Creating Account...';
             submitBtn.disabled = true;
             
-            // For demonstration - in production, this would create account on backend
-            // Here we'll just create a user object and store locally
-            const userData = {
-                uid: 'user_' + btoa(email).replace(/[^a-zA-Z0-9]/g, '').substring(0, 10),
-                email: email,
-                displayName: `${firstName} ${lastName}`,
-                firstName,
-                lastName,
-                country,
-                favoriteTeams: selectedTeams,
-                newsletter,
-                createdAt: new Date().toISOString(),
-                signedInAt: new Date().toISOString(),
-                provider: 'email'
-            };
-            
-            // Simulate account creation delay
-            setTimeout(() => {
-                localStorage.setItem('user', JSON.stringify(userData));
+            try {
+                if (window.createUserWithEmailAndPassword && window.auth && window.updateProfile) {
+                    // Create user with Firebase
+                    const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+                    const user = userCredential.user;
+                    
+                    // Update user profile with display name
+                    await window.updateProfile(user, {
+                        displayName: `${firstName} ${lastName}`
+                    });
+                    
+                    // Store additional user data in localStorage
+                    const userData = {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: `${firstName} ${lastName}`,
+                        firstName,
+                        lastName,
+                        country,
+                        favoriteTeams: selectedTeams,
+                        newsletter,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    
+                    // Success
+                    showMessage('🎉 Account created successfully! Welcome to EPL News Hub!', 'success');
+                    
+                    // Reset form
+                    event.target.reset();
+                    
+                    // Redirect to homepage after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    // Fallback for when Firebase is not configured
+                    showMessage('⚠️ Firebase authentication not configured. Please set up your Firebase project first.', 'error');
+                }
+            } catch (error) {
+                console.error('Account creation error:', error);
+                let errorMessage = 'Failed to create account. Please try again.';
                 
-                // Success
-                showMessage('🎉 Account created successfully! Welcome to EPL News Hub!', 'success');
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'An account with this email already exists. Please sign in instead.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password is too weak. Please use a stronger password.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage = 'Email/password accounts are not enabled. Please contact support.';
+                        break;
+                }
                 
-                // Reset form
-                event.target.reset();
-                
-                // Redirect to homepage after 2 seconds
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 2000);
-                
+                showMessage(errorMessage, 'error');
+            } finally {
                 // Reset button state
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
-            }, 1000);
+            }
         }
         
         function isValidEmail(email) {
@@ -730,12 +822,26 @@
             document.querySelectorAll('input, select').forEach(field => {
                 field.style.borderColor = '';
             });
+            
+            // Hide global messages
+            const globalError = document.getElementById('globalError');
+            const globalSuccess = document.getElementById('globalSuccess');
+            if (globalError) globalError.style.display = 'none';
+            if (globalSuccess) globalSuccess.style.display = 'none';
         }
         
-        // Show error if Google Sign-In fails to load
-        function showGoogleSignInError() {
-            showMessage('Google Sign-In is currently unavailable. Please use the form below to create your account.', 'error');
+        function showGlobalError(message) {
+            let errorDiv = document.getElementById('globalError');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.id = 'globalError';
+                errorDiv.className = 'global-message error';
+                document.querySelector('.auth-container').insertBefore(errorDiv, document.querySelector('.auth-form'));
+            }
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
         }
+        
     </script>
 </body>
 </html>
