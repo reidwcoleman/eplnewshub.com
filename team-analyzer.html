@@ -34,7 +34,7 @@
             text-align: center;
             margin-bottom: 30px;
             padding: 30px;
-            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            background: linear-gradient(135deg, #6f42c1 0%, #fd7e14 100%);
             color: white;
             border-radius: 12px;
         }
@@ -117,7 +117,7 @@
 
         .control-btn {
             padding: 12px 24px;
-            background: linear-gradient(135deg, #37003c, #6f42c1);
+            background: linear-gradient(135deg, #6f42c1, #fd7e14);
             color: white;
             border: none;
             border-radius: 8px;
@@ -168,7 +168,7 @@
         .team-badge {
             width: 60px;
             height: 60px;
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -177,6 +177,7 @@
             font-weight: 800;
             color: #37003c;
             border: 2px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         .team-info h3 {
@@ -388,7 +389,7 @@
         }
 
         .fpl-insights {
-            background: linear-gradient(135deg, #20c997, #17a2b8);
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
             color: white;
             border-radius: 12px;
             padding: 25px;
@@ -426,8 +427,29 @@
         }
 
         @media (max-width: 768px) {
+            .analyzer-container {
+                padding: 10px;
+                border-radius: 12px;
+            }
+            
+            .analyzer-header {
+                padding: 20px 15px;
+            }
+            
             .analyzer-header h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
+            }
+            
+            .analyzer-header p {
+                font-size: 0.9rem;
+            }
+            
+            .premium-features {
+                padding: 20px 15px;
+            }
+            
+            .team-selector-panel {
+                padding: 15px;
             }
             
             .team-selectors {
@@ -437,11 +459,32 @@
             
             .vs-divider {
                 font-size: 1.5rem;
+                margin: 15px 0;
+            }
+            
+            .team-grid {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                gap: 8px;
+            }
+            
+            .team-option {
+                padding: 10px 5px;
+                font-size: 0.85rem;
+            }
+            
+            .control-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+                width: 100%;
             }
             
             .team-overview {
                 grid-template-columns: 1fr;
                 gap: 20px;
+            }
+            
+            .team-card {
+                padding: 20px;
             }
             
             .h2h-stats {
@@ -455,6 +498,10 @@
                 margin: 0 auto;
             }
             
+            .performance-charts {
+                grid-template-columns: 1fr;
+            }
+            
             .player-sections {
                 grid-template-columns: 1fr;
                 gap: 20px;
@@ -462,6 +509,73 @@
             
             .stats-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            #live-indicator {
+                flex-direction: column;
+                gap: 10px !important;
+            }
+            
+            #live-indicator > span,
+            #live-indicator > button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .analyzer-header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .analyzer-header p {
+                font-size: 0.85rem;
+            }
+            
+            .team-selector-panel h2 {
+                font-size: 1.2rem;
+            }
+            
+            .team-option {
+                padding: 8px 4px;
+                font-size: 0.75rem;
+            }
+            
+            .control-btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+            
+            .stat-value {
+                font-size: 1.1rem;
+            }
+            
+            .stat-label {
+                font-size: 0.7rem;
+            }
+            
+            .player-name {
+                font-size: 0.85rem;
+            }
+            
+            .player-stats {
+                font-size: 0.75rem;
+            }
+            
+            .insight-card {
+                padding: 12px;
+            }
+            
+            .insight-title {
+                font-size: 0.9rem;
+            }
+            
+            .insight-description {
+                font-size: 0.85rem;
             }
         }
 
@@ -507,7 +621,7 @@
     <main class="main-content">
         <div class="analyzer-container">
             <div class="analyzer-header">
-                <h1>⚔️ Team Analysis & Comparison</h1>
+                <h1>⚔️ Team Analysis & Comparison Tool</h1>
                 <p>Deep-dive team performance analysis with head-to-head comparisons and FPL insights</p>
                 <div id="live-indicator" style="margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 15px;">
                     <span style="display: inline-flex; align-items: center; background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px;">
@@ -528,6 +642,29 @@
                         100% { opacity: 1; }
                     }
                 </style>
+            </div>
+
+            <!-- Premium Features Section -->
+            <div class="premium-features" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 25px; border-radius: 12px; margin-bottom: 30px;">
+                <h2 style="text-align: center; margin-bottom: 20px;">⭐ Premium Features</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; backdrop-filter: blur(10px);">
+                        <h4 style="margin: 0 0 10px 0;">🔍 Deep Analysis</h4>
+                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Compare any two teams with comprehensive metrics including form, value, and player quality.</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; backdrop-filter: blur(10px);">
+                        <h4 style="margin: 0 0 10px 0;">📊 League Overview</h4>
+                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">View all 20 teams ranked by overall performance with detailed statistics and insights.</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; backdrop-filter: blur(10px);">
+                        <h4 style="margin: 0 0 10px 0;">🎯 FPL Insights</h4>
+                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Get strategic recommendations for transfers, captaincy, and differential picks.</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; backdrop-filter: blur(10px);">
+                        <h4 style="margin: 0 0 10px 0;">🔄 Live Data</h4>
+                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Real-time updates from official FPL API with automatic refresh every 2 minutes.</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Team Selector Panel -->
@@ -564,8 +701,11 @@
                     <button class="control-btn" onclick="analyzeTeams()" id="analyze-btn" disabled>
                         🔍 Analyze Teams
                     </button>
-                    <button class="control-btn" onclick="compareAll()" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                    <button class="control-btn" onclick="compareAll()">
                         📊 League Overview
+                    </button>
+                    <button class="control-btn" onclick="showQuickTips()">
+                        💡 Quick Tips
                     </button>
                 </div>
             </div>
@@ -1300,6 +1440,51 @@
             if (analyzer) {
                 analyzer.refreshData();
             }
+        }
+
+        function showQuickTips() {
+            const tipsHtml = `
+                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                            background: white; padding: 30px; border-radius: 12px; 
+                            box-shadow: 0 10px 40px rgba(0,0,0,0.2); max-width: 600px; z-index: 10001;">
+                    <h2 style="color: #37003c; margin-bottom: 20px;">💡 Quick Tips</h2>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #6f42c1;">
+                            <h4 style="margin: 0 0 8px 0; color: #37003c;">🎯 Team Selection</h4>
+                            <p style="margin: 0; color: #666; font-size: 0.9rem;">Click on team badges to select them for comparison. Choose teams with contrasting styles for the most insightful analysis.</p>
+                        </div>
+                        <div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                            <h4 style="margin: 0 0 8px 0; color: #37003c;">📊 League Overview</h4>
+                            <p style="margin: 0; color: #666; font-size: 0.9rem;">Use the League Overview to quickly identify top-performing teams and find hidden gems for FPL transfers.</p>
+                        </div>
+                        <div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #fd7e14;">
+                            <h4 style="margin: 0 0 8px 0; color: #37003c;">⚡ Form Analysis</h4>
+                            <p style="margin: 0; color: #666; font-size: 0.9rem;">Teams with average form above 5.0 are in excellent shape. Consider their players for short-term transfers.</p>
+                        </div>
+                        <div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #17a2b8;">
+                            <h4 style="margin: 0 0 8px 0; color: #37003c;">💰 Value Picks</h4>
+                            <p style="margin: 0; color: #666; font-size: 0.9rem;">Look for teams with high points-per-million ratios. Their budget players often provide excellent FPL value.</p>
+                        </div>
+                        <div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #dc3545;">
+                            <h4 style="margin: 0 0 8px 0; color: #37003c;">🔄 Auto-Refresh</h4>
+                            <p style="margin: 0; color: #666; font-size: 0.9rem;">Data automatically refreshes every 2 minutes and when you return to the tab. Manual refresh available anytime.</p>
+                        </div>
+                    </div>
+                    <button onclick="this.parentElement.remove()" 
+                            style="margin-top: 20px; padding: 10px 20px; background: linear-gradient(135deg, #6f42c1, #fd7e14); 
+                                   color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                        Got it!
+                    </button>
+                </div>
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+                            background: rgba(0,0,0,0.5); z-index: 10000;" 
+                     onclick="this.remove(); document.querySelector('[style*=z-index]').remove();">
+                </div>
+            `;
+            
+            const tipsContainer = document.createElement('div');
+            tipsContainer.innerHTML = tipsHtml;
+            document.body.appendChild(tipsContainer);
         }
 
         // Initialize the analyzer
