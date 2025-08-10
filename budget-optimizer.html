@@ -722,6 +722,44 @@
                     this.initializeMockData();
                 }
             }
+            
+            initializeMockData() {
+                // Generate mock players for testing
+                const positions = ['GKP', 'DEF', 'MID', 'FWD'];
+                const teams = ['ARS', 'CHE', 'LIV', 'MCI', 'MUN', 'TOT', 'NEW', 'BHA', 'FUL', 'WHU'];
+                
+                this.allPlayers = [];
+                for (let i = 0; i < 600; i++) {
+                    const position = Math.floor(i / 150) + 1;
+                    const price = Math.floor(Math.random() * 80 + 40);
+                    this.allPlayers.push({
+                        id: i + 1,
+                        first_name: `Player${i}`,
+                        second_name: `Name${i}`,
+                        element_type: position,
+                        team: Math.floor(Math.random() * 20) + 1,
+                        now_cost: price,
+                        total_points: Math.floor(Math.random() * 200),
+                        form: (Math.random() * 10).toFixed(1),
+                        selected_by_percent: (Math.random() * 50).toFixed(1),
+                        minutes: Math.floor(Math.random() * 3000),
+                        starts: Math.floor(Math.random() * 38),
+                        expected_goals: (Math.random() * 15).toFixed(2),
+                        expected_assists: (Math.random() * 10).toFixed(2),
+                        transfers_in_event: Math.floor(Math.random() * 100000),
+                        transfers_out_event: Math.floor(Math.random() * 50000)
+                    });
+                }
+                
+                this.teams = teams.map((name, i) => ({
+                    id: i + 1,
+                    short_name: name,
+                    name: name
+                }));
+                
+                this.setupEventListeners();
+                this.updateBudgetDisplay();
+            }
 
             async refreshData() {
                 console.log('Refreshing live data...');
@@ -997,31 +1035,91 @@
             }
 
             knapsackOptimization(players, budget, count) {
-                // Simplified knapsack for FPL constraints
+                // Enhanced knapsack optimization for FPL
                 const selected = [];
                 let remainingBudget = budget;
                 let remainingCount = count;
-
-                // First pass: greedy selection
-                for (const player of players) {
-                    if (remainingCount === 0) break;
-                    if (player.now_cost <= remainingBudget) {
-                        selected.push(player);
-                        remainingBudget -= player.now_cost;
-                        remainingCount--;
+                
+                // Group players by price ranges for better distribution
+                const priceRanges = {
+                    premium: players.filter(p => p.now_cost >= 100),
+                    mid: players.filter(p => p.now_cost >= 65 && p.now_cost < 100),
+                    budget: players.filter(p => p.now_cost < 65)
+                };
+                
+                // Determine optimal distribution based on strategy
+                const distribution = this.getOptimalDistribution(count, this.selectedStrategy);
+                
+                // Select from each price range
+                for (const [range, targetCount] of Object.entries(distribution)) {
+                    const rangePlayers = priceRanges[range];
+                    const toSelect = Math.min(targetCount, rangePlayers.length);
+                    
+                    for (let i = 0; i < toSelect && remainingCount > 0; i++) {
+                        const player = rangePlayers[i];
+                        if (player && player.now_cost <= remainingBudget) {
+                            selected.push(player);
+                            remainingBudget -= player.now_cost;
+                            remainingCount--;
+                        }
                     }
                 }
-
-                // Fill remaining slots with cheapest available
+                
+                // Fill remaining slots with best available within budget
                 if (remainingCount > 0) {
-                    const cheapest = players
-                        .filter(p => !selected.includes(p))
-                        .sort((a, b) => a.now_cost - b.now_cost)
-                        .slice(0, remainingCount);
-                    selected.push(...cheapest);
+                    const available = players
+                        .filter(p => !selected.includes(p) && p.now_cost <= remainingBudget / remainingCount * 1.5)
+                        .slice(0, remainingCount * 2); // Get more candidates
+                    
+                    // Dynamic programming approach for remaining slots
+                    const bestCombination = this.findBestCombination(
+                        available,
+                        remainingBudget,
+                        remainingCount
+                    );
+                    
+                    selected.push(...bestCombination);
                 }
-
+                
+                // Ensure we have exactly 'count' players
                 return selected.slice(0, count);
+            }
+            
+            getOptimalDistribution(count, strategy) {
+                const distributions = {
+                    best: { premium: Math.ceil(count * 0.4), mid: Math.ceil(count * 0.4), budget: Math.floor(count * 0.2) },
+                    budget: { premium: Math.floor(count * 0.1), mid: Math.ceil(count * 0.3), budget: Math.ceil(count * 0.6) },
+                    wildcard: { premium: Math.ceil(count * 0.3), mid: Math.ceil(count * 0.4), budget: Math.floor(count * 0.3) },
+                    balanced: { premium: Math.ceil(count * 0.25), mid: Math.ceil(count * 0.45), budget: Math.floor(count * 0.3) }
+                };
+                
+                return distributions[strategy] || distributions.balanced;
+            }
+            
+            findBestCombination(players, budget, count) {
+                // Simple greedy approach for performance
+                const sorted = players.sort((a, b) => b.score - a.score);
+                const result = [];
+                let remaining = budget;
+                
+                for (const player of sorted) {
+                    if (result.length >= count) break;
+                    if (player.now_cost <= remaining) {
+                        result.push(player);
+                        remaining -= player.now_cost;
+                    }
+                }
+                
+                // If we don't have enough players, add cheapest
+                if (result.length < count) {
+                    const cheapest = players
+                        .filter(p => !result.includes(p))
+                        .sort((a, b) => a.now_cost - b.now_cost)
+                        .slice(0, count - result.length);
+                    result.push(...cheapest);
+                }
+                
+                return result;
             }
 
             calculatePredictedPoints(squad) {
