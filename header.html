@@ -90,6 +90,9 @@
             <h3>EPL News Hub</h3>
             <button class="close-sidebar" onclick="toggleMobileMenu()">×</button>
         </div>
+        <div class="mobile-search">
+            <input type="text" placeholder="Search articles..." id="mobile-search-input" onkeyup="mobileSearch(event)">
+        </div>
         <nav class="mobile-sidebar-nav">
             <ul class="mobile-nav-links" id="mobile-nav-links">
                 <li><a href="/account.html" class="mobile-highlight">👤 My Account</a></li>
@@ -854,7 +857,71 @@
                 }
             }
             
+            /* Mobile Responsive Styles */
             @media (max-width: 768px) {
+                /* Header mobile optimization */
+                .site-header {
+                    position: sticky;
+                    top: 0;
+                    z-index: 1000;
+                    background: white;
+                }
+                
+                .header-top {
+                    padding: 10px 0;
+                }
+                
+                .header-content {
+                    padding: 0 10px;
+                    flex-wrap: nowrap;
+                    justify-content: space-between;
+                }
+                
+                .logo {
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 8px;
+                }
+                
+                .logo-image {
+                    width: 35px;
+                    height: 35px;
+                }
+                
+                .logo-text h1 {
+                    font-size: 1.2rem;
+                    margin: 0;
+                }
+                
+                .tagline {
+                    display: none;
+                }
+                
+                /* Hide desktop nav on mobile */
+                .main-nav {
+                    display: none;
+                }
+                
+                /* Mobile menu button */
+                .menu-btn {
+                    display: block;
+                    font-size: 1.5rem;
+                    background: none;
+                    border: none;
+                    padding: 5px 10px;
+                    cursor: pointer;
+                }
+                
+                /* Hide search on mobile - show in sidebar */
+                .search-container {
+                    display: none;
+                }
+                
+                /* Mobile sidebar styles */
+                .mobile-sidebar {
+                    display: block;
+                }
+                
                 .header-account-widget {
                     right: 10px;
                     left: 10px;
@@ -889,8 +956,175 @@
                     font-size: 0.85rem;
                 }
             }
+            
+            /* Desktop styles */
+            @media (min-width: 769px) {
+                .menu-btn {
+                    display: none;
+                }
+                
+                .mobile-sidebar,
+                .mobile-sidebar-overlay {
+                    display: none !important;
+                }
+            }
+            
+            /* Mobile Sidebar Styles */
+            .mobile-sidebar {
+                position: fixed;
+                top: 0;
+                left: -280px;
+                width: 280px;
+                height: 100vh;
+                background: white;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                transition: left 0.3s ease;
+                z-index: 10000;
+                overflow-y: auto;
+                display: none;
+            }
+            
+            .mobile-sidebar.active {
+                left: 0;
+            }
+            
+            .mobile-sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 9999;
+                display: none;
+            }
+            
+            .mobile-sidebar-overlay.active {
+                display: block;
+            }
+            
+            .mobile-sidebar-header {
+                padding: 20px;
+                background: linear-gradient(135deg, #38003c, #00ff87);
+                color: white;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .mobile-sidebar-header h3 {
+                margin: 0;
+                font-size: 1.2rem;
+            }
+            
+            .close-sidebar {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.5rem;
+                cursor: pointer;
+                padding: 0;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .mobile-sidebar-nav {
+                padding: 20px 0;
+            }
+            
+            .mobile-nav-links {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .mobile-nav-links li {
+                margin: 0;
+            }
+            
+            .mobile-nav-links a {
+                display: block;
+                padding: 12px 20px;
+                color: #333;
+                text-decoration: none;
+                transition: background 0.3s ease;
+                font-weight: 500;
+            }
+            
+            .mobile-nav-links a:hover {
+                background: #f8f9fa;
+                padding-left: 25px;
+            }
+            
+            /* Mobile search in sidebar */
+            .mobile-search {
+                padding: 0 20px 20px;
+                border-bottom: 1px solid #e9ecef;
+            }
+            
+            .mobile-search input {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                font-size: 0.95rem;
+            }
         `;
         document.head.appendChild(style);
     }
+    
+    // Mobile menu toggle function
+    function toggleMobileMenu() {
+        const sidebar = document.getElementById('mobile-sidebar');
+        const overlay = document.getElementById('mobile-sidebar-overlay');
+        
+        if (sidebar && overlay) {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            
+            // Prevent body scroll when menu is open
+            if (sidebar.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+    }
+</script>
+
+<script>
+    // Mobile search function
+    function mobileSearch(event) {
+        if (event.key === 'Enter') {
+            const searchQuery = event.target.value;
+            if (searchQuery.trim()) {
+                // Close mobile menu
+                toggleMobileMenu();
+                // Trigger search (you can customize this based on your search implementation)
+                if (typeof performSearch === 'function') {
+                    performSearch(searchQuery);
+                } else {
+                    // Fallback: redirect to search results page
+                    window.location.href = `/search.html?q=${encodeURIComponent(searchQuery)}`;
+                }
+            }
+        }
+    }
+    
+    // Ensure mobile menu closes on window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            const sidebar = document.getElementById('mobile-sidebar');
+            const overlay = document.getElementById('mobile-sidebar-overlay');
+            if (sidebar && overlay) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+    });
 </script>
 
