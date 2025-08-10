@@ -1,0 +1,52 @@
+<!-- Ezoic Ad Integration Scripts -->
+<!-- This file should be included at the very top of the <head> tag on all pages -->
+
+<!-- Ezoic Privacy Scripts (MUST load first for compliance) -->
+<script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
+<script src="https://the.gatekeeperconsent.com/cmp.min.js" data-cfasync="false"></script>
+
+<!-- Ezoic Header Script (Initializes ad system) -->
+<script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
+<script>
+    window.ezstandalone = window.ezstandalone || {};
+    ezstandalone.cmd = ezstandalone.cmd || [];
+</script>
+
+<!-- Premium Member Ad Control -->
+<script>
+    // Check if user has premium membership and disable Ezoic ads if they do
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            const membershipData = localStorage.getItem('membership') || localStorage.getItem('eplMembership');
+            
+            if (membershipData) {
+                const membership = JSON.parse(membershipData);
+                
+                // If user has premium membership, disable Ezoic ads
+                if (membership.plan && membership.plan !== 'free') {
+                    // Add class to body to hide Ezoic ads
+                    document.body.classList.add('ezoic-ads-disabled');
+                    
+                    // Disable Ezoic ad execution
+                    if (window.ezstandalone) {
+                        window.ezstandalone.enabled = false;
+                    }
+                    
+                    console.log('Premium member detected - Ezoic ads disabled');
+                }
+            }
+        } catch (error) {
+            console.error('Error checking membership for Ezoic ads:', error);
+        }
+    });
+</script>
+
+<style>
+    /* Hide Ezoic ads for premium members */
+    .ezoic-ads-disabled .ezoic-ad,
+    .ezoic-ads-disabled [id^="ezoic-pub-ad-"],
+    .ezoic-ads-disabled .ez-ad-placeholder {
+        display: none !important;
+        visibility: hidden !important;
+    }
+</style>
