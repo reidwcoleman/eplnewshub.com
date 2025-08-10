@@ -52,26 +52,66 @@
 
         // Setup ad placements
         setupAds: function() {
+            // Collect all placement IDs that need to be shown
+            const placementsToShow = [];
+            
+            // Check if bottom ad placeholder already exists (from footer.html)
+            const bottomAdExists = document.getElementById('ezoic-pub-ad-placeholder-103');
+            if (bottomAdExists) {
+                placementsToShow.push(103);
+            }
+            
             // Insert header ad
             this.insertHeaderAd();
+            if (document.getElementById(this.placements.header)) {
+                placementsToShow.push(100);
+            }
             
             // Insert sidebar ads
             this.insertSidebarAds();
+            if (document.getElementById(this.placements.sidebar_top)) {
+                placementsToShow.push(101);
+            }
+            if (document.getElementById(this.placements.sidebar_bottom)) {
+                placementsToShow.push(102);
+            }
             
             // Insert in-article ads
             this.insertInArticleAds();
+            if (document.getElementById(this.placements.in_article_1)) {
+                placementsToShow.push(103);
+            }
+            if (document.getElementById(this.placements.in_article_2)) {
+                placementsToShow.push(104);
+            }
             
-            // Insert footer ad
-            this.insertFooterAd();
+            // Insert footer ad (if not already present)
+            if (!bottomAdExists) {
+                this.insertFooterAd();
+                if (document.getElementById(this.placements.footer)) {
+                    placementsToShow.push(105);
+                }
+            }
             
             // Insert floating ad (mobile)
             if (window.innerWidth <= 768) {
                 this.insertFloatingAd();
+                if (document.getElementById(this.placements.floating)) {
+                    placementsToShow.push(106);
+                }
             }
 
             // Insert between article ads on homepage
             if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
                 this.insertBetweenArticleAds();
+            }
+            
+            // Initialize all ads at once for better performance
+            if (window.ezstandalone && placementsToShow.length > 0) {
+                ezstandalone.cmd.push(function() {
+                    // Show all ads with a single call for better performance
+                    ezstandalone.showAds(...placementsToShow);
+                });
             }
 
             // Refresh ads when needed
@@ -224,6 +264,19 @@
                 min-height: 50px;
                 text-align: center;
                 clear: both;
+            }
+            
+            /* Bottom of Page Ad Specific Styles */
+            .ezoic-bottom-ad,
+            #ezoic-pub-ad-placeholder-103 {
+                margin: 40px auto 20px;
+                max-width: 970px;
+                min-height: 90px;
+                text-align: center;
+                background: #f8f9fa;
+                padding: 20px 0;
+                border-top: 2px solid #e9ecef;
+                border-bottom: 2px solid #e9ecef;
             }
 
             .header-ad {
