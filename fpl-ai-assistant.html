@@ -496,6 +496,37 @@
                 this.currentGameweek = 1;
                 this.isTyping = false;
                 
+                // Enhanced AI Features
+                this.conversationMemory = [];
+                this.userProfile = this.loadUserProfile();
+                this.contextWindow = 10; // Remember last 10 interactions
+                this.personality = {
+                    humor: 0.7,
+                    confidence: 0.8,
+                    enthusiasm: 0.9,
+                    empathy: 0.6
+                };
+                this.uncertaintyThreshold = 0.6;
+                this.lastQuestionContext = null;
+                this.sessionStartTime = Date.now();
+                this.responseVariations = new Map();
+                
+                // Advanced NLP patterns
+                this.nlpPatterns = {
+                    player_comparison: /compare\s+(\w+)\s+(?:and|vs|with)\s+(\w+)/i,
+                    player_mention: /(salah|haaland|palmer|mbeumo|saka|isak|gordon|wood|foden|diaz|nunez|son|kane|bellingham|odegaard)/i,
+                    team_mention: /(liverpool|arsenal|chelsea|city|united|tottenham|spurs|newcastle|brighton|brentford|forest|villa)/i,
+                    price_query: /under\s+(\d+(?:\.\d+)?)(?:m|million)?/i,
+                    position_query: /(goalkeeper|defender|midfielder|forward|gk|def|mid|fwd)/i,
+                    transfer_intent: /(should i|transfer|bring in|get rid|sell|buy|replace)/i,
+                    captain_intent: /(captain|cap|c)/i,
+                    budget_constraint: /(cheap|budget|value|affordable)/i,
+                    form_query: /(form|hot|cold|trending|rising|falling)/i,
+                    fixture_query: /(fixtures?|matches?|games?|schedule)/i,
+                    injury_query: /(injur|fit|available|doubtful)/i,
+                    differential_query: /(differential|punt|risky|template)/i
+                };
+                
                 // Real FPL Knowledge Base with 2024/25 Season Data
                 this.knowledgeBase = {
                     topScorers: [
@@ -618,6 +649,203 @@
                         PPG: 'Points per game - better than total points for part-time players'
                     }
                 };
+                
+                // Conversation starters and follow-ups
+                this.conversationStarters = [
+                    "What's your current team looking like?",
+                    "How's your rank this season?",
+                    "Any specific budget constraints I should know about?",
+                    "Are you chasing or playing it safe?"
+                ];
+                
+                this.followUpQuestions = {
+                    transfer: [
+                        "What's your budget for this transfer?",
+                        "Are you looking for a short-term or long-term pick?",
+                        "Who are you thinking of transferring out?"
+                    ],
+                    captain: [
+                        "Are you playing it safe or going for a differential?",
+                        "What's your mini-league situation?",
+                        "Home or away fixture preference?"
+                    ],
+                    team: [
+                        "Which positions need the most work?",
+                        "Any players you're definitely keeping?",
+                        "What's your target rank this season?"
+                    ]
+                };
+                
+                this.personalityResponses = {
+                    enthusiasm: [
+                        "I'm excited to help you climb those ranks! 🚀",
+                        "This is going to be a great week for your team! 💪",
+                        "Love the ambition! Let's make it happen! ⚡"
+                    ],
+                    uncertainty: [
+                        "Based on the data I have, I'm about {confidence}% confident that...",
+                        "This is a tricky one, but here's my take...",
+                        "I'm leaning towards... though there are some risks to consider"
+                    ],
+                    humor: [
+                        "As much as I'd love to guarantee Haaland will score a hat-trick...",
+                        "Unless you have a crystal ball (which I don't!), here's what the data suggests...",
+                        "My AI brain is saying..."
+                    ]
+                };
+                
+                // Initialize advanced features
+                this.initializeAdvancedFeatures();
+            }
+            
+            initializeAdvancedFeatures() {
+                // Set up fuzzy matching for player names
+                this.setupFuzzyMatching();
+                // Initialize personality based on time of day
+                this.adjustPersonalityByTime();
+                // Load previous conversation context
+                this.loadConversationHistory();
+            }
+            
+            loadUserProfile() {
+                const saved = localStorage.getItem('fpl-ai-profile');
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+                return {
+                    preferredFormation: null,
+                    riskTolerance: 'medium', // low, medium, high
+                    favoriteTeam: null,
+                    currentRank: null,
+                    budget: null,
+                    freeTransfers: null,
+                    currentPlayers: [],
+                    gameweekHistory: [],
+                    preferences: {
+                        premiumPlayers: [],
+                        avoidedPlayers: [],
+                        targetPrice: null
+                    },
+                    interactionHistory: [],
+                    lastActive: Date.now()
+                };
+            }
+            
+            saveUserProfile() {
+                this.userProfile.lastActive = Date.now();
+                localStorage.setItem('fpl-ai-profile', JSON.stringify(this.userProfile));
+            }
+            
+            loadConversationHistory() {
+                const saved = localStorage.getItem('fpl-ai-memory');
+                if (saved) {
+                    this.conversationMemory = JSON.parse(saved).slice(-this.contextWindow);
+                }
+            }
+            
+            saveConversationHistory() {
+                localStorage.setItem('fpl-ai-memory', JSON.stringify(this.conversationMemory));
+            }
+            
+            addToMemory(userQuery, aiResponse, context = {}) {
+                const memoryItem = {
+                    timestamp: Date.now(),
+                    userQuery,
+                    aiResponse: aiResponse.substring(0, 500), // Truncate for storage
+                    context,
+                    confidence: context.confidence || 0.8
+                };
+                
+                this.conversationMemory.push(memoryItem);
+                if (this.conversationMemory.length > this.contextWindow) {
+                    this.conversationMemory.shift();
+                }
+                
+                this.saveConversationHistory();
+                this.updateUserProfile(userQuery, context);
+            }
+            
+            updateUserProfile(userQuery, context) {
+                const lowerQuery = userQuery.toLowerCase();
+                
+                // Extract user preferences and information
+                if (lowerQuery.includes('rank') && context.rank) {
+                    this.userProfile.currentRank = context.rank;
+                }
+                
+                if (lowerQuery.includes('budget') && context.budget) {
+                    this.userProfile.budget = context.budget;
+                }
+                
+                // Track mentioned players
+                const playerMatch = lowerQuery.match(this.nlpPatterns.player_mention);
+                if (playerMatch) {
+                    const player = playerMatch[1];
+                    if (lowerQuery.includes('like') || lowerQuery.includes('want')) {
+                        if (!this.userProfile.preferences.premiumPlayers.includes(player)) {
+                            this.userProfile.preferences.premiumPlayers.push(player);
+                        }
+                    } else if (lowerQuery.includes('avoid') || lowerQuery.includes('sell')) {
+                        if (!this.userProfile.preferences.avoidedPlayers.includes(player)) {
+                            this.userProfile.preferences.avoidedPlayers.push(player);
+                        }
+                    }
+                }
+                
+                // Infer risk tolerance
+                if (lowerQuery.includes('differential') || lowerQuery.includes('risky')) {
+                    this.userProfile.riskTolerance = 'high';
+                } else if (lowerQuery.includes('safe') || lowerQuery.includes('template')) {
+                    this.userProfile.riskTolerance = 'low';
+                }
+                
+                this.saveUserProfile();
+            }
+            
+            setupFuzzyMatching() {
+                // Simple fuzzy matching for player names
+                this.playerAliases = {
+                    'salah': ['mo', 'mohamed', 'momo'],
+                    'haaland': ['erling', 'big man', 'robot', 'norwegian'],
+                    'palmer': ['cole', 'cold palmer'],
+                    'mbeumo': ['bryan', 'brentford winger'],
+                    'saka': ['bukayo', 'starboy'],
+                    'son': ['heung-min', 'sonny'],
+                    'gordon': ['anthony', 'newcastle winger'],
+                    'wood': ['chris', 'kiwi', 'new zealand']
+                };
+            }
+            
+            adjustPersonalityByTime() {
+                const hour = new Date().getHours();
+                
+                if (hour < 6 || hour > 22) {
+                    // Late night/early morning - more casual
+                    this.personality.humor += 0.2;
+                    this.personality.enthusiasm -= 0.1;
+                } else if (hour >= 9 && hour <= 17) {
+                    // Work hours - more professional
+                    this.personality.confidence += 0.1;
+                    this.personality.humor -= 0.1;
+                } else {
+                    // Evening - more relaxed
+                    this.personality.enthusiasm += 0.1;
+                    this.personality.empathy += 0.1;
+                }
+            }
+            
+            getPersonalityResponse(type, context = {}) {
+                const responses = this.personalityResponses[type] || [];
+                if (responses.length === 0) return '';
+                
+                let response = responses[Math.floor(Math.random() * responses.length)];
+                
+                // Replace placeholders
+                if (context.confidence) {
+                    response = response.replace('{confidence}', Math.round(context.confidence * 100));
+                }
+                
+                return response;
             }
 
             async initialize() {
@@ -809,6 +1037,197 @@
                 
                 // Default: Use AI to understand intent
                 return this.getIntelligentResponse(query);
+            }
+            
+            analyzeQueryContext(query) {
+                const context = {
+                    intent: null,
+                    entities: [],
+                    sentiment: this.analyzeSentiment(query),
+                    complexity: this.calculateComplexity(query),
+                    urgency: this.detectUrgency(query),
+                    topic: null
+                };
+                
+                // Intent detection
+                if (query.match(this.nlpPatterns.transfer_intent)) {
+                    context.intent = 'transfer';
+                    context.topic = 'transfer';
+                } else if (query.match(this.nlpPatterns.captain_intent)) {
+                    context.intent = 'captain';
+                    context.topic = 'captain';
+                } else if (query.match(this.nlpPatterns.fixture_query)) {
+                    context.intent = 'fixtures';
+                    context.topic = 'fixtures';
+                }
+                
+                return context;
+            }
+            
+            processNLP(query) {
+                const analysis = {};
+                
+                // Extract entities using regex patterns
+                Object.entries(this.nlpPatterns).forEach(([key, pattern]) => {
+                    const match = query.match(pattern);
+                    if (match) {
+                        analysis[key] = match[1] || match[0];
+                    }
+                });
+                
+                // Fuzzy player matching
+                if (!analysis.player_mention) {
+                    const fuzzyMatch = this.fuzzyMatchPlayer(query);
+                    if (fuzzyMatch) {
+                        analysis.player_mention = fuzzyMatch;
+                        analysis.fuzzyMatch = true;
+                    }
+                }
+                
+                return analysis;
+            }
+            
+            fuzzyMatchPlayer(query) {
+                const lowerQuery = query.toLowerCase();
+                
+                for (const [player, aliases] of Object.entries(this.playerAliases)) {
+                    if (aliases.some(alias => lowerQuery.includes(alias))) {
+                        return player;
+                    }
+                }
+                
+                return null;
+            }
+            
+            calculateConfidence(query, context) {
+                let confidence = 0.8; // Base confidence
+                
+                // Reduce confidence for complex queries
+                if (context.complexity > 0.7) confidence -= 0.2;
+                
+                // Increase confidence for clear intents
+                if (context.intent) confidence += 0.1;
+                
+                // Reduce confidence for fuzzy matches
+                if (context.fuzzyMatch) confidence -= 0.1;
+                
+                // Increase confidence if we have user profile data
+                if (this.userProfile.currentRank || this.userProfile.budget) {
+                    confidence += 0.1;
+                }
+                
+                return Math.min(Math.max(confidence, 0.3), 0.95);
+            }
+            
+            analyzeSentiment(query) {
+                const positive = ['good', 'great', 'love', 'like', 'best', 'excellent'];
+                const negative = ['bad', 'awful', 'hate', 'worst', 'terrible', 'avoid'];
+                
+                const lowerQuery = query.toLowerCase();
+                let score = 0;
+                
+                positive.forEach(word => {
+                    if (lowerQuery.includes(word)) score += 1;
+                });
+                
+                negative.forEach(word => {
+                    if (lowerQuery.includes(word)) score -= 1;
+                });
+                
+                return score;
+            }
+            
+            calculateComplexity(query) {
+                const indicators = [
+                    query.includes('?'),
+                    query.split(' ').length > 10,
+                    query.includes('but'),
+                    query.includes('however'),
+                    query.includes('although')
+                ];
+                
+                return indicators.filter(Boolean).length / indicators.length;
+            }
+            
+            detectUrgency(query) {
+                const urgentWords = ['now', 'urgent', 'quickly', 'deadline', 'tonight', 'today'];
+                return urgentWords.some(word => query.toLowerCase().includes(word));
+            }
+            
+            getPreviousContext() {
+                if (this.conversationMemory.length === 0) return null;
+                return this.conversationMemory[this.conversationMemory.length - 1].context;
+            }
+            
+            detectFollowUp(query, previousContext) {
+                const followUpIndicators = [
+                    query.toLowerCase().startsWith('what about'),
+                    query.toLowerCase().startsWith('how about'),
+                    query.includes('also'),
+                    query.length < 20 && previousContext.topic
+                ];
+                
+                return followUpIndicators.some(Boolean);
+            }
+            
+            handleFollowUpQuery(query, previousContext, context) {
+                let response = `I see you're continuing our discussion about ${previousContext.topic}. `;
+                
+                // Handle based on previous topic
+                if (previousContext.topic === 'transfer') {
+                    if (context.player_mention) {
+                        return this.getPlayerAnalysis(context.player_mention, context);
+                    } else {
+                        return response + this.getSmartTransferAdvice(query);
+                    }
+                } else if (previousContext.topic === 'captain') {
+                    return response + this.getDataDrivenCaptainPicks();
+                }
+                
+                return this.getIntelligentResponse(query, context);
+            }
+            
+            enhanceResponseWithPersonality(response, confidence, context) {
+                let enhancedResponse = response;
+                
+                // Add confidence indicators for low confidence
+                if (confidence < this.uncertaintyThreshold) {
+                    const uncertaintyPhrase = this.getPersonalityResponse('uncertainty', { confidence });
+                    if (uncertaintyPhrase) {
+                        enhancedResponse = uncertaintyPhrase + '\n\n' + enhancedResponse;
+                    }
+                }
+                
+                // Add enthusiasm for high-value insights
+                if (this.personality.enthusiasm > 0.8 && context.intent === 'transfer') {
+                    const enthusiasmPhrase = this.getPersonalityResponse('enthusiasm');
+                    if (enthusiasmPhrase && Math.random() < 0.3) {
+                        enhancedResponse += '\n\n' + enthusiasmPhrase;
+                    }
+                }
+                
+                // Add follow-up questions
+                const followUp = this.generateFollowUpQuestion(context);
+                if (followUp && Math.random() < 0.4) {
+                    enhancedResponse += '\n\n' + followUp;
+                }
+                
+                return enhancedResponse;
+            }
+            
+            generateFollowUpQuestion(context) {
+                const questions = this.followUpQuestions[context.intent] || [];
+                if (questions.length === 0) return null;
+                
+                // Don't ask too many questions in a row
+                const recentQuestions = this.conversationMemory
+                    .slice(-3)
+                    .filter(m => m.aiResponse.includes('?'));
+                    
+                if (recentQuestions.length >= 2) return null;
+                
+                const question = questions[Math.floor(Math.random() * questions.length)];
+                return `💭 **Quick question:** ${question}`;
             }
 
             getDataDrivenCaptainPicks() {
@@ -1247,8 +1666,17 @@
                 return playerNames.some(name => lowerQuery.includes(name));
             }
             
-            getIntelligentPlayerAnalysis(query) {
+            getIntelligentPlayerAnalysis(query, context = {}) {
                 const lowerQuery = query.toLowerCase();
+                
+                // Use multi-factor analysis for detailed queries
+                if (lowerQuery.includes('analysis') || lowerQuery.includes('detailed') || lowerQuery.includes('should i')) {
+                    const playerMatch = lowerQuery.match(this.nlpPatterns.player_mention);
+                    if (playerMatch) {
+                        return this.getMultiFactorAnalysis(playerMatch[1], context);
+                    }
+                }
+                
                 let response = "🔍 **Intelligent Player Analysis:**\n\n";
                 
                 // Find which player is being asked about
@@ -1464,7 +1892,65 @@
                 return response;
             }
             
-            getIntelligentResponse(query) {
+            getIntelligentResponse(query, context = {}) {
+                // Use conversation memory for better context
+                const memoryContext = this.getRelevantMemory(query);
+                if (memoryContext) {
+                    context.previousDiscussion = memoryContext;
+                }
+                
+                // Personalize based on user profile
+                const personalizedResponse = this.personalizeResponse(query, context);
+                if (personalizedResponse) {
+                    return personalizedResponse;
+                }
+                
+                return this.getIntelligentResponseOriginal(query, context);
+            }
+            
+            getRelevantMemory(query) {
+                if (this.conversationMemory.length === 0) return null;
+                
+                const lowerQuery = query.toLowerCase();
+                const relevantMemory = this.conversationMemory.find(memory => {
+                    return memory.userQuery.toLowerCase().includes(lowerQuery.split(' ')[0]) ||
+                           lowerQuery.includes(memory.context.topic);
+                });
+                
+                return relevantMemory?.context || null;
+            }
+            
+            personalizeResponse(query, context) {
+                const lowerQuery = query.toLowerCase();
+                
+                // Use user profile for personalized advice
+                if (this.userProfile.currentRank && lowerQuery.includes('advice')) {
+                    let advice = `Based on your rank situation, `;
+                    
+                    if (this.userProfile.currentRank < 100000) {
+                        advice += `you're doing great! For top 100k, I'd suggest playing it safer with template picks.`;
+                    } else if (this.userProfile.currentRank < 500000) {
+                        advice += `you're in a good position. Consider 1-2 differentials to climb higher.`;
+                    } else {
+                        advice += `there's room for improvement. Don't be afraid to take calculated risks!`;
+                    }
+                    
+                    return advice + '\n\n' + this.getGeneralAdvice();
+                }
+                
+                // Consider risk tolerance
+                if (this.userProfile.riskTolerance && lowerQuery.includes('differential')) {
+                    if (this.userProfile.riskTolerance === 'low') {
+                        return `I notice you prefer safer picks. Here are some lower-risk differentials:\n\n` + this.getDifferentialPicks();
+                    } else if (this.userProfile.riskTolerance === 'high') {
+                        return `Perfect, I love your appetite for risk! Here are some bold differential picks:\n\n` + this.getDifferentialPicks();
+                    }
+                }
+                
+                return null;
+            }
+            
+            getIntelligentResponseOriginal(query, context = {}) {
                 const lowerQuery = query.toLowerCase();
                 let response = "🤖 **AI Analysis:**\n\n";
                 
@@ -1639,14 +2125,47 @@
                     minute: '2-digit' 
                 });
                 
+                // Add greeting for new users
+                let displayContent = content;
+                if (!isUser && this.isFirstInteraction()) {
+                    displayContent = this.addWelcomeMessage() + '\n\n' + content;
+                }
+                
                 messageDiv.innerHTML = `
-                    <div class="message-content">${this.formatMessage(content)}</div>
+                    <div class="message-content">${this.formatMessage(displayContent)}</div>
                     <div class="message-time">${time}</div>
                 `;
                 
                 messagesContainer.appendChild(messageDiv);
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 console.log('Message added to DOM');
+            }
+            
+            isFirstInteraction() {
+                return this.conversationMemory.length === 0 && 
+                       Date.now() - this.sessionStartTime < 30000; // Within first 30 seconds
+            }
+            
+            addWelcomeMessage() {
+                const hour = new Date().getHours();
+                let greeting = '👋 ';
+                
+                if (hour < 12) {
+                    greeting += 'Good morning!';
+                } else if (hour < 18) {
+                    greeting += 'Good afternoon!';
+                } else {
+                    greeting += 'Good evening!';
+                }
+                
+                if (this.userProfile.lastActive && 
+                    Date.now() - this.userProfile.lastActive < 7 * 24 * 60 * 60 * 1000) {
+                    greeting += ' Welcome back to your FPL journey!';
+                } else {
+                    greeting += ' Ready to dominate your FPL mini-league?';
+                }
+                
+                return greeting;
             }
 
             formatMessage(content) {
@@ -1684,9 +2203,19 @@
                 console.log('Typing indicator shown');
                 
                 // Process query and generate response
+                const thinkingTime = this.calculateThinkingTime(message);
+                
                 setTimeout(async () => {
                     try {
                         console.log('Processing query...');
+                        
+                        // Store the context for this query
+                        this.lastQuestionContext = {
+                            query: message,
+                            timestamp: Date.now(),
+                            topic: this.extractTopic(message)
+                        };
+                        
                         const response = await this.processQuery(message);
                         console.log('Response generated:', response.substring(0, 100) + '...');
                         this.hideTyping();
@@ -1695,9 +2224,150 @@
                     } catch (error) {
                         console.error('Error processing query:', error);
                         this.hideTyping();
-                        this.addMessage('Sorry, I encountered an error processing your request. Please try again.');
+                        const errorResponse = this.getPersonalizedErrorMessage();
+                        this.addMessage(errorResponse);
                     }
-                }, 1000 + Math.random() * 1000); // Simulate thinking time
+                }, thinkingTime);
+            }
+            
+            calculateThinkingTime(query) {
+                const baseTime = 1000;
+                const complexityFactor = query.split(' ').length * 100;
+                const randomFactor = Math.random() * 1000;
+                
+                return baseTime + complexityFactor + randomFactor;
+            }
+            
+            extractTopic(query) {
+                const lowerQuery = query.toLowerCase();
+                if (lowerQuery.includes('captain')) return 'captain';
+                if (lowerQuery.includes('transfer')) return 'transfer';
+                if (lowerQuery.includes('fixture')) return 'fixtures';
+                if (lowerQuery.includes('value')) return 'value';
+                return 'general';
+            }
+            
+            getPersonalizedErrorMessage() {
+                const messages = [
+                    "Hmm, that's a tricky one! My AI brain needs a moment to process. Could you rephrase that?",
+                    "I'm having trouble with that query. Could you be more specific about what you'd like to know?",
+                    "Sorry, I got a bit confused there! Let me know what FPL topic you'd like help with."
+                ];
+                
+                return messages[Math.floor(Math.random() * messages.length)];
+            }
+            
+            // Reset conversation (for testing or new seasons)
+            resetConversation() {
+                this.conversationMemory = [];
+                this.userProfile = this.loadUserProfile();
+                localStorage.removeItem('fpl-ai-memory');
+                localStorage.removeItem('fpl-ai-profile');
+                console.log('Conversation reset');
+            }
+            
+            // Enhanced multi-factor analysis for nuanced responses
+            getMultiFactorAnalysis(playerName, factors = {}) {
+                const {
+                    fixtures = true,
+                    form = true,
+                    ownership = true,
+                    value = true,
+                    xStats = true,
+                    teamContext = true
+                } = factors;
+                
+                let analysis = `🔍 **Multi-Factor Analysis: ${playerName}**\n\n`;
+                
+                // Find player in knowledge base
+                const player = this.knowledgeBase.topScorers.find(p => 
+                    p.name.toLowerCase().includes(playerName.toLowerCase())
+                );
+                
+                if (!player) {
+                    return `Sorry, I don't have detailed data for ${playerName}. Try asking about Salah, Haaland, Palmer, or Mbeumo!`;
+                }
+                
+                analysis += `**📊 Comprehensive Player Profile:**\n`;
+                analysis += `• Current Points: ${player.points} (League Position: #${this.knowledgeBase.topScorers.indexOf(player) + 1})\n`;
+                analysis += `• Price: £${player.price}m | Ownership: ${player.ownership}%\n`;
+                analysis += `• Form Rating: ${player.form}/10\n\n`;
+                
+                if (xStats) {
+                    analysis += `**⚽ Expected Stats Analysis:**\n`;
+                    analysis += `• Goals: ${player.goals} (xG: ${player.xG})\n`;
+                    analysis += `• Assists: ${player.assists} (xA: ${player.xA})\n`;
+                    
+                    const xGDiff = player.goals - player.xG;
+                    if (xGDiff > 2) {
+                        analysis += `• ✅ Overperforming xG by ${xGDiff.toFixed(1)} - Clinical finisher!\n`;
+                    } else if (xGDiff < -2) {
+                        analysis += `• ⚠️ Underperforming xG by ${Math.abs(xGDiff).toFixed(1)} - Due for regression\n`;
+                    } else {
+                        analysis += `• ✅ xG performance is sustainable\n`;
+                    }
+                    analysis += '\n';
+                }
+                
+                if (value) {
+                    const pointsPerMillion = player.points / player.price;
+                    analysis += `**💰 Value Assessment:**\n`;
+                    analysis += `• Points per £m: ${pointsPerMillion.toFixed(1)}\n`;
+                    if (pointsPerMillion > 30) {
+                        analysis += `• ✅ Elite value - among best in game\n`;
+                    } else if (pointsPerMillion > 20) {
+                        analysis += `• ✅ Good value for money\n`;
+                    } else {
+                        analysis += `• ⚠️ Premium priced - needs high returns\n`;
+                    }
+                    analysis += '\n';
+                }
+                
+                if (ownership) {
+                    analysis += `**👥 Ownership Analysis:**\n`;
+                    if (player.ownership > 40) {
+                        analysis += `• High ownership (${player.ownership}%) - Essential player\n`;
+                        analysis += `• Missing out = Significant rank drops\n`;
+                    } else if (player.ownership < 15) {
+                        analysis += `• Low ownership (${player.ownership}%) - Great differential\n`;
+                        analysis += `• Success = Major rank gains\n`;
+                    } else {
+                        analysis += `• Moderate ownership (${player.ownership}%) - Balanced risk\n`;
+                    }
+                    analysis += '\n';
+                }
+                
+                // AI recommendation with confidence
+                analysis += `**🤖 AI Recommendation:**\n`;
+                let recommendation = '';
+                let confidence = 0.7;
+                
+                // Multi-factor scoring
+                if (player.form > 7.5 && xGDiff > -1 && pointsPerMillion > 25) {
+                    recommendation = '✅ **STRONG BUY** - Multiple positive factors align';
+                    confidence = 0.9;
+                } else if (player.form > 6.5 || pointsPerMillion > 30) {
+                    recommendation = '✅ **CONSIDER** - Some positive indicators';
+                    confidence = 0.7;
+                } else if (player.form < 5 || xGDiff < -3) {
+                    recommendation = '❌ **AVOID** - Multiple red flags present';
+                    confidence = 0.8;
+                } else {
+                    recommendation = '⚠️ **MONITOR** - Mixed signals, wait for clarity';
+                    confidence = 0.6;
+                }
+                
+                analysis += recommendation + '\n';
+                analysis += `• Confidence Level: ${Math.round(confidence * 100)}%\n\n`;
+                
+                // Context-aware advice
+                if (this.userProfile.riskTolerance === 'high' && player.ownership < 20) {
+                    analysis += `💡 **Personal Note:** Given your high risk tolerance, ${playerName} could be a great differential play!`;
+                } else if (this.userProfile.riskTolerance === 'low' && player.ownership > 40) {
+                    analysis += `💡 **Personal Note:** As a safe player, ${playerName} fits your template strategy perfectly.`;
+                }
+                
+                return analysis;
             }
 
             showTyping() {
