@@ -6,7 +6,7 @@
     <title>FPL Fixture Tracker Pro - Advanced Match Analytics | EPL News Hub</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="fpl-data-service.js"></script>
+    <script src="fpl-api.js"></script>
     <style>
         * {
             margin: 0;
@@ -1300,8 +1300,9 @@
             
             async loadData() {
                 try {
-                    const data = await window.FPLDataServiceEnhanced.getPlayerData();
-                    const fixturesData = await window.FPLDataServiceEnhanced.getFixtures();
+                    const fplService = new FPLDataService();
+                    const data = await fplService.getBootstrapData();
+                    const fixturesData = await fplService.getFixtures();
                     
                     if (data.teams) {
                         data.teams.forEach(team => {

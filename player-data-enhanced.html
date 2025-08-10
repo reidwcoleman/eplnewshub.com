@@ -1088,7 +1088,7 @@
     <div class="footer" include="./footer.html"></div>
     
     <script src="index.js"></script>
-    <script src="fpl-data-service.js"></script>
+    <script src="fpl-api.js"></script>
     <script>
         // Enhanced Player Data Pro functionality
         class PlayerDataPro {
@@ -1110,14 +1110,16 @@
             
             async loadData() {
                 try {
-                    const data = await window.FPLDataServiceEnhanced.getPlayerData();
+                    const fplService = new FPLDataService();
+                    const data = await fplService.getBootstrapData();
                     this.processPlayerData(data);
                     this.updateDashboard();
                     this.renderTable();
                 } catch (error) {
                     console.error('Error loading data:', error);
                     // Use mock data as fallback
-                    const mockData = window.FPLDataServiceEnhanced.generateFullPlayerList();
+                    const fplService = new FPLDataService();
+                    const mockData = fplService.getMockBootstrapData();
                     this.processPlayerData(mockData);
                 }
             }
