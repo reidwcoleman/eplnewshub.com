@@ -483,7 +483,13 @@
     <script>
         class FPLAIAssistant {
             constructor() {
-                this.fplService = new FPLDataService();
+                // Check if FPLDataService exists, otherwise create a dummy service
+                if (typeof FPLDataService !== 'undefined') {
+                    this.fplService = new FPLDataService();
+                } else {
+                    console.warn('FPLDataService not loaded, using fallback');
+                    this.fplService = null;
+                }
                 this.players = [];
                 this.teams = [];
                 this.fixtures = [];
@@ -616,13 +622,18 @@
 
             async initialize() {
                 try {
-                    const bootstrap = await this.fplService.getBootstrapData();
-                    this.players = bootstrap.elements;
-                    this.teams = bootstrap.teams;
-                    this.fixtures = bootstrap.fixtures || [];
-                    this.currentGameweek = bootstrap.events?.find(e => e.is_current)?.id || 1;
-                    
-                    console.log('FPL AI Assistant initialized with live data');
+                    if (this.fplService) {
+                        const bootstrap = await this.fplService.getBootstrapData();
+                        this.players = bootstrap.elements;
+                        this.teams = bootstrap.teams;
+                        this.fixtures = bootstrap.fixtures || [];
+                        this.currentGameweek = bootstrap.events?.find(e => e.is_current)?.id || 1;
+                        
+                        console.log('FPL AI Assistant initialized with live data');
+                    } else {
+                        console.log('Using built-in knowledge base only');
+                        this.initializeMockData();
+                    }
                 } catch (error) {
                     console.error('Failed to initialize FPL AI:', error);
                     this.initializeMockData();
@@ -1493,11 +1504,15 @@
                     };
                 }
                 
-                // Fallback to API data
-                return this.players.find(p => 
-                    lowerQuery.includes(p.first_name.toLowerCase()) || 
-                    lowerQuery.includes(p.second_name.toLowerCase())
-                );
+                // Fallback to API data if available
+                if (this.players && this.players.length > 0) {
+                    return this.players.find(p => 
+                        lowerQuery.includes(p.first_name.toLowerCase()) || 
+                        lowerQuery.includes(p.second_name.toLowerCase())
+                    );
+                }
+                
+                return null;
             }
 
             getPlayerAnalysis(player) {
@@ -1505,7 +1520,8 @@
                     return this.getIntelligentResponse("Tell me about a specific player");
                 }
                 
-                const team = this.teams.find(t => t.id === player.team);
+                const team = this.teams && this.teams.length > 0 ? 
+                    this.teams.find(t => t.id === player.team) : null;
                 
                 let response = `🔍 **Player Analysis: ${player.first_name} ${player.second_name}**\n\n`;
                 
