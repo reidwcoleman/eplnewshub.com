@@ -489,6 +489,16 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        @keyframes slideDown {
+            from { transform: translate(-50%, -100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translate(-50%, 0); opacity: 1; }
+            to { transform: translate(-50%, -100%); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -647,6 +657,77 @@
                     // Initialize with mock data
                     this.initializeMockData();
                 }
+            }
+            
+            initializeMockData() {
+                // Use mock data from FPL service
+                const mockService = new FPLDataService();
+                const mockData = mockService.getMockBootstrapData();
+                
+                this.teams = mockData.teams || [
+                    { id: 1, name: "Arsenal", short_name: "ARS", strength: 1300 },
+                    { id: 2, name: "Aston Villa", short_name: "AVL", strength: 1150 },
+                    { id: 3, name: "Bournemouth", short_name: "BOU", strength: 1050 },
+                    { id: 4, name: "Brentford", short_name: "BRE", strength: 1100 },
+                    { id: 5, name: "Brighton", short_name: "BHA", strength: 1150 },
+                    { id: 6, name: "Chelsea", short_name: "CHE", strength: 1250 },
+                    { id: 7, name: "Crystal Palace", short_name: "CRY", strength: 1080 },
+                    { id: 8, name: "Everton", short_name: "EVE", strength: 1020 },
+                    { id: 9, name: "Fulham", short_name: "FUL", strength: 1090 },
+                    { id: 10, name: "Ipswich", short_name: "IPS", strength: 950 },
+                    { id: 11, name: "Leicester", short_name: "LEI", strength: 980 },
+                    { id: 12, name: "Liverpool", short_name: "LIV", strength: 1350 },
+                    { id: 13, name: "Man City", short_name: "MCI", strength: 1400 },
+                    { id: 14, name: "Newcastle", short_name: "NEW", strength: 1200 },
+                    { id: 15, name: "Nottingham Forest", short_name: "NFO", strength: 1060 },
+                    { id: 16, name: "Southampton", short_name: "SOU", strength: 970 },
+                    { id: 17, name: "Spurs", short_name: "TOT", strength: 1250 },
+                    { id: 18, name: "West Ham", short_name: "WHU", strength: 1130 },
+                    { id: 19, name: "Wolves", short_name: "WOL", strength: 1040 },
+                    { id: 20, name: "Man Utd", short_name: "MUN", strength: 1220 }
+                ];
+                
+                // Generate mock players if needed
+                if (!mockData.elements || mockData.elements.length === 0) {
+                    this.allPlayers = this.generateMockPlayers();
+                } else {
+                    this.allPlayers = mockData.elements;
+                }
+                
+                this.populateTeamGrids();
+                this.calculateTeamStats();
+                this.updateLiveIndicator(false);
+            }
+            
+            generateMockPlayers() {
+                const players = [];
+                const positions = [1, 2, 3, 4]; // GKP, DEF, MID, FWD
+                const firstNames = ['Mohamed', 'Erling', 'Bukayo', 'Marcus', 'Phil', 'Kevin', 'Bruno', 'Harry', 'Son', 'Cole'];
+                const lastNames = ['Salah', 'Haaland', 'Saka', 'Rashford', 'Foden', 'De Bruyne', 'Fernandes', 'Kane', 'Heung-min', 'Palmer'];
+                
+                this.teams.forEach(team => {
+                    // Generate 25 players per team
+                    for (let i = 0; i < 25; i++) {
+                        const position = positions[Math.floor(Math.random() * positions.length)];
+                        players.push({
+                            id: team.id * 100 + i,
+                            first_name: firstNames[Math.floor(Math.random() * firstNames.length)],
+                            second_name: lastNames[Math.floor(Math.random() * lastNames.length)] + team.id,
+                            team: team.id,
+                            element_type: position,
+                            now_cost: Math.floor(Math.random() * 100) + 40,
+                            total_points: Math.floor(Math.random() * 200),
+                            form: (Math.random() * 10).toFixed(1),
+                            selected_by_percent: Math.random() * 50,
+                            goals_scored: position === 4 ? Math.floor(Math.random() * 20) : Math.floor(Math.random() * 5),
+                            assists: Math.floor(Math.random() * 10),
+                            clean_sheets: position <= 2 ? Math.floor(Math.random() * 15) : 0,
+                            minutes: Math.floor(Math.random() * 3420)
+                        });
+                    }
+                });
+                
+                return players;
             }
 
             async refreshData() {
@@ -1040,7 +1121,32 @@
 
             async compareAll() {
                 // Show all teams in a league table format
-                alert('League overview feature coming soon! This will show all 20 teams ranked by various metrics.');
+                this.showMessage('League overview feature coming soon! This will show all 20 teams ranked by various metrics.', 'info');
+            }
+            
+            showMessage(message, type = 'info') {
+                // Create inline message instead of alert
+                const messageDiv = document.createElement('div');
+                messageDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    padding: 15px 25px;
+                    background: ${type === 'error' ? '#dc3545' : '#17a2b8'};
+                    color: white;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    z-index: 10000;
+                    animation: slideDown 0.3s ease;
+                `;
+                messageDiv.textContent = message;
+                document.body.appendChild(messageDiv);
+                
+                setTimeout(() => {
+                    messageDiv.style.animation = 'slideUp 0.3s ease';
+                    setTimeout(() => messageDiv.remove(), 300);
+                }, 3000);
             }
         }
 
