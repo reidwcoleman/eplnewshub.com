@@ -1084,31 +1084,51 @@
                 const team1Value = team1Stats.totalPoints / (team1Stats.totalValue / 10);
                 const team2Value = team2Stats.totalPoints / (team2Stats.totalValue / 10);
                 const betterValue = team1Value > team2Value ? this.selectedTeam1 : this.selectedTeam2;
+                const valueDiff = Math.abs(team1Value - team2Value).toFixed(1);
                 
                 insights.push({
                     title: '💰 Better Value for Money',
-                    description: `${betterValue.name} offers better points per million ratio. Consider their mid-priced options for your squad.`
+                    description: `${betterValue.name} offers ${valueDiff} more points per million. Consider their mid-priced options for your squad.`
                 });
                 
                 // Form analysis
                 const betterForm = team1Stats.averageForm > team2Stats.averageForm ? this.selectedTeam1 : this.selectedTeam2;
+                const formDiff = Math.abs(team1Stats.averageForm - team2Stats.averageForm).toFixed(1);
                 insights.push({
                     title: '📈 Current Form Leaders',
-                    description: `${betterForm.name} players are in better form on average. Good for short-term transfers and captaincy.`
+                    description: `${betterForm.name} players average ${formDiff} higher form rating. Good for short-term transfers and captaincy.`
                 });
                 
                 // Squad depth
                 const deeperSquad = team1Stats.inFormPlayers > team2Stats.inFormPlayers ? this.selectedTeam1 : this.selectedTeam2;
+                const depthDiff = Math.abs(team1Stats.inFormPlayers - team2Stats.inFormPlayers);
                 insights.push({
                     title: '🏃‍♂️ Squad Depth Advantage',
-                    description: `${deeperSquad.name} has more players in good form, providing better rotation options and coverage.`
+                    description: `${deeperSquad.name} has ${depthDiff} more players in good form, providing better rotation options and coverage.`
                 });
                 
                 // Popularity insight
                 const lessPopular = team1Stats.totalOwnership < team2Stats.totalOwnership ? this.selectedTeam1 : this.selectedTeam2;
+                const ownershipDiff = Math.abs(team1Stats.totalOwnership - team2Stats.totalOwnership).toFixed(1);
                 insights.push({
                     title: '🎯 Differential Opportunity',
-                    description: `${lessPopular.name} players are less owned on average. Great for gaining rank through differential picks.`
+                    description: `${lessPopular.name} players are ${ownershipDiff}% less owned overall. Great for gaining rank through differential picks.`
+                });
+                
+                // Premium picks
+                const team1Premium = team1Stats.topScorer;
+                const team2Premium = team2Stats.topScorer;
+                insights.push({
+                    title: '⭐ Premium Asset Comparison',
+                    description: `${this.selectedTeam1.short_name}: ${team1Premium ? team1Premium.second_name : 'N/A'} (${team1Premium ? team1Premium.total_points : 0}pts) vs ${this.selectedTeam2.short_name}: ${team2Premium ? team2Premium.second_name : 'N/A'} (${team2Premium ? team2Premium.total_points : 0}pts)`
+                });
+                
+                // Best budget options
+                const team1Budget = team1Stats.bestValue;
+                const team2Budget = team2Stats.bestValue;
+                insights.push({
+                    title: '💸 Budget Gems',
+                    description: `Best value: ${this.selectedTeam1.short_name} - ${team1Budget ? team1Budget.second_name : 'N/A'} (${team1Budget ? this.fplService.formatPrice(team1Budget.now_cost) : 'N/A'}) | ${this.selectedTeam2.short_name} - ${team2Budget ? team2Budget.second_name : 'N/A'} (${team2Budget ? this.fplService.formatPrice(team2Budget.now_cost) : 'N/A'})`
                 });
                 
                 container.innerHTML = insights.map(insight => `
@@ -1121,7 +1141,125 @@
 
             async compareAll() {
                 // Show all teams in a league table format
-                this.showMessage('League overview feature coming soon! This will show all 20 teams ranked by various metrics.', 'info');
+                document.getElementById('loading').style.display = 'flex';
+                document.getElementById('loading').textContent = 'Analyzing all 20 teams...';
+                
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Create league overview
+                    const leagueContainer = document.getElementById('comparison-results');
+                    
+                    // Sort teams by various metrics
+                    const teamRankings = this.teams.map(team => {
+                        const stats = this.teamStats[team.id];
+                        return {
+                            team: team,
+                            stats: stats,
+                            overallRating: (stats.totalPoints * 0.4 + stats.averageForm * 100 * 0.3 + team.strength * 0.3) / 100
+                        };
+                    }).sort((a, b) => b.overallRating - a.overallRating);
+                    
+                    leagueContainer.innerHTML = `
+                        <div style="background: white; border-radius: 12px; padding: 30px; margin-bottom: 30px;">
+                            <h2 style="color: #37003c; text-align: center; margin-bottom: 30px;">🏆 League Team Rankings</h2>
+                            
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; background: white;">
+                                    <thead>
+                                        <tr style="background: linear-gradient(135deg, #37003c, #6f42c1); color: white;">
+                                            <th style="padding: 15px; text-align: left;">Rank</th>
+                                            <th style="padding: 15px; text-align: left;">Team</th>
+                                            <th style="padding: 15px; text-align: center;">Overall Rating</th>
+                                            <th style="padding: 15px; text-align: center;">Total Points</th>
+                                            <th style="padding: 15px; text-align: center;">Avg Form</th>
+                                            <th style="padding: 15px; text-align: center;">Squad Value</th>
+                                            <th style="padding: 15px; text-align: center;">Top Scorer</th>
+                                            <th style="padding: 15px; text-align: center;">FPL Picks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${teamRankings.map((item, index) => {
+                                            const rankColor = index < 3 ? '#ffd700' : index < 6 ? '#c0c0c0' : index > 16 ? '#ff6b6b' : '#333';
+                                            const topScorer = item.stats.topScorer;
+                                            
+                                            return `
+                                                <tr style="border-bottom: 1px solid #e9ecef; transition: background 0.3s;" 
+                                                    onmouseover="this.style.background='#f8f9fa'" 
+                                                    onmouseout="this.style.background='white'">
+                                                    <td style="padding: 12px; font-weight: bold; color: ${rankColor};">
+                                                        ${index + 1}${index === 0 ? ' 🥇' : index === 1 ? ' 🥈' : index === 2 ? ' 🥉' : ''}
+                                                    </td>
+                                                    <td style="padding: 12px; font-weight: 600; color: #37003c;">
+                                                        ${item.team.name}
+                                                    </td>
+                                                    <td style="padding: 12px; text-align: center;">
+                                                        <div style="background: linear-gradient(135deg, #28a745, #20c997); 
+                                                                    width: ${item.overallRating}%; 
+                                                                    color: white; 
+                                                                    padding: 5px; 
+                                                                    border-radius: 20px; 
+                                                                    font-weight: bold; 
+                                                                    min-width: 50px; 
+                                                                    text-align: center;">
+                                                            ${item.overallRating.toFixed(1)}
+                                                        </div>
+                                                    </td>
+                                                    <td style="padding: 12px; text-align: center; font-weight: 600;">
+                                                        ${item.stats.totalPoints}
+                                                    </td>
+                                                    <td style="padding: 12px; text-align: center;">
+                                                        <span style="background: ${item.stats.averageForm > 5 ? '#28a745' : item.stats.averageForm > 3 ? '#ffc107' : '#dc3545'}; 
+                                                                     color: white; 
+                                                                     padding: 3px 8px; 
+                                                                     border-radius: 12px; 
+                                                                     font-weight: 600;">
+                                                            ${item.stats.averageForm.toFixed(1)}
+                                                        </span>
+                                                    </td>
+                                                    <td style="padding: 12px; text-align: center; font-weight: 600;">
+                                                        £${(item.stats.totalValue / 10).toFixed(1)}m
+                                                    </td>
+                                                    <td style="padding: 12px; text-align: center;">
+                                                        ${topScorer ? `${topScorer.second_name} (${topScorer.total_points})` : 'N/A'}
+                                                    </td>
+                                                    <td style="padding: 12px; text-align: center;">
+                                                        <span style="background: #6f42c1; color: white; padding: 3px 8px; border-radius: 12px; font-weight: 600;">
+                                                            ${item.stats.inFormPlayers}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #f8f9fa, #ffffff); border-radius: 10px; border-left: 4px solid #37003c;">
+                                <h4 style="color: #37003c; margin-bottom: 10px;">📊 Key Insights</h4>
+                                <ul style="margin: 0; padding-left: 20px; color: #666; line-height: 1.8;">
+                                    <li><strong>${teamRankings[0].team.name}</strong> leads the league with the highest overall rating</li>
+                                    <li>Top 3 teams for FPL assets: ${teamRankings.slice(0, 3).map(t => t.team.name).join(', ')}</li>
+                                    <li>Best value teams: ${teamRankings.sort((a, b) => {
+                                        const aValue = a.stats.totalPoints / (a.stats.totalValue / 10);
+                                        const bValue = b.stats.totalPoints / (b.stats.totalValue / 10);
+                                        return bValue - aValue;
+                                    }).slice(0, 3).map(t => t.team.name).join(', ')}</li>
+                                    <li>Avoid players from: ${teamRankings.slice(-3).map(t => t.team.name).join(', ')}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    
+                    leagueContainer.style.display = 'block';
+                    leagueContainer.scrollIntoView({ behavior: 'smooth' });
+                    
+                } catch (error) {
+                    console.error('Failed to generate league overview:', error);
+                    this.showMessage('Error generating league overview', 'error');
+                } finally {
+                    document.getElementById('loading').style.display = 'none';
+                }
             }
             
             showMessage(message, type = 'info') {
