@@ -891,9 +891,14 @@
                     <div id="fwd-slots"></div>
                 </div>
 
-                <button class="btn btn-primary" onclick="optimizeTeam()" style="width: 100%; margin-top: 20px;">
-                    🤖 AI Optimize Squad
-                </button>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="optimizeTeam()" style="flex: 1;">
+                        🤖 AI Optimize Squad
+                    </button>
+                    <button class="btn btn-danger" onclick="resetTeam()" style="flex: 1; background: linear-gradient(135deg, #dc3545, #c82333);">
+                        🔄 Reset Team
+                    </button>
+                </div>
             </div>
 
             <!-- Center Panel - Player Market -->
@@ -1505,13 +1510,222 @@
             }
 
             optimizeTeam() {
-                this.showNotification('AI optimization running...', 'info');
+                this.showNotification('🤖 AI is building your optimal squad...', 'info');
                 
-                setTimeout(() => {
-                    // Simulate AI optimization
-                    this.showNotification('Team optimized! Expected points increased by 15%', 'success');
+                // Reset current team first
+                this.currentSquad = { 1: [], 2: [], 3: [], 4: [] };
+                this.budget = 1000; // £100m
+                
+                // Calculate expected points for each player based on form, fixtures, and stats
+                const playersWithExpectedPoints = this.allPlayers.map(player => {
+                    const expectedPoints = this.calculateExpectedPointsForGameweek(player);
+                    return { ...player, expectedPoints };
+                }).sort((a, b) => b.expectedPoints - a.expectedPoints);
+                
+                // Build optimal team with formation 4-4-2 or 3-5-2 or 4-3-3
+                const formations = [
+                    { gkp: 2, def: 5, mid: 5, fwd: 3 }, // Standard balanced
+                    { gkp: 2, def: 4, mid: 5, fwd: 4 }, // Attack heavy
+                    { gkp: 2, def: 5, mid: 4, fwd: 4 }  // Balanced attack
+                ];
+                
+                let bestTeam = null;
+                let bestExpectedPoints = 0;
+                
+                // Try each formation to find the best
+                for (const formation of formations) {
+                    const team = this.buildOptimalTeamForFormation(playersWithExpectedPoints, formation);
+                    const totalExpectedPoints = this.calculateTeamExpectedPoints(team);
+                    
+                    if (totalExpectedPoints > bestExpectedPoints) {
+                        bestExpectedPoints = totalExpectedPoints;
+                        bestTeam = team;
+                    }
+                }
+                
+                // Apply the best team
+                if (bestTeam) {
+                    this.currentSquad = bestTeam;
+                    this.updateSquadDisplay();
+                    this.updateDisplay();
                     this.updateCharts();
-                }, 2000);
+                    
+                    // Show success message with details
+                    const playerCount = Object.values(bestTeam).flat().length;
+                    const squadValue = (1000 - this.budget) / 10;
+                    this.showNotification(
+                        `✅ Squad optimized! ${playerCount} players selected | Expected ${Math.round(bestExpectedPoints)} pts | Squad value: £${squadValue.toFixed(1)}m`,
+                        'success'
+                    );
+                } else {
+                    this.showNotification('❌ Unable to optimize team. Please try again.', 'error');
+                }
+            }
+            
+            calculateExpectedPointsForGameweek(player) {
+                // Advanced expected points calculation for current gameweek
+                const form = parseFloat(player.form) || 0;
+                const totalPoints = player.total_points || 0;
+                const gamesPlayed = player.starts || 1;
+                const avgPoints = totalPoints / Math.max(gamesPlayed, 1);
+                
+                // Expected goals and assists contribute to attacking returns
+                const xG = parseFloat(player.expected_goals) || 0;
+                const xA = parseFloat(player.expected_assists) || 0;
+                const xGI = (xG + xA) / Math.max(gamesPlayed, 1);
+                
+                // Position-based scoring potential
+                const positionMultiplier = {
+                    1: 0.8,  // GKP - consistent but lower ceiling
+                    2: 1.0,  // DEF - clean sheets + occasional goals
+                    3: 1.2,  // MID - goals, assists, clean sheets
+                    4: 1.3   // FWD - highest goal threat
+                }[player.element_type] || 1;
+                
+                // Calculate base expected points
+                let expectedPoints = (
+                    form * 0.45 +           // Recent form (45%)
+                    avgPoints * 0.25 +      // Season average (25%)
+                    xGI * 10 * 0.20 +       // Expected goal involvement (20%)
+                    (player.bonus || 0) * 0.10  // Bonus point history (10%)
+                ) * positionMultiplier;
+                
+                // Fixture difficulty adjustment (simplified - would need real fixture data)
+                const fixtureBonus = Math.random() * 0.2 + 0.9; // 0.9 to 1.1 multiplier
+                expectedPoints *= fixtureBonus;
+                
+                // Differential bonus for low ownership high performers
+                if (player.selected_by_percent < 10 && expectedPoints > 5) {
+                    expectedPoints *= 1.15;
+                }
+                
+                // Penalty taker bonus
+                if (player.penalties_order && player.penalties_order <= 1) {
+                    expectedPoints *= 1.1;
+                }
+                
+                return Math.max(expectedPoints, 2); // Minimum 2 points
+            }
+            
+            buildOptimalTeamForFormation(sortedPlayers, formation) {
+                const team = { 1: [], 2: [], 3: [], 4: [] };
+                let remainingBudget = 1000;
+                const usedPlayerIds = new Set();
+                const maxPerTeam = 3; // FPL rule: max 3 players from same team
+                const teamCounts = {};
+                
+                // Requirements for each position
+                const requirements = {
+                    1: formation.gkp,
+                    2: formation.def,
+                    3: formation.mid,
+                    4: formation.fwd
+                };
+                
+                // Fill each position with best available players
+                for (let position = 1; position <= 4; position++) {
+                    const needed = requirements[position];
+                    const positionPlayers = sortedPlayers.filter(p => 
+                        p.element_type === position && 
+                        !usedPlayerIds.has(p.id)
+                    );
+                    
+                    // Determine premium vs budget split
+                    const premiumCount = position === 1 ? 1 : Math.min(Math.ceil(needed * 0.4), 2);
+                    const budgetCount = needed - premiumCount;
+                    
+                    // Add premium players first (highest expected points)
+                    let added = 0;
+                    for (const player of positionPlayers) {
+                        if (added >= premiumCount) break;
+                        
+                        const teamCount = teamCounts[player.team] || 0;
+                        if (teamCount >= maxPerTeam) continue;
+                        
+                        if (player.now_cost <= remainingBudget) {
+                            team[position].push(player);
+                            remainingBudget -= player.now_cost;
+                            usedPlayerIds.add(player.id);
+                            teamCounts[player.team] = teamCount + 1;
+                            added++;
+                        }
+                    }
+                    
+                    // Add value players (best points per million)
+                    const valuePlayers = positionPlayers
+                        .filter(p => !usedPlayerIds.has(p.id))
+                        .map(p => ({
+                            ...p,
+                            value: p.expectedPoints / (p.now_cost / 10)
+                        }))
+                        .sort((a, b) => b.value - a.value);
+                    
+                    for (const player of valuePlayers) {
+                        if (team[position].length >= needed) break;
+                        
+                        const teamCount = teamCounts[player.team] || 0;
+                        if (teamCount >= maxPerTeam) continue;
+                        
+                        if (player.now_cost <= remainingBudget) {
+                            team[position].push(player);
+                            remainingBudget -= player.now_cost;
+                            usedPlayerIds.add(player.id);
+                            teamCounts[player.team] = teamCount + 1;
+                        }
+                    }
+                    
+                    // Fill remaining slots with cheapest valid players
+                    if (team[position].length < needed) {
+                        const cheapest = positionPlayers
+                            .filter(p => {
+                                const teamCount = teamCounts[p.team] || 0;
+                                return !usedPlayerIds.has(p.id) && teamCount < maxPerTeam;
+                            })
+                            .sort((a, b) => a.now_cost - b.now_cost);
+                        
+                        for (const player of cheapest) {
+                            if (team[position].length >= needed) break;
+                            
+                            const teamCount = teamCounts[player.team] || 0;
+                            team[position].push(player);
+                            remainingBudget -= player.now_cost;
+                            usedPlayerIds.add(player.id);
+                            teamCounts[player.team] = teamCount + 1;
+                        }
+                    }
+                }
+                
+                return team;
+            }
+            
+            calculateTeamExpectedPoints(team) {
+                let total = 0;
+                Object.values(team).forEach(position => {
+                    position.forEach(player => {
+                        total += this.calculateExpectedPointsForGameweek(player);
+                    });
+                });
+                return total;
+            }
+            
+            resetTeam() {
+                // Clear all team data
+                this.currentSquad = { 1: [], 2: [], 3: [], 4: [] };
+                this.budget = 1000;
+                
+                // Clear transfer history
+                const history = document.getElementById('transferHistory');
+                if (history) {
+                    history.innerHTML = '<div class="history-item" style="color: #666;">No transfers yet</div>';
+                }
+                
+                // Re-render the squad display
+                this.updateSquadDisplay();
+                this.updateDisplay();
+                this.updateCharts();
+                
+                // Show notification
+                this.showNotification('🔄 Team has been reset!', 'info');
             }
 
             comparePlayer(playerId) {
@@ -1564,6 +1778,12 @@
         function optimizeTeam() {
             if (window.transferSimPro) {
                 window.transferSimPro.optimizeTeam();
+            }
+        }
+
+        function resetTeam() {
+            if (window.transferSimPro) {
+                window.transferSimPro.resetTeam();
             }
         }
 
