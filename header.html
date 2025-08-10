@@ -28,7 +28,7 @@
                 <li><a href="/news.html">News</a></li>
                 <li><a href="/stats.html">Stats</a></li>
                 <li class="dropdown">
-                    <a href="#" class="fpl-premium-nav" onclick="event.preventDefault();">
+                    <a href="/fpl-premium-hub.html" class="fpl-premium-nav">
                         <span class="premium-icon">⚡</span> FPL Tools
                         <span class="dropdown-arrow">▼</span>
                     </a>
@@ -1248,24 +1248,35 @@
         const fplLink = document.querySelector('.fpl-premium-nav');
         
         if (fplDropdown && fplLink) {
-            // For touch devices
+            // For touch devices - toggle dropdown on click but allow navigation
+            let clickCount = 0;
             fplLink.addEventListener('click', function(e) {
                 if (window.innerWidth <= 1024) {
-                    e.preventDefault();
                     const dropdownMenu = fplDropdown.querySelector('.dropdown-menu');
                     if (dropdownMenu) {
                         const isVisible = dropdownMenu.style.opacity === '1';
-                        if (isVisible) {
-                            dropdownMenu.style.opacity = '0';
-                            dropdownMenu.style.visibility = 'hidden';
-                            dropdownMenu.style.pointerEvents = 'none';
-                        } else {
+                        if (!isVisible) {
+                            // First click - show dropdown
+                            e.preventDefault();
                             dropdownMenu.style.opacity = '1';
                             dropdownMenu.style.visibility = 'visible';
                             dropdownMenu.style.pointerEvents = 'auto';
+                            clickCount = 1;
+                        } else if (clickCount === 1) {
+                            // Second click - navigate to page
+                            clickCount = 0;
+                            // Let the default navigation happen
+                        } else {
+                            // Hide dropdown
+                            e.preventDefault();
+                            dropdownMenu.style.opacity = '0';
+                            dropdownMenu.style.visibility = 'hidden';
+                            dropdownMenu.style.pointerEvents = 'none';
+                            clickCount = 0;
                         }
                     }
                 }
+                // On desktop, always allow navigation
             });
             
             // Close dropdown when clicking outside
