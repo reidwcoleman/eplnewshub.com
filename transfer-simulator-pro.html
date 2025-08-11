@@ -1030,7 +1030,7 @@
     </div>
 
     <script src="./index.js"></script>
-    <script src="./fpl-api.js"></script>
+    <script src="./fpl-html-data-service.js"></script>
     <script>
         // Transfer Simulator Pro
         class TransferSimulatorPro {
@@ -1060,7 +1060,7 @@
 
             async loadPlayerData() {
                 try {
-                    const fplService = new FPLDataService();
+                    const fplService = new FPLHtmlDataService();
                     const data = await fplService.getBootstrapData();
                     this.allPlayers = data.elements;
                     this.teams = data.teams;
@@ -1069,7 +1069,7 @@
                 } catch (error) {
                     console.error('Error loading player data:', error);
                     // Use mock data
-                    const fplService = new FPLDataService();
+                    const fplService = new FPLHtmlDataService();
                     const mockData = fplService.getMockBootstrapData();
                     this.allPlayers = mockData.elements;
                     this.teams = mockData.teams;
