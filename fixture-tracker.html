@@ -310,6 +310,118 @@
             font-size: 1.1rem;
         }
         
+        /* FDR Calculator Styles */
+        .fdr-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .fdr-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .control-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .control-group h4 {
+            margin-top: 0;
+            color: #37003c;
+        }
+        
+        .team-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .team-chip {
+            padding: 8px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .team-chip.selected {
+            background: #37003c;
+            color: white;
+            border-color: #37003c;
+        }
+        
+        .team-chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .difficulty-matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .difficulty-matrix-table th,
+        .difficulty-matrix-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .difficulty-matrix-table th {
+            background: #37003c;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .difficulty-cell {
+            font-weight: 600;
+            position: relative;
+        }
+        
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-btn.active {
+            color: #37003c;
+            border-bottom-color: #37003c;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
         .recommendation {
             background: rgba(0,255,135,0.2);
             padding: 10px;
@@ -368,17 +480,26 @@
     
     <div class="tracker-container">
         <div class="tracker-header">
-            <h1>⚡ FPL Fixture Tracker</h1>
-            <p style="color: #666; margin: 10px 0;">Live fixture analysis with difficulty ratings and historical insights</p>
+            <h1>⚡ FPL Fixture Tracker & FDR Calculator</h1>
+            <p style="color: #666; margin: 10px 0;">Complete fixture analysis with difficulty ratings, FDR calculations, and historical insights</p>
             <div class="live-indicator">
                 <span style="width: 8px; height: 8px; background: #ff0000; border-radius: 50%; display: inline-block;"></span>
                 LIVE DATA
             </div>
         </div>
         
-        <div class="gameweek-selector" id="gameweekSelector">
-            <!-- Gameweek buttons will be added dynamically -->
+        <!-- Tab Navigation -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="showTab('tracker')">Fixture Tracker</button>
+            <button class="tab-btn" onclick="showTab('fdr')">FDR Calculator</button>
+            <button class="tab-btn" onclick="showTab('historical')">Historical Analysis</button>
         </div>
+        
+        <!-- Fixture Tracker Tab -->
+        <div id="tracker-tab" class="tab-content active">
+            <div class="gameweek-selector" id="gameweekSelector">
+                <!-- Gameweek buttons will be added dynamically -->
+            </div>
         
         <div class="upcoming-analysis">
             <h2 style="margin-top: 0;">📊 Upcoming Fixtures Analysis</h2>
@@ -402,14 +523,62 @@
             </div>
         </div>
         
-        <div class="fixtures-grid" id="fixturesGrid">
-            <div class="loading">
-                <div class="spinner"></div>
-                <p>Loading fixtures...</p>
+            <div class="fixtures-grid" id="fixturesGrid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading fixtures...</p>
+                </div>
             </div>
         </div>
         
-        <div class="historical-section">
+        <!-- FDR Calculator Tab -->
+        <div id="fdr-tab" class="tab-content">
+            <div class="fdr-section">
+                <div class="fdr-controls">
+                    <div class="control-group">
+                        <h4>Select Teams</h4>
+                        <button onclick="trackerInstance.selectAllTeamsForFDR()" style="margin-bottom: 10px; padding: 8px 16px; background: #37003c; color: white; border: none; border-radius: 6px; cursor: pointer;">Select All</button>
+                        <button onclick="trackerInstance.clearTeamSelection()" style="margin-bottom: 10px; margin-left: 10px; padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer;">Clear</button>
+                        <div class="team-selector-grid" id="fdr-team-selector">
+                            <!-- Teams will be added dynamically -->
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <h4>Gameweek Range</h4>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <div>
+                                <label>From GW:</label>
+                                <input type="number" id="fdr-start-gw" min="1" max="38" value="24" style="width: 80px; padding: 8px; margin-left: 10px;">
+                            </div>
+                            <div>
+                                <label>To GW:</label>
+                                <input type="number" id="fdr-end-gw" min="1" max="38" value="29" style="width: 80px; padding: 8px; margin-left: 10px;">
+                            </div>
+                        </div>
+                        <button onclick="trackerInstance.calculateFDR()" style="margin-top: 20px; width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem;">
+                            Calculate Difficulty
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="fdr-results" style="display: none;">
+                    <h3 style="color: #37003c; margin-bottom: 20px;">Fixture Difficulty Matrix</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="difficulty-matrix-table" id="fdr-matrix-table">
+                            <!-- Matrix will be generated here -->
+                        </table>
+                    </div>
+                    
+                    <div id="fdr-team-analysis" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-top: 30px;">
+                        <!-- Team analysis cards will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Historical Analysis Tab -->
+        <div id="historical-tab" class="tab-content">
+            <div class="historical-section">
             <div class="historical-header">
                 <h2>📈 Historical Performance</h2>
                 <div class="season-selector" id="seasonSelector">
@@ -423,12 +592,32 @@
                 <!-- Historical stats will be populated here -->
             </div>
         </div>
+        </div>
     </div>
     
     <div class="footer" include="./footer.html"></div>
     
     <script src="index.js"></script>
     <script>
+        // Tab switching function
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+        
         class FixtureTracker {
             constructor() {
                 this.fixtures = [];
@@ -436,6 +625,7 @@
                 this.currentGameweek = 1;
                 this.selectedGameweek = null;
                 this.historicalData = {};
+                this.selectedTeamsForFDR = new Set();
                 this.init();
             }
             
@@ -443,6 +633,7 @@
                 await this.loadData();
                 this.setupEventListeners();
                 this.render();
+                this.initializeFDRCalculator();
             }
             
             async loadData() {
@@ -758,6 +949,227 @@
                         ${message}
                     </div>
                 `;
+            }
+            
+            // FDR Calculator Methods
+            initializeFDRCalculator() {
+                this.populateFDRTeamSelector();
+            }
+            
+            populateFDRTeamSelector() {
+                const container = document.getElementById('fdr-team-selector');
+                if (!container || !this.teams) return;
+                
+                container.innerHTML = '';
+                Object.values(this.teams).forEach(team => {
+                    const chip = document.createElement('div');
+                    chip.className = 'team-chip';
+                    chip.textContent = team.short_name;
+                    chip.onclick = () => this.toggleFDRTeam(team.id);
+                    chip.dataset.teamId = team.id;
+                    container.appendChild(chip);
+                });
+            }
+            
+            toggleFDRTeam(teamId) {
+                const chip = document.querySelector(`#fdr-team-selector [data-team-id="${teamId}"]`);
+                if (this.selectedTeamsForFDR.has(teamId)) {
+                    this.selectedTeamsForFDR.delete(teamId);
+                    chip.classList.remove('selected');
+                } else {
+                    this.selectedTeamsForFDR.add(teamId);
+                    chip.classList.add('selected');
+                }
+            }
+            
+            selectAllTeamsForFDR() {
+                Object.values(this.teams).forEach(team => {
+                    this.selectedTeamsForFDR.add(team.id);
+                    const chip = document.querySelector(`#fdr-team-selector [data-team-id="${team.id}"]`);
+                    if (chip) chip.classList.add('selected');
+                });
+            }
+            
+            clearTeamSelection() {
+                this.selectedTeamsForFDR.clear();
+                document.querySelectorAll('#fdr-team-selector .team-chip').forEach(chip => {
+                    chip.classList.remove('selected');
+                });
+            }
+            
+            calculateFDR() {
+                if (this.selectedTeamsForFDR.size === 0) {
+                    alert('Please select at least one team');
+                    return;
+                }
+                
+                const startGW = parseInt(document.getElementById('fdr-start-gw').value);
+                const endGW = parseInt(document.getElementById('fdr-end-gw').value);
+                
+                if (startGW > endGW) {
+                    alert('Start gameweek must be less than or equal to end gameweek');
+                    return;
+                }
+                
+                this.generateFDRMatrix(startGW, endGW);
+                this.generateFDRTeamAnalysis(startGW, endGW);
+                document.getElementById('fdr-results').style.display = 'block';
+            }
+            
+            generateFDRMatrix(startGW, endGW) {
+                const table = document.getElementById('fdr-matrix-table');
+                table.innerHTML = '';
+                
+                // Create header row
+                const headerRow = document.createElement('tr');
+                headerRow.innerHTML = '<th>Team</th>';
+                
+                for (let gw = startGW; gw <= endGW; gw++) {
+                    const th = document.createElement('th');
+                    th.textContent = `GW${gw}`;
+                    headerRow.appendChild(th);
+                }
+                
+                const avgTh = document.createElement('th');
+                avgTh.textContent = 'Avg FDR';
+                avgTh.style.background = '#fd7e14';
+                avgTh.style.color = 'white';
+                headerRow.appendChild(avgTh);
+                
+                table.appendChild(headerRow);
+                
+                // Create team rows
+                const selectedTeamList = Array.from(this.selectedTeamsForFDR).map(id => 
+                    this.teams[id]
+                ).sort((a, b) => a.name.localeCompare(b.name));
+                
+                selectedTeamList.forEach(team => {
+                    const row = document.createElement('tr');
+                    const teamHeader = document.createElement('td');
+                    teamHeader.style.fontWeight = 'bold';
+                    teamHeader.style.background = '#f8f9fa';
+                    teamHeader.textContent = team.short_name;
+                    row.appendChild(teamHeader);
+                    
+                    let totalDifficulty = 0;
+                    let fixtureCount = 0;
+                    
+                    for (let gw = startGW; gw <= endGW; gw++) {
+                        const fixture = this.fixtures.find(f => 
+                            f.event === gw && (f.team_h === team.id || f.team_a === team.id)
+                        );
+                        
+                        const cell = document.createElement('td');
+                        cell.className = 'difficulty-cell';
+                        
+                        if (fixture) {
+                            const isHome = fixture.team_h === team.id;
+                            const opponent = this.teams[isHome ? fixture.team_a : fixture.team_h];
+                            const difficulty = isHome ? fixture.team_h_difficulty : fixture.team_a_difficulty;
+                            
+                            cell.classList.add(`difficulty-${difficulty}`);
+                            cell.innerHTML = `
+                                <div style="font-size: 0.9rem;">${opponent.short_name}</div>
+                                <div style="font-size: 0.7rem;">${isHome ? 'H' : 'A'}</div>
+                            `;
+                            cell.title = `${team.name} vs ${opponent.name} (${isHome ? 'Home' : 'Away'}) - FDR: ${difficulty}`;
+                            
+                            totalDifficulty += difficulty;
+                            fixtureCount++;
+                        } else {
+                            cell.textContent = '-';
+                            cell.style.background = '#f8f9fa';
+                        }
+                        
+                        row.appendChild(cell);
+                    }
+                    
+                    // Add average difficulty cell
+                    const avgCell = document.createElement('td');
+                    const avgDifficulty = fixtureCount > 0 ? (totalDifficulty / fixtureCount).toFixed(1) : 0;
+                    avgCell.textContent = avgDifficulty;
+                    avgCell.style.fontWeight = 'bold';
+                    avgCell.className = `difficulty-${Math.round(avgDifficulty)}`;
+                    row.appendChild(avgCell);
+                    
+                    table.appendChild(row);
+                });
+            }
+            
+            generateFDRTeamAnalysis(startGW, endGW) {
+                const container = document.getElementById('fdr-team-analysis');
+                container.innerHTML = '';
+                
+                const selectedTeamList = Array.from(this.selectedTeamsForFDR).map(id => 
+                    this.teams[id]
+                );
+                
+                // Calculate and sort by average difficulty
+                const teamAnalysis = selectedTeamList.map(team => {
+                    const fixtures = this.fixtures.filter(f => 
+                        f.event >= startGW && f.event <= endGW && 
+                        (f.team_h === team.id || f.team_a === team.id)
+                    );
+                    
+                    let totalDifficulty = 0;
+                    let homeGames = 0;
+                    let awayGames = 0;
+                    let easyFixtures = 0;
+                    let hardFixtures = 0;
+                    
+                    fixtures.forEach(f => {
+                        const isHome = f.team_h === team.id;
+                        const difficulty = isHome ? f.team_h_difficulty : f.team_a_difficulty;
+                        
+                        totalDifficulty += difficulty;
+                        if (isHome) homeGames++; else awayGames++;
+                        if (difficulty <= 2) easyFixtures++;
+                        if (difficulty >= 4) hardFixtures++;
+                    });
+                    
+                    return {
+                        team,
+                        avgDifficulty: fixtures.length > 0 ? totalDifficulty / fixtures.length : 0,
+                        homeGames,
+                        awayGames,
+                        easyFixtures,
+                        hardFixtures,
+                        totalFixtures: fixtures.length
+                    };
+                }).sort((a, b) => a.avgDifficulty - b.avgDifficulty);
+                
+                // Display top 6 teams
+                teamAnalysis.slice(0, 6).forEach(analysis => {
+                    const card = document.createElement('div');
+                    card.className = 'analysis-card';
+                    card.innerHTML = `
+                        <h3 style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>${analysis.team.name}</span>
+                            <span class="difficulty-${Math.round(analysis.avgDifficulty)}" style="padding: 4px 12px; border-radius: 20px; font-size: 0.9rem;">
+                                FDR: ${analysis.avgDifficulty.toFixed(1)}
+                            </span>
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px;">
+                            <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #37003c;">${analysis.homeGames}</div>
+                                <div style="font-size: 0.8rem; color: #666;">Home Games</div>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #37003c;">${analysis.awayGames}</div>
+                                <div style="font-size: 0.8rem; color: #666;">Away Games</div>
+                            </div>
+                            <div style="background: #d4edda; padding: 10px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #155724;">${analysis.easyFixtures}</div>
+                                <div style="font-size: 0.8rem; color: #155724;">Easy (1-2)</div>
+                            </div>
+                            <div style="background: #f8d7da; padding: 10px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #721c24;">${analysis.hardFixtures}</div>
+                                <div style="font-size: 0.8rem; color: #721c24;">Hard (4-5)</div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
             }
         }
         
