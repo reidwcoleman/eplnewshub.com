@@ -1,421 +1,207 @@
-// Optimized FPL Data Service with aggressive caching and performance improvements
 class FPLDataService {
     constructor() {
+        this.baseUrl = 'https://fantasy.premierleague.com/api/';
         this.cache = new Map();
-        this.localStorage = window.localStorage;
-        this.cacheVersion = 'v2.0';
-        this.cacheTimeout = 5 * 60 * 1000; // 5 minutes for live data
-        this.staticCacheTimeout = 24 * 60 * 60 * 1000; // 24 hours for static data
-        this.baseUrl = 'https://fantasy.premierleague.com/api';
-        this.corsProxies = [
-            'https://corsproxy.io/?',
-            'https://api.allorigins.win/raw?url='
-        ];
-        this.currentProxyIndex = 0;
-        this.isLoadingData = false;
-        this.loadPromise = null;
-        
-        // Initialize with cached data immediately
-        this.initializeFromCache();
+        this.cacheTimeout = 10 * 60 * 1000; // 10 minutes
     }
 
-    initializeFromCache() {
-        try {
-            // Load from localStorage immediately
-            const cachedData = this.getLocalStorage('fpl_bootstrap_data');
-            if (cachedData && this.isDataFresh(cachedData.timestamp, this.cacheTimeout)) {
-                this.cache.set('bootstrap', cachedData);
-                console.log('Loaded FPL data from localStorage cache');
-            }
-        } catch (error) {
-            console.log('Cache initialization error:', error);
+    async fetchWithCache(url, cacheKey) {
+        const cached = this.cache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+            return cached.data;
         }
-    }
 
-    // Get data from localStorage with version checking
-    getLocalStorage(key) {
         try {
-            const item = this.localStorage.getItem(key);
-            if (!item) return null;
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
             
-            const data = JSON.parse(item);
-            if (data.version !== this.cacheVersion) {
-                this.localStorage.removeItem(key);
-                return null;
-            }
-            return data;
-        } catch (error) {
-            console.error('localStorage read error:', error);
-            return null;
-        }
-    }
-
-    // Save data to localStorage with version
-    setLocalStorage(key, data) {
-        try {
-            const item = {
-                ...data,
-                version: this.cacheVersion,
-                timestamp: Date.now()
-            };
-            this.localStorage.setItem(key, JSON.stringify(item));
-        } catch (error) {
-            console.error('localStorage write error:', error);
-            // Clear old data if storage is full
-            if (error.name === 'QuotaExceededError') {
-                this.clearOldCache();
-                try {
-                    this.localStorage.setItem(key, JSON.stringify(item));
-                } catch (retryError) {
-                    console.error('Failed to save after clearing cache:', retryError);
-                }
-            }
-        }
-    }
-
-    clearOldCache() {
-        const keysToKeep = ['user', 'membership'];
-        const keys = Object.keys(this.localStorage);
-        keys.forEach(key => {
-            if (!keysToKeep.some(keep => key.includes(keep)) && key.startsWith('fpl_')) {
-                this.localStorage.removeItem(key);
-            }
-        });
-    }
-
-    isDataFresh(timestamp, timeout) {
-        return Date.now() - timestamp < timeout;
-    }
-
-    async fetchWithRetry(url, retries = 2) {
-        for (let i = 0; i <= retries; i++) {
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-                
-                const response = await fetch(url, {
-                    signal: controller.signal,
-                    headers: {
-                        'Accept': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    }
-                });
-                
-                clearTimeout(timeoutId);
-                
-                if (response.ok) {
-                    return await response.json();
-                }
-            } catch (error) {
-                if (i === retries) throw error;
-                await new Promise(resolve => setTimeout(resolve, 500 * (i + 1))); // Exponential backoff
-            }
-        }
-        throw new Error('All fetch attempts failed');
-    }
-
-    async fetchWithCORS(endpoint) {
-        const url = `${this.baseUrl}/${endpoint}`;
-        
-        // Try direct fetch first
-        try {
-            return await this.fetchWithRetry(url);
-        } catch (error) {
-            console.log('Direct fetch failed, trying CORS proxy...');
-        }
-
-        // Try CORS proxies
-        for (let i = 0; i < this.corsProxies.length; i++) {
-            const proxyIndex = (this.currentProxyIndex + i) % this.corsProxies.length;
-            const proxy = this.corsProxies[proxyIndex];
-            
-            try {
-                const proxyUrl = proxy + encodeURIComponent(url);
-                const data = await this.fetchWithRetry(proxyUrl, 1); // Less retries for proxies
-                this.currentProxyIndex = proxyIndex;
-                return data;
-            } catch (error) {
-                console.log(`Proxy ${proxy} failed`);
-            }
-        }
-        
-        // Return mock data immediately if all fetches fail
-        console.log('All fetches failed, returning mock data');
-        return this.getMockBootstrapData();
-    }
-
-    async getBootstrapData(forceRefresh = false) {
-        // Return cached data immediately if available and fresh
-        if (!forceRefresh) {
-            // Check memory cache first
-            if (this.cache.has('bootstrap')) {
-                const cached = this.cache.get('bootstrap');
-                if (this.isDataFresh(cached.timestamp, this.cacheTimeout)) {
-                    console.log('Returning memory cached bootstrap data');
-                    return cached.data;
-                }
-            }
-            
-            // Check localStorage
-            const localData = this.getLocalStorage('fpl_bootstrap_data');
-            if (localData && this.isDataFresh(localData.timestamp, this.cacheTimeout)) {
-                this.cache.set('bootstrap', localData);
-                console.log('Returning localStorage cached bootstrap data');
-                return localData.data;
-            }
-        }
-
-        // If already loading, return the existing promise
-        if (this.isLoadingData && this.loadPromise) {
-            console.log('Already loading data, returning existing promise');
-            return this.loadPromise;
-        }
-
-        // Start new load
-        this.isLoadingData = true;
-        this.loadPromise = this.loadBootstrapData(forceRefresh);
-        
-        try {
-            const result = await this.loadPromise;
-            return result;
-        } finally {
-            this.isLoadingData = false;
-            this.loadPromise = null;
-        }
-    }
-
-    async loadBootstrapData(forceRefresh) {
-        try {
-            console.log('Fetching fresh bootstrap data...');
-            const data = await this.fetchWithCORS('bootstrap-static/');
-            
-            // Cache in memory and localStorage
-            const cacheEntry = {
+            this.cache.set(cacheKey, {
                 data: data,
                 timestamp: Date.now()
-            };
-            this.cache.set('bootstrap', cacheEntry);
-            this.setLocalStorage('fpl_bootstrap_data', cacheEntry);
+            });
             
             return data;
         } catch (error) {
-            console.error('Failed to fetch bootstrap data:', error);
-            
-            // Try to return stale cache if available
-            const staleCache = this.cache.get('bootstrap') || this.getLocalStorage('fpl_bootstrap_data');
-            if (staleCache) {
-                console.log('Returning stale cache data');
-                return staleCache.data;
+            console.error('FPL API Error:', error);
+            if (cached) {
+                console.log('Using stale cache data due to API error');
+                return cached.data;
             }
-            
-            // Return comprehensive mock data as last resort
-            console.log('Returning mock data');
-            return this.getMockBootstrapData();
+            throw error;
         }
+    }
+
+    async getBootstrapData() {
+        return await this.fetchWithCache(
+            `${this.baseUrl}bootstrap-static/`,
+            'bootstrap'
+        );
     }
 
     async getFixtures() {
-        // Check cache first
-        if (this.cache.has('fixtures')) {
-            const cached = this.cache.get('fixtures');
-            if (this.isDataFresh(cached.timestamp, this.cacheTimeout)) {
-                return cached.data;
-            }
-        }
+        return await this.fetchWithCache(
+            `${this.baseUrl}fixtures/`,
+            'fixtures'
+        );
+    }
 
-        // Check localStorage
-        const localData = this.getLocalStorage('fpl_fixtures');
-        if (localData && this.isDataFresh(localData.timestamp, this.cacheTimeout)) {
-            return localData.data;
-        }
+    async getUpcomingFixtures() {
+        return await this.fetchWithCache(
+            `${this.baseUrl}fixtures/?future=1`,
+            'upcoming_fixtures'
+        );
+    }
 
-        try {
-            const data = await this.fetchWithCORS('fixtures/');
+    async getPlayerDetails(playerId) {
+        return await this.fetchWithCache(
+            `${this.baseUrl}element-summary/${playerId}/`,
+            `player_${playerId}`
+        );
+    }
+
+    async getCurrentGameweek() {
+        const bootstrap = await this.getBootstrapData();
+        return bootstrap.events.find(event => event.is_current) || 
+               bootstrap.events.find(event => event.is_next);
+    }
+
+    async getTopPlayers(limit = 10) {
+        const bootstrap = await this.getBootstrapData();
+        return bootstrap.elements
+            .sort((a, b) => b.total_points - a.total_points)
+            .slice(0, limit);
+    }
+
+    async getBestValuePlayers(limit = 10, minPrice = 40) {
+        const bootstrap = await this.getBootstrapData();
+        return bootstrap.elements
+            .filter(player => player.now_cost >= minPrice)
+            .map(player => ({
+                ...player,
+                value_ratio: player.total_points / player.now_cost
+            }))
+            .sort((a, b) => b.value_ratio - a.value_ratio)
+            .slice(0, limit);
+    }
+
+    async getTopScorers(positionFilter = null, limit = 10) {
+        const bootstrap = await this.getBootstrapData();
+        let players = bootstrap.elements;
+        
+        if (positionFilter) {
+            players = players.filter(p => p.element_type === positionFilter);
+        }
+        
+        return players
+            .sort((a, b) => b.goals_scored - a.goals_scored)
+            .slice(0, limit);
+    }
+
+    async getCaptainCandidates(limit = 5) {
+        const bootstrap = await this.getBootstrapData();
+        const fixtures = await this.getUpcomingFixtures();
+        const currentGW = await this.getCurrentGameweek();
+        
+        if (!currentGW) return [];
+        
+        const nextFixtures = fixtures.filter(f => f.event === currentGW.id);
+        
+        return bootstrap.elements
+            .filter(player => {
+                const hasFixture = nextFixtures.some(f => 
+                    f.team_h === player.team || f.team_a === player.team
+                );
+                return hasFixture && player.total_points > 50;
+            })
+            .map(player => {
+                const fixture = nextFixtures.find(f => 
+                    f.team_h === player.team || f.team_a === player.team
+                );
+                const isHome = fixture && fixture.team_h === player.team;
+                const team = bootstrap.teams.find(t => t.id === player.team);
+                const opponent = bootstrap.teams.find(t => 
+                    t.id === (isHome ? fixture.team_a : fixture.team_h)
+                );
+                
+                return {
+                    ...player,
+                    fixture: {
+                        opponent: opponent?.name,
+                        is_home: isHome,
+                        difficulty: isHome ? fixture.team_h_difficulty : fixture.team_a_difficulty
+                    },
+                    team_name: team?.name
+                };
+            })
+            .sort((a, b) => {
+                const aScore = (b.form * 10) + (b.total_points / 10) - (a.fixture.difficulty * 2);
+                const bScore = (a.form * 10) + (a.total_points / 10) - (b.fixture.difficulty * 2);
+                return bScore - aScore;
+            })
+            .slice(0, limit);
+    }
+
+    async getTransferTargets() {
+        const bootstrap = await this.getBootstrapData();
+        const fixtures = await this.getUpcomingFixtures();
+        
+        const playersWithUpcomingFixtures = bootstrap.elements.map(player => {
+            const playerFixtures = fixtures
+                .filter(f => f.team_h === player.team || f.team_a === player.team)
+                .slice(0, 3);
             
-            // Cache the result
-            const cacheEntry = {
-                data: data,
-                timestamp: Date.now()
+            const avgDifficulty = playerFixtures.length > 0 
+                ? playerFixtures.reduce((sum, f) => {
+                    const difficulty = f.team_h === player.team ? f.team_h_difficulty : f.team_a_difficulty;
+                    return sum + difficulty;
+                }, 0) / playerFixtures.length
+                : 5;
+            
+            return {
+                ...player,
+                avg_fixture_difficulty: avgDifficulty,
+                upcoming_fixtures: playerFixtures.length
             };
-            this.cache.set('fixtures', cacheEntry);
-            this.setLocalStorage('fpl_fixtures', cacheEntry);
-            
-            return data;
-        } catch (error) {
-            console.error('Failed to fetch fixtures:', error);
-            return this.getMockFixtures();
-        }
-    }
-
-    formatPrice(value) {
-        return `£${(value / 10).toFixed(1)}m`;
-    }
-
-    isDataLive() {
-        const cached = this.cache.get('bootstrap');
-        if (!cached) return false;
-        return this.isDataFresh(cached.timestamp, 60000); // Consider live if less than 1 minute old
-    }
-
-    getLastUpdateTime() {
-        const cached = this.cache.get('bootstrap');
-        if (!cached) return 'Never';
-        
-        const date = new Date(cached.timestamp);
-        return date.toLocaleTimeString();
-    }
-
-    clearCache() {
-        this.cache.clear();
-        // Clear localStorage FPL data
-        const keys = Object.keys(this.localStorage);
-        keys.forEach(key => {
-            if (key.startsWith('fpl_')) {
-                this.localStorage.removeItem(key);
-            }
-        });
-    }
-
-    // Lightweight mock data for immediate display
-    getMockBootstrapData() {
-        return {
-            events: this.getMockEvents(),
-            teams: this.getMockTeams(),
-            elements: this.getMockPlayers(),
-            element_types: [
-                { id: 1, plural_name: "Goalkeepers", singular_name: "Goalkeeper" },
-                { id: 2, plural_name: "Defenders", singular_name: "Defender" },
-                { id: 3, plural_name: "Midfielders", singular_name: "Midfielder" },
-                { id: 4, plural_name: "Forwards", singular_name: "Forward" }
-            ]
-        };
-    }
-
-    getMockEvents() {
-        const events = [];
-        for (let i = 1; i <= 38; i++) {
-            events.push({
-                id: i,
-                name: `Gameweek ${i}`,
-                finished: i < 15,
-                is_current: i === 15,
-                is_next: i === 16
-            });
-        }
-        return events;
-    }
-
-    getMockTeams() {
-        return [
-            { id: 1, name: "Arsenal", short_name: "ARS", strength: 4, strength_overall_home: 1300, strength_overall_away: 1280 },
-            { id: 2, name: "Aston Villa", short_name: "AVL", strength: 3, strength_overall_home: 1150, strength_overall_away: 1120 },
-            { id: 3, name: "Bournemouth", short_name: "BOU", strength: 2, strength_overall_home: 1050, strength_overall_away: 1020 },
-            { id: 4, name: "Brentford", short_name: "BRE", strength: 3, strength_overall_home: 1100, strength_overall_away: 1080 },
-            { id: 5, name: "Brighton", short_name: "BHA", strength: 3, strength_overall_home: 1150, strength_overall_away: 1130 },
-            { id: 6, name: "Chelsea", short_name: "CHE", strength: 4, strength_overall_home: 1250, strength_overall_away: 1230 },
-            { id: 7, name: "Crystal Palace", short_name: "CRY", strength: 2, strength_overall_home: 1080, strength_overall_away: 1060 },
-            { id: 8, name: "Everton", short_name: "EVE", strength: 2, strength_overall_home: 1020, strength_overall_away: 1000 },
-            { id: 9, name: "Fulham", short_name: "FUL", strength: 2, strength_overall_home: 1090, strength_overall_away: 1070 },
-            { id: 10, name: "Ipswich", short_name: "IPS", strength: 1, strength_overall_home: 950, strength_overall_away: 930 },
-            { id: 11, name: "Leicester", short_name: "LEI", strength: 2, strength_overall_home: 980, strength_overall_away: 960 },
-            { id: 12, name: "Liverpool", short_name: "LIV", strength: 5, strength_overall_home: 1350, strength_overall_away: 1330 },
-            { id: 13, name: "Man City", short_name: "MCI", strength: 5, strength_overall_home: 1400, strength_overall_away: 1380 },
-            { id: 14, name: "Newcastle", short_name: "NEW", strength: 4, strength_overall_home: 1200, strength_overall_away: 1180 },
-            { id: 15, name: "Nottingham Forest", short_name: "NFO", strength: 2, strength_overall_home: 1060, strength_overall_away: 1040 },
-            { id: 16, name: "Southampton", short_name: "SOU", strength: 1, strength_overall_home: 970, strength_overall_away: 950 },
-            { id: 17, name: "Spurs", short_name: "TOT", strength: 4, strength_overall_home: 1250, strength_overall_away: 1230 },
-            { id: 18, name: "West Ham", short_name: "WHU", strength: 3, strength_overall_home: 1130, strength_overall_away: 1110 },
-            { id: 19, name: "Wolves", short_name: "WOL", strength: 2, strength_overall_home: 1040, strength_overall_away: 1020 },
-            { id: 20, name: "Man Utd", short_name: "MUN", strength: 4, strength_overall_home: 1220, strength_overall_away: 1200 }
-        ];
-    }
-
-    getMockPlayers() {
-        // Return a comprehensive but optimized set of players
-        const players = [];
-        const teams = this.getMockTeams();
-        const positions = [1, 2, 3, 4];
-        const playerNames = {
-            1: [["David", "Raya"], ["Alisson", "Becker"], ["Ederson", "Moraes"], ["Andre", "Onana"]],
-            2: [["Virgil", "van Dijk"], ["William", "Saliba"], ["Ruben", "Dias"], ["Gabriel", "Magalhaes"]],
-            3: [["Mohamed", "Salah"], ["Cole", "Palmer"], ["Bukayo", "Saka"], ["Bruno", "Fernandes"]],
-            4: [["Erling", "Haaland"], ["Darwin", "Nunez"], ["Ollie", "Watkins"], ["Alexander", "Isak"]]
-        };
-
-        let playerId = 1;
-        teams.forEach(team => {
-            positions.forEach(position => {
-                // Add 2-3 players per position per team
-                const playerCount = position === 1 ? 2 : 3;
-                for (let i = 0; i < playerCount; i++) {
-                    const namePool = playerNames[position];
-                    const nameIndex = Math.floor(Math.random() * namePool.length);
-                    const [firstName, lastName] = namePool[nameIndex];
-                    
-                    players.push({
-                        id: playerId++,
-                        first_name: firstName,
-                        second_name: `${lastName}${team.id}`,
-                        team: team.id,
-                        element_type: position,
-                        now_cost: Math.floor(Math.random() * 80) + 40,
-                        total_points: Math.floor(Math.random() * 150),
-                        form: (Math.random() * 8).toFixed(1),
-                        selected_by_percent: (Math.random() * 50).toFixed(1),
-                        minutes: Math.floor(Math.random() * 2000),
-                        goals_scored: position === 4 ? Math.floor(Math.random() * 15) : Math.floor(Math.random() * 5),
-                        assists: Math.floor(Math.random() * 10),
-                        clean_sheets: position <= 2 ? Math.floor(Math.random() * 10) : 0,
-                        bonus: Math.floor(Math.random() * 20),
-                        influence: (Math.random() * 1000).toFixed(1),
-                        creativity: (Math.random() * 1000).toFixed(1),
-                        threat: (Math.random() * 1000).toFixed(1),
-                        ict_index: (Math.random() * 100).toFixed(1),
-                        transfers_in_event: Math.floor(Math.random() * 100000),
-                        transfers_out_event: Math.floor(Math.random() * 50000),
-                        status: 'a'
-                    });
-                }
-            });
         });
 
-        return players;
+        const transfersIn = playersWithUpcomingFixtures
+            .filter(p => p.total_points > 30 && p.avg_fixture_difficulty <= 3)
+            .sort((a, b) => (b.form * 10 + b.total_points / 5) - (a.form * 10 + a.total_points / 5))
+            .slice(0, 5);
+
+        const transfersOut = playersWithUpcomingFixtures
+            .filter(p => p.total_points > 50 && (p.avg_fixture_difficulty >= 4 || p.form < 3))
+            .sort((a, b) => (a.form + a.avg_fixture_difficulty) - (b.form + b.avg_fixture_difficulty))
+            .slice(0, 5);
+
+        return { transfersIn, transfersOut };
     }
 
-    getMockFixtures() {
-        const fixtures = [];
-        const teams = this.getMockTeams();
-        
-        for (let gw = 1; gw <= 5; gw++) {
-            for (let i = 0; i < teams.length; i += 2) {
-                fixtures.push({
-                    id: gw * 10 + i/2,
-                    event: gw,
-                    team_h: teams[i].id,
-                    team_a: teams[i+1].id,
-                    team_h_difficulty: Math.floor(Math.random() * 5) + 1,
-                    team_a_difficulty: Math.floor(Math.random() * 5) + 1,
-                    kickoff_time: new Date(Date.now() + gw * 7 * 24 * 60 * 60 * 1000).toISOString(),
-                    finished: false,
-                    started: false
-                });
-            }
-        }
-        
-        return fixtures;
+    formatPrice(price) {
+        return `£${(price / 10).toFixed(1)}m`;
+    }
+
+    formatPlayerName(firstName, lastName) {
+        return `${firstName} ${lastName}`.trim();
+    }
+
+    getTeamName(teamId, teams) {
+        const team = teams.find(t => t.id === teamId);
+        return team ? team.name : 'Unknown';
+    }
+
+    getPositionName(elementType) {
+        const positions = {
+            1: 'GKP',
+            2: 'DEF', 
+            3: 'MID',
+            4: 'FWD'
+        };
+        return positions[elementType] || 'Unknown';
     }
 }
 
-// Auto-initialize and preload on page load
-if (typeof window !== 'undefined') {
-    window.FPLDataService = FPLDataService;
-    
-    // Start preloading data as soon as the service loads
-    document.addEventListener('DOMContentLoaded', () => {
-        const service = new FPLDataService();
-        // Preload data in background after page loads
-        setTimeout(() => {
-            service.getBootstrapData().catch(console.error);
-        }, 100);
-    });
-}
+window.FPLDataService = FPLDataService;

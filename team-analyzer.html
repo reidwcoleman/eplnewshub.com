@@ -55,7 +55,6 @@
     <link rel="stylesheet" href="styles.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
     <script src="./fpl-api.js"></script>
-    <script src="./fpl-fast-loader.js"></script>
     
     <style>
         .analyzer-container {
@@ -816,12 +815,6 @@
             }
 
             async initialize() {
-                // Show skeleton loaders immediately
-                if (window.fplFastLoader) {
-                    window.fplFastLoader.showSkeleton('team1-grid', 'teams');
-                    window.fplFastLoader.showSkeleton('team2-grid', 'teams');
-                }
-                
                 try {
                     const bootstrap = await this.fplService.getBootstrapData();
                     this.teams = bootstrap.teams;
@@ -835,82 +828,11 @@
                     setInterval(() => this.refreshData(), 2 * 60 * 1000);
                 } catch (error) {
                     console.error('Failed to initialize team analyzer:', error);
-                    // Silently continue with mock data - no alert
                     this.updateLiveIndicator(false);
-                    // Initialize with mock data
-                    this.initializeMockData();
+                    // Show error message to user
+                    document.getElementById('team1-grid').innerHTML = '<div class="error-message">Unable to load team data. Please try refreshing the page.</div>';
+                    document.getElementById('team2-grid').innerHTML = '<div class="error-message">Unable to load team data. Please try refreshing the page.</div>';
                 }
-            }
-            
-            initializeMockData() {
-                // Use mock data from FPL service
-                const mockService = new FPLDataService();
-                const mockData = mockService.getMockBootstrapData();
-                
-                this.teams = mockData.teams || [
-                    { id: 1, name: "Arsenal", short_name: "ARS", strength: 1300 },
-                    { id: 2, name: "Aston Villa", short_name: "AVL", strength: 1150 },
-                    { id: 3, name: "Bournemouth", short_name: "BOU", strength: 1050 },
-                    { id: 4, name: "Brentford", short_name: "BRE", strength: 1100 },
-                    { id: 5, name: "Brighton", short_name: "BHA", strength: 1150 },
-                    { id: 6, name: "Chelsea", short_name: "CHE", strength: 1250 },
-                    { id: 7, name: "Crystal Palace", short_name: "CRY", strength: 1080 },
-                    { id: 8, name: "Everton", short_name: "EVE", strength: 1020 },
-                    { id: 9, name: "Fulham", short_name: "FUL", strength: 1090 },
-                    { id: 10, name: "Ipswich", short_name: "IPS", strength: 950 },
-                    { id: 11, name: "Leicester", short_name: "LEI", strength: 980 },
-                    { id: 12, name: "Liverpool", short_name: "LIV", strength: 1350 },
-                    { id: 13, name: "Man City", short_name: "MCI", strength: 1400 },
-                    { id: 14, name: "Newcastle", short_name: "NEW", strength: 1200 },
-                    { id: 15, name: "Nottingham Forest", short_name: "NFO", strength: 1060 },
-                    { id: 16, name: "Southampton", short_name: "SOU", strength: 970 },
-                    { id: 17, name: "Spurs", short_name: "TOT", strength: 1250 },
-                    { id: 18, name: "West Ham", short_name: "WHU", strength: 1130 },
-                    { id: 19, name: "Wolves", short_name: "WOL", strength: 1040 },
-                    { id: 20, name: "Man Utd", short_name: "MUN", strength: 1220 }
-                ];
-                
-                // Generate mock players if needed
-                if (!mockData.elements || mockData.elements.length === 0) {
-                    this.allPlayers = this.generateMockPlayers();
-                } else {
-                    this.allPlayers = mockData.elements;
-                }
-                
-                this.populateTeamGrids();
-                this.calculateTeamStats();
-                this.updateLiveIndicator(false);
-            }
-            
-            generateMockPlayers() {
-                const players = [];
-                const positions = [1, 2, 3, 4]; // GKP, DEF, MID, FWD
-                const firstNames = ['Mohamed', 'Erling', 'Bukayo', 'Marcus', 'Phil', 'Kevin', 'Bruno', 'Harry', 'Son', 'Cole'];
-                const lastNames = ['Salah', 'Haaland', 'Saka', 'Rashford', 'Foden', 'De Bruyne', 'Fernandes', 'Kane', 'Heung-min', 'Palmer'];
-                
-                this.teams.forEach(team => {
-                    // Generate 25 players per team
-                    for (let i = 0; i < 25; i++) {
-                        const position = positions[Math.floor(Math.random() * positions.length)];
-                        players.push({
-                            id: team.id * 100 + i,
-                            first_name: firstNames[Math.floor(Math.random() * firstNames.length)],
-                            second_name: lastNames[Math.floor(Math.random() * lastNames.length)] + team.id,
-                            team: team.id,
-                            element_type: position,
-                            now_cost: Math.floor(Math.random() * 100) + 40,
-                            total_points: Math.floor(Math.random() * 200),
-                            form: (Math.random() * 10).toFixed(1),
-                            selected_by_percent: Math.random() * 50,
-                            goals_scored: position === 4 ? Math.floor(Math.random() * 20) : Math.floor(Math.random() * 5),
-                            assists: Math.floor(Math.random() * 10),
-                            clean_sheets: position <= 2 ? Math.floor(Math.random() * 15) : 0,
-                            minutes: Math.floor(Math.random() * 3420)
-                        });
-                    }
-                });
-                
-                return players;
             }
             async refreshData() {
                 console.log('Refreshing live data...');
@@ -931,22 +853,21 @@
                 }
             }
 
-            updateLiveIndicator(isLive = null) {
+            updateLiveIndicator(isLive = true) {
                 const statusEl = document.getElementById('data-status');
                 const dotEl = document.getElementById('live-dot');
                 const updateEl = document.getElementById('last-update');
                 
-                const dataIsLive = isLive !== null ? isLive : this.fplService.isDataLive();
-                
-                if (dataIsLive) {
+                if (isLive) {
                     statusEl.textContent = 'LIVE DATA';
                     dotEl.style.background = '#00ff00';
                 } else {
-                    statusEl.textContent = 'CACHED DATA';
-                    dotEl.style.background = '#ffa500';
+                    statusEl.textContent = 'OFFLINE';
+                    dotEl.style.background = '#ff0000';
                 }
                 
-                updateEl.textContent = this.fplService.getLastUpdateTime();
+                const now = new Date();
+                updateEl.textContent = now.toLocaleTimeString();
             }
 
             populateTeamGrids() {
