@@ -1,132 +1,251 @@
-// FPL HTML Data Service - Fetches data from existing HTML pages
+// FPL HTML Data Service - Fetches data from local HTML/JSON files
 class FPLHtmlDataService {
     constructor() {
         this.cache = new Map();
         this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
-        this.playerDataUrl = '/player-data.html';
-        this.fixtureDataUrl = '/fixture-tracker-pro.html';
-        this.statsDataUrl = '/stats.html';
+        this.statsDataUrl = '/fpl-premium-hub-stats.html';
+        this.fixtureDataUrl = '/premium-fpl-fixture-stats.html';
+        this.bootstrapData = null;
+        this.fixtureData = null;
     }
 
-    async fetchHtmlPage(url) {
+    async fetchJsonFromFile(url) {
+        const cacheKey = url;
+        const cached = this.cache.get(cacheKey);
+        
+        if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+            return cached.data;
+        }
+
         try {
             const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`Failed to fetch ${url}`);
             }
-            const html = await response.text();
-            return html;
-        } catch (error) {
-            console.error('Error fetching HTML page:', error);
-            throw error;
-        }
-    }
-
-    async extractPlayerDataFromHTML() {
-        const cacheKey = 'player-data-html';
-        const cached = this.cache.get(cacheKey);
-        
-        if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
-            return cached.data;
-        }
-
-        try {
-            // Fetch the player-data.html page
-            const html = await this.fetchHtmlPage(this.playerDataUrl);
             
-            // Create a temporary iframe to load and execute the page
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            document.body.appendChild(iframe);
-            
-            // Write the HTML to the iframe
-            iframe.contentDocument.open();
-            iframe.contentDocument.write(html);
-            iframe.contentDocument.close();
-            
-            // Wait for the page to load its data
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            // Try to extract data from the iframe's window
-            let playerData = null;
-            if (iframe.contentWindow && iframe.contentWindow.allPlayers) {
-                playerData = iframe.contentWindow.allPlayers;
-            }
-            
-            // Clean up
-            document.body.removeChild(iframe);
-            
-            if (!playerData) {
-                // If we couldn't get data from iframe, use the embedded mock data
-                playerData = await this.getEmbeddedPlayerData();
-            }
+            // The files are JSON, not HTML
+            const data = await response.json();
             
             // Cache the data
             this.cache.set(cacheKey, {
-                data: playerData,
+                data: data,
                 timestamp: Date.now()
             });
             
-            return playerData;
+            return data;
         } catch (error) {
-            console.error('Error extracting player data from HTML:', error);
-            return this.getEmbeddedPlayerData();
+            console.error('Error fetching data from file:', error);
+            // Return embedded fallback data
+            return null;
         }
     }
 
     async getBootstrapData() {
         try {
-            // Try to get data from player-data.html
-            const players = await this.extractPlayerDataFromHTML();
+            // Try to get data from fpl-premium-hub-stats.html (which is actually JSON)
+            if (!this.bootstrapData) {
+                this.bootstrapData = await this.fetchJsonFromFile(this.statsDataUrl);
+            }
             
-            // Build bootstrap-like data structure
-            const teams = this.getTeamsData();
-            const events = this.getEventsData();
-            const elementTypes = this.getElementTypesData();
-            
-            return {
-                elements: players || this.getEmbeddedPlayerData(),
-                teams: teams,
-                events: events,
-                element_types: elementTypes
-            };
+            if (this.bootstrapData) {
+                return this.bootstrapData;
+            }
         } catch (error) {
             console.error('Error getting bootstrap data:', error);
-            // Return embedded fallback data
-            return {
-                elements: this.getEmbeddedPlayerData(),
-                teams: this.getTeamsData(),
-                events: this.getEventsData(),
-                element_types: this.getElementTypesData()
-            };
         }
+        
+        // Return embedded fallback data if fetch fails
+        return {
+            elements: this.getEmbeddedPlayerData(),
+            teams: this.getTeamsData(),
+            events: this.getEventsData(),
+            element_types: this.getElementTypesData()
+        };
     }
 
     async getFixtures() {
-        const cacheKey = 'fixtures-html';
-        const cached = this.cache.get(cacheKey);
-        
-        if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
-            return cached.data;
-        }
-
         try {
-            // For now, return embedded fixture data
-            const fixtures = this.getEmbeddedFixtures();
+            // Try to get data from premium-fpl-fixture-stats.html (which is actually JSON)
+            if (!this.fixtureData) {
+                this.fixtureData = await this.fetchJsonFromFile(this.fixtureDataUrl);
+            }
             
-            this.cache.set(cacheKey, {
-                data: fixtures,
-                timestamp: Date.now()
-            });
-            
-            return fixtures;
+            if (this.fixtureData) {
+                return this.fixtureData;
+            }
         } catch (error) {
-            console.error('Error getting fixtures:', error);
-            return this.getEmbeddedFixtures();
+            console.error('Error getting fixture data:', error);
         }
+        
+        // Return embedded fallback fixtures
+        return this.getEmbeddedFixtures();
     }
 
-    // Embedded data methods (fallbacks)
+    async getUpcomingFixtures() {
+        const fixtures = await this.getFixtures();
+        const currentGW = await this.getCurrentGameweek();
+        
+        if (!currentGW) return fixtures;
+        
+        // Filter for upcoming fixtures only
+        return fixtures.filter(f => f.event >= currentGW.id && !f.finished);
+    }
+
+    async getPlayerDetails(playerId) {
+        // For now, return basic player data from bootstrap
+        const bootstrap = await this.getBootstrapData();
+        const player = bootstrap.elements.find(p => p.id === playerId);
+        return player || null;
+    }
+
+    async getCurrentGameweek() {
+        const bootstrap = await this.getBootstrapData();
+        if (!bootstrap.events) {
+            // Fallback to embedded data
+            const events = this.getEventsData();
+            return events.find(event => event.is_current) || events.find(event => event.is_next);
+        }
+        return bootstrap.events.find(event => event.is_current) || 
+               bootstrap.events.find(event => event.is_next);
+    }
+
+    async getTopPlayers(limit = 10) {
+        const bootstrap = await this.getBootstrapData();
+        return bootstrap.elements
+            .sort((a, b) => b.total_points - a.total_points)
+            .slice(0, limit);
+    }
+
+    async getBestValuePlayers(limit = 10, minPrice = 40) {
+        const bootstrap = await this.getBootstrapData();
+        return bootstrap.elements
+            .filter(player => player.now_cost >= minPrice)
+            .map(player => ({
+                ...player,
+                value_ratio: player.total_points / player.now_cost
+            }))
+            .sort((a, b) => b.value_ratio - a.value_ratio)
+            .slice(0, limit);
+    }
+
+    async getTopScorers(positionFilter = null, limit = 10) {
+        const bootstrap = await this.getBootstrapData();
+        let players = bootstrap.elements;
+        
+        if (positionFilter) {
+            players = players.filter(p => p.element_type === positionFilter);
+        }
+        
+        return players
+            .sort((a, b) => b.goals_scored - a.goals_scored)
+            .slice(0, limit);
+    }
+
+    async getCaptainCandidates(limit = 5) {
+        const bootstrap = await this.getBootstrapData();
+        const fixtures = await this.getUpcomingFixtures();
+        const currentGW = await this.getCurrentGameweek();
+        
+        if (!currentGW) return [];
+        
+        const nextFixtures = fixtures.filter(f => f.event === currentGW.id);
+        
+        return bootstrap.elements
+            .filter(player => {
+                const hasFixture = nextFixtures.some(f => 
+                    f.team_h === player.team || f.team_a === player.team
+                );
+                return hasFixture && player.total_points > 50;
+            })
+            .map(player => {
+                const fixture = nextFixtures.find(f => 
+                    f.team_h === player.team || f.team_a === player.team
+                );
+                const isHome = fixture && fixture.team_h === player.team;
+                const team = bootstrap.teams.find(t => t.id === player.team);
+                const opponent = bootstrap.teams.find(t => 
+                    t.id === (isHome ? fixture.team_a : fixture.team_h)
+                );
+                
+                return {
+                    ...player,
+                    fixture: {
+                        opponent: opponent?.name,
+                        is_home: isHome,
+                        difficulty: isHome ? fixture.team_h_difficulty : fixture.team_a_difficulty
+                    },
+                    team_name: team?.name
+                };
+            })
+            .sort((a, b) => {
+                const aScore = (parseFloat(b.form) * 10) + (b.total_points / 10) - (a.fixture.difficulty * 2);
+                const bScore = (parseFloat(a.form) * 10) + (a.total_points / 10) - (b.fixture.difficulty * 2);
+                return bScore - aScore;
+            })
+            .slice(0, limit);
+    }
+
+    async getTransferTargets() {
+        const bootstrap = await this.getBootstrapData();
+        const fixtures = await this.getUpcomingFixtures();
+        
+        const playersWithUpcomingFixtures = bootstrap.elements.map(player => {
+            const playerFixtures = fixtures
+                .filter(f => f.team_h === player.team || f.team_a === player.team)
+                .slice(0, 3);
+            
+            const avgDifficulty = playerFixtures.length > 0 
+                ? playerFixtures.reduce((sum, f) => {
+                    const difficulty = f.team_h === player.team ? f.team_h_difficulty : f.team_a_difficulty;
+                    return sum + difficulty;
+                }, 0) / playerFixtures.length
+                : 5;
+            
+            return {
+                ...player,
+                avg_fixture_difficulty: avgDifficulty,
+                upcoming_fixtures: playerFixtures.length
+            };
+        });
+
+        const transfersIn = playersWithUpcomingFixtures
+            .filter(p => p.total_points > 30 && p.avg_fixture_difficulty <= 3)
+            .sort((a, b) => (parseFloat(b.form) * 10 + b.total_points / 5) - (parseFloat(a.form) * 10 + a.total_points / 5))
+            .slice(0, 5);
+
+        const transfersOut = playersWithUpcomingFixtures
+            .filter(p => p.total_points > 50 && (p.avg_fixture_difficulty >= 4 || parseFloat(p.form) < 3))
+            .sort((a, b) => (parseFloat(a.form) + a.avg_fixture_difficulty) - (parseFloat(b.form) + b.avg_fixture_difficulty))
+            .slice(0, 5);
+
+        return { transfersIn, transfersOut };
+    }
+
+    // Utility methods
+    formatPrice(value) {
+        return `£${(value / 10).toFixed(1)}m`;
+    }
+
+    formatPlayerName(firstName, lastName) {
+        return `${firstName} ${lastName}`.trim();
+    }
+
+    getTeamName(teamId, teams) {
+        const team = teams.find(t => t.id === teamId);
+        return team ? team.name : 'Unknown';
+    }
+
+    getPositionName(elementType) {
+        const positions = {
+            1: 'GKP',
+            2: 'DEF',
+            3: 'MID',
+            4: 'FWD'
+        };
+        return positions[elementType] || 'Unknown';
+    }
+
+    // Embedded fallback data methods
     getTeamsData() {
         return [
             { id: 1, name: "Arsenal", short_name: "ARS", strength: 4, strength_overall_home: 1300, strength_overall_away: 1280 },
@@ -200,41 +319,15 @@ class FPLHtmlDataService {
             { id: 11, first_name: "Cole", second_name: "Palmer", team: 6, element_type: 3, now_cost: 108, total_points: 156, form: "7.0", selected_by_percent: "48.5", goals_scored: 13, assists: 11, clean_sheets: 7, minutes: 1980, bonus: 26 },
             { id: 12, first_name: "Nicolas", second_name: "Jackson", team: 6, element_type: 4, now_cost: 78, total_points: 98, form: "4.8", selected_by_percent: "15.2", goals_scored: 10, assists: 4, clean_sheets: 0, minutes: 1620, bonus: 12 },
             
-            // Spurs players
+            // More players...
             { id: 13, first_name: "Son", second_name: "Heung-min", team: 17, element_type: 3, now_cost: 98, total_points: 128, form: "5.9", selected_by_percent: "32.1", goals_scored: 12, assists: 7, clean_sheets: 6, minutes: 1800, bonus: 20 },
             { id: 14, first_name: "James", second_name: "Maddison", team: 17, element_type: 3, now_cost: 76, total_points: 102, form: "4.9", selected_by_percent: "18.7", goals_scored: 6, assists: 8, clean_sheets: 5, minutes: 1530, bonus: 14 },
-            
-            // Newcastle players
             { id: 15, first_name: "Alexander", second_name: "Isak", team: 14, element_type: 4, now_cost: 85, total_points: 118, form: "5.6", selected_by_percent: "27.3", goals_scored: 14, assists: 3, clean_sheets: 0, minutes: 1710, bonus: 18 },
             { id: 16, first_name: "Anthony", second_name: "Gordon", team: 14, element_type: 3, now_cost: 73, total_points: 96, form: "4.6", selected_by_percent: "16.9", goals_scored: 7, assists: 6, clean_sheets: 7, minutes: 1800, bonus: 13 },
-            
-            // Man Utd players
             { id: 17, first_name: "Bruno", second_name: "Fernandes", team: 20, element_type: 3, now_cost: 86, total_points: 112, form: "5.2", selected_by_percent: "29.4", goals_scored: 8, assists: 9, clean_sheets: 5, minutes: 1980, bonus: 17 },
             { id: 18, first_name: "Marcus", second_name: "Rashford", team: 20, element_type: 3, now_cost: 72, total_points: 78, form: "3.8", selected_by_percent: "12.3", goals_scored: 6, assists: 3, clean_sheets: 4, minutes: 1440, bonus: 9 },
-            
-            // Aston Villa players
             { id: 19, first_name: "Ollie", second_name: "Watkins", team: 2, element_type: 4, now_cost: 88, total_points: 124, form: "5.7", selected_by_percent: "35.6", goals_scored: 13, assists: 6, clean_sheets: 0, minutes: 1890, bonus: 19 },
-            { id: 20, first_name: "Leon", second_name: "Bailey", team: 2, element_type: 3, now_cost: 65, total_points: 82, form: "4.1", selected_by_percent: "11.8", goals_scored: 5, assists: 7, clean_sheets: 6, minutes: 1260, bonus: 10 },
-            
-            // Brighton players
-            { id: 21, first_name: "Kaoru", second_name: "Mitoma", team: 5, element_type: 3, now_cost: 66, total_points: 88, form: "4.4", selected_by_percent: "14.2", goals_scored: 6, assists: 5, clean_sheets: 6, minutes: 1530, bonus: 11 },
-            { id: 22, first_name: "Evan", second_name: "Ferguson", team: 5, element_type: 4, now_cost: 58, total_points: 62, form: "3.2", selected_by_percent: "8.7", goals_scored: 6, assists: 2, clean_sheets: 0, minutes: 1080, bonus: 7 },
-            
-            // West Ham players
-            { id: 23, first_name: "Jarrod", second_name: "Bowen", team: 18, element_type: 3, now_cost: 74, total_points: 94, form: "4.5", selected_by_percent: "19.8", goals_scored: 8, assists: 5, clean_sheets: 4, minutes: 1710, bonus: 13 },
-            { id: 24, first_name: "Mohammed", second_name: "Kudus", team: 18, element_type: 3, now_cost: 62, total_points: 76, form: "3.9", selected_by_percent: "10.5", goals_scored: 5, assists: 4, clean_sheets: 3, minutes: 1440, bonus: 9 },
-            
-            // Nottingham Forest players
-            { id: 25, first_name: "Morgan", second_name: "Gibbs-White", team: 15, element_type: 3, now_cost: 64, total_points: 86, form: "4.3", selected_by_percent: "13.6", goals_scored: 4, assists: 7, clean_sheets: 8, minutes: 1800, bonus: 11 },
-            { id: 26, first_name: "Chris", second_name: "Wood", team: 15, element_type: 4, now_cost: 61, total_points: 92, form: "4.7", selected_by_percent: "16.4", goals_scored: 11, assists: 1, clean_sheets: 0, minutes: 1620, bonus: 13 },
-            
-            // Brentford players
-            { id: 27, first_name: "Bryan", second_name: "Mbeumo", team: 4, element_type: 3, now_cost: 77, total_points: 104, form: "5.0", selected_by_percent: "23.7", goals_scored: 9, assists: 6, clean_sheets: 5, minutes: 1710, bonus: 15 },
-            { id: 28, first_name: "Ivan", second_name: "Toney", team: 4, element_type: 4, now_cost: 73, total_points: 88, form: "4.4", selected_by_percent: "17.2", goals_scored: 10, assists: 2, clean_sheets: 0, minutes: 1530, bonus: 12 },
-            
-            // Fulham players
-            { id: 29, first_name: "Raúl", second_name: "Jiménez", team: 9, element_type: 4, now_cost: 56, total_points: 72, form: "3.7", selected_by_percent: "9.3", goals_scored: 8, assists: 2, clean_sheets: 0, minutes: 1440, bonus: 9 },
-            { id: 30, first_name: "Andreas", second_name: "Pereira", team: 9, element_type: 3, now_cost: 52, total_points: 68, form: "3.5", selected_by_percent: "7.8", goals_scored: 3, assists: 5, clean_sheets: 4, minutes: 1530, bonus: 8 }
+            { id: 20, first_name: "Leon", second_name: "Bailey", team: 2, element_type: 3, now_cost: 65, total_points: 82, form: "4.1", selected_by_percent: "11.8", goals_scored: 5, assists: 7, clean_sheets: 6, minutes: 1260, bonus: 10 }
         ];
     }
 
@@ -261,26 +354,6 @@ class FPLHtmlDataService {
         }
         
         return fixtures;
-    }
-
-    // Utility methods
-    formatPrice(value) {
-        return `£${(value / 10).toFixed(1)}m`;
-    }
-
-    getPositionName(elementType) {
-        const positions = {
-            1: 'GKP',
-            2: 'DEF',
-            3: 'MID',
-            4: 'FWD'
-        };
-        return positions[elementType] || 'Unknown';
-    }
-
-    getTeamName(teamId, teams) {
-        const team = teams.find(t => t.id === teamId);
-        return team ? team.name : 'Unknown';
     }
 }
 
