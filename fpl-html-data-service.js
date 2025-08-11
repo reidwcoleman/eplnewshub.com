@@ -66,12 +66,11 @@ class FPLHtmlDataService {
     async getFixtures() {
         try {
             // Try to get data from premium-fpl-fixture-stats.html (which is actually JSON)
-            if (!this.fixtureData) {
-                this.fixtureData = await this.fetchJsonFromFile(this.fixtureDataUrl);
-            }
+            const fixtureData = await this.fetchJsonFromFile(this.fixtureDataUrl);
             
-            if (this.fixtureData) {
-                return this.fixtureData;
+            if (fixtureData) {
+                // The fixture data is an array, return it directly
+                return fixtureData;
             }
         } catch (error) {
             console.error('Error getting fixture data:', error);
@@ -89,6 +88,18 @@ class FPLHtmlDataService {
         
         // Filter for upcoming fixtures only
         return fixtures.filter(f => f.event >= currentGW.id && !f.finished);
+    }
+
+    async getGameweekFixtures(gameweek) {
+        const fixtures = await this.getFixtures();
+        return fixtures.filter(f => f.event === gameweek);
+    }
+
+    async getTeamNextFixtures(teamId, count = 5) {
+        const fixtures = await this.getUpcomingFixtures();
+        return fixtures
+            .filter(f => f.team_h === teamId || f.team_a === teamId)
+            .slice(0, count);
     }
 
     async getPlayerDetails(playerId) {
@@ -162,10 +173,10 @@ class FPLHtmlDataService {
                     f.team_h === player.team || f.team_a === player.team
                 );
                 const isHome = fixture && fixture.team_h === player.team;
-                const team = bootstrap.teams.find(t => t.id === player.team);
-                const opponent = bootstrap.teams.find(t => 
-                    t.id === (isHome ? fixture.team_a : fixture.team_h)
-                );
+                const team = bootstrap.teams ? bootstrap.teams.find(t => t.id === player.team) : this.getTeamsData().find(t => t.id === player.team);
+                const opponent = bootstrap.teams ? 
+                    bootstrap.teams.find(t => t.id === (isHome ? fixture.team_a : fixture.team_h)) :
+                    this.getTeamsData().find(t => t.id === (isHome ? fixture.team_a : fixture.team_h));
                 
                 return {
                     ...player,
@@ -178,8 +189,10 @@ class FPLHtmlDataService {
                 };
             })
             .sort((a, b) => {
-                const aScore = (parseFloat(b.form) * 10) + (b.total_points / 10) - (a.fixture.difficulty * 2);
-                const bScore = (parseFloat(a.form) * 10) + (a.total_points / 10) - (b.fixture.difficulty * 2);
+                const aForm = parseFloat(b.form) || 0;
+                const bForm = parseFloat(a.form) || 0;
+                const aScore = (aForm * 10) + (b.total_points / 10) - ((a.fixture?.difficulty || 3) * 2);
+                const bScore = (bForm * 10) + (a.total_points / 10) - ((b.fixture?.difficulty || 3) * 2);
                 return bScore - aScore;
             })
             .slice(0, limit);
@@ -219,6 +232,55 @@ class FPLHtmlDataService {
             .slice(0, 5);
 
         return { transfersIn, transfersOut };
+    }
+
+    // Get FDR (Fixture Difficulty Rating) for a team
+    async getTeamFDR(teamId, gameweeks = 5) {
+        const fixtures = await this.getFixtures();
+        const currentGW = await this.getCurrentGameweek();
+        
+        if (!currentGW) return [];
+        
+        const teamFixtures = fixtures
+            .filter(f => (f.team_h === teamId || f.team_a === teamId) && 
+                        f.event >= currentGW.id && 
+                        f.event < currentGW.id + gameweeks)
+            .map(f => {
+                const isHome = f.team_h === teamId;
+                return {
+                    event: f.event,
+                    opponent: isHome ? f.team_a : f.team_h,
+                    is_home: isHome,
+                    difficulty: isHome ? f.team_h_difficulty : f.team_a_difficulty,
+                    kickoff_time: f.kickoff_time
+                };
+            });
+        
+        return teamFixtures;
+    }
+
+    // Get all teams' FDR summary
+    async getAllTeamsFDR(gameweeks = 5) {
+        const bootstrap = await this.getBootstrapData();
+        const teams = bootstrap.teams || this.getTeamsData();
+        
+        const teamsFDR = await Promise.all(teams.map(async (team) => {
+            const fixtures = await this.getTeamFDR(team.id, gameweeks);
+            const avgDifficulty = fixtures.length > 0 
+                ? fixtures.reduce((sum, f) => sum + f.difficulty, 0) / fixtures.length 
+                : 3;
+            
+            return {
+                team_id: team.id,
+                team_name: team.name,
+                team_short: team.short_name,
+                fixtures: fixtures,
+                avg_difficulty: avgDifficulty,
+                total_fixtures: fixtures.length
+            };
+        }));
+        
+        return teamsFDR.sort((a, b) => a.avg_difficulty - b.avg_difficulty);
     }
 
     // Utility methods
