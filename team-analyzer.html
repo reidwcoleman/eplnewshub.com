@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="styles.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
     <script src="./fpl-api.js"></script>
+    <script src="./fpl-fast-loader.js"></script>
     
     <style>
         .analyzer-container {
@@ -779,6 +780,12 @@
             }
 
             async initialize() {
+                // Show skeleton loaders immediately
+                if (window.fplFastLoader) {
+                    window.fplFastLoader.showSkeleton('team1-grid', 'teams');
+                    window.fplFastLoader.showSkeleton('team2-grid', 'teams');
+                }
+                
                 try {
                     const bootstrap = await this.fplService.getBootstrapData();
                     this.teams = bootstrap.teams;
