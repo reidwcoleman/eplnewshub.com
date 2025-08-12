@@ -5,16 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
     
     if (isMobile) {
-        // Remove floating FPL button on mobile
-        const floatingButton = document.getElementById('floating-fpl-button');
-        if (floatingButton) {
-            floatingButton.remove();
-        }
-        
-        // Remove any other floating elements that might cause issues
-        document.querySelectorAll('.floating-fpl-button, .floating-fpl-btn, [class*="floating"]').forEach(el => {
-            el.style.display = 'none';
-        });
+        // Mobile device optimizations
         
         // Disable sticky header on mobile to prevent scrolling issues
         const siteHeader = document.querySelector('.site-header');
@@ -172,18 +163,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (nowMobile) {
                 // Apply mobile optimizations
-                const floatingButton = document.getElementById('floating-fpl-button');
-                if (floatingButton) {
-                    floatingButton.style.display = 'none';
-                }
                 
                 document.body.classList.add('mobile-device');
             } else {
                 // Remove mobile optimizations for desktop
-                const floatingButton = document.getElementById('floating-fpl-button');
-                if (floatingButton) {
-                    floatingButton.style.display = '';
-                }
                 
                 document.body.classList.remove('mobile-device');
             }
@@ -203,10 +186,6 @@ mobileStyles.textContent = `
         transform: scale(0.98);
     }
     
-    .mobile-device .floating-fpl-button,
-    .mobile-device .floating-fpl-btn {
-        display: none !important;
-    }
     
     .mobile-device .site-header {
         position: relative !important;
