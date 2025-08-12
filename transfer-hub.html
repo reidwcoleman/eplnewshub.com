@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPL Transfer Hub - Latest Premier League Transfers | EPL News Hub</title>
+    <meta name="description" content="Track all the latest Premier League transfers, rumors, and confirmed deals. Get real-time updates on player movements across all EPL clubs.">
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        .transfer-hub-hero {
+            background: linear-gradient(135deg, #1a0033 0%, #2d0a4e 50%, #1a0033 100%);
+            padding: 80px 20px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .transfer-hub-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveGrid 20s linear infinite;
+        }
+        
+        @keyframes moveGrid {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .hero-title {
+            font-size: 3.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.2); }
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2em;
+            color: #e0e0e0;
+            margin-bottom: 30px;
+        }
+        
+        .transfer-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px 30px;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ffd700;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #b0b0b0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .transfer-controls {
+            max-width: 1200px;
+            margin: 40px auto 20px;
+            padding: 0 20px;
+        }
+        
+        .search-filter-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #3d1e6d;
+            border-radius: 50px;
+            background: #1a1a2e;
+            color: white;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .search-box i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ffd700;
+            font-size: 1.2em;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 12px 25px;
+            border: 2px solid #3d1e6d;
+            background: #1a1a2e;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .filter-btn:hover {
+            background: #3d1e6d;
+            transform: translateY(-2px);
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1a1a2e;
+            border-color: #ffd700;
+        }
+        
+        .transfer-categories {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+        
+        .category-tab {
+            padding: 15px 35px;
+            background: linear-gradient(135deg, #2d0a4e, #3d1e6d);
+            border: 2px solid #ffd700;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .category-tab:hover::before {
+            left: 100%;
+        }
+        
+        .category-tab.active {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1a0033;
+            transform: scale(1.05);
+        }
+        
+        .transfers-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .transfer-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .transfer-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .transfers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .transfer-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d1b3d 100%);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .transfer-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700, #ffed4e);
+            border-radius: 20px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .transfer-card:hover::before {
+            opacity: 1;
+        }
+        
+        .transfer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .transfer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+        
+        .transfer-clubs {
+            flex: 1;
+        }
+        
+        .club-badge {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .transfer-arrow {
+            color: #ffd700;
+            margin: 0 15px;
+            font-size: 1.2em;
+        }
+        
+        .transfer-fee {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1a0033;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .player-info {
+            margin-bottom: 15px;
+        }
+        
+        .player-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+        
+        .player-position {
+            color: #b0b0b0;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .transfer-details {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .transfer-date {
+            color: #808080;
+            font-size: 0.9em;
+        }
+        
+        .transfer-status {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-confirmed {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+        
+        .status-rumor {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            border: 1px solid #ff9800;
+        }
+        
+        .status-medical {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+            border: 1px solid #2196f3;
+        }
+        
+        .load-more-btn {
+            display: block;
+            margin: 40px auto;
+            padding: 15px 50px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1a0033;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .load-more-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #808080;
+        }
+        
+        .no-results i {
+            font-size: 4em;
+            color: #3d1e6d;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5em;
+            }
+            
+            .transfers-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .transfer-stats {
+                gap: 20px;
+            }
+            
+            .stat-card {
+                padding: 15px 20px;
+            }
+            
+            .category-tab {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-logo">
+                <img src="favicon.png" alt="EPL News Hub" class="logo-img">
+                EPL News Hub
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/transfer-hub.html" class="active">Transfer Hub</a></li>
+                <li><a href="/match-center.html">Fixtures</a></li>
+                <li><a href="/standings.html">Standings</a></li>
+                <li><a href="/statistics.html">Statistics</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="transfer-hub-hero">
+        <div class="hero-content">
+            <h1 class="hero-title">EPL Transfer Hub</h1>
+            <p class="hero-subtitle">Track every move in the Premier League transfer market</p>
+            <div class="transfer-stats">
+                <div class="stat-card">
+                    <span class="stat-number">47</span>
+                    <span class="stat-label">Completed Deals</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">£1.2B</span>
+                    <span class="stat-label">Total Spent</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">23</span>
+                    <span class="stat-label">Today's Updates</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="transfer-controls">
+        <div class="search-filter-container">
+            <div class="search-box">
+                <input type="text" id="transfer-search" placeholder="Search players, clubs, or agents...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Clubs</button>
+                <button class="filter-btn" data-filter="top6">Top 6</button>
+                <button class="filter-btn" data-filter="incoming">Incoming</button>
+                <button class="filter-btn" data-filter="outgoing">Outgoing</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="transfer-categories">
+        <button class="category-tab active" data-category="confirmed">
+            <i class="fas fa-check-circle"></i> Confirmed
+        </button>
+        <button class="category-tab" data-category="rumors">
+            <i class="fas fa-comment-dots"></i> Rumors
+        </button>
+        <button class="category-tab" data-category="done-deals">
+            <i class="fas fa-handshake"></i> Done Deals
+        </button>
+        <button class="category-tab" data-category="medical">
+            <i class="fas fa-stethoscope"></i> Medical
+        </button>
+    </div>
+
+    <div class="transfers-container">
+        <div id="confirmed" class="transfer-section active">
+            <div class="transfers-grid">
+                <div class="transfer-card">
+                    <div class="transfer-header">
+                        <div class="transfer-clubs">
+                            <span class="club-badge">🔴</span>
+                            <span>Arsenal</span>
+                            <span class="transfer-arrow">→</span>
+                            <span class="club-badge">⚪</span>
+                            <span>Real Madrid</span>
+                        </div>
+                        <span class="transfer-fee">£105M</span>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">Declan Rice</div>
+                        <div class="player-position">Defensive Midfielder</div>
+                    </div>
+                    <div class="transfer-details">
+                        <span class="transfer-date">January 15, 2025</span>
+                        <span class="transfer-status status-confirmed">Confirmed</span>
+                    </div>
+                </div>
+
+                <div class="transfer-card">
+                    <div class="transfer-header">
+                        <div class="transfer-clubs">
+                            <span class="club-badge">🔵</span>
+                            <span>Chelsea</span>
+                            <span class="transfer-arrow">→</span>
+                            <span class="club-badge">🔴</span>
+                            <span>Man United</span>
+                        </div>
+                        <span class="transfer-fee">£85M</span>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">Mason Mount</div>
+                        <div class="player-position">Attacking Midfielder</div>
+                    </div>
+                    <div class="transfer-details">
+                        <span class="transfer-date">January 14, 2025</span>
+                        <span class="transfer-status status-confirmed">Confirmed</span>
+                    </div>
+                </div>
+
+                <div class="transfer-card">
+                    <div class="transfer-header">
+                        <div class="transfer-clubs">
+                            <span class="club-badge">⚪</span>
+                            <span>Tottenham</span>
+                            <span class="transfer-arrow">→</span>
+                            <span class="club-badge">🔵</span>
+                            <span>Man City</span>
+                        </div>
+                        <span class="transfer-fee">£120M</span>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">Harry Kane</div>
+                        <div class="player-position">Striker</div>
+                    </div>
+                    <div class="transfer-details">
+                        <span class="transfer-date">January 13, 2025</span>
+                        <span class="transfer-status status-confirmed">Confirmed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="rumors" class="transfer-section">
+            <div class="transfers-grid">
+                <div class="transfer-card">
+                    <div class="transfer-header">
+                        <div class="transfer-clubs">
+                            <span class="club-badge">🔴</span>
+                            <span>Liverpool</span>
+                            <span class="transfer-arrow">←</span>
+                            <span class="club-badge">⚫</span>
+                            <span>Real Madrid</span>
+                        </div>
+                        <span class="transfer-fee">£150M</span>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">Jude Bellingham</div>
+                        <div class="player-position">Central Midfielder</div>
+                    </div>
+                    <div class="transfer-details">
+                        <span class="transfer-date">Rumored</span>
+                        <span class="transfer-status status-rumor">Negotiating</span>
+                    </div>
+                </div>
+
+                <div class="transfer-card">
+                    <div class="transfer-header">
+                        <div class="transfer-clubs">
+                            <span class="club-badge">🔵</span>
+                            <span>Man City</span>
+                            <span class="transfer-arrow">←</span>
+                            <span class="club-badge">🟡</span>
+                            <span>Dortmund</span>
+                        </div>
+                        <span class="transfer-fee">£90M</span>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">Erling Haaland</div>
+                        <div class="player-position">Striker</div>
+                    </div>
+                    <div class="transfer-details">
+                        <span class="transfer-date">Rumored</span>
+                        <span class="transfer-status status-rumor">Interest</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="done-deals" class="transfer-section">
+            <div class="transfers-grid">
+                <div class="transfer-card">
+                    <div class="transfer-header">
+                        <div class="transfer-clubs">
+                            <span class="club-badge">🔴</span>
+                            <span>Arsenal</span>
+                            <span class="transfer-arrow">←</span>
+                            <span class="club-badge">🔵</span>
+                            <span>Brighton</span>
+                        </div>
+                        <span class="transfer-fee">£65M</span>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">Moises Caicedo</div>
+                        <div class="player-position">Defensive Midfielder</div>
+                    </div>
+                    <div class="transfer-details">
+                        <span class="transfer-date">January 10, 2025</span>
+                        <span class="transfer-status status-confirmed">Completed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="medical" class="transfer-section">
+            <div class="transfers-grid">
+                <div class="transfer-card">
+                    <div class="transfer-header">
+                        <div class="transfer-clubs">
+                            <span class="club-badge">🔵</span>
+                            <span>Chelsea</span>
+                            <span class="transfer-arrow">←</span>
+                            <span class="club-badge">🟢</span>
+                            <span>Sporting CP</span>
+                        </div>
+                        <span class="transfer-fee">£60M</span>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">Pedro Gonçalves</div>
+                        <div class="player-position">Attacking Midfielder</div>
+                    </div>
+                    <div class="transfer-details">
+                        <span class="transfer-date">Today</span>
+                        <span class="transfer-status status-medical">Medical</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="load-more-btn">Load More Transfers</button>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>EPL News Hub</h3>
+                <p>Your premier source for EPL transfer news and updates</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/transfer-hub.html">Transfer Hub</a></li>
+                    <li><a href="/match-center.html">Fixtures</a></li>
+                    <li><a href="/statistics.html">Stats</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 EPL News Hub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Category tabs
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            const transferSections = document.querySelectorAll('.transfer-section');
+            
+            categoryTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    
+                    // Update active tab
+                    categoryTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding section
+                    transferSections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === category) {
+                            section.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Filter buttons
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Here you would implement actual filtering logic
+                    const filter = this.dataset.filter;
+                    console.log('Filtering by:', filter);
+                });
+            });
+            
+            // Search functionality
+            const searchInput = document.getElementById('transfer-search');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const transferCards = document.querySelectorAll('.transfer-card');
+                
+                transferCards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Load more button
+            const loadMoreBtn = document.querySelector('.load-more-btn');
+            
+            loadMoreBtn.addEventListener('click', function() {
+                // Here you would load more transfers
+                this.textContent = 'Loading...';
+                setTimeout(() => {
+                    this.textContent = 'Load More Transfers';
+                    // Add more transfer cards here
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>
