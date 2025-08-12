@@ -311,18 +311,18 @@ class MembershipPopup {
     }
 
     setupEventListeners() {
-        // Close button
+        // Close button - redirect to homepage
         const closeBtn = this.modal.querySelector('.membership-modal-close');
-        closeBtn.addEventListener('click', () => this.close());
+        closeBtn.addEventListener('click', () => this.closeAndRedirect());
 
-        // Overlay click to close
+        // Overlay click - redirect to homepage
         const overlay = this.modal.querySelector('.membership-modal-overlay');
-        overlay.addEventListener('click', () => this.close());
+        overlay.addEventListener('click', () => this.closeAndRedirect());
 
-        // ESC key to close
+        // ESC key - redirect to homepage
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.modal.classList.contains('active')) {
-                this.close();
+                this.closeAndRedirect();
             }
         });
     }
@@ -345,6 +345,14 @@ class MembershipPopup {
             this.modal.classList.remove('active');
             document.body.style.overflow = ''; // Restore scrolling
         }
+    }
+
+    closeAndRedirect() {
+        // Close the modal first
+        this.close();
+        
+        // Redirect to homepage
+        window.location.href = '/';
     }
 
     async selectPlan(planType, priceId) {
