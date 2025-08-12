@@ -124,24 +124,6 @@
     <!-- Mobile Sidebar Overlay -->
     <div id="mobile-sidebar-overlay" class="mobile-sidebar-overlay" onclick="toggleMobileMenu()"></div>
     
-    <!-- Account Widget (appears on all pages) -->
-    <div id="header-account-widget" class="header-account-widget hidden">
-        <div class="widget-content">
-            <div class="account-header-info">
-                <div class="user-avatar-small" id="header-user-avatar">👤</div>
-                <div class="user-details">
-                    <span id="header-user-name" class="user-name">Welcome</span>
-                    <span id="header-membership-badge" class="membership-badge">Free</span>
-                </div>
-            </div>
-            <div class="account-quick-actions">
-                <a href="/account.html" class="quick-action-btn">⚙️ Account</a>
-                <a href="/premium.html" class="quick-action-btn premium-content">🏆 Premium Content</a>
-                <a href="/membership.html" class="quick-action-btn upgrade">👑 Upgrade</a>
-                <button onclick="headerSignOut()" class="quick-action-btn logout">🚪 Sign Out</button>
-            </div>
-        </div>
-    </div>
 </header>
 
 <script>
@@ -259,89 +241,15 @@
     }
 
     function showAdFreeIndicator() {
-        // Add a subtle ad-free indicator to the page
-        const adFreeIndicator = document.createElement('div');
-        adFreeIndicator.innerHTML = '🚫 Ad-Free Premium Experience';
-        adFreeIndicator.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            color: #155724;
-            padding: 8px 16px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 9999;
-            border: 1px solid #c3e6cb;
-            border-top: none;
-        `;
-        
-        document.body.appendChild(adFreeIndicator);
-        
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-            adFreeIndicator.style.transition = 'opacity 0.5s ease';
-            adFreeIndicator.style.opacity = '0';
-            setTimeout(() => {
-                if (adFreeIndicator.parentNode) {
-                    adFreeIndicator.parentNode.removeChild(adFreeIndicator);
-                }
-            }, 500);
-        }, 5000);
+        // Ad-free indicator popup removed
     }
 
     function showHeaderAccountWidget(user) {
-        const widget = document.getElementById('header-account-widget');
-        const userName = document.getElementById('header-user-name');
-        const userAvatar = document.getElementById('header-user-avatar');
-        const membershipBadge = document.getElementById('header-membership-badge');
-        
-        if (widget && userName && userAvatar && membershipBadge) {
-            // Update user info
-            const displayName = user.firstName || user.displayName || user.email?.split('@')[0] || 'User';
-            userName.textContent = displayName;
-            
-            // Update avatar
-            const initials = displayName.charAt(0).toUpperCase();
-            userAvatar.textContent = initials;
-            
-            // Update membership status
-            const membershipData = localStorage.getItem('membership') || localStorage.getItem('eplMembership');
-            if (membershipData) {
-                try {
-                    const membership = JSON.parse(membershipData);
-                    if (membership.plan && membership.plan !== 'free') {
-                        membershipBadge.textContent = '👑 Premium';
-                        membershipBadge.className = 'membership-badge premium';
-                        
-                        // Hide upgrade button for premium members
-                        const upgradeBtn = widget.querySelector('.quick-action-btn.upgrade');
-                        if (upgradeBtn) upgradeBtn.style.display = 'none';
-                    } else {
-                        membershipBadge.textContent = 'Free';
-                        membershipBadge.className = 'membership-badge free';
-                    }
-                } catch (error) {
-                    membershipBadge.textContent = 'Free';
-                    membershipBadge.className = 'membership-badge free';
-                }
-            } else {
-                membershipBadge.textContent = 'Free';
-                membershipBadge.className = 'membership-badge free';
-            }
-            
-            widget.classList.remove('hidden');
-        }
+        // Account widget popup removed
     }
 
     function hideHeaderAccountWidget() {
-        const widget = document.getElementById('header-account-widget');
-        if (widget) {
-            widget.classList.add('hidden');
-        }
+        // Account widget popup removed
     }
 
     function headerSignOut() {
