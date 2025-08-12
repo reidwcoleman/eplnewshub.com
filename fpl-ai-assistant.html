@@ -21,6 +21,30 @@
     <link rel="stylesheet" href="fpl-mobile-optimize.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
     <script src="./fpl-html-data-service.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="/membership-popup.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyOey0l27yQP68oybpoodMVcvayhIHt2I",
+            authDomain: "epl-news-hub-94c09.firebaseapp.com",
+            projectId: "epl-news-hub-94c09",
+            storageBucket: "epl-news-hub-94c09.firebasestorage.app",
+            messagingSenderId: "674703933278",
+            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf",
+            measurementId: "G-ECM6BCQCS8"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        window.auth = auth;
+        window.onAuthStateChanged = onAuthStateChanged;
+    </script>
     
     <style>
         .ai-container {
@@ -752,16 +776,16 @@
                 localStorage.setItem('fpl-ai-memory', JSON.stringify(this.conversationMemory));
             }
 
-            checkMessageLimit() {
-                // Get current message count
-                const messageCount = parseInt(localStorage.getItem('fpl-ai-message-count') || '0');
+            async checkMessageLimit() {
+                // Check if user has premium membership
+                const membershipPlan = await window.membershipPopup?.checkMembership();
                 
-                // Check if user has premium access (you can modify this logic based on your membership system)
-                const hasPremium = localStorage.getItem('fpl-ai-premium') === 'true';
-                
-                if (hasPremium) {
+                if (membershipPlan) {
                     return true; // Premium users have unlimited messages
                 }
+                
+                // Get current message count for free users
+                const messageCount = parseInt(localStorage.getItem('fpl-ai-message-count') || '0');
                 
                 // Free users limited to 5 messages
                 if (messageCount >= 5) {
@@ -774,9 +798,14 @@
             }
 
             showUpgradePrompt() {
-                const upgradeMessage = `🚀 **Upgrade to Premium for Unlimited AI Assistance!**\n\nYou've used your 5 free AI messages. Premium members get:\n\n✅ **Unlimited AI conversations**\n✅ **Advanced FPL analytics**\n✅ **Exclusive transfer insights**\n✅ **Priority captain recommendations**\n\n[**Upgrade to Premium →**](/premium.html)`;
+                const upgradeMessage = `🚀 **Upgrade to Premium for Unlimited AI Assistance!**\n\nYou've used your 5 free AI messages. Premium members get:\n\n✅ **Unlimited AI conversations**\n✅ **Advanced FPL analytics**\n✅ **Exclusive transfer insights**\n✅ **Priority captain recommendations**`;
                 
                 this.addMessage(upgradeMessage);
+                
+                // Show membership popup instead of redirecting
+                setTimeout(() => {
+                    window.showMembershipPopup('FPL AI Assistant');
+                }, 500);
                 
                 // Disable the input field
                 const input = document.getElementById('chat-input');
@@ -2739,7 +2768,8 @@
                 console.log('Message context:', messageContext);
 
                 // Check message limit for free users
-                if (!this.checkMessageLimit()) {
+                const hasAccess = await this.checkMessageLimit();
+                if (!hasAccess) {
                     this.showUpgradePrompt();
                     return;
                 }

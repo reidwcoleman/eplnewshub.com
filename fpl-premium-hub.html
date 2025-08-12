@@ -72,6 +72,31 @@
     <link rel="stylesheet" href="fpl-mobile-optimize.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
     
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyOey0l27yQP68oybpoodMVcvayhIHt2I",
+            authDomain: "epl-news-hub-94c09.firebaseapp.com",
+            projectId: "epl-news-hub-94c09",
+            storageBucket: "epl-news-hub-94c09.firebasestorage.app",
+            messagingSenderId: "674703933278",
+            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf",
+            measurementId: "G-ECM6BCQCS8"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        window.auth = auth;
+        window.onAuthStateChanged = onAuthStateChanged;
+    </script>
+    
+    <!-- Stripe SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
     <style>
         .fpl-hub-container {
             max-width: 1400px;
@@ -690,7 +715,7 @@
                             <li>Transfer Simulator Pro</li>
                             <li>Advanced Player Analytics</li>
                         </ul>
-                        <a href="/membership.html" class="tool-cta">Get Starter</a>
+                        <button class="tool-cta" onclick="selectPlan('starter', 'price_1RoaG1R10Q6bz3BHC2hDRKLv')">Get Starter</button>
                     </div>
                     
                     <div class="combo-card" style="border: 3px solid #00ff87; transform: scale(1.05);">
@@ -712,7 +737,7 @@
                             <li>Advanced FPL algorithms</li>
                             <li>Exclusive FPL Team of the Week</li>
                         </ul>
-                        <a href="/membership.html" class="tool-cta premium">Go Pro</a>
+                        <button class="tool-cta premium" onclick="selectPlan('pro', 'price_1Rox4aR10Q6bz3BHxohJtpcO')">Go Pro</button>
                     </div>
                     
                     <div class="combo-card">
@@ -722,14 +747,15 @@
                             <div style="padding: 15px; background: #f8f8f8; border-radius: 8px; margin-bottom: 10px;">
                                 <strong>Starter Annual:</strong><br>
                                 $20/year (save $4)
+                                <button class="tool-cta" style="margin-top: 10px; padding: 10px 20px;" onclick="selectPlan('starter-annual', 'price_1RoxK6R10Q6bz3BHdZkxAn3p')">Get Annual</button>
                             </div>
                             <div style="padding: 15px; background: linear-gradient(135deg, #f0fff0, #e8f5e8); border-radius: 8px;">
                                 <strong>Pro Annual:</strong><br>
                                 $70/year (save $14)
+                                <button class="tool-cta premium" style="margin-top: 10px; padding: 10px 20px;" onclick="selectPlan('pro-annual', 'price_1RoxmQR10Q6bz3BHQKy7G89g')">Get Annual</button>
                             </div>
                         </div>
                         <p style="font-size: 0.9rem; color: #666;">Get 2 months FREE when you pay annually!</p>
-                        <a href="/membership.html" class="tool-cta">View Annual Plans</a>
                     </div>
                 </div>
             </div>
@@ -777,5 +803,94 @@
     <div class="footer" include="./footer.html"></div>
     <script src="./index.js"></script>
     <script src="./premium-access-control.js"></script>
+    
+    <script>
+        // Initialize Stripe with live publishable key
+        const stripe = Stripe('pk_live_51RSKcBR10Q6bz3BHDJ7b0hniY7eCnnakbMNBlpEVyOVWDiA8A0MI22YMaaSpGaAMIv8NnaK6bLfGdNM0Xt8rpK1200itJbMZNm');
+        
+        // Make stripe accessible globally
+        window.stripe = stripe;
+        
+        async function selectPlan(planType, priceId) {
+            console.log('selectPlan called with:', { planType, priceId });
+            
+            if (!window.auth || !window.auth.currentUser) {
+                // Enhanced authentication prompt
+                const userChoice = confirm('You need to create an account or sign in to purchase a membership. Click OK to create an account, or Cancel to sign in with an existing account.');
+                
+                if (userChoice) {
+                    // User chose to create account
+                    window.location.href = '/create-account.html';
+                } else {
+                    // User chose to sign in
+                    window.location.href = '/signin.html';
+                }
+                return;
+            }
+            
+            // Show loading state
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Processing...';
+            button.disabled = true;
+            
+            try {
+                // For all subscription plans, redirect to Stripe Checkout
+                if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv' || priceId === 'price_1Rox4aR10Q6bz3BHxohJtpcO' || priceId === 'price_1RoxK6R10Q6bz3BHdZkxAn3p' || priceId === 'price_1RoxmQR10Q6bz3BHQKy7G89g') {
+                    let planName;
+                    if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv') {
+                        planName = 'Starter';
+                    } else if (priceId === 'price_1Rox4aR10Q6bz3BHxohJtpcO') {
+                        planName = 'Pro';
+                    } else if (priceId === 'price_1RoxK6R10Q6bz3BHdZkxAn3p') {
+                        planName = 'Starter Annual';
+                    } else if (priceId === 'price_1RoxmQR10Q6bz3BHQKy7G89g') {
+                        planName = 'Pro Annual';
+                    }
+                    console.log(`Starting Stripe checkout for ${planName} plan`);
+                    
+                    // Check if stripe is loaded
+                    if (!window.stripe) {
+                        throw new Error('Stripe not loaded');
+                    }
+                    
+                    const checkoutOptions = {
+                        lineItems: [{
+                            price: priceId,
+                            quantity: 1,
+                        }],
+                        mode: 'subscription',
+                        successUrl: window.location.protocol + '//' + window.location.host + `/membership-success.html?plan=${planType}&email=${encodeURIComponent(window.auth.currentUser.email)}&session_id={CHECKOUT_SESSION_ID}`,
+                        cancelUrl: window.location.protocol + '//' + window.location.host + '/fpl-premium-hub.html',
+                        customerEmail: window.auth.currentUser.email,
+                        clientReferenceId: window.auth.currentUser.uid, // Firebase user ID for tracking
+                        metadata: {
+                            priceId: priceId,
+                            planType: planType
+                        }
+                    };
+                    
+                    console.log('Checkout options:', checkoutOptions);
+                    
+                    const result = await stripe.redirectToCheckout(checkoutOptions);
+                    
+                    if (result.error) {
+                        console.error('Stripe checkout error:', result.error);
+                        alert('Payment processing failed: ' + result.error.message);
+                    }
+                } else {
+                    // For other plans that don't have price IDs yet
+                    alert('This plan is coming soon! Please contact support for early access.');
+                }
+                
+            } catch (error) {
+                console.error('Error in selectPlan:', error);
+                alert('Payment processing failed. Please try again. Error: ' + error.message);
+            } finally {
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+    </script>
 </body>
 </html>
