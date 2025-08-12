@@ -353,24 +353,46 @@ class PremiumAccessControl {
             const href = link.getAttribute('href');
             const page = href ? href.split('/').pop() : '';
             
-            if (this.premiumFeatures.includes(page)) {
-                // Check if badge doesn't already exist
-                if (!card.querySelector('.premium-indicator')) {
+            // Check if badge doesn't already exist
+            if (!card.querySelector('.premium-indicator')) {
+                let badgeContent = '';
+                let badgeStyle = '';
+                
+                if (this.proOnlyFeatures.includes(page)) {
+                    badgeContent = '🏆 PRO';
+                    badgeStyle = `
+                        background: linear-gradient(135deg, #6f42c1, #20c997);
+                        color: white;
+                    `;
+                } else if (this.starterPlusFeatures.includes(page)) {
+                    badgeContent = '⚽ STARTER+';
+                    badgeStyle = `
+                        background: linear-gradient(135deg, #f39c12, #e67e22);
+                        color: white;
+                    `;
+                } else if (page === this.aiAssistantFeature) {
+                    badgeContent = '🤖 LIMITED FREE';
+                    badgeStyle = `
+                        background: linear-gradient(135deg, #3498db, #2980b9);
+                        color: white;
+                    `;
+                }
+                
+                if (badgeContent) {
                     const badge = document.createElement('div');
                     badge.className = 'premium-indicator';
                     badge.style.cssText = `
                         position: absolute;
                         top: 10px;
                         right: 10px;
-                        background: linear-gradient(135deg, #ffd700, #ffed4e);
-                        color: #37003c;
                         padding: 5px 12px;
                         border-radius: 15px;
                         font-size: 0.8rem;
                         font-weight: 700;
                         z-index: 10;
+                        ${badgeStyle}
                     `;
-                    badge.innerHTML = '🔒 PRO';
+                    badge.innerHTML = badgeContent;
                     card.style.position = 'relative';
                     card.appendChild(badge);
                 }
