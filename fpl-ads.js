@@ -120,7 +120,7 @@
         `;
     }
 
-    // Close big banner function
+    // Close big banner function - redirects to homepage
     window.closeBigBanner = function() {
         const popup = document.getElementById('fpl-big-banner-popup');
         if (popup) {
@@ -129,6 +129,8 @@
                 popup.remove();
                 // Re-enable body scroll
                 document.body.style.overflow = '';
+                // Redirect to homepage
+                window.location.href = '/';
             }, 300);
             // Set cookie to not show again for 24 hours
             document.cookie = "fplBannerClosed=true; max-age=86400; path=/";

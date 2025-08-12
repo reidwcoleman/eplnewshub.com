@@ -3,9 +3,11 @@ function showPopup() {
     document.getElementById('popupForm').style.display = 'block';
 }
 
-// Close the popup form
+// Close the popup form - redirects to homepage
 function closePopup() {
     document.getElementById('popupForm').style.display = 'none';
+    // Redirect to homepage
+    window.location.href = '/';
 }
 
 // Show popup on page load - DISABLED

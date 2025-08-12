@@ -44,6 +44,8 @@ function NewsletterPopup() {
 
   const closePopup = () => {
     setIsVisible(false)
+    // Redirect to homepage
+    window.location.href = '/'
   }
 
   if (!isVisible) return null
