@@ -257,17 +257,29 @@ class PremiumAccessControl {
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
         
-        // Add close handler
+        // Add close handler - redirect to homepage
         document.getElementById('close-premium-overlay').onclick = () => {
             document.body.removeChild(overlay);
+            window.location.href = '/';
         };
         
-        // Close on overlay click
+        // Close on overlay click - redirect to homepage
         overlay.onclick = (e) => {
             if (e.target === overlay) {
                 document.body.removeChild(overlay);
+                window.location.href = '/';
             }
         };
+        
+        // Close on ESC key - redirect to homepage
+        const escHandler = (e) => {
+            if (e.key === 'Escape') {
+                document.body.removeChild(overlay);
+                document.removeEventListener('keydown', escHandler);
+                window.location.href = '/';
+            }
+        };
+        document.addEventListener('keydown', escHandler);
     }
 
     /**
