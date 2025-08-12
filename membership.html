@@ -45,6 +45,9 @@
     
     <!-- Stripe SDK -->
     <script src="https://js.stripe.com/v3/"></script>
+    
+    <!-- Development Configuration -->
+    <script src="/dev-config.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -660,8 +663,18 @@
     </style>
     
     <script>
-        // Initialize Stripe with live publishable key
-        const stripe = Stripe('pk_live_51RSKcBR10Q6bz3BHDJ7b0hniY7eCnnakbMNBlpEVyOVWDiA8A0MI22YMaaSpGaAMIv8NnaK6bLfGdNM0Xt8rpK1200itJbMZNm');
+        // Initialize Stripe with appropriate key based on environment
+        let stripe;
+        
+        // Wait for dev config to load
+        if (window.devConfig) {
+            const config = window.devConfig.getConfig();
+            stripe = Stripe(config.stripe.publishableKey);
+            window.devConfig.log('Stripe initialized with:', config.isDevelopment ? 'TEST' : 'LIVE', 'keys');
+        } else {
+            // Fallback to live key if dev config not loaded
+            stripe = Stripe('pk_live_51RSKcBR10Q6bz3BHDJ7b0hniY7eCnnakbMNBlpEVyOVWDiA8A0MI22YMaaSpGaAMIv8NnaK6bLfGdNM0Xt8rpK1200itJbMZNm');
+        }
         
         // Make stripe accessible globally for debugging
         window.stripe = stripe;
@@ -726,6 +739,23 @@
         
         async function selectPlan(planType, priceId) {
             console.log('selectPlan called with:', { planType, priceId });
+            
+            // Use test price IDs if in development mode
+            if (window.devConfig && window.devConfig.getConfig().isDevelopment) {
+                console.log('Development mode detected - using test price IDs');
+                const testPrices = {
+                    'price_1RoaG1R10Q6bz3BHC2hDRKLv': 'price_test_starter_monthly',
+                    'price_1Rox4aR10Q6bz3BHxohJtpcO': 'price_test_pro_monthly',
+                    'price_1RoxK6R10Q6bz3BHdZkxAn3p': 'price_test_starter_annual',
+                    'price_1RoxmQR10Q6bz3BHQKy7G89g': 'price_test_pro_annual'
+                };
+                
+                // For development, create test price IDs on the fly
+                // In production, you'd have actual test price IDs from Stripe
+                priceId = testPrices[priceId] || 'price_test_' + planType;
+                
+                window.devConfig.log('Using test price ID:', priceId);
+            }
             
             if (!window.auth || !window.auth.currentUser) {
                 // Enhanced authentication prompt

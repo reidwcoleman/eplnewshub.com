@@ -992,10 +992,50 @@
         class BudgetOptimizer {
             constructor() {
                 this.fplService = new FPLHtmlDataService();
-                this.advancedOptimizer = new AdvancedBudgetOptimizer();
-                this.fixtureService = new FixtureDifficultyService();
-                this.squadManager = new SquadManager();
-                this.differentialAnalyzer = new DifferentialAnalyzer();
+                
+                // Initialize advanced features only if available
+                try {
+                    if (typeof AdvancedBudgetOptimizer !== 'undefined') {
+                        this.advancedOptimizer = new AdvancedBudgetOptimizer();
+                    } else {
+                        console.warn('Advanced optimizer not available, using standard optimization');
+                        this.advancedOptimizer = null;
+                    }
+                } catch (e) {
+                    console.warn('Could not initialize advanced optimizer:', e);
+                    this.advancedOptimizer = null;
+                }
+                
+                try {
+                    if (typeof FixtureDifficultyService !== 'undefined') {
+                        this.fixtureService = new FixtureDifficultyService();
+                    } else {
+                        this.fixtureService = null;
+                    }
+                } catch (e) {
+                    this.fixtureService = null;
+                }
+                
+                try {
+                    if (typeof SquadManager !== 'undefined') {
+                        this.squadManager = new SquadManager();
+                    } else {
+                        this.squadManager = null;
+                    }
+                } catch (e) {
+                    this.squadManager = null;
+                }
+                
+                try {
+                    if (typeof DifferentialAnalyzer !== 'undefined') {
+                        this.differentialAnalyzer = new DifferentialAnalyzer();
+                    } else {
+                        this.differentialAnalyzer = null;
+                    }
+                } catch (e) {
+                    this.differentialAnalyzer = null;
+                }
+                
                 this.gameweekPlanner = null; // Will be initialized after fixture service
                 this.selectedStrategy = 'balanced';
                 this.selectedAlgorithm = 'standard';
@@ -1018,19 +1058,33 @@
                         throw new Error('Invalid or empty data received');
                     }
                     
-                    // Initialize advanced services
-                    await this.fixtureService.loadFixtures();
-                    this.gameweekPlanner = new GameweekPlanner(this.fixtureService, this.squadManager);
-                    this.advancedOptimizer.setFixtureData(this.fixtureService.fixtureData);
+                    // Initialize advanced services if available
+                    if (this.fixtureService) {
+                        try {
+                            await this.fixtureService.loadFixtures();
+                            if (this.squadManager && typeof GameweekPlanner !== 'undefined') {
+                                this.gameweekPlanner = new GameweekPlanner(this.fixtureService, this.squadManager);
+                            }
+                            if (this.advancedOptimizer) {
+                                this.advancedOptimizer.setFixtureData(this.fixtureService.fixtureData);
+                            }
+                        } catch (e) {
+                            console.warn('Could not initialize fixture service:', e);
+                        }
+                    }
                     
                     // Set up progress callback for advanced algorithms
-                    this.advancedOptimizer.setProgressCallback((progress) => {
-                        this.updateOptimizationProgress(progress);
-                    });
+                    if (this.advancedOptimizer) {
+                        this.advancedOptimizer.setProgressCallback((progress) => {
+                            this.updateOptimizationProgress(progress);
+                        });
+                    }
                     
                     this.setupEventListeners();
                     this.updateBudgetDisplay();
-                    this.loadSavedSquads();
+                    if (this.squadManager) {
+                        this.loadSavedSquads();
+                    }
                     
                     // Auto-refresh every 2 minutes
                     setInterval(() => this.refreshData(), 2 * 60 * 1000);
@@ -1043,6 +1097,43 @@
                     this.updateBudgetDisplay();
                     this.updateLiveIndicator(false);
                 }
+            }
+            
+            generateMockPlayersForPosition(position, count = 20) {
+                const players = [];
+                const positionNames = {
+                    1: ['Goalkeeper', 'GK'],
+                    2: ['Defender', 'DEF'],
+                    3: ['Midfielder', 'MID'],
+                    4: ['Forward', 'FWD']
+                };
+                
+                for (let i = 0; i < count; i++) {
+                    const price = position === 1 ? 40 + Math.random() * 20 : // GKP: 4.0-6.0
+                                  position === 2 ? 40 + Math.random() * 40 : // DEF: 4.0-8.0
+                                  position === 3 ? 45 + Math.random() * 60 : // MID: 4.5-10.5
+                                  45 + Math.random() * 50; // FWD: 4.5-9.5
+                    
+                    players.push({
+                        id: `mock_${position}_${i}`,
+                        first_name: positionNames[position][1],
+                        second_name: `Player${i + 1}`,
+                        element_type: position,
+                        team: Math.floor(Math.random() * 20) + 1,
+                        now_cost: Math.floor(price),
+                        total_points: Math.floor(Math.random() * 150),
+                        form: (Math.random() * 10).toFixed(1),
+                        selected_by_percent: (Math.random() * 50).toFixed(1),
+                        minutes: Math.floor(Math.random() * 3000),
+                        starts: Math.floor(Math.random() * 30),
+                        expected_goals: (Math.random() * 10).toFixed(2),
+                        expected_assists: (Math.random() * 8).toFixed(2),
+                        transfers_in_event: Math.floor(Math.random() * 50000),
+                        transfers_out_event: Math.floor(Math.random() * 25000)
+                    });
+                }
+                
+                return players;
             }
             
             initializeMockData() {
@@ -1249,6 +1340,12 @@
                 if (!this.allPlayers || this.allPlayers.length === 0) {
                     console.log('No player data available, initializing mock data...');
                     this.initializeMockData();
+                    
+                    // Ensure mock data was created
+                    if (!this.allPlayers || this.allPlayers.length === 0) {
+                        alert('Failed to load player data. Please refresh the page.');
+                        return;
+                    }
                 }
 
                 document.getElementById('loading-overlay').style.display = 'flex';
@@ -1279,25 +1376,54 @@
                     const constraints = this.gatherConstraints();
                     const startTime = Date.now();
                     
+                    console.log('Starting optimization with constraints:', constraints);
+                    console.log('Players available:', this.allPlayers.length);
+                    
                     // Use selected algorithm
-                    if (this.selectedAlgorithm === 'genetic') {
-                        const squad = await this.advancedOptimizer.geneticAlgorithm(this.allPlayers, constraints);
-                        this.optimizedSquad = this.formatOptimizedSquadResult(squad, constraints);
-                    } else if (this.selectedAlgorithm === 'annealing') {
-                        const squad = await this.advancedOptimizer.simulatedAnnealing(this.allPlayers, constraints);
-                        this.optimizedSquad = this.formatOptimizedSquadResult(squad, constraints);
-                    } else if (this.selectedAlgorithm === 'hybrid') {
-                        // Run both and pick best
-                        const genetic = await this.advancedOptimizer.geneticAlgorithm(this.allPlayers, constraints);
-                        const annealing = await this.advancedOptimizer.simulatedAnnealing(this.allPlayers, constraints);
-                        const geneticFitness = this.advancedOptimizer.calculateFitness(genetic, constraints);
-                        const annealingFitness = this.advancedOptimizer.calculateFitness(annealing, constraints);
-                        const bestSquad = geneticFitness > annealingFitness ? genetic : annealing;
-                        this.optimizedSquad = this.formatOptimizedSquadResult(bestSquad, constraints);
-                    } else {
-                        // Standard optimization
+                    try {
+                        if (this.selectedAlgorithm === 'genetic' && this.advancedOptimizer) {
+                            const squad = await this.advancedOptimizer.geneticAlgorithm(this.allPlayers, constraints);
+                            this.optimizedSquad = this.formatOptimizedSquadResult(squad, constraints);
+                        } else if (this.selectedAlgorithm === 'annealing' && this.advancedOptimizer) {
+                            const squad = await this.advancedOptimizer.simulatedAnnealing(this.allPlayers, constraints);
+                            this.optimizedSquad = this.formatOptimizedSquadResult(squad, constraints);
+                        } else if (this.selectedAlgorithm === 'hybrid' && this.advancedOptimizer) {
+                            // Run both and pick best
+                            const genetic = await this.advancedOptimizer.geneticAlgorithm(this.allPlayers, constraints);
+                            const annealing = await this.advancedOptimizer.simulatedAnnealing(this.allPlayers, constraints);
+                            const geneticFitness = this.advancedOptimizer.calculateFitness(genetic, constraints);
+                            const annealingFitness = this.advancedOptimizer.calculateFitness(annealing, constraints);
+                            const bestSquad = geneticFitness > annealingFitness ? genetic : annealing;
+                            this.optimizedSquad = this.formatOptimizedSquadResult(bestSquad, constraints);
+                        } else {
+                            // Standard optimization (fallback)
+                            console.log('Using standard optimization');
+                            this.optimizedSquad = await this.generateOptimalSquad(constraints);
+                        }
+                    } catch (algoError) {
+                        console.error('Algorithm failed, using standard optimization:', algoError);
+                        // Fallback to standard optimization
                         this.optimizedSquad = await this.generateOptimalSquad(constraints);
                     }
+                    
+                    // Validate the optimized squad
+                    if (!this.optimizedSquad || !this.optimizedSquad.squad) {
+                        throw new Error('Failed to generate valid squad');
+                    }
+                    
+                    // Check if squad has players
+                    let totalPlayers = 0;
+                    Object.values(this.optimizedSquad.squad).forEach(position => {
+                        if (Array.isArray(position)) {
+                            totalPlayers += position.length;
+                        }
+                    });
+                    
+                    if (totalPlayers === 0) {
+                        throw new Error('Generated squad has no players');
+                    }
+                    
+                    console.log('Optimization successful:', this.optimizedSquad);
                     
                     // Track optimization
                     const duration = Date.now() - startTime;
@@ -1387,11 +1513,32 @@
 
             categorizePlayersByPosition() {
                 const positions = { 1: [], 2: [], 3: [], 4: [] };
+                
+                // Make sure we have players
+                if (!this.allPlayers || this.allPlayers.length === 0) {
+                    console.error('No players available for categorization');
+                    // Generate some basic mock data if needed
+                    this.initializeMockData();
+                }
+                
                 this.allPlayers.forEach(player => {
-                    if (player.total_points > 0 || player.form > 0) {
+                    // More lenient filtering - include players even with 0 points if they have other stats
+                    if (player && player.element_type >= 1 && player.element_type <= 4) {
+                        if (!positions[player.element_type]) {
+                            positions[player.element_type] = [];
+                        }
                         positions[player.element_type].push(player);
                     }
                 });
+                
+                // Ensure each position has at least some players
+                for (let pos = 1; pos <= 4; pos++) {
+                    if (!positions[pos] || positions[pos].length === 0) {
+                        console.warn(`No players found for position ${pos}, generating mock players`);
+                        positions[pos] = this.generateMockPlayersForPosition(pos, 20);
+                    }
+                }
+                
                 return positions;
             }
 
@@ -1418,25 +1565,68 @@
             }
 
             async optimizePosition(players, budget, count, constraints) {
+                // Ensure we have players to work with
+                if (!players || players.length === 0) {
+                    console.error('No players available for position optimization');
+                    return [];
+                }
+                
                 // Sort players by multiple criteria based on strategy
-                const scoredPlayers = players.map(player => ({
-                    ...player,
-                    score: this.calculatePlayerScore(player, constraints.strategy, constraints.preferences)
-                })).sort((a, b) => b.score - a.score);
+                const scoredPlayers = players.map(player => {
+                    try {
+                        return {
+                            ...player,
+                            score: this.calculatePlayerScore(player, constraints.strategy, constraints.preferences)
+                        };
+                    } catch (e) {
+                        console.warn('Error scoring player:', player, e);
+                        return { ...player, score: 0 };
+                    }
+                }).filter(p => p.score > 0).sort((a, b) => b.score - a.score);
+                
+                if (scoredPlayers.length === 0) {
+                    console.warn('No valid scored players, using unscored players');
+                    return players.slice(0, count);
+                }
 
                 // Use knapsack-style optimization
-                return this.knapsackOptimization(scoredPlayers, budget, count);
+                const result = this.knapsackOptimization(scoredPlayers, budget, count);
+                
+                // If knapsack didn't return enough players, fill with cheapest
+                if (result.length < count) {
+                    const remaining = count - result.length;
+                    const usedIds = new Set(result.map(p => p.id));
+                    const additionalPlayers = scoredPlayers
+                        .filter(p => !usedIds.has(p.id))
+                        .sort((a, b) => a.now_cost - b.now_cost)
+                        .slice(0, remaining);
+                    result.push(...additionalPlayers);
+                }
+                
+                return result;
             }
 
             calculatePlayerScore(player, strategy, preferences) {
                 let score = 0;
                 
-                // Base metrics
-                const pointsScore = player.total_points / 10;
-                const formScore = parseFloat(player.form) * 2;
-                const valueScore = (player.total_points / player.now_cost) * 100;
-                const xGIScore = (parseFloat(player.expected_goals) + parseFloat(player.expected_assists)) * 10;
-                const minutesRatio = player.minutes / (player.starts || 1) / 90; // Average minutes per start
+                // Safely parse values with defaults
+                const totalPoints = player.total_points || 0;
+                const form = parseFloat(player.form || 0);
+                const nowCost = player.now_cost || 50;
+                const minutes = player.minutes || 0;
+                const starts = player.starts || 1;
+                const expectedGoals = parseFloat(player.expected_goals || 0);
+                const expectedAssists = parseFloat(player.expected_assists || 0);
+                const selectedBy = parseFloat(player.selected_by_percent || 0);
+                const transfersIn = player.transfers_in_event || 0;
+                const transfersOut = player.transfers_out_event || 0;
+                
+                // Base metrics with safe calculations
+                const pointsScore = totalPoints / 10;
+                const formScore = form * 2;
+                const valueScore = nowCost > 0 ? (totalPoints / nowCost) * 100 : 0;
+                const xGIScore = (expectedGoals + expectedAssists) * 10;
+                const minutesRatio = starts > 0 ? minutes / starts / 90 : 0;
                 
                 // Strategy adjustments
                 switch (strategy) {
@@ -1470,22 +1660,27 @@
                         score = pointsScore * 0.35 + formScore * 0.25 + valueScore * 0.25 + xGIScore * 0.15;
                 }
 
-                // Preference adjustments
-                if (preferences.includeCaptains && player.total_points > 80) {
+                // Preference adjustments with safe checks
+                if (preferences.includeCaptains && totalPoints > 80) {
                     score *= 1.2;
                 }
-                if (preferences.avoidRotation && player.minutes < 1500) {
+                if (preferences.avoidRotation && minutes < 1500) {
                     score *= 0.8;
                 }
-                if (preferences.differentialPicks && player.selected_by_percent < 10) {
+                if (preferences.differentialPicks && selectedBy < 10) {
                     score *= 1.1;
                 }
-                if (preferences.considerFixtures) {
+                if (preferences.considerFixtures && player.team) {
                     // Boost players from teams with easier fixtures
                     const easyFixtureTeams = [14, 17, 15, 1, 3]; // Example team IDs with easier fixtures
                     if (easyFixtureTeams.includes(player.team)) {
                         score *= 1.15;
                     }
+                }
+                
+                // Ensure score is a valid number
+                if (isNaN(score) || !isFinite(score)) {
+                    score = 0;
                 }
 
                 return score;
@@ -1496,6 +1691,12 @@
                 const selected = [];
                 let remainingBudget = budget;
                 let remainingCount = count;
+                
+                // Safety check
+                if (!players || players.length === 0 || count <= 0) {
+                    console.warn('Invalid input to knapsack optimization');
+                    return [];
+                }
                 
                 // Group players by price ranges for better distribution
                 const priceRanges = {
@@ -1524,18 +1725,28 @@
                 
                 // Fill remaining slots with best available within budget
                 if (remainingCount > 0) {
+                    const usedIds = new Set(selected.map(p => p.id));
                     const available = players
-                        .filter(p => !selected.includes(p) && p.now_cost <= remainingBudget / remainingCount * 1.5)
-                        .slice(0, remainingCount * 2); // Get more candidates
+                        .filter(p => !usedIds.has(p.id) && p.now_cost <= remainingBudget / Math.max(remainingCount, 1) * 2)
+                        .slice(0, Math.max(remainingCount * 3, 10)); // Get more candidates
                     
-                    // Dynamic programming approach for remaining slots
-                    const bestCombination = this.findBestCombination(
-                        available,
-                        remainingBudget,
-                        remainingCount
-                    );
-                    
-                    selected.push(...bestCombination);
+                    if (available.length > 0) {
+                        // Dynamic programming approach for remaining slots
+                        const bestCombination = this.findBestCombination(
+                            available,
+                            remainingBudget,
+                            remainingCount
+                        );
+                        
+                        selected.push(...bestCombination);
+                    } else {
+                        // Last resort: just get cheapest players
+                        const cheapest = players
+                            .filter(p => !usedIds.has(p.id))
+                            .sort((a, b) => a.now_cost - b.now_cost)
+                            .slice(0, remainingCount);
+                        selected.push(...cheapest);
+                    }
                 }
                 
                 // Ensure we have exactly 'count' players

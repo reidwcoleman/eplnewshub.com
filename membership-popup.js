@@ -10,9 +10,17 @@ class MembershipPopup {
     }
 
     initializeStripe() {
-        // Initialize Stripe with your public key
+        // Initialize Stripe with appropriate key based on environment
         if (typeof Stripe !== 'undefined') {
-            this.stripe = Stripe('pk_live_51R1zJxR10Q6bz3BHKVdTzRdwLsxzlrbN5bQoZ96FpQ7nZaZZ4aNrfk7EhW4aSDLKhqhSzBWNKFvxxLwMp6Zb9b3p005qGMCRDO');
+            // Check if dev config is available
+            if (window.devConfig) {
+                const config = window.devConfig.getConfig();
+                this.stripe = Stripe(config.stripe.publishableKey);
+                console.log('Membership popup using', config.isDevelopment ? 'TEST' : 'LIVE', 'Stripe keys');
+            } else {
+                // Fallback to live key
+                this.stripe = Stripe('pk_live_51R1zJxR10Q6bz3BHKVdTzRdwLsxzlrbN5bQoZ96FpQ7nZaZZ4aNrfk7EhW4aSDLKhqhSzBWNKFvxxLwMp6Zb9b3p005qGMCRDO');
+            }
         }
     }
 
