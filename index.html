@@ -153,26 +153,31 @@
     <!-- Include Header -->
     <div class="header" include="./header.html"></div>
 
-    <!-- Newsletter Banner -->
-    <div class="newsletter-banner" id="newsletter-banner">
-        <button class="newsletter-banner-close" onclick="closeBanner()" aria-label="Close newsletter banner">
+    <!-- FPL Tools Banner -->
+    <div class="fpl-tools-banner newsletter-banner" id="newsletter-banner">
+        <button class="newsletter-banner-close" onclick="closeBanner()" aria-label="Close FPL banner">
             ×
         </button>
         <div class="newsletter-banner-content">
             <div class="newsletter-banner-text">
-                <h2 class="newsletter-banner-title">📬 Get Weekly EPL Insights</h2>
-                <p class="newsletter-banner-description">Join 10,000+ fans receiving expert Premier League analysis, transfer updates, and FPL tips every Saturday morning.</p>
+                <h2 class="newsletter-banner-title">⚡ FPL Premium Tools - 50% OFF Today!</h2>
+                <p class="newsletter-banner-description">Get AI-powered transfer advice, squad optimization, and 5-gameweek predictions. Join 5,000+ managers dominating their mini-leagues!</p>
             </div>
-            <form id="newsletter-banner-form" class="newsletter-banner-form">
-                <input type="text" id="banner-newsletter-name" placeholder="Your Name" required>
-                <input type="email" id="banner-newsletter-email" placeholder="Your Email" required>
-                <button type="submit" class="newsletter-banner-btn">
-                    <span class="banner-btn-text">Subscribe Free</span>
-                    <span class="banner-btn-loader" style="display: none;">⏳</span>
-                </button>
-                <div id="newsletter-banner-message" class="newsletter-banner-message"></div>
-                <p class="newsletter-banner-privacy">We respect your privacy. Unsubscribe anytime.</p>
-            </form>
+            <div class="fpl-banner-features">
+                <span class="feature-badge">🤖 AI Assistant</span>
+                <span class="feature-badge">🔄 Transfer Simulator</span>
+                <span class="feature-badge">🔮 Points Predictor</span>
+                <span class="feature-badge">📊 Advanced Stats</span>
+            </div>
+            <div class="fpl-banner-cta">
+                <a href="/fpl-premium-hub.html" class="fpl-banner-btn-primary">
+                    <span>Unlock All Tools Now</span>
+                </a>
+                <a href="/fpl.html" class="fpl-banner-btn-secondary">
+                    <span>Try Free Tools</span>
+                </a>
+            </div>
+            <p class="fpl-banner-timer">⏰ Offer ends in <span id="countdown">24:00:00</span></p>
         </div>
     </div>
 
@@ -316,13 +321,89 @@
     <script src="./index.js"></script>
     
     <style>
-        /* Newsletter Banner Styles */
+        /* FPL Tools Banner Styles (formerly Newsletter) */
         .newsletter-banner {
-            background: linear-gradient(135deg, #37003c 0%, #00ff87 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px 0;
+            padding: 20px 0;
             position: relative;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border-bottom: 3px solid rgba(255,255,255,0.2);
+        }
+        
+        /* FPL Banner Features */
+        .fpl-banner-features {
+            display: flex;
+            gap: 12px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .feature-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        /* FPL Banner CTAs */
+        .fpl-banner-cta {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .fpl-banner-btn-primary {
+            background: linear-gradient(135deg, #fff, #f0f0f0);
+            color: #764ba2;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .fpl-banner-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background: white;
+        }
+        
+        .fpl-banner-btn-secondary {
+            background: transparent;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            border: 2px solid rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .fpl-banner-btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: white;
+        }
+        
+        /* Timer */
+        .fpl-banner-timer {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            opacity: 0.95;
+            font-weight: 600;
+        }
+        
+        #countdown {
+            font-family: monospace;
+            font-size: 1rem;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
         }
         
         .newsletter-banner-content {
@@ -724,9 +805,9 @@
                 display: block;
             }
             
-            /* Newsletter Banner Mobile */
+            /* FPL Tools Banner Mobile */
             .newsletter-banner {
-                padding: 12px 0;
+                padding: 15px 0;
             }
             
             .newsletter-banner-content {
@@ -737,33 +818,43 @@
             }
             
             .newsletter-banner-title {
-                font-size: 1.2rem;
+                font-size: 1.3rem;
+                line-height: 1.3;
             }
             
             .newsletter-banner-description {
-                font-size: 0.85rem;
+                font-size: 0.9rem;
+                line-height: 1.4;
             }
             
-            .newsletter-banner-form {
+            .fpl-banner-features {
+                justify-content: center;
+                gap: 8px;
+                margin: 10px 0;
+            }
+            
+            .feature-badge {
+                font-size: 0.75rem;
+                padding: 4px 8px;
+            }
+            
+            .fpl-banner-cta {
                 flex-direction: column;
                 width: 100%;
                 gap: 10px;
             }
             
-            #banner-newsletter-email {
+            .fpl-banner-btn-primary,
+            .fpl-banner-btn-secondary {
                 width: 100%;
-                min-width: 100%;
-                padding: 10px 15px;
-            }
-            
-            .newsletter-banner-btn {
-                width: 100%;
-                padding: 10px 20px;
-            }
-            
-            .newsletter-banner-privacy {
-                font-size: 0.7rem;
                 text-align: center;
+                padding: 10px;
+                font-size: 0.95rem;
+            }
+            
+            .fpl-banner-timer {
+                font-size: 0.8rem;
+                margin-top: 8px;
             }
             
             /* Content Mobile */
@@ -2282,7 +2373,49 @@
             sessionStorage.setItem('premiumBannerClosed', 'true');
         }
 
-        // Newsletter signup functionality
+        // Countdown Timer for FPL Banner
+        function startCountdown() {
+            const countdownEl = document.getElementById('countdown');
+            if (!countdownEl) return;
+            
+            // Set end time to 24 hours from now
+            let endTime = localStorage.getItem('fplOfferEnd');
+            if (!endTime || new Date(endTime) < new Date()) {
+                endTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+                localStorage.setItem('fplOfferEnd', endTime);
+            }
+            
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const end = new Date(endTime).getTime();
+                const distance = end - now;
+                
+                if (distance < 0) {
+                    countdownEl.textContent = "EXPIRED";
+                    clearInterval(countdownInterval);
+                    // Reset for next visit
+                    localStorage.removeItem('fplOfferEnd');
+                    return;
+                }
+                
+                const hours = Math.floor(distance / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                countdownEl.textContent = 
+                    String(hours).padStart(2, '0') + ':' +
+                    String(minutes).padStart(2, '0') + ':' +
+                    String(seconds).padStart(2, '0');
+            }
+            
+            updateCountdown();
+            const countdownInterval = setInterval(updateCountdown, 1000);
+        }
+        
+        // Start countdown on page load
+        startCountdown();
+        
+        // Newsletter signup functionality (disabled - using FPL banner now)
         document.addEventListener('DOMContentLoaded', function() {
             // Remove unwanted ads first
             removeUnwantedAds();
