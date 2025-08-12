@@ -260,14 +260,12 @@ class PremiumAccessControl {
         // Add close handler
         document.getElementById('close-premium-overlay').onclick = () => {
             document.body.removeChild(overlay);
-            window.history.back();
         };
         
         // Close on overlay click
         overlay.onclick = (e) => {
             if (e.target === overlay) {
                 document.body.removeChild(overlay);
-                window.history.back();
             }
         };
     }
