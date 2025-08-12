@@ -164,6 +164,7 @@ class PremiumAccessControl {
      * Show access denied overlay for premium features
      */
     showAccessDeniedOverlay(page) {
+        const access = this.hasAccess(page);
         const overlay = document.createElement('div');
         overlay.id = 'premium-access-overlay';
         overlay.style.cssText = `
@@ -193,22 +194,55 @@ class PremiumAccessControl {
         `;
         
         const featureName = this.getFeatureName(page);
+        const currentTier = this.userStatus.membershipLevel;
+        const requiredTier = access.requiredTier || 'pro';
+        
+        let upgradeContent = '';
+        if (requiredTier === 'starter') {
+            // Feature available with Starter or Pro
+            if (currentTier === 'free') {
+                upgradeContent = `
+                    <div style="background: #f0f8ff; color: #37003c; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #37003c;">
+                        <strong>⚽ Starter Membership - $2/month</strong><br>
+                        <small>Unlock this tool + 50 AI queries/day</small>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #37003c, #6f42c1); color: white; padding: 15px; border-radius: 10px;">
+                        <strong>🏆 Pro Membership - $7/month</strong><br>
+                        <small>All premium FPL tools + unlimited access</small>
+                    </div>
+                `;
+            }
+        } else {
+            // Pro-only feature
+            if (currentTier === 'free') {
+                upgradeContent = `
+                    <div style="background: linear-gradient(135deg, #37003c, #6f42c1); color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                        <strong>🏆 Pro Membership - $7/month</strong><br>
+                        <small>Required for advanced FPL tools</small>
+                    </div>
+                    <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; border: 2px solid #37003c;">
+                        <strong>⚽ Starter Membership - $2/month</strong><br>
+                        <small>Basic tools + Transfer Simulator + Player Analytics</small>
+                    </div>
+                `;
+            } else if (currentTier === 'starter') {
+                upgradeContent = `
+                    <div style="background: linear-gradient(135deg, #37003c, #6f42c1); color: white; padding: 15px; border-radius: 10px;">
+                        <strong>🏆 Upgrade to Pro - $7/month</strong><br>
+                        <small>Unlock advanced AI tools like Points Predictor & Budget Optimizer</small>
+                    </div>
+                `;
+            }
+        }
         
         modal.innerHTML = `
             <div style="font-size: 3rem; margin-bottom: 20px;">🔒</div>
-            <h2 style="color: #37003c; margin-bottom: 15px; font-size: 1.8rem;">Premium Feature</h2>
+            <h2 style="color: #37003c; margin-bottom: 15px; font-size: 1.8rem;">${requiredTier === 'starter' ? 'Premium Feature' : 'Pro Feature'}</h2>
             <p style="color: #666; margin-bottom: 25px; line-height: 1.6;">
-                <strong>${featureName}</strong> is available with EPL News Hub Pro membership.
+                <strong>${featureName}</strong> requires ${requiredTier === 'starter' ? 'Starter or Pro' : 'Pro'} membership.
             </p>
             <div style="margin-bottom: 25px;">
-                <div style="background: linear-gradient(135deg, #37003c, #6f42c1); color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                    <strong>🏆 Pro Membership - $7/month</strong><br>
-                    <small>All premium FPL tools + unlimited access</small>
-                </div>
-                <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; border: 2px solid #37003c;">
-                    <strong>⚽ Starter Membership - $2/month</strong><br>
-                    <small>Basic tools + 50 AI queries/day</small>
-                </div>
+                ${upgradeContent}
             </div>
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                 <a href="/membership.html" style="background: linear-gradient(135deg, #37003c, #6f42c1); color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: 700;">
@@ -294,7 +328,7 @@ class PremiumAccessControl {
             
             const page = href.split('/').pop();
             
-            if (this.premiumFeatures.includes(page)) {
+            if (this.allPremiumFeatures.includes(page)) {
                 const access = this.hasAccess(page);
                 
                 if (!access.hasAccess) {
