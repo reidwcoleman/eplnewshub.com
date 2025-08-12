@@ -212,6 +212,33 @@ Create `success.html` to handle post-payment:
 
 ## Step 8: Set Up Webhooks (Important!)
 
+### For Node.js/Express Server (server.js)
+
+If you're using the included `server.js` file, the webhook endpoint is already configured. You just need to:
+
+1. In Stripe Dashboard, go to "Developers" → "Webhooks"
+2. Click "Add endpoint"
+3. Add your endpoint URL: `https://yoursite.com/api/stripe/webhook`
+4. Select these events:
+   - `checkout.session.completed`
+   - `customer.subscription.updated`
+   - `customer.subscription.deleted`
+5. Copy the webhook signing secret (starts with `whsec_`)
+6. Add it to your `.env` file:
+   ```
+   STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
+   ```
+
+The webhook handler in `server.js` will automatically:
+- Update user subscription tier (starter/pro) when payment completes
+- Associate the subscription with the user's account
+- Track subscription status changes
+- Handle cancellations
+
+### For Serverless Functions (Alternative)
+
+If using Netlify/Vercel functions instead of server.js:
+
 1. In Stripe Dashboard, go to "Developers" → "Webhooks"
 2. Click "Add endpoint"
 3. Add your endpoint URL: `https://yoursite.com/.netlify/functions/stripe-webhook`
@@ -258,13 +285,34 @@ exports.handler = async (event, context) => {
 
 ## Step 9: Environment Variables
 
-Set these environment variables in your hosting platform:
+Set these environment variables in your hosting platform or `.env` file:
 
 ```
-STRIPE_SECRET_KEY=sk_test_your_secret_key
-STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key  
-STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+# Stripe API Keys
+STRIPE_SECRET_KEY=sk_test_your_secret_key_here
+STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
+
+# Server Configuration (for server.js)
+SESSION_SECRET=your_random_session_secret_here
+PORT=3000
+
+# Google OAuth (optional, if using Google sign-in)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
+
+### Subscription Tier Mapping
+
+The system automatically maps Stripe Price IDs to subscription tiers:
+
+- **Starter Plan**: 
+  - Monthly: `price_1RoaG1R10Q6bz3BHC2hDRKLv`
+  - Annual: `price_1RoxK6R10Q6bz3BHdZkxAn3p`
+  
+- **Pro Plan**:
+  - Monthly: `price_1Rox4aR10Q6bz3BHxohJtpcO`
+  - Annual: `price_1RoxmQR10Q6bz3BHQKy7G89g`
 
 ## Step 10: Test Your Integration
 
@@ -322,6 +370,62 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 
 **Example:** £9.99 subscription = £0.59 Stripe fee (you receive £9.40)
 
+## Client-Side Subscription Management
+
+The site includes `subscription-manager.js` which automatically:
+
+1. **Checks user subscription status** - Queries the server API for subscription tier
+2. **Hides ads for paid members** - Automatically removes ad elements for starter/pro subscribers
+3. **Shows membership badges** - Displays visual indicators for active subscriptions
+4. **Locks/unlocks premium content** - Controls access based on subscription tier
+5. **Caches subscription data** - Stores status locally for performance
+
+### Using the Subscription Manager
+
+Include the script in your HTML pages:
+
+```html
+<script src="/subscription-manager.js"></script>
+```
+
+Mark premium content with data attributes:
+
+```html
+<!-- Content only for starter tier and above -->
+<div data-premium-tier="starter">
+    <h2>Exclusive Transfer News</h2>
+    <p>This content is only visible to starter and pro members...</p>
+</div>
+
+<!-- Content only for pro tier -->
+<div data-premium-tier="pro">
+    <h2>Premium Analysis</h2>
+    <p>This advanced analysis is only for pro members...</p>
+</div>
+```
+
+Access subscription data programmatically:
+
+```javascript
+// Check if user has active subscription
+if (window.subscriptionManager.isActive()) {
+    console.log('User has active subscription');
+}
+
+// Get user's tier
+const tier = window.subscriptionManager.getTier(); // 'free', 'starter', or 'pro'
+
+// Check if user has access to specific tier
+if (window.subscriptionManager.hasTierAccess('starter')) {
+    // User has starter or pro access
+}
+
+// Listen for subscription updates
+window.addEventListener('subscriptionUpdated', (event) => {
+    console.log('Subscription updated:', event.detail);
+});
+```
+
 ---
 
-This setup gives you a professional, secure payment system that scales with your business. The current implementation uses localStorage for simplicity, but you should integrate with a proper database for production use.
+This setup gives you a professional, secure payment system that automatically associates subscription tiers with user accounts. When a user purchases a subscription through Stripe, the webhook handler updates their account with the appropriate tier (starter/pro), enabling instant access to premium features.

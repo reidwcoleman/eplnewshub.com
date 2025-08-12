@@ -7,10 +7,14 @@ const crypto = require('crypto');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 require('dotenv').config();
 
 const app = express();
 const PORT = 3000;
+
+// Stripe webhook endpoint needs raw body
+app.post('/api/stripe/webhook', express.raw({type: 'application/json'}), handleStripeWebhook);
 
 // Middleware
 app.use(bodyParser.json());
@@ -65,6 +69,116 @@ function generateUserId() {
     return crypto.randomBytes(16).toString('hex');
 }
 
+// Stripe webhook handler function
+async function handleStripeWebhook(req, res) {
+    const sig = req.headers['stripe-signature'];
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    } catch (err) {
+        console.error('Webhook signature verification failed:', err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // Handle the event
+    switch (event.type) {
+        case 'checkout.session.completed':
+            const session = event.data.object;
+            
+            // Get the Firebase UID from client reference ID
+            const firebaseUid = session.client_reference_id;
+            const customerEmail = session.customer_email;
+            const customerId = session.customer;
+            const subscriptionId = session.subscription;
+            
+            // Determine the plan tier based on the price ID
+            let tier = 'free';
+            const priceId = session.metadata?.priceId || '';
+            
+            if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv' || priceId === 'price_1RoxK6R10Q6bz3BHdZkxAn3p') {
+                tier = 'starter';
+            } else if (priceId === 'price_1Rox4aR10Q6bz3BHxohJtpcO' || priceId === 'price_1RoxmQR10Q6bz3BHQKy7G89g') {
+                tier = 'pro';
+            }
+            
+            // Update user subscription in database
+            const users = readUsers();
+            const userIndex = users.findIndex(u => 
+                (firebaseUid && u.id === firebaseUid) || 
+                (customerEmail && u.email.toLowerCase() === customerEmail.toLowerCase())
+            );
+            
+            if (userIndex !== -1) {
+                users[userIndex].subscription = {
+                    tier: tier,
+                    status: 'active',
+                    stripeCustomerId: customerId,
+                    stripeSubscriptionId: subscriptionId,
+                    currentPeriodEnd: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : null
+                };
+                
+                writeUsers(users);
+                console.log(`Updated subscription for user ${users[userIndex].email} to ${tier} tier`);
+            } else {
+                console.error(`User not found for email ${customerEmail} or UID ${firebaseUid}`);
+            }
+            break;
+            
+        case 'customer.subscription.updated':
+            const subscription = event.data.object;
+            
+            // Update subscription status
+            const users2 = readUsers();
+            const userIndex2 = users2.findIndex(u => u.subscription?.stripeSubscriptionId === subscription.id);
+            
+            if (userIndex2 !== -1) {
+                users2[userIndex2].subscription.status = subscription.status;
+                users2[userIndex2].subscription.currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
+                
+                // Update tier based on price
+                const priceId = subscription.items.data[0]?.price.id;
+                if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv' || priceId === 'price_1RoxK6R10Q6bz3BHdZkxAn3p') {
+                    users2[userIndex2].subscription.tier = 'starter';
+                } else if (priceId === 'price_1Rox4aR10Q6bz3BHxohJtpcO' || priceId === 'price_1RoxmQR10Q6bz3BHQKy7G89g') {
+                    users2[userIndex2].subscription.tier = 'pro';
+                }
+                
+                writeUsers(users2);
+                console.log(`Updated subscription status for user ${users2[userIndex2].email}`);
+            }
+            break;
+            
+        case 'customer.subscription.deleted':
+            const canceledSubscription = event.data.object;
+            
+            // Cancel subscription
+            const users3 = readUsers();
+            const userIndex3 = users3.findIndex(u => u.subscription?.stripeSubscriptionId === canceledSubscription.id);
+            
+            if (userIndex3 !== -1) {
+                users3[userIndex3].subscription = {
+                    tier: 'free',
+                    status: 'canceled',
+                    stripeCustomerId: users3[userIndex3].subscription.stripeCustomerId,
+                    stripeSubscriptionId: null,
+                    currentPeriodEnd: null
+                };
+                
+                writeUsers(users3);
+                console.log(`Canceled subscription for user ${users3[userIndex3].email}`);
+            }
+            break;
+            
+        default:
+            console.log(`Unhandled event type ${event.type}`);
+    }
+
+    res.json({received: true});
+}
+
 // Passport configuration
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -100,7 +214,14 @@ passport.use(new GoogleStrategy({
                 lastLogin: new Date().toISOString(),
                 isActive: true,
                 provider: 'google',
-                googleId: profile.id
+                googleId: profile.id,
+                subscription: {
+                    tier: 'free',
+                    status: 'inactive',
+                    stripeCustomerId: null,
+                    stripeSubscriptionId: null,
+                    currentPeriodEnd: null
+                }
             };
             
             users.push(newUser);
@@ -183,7 +304,14 @@ app.post('/api/create-account', async (req, res) => {
             verified: false,
             verificationToken: crypto.randomBytes(32).toString('hex'),
             lastLogin: null,
-            isActive: true
+            isActive: true,
+            subscription: {
+                tier: 'free',
+                status: 'inactive',
+                stripeCustomerId: null,
+                stripeSubscriptionId: null,
+                currentPeriodEnd: null
+            }
         };
 
         // Add user to database
@@ -465,11 +593,53 @@ app.get('/api/auth/status', (req, res) => {
                 id: req.user.id,
                 firstName: req.user.firstName,
                 lastName: req.user.lastName,
-                email: req.user.email
+                email: req.user.email,
+                subscription: req.user.subscription
             }
         });
     } else {
         res.json({ authenticated: false });
+    }
+});
+
+// Get user subscription status
+app.get('/api/user/subscription/:email', (req, res) => {
+    const email = req.params.email;
+    
+    if (!email || !isValidEmail(email)) {
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Please provide a valid email address' 
+        });
+    }
+    
+    try {
+        const users = readUsers();
+        const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+        
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+        
+        res.json({
+            success: true,
+            subscription: user.subscription || {
+                tier: 'free',
+                status: 'inactive',
+                stripeCustomerId: null,
+                stripeSubscriptionId: null,
+                currentPeriodEnd: null
+            }
+        });
+    } catch (error) {
+        console.error('Get subscription error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'An error occurred while fetching subscription status' 
+        });
     }
 });
 
