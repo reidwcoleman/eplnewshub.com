@@ -5,12 +5,26 @@
 
 class PremiumAccessControl {
     constructor() {
-        this.premiumFeatures = [
-            'fpl-ai-assistant.html',
-            'transfer-simulator-pro.html', 
-            'player-data-enhanced.html',
+        // Pro-only features (most advanced)
+        this.proOnlyFeatures = [
             'player-predictor.html',
             'budget-optimizer.html'
+        ];
+        
+        // Starter + Pro features (intermediate) 
+        this.starterPlusFeatures = [
+            'transfer-simulator-pro.html',
+            'player-data-enhanced.html'
+        ];
+        
+        // AI Assistant has special handling (limited free access)
+        this.aiAssistantFeature = 'fpl-ai-assistant.html';
+        
+        // All premium features combined
+        this.allPremiumFeatures = [
+            ...this.proOnlyFeatures,
+            ...this.starterPlusFeatures,
+            this.aiAssistantFeature
         ];
         
         this.userStatus = this.getUserStatus();
@@ -74,7 +88,7 @@ class PremiumAccessControl {
         const { isLoggedIn, membershipLevel, dailyUsage } = this.userStatus;
         
         // Special handling for AI Assistant (has limited free access)
-        if (feature === 'fpl-ai-assistant.html') {
+        if (feature === this.aiAssistantFeature) {
             if (membershipLevel === 'pro') return { hasAccess: true, unlimited: true };
             if (membershipLevel === 'starter') return { 
                 hasAccess: dailyUsage.aiQueries < 50, 
@@ -89,11 +103,21 @@ class PremiumAccessControl {
             };
         }
         
-        // Premium-only features
-        if (this.premiumFeatures.includes(feature)) {
+        // Pro-only features
+        if (this.proOnlyFeatures.includes(feature)) {
             return { 
                 hasAccess: membershipLevel === 'pro', 
-                unlimited: true 
+                unlimited: true,
+                requiredTier: 'pro'
+            };
+        }
+        
+        // Starter + Pro features
+        if (this.starterPlusFeatures.includes(feature)) {
+            return { 
+                hasAccess: membershipLevel === 'starter' || membershipLevel === 'pro', 
+                unlimited: true,
+                requiredTier: 'starter'
             };
         }
         
@@ -120,7 +144,7 @@ class PremiumAccessControl {
      * Check if current page requires access control
      */
     requiresAccessControl(page) {
-        return this.premiumFeatures.includes(page);
+        return this.allPremiumFeatures.includes(page);
     }
 
     /**
