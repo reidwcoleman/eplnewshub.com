@@ -751,7 +751,7 @@
             insertSidebarAds();
             insertBannerAd();
             insertFloatingAd();
-            insertBigBannerPopup(); // Add the big banner popup
+            // insertBigBannerPopup(); // Disabled - big banner popup removed per user request
             attachAdListeners();
             rotateAds();
         }
