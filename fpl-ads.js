@@ -90,6 +90,48 @@
         `;
     }
 
+    // Create big popup banner
+    function createBigBannerPopup() {
+        const randomAd = fplAds.filter(ad => ad.priority === 1)[0] || fplAds[0];
+        return `
+            <div class="fpl-big-banner-popup" id="fpl-big-banner-popup">
+                <div class="popup-overlay"></div>
+                <div class="popup-content" style="background: ${randomAd.color}">
+                    <button class="popup-close" onclick="closeBigBanner()">×</button>
+                    <div class="popup-inner">
+                        <div class="popup-icon">🚀</div>
+                        <h2 class="popup-title">${randomAd.title}</h2>
+                        <p class="popup-subtitle">${randomAd.subtitle}</p>
+                        <div class="popup-description">
+                            <p>${randomAd.description}</p>
+                        </div>
+                        <div class="popup-features">
+                            ${randomAd.features.map(f => `<div class="feature-item">✨ ${f}</div>`).join('')}
+                        </div>
+                        <div class="popup-cta-group">
+                            <a href="${randomAd.link}" class="popup-cta-primary">${randomAd.cta}</a>
+                            <button class="popup-cta-secondary" onclick="closeBigBanner()">Maybe Later</button>
+                        </div>
+                        ${randomAd.special ? '<div class="popup-special-badge">🔥 LIMITED TIME OFFER</div>' : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Close big banner function
+    window.closeBigBanner = function() {
+        const popup = document.getElementById('fpl-big-banner-popup');
+        if (popup) {
+            popup.classList.add('closing');
+            setTimeout(() => {
+                popup.remove();
+            }, 300);
+            // Set cookie to not show again for 24 hours
+            document.cookie = "fplBannerClosed=true; max-age=86400; path=/";
+        }
+    };
+
     // Create banner ad for article pages
     function createBannerAd() {
         const randomAd = fplAds[Math.floor(Math.random() * fplAds.length)];
@@ -283,6 +325,187 @@
                     opacity: 0.9;
                 }
 
+                /* Big Banner Popup */
+                .fpl-big-banner-popup {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 9999;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    animation: fadeIn 0.3s ease;
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+
+                .fpl-big-banner-popup.closing {
+                    animation: fadeOut 0.3s ease;
+                }
+
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+
+                .popup-overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.7);
+                    backdrop-filter: blur(5px);
+                }
+
+                .popup-content {
+                    position: relative;
+                    max-width: 600px;
+                    width: 90%;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    border-radius: 20px;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                    animation: slideUp 0.4s ease;
+                }
+
+                @keyframes slideUp {
+                    from { transform: translateY(50px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+
+                .popup-close {
+                    position: absolute;
+                    top: 15px;
+                    right: 15px;
+                    background: rgba(255, 255, 255, 0.2);
+                    border: none;
+                    color: white;
+                    font-size: 30px;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    z-index: 10;
+                }
+
+                .popup-close:hover {
+                    background: rgba(255, 255, 255, 0.3);
+                    transform: rotate(90deg);
+                }
+
+                .popup-inner {
+                    padding: 40px;
+                    color: white;
+                    text-align: center;
+                }
+
+                .popup-icon {
+                    font-size: 4rem;
+                    margin-bottom: 20px;
+                    animation: bounce 2s infinite;
+                }
+
+                @keyframes bounce {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-10px); }
+                }
+
+                .popup-title {
+                    font-size: 2.5rem;
+                    font-weight: 800;
+                    margin-bottom: 10px;
+                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+                }
+
+                .popup-subtitle {
+                    font-size: 1.2rem;
+                    opacity: 0.95;
+                    margin-bottom: 20px;
+                }
+
+                .popup-description {
+                    font-size: 1.1rem;
+                    line-height: 1.6;
+                    margin-bottom: 25px;
+                    opacity: 0.9;
+                }
+
+                .popup-features {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 15px;
+                    justify-content: center;
+                    margin-bottom: 30px;
+                }
+
+                .feature-item {
+                    background: rgba(255, 255, 255, 0.1);
+                    padding: 8px 15px;
+                    border-radius: 20px;
+                    backdrop-filter: blur(10px);
+                    font-size: 0.95rem;
+                }
+
+                .popup-cta-group {
+                    display: flex;
+                    gap: 15px;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                }
+
+                .popup-cta-primary {
+                    background: rgba(255, 255, 255, 0.95);
+                    color: #38003c;
+                    padding: 15px 35px;
+                    border-radius: 30px;
+                    text-decoration: none;
+                    font-weight: 800;
+                    font-size: 1.1rem;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                }
+
+                .popup-cta-primary:hover {
+                    background: white;
+                    transform: scale(1.05);
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+                }
+
+                .popup-cta-secondary {
+                    background: transparent;
+                    color: white;
+                    padding: 15px 25px;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 30px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+
+                .popup-cta-secondary:hover {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-color: rgba(255, 255, 255, 0.5);
+                }
+
+                .popup-special-badge {
+                    position: absolute;
+                    top: 20px;
+                    left: 20px;
+                    background: linear-gradient(135deg, #ff3366, #ff6633);
+                    padding: 8px 20px;
+                    border-radius: 20px;
+                    font-size: 0.85rem;
+                    font-weight: 700;
+                    animation: pulse 2s infinite;
+                }
+
                 /* Banner Ads */
                 .fpl-banner-ad {
                     border-radius: 12px;
@@ -346,6 +569,42 @@
                     .fpl-sidebar-ad {
                         margin: 10px;
                     }
+
+                    /* Big Banner Popup Mobile */
+                    .popup-content {
+                        width: 95%;
+                        max-height: 95vh;
+                    }
+
+                    .popup-inner {
+                        padding: 25px;
+                    }
+
+                    .popup-icon {
+                        font-size: 3rem;
+                    }
+
+                    .popup-title {
+                        font-size: 1.8rem;
+                    }
+
+                    .popup-subtitle {
+                        font-size: 1rem;
+                    }
+
+                    .popup-description {
+                        font-size: 0.95rem;
+                    }
+
+                    .popup-cta-group {
+                        flex-direction: column;
+                        width: 100%;
+                    }
+
+                    .popup-cta-primary,
+                    .popup-cta-secondary {
+                        width: 100%;
+                    }
                 }
             </style>
         `;
@@ -384,6 +643,33 @@
                 bannerDiv.innerHTML = createBannerAd();
                 paragraphs[2].after(bannerDiv);
             }
+        }
+    }
+
+    // Insert big banner popup
+    function insertBigBannerPopup() {
+        // Check if cookie exists (user closed it recently)
+        const cookies = document.cookie.split(';');
+        const bannerClosed = cookies.some(cookie => cookie.trim().startsWith('fplBannerClosed='));
+        
+        if (!bannerClosed) {
+            // Show popup after a delay
+            setTimeout(() => {
+                const popupDiv = document.createElement('div');
+                popupDiv.innerHTML = createBigBannerPopup();
+                document.body.appendChild(popupDiv.firstElementChild);
+                
+                // Track impression
+                trackAdEvent('impression', 'big-banner-popup');
+                
+                // Add click tracking to CTA
+                const primaryCta = document.querySelector('.popup-cta-primary');
+                if (primaryCta) {
+                    primaryCta.addEventListener('click', function() {
+                        trackAdEvent('click', 'big-banner-popup');
+                    });
+                }
+            }, 3000); // Show after 3 seconds
         }
     }
 
@@ -452,6 +738,7 @@
             insertSidebarAds();
             insertBannerAd();
             insertFloatingAd();
+            insertBigBannerPopup(); // Add the big banner popup
             attachAdListeners();
             rotateAds();
         }
