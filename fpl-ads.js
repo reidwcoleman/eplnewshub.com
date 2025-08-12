@@ -92,27 +92,28 @@
 
     // Create big popup banner
     function createBigBannerPopup() {
-        const randomAd = fplAds.filter(ad => ad.priority === 1)[0] || fplAds[0];
+        // Prioritize the premium bundle for maximum impact
+        const premiumAd = fplAds.find(ad => ad.id === 'premium-bundle-ad') || fplAds.filter(ad => ad.priority === 1)[0] || fplAds[0];
         return `
             <div class="fpl-big-banner-popup" id="fpl-big-banner-popup">
-                <div class="popup-overlay"></div>
-                <div class="popup-content" style="background: ${randomAd.color}">
+                <div class="popup-overlay" onclick="closeBigBanner()"></div>
+                <div class="popup-content" style="background: ${premiumAd.color}">
                     <button class="popup-close" onclick="closeBigBanner()">×</button>
                     <div class="popup-inner">
-                        <div class="popup-icon">🚀</div>
-                        <h2 class="popup-title">${randomAd.title}</h2>
-                        <p class="popup-subtitle">${randomAd.subtitle}</p>
+                        <div class="popup-icon">⚡</div>
+                        <h2 class="popup-title">${premiumAd.title}</h2>
+                        <p class="popup-subtitle">${premiumAd.subtitle}</p>
                         <div class="popup-description">
-                            <p>${randomAd.description}</p>
+                            <p>${premiumAd.description}</p>
                         </div>
                         <div class="popup-features">
-                            ${randomAd.features.map(f => `<div class="feature-item">✨ ${f}</div>`).join('')}
+                            ${premiumAd.features.map(f => `<div class="feature-item">✨ ${f}</div>`).join('')}
                         </div>
                         <div class="popup-cta-group">
-                            <a href="${randomAd.link}" class="popup-cta-primary">${randomAd.cta}</a>
+                            <a href="${premiumAd.link}" class="popup-cta-primary">${premiumAd.cta}</a>
                             <button class="popup-cta-secondary" onclick="closeBigBanner()">Maybe Later</button>
                         </div>
-                        ${randomAd.special ? '<div class="popup-special-badge">🔥 LIMITED TIME OFFER</div>' : ''}
+                        ${premiumAd.special ? '<div class="popup-special-badge">🔥 LIMITED TIME OFFER - 50% OFF</div>' : ''}
                     </div>
                 </div>
             </div>
@@ -126,6 +127,8 @@
             popup.classList.add('closing');
             setTimeout(() => {
                 popup.remove();
+                // Re-enable body scroll
+                document.body.style.overflow = '';
             }, 300);
             // Set cookie to not show again for 24 hours
             document.cookie = "fplBannerClosed=true; max-age=86400; path=/";
@@ -653,11 +656,18 @@
         const bannerClosed = cookies.some(cookie => cookie.trim().startsWith('fplBannerClosed='));
         
         if (!bannerClosed) {
-            // Show popup after a delay
+            // Show popup after a delay (reduced to 1.5 seconds for better UX)
             setTimeout(() => {
+                // Remove any existing newsletter popups first
+                const existingPopups = document.querySelectorAll('.popup-overlay, #popupForm');
+                existingPopups.forEach(popup => popup.remove());
+                
                 const popupDiv = document.createElement('div');
                 popupDiv.innerHTML = createBigBannerPopup();
                 document.body.appendChild(popupDiv.firstElementChild);
+                
+                // Ensure body scroll is disabled when popup is shown
+                document.body.style.overflow = 'hidden';
                 
                 // Track impression
                 trackAdEvent('impression', 'big-banner-popup');
@@ -667,9 +677,10 @@
                 if (primaryCta) {
                     primaryCta.addEventListener('click', function() {
                         trackAdEvent('click', 'big-banner-popup');
+                        document.body.style.overflow = ''; // Re-enable scroll
                     });
                 }
-            }, 3000); // Show after 3 seconds
+            }, 1500); // Show after 1.5 seconds
         }
     }
 

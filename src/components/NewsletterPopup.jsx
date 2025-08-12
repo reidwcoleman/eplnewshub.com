@@ -9,8 +9,9 @@ function NewsletterPopup() {
   })
 
   useEffect(() => {
-    // Show popup on page load
-    setIsVisible(true)
+    // Disabled - using FPL banner popup instead
+    // setIsVisible(true)
+    setIsVisible(false)
   }, [])
 
   const handleSubmit = async (e) => {
