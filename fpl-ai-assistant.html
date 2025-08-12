@@ -375,6 +375,9 @@
                     <span class="status-dot"></span>
                     <span>AI Online & Ready</span>
                 </div>
+                <div class="message-counter" id="message-counter" style="margin-left: 20px; padding: 8px 16px; background: rgba(255,255,255,0.1); border-radius: 20px; font-size: 14px;">
+                    Free: 5/5 messages
+                </div>
             </div>
 
             <!-- Quick Actions -->
@@ -748,6 +751,78 @@
             saveConversationHistory() {
                 localStorage.setItem('fpl-ai-memory', JSON.stringify(this.conversationMemory));
             }
+
+            checkMessageLimit() {
+                // Get current message count
+                const messageCount = parseInt(localStorage.getItem('fpl-ai-message-count') || '0');
+                
+                // Check if user has premium access (you can modify this logic based on your membership system)
+                const hasPremium = localStorage.getItem('fpl-ai-premium') === 'true';
+                
+                if (hasPremium) {
+                    return true; // Premium users have unlimited messages
+                }
+                
+                // Free users limited to 5 messages
+                if (messageCount >= 5) {
+                    return false;
+                }
+                
+                // Increment message count
+                localStorage.setItem('fpl-ai-message-count', (messageCount + 1).toString());
+                return true;
+            }
+
+            showUpgradePrompt() {
+                const upgradeMessage = `🚀 **Upgrade to Premium for Unlimited AI Assistance!**\n\nYou've used your 5 free AI messages. Premium members get:\n\n✅ **Unlimited AI conversations**\n✅ **Advanced FPL analytics**\n✅ **Exclusive transfer insights**\n✅ **Priority captain recommendations**\n\n[**Upgrade to Premium →**](/premium.html)`;
+                
+                this.addMessage(upgradeMessage);
+                
+                // Disable the input field
+                const input = document.getElementById('chat-input');
+                if (input) {
+                    input.placeholder = 'Upgrade to Premium for unlimited messages';
+                    input.disabled = true;
+                }
+            }
+
+            // Method to reset message count (useful for testing or daily resets)
+            resetMessageCount() {
+                localStorage.removeItem('fpl-ai-message-count');
+                
+                // Re-enable the input field
+                const input = document.getElementById('chat-input');
+                if (input) {
+                    input.placeholder = 'Ask about FPL strategies, captains, transfers...';
+                    input.disabled = false;
+                }
+                
+                this.updateMessageCounter();
+                console.log('Message count reset');
+            }
+
+            updateMessageCounter() {
+                const messageCount = parseInt(localStorage.getItem('fpl-ai-message-count') || '0');
+                const hasPremium = localStorage.getItem('fpl-ai-premium') === 'true';
+                const counter = document.getElementById('message-counter');
+                
+                if (counter) {
+                    if (hasPremium) {
+                        counter.textContent = 'Premium: Unlimited';
+                        counter.style.background = 'rgba(0, 255, 136, 0.2)';
+                    } else {
+                        const remaining = Math.max(0, 5 - messageCount);
+                        counter.textContent = `Free: ${remaining}/5 messages`;
+                        if (remaining === 0) {
+                            counter.style.background = 'rgba(255, 68, 68, 0.2)';
+                        } else if (remaining <= 2) {
+                            counter.style.background = 'rgba(255, 170, 0, 0.2)';
+                        } else {
+                            counter.style.background = 'rgba(255, 255, 255, 0.1)';
+                        }
+                    }
+                }
+            }
             
             addToMemory(userQuery, aiResponse, context = {}) {
                 const memoryItem = {
@@ -864,9 +939,13 @@
                         console.log('Using built-in knowledge base only');
                         this.initializeMockData();
                     }
+                    
+                    // Initialize message counter display
+                    this.updateMessageCounter();
                 } catch (error) {
                     console.error('Failed to initialize FPL AI:', error);
                     this.initializeMockData();
+                    this.updateMessageCounter();
                 }
                 
                 this.setupEventListeners();
@@ -2442,6 +2521,15 @@
                     console.log('Message empty or already typing');
                     return;
                 }
+
+                // Check message limit for free users
+                if (!this.checkMessageLimit()) {
+                    this.showUpgradePrompt();
+                    return;
+                }
+                
+                // Update message counter display
+                this.updateMessageCounter();
                 
                 // Add user message
                 this.addMessage(message, true);
@@ -2516,6 +2604,7 @@
                 this.userProfile = this.loadUserProfile();
                 localStorage.removeItem('fpl-ai-memory');
                 localStorage.removeItem('fpl-ai-profile');
+                this.resetMessageCount();
                 console.log('Conversation reset');
             }
             
