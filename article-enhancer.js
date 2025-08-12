@@ -3,19 +3,19 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     enhanceArticle();
-    // Load sidebar ads injector for articles
-    loadSidebarAds();
+    // Load floating side ads for articles
+    loadFloatingSideAds();
 });
 
-function loadSidebarAds() {
+function loadFloatingSideAds() {
     // Check if we're on an article page
     const isArticle = window.location.pathname.includes('/articles/') || 
                      document.querySelector('.nyt-article') || 
                      document.querySelector('article');
     
-    if (isArticle && !document.querySelector('.article-sidebar-injected')) {
+    if (isArticle) {
         const script = document.createElement('script');
-        script.src = '/article-sidebar-injector.js';
+        script.src = '/article-side-ads.js';
         script.async = true;
         document.head.appendChild(script);
     }
