@@ -2545,8 +2545,66 @@
             optimizer.selectStrategy(strategy);
         }
 
-        function optimizeTeam() {
-            optimizer.optimizeTeam();
+        async function optimizeTeam() {
+            console.log('Optimize team button clicked');
+            if (!optimizer) {
+                alert('Optimizer not initialized. Please refresh the page.');
+                return;
+            }
+            
+            try {
+                console.log('Starting optimization...');
+                await optimizer.optimizeTeam();
+                console.log('Optimization completed successfully');
+            } catch (error) {
+                console.error('Optimization failed:', error);
+                alert('Optimization failed: ' + error.message);
+            }
+        }
+
+        function resetTeam() {
+            console.log('Reset team button clicked');
+            if (!optimizer) {
+                alert('Optimizer not initialized. Please refresh the page.');
+                return;
+            }
+            
+            try {
+                // Reset all settings to default
+                document.getElementById('budget-slider').value = 1000;
+                document.getElementById('def-play').value = 4;
+                document.getElementById('mid-play').value = 4;
+                document.getElementById('fwd-play').value = 2;
+                
+                // Update budget display
+                optimizer.updateBudgetDisplay();
+                
+                // Clear results
+                const resultsContainer = document.getElementById('results-container');
+                if (resultsContainer) {
+                    resultsContainer.style.display = 'none';
+                }
+                
+                // Reset strategy to balanced
+                optimizer.selectStrategy('balanced');
+                
+                // Hide TOTW section if visible
+                const totwSection = document.getElementById('team-of-week');
+                const totwButton = document.getElementById('totw-button');
+                if (totwSection) {
+                    totwSection.style.display = 'none';
+                }
+                if (totwButton) {
+                    totwButton.innerHTML = '🏆 Team of the Week';
+                    totwButton.style.background = 'linear-gradient(135deg, #ffd700, #ff6b6b, #ffd700)';
+                }
+                
+                console.log('Team reset successfully');
+                alert('✅ Team settings reset to default!');
+            } catch (error) {
+                console.error('Reset failed:', error);
+                alert('Reset failed: ' + error.message);
+            }
         }
 
         function refreshData() {
