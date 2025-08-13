@@ -242,6 +242,53 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Enhanced animations for new transfer cards */
+        .transfer-card-new {
+            animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Pulse animation for live badge */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Enhanced hover states for better polish */
+        .transfer-fee:hover {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+
+        .player-name:hover {
+            color: #ffd700;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        /* Loading state improvements */
+        .load-more-btn.loading {
+            background: linear-gradient(90deg, #ffd700, #ffed4e, #ffd700);
+            background-size: 200% 100%;
+            animation: loadingGradient 1.5s ease infinite;
+        }
+
+        @keyframes loadingGradient {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
         
         .transfers-grid {
             display: grid;
@@ -390,7 +437,7 @@
         .load-more-btn {
             display: block;
             margin: 40px auto;
-            padding: 15px 50px;
+            padding: 18px 60px;
             background: linear-gradient(135deg, #ffd700, #ffed4e);
             color: #1a0033;
             border: none;
@@ -398,13 +445,36 @@
             font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .load-more-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .load-more-btn:hover::before {
+            left: 100%;
         }
         
         .load-more-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.4);
+        }
+        
+        .load-more-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
         }
         
         .no-results {
@@ -1995,6 +2065,403 @@
     <script src="index.js"></script>
 
     <script>
+        // Comprehensive Transfer Database
+        const transferDatabase = {
+            confirmed: [
+                {
+                    player: "Viktor Gyokeres",
+                    position: "Centre-Forward",
+                    fromClub: "Sporting CP",
+                    fromBadge: "⚽",
+                    toClub: "Arsenal",
+                    toBadge: "🔴",
+                    fee: "£55.3M",
+                    date: "Summer 2025",
+                    status: "Confirmed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Bryan Mbeumo",
+                    position: "Right Winger",
+                    fromClub: "Brentford",
+                    fromBadge: "🐝",
+                    toClub: "Man United",
+                    toBadge: "🔴",
+                    fee: "£71M",
+                    date: "Summer 2025",
+                    status: "Confirmed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Benjamin Sesko",
+                    position: "Striker",
+                    fromClub: "RB Leipzig",
+                    fromBadge: "🔴",
+                    toClub: "Man United",
+                    toBadge: "🔴",
+                    fee: "£66.3M",
+                    date: "Summer 2025",
+                    status: "Confirmed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Jack Grealish",
+                    position: "Left Winger",
+                    fromClub: "Man City",
+                    fromBadge: "🔵",
+                    toClub: "Everton",
+                    toBadge: "🔵",
+                    fee: "Loan",
+                    date: "Summer 2025",
+                    status: "Season Loan",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Milos Kerkez",
+                    position: "Left-Back",
+                    fromClub: "Bournemouth",
+                    fromBadge: "🍒",
+                    toClub: "Liverpool",
+                    toBadge: "🔴",
+                    fee: "£40M",
+                    date: "Summer 2025",
+                    status: "Confirmed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Illia Zabarnyi",
+                    position: "Centre-Back",
+                    fromClub: "Bournemouth",
+                    fromBadge: "🇺🇦",
+                    toClub: "PSG",
+                    toBadge: "⚫",
+                    fee: "£53.5M",
+                    date: "Summer 2025",
+                    status: "Confirmed",
+                    statusClass: "status-confirmed"
+                },
+                // Additional transfers for load more
+                {
+                    player: "Omar Marmoush",
+                    position: "Forward",
+                    fromClub: "Eintracht Frankfurt",
+                    fromBadge: "🦅",
+                    toClub: "Man City",
+                    toBadge: "🔵",
+                    fee: "£59.2M",
+                    date: "Summer 2025",
+                    status: "Confirmed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Evan Ferguson",
+                    position: "Striker",
+                    fromClub: "Brighton",
+                    fromBadge: "⚪",
+                    toClub: "West Ham",
+                    toBadge: "⚒️",
+                    fee: "£42M",
+                    date: "Summer 2025",
+                    status: "Confirmed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Matheus Cunha",
+                    position: "Forward",
+                    fromClub: "Wolves",
+                    fromBadge: "🐺",
+                    toClub: "Arsenal",
+                    toBadge: "🔴",
+                    fee: "£38.7M",
+                    date: "Summer 2025",
+                    status: "Confirmed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Eberechi Eze",
+                    position: "Attacking Midfielder",
+                    fromClub: "Crystal Palace",
+                    fromBadge: "🦅",
+                    toClub: "Tottenham",
+                    toBadge: "⚪",
+                    fee: "£45M",
+                    date: "Summer 2025",
+                    status: "Confirmed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Morgan Rogers",
+                    position: "Midfielder",
+                    fromClub: "Aston Villa",
+                    fromBadge: "🦁",
+                    toClub: "Newcastle",
+                    toBadge: "⚫",
+                    fee: "£28.5M",
+                    date: "Summer 2025",
+                    status: "Confirmed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Antonee Robinson",
+                    position: "Left-Back",
+                    fromClub: "Fulham",
+                    fromBadge: "⚪",
+                    toClub: "Liverpool",
+                    toBadge: "🔴",
+                    fee: "£22M",
+                    date: "Summer 2025",
+                    status: "Confirmed",
+                    statusClass: "status-confirmed"
+                }
+            ],
+            rumors: [
+                {
+                    player: "Martin Zubimendi",
+                    position: "Defensive Midfielder",
+                    fromClub: "Real Sociedad",
+                    fromBadge: "⚪",
+                    toClub: "Arsenal",
+                    toBadge: "🔴",
+                    fee: "£56M",
+                    date: "In Progress",
+                    status: "Negotiating",
+                    statusClass: "status-rumor"
+                },
+                {
+                    player: "Son Heung-min",
+                    position: "Forward",
+                    fromClub: "Tottenham",
+                    fromBadge: "⚪",
+                    toClub: "Los Angeles FC",
+                    toBadge: "🇺🇸",
+                    fee: "£19.5M",
+                    date: "Advanced Talks",
+                    status: "Near Complete",
+                    statusClass: "status-rumor"
+                },
+                {
+                    player: "Darwin Nunez",
+                    position: "Striker",
+                    fromClub: "Liverpool",
+                    fromBadge: "🔴",
+                    toClub: "Al-Hilal",
+                    toBadge: "⚫",
+                    fee: "£46.3M",
+                    date: "Under Discussion",
+                    status: "Interest",
+                    statusClass: "status-rumor"
+                },
+                // Additional rumors
+                {
+                    player: "Ivan Toney",
+                    position: "Striker",
+                    fromClub: "Al-Ahli",
+                    fromBadge: "🇸🇦",
+                    toClub: "West Ham",
+                    toBadge: "⚒️",
+                    fee: "£35M",
+                    date: "Interest",
+                    status: "Exploring",
+                    statusClass: "status-rumor"
+                },
+                {
+                    player: "Joao Felix",
+                    position: "Forward",
+                    fromClub: "Chelsea",
+                    fromBadge: "🔵",
+                    toClub: "Atletico Madrid",
+                    toBadge: "🔴",
+                    fee: "£42M",
+                    date: "Discussions",
+                    status: "Return Possible",
+                    statusClass: "status-rumor"
+                },
+                {
+                    player: "Kalvin Phillips",
+                    position: "Defensive Midfielder",
+                    fromClub: "Man City",
+                    fromBadge: "🔵",
+                    toClub: "Everton",
+                    toBadge: "🔵",
+                    fee: "Loan",
+                    date: "Interest",
+                    status: "Considering",
+                    statusClass: "status-rumor"
+                }
+            ],
+            doneDeals: [
+                {
+                    player: "Noni Madueke",
+                    position: "Right Winger",
+                    fromClub: "Chelsea",
+                    fromBadge: "🔵",
+                    toClub: "Arsenal",
+                    toBadge: "🔴",
+                    fee: "£48.5M",
+                    date: "Summer 2025",
+                    status: "Completed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Dean Huijsen",
+                    position: "Centre-Back",
+                    fromClub: "Bournemouth",
+                    fromBadge: "🍒",
+                    toClub: "Real Madrid",
+                    toBadge: "🔴",
+                    fee: "£50M",
+                    date: "Summer 2025",
+                    status: "Completed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Armando Broja",
+                    position: "Striker",
+                    fromClub: "Chelsea",
+                    fromBadge: "🔵",
+                    toClub: "Burnley",
+                    toBadge: "🔥",
+                    fee: "£20M",
+                    date: "Summer 2025",
+                    status: "Completed",
+                    statusClass: "status-confirmed"
+                },
+                // Additional done deals
+                {
+                    player: "Raheem Sterling",
+                    position: "Winger",
+                    fromClub: "Chelsea",
+                    fromBadge: "🔵",
+                    toClub: "Al-Nassr",
+                    toBadge: "🇸🇦",
+                    fee: "£32M",
+                    date: "Summer 2025",
+                    status: "Completed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Tyler Adams",
+                    position: "Midfielder",
+                    fromClub: "Bournemouth",
+                    fromBadge: "🍒",
+                    toClub: "Brighton",
+                    toBadge: "⚪",
+                    fee: "£18M",
+                    date: "Summer 2025",
+                    status: "Completed",
+                    statusClass: "status-confirmed"
+                },
+                {
+                    player: "Youri Tielemans",
+                    position: "Midfielder",
+                    fromClub: "Aston Villa",
+                    fromBadge: "🦁",
+                    toClub: "AC Milan",
+                    toBadge: "🔴",
+                    fee: "£26M",
+                    date: "Summer 2025",
+                    status: "Completed",
+                    statusClass: "status-confirmed"
+                }
+            ],
+            medical: [
+                {
+                    player: "Jorrel Hato",
+                    position: "Centre-Back",
+                    fromClub: "Ajax",
+                    fromBadge: "🔵",
+                    toClub: "Chelsea",
+                    toBadge: "🔵",
+                    fee: "£37M",
+                    date: "Medical Scheduled",
+                    status: "Medical",
+                    statusClass: "status-medical"
+                },
+                {
+                    player: "Joao Palhinha",
+                    position: "Defensive Midfielder",
+                    fromClub: "Bayern Munich",
+                    fromBadge: "🔵",
+                    toClub: "Tottenham",
+                    toBadge: "⚪",
+                    fee: "Loan",
+                    date: "Medical Today",
+                    status: "Medical",
+                    statusClass: "status-medical"
+                },
+                {
+                    player: "Caoimhin Kelleher",
+                    position: "Goalkeeper",
+                    fromClub: "Liverpool",
+                    fromBadge: "🔴",
+                    toClub: "Brentford",
+                    toBadge: "🐝",
+                    fee: "£18M",
+                    date: "Medical Pending",
+                    status: "Medical",
+                    statusClass: "status-medical"
+                },
+                // Additional medical
+                {
+                    player: "Luka Sucic",
+                    position: "Midfielder",
+                    fromClub: "RB Salzburg",
+                    fromBadge: "🔴",
+                    toClub: "Brighton",
+                    toBadge: "⚪",
+                    fee: "£15M",
+                    date: "Medical Tomorrow",
+                    status: "Medical",
+                    statusClass: "status-medical"
+                },
+                {
+                    player: "Gabriel Sara",
+                    position: "Midfielder",
+                    fromClub: "Norwich",
+                    fromBadge: "🟡",
+                    toClub: "Crystal Palace",
+                    toBadge: "🦅",
+                    fee: "£12M",
+                    date: "Medical Complete",
+                    status: "Medical",
+                    statusClass: "status-medical"
+                }
+            ]
+        };
+
+        // Track loaded transfers for each category
+        let loadedTransfers = {
+            confirmed: 6,
+            rumors: 3,
+            'done-deals': 3,
+            medical: 3
+        };
+
+        function createTransferCard(transfer) {
+            return `
+                <div class="transfer-card transfer-card-new" style="opacity: 0; transform: translateY(20px);">
+                    <div class="transfer-header">
+                        <div class="transfer-clubs">
+                            <span class="club-badge">${transfer.fromBadge}</span>
+                            <span>${transfer.fromClub}</span>
+                            <span class="transfer-arrow">→</span>
+                            <span class="club-badge">${transfer.toBadge}</span>
+                            <span>${transfer.toClub}</span>
+                        </div>
+                        <span class="transfer-fee">${transfer.fee}</span>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">${transfer.player}</div>
+                        <div class="player-position">${transfer.position}</div>
+                    </div>
+                    <div class="transfer-details">
+                        <span class="transfer-date">${transfer.date}</span>
+                        <span class="transfer-status ${transfer.statusClass}">${transfer.status}</span>
+                    </div>
+                </div>
+            `;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Transfer Window Countdown Timer
             function updateCountdown() {
@@ -2182,23 +2649,118 @@
                 observer.observe(analyticsSection);
             }
             
-            // Load more button with animation
+            // Load more button with real transfer data
             const loadMoreBtn = document.querySelector('.load-more-btn');
             
             if (loadMoreBtn) {
                 loadMoreBtn.addEventListener('click', function() {
                     this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
                     this.disabled = true;
+                    this.classList.add('loading');
                     
                     setTimeout(() => {
+                        loadMoreTransfers();
                         this.innerHTML = 'Load More Transfers';
                         this.disabled = false;
-                        
-                        // Show notification
-                        showNotification('5 new transfers loaded!', 'success');
+                        this.classList.remove('loading');
                     }, 1500);
                 });
             }
+
+            function loadMoreTransfers() {
+                const activeSection = document.querySelector('.transfer-section.active');
+                const activeCategory = activeSection.id;
+                const transfersGrid = activeSection.querySelector('.transfers-grid');
+                
+                // Map category IDs to database keys
+                const categoryMap = {
+                    'confirmed': 'confirmed',
+                    'rumors': 'rumors',
+                    'done-deals': 'doneDeals',
+                    'medical': 'medical'
+                };
+                
+                const dbCategory = categoryMap[activeCategory];
+                const currentLoaded = loadedTransfers[activeCategory];
+                const availableTransfers = transferDatabase[dbCategory];
+                
+                // Load 3 more transfers
+                const transfersToLoad = availableTransfers.slice(currentLoaded, currentLoaded + 3);
+                
+                if (transfersToLoad.length === 0) {
+                    showNotification('No more transfers to load in this category', 'info');
+                    loadMoreBtn.style.display = 'none';
+                    return;
+                }
+                
+                // Create and append new transfer cards
+                transfersToLoad.forEach((transfer, index) => {
+                    const cardHTML = createTransferCard(transfer);
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = cardHTML;
+                    const newCard = tempDiv.firstElementChild;
+                    
+                    transfersGrid.appendChild(newCard);
+                    
+                    // Add quick actions to new cards
+                    newCard.classList.add('transfer-card-enhanced');
+                    const quickActions = document.createElement('div');
+                    quickActions.className = 'quick-actions';
+                    quickActions.innerHTML = `
+                        <button class="quick-action-btn" onclick="toggleFavorite(this)" title="Add to Favorites">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        <button class="quick-action-btn" onclick="shareTransfer(this)" title="Share Transfer">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                        <button class="quick-action-btn" onclick="setReminder(this)" title="Set Reminder">
+                            <i class="far fa-bell"></i>
+                        </button>
+                    `;
+                    newCard.appendChild(quickActions);
+                    
+                    // Animate in with staggered delay
+                    setTimeout(() => {
+                        newCard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                        newCard.style.opacity = '1';
+                        newCard.style.transform = 'translateY(0)';
+                    }, index * 150);
+                });
+                
+                // Update loaded count
+                loadedTransfers[activeCategory] = currentLoaded + transfersToLoad.length;
+                
+                // Hide button if no more transfers
+                if (loadedTransfers[activeCategory] >= availableTransfers.length) {
+                    setTimeout(() => {
+                        loadMoreBtn.style.display = 'none';
+                        showNotification('All transfers loaded for this category! 🎉', 'success');
+                    }, 1000);
+                } else {
+                    showNotification(`${transfersToLoad.length} new transfers loaded!`, 'success');
+                }
+            }
+
+            // Reset load more button when changing categories
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            categoryTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    const dbCategory = {
+                        'confirmed': 'confirmed',
+                        'rumors': 'rumors',
+                        'done-deals': 'doneDeals',
+                        'medical': 'medical'
+                    }[category];
+                    
+                    // Show/hide load more button based on available transfers
+                    if (loadedTransfers[category] < transferDatabase[dbCategory].length) {
+                        loadMoreBtn.style.display = 'block';
+                    } else {
+                        loadMoreBtn.style.display = 'none';
+                    }
+                });
+            });
 
             // Animate probability bars on page load
             setTimeout(() => {
