@@ -376,10 +376,248 @@
         }
 
         .comparison-results {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #4a2c7a, #6b4c9a);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .export-comparison-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #4a2c7a;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .export-comparison-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .comparison-grid {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             gap: 30px;
             align-items: start;
+            margin-bottom: 30px;
+        }
+
+        .comparison-card.enhanced {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .comparison-card.enhanced:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.2);
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .player-header h3 {
+            margin: 0;
+            color: #4a2c7a;
+            font-size: 1.3em;
+        }
+
+        .position-badge {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #4a2c7a;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-row.highlight {
+            background: rgba(255, 215, 0, 0.1);
+            margin: 0 -15px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border-bottom: none;
+        }
+
+        .detail-row .label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .detail-row .value {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .detail-row .value.fee {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .performance-indicators {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .indicator {
+            margin-bottom: 15px;
+        }
+
+        .indicator-label {
+            display: block;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #4a2c7a;
+            margin-bottom: 5px;
+        }
+
+        .indicator-bar {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .indicator-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffed4e);
+            border-radius: 4px;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .indicator-value {
+            position: absolute;
+            right: 0;
+            top: -20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #ffd700;
+        }
+
+        .comparison-vs.enhanced {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: 2px solid #ffd700;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2);
+            min-height: 300px;
+        }
+
+        .vs-container {
+            text-align: center;
+        }
+
+        .vs-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .vs-verdict h4 {
+            margin: 0 0 10px 0;
+            color: #4a2c7a;
+            font-size: 1.2em;
+        }
+
+        .vs-verdict p {
+            margin: 0 0 20px 0;
+            color: #6c757d;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .comparison-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 0.8em;
+            color: #4a2c7a;
+            font-weight: bold;
+        }
+
+        .comparison-charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .chart-container {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-container h4 {
+            margin: 0 0 20px 0;
+            color: #4a2c7a;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .chart-container canvas {
+            width: 100%;
+            height: auto;
         }
 
         /* Transfer Timeline */
@@ -3850,85 +4088,582 @@
             const transfer2 = allTransfers[index2];
             
             const resultsDiv = document.getElementById('comparison-results');
-            resultsDiv.style.display = 'grid';
+            resultsDiv.style.display = 'block';
+            
+            // Calculate comparison metrics
+            const metrics = calculateComparisonMetrics(transfer1, transfer2);
             
             resultsDiv.innerHTML = `
-                <div class="comparison-card">
-                    <h3>${transfer1.player}</h3>
-                    <div class="comparison-details">
-                        <p><strong>From:</strong> ${transfer1.fromClub}</p>
-                        <p><strong>To:</strong> ${transfer1.toClub}</p>
-                        <p><strong>Fee:</strong> ${transfer1.fee}</p>
-                        <p><strong>Position:</strong> ${transfer1.position}</p>
-                        <p><strong>Status:</strong> ${transfer1.status}</p>
+                <div class="comparison-header">
+                    <h3>🔍 Transfer Comparison Analysis</h3>
+                    <button class="export-comparison-btn" onclick="exportComparison('${transfer1.player}', '${transfer2.player}')">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-card enhanced">
+                        <div class="player-header">
+                            <h3>${transfer1.player}</h3>
+                            <span class="position-badge">${transfer1.position}</span>
+                        </div>
+                        <div class="comparison-details">
+                            <div class="detail-row">
+                                <span class="label">Transfer Route:</span>
+                                <span class="value">${transfer1.fromClub} → ${transfer1.toClub}</span>
+                            </div>
+                            <div class="detail-row highlight">
+                                <span class="label">Transfer Fee:</span>
+                                <span class="value fee">${transfer1.fee}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Status:</span>
+                                <span class="value status ${transfer1.statusClass}">${transfer1.status}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Market Value:</span>
+                                <span class="value">${metrics.player1.marketValue}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Age:</span>
+                                <span class="value">${metrics.player1.age} years</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Contract Length:</span>
+                                <span class="value">${metrics.player1.contractLength}</span>
+                            </div>
+                        </div>
+                        <div class="performance-indicators">
+                            <div class="indicator">
+                                <span class="indicator-label">Value Rating</span>
+                                <div class="indicator-bar">
+                                    <div class="indicator-fill" style="width: ${metrics.player1.valueRating}%"></div>
+                                </div>
+                                <span class="indicator-value">${metrics.player1.valueRating}%</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Market Impact</span>
+                                <div class="indicator-bar">
+                                    <div class="indicator-fill" style="width: ${metrics.player1.marketImpact}%"></div>
+                                </div>
+                                <span class="indicator-value">${metrics.player1.marketImpact}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-vs enhanced">
+                        <div class="vs-container">
+                            <div class="vs-icon">⚖️</div>
+                            <div class="vs-verdict">
+                                <h4>${metrics.verdict.winner}</h4>
+                                <p>${metrics.verdict.reason}</p>
+                            </div>
+                            <div class="comparison-stats">
+                                <div class="stat">
+                                    <span class="stat-label">Fee Difference</span>
+                                    <span class="stat-value">${metrics.feeDifference}</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Best Value</span>
+                                    <span class="stat-value">${metrics.bestValue}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-card enhanced">
+                        <div class="player-header">
+                            <h3>${transfer2.player}</h3>
+                            <span class="position-badge">${transfer2.position}</span>
+                        </div>
+                        <div class="comparison-details">
+                            <div class="detail-row">
+                                <span class="label">Transfer Route:</span>
+                                <span class="value">${transfer2.fromClub} → ${transfer2.toClub}</span>
+                            </div>
+                            <div class="detail-row highlight">
+                                <span class="label">Transfer Fee:</span>
+                                <span class="value fee">${transfer2.fee}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Status:</span>
+                                <span class="value status ${transfer2.statusClass}">${transfer2.status}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Market Value:</span>
+                                <span class="value">${metrics.player2.marketValue}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Age:</span>
+                                <span class="value">${metrics.player2.age} years</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Contract Length:</span>
+                                <span class="value">${metrics.player2.contractLength}</span>
+                            </div>
+                        </div>
+                        <div class="performance-indicators">
+                            <div class="indicator">
+                                <span class="indicator-label">Value Rating</span>
+                                <div class="indicator-bar">
+                                    <div class="indicator-fill" style="width: ${metrics.player2.valueRating}%"></div>
+                                </div>
+                                <span class="indicator-value">${metrics.player2.valueRating}%</span>
+                            </div>
+                            <div class="indicator">
+                                <span class="indicator-label">Market Impact</span>
+                                <div class="indicator-bar">
+                                    <div class="indicator-fill" style="width: ${metrics.player2.marketImpact}%"></div>
+                                </div>
+                                <span class="indicator-value">${metrics.player2.marketImpact}%</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="comparison-vs">
-                    <div class="vs-icon">⚖️</div>
-                    <p>Comparison</p>
-                </div>
-                <div class="comparison-card">
-                    <h3>${transfer2.player}</h3>
-                    <div class="comparison-details">
-                        <p><strong>From:</strong> ${transfer2.fromClub}</p>
-                        <p><strong>To:</strong> ${transfer2.toClub}</p>
-                        <p><strong>Fee:</strong> ${transfer2.fee}</p>
-                        <p><strong>Position:</strong> ${transfer2.position}</p>
-                        <p><strong>Status:</strong> ${transfer2.status}</p>
+                
+                <div class="comparison-charts">
+                    <div class="chart-container">
+                        <h4>📊 Transfer Fee Analysis</h4>
+                        <canvas id="fee-comparison-chart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h4>📈 Market Value Trends</h4>
+                        <canvas id="value-trend-chart" width="400" height="200"></canvas>
                     </div>
                 </div>
             `;
             
-            showNotification('Transfer comparison generated! 📊', 'success');
+            // Animate the performance indicators
+            setTimeout(() => {
+                const fills = resultsDiv.querySelectorAll('.indicator-fill');
+                fills.forEach(fill => {
+                    const width = fill.style.width;
+                    fill.style.width = '0%';
+                    fill.style.transition = 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                    setTimeout(() => {
+                        fill.style.width = width;
+                    }, 100);
+                });
+            }, 200);
+            
+            // Generate charts
+            generateComparisonCharts(transfer1, transfer2, metrics);
+            
+            showNotification('Advanced transfer comparison generated! 📊', 'success');
         }
 
-        // Timeline Events Setup
+        function calculateComparisonMetrics(transfer1, transfer2) {
+            // Extract fee values for comparison
+            const fee1 = extractFeeValue(transfer1.fee);
+            const fee2 = extractFeeValue(transfer2.fee);
+            
+            // Generate realistic metrics
+            const player1Metrics = {
+                marketValue: generateMarketValue(fee1),
+                age: Math.floor(Math.random() * 10) + 20, // 20-30 years
+                contractLength: `${Math.floor(Math.random() * 4) + 2} years`,
+                valueRating: Math.min(95, Math.max(60, (fee1 / 100) * 100 + Math.random() * 20)),
+                marketImpact: Math.min(95, Math.max(50, fee1 + Math.random() * 30))
+            };
+            
+            const player2Metrics = {
+                marketValue: generateMarketValue(fee2),
+                age: Math.floor(Math.random() * 10) + 20,
+                contractLength: `${Math.floor(Math.random() * 4) + 2} years`,
+                valueRating: Math.min(95, Math.max(60, (fee2 / 100) * 100 + Math.random() * 20)),
+                marketImpact: Math.min(95, Math.max(50, fee2 + Math.random() * 30))
+            };
+            
+            // Determine winner and verdict
+            const verdict = determineWinner(transfer1, transfer2, player1Metrics, player2Metrics, fee1, fee2);
+            
+            return {
+                player1: player1Metrics,
+                player2: player2Metrics,
+                verdict: verdict,
+                feeDifference: Math.abs(fee1 - fee2) > 0 ? `£${Math.abs(fee1 - fee2)}M` : 'Same',
+                bestValue: player1Metrics.valueRating > player2Metrics.valueRating ? transfer1.player : transfer2.player
+            };
+        }
+
+        function extractFeeValue(feeString) {
+            if (feeString.toLowerCase().includes('loan') || feeString.toLowerCase().includes('free')) {
+                return 0;
+            }
+            const match = feeString.match(/£([\d.]+)M?/);
+            return match ? parseFloat(match[1]) : Math.random() * 50 + 10;
+        }
+
+        function generateMarketValue(fee) {
+            const variance = (Math.random() - 0.5) * 20; // ±10M variance
+            const marketValue = Math.max(5, fee + variance);
+            return `£${marketValue.toFixed(1)}M`;
+        }
+
+        function determineWinner(transfer1, transfer2, metrics1, metrics2, fee1, fee2) {
+            const score1 = metrics1.valueRating + metrics1.marketImpact - (fee1 * 0.5);
+            const score2 = metrics2.valueRating + metrics2.marketImpact - (fee2 * 0.5);
+            
+            if (Math.abs(score1 - score2) < 10) {
+                return {
+                    winner: 'Close Match',
+                    reason: 'Both transfers offer similar value proposition'
+                };
+            }
+            
+            if (score1 > score2) {
+                return {
+                    winner: `${transfer1.player} Wins`,
+                    reason: 'Better value for money and market impact'
+                };
+            } else {
+                return {
+                    winner: `${transfer2.player} Wins`,
+                    reason: 'Superior market value and investment potential'
+                };
+            }
+        }
+
+        function generateComparisonCharts(transfer1, transfer2, metrics) {
+            // Fee Comparison Chart
+            const feeCtx = document.getElementById('fee-comparison-chart');
+            if (feeCtx) {
+                createBarChart(feeCtx, {
+                    labels: [transfer1.player, transfer2.player],
+                    data: [extractFeeValue(transfer1.fee), extractFeeValue(transfer2.fee)],
+                    colors: ['#ffd700', '#4a2c7a']
+                });
+            }
+            
+            // Value Trend Chart
+            const valueCtx = document.getElementById('value-trend-chart');
+            if (valueCtx) {
+                createLineChart(valueCtx, {
+                    labels: ['Initial', 'Current', 'Projected'],
+                    datasets: [
+                        {
+                            label: transfer1.player,
+                            data: [
+                                extractFeeValue(transfer1.fee) * 0.8,
+                                extractFeeValue(transfer1.fee),
+                                extractFeeValue(transfer1.fee) * 1.2
+                            ],
+                            color: '#ffd700'
+                        },
+                        {
+                            label: transfer2.player,
+                            data: [
+                                extractFeeValue(transfer2.fee) * 0.8,
+                                extractFeeValue(transfer2.fee),
+                                extractFeeValue(transfer2.fee) * 1.2
+                            ],
+                            color: '#4a2c7a'
+                        }
+                    ]
+                });
+            }
+        }
+
+        function createBarChart(canvas, data) {
+            const ctx = canvas.getContext('2d');
+            const maxValue = Math.max(...data.data);
+            const padding = 40;
+            const barWidth = (canvas.width - padding * 2) / data.data.length - 20;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            data.data.forEach((value, index) => {
+                const barHeight = (value / maxValue) * (canvas.height - padding * 2);
+                const x = padding + index * (barWidth + 20);
+                const y = canvas.height - padding - barHeight;
+                
+                // Create gradient
+                const gradient = ctx.createLinearGradient(0, y, 0, y + barHeight);
+                gradient.addColorStop(0, data.colors[index]);
+                gradient.addColorStop(1, data.colors[index] + '80');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                // Add labels
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(data.labels[index], x + barWidth / 2, canvas.height - 10);
+                ctx.fillText(`£${value}M`, x + barWidth / 2, y - 5);
+            });
+        }
+
+        function createLineChart(canvas, data) {
+            const ctx = canvas.getContext('2d');
+            const padding = 40;
+            const width = canvas.width - padding * 2;
+            const height = canvas.height - padding * 2;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const maxValue = Math.max(...data.datasets.flatMap(d => d.data));
+            const pointWidth = width / (data.labels.length - 1);
+            
+            data.datasets.forEach((dataset, datasetIndex) => {
+                ctx.strokeStyle = dataset.color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                dataset.data.forEach((value, index) => {
+                    const x = padding + index * pointWidth;
+                    const y = padding + height - (value / maxValue) * height;
+                    
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                    
+                    // Draw points
+                    ctx.save();
+                    ctx.fillStyle = dataset.color;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+                
+                ctx.stroke();
+            });
+            
+            // Add labels
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            data.labels.forEach((label, index) => {
+                const x = padding + index * pointWidth;
+                ctx.fillText(label, x, canvas.height - 10);
+            });
+        }
+
+        function exportComparison(player1, player2) {
+            const comparisonData = {
+                title: `Transfer Comparison: ${player1} vs ${player2}`,
+                timestamp: new Date().toISOString(),
+                url: window.location.href
+            };
+            
+            const dataStr = JSON.stringify(comparisonData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `transfer-comparison-${player1.replace(/\s+/g, '-')}-vs-${player2.replace(/\s+/g, '-')}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('Comparison data exported! 📄', 'success');
+        }
+
+        // Enhanced Timeline with Full Functionality
+        let allTimelineEvents = [];
+        let currentTimelineFilter = 'all';
+
         function setupTimelineEvents() {
-            const timelineEvents = document.getElementById('timeline-events');
-            const mockEvents = [
+            // Generate comprehensive timeline events
+            allTimelineEvents = [
                 {
                     time: '2 hours ago',
+                    timestamp: Date.now() - (2 * 60 * 60 * 1000),
                     title: 'Viktor Gyokeres Medical Complete',
                     description: 'Arsenal striker completes medical ahead of £55.3M move from Sporting CP',
-                    type: 'medical'
+                    type: 'medical',
+                    category: 'confirmed',
+                    priority: 'high'
                 },
                 {
                     time: '5 hours ago',
+                    timestamp: Date.now() - (5 * 60 * 60 * 1000),
                     title: 'Mbeumo Signs 5-Year Deal',
                     description: 'Manchester United confirms £71M signing of Bryan Mbeumo from Brentford',
-                    type: 'confirmed'
+                    type: 'confirmed',
+                    category: 'confirmed',
+                    priority: 'high'
                 },
                 {
                     time: '8 hours ago',
+                    timestamp: Date.now() - (8 * 60 * 60 * 1000),
                     title: 'Son Heung-min Agrees Terms',
                     description: 'Tottenham captain agrees personal terms with Los Angeles FC for summer move',
-                    type: 'negotiation'
+                    type: 'negotiation',
+                    category: 'rumors',
+                    priority: 'medium'
                 },
                 {
                     time: '1 day ago',
+                    timestamp: Date.now() - (24 * 60 * 60 * 1000),
                     title: 'Benjamin Sesko Unveiled',
                     description: 'Manchester United unveils new striker signing in front of 50,000 fans',
-                    type: 'confirmed'
+                    type: 'confirmed',
+                    category: 'confirmed',
+                    priority: 'high'
                 },
                 {
                     time: '2 days ago',
+                    timestamp: Date.now() - (2 * 24 * 60 * 60 * 1000),
                     title: 'Grealish Loan Confirmed',
                     description: 'Jack Grealish joins Everton on season-long loan from Manchester City',
-                    type: 'loan'
+                    type: 'loan',
+                    category: 'confirmed',
+                    priority: 'medium'
+                },
+                {
+                    time: '3 days ago',
+                    timestamp: Date.now() - (3 * 24 * 60 * 60 * 1000),
+                    title: 'Zubimendi Medical Scheduled',
+                    description: 'Arsenal close to completing £56M deal for Real Sociedad midfielder',
+                    type: 'medical',
+                    category: 'rumors',
+                    priority: 'high'
+                },
+                {
+                    time: '4 days ago',
+                    timestamp: Date.now() - (4 * 24 * 60 * 60 * 1000),
+                    title: 'Marmoush Deal Agreed',
+                    description: 'Manchester City reach agreement with Eintracht Frankfurt for £59.2M transfer',
+                    type: 'negotiation',
+                    category: 'rumors',
+                    priority: 'high'
+                },
+                {
+                    time: '5 days ago',
+                    timestamp: Date.now() - (5 * 24 * 60 * 60 * 1000),
+                    title: 'Ferguson Medical Complete',
+                    description: 'West Ham complete medical for Brighton striker Evan Ferguson',
+                    type: 'medical',
+                    category: 'medical',
+                    priority: 'medium'
+                },
+                {
+                    time: '1 week ago',
+                    timestamp: Date.now() - (7 * 24 * 60 * 60 * 1000),
+                    title: 'Kerkez Signs with Liverpool',
+                    description: 'Bournemouth left-back completes £40M move to Anfield',
+                    type: 'confirmed',
+                    category: 'confirmed',
+                    priority: 'medium'
+                },
+                {
+                    time: '2 weeks ago',
+                    timestamp: Date.now() - (14 * 24 * 60 * 60 * 1000),
+                    title: 'Sterling to Saudi Arabia',
+                    description: 'Chelsea winger joins Al-Nassr in £32M deal',
+                    type: 'confirmed',
+                    category: 'done-deals',
+                    priority: 'low'
                 }
             ];
             
-            timelineEvents.innerHTML = mockEvents.map(event => `
-                <div class="timeline-event">
-                    <div class="timeline-event-content">
-                        <div class="timeline-time">${event.time}</div>
+            // Setup timeline filter functionality
+            const timelineFilters = document.querySelectorAll('.timeline-filter');
+            timelineFilters.forEach(filter => {
+                filter.addEventListener('click', function() {
+                    timelineFilters.forEach(f => f.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const period = this.dataset.period;
+                    currentTimelineFilter = period;
+                    filterTimelineEvents(period);
+                });
+            });
+            
+            // Initial render
+            filterTimelineEvents('all');
+        }
+
+        function filterTimelineEvents(period) {
+            const now = Date.now();
+            let filteredEvents = [...allTimelineEvents];
+            
+            switch(period) {
+                case 'today':
+                    filteredEvents = allTimelineEvents.filter(event => 
+                        now - event.timestamp < (24 * 60 * 60 * 1000)
+                    );
+                    break;
+                case 'week':
+                    filteredEvents = allTimelineEvents.filter(event => 
+                        now - event.timestamp < (7 * 24 * 60 * 60 * 1000)
+                    );
+                    break;
+                case 'month':
+                    filteredEvents = allTimelineEvents.filter(event => 
+                        now - event.timestamp < (30 * 24 * 60 * 60 * 1000)
+                    );
+                    break;
+                default:
+                    filteredEvents = allTimelineEvents;
+            }
+            
+            renderTimelineEvents(filteredEvents);
+        }
+
+        function renderTimelineEvents(events) {
+            const timelineEvents = document.getElementById('timeline-events');
+            
+            if (events.length === 0) {
+                timelineEvents.innerHTML = `
+                    <div class="timeline-empty">
+                        <i class="fas fa-calendar-times" style="font-size: 3em; color: #8e6bb3; margin-bottom: 15px;"></i>
+                        <p>No transfer events found for this time period</p>
+                        <small>Try selecting a different time range</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            timelineEvents.innerHTML = events.map((event, index) => `
+                <div class="timeline-event" style="animation-delay: ${index * 0.1}s">
+                    <div class="timeline-event-content ${event.priority}">
+                        <div class="timeline-meta">
+                            <span class="timeline-time">${event.time}</span>
+                            <span class="timeline-priority ${event.priority}">${event.priority.toUpperCase()}</span>
+                        </div>
                         <h4 class="timeline-title">${event.title}</h4>
                         <p class="timeline-description">${event.description}</p>
-                        <span class="timeline-badge ${event.type}">${event.type.toUpperCase()}</span>
+                        <div class="timeline-footer">
+                            <span class="timeline-badge ${event.type}">${event.type.toUpperCase()}</span>
+                            <div class="timeline-actions">
+                                <button class="timeline-action-btn" onclick="shareTimelineEvent('${event.title}')">
+                                    <i class="fas fa-share-alt"></i>
+                                </button>
+                                <button class="timeline-action-btn" onclick="addToWatchlistFromTimeline('${event.title}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="timeline-event-dot"></div>
+                    <div class="timeline-event-dot ${event.priority}"></div>
                 </div>
             `).join('');
+            
+            showNotification(`Timeline updated: ${events.length} events shown`, 'info');
+        }
+
+        function shareTimelineEvent(title) {
+            const shareText = `🚨 Transfer Update: ${title}`;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'EPL Transfer Update',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(`${shareText} - ${window.location.href}`);
+                showNotification('Timeline event copied to clipboard!', 'success');
+            }
+        }
+
+        function addToWatchlistFromTimeline(title) {
+            // Extract player name from title
+            const playerName = title.split(' ')[0] + ' ' + (title.split(' ')[1] || '');
+            addToWatchlist(playerName, { closest: () => ({ remove: () => {} }) });
         }
 
         // Watchlist Functionality
@@ -4065,25 +4800,255 @@
             showNotification(`Alert preferences saved! ${checkedAlerts} alert types enabled 🔔`, 'success');
         }
 
-        // Range Slider Functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        // Advanced Filters with Live Search
+        function setupAdvancedFilters() {
+            const panel = document.getElementById('advanced-filters-panel');
             const minValue = document.getElementById('min-value');
             const maxValue = document.getElementById('max-value');
             const minDisplay = document.getElementById('min-value-display');
             const maxDisplay = document.getElementById('max-value-display');
+            const minAge = document.getElementById('min-age');
+            const maxAge = document.getElementById('max-age');
+            const leagueFilter = document.getElementById('league-filter');
+            const contractFilters = panel.querySelectorAll('input[type="checkbox"]');
             
-            if (minValue && maxValue) {
-                function updateRangeValues() {
-                    const min = parseInt(minValue.value);
-                    const max = parseInt(maxValue.value);
+            // Range slider functionality
+            function updateRangeValues() {
+                const min = parseInt(minValue.value);
+                const max = parseInt(maxValue.value);
+                
+                minDisplay.textContent = min === 0 ? '£0M' : `£${min}M`;
+                maxDisplay.textContent = max === 100 ? '£100M+' : `£${max}M`;
+                
+                // Apply live filtering
+                applyAdvancedFilters();
+            }
+            
+            // Apply filters functionality
+            function applyAdvancedFilters() {
+                const filters = {
+                    minValue: parseInt(minValue.value),
+                    maxValue: parseInt(maxValue.value),
+                    minAge: parseInt(minAge.value),
+                    maxAge: parseInt(maxAge.value),
+                    leagues: Array.from(leagueFilter.selectedOptions).map(option => option.value),
+                    contractStatus: Array.from(contractFilters).filter(cb => cb.checked).map(cb => cb.value)
+                };
+                
+                filterTransfersAdvanced(filters);
+                saveFilterPreferences(filters);
+            }
+            
+            // Event listeners
+            minValue.addEventListener('input', updateRangeValues);
+            maxValue.addEventListener('input', updateRangeValues);
+            minAge.addEventListener('change', applyAdvancedFilters);
+            maxAge.addEventListener('change', applyAdvancedFilters);
+            leagueFilter.addEventListener('change', applyAdvancedFilters);
+            contractFilters.forEach(cb => cb.addEventListener('change', applyAdvancedFilters));
+            
+            // Apply and Reset buttons
+            const applyBtn = panel.querySelector('.apply-filters-btn');
+            const resetBtn = panel.querySelector('.reset-filters-btn');
+            
+            applyBtn.addEventListener('click', () => {
+                applyAdvancedFilters();
+                showNotification('Advanced filters applied! 🔍', 'success');
+            });
+            
+            resetBtn.addEventListener('click', () => {
+                resetAdvancedFilters();
+                showNotification('Filters reset to default', 'info');
+            });
+            
+            // Load saved preferences
+            loadFilterPreferences();
+            updateRangeValues();
+        }
+
+        function filterTransfersAdvanced(filters) {
+            const allTransferCards = document.querySelectorAll('.transfer-card');
+            let visibleCount = 0;
+            
+            allTransferCards.forEach(card => {
+                const playerName = card.querySelector('.player-name').textContent;
+                const feeText = card.querySelector('.transfer-fee').textContent;
+                const fee = extractFeeValue(feeText);
+                
+                // Generate mock data for filtering
+                const mockAge = Math.floor(Math.random() * 15) + 18; // 18-33
+                const isVisible = 
+                    fee >= filters.minValue && 
+                    fee <= filters.maxValue &&
+                    mockAge >= filters.minAge &&
+                    mockAge <= filters.maxAge;
+                
+                if (isVisible) {
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                    visibleCount++;
+                } else {
+                    card.style.opacity = '0.3';
+                    card.style.transform = 'scale(0.95)';
+                }
+            });
+            
+            // Update filter results indicator
+            updateFilterResultsIndicator(visibleCount, allTransferCards.length);
+        }
+
+        function updateFilterResultsIndicator(visible, total) {
+            let indicator = document.querySelector('.filter-results-indicator');
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.className = 'filter-results-indicator';
+                indicator.style.cssText = `
+                    position: fixed; bottom: 20px; left: 20px; z-index: 1000;
+                    background: linear-gradient(135deg, #4a2c7a, #6b4c9a); color: white;
+                    padding: 12px 20px; border-radius: 25px; font-weight: 600;
+                    box-shadow: 0 4px 15px rgba(74, 44, 122, 0.3);
+                    transition: all 0.3s ease;
+                `;
+                document.body.appendChild(indicator);
+            }
+            
+            indicator.textContent = `${visible} of ${total} transfers match your filters`;
+            indicator.style.display = visible === total ? 'none' : 'block';
+        }
+
+        function resetAdvancedFilters() {
+            const panel = document.getElementById('advanced-filters-panel');
+            panel.querySelector('#min-value').value = 0;
+            panel.querySelector('#max-value').value = 100;
+            panel.querySelector('#min-age').value = 16;
+            panel.querySelector('#max-age').value = 40;
+            panel.querySelector('#league-filter').selectedIndex = -1;
+            panel.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            // Reset transfer display
+            document.querySelectorAll('.transfer-card').forEach(card => {
+                card.style.display = 'block';
+                card.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+            });
+            
+            // Hide results indicator
+            const indicator = document.querySelector('.filter-results-indicator');
+            if (indicator) indicator.style.display = 'none';
+            
+            // Clear saved preferences
+            localStorage.removeItem('transferFilters');
+        }
+
+        // Data Persistence Functions
+        function saveFilterPreferences(filters) {
+            localStorage.setItem('transferFilters', JSON.stringify(filters));
+        }
+
+        function loadFilterPreferences() {
+            const saved = localStorage.getItem('transferFilters');
+            if (saved) {
+                const filters = JSON.parse(saved);
+                const panel = document.getElementById('advanced-filters-panel');
+                
+                if (panel) {
+                    panel.querySelector('#min-value').value = filters.minValue || 0;
+                    panel.querySelector('#max-value').value = filters.maxValue || 100;
+                    panel.querySelector('#min-age').value = filters.minAge || 16;
+                    panel.querySelector('#max-age').value = filters.maxAge || 40;
                     
-                    minDisplay.textContent = min === 0 ? '£0M' : `£${min}M`;
-                    maxDisplay.textContent = max === 100 ? '£100M+' : `£${max}M`;
+                    if (filters.leagues) {
+                        const leagueSelect = panel.querySelector('#league-filter');
+                        Array.from(leagueSelect.options).forEach(option => {
+                            option.selected = filters.leagues.includes(option.value);
+                        });
+                    }
+                    
+                    if (filters.contractStatus) {
+                        panel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                            cb.checked = filters.contractStatus.includes(cb.value);
+                        });
+                    }
+                }
+            }
+        }
+
+        function saveWatchlistData() {
+            const watchlistCards = document.querySelectorAll('.watchlist-card');
+            const watchlistData = Array.from(watchlistCards).map(card => {
+                const playerName = card.querySelector('h4').textContent;
+                const probability = card.querySelector('.probability-value').textContent;
+                return { playerName, probability, addedAt: Date.now() };
+            });
+            
+            localStorage.setItem('transferWatchlist', JSON.stringify(watchlistData));
+        }
+
+        function loadWatchlistData() {
+            const saved = localStorage.getItem('transferWatchlist');
+            if (saved) {
+                const watchlistData = JSON.parse(saved);
+                const watchlistGrid = document.getElementById('watchlist-grid');
+                const emptyState = watchlistGrid.querySelector('.empty-watchlist');
+                
+                if (emptyState && watchlistData.length > 0) {
+                    emptyState.remove();
                 }
                 
-                minValue.addEventListener('input', updateRangeValues);
-                maxValue.addEventListener('input', updateRangeValues);
-                updateRangeValues();
+                watchlistData.forEach(item => {
+                    const watchlistCard = document.createElement('div');
+                    watchlistCard.className = 'watchlist-card';
+                    watchlistCard.innerHTML = `
+                        <div class="watchlist-player-info">
+                            <h4>${item.playerName}</h4>
+                            <p>Transfer probability: <span class="probability-value">${item.probability}</span></p>
+                            <small>Added ${getTimeAgo(item.addedAt)}</small>
+                        </div>
+                        <button class="remove-from-watchlist" onclick="removeFromWatchlist(this)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    watchlistCard.style.cssText = `
+                        background: linear-gradient(135deg, #ffffff, #f8f9fa);
+                        border: 2px solid #e9ecef; border-radius: 15px; padding: 20px;
+                        display: flex; justify-content: space-between; align-items: center;
+                        transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+                        margin-bottom: 15px;
+                    `;
+                    
+                    watchlistGrid.appendChild(watchlistCard);
+                });
+            }
+        }
+
+        function removeFromWatchlist(button) {
+            button.parentElement.remove();
+            saveWatchlistData();
+            showNotification('Player removed from watchlist', 'info');
+        }
+
+        function getTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            
+            if (diff < 60 * 1000) return 'just now';
+            if (diff < 60 * 60 * 1000) return `${Math.floor(diff / (60 * 1000))} min ago`;
+            if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / (60 * 60 * 1000))} hr ago`;
+            return `${Math.floor(diff / (24 * 60 * 60 * 1000))} days ago`;
+        }
+
+        // Enhanced initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            setupAdvancedFilters();
+            loadWatchlistData();
+            
+            // Auto-save watchlist when changes are made
+            const watchlistGrid = document.getElementById('watchlist-grid');
+            if (watchlistGrid) {
+                const observer = new MutationObserver(() => saveWatchlistData());
+                observer.observe(watchlistGrid, { childList: true });
             }
         });
     </script>

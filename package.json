@@ -8,7 +8,14 @@
     "build": "vite build",
     "preview": "vite preview",
     "server": "node server.js",
-    "server-dev": "nodemon server.js"
+    "server-dev": "nodemon server.js",
+    "build:mobile": "npm run build && npx cap sync",
+    "build:android": "npm run build:mobile && npx cap build android",
+    "build:ios": "npm run build:mobile && npx cap build ios",
+    "dev:android": "npm run build:mobile && npx cap run android",
+    "dev:ios": "npm run build:mobile && npx cap run ios",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios"
   },
   "keywords": [
     "premier-league",
@@ -20,23 +27,28 @@
   "author": "EPL News Hub",
   "license": "MIT",
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.8.1",
-    "express": "^4.18.2",
-    "body-parser": "^1.20.2",
+    "@capacitor/android": "^5.7.8",
+    "@capacitor/cli": "^5.7.8",
+    "@capacitor/core": "^5.7.8",
+    "@capacitor/ios": "^5.7.8",
     "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
     "express-session": "^1.17.3",
     "passport": "^0.6.0",
     "passport-google-oauth20": "^2.0.0",
-    "dotenv": "^16.0.3"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
     "@vitejs/plugin-react": "^3.1.0",
-    "vite": "^4.1.0",
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "vite": "^4.1.0"
   },
   "engines": {
     "node": ">=14.0.0"
