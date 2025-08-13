@@ -45,513 +45,57 @@
     <script src="../article-enhancer.js"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
      crossorigin="anonymous"></script>
-     
-    <style>
-        /* Enhanced Article Template Styles */
-        .article-hero {
-            position: relative;
-            width: 100%;
-            height: 500px;
-            overflow: hidden;
-            margin-bottom: 40px;
-        }
-        
-        .article-hero-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: brightness(0.7);
-        }
-        
-        .article-hero-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 40px;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
-            color: white;
-        }
-        
-        .article-category {
-            display: inline-block;
-            background: #37003c;
-            color: #00ff87;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-        }
-        
-        .article-hero h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            line-height: 1.2;
-            margin: 0 0 20px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        
-        .article-meta {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            font-size: 0.95rem;
-            opacity: 0.9;
-        }
-        
-        .article-author {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .author-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #37003c, #00ff87);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-        }
-        
-        .article-content {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .article-lead {
-            font-size: 1.3rem;
-            line-height: 1.8;
-            color: #333;
-            margin-bottom: 30px;
-            font-weight: 300;
-            border-left: 4px solid #37003c;
-            padding-left: 20px;
-        }
-        
-        .article-body {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #2c3e50;
-        }
-        
-        .article-body h2 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #37003c;
-            margin: 40px 0 20px 0;
-            position: relative;
-            padding-bottom: 10px;
-        }
-        
-        .article-body h2:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(90deg, #37003c, #00ff87);
-        }
-        
-        .article-body h3 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #2c3e50;
-            margin: 30px 0 15px 0;
-        }
-        
-        .article-body p {
-            margin-bottom: 20px;
-        }
-        
-        .article-highlight {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-left: 4px solid #00ff87;
-            padding: 20px;
-            margin: 30px 0;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .article-quote {
-            background: #37003c;
-            color: white;
-            padding: 30px;
-            margin: 40px -20px;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-style: italic;
-            position: relative;
-            quotes: """ """;
-        }
-        
-        .article-quote:before {
-            content: open-quote;
-            font-size: 4rem;
-            position: absolute;
-            top: -10px;
-            left: 20px;
-            opacity: 0.3;
-        }
-        
-        .article-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-        
-        .stat-card {
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .stat-card:hover {
-            border-color: #37003c;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 900;
-            color: #37003c;
-            display: block;
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .article-list {
-            margin: 20px 0;
-            padding-left: 0;
-        }
-        
-        .article-list li {
-            list-style: none;
-            padding: 15px 0 15px 40px;
-            position: relative;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .article-list li:before {
-            content: '⚽';
-            position: absolute;
-            left: 10px;
-            top: 15px;
-        }
-        
-        .article-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 40px 0;
-            padding: 20px 0;
-            border-top: 1px solid #e9ecef;
-        }
-        
-        .article-tag {
-            background: #f8f9fa;
-            color: #37003c;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .article-tag:hover {
-            background: #37003c;
-            color: white;
-            transform: scale(1.05);
-        }
-        
-        .article-share {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 30px 0;
-            border-top: 2px solid #e9ecef;
-            margin-top: 50px;
-        }
-        
-        .share-label {
-            font-weight: 600;
-            color: #37003c;
-        }
-        
-        .share-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #37003c;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .share-button:hover {
-            background: #00ff87;
-            color: #37003c;
-            transform: scale(1.1);
-        }
-        
-        .related-articles {
-            margin: 60px 0;
-            padding: 40px;
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            border-radius: 16px;
-        }
-        
-        .related-articles h2 {
-            font-size: 2rem;
-            color: #37003c;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        .related-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-        }
-        
-        .related-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        
-        .related-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-        
-        .related-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-        
-        .related-card-content {
-            padding: 20px;
-        }
-        
-        .related-card h3 {
-            color: #37003c;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            line-height: 1.4;
-        }
-        
-        .related-card-meta {
-            color: #6c757d;
-            font-size: 0.85rem;
-        }
-        
-        @media (max-width: 768px) {
-            .article-hero {
-                height: 300px;
-            }
-            
-            .article-hero h1 {
-                font-size: 2rem;
-            }
-            
-            .article-hero-overlay {
-                padding: 20px;
-            }
-            
-            .article-content {
-                padding: 0 15px;
-            }
-            
-            .article-quote {
-                margin: 30px 0;
-                padding: 20px;
-            }
-            
-            .related-articles {
-                padding: 20px;
-            }
-        }
-    </style>
 </head>
 <body>
     <div class="header" include="../header.html"></div>
     
-    <!-- Article Hero Section -->
-    <div class="article-hero">
-        <img src="../3455340-70491968-2560-1440.jpg" alt="Alexander Isak Refuses to Play for Newcastle: Latest Transfer News" class="article-hero-image">
-        <div class="article-hero-overlay">
-            <span class="article-category">TRANSFER NEWS</span>
-            <h1>Alexander Isak Refuses to Play for Newcastle: Latest Transfer News</h1>
-            <div class="article-meta">
-                <div class="article-author">
-                    <div class="author-avatar">EPL</div>
-                    <div>
-                        <div style="font-weight: 600;">EPL News Hub</div>
-                        <time datetime="2025-08-12" style="opacity: 0.8;">August 12, 2025</time>
-                    </div>
-                </div>
-                <span>•</span>
-                <span>📖 8 min read</span>
-            </div>
-        </div>
-    </div>
-    
     <!-- Main Content Area -->
     <main class="main-content">
-        <div class="article-content">
-            <!-- Lead Paragraph -->
-            <p class="article-lead">
-                In a dramatic escalation shaking the Premier League, Alexander Isak has vowed never to play for Newcastle United again, igniting widespread Alexander Isak transfer news. The 25-year-old Swedish striker's Isak Newcastle refusal comes amid strong Liverpool interest, with the Reds' £110 million bid rejected but still in play.
-            </p>
-            
-            <!-- Article Body -->
-            <div class="article-body">
-                <!-- Main Content Section 1 -->
-                <h2>Alexander Isak Newcastle Career: From Record Signing to Refusal Drama</h2>
+        <div class="content-wrapper">
+            <article class="nyt-article">
+                <h1>Alexander Isak Refuses to Play for Newcastle: Latest Transfer News on Isak Newcastle Refusal and Liverpool Interest</h1>
+                <div class="byline">
+                    <span>By EPL News Hub</span> | <time datetime="2025-08-12">August 12, 2025</time>
+                </div>
+                
+                <!-- Hero Image -->
+                <img src="../3455340-70491968-2560-1440.jpg" alt="Alexander Isak refuses to play for Newcastle United" class="article-hero-image" style="width: 100%; max-width: 800px; height: auto; margin: 20px 0; border-radius: 8px;">
+                
+                <!-- Introduction paragraph -->
+                <p>In a dramatic escalation shaking the Premier League, <strong>Alexander Isak has vowed never to play for Newcastle United again</strong>, igniting widespread Alexander Isak transfer news. The 25-year-old Swedish striker's Isak Newcastle refusal comes amid strong Liverpool interest, with the Reds' £110 million bid rejected but still in play. As the 2025 summer transfer window nears its close on September 1, this Alexander Isak Newcastle standoff could force a last-minute deal, impacting Newcastle United transfer updates and Premier League 2025/26 season dynamics.</p>
+                <h2>Alexander Isak Newcastle Career: From Record Signing to Isak Refusal Drama</h2>
                 <p>Alexander Isak arrived at Newcastle United in August 2022 from Real Sociedad for a club-record £63 million, marking a pivotal Newcastle United transfer in their post-takeover rebuild. The forward's impact was immediate: in the 2022/23 Premier League season, Isak scored 10 goals in 22 appearances, aiding a top-four finish and Champions League qualification. His stats shone with 0.61 goals per 90 minutes, highlighting why he's a top Premier League striker.</p>
                 
                 <p>By 2023/24, Alexander Isak elevated his game, netting 21 goals in 30 matches and leading Newcastle to Carabao Cup glory—their first major trophy in decades. In 2024/25, he added 18 goals and 7 assists in 28 games, boasting 85% pass accuracy, 4.1 shots per game, and 2.4 dribbles per 90. Overall, Isak Newcastle stats include 49 goals and 15 assists in 80 Premier League outings, solidifying his £150 million market value amid Alexander Isak transfer rumors.</p>
                 
-                <!-- Optional: Highlight Box -->
-                <div class="article-highlight">
-                    <strong>Key Point:</strong> Despite these feats, frustrations mounted. Newcastle's 8th-place finish last season with 58 points clashed with Isak's ambitions, fueling the Alexander Isak refuses to play for Newcastle narrative.
-                </div>
+                <p><strong>Key Point:</strong> Despite these feats, frustrations mounted. Newcastle's 8th-place finish last season with 58 points clashed with Isak's ambitions, fueling the Alexander Isak refuses to play for Newcastle narrative. Sources indicate he feels undervalued, viewing his Newcastle tenure as over despite a contract until 2028.</p>
                 
-                <!-- Optional: Statistics Grid -->
-                <div class="article-stats">
-                    <div class="stat-card">
-                        <span class="stat-number">49</span>
-                        <span class="stat-label">Goals in 80 Games</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-number">£150m</span>
-                        <span class="stat-label">Current Market Value</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-number">£110m</span>
-                        <span class="stat-label">Liverpool's Rejected Bid</span>
-                    </div>
-                </div>
-                
-                <!-- Main Content Section 2 -->
                 <h2>The Alexander Isak Refusal Breakdown: Isak Newcastle Standoff Details</h2>
                 <p>On August 12, 2025, reports from The Athletic confirmed Alexander Isak informed Eddie Howe and Newcastle officials of his firm stance: no more games for the Magpies, even post-window. This Isak refusal Newcastle act resembles a strike, with his agent pushing for an exit. Liverpool's £110 million offer was turned down, but they persist, eyeing Isak as a frontline upgrade alongside Mohamed Salah.</p>
                 
                 <p>Newcastle demands £150 million+, but Isak's holdout risks devaluing him. Eddie Howe noted the decision involves the board, amid Profit and Sustainability Rules concerns over his £150,000 weekly wages. Without Isak, Newcastle's attack weakens, especially after eyeing replacements like Benjamin Sesko unsuccessfully.</p>
                 
-                <!-- Main Content Section 3 -->
                 <h2>Why the Alexander Isak Newcastle Rift? Ambition and Frustration Explored</h2>
                 <p>The Alexander Isak transfer news stems from perceived underappreciation. Despite delivering Champions League football and a potential £130 million sale profit, Isak seeks bigger stages. Pundits like Gabby Agbonlahor criticized the move, warning Liverpool against a player who "downs tools," while Paul Merson lamented a tainted legacy. On X, fans debate Isak Newcastle refusal, praising his contributions but questioning loyalty.</p>
                 
                 <p>Alexander Isak stats underscore his elite status: leading Newcastle in goals, key passes (1.8 per 90), and more. Yet, mid-table stagnation contrasts his potential, driving Isak Liverpool interest.</p>
                 
-                <!-- Optional: Quote -->
-                <div class="article-quote">
-                    Sources indicate he feels undervalued, viewing his Newcastle tenure as over despite a contract until 2028.
-                </div>
-                
-                <!-- Main Content Section 4 -->
                 <h2>Newcastle United's Options: Sell Isak or Risk Premier League Fallout?</h2>
                 <p>Facing the 2025/26 Premier League opener against Aston Villa on August 16, Newcastle must decide: sell and reinvest or stand firm? A prolonged Alexander Isak standoff could breach PSR via unused wages, while losing him hampers goals. Liverpool transfer news suggests they're ready to pounce, potentially forming a deadly duo with Salah.</p>
                 
                 <p>This Alexander Isak refuses to play saga echoes past holdouts like Pierre-Emerick Aubameyang's Arsenal exit. For Newcastle United fans, it's a blow; for Premier League transfer watchers, it's must-follow drama.</p>
                 
-                <!-- Optional: Key Points List -->
                 <h3>Key Takeaways:</h3>
-                <ul class="article-list">
+                <ul>
                     <li>Alexander Isak has refused to play for Newcastle United again, creating a major transfer standoff</li>
                     <li>Liverpool's £110 million bid was rejected, but they remain interested in the Swedish striker</li>
                     <li>Newcastle demands £150 million+ for their star player amid PSR concerns</li>
                     <li>The refusal comes after Newcastle's disappointing 8th-place finish last season</li>
                 </ul>
                 
-                <!-- Conclusion -->
                 <h2>Looking Ahead</h2>
                 <p>If Alexander Isak moves to Liverpool, expect a transformed attack boosting their title bid. Newcastle could use funds for squad depth, but short-term, it's disruptive. Stay tuned for Alexander Isak latest news, Premier League transfer rumors, and how this Isak refusal reshapes the season. As the 2025 summer transfer window nears its close on September 1, this Alexander Isak Newcastle standoff could force a last-minute deal, impacting Newcastle United transfer updates and Premier League 2025/26 season dynamics.</p>
-            </div>
-            
-            <!-- Article Tags -->
-            <div class="article-tags">
-                <a href="#" class="article-tag">#PremierLeague</a>
-                <a href="#" class="article-tag">#NewcastleUnited</a>
-                <a href="#" class="article-tag">#AlexanderIsak</a>
-                <a href="#" class="article-tag">#Liverpool</a>
-                <a href="#" class="article-tag">#TransferNews</a>
-                <a href="#" class="article-tag">#EPLNews</a>
-            </div>
-            
-            <!-- Share Section -->
-            <div class="article-share">
-                <span class="share-label">Share this article:</span>
-                <a href="https://twitter.com/intent/tweet?url=https://eplnewshub.com/articles/isak-refuses-newcastle-transfer-2025-08-12.html&text=Alexander Isak Refuses to Play for Newcastle: Latest Transfer News" class="share-button" target="_blank">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                    </svg>
-                </a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u=https://eplnewshub.com/articles/isak-refuses-newcastle-transfer-2025-08-12.html" class="share-button" target="_blank">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                </a>
-                <a href="mailto:?subject=Alexander Isak Refuses to Play for Newcastle: Latest Transfer News&body=Check out this article: https://eplnewshub.com/articles/isak-refuses-newcastle-transfer-2025-08-12.html" class="share-button">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                    </svg>
-                </a>
-            </div>
-            
-            <!-- Related Articles -->
-            <div class="related-articles">
-                <h2>Related Articles</h2>
-                <div class="related-grid">
-                    <a href="#" class="related-card">
-                        <img src="../newcastle-transfer-news.jpg" alt="Newcastle Transfer Latest">
-                        <div class="related-card-content">
-                            <h3>Newcastle Transfer Latest: Summer Window Updates</h3>
-                            <div class="related-card-meta">August 10, 2025</div>
-                        </div>
-                    </a>
-                    <a href="#" class="related-card">
-                        <img src="../liverpool-striker-search.jpg" alt="Liverpool Striker Search">
-                        <div class="related-card-content">
-                            <h3>Liverpool's Striker Search: Who Will Replace Salah?</h3>
-                            <div class="related-card-meta">August 8, 2025</div>
-                        </div>
-                    </a>
-                    <a href="#" class="related-card">
-                        <img src="../premier-league-transfers.jpg" alt="Premier League Transfers">
-                        <div class="related-card-content">
-                            <h3>Premier League Transfer Roundup: Biggest Moves</h3>
-                            <div class="related-card-meta">August 5, 2025</div>
-                        </div>
-                    </a>
-                </div>
-            </div>
+            </article>
         </div>
         
         <!-- Structured Data -->
