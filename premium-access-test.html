@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Access Control Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .test-section h3 {
+            color: #37003c;
+            margin-bottom: 15px;
+        }
+        
+        .user-controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+        
+        .status-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        
+        .premium-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-link {
+            display: block;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .feature-link.pro {
+            border-color: #6f42c1;
+            background: linear-gradient(135deg, #f3e8ff, #ffffff);
+        }
+        
+        .feature-link.starter {
+            border-color: #fd7e14;
+            background: linear-gradient(135deg, #fff3e0, #ffffff);
+        }
+    </style>
+</head>
+<body>
+    <div class="header" include="./header.html"></div>
+    
+    <div class="test-container">
+        <h1>🧪 Premium Access Control Test</h1>
+        <p>This page allows you to test the premium access control system by simulating different user membership levels.</p>
+        
+        <div class="test-section">
+            <h3>Current User Status</h3>
+            <div id="currentStatus" class="status-display">Loading...</div>
+            <button class="btn btn-primary" onclick="refreshStatus()">🔄 Refresh Status</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>Simulate User Types</h3>
+            <p>Click the buttons below to simulate different user membership levels:</p>
+            <div class="user-controls">
+                <button class="btn btn-danger" onclick="simulateUser('free', false)">
+                    Free User (Not Logged In)
+                </button>
+                <button class="btn btn-warning" onclick="simulateUser('free', true)">
+                    Free User (Logged In)
+                </button>
+                <button class="btn btn-success" onclick="simulateUser('starter', true)">
+                    Starter Member (Active)
+                </button>
+                <button class="btn btn-primary" onclick="simulateUser('pro', true)">
+                    Pro Member (Active)
+                </button>
+                <button class="btn btn-danger" onclick="simulateUser('pro', false)">
+                    Pro Member (Inactive)
+                </button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Test Premium Features</h3>
+            <p>Click on these premium features to test access control:</p>
+            <div class="premium-links">
+                <a href="player-predictor.html" class="feature-link pro">
+                    🔮 Player Predictor<br>
+                    <small>(Pro Only)</small>
+                </a>
+                <a href="budget-optimizer.html" class="feature-link pro">
+                    💰 Budget Optimizer<br>
+                    <small>(Pro Only)</small>
+                </a>
+                <a href="transfer-simulator-pro.html" class="feature-link starter">
+                    ⚡ Transfer Simulator Pro<br>
+                    <small>(Starter+)</small>
+                </a>
+                <a href="player-data-enhanced.html" class="feature-link starter">
+                    📊 Player Analytics<br>
+                    <small>(Starter+)</small>
+                </a>
+                <a href="fpl-ai-assistant.html" class="feature-link">
+                    🤖 FPL AI Assistant<br>
+                    <small>(Limited Free)</small>
+                </a>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Reset & Clear</h3>
+            <button class="btn btn-danger" onclick="clearAllData()">
+                🗑️ Clear All Test Data
+            </button>
+        </div>
+    </div>
+    
+    <div class="footer" include="./footer.html"></div>
+    <script src="./index.js"></script>
+    <script src="./auth-service.js"></script>
+    <script src="./subscription-manager.js"></script>
+    <script src="./premium-access-control.js"></script>
+    
+    <script>
+        function simulateUser(tier, isActive) {
+            console.log(`Simulating user: ${tier} (${isActive ? 'active' : 'inactive'})`);
+            
+            // Use auth service if available
+            if (window.authService && window.authService.simulateLogin) {
+                window.authService.simulateLogin(tier, isActive);
+            } else {
+                // Fallback to direct localStorage manipulation
+                localStorage.setItem('userLoggedIn', isActive ? 'true' : 'false');
+                localStorage.setItem('membershipLevel', tier);
+                
+                // Set subscription data
+                const subscriptionData = {
+                    tier: tier,
+                    status: isActive ? 'active' : 'inactive',
+                    lastChecked: new Date().toISOString()
+                };
+                localStorage.setItem('eplSubscription', JSON.stringify(subscriptionData));
+                
+                // If subscription manager exists, update it
+                if (window.subscriptionManager) {
+                    window.subscriptionManager.subscriptionData = subscriptionData;
+                    window.subscriptionManager.updateUIBasedOnSubscription();
+                }
+                
+                // Refresh premium access control
+                if (window.premiumAccessControl) {
+                    window.premiumAccessControl.refreshUserStatus();
+                }
+            }
+            
+            // Update status display
+            refreshStatus();
+            
+            // Show notification
+            showNotification(`User simulated: ${tier} membership (${isActive ? 'active' : 'inactive'})`, 'success');
+        }
+        
+        function refreshStatus() {
+            const statusEl = document.getElementById('currentStatus');
+            
+            if (window.premiumAccessControl) {
+                const status = window.premiumAccessControl.userStatus;
+                statusEl.innerHTML = `
+                    <strong>Logged In:</strong> ${status.isLoggedIn}<br>
+                    <strong>Membership Level:</strong> ${status.membershipLevel}<br>
+                    <strong>Active Subscription:</strong> ${status.isActive}<br>
+                    <strong>Daily AI Usage:</strong> ${status.dailyUsage.aiQueries} queries
+                `;
+            } else {
+                statusEl.innerHTML = 'Premium access control not loaded';
+            }
+        }
+        
+        function clearAllData() {
+            localStorage.removeItem('userLoggedIn');
+            localStorage.removeItem('membershipLevel');
+            localStorage.removeItem('eplSubscription');
+            localStorage.removeItem('dailyUsage');
+            
+            // Reset subscription manager if it exists
+            if (window.subscriptionManager) {
+                window.subscriptionManager.clearSubscription();
+            }
+            
+            // Refresh premium access control
+            if (window.premiumAccessControl) {
+                window.premiumAccessControl.refreshUserStatus();
+            }
+            
+            refreshStatus();
+            showNotification('All test data cleared', 'info');
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 600;
+                z-index: 10000;
+                max-width: 300px;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            const colors = {
+                success: 'linear-gradient(135deg, #28a745, #20c997)',
+                error: 'linear-gradient(135deg, #dc3545, #c82333)',
+                info: 'linear-gradient(135deg, #17a2b8, #138496)'
+            };
+            
+            notification.style.background = colors[type] || colors.info;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize status display
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(refreshStatus, 500); // Delay to ensure scripts are loaded
+        });
+    </script>
+</body>
+</html>

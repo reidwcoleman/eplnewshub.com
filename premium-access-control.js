@@ -33,18 +33,71 @@ class PremiumAccessControl {
 
     /**
      * Get user authentication and membership status
-     * In a real implementation, this would integrate with Firebase Auth
+     * Integrates with auth service, subscription manager, and server-side authentication
      */
     getUserStatus() {
-        // Check if user is logged in (placeholder - would use Firebase Auth)
+        // First check if auth service has current user data
+        if (window.authService && window.authService.getCurrentUser()) {
+            const user = window.authService.getCurrentUser();
+            const subscription = window.authService.getSubscription();
+            return {
+                isLoggedIn: window.authService.isLoggedIn(),
+                membershipLevel: window.authService.getMembershipTier(),
+                dailyUsage: this.getDailyUsage(),
+                isActive: window.authService.hasActiveSubscription()
+            };
+        }
+        
+        // Second, check if subscription manager has current user data
+        if (window.subscriptionManager && window.subscriptionManager.subscriptionData) {
+            const subData = window.subscriptionManager.subscriptionData;
+            return {
+                isLoggedIn: true,
+                membershipLevel: subData.tier || 'free',
+                dailyUsage: this.getDailyUsage(),
+                isActive: subData.status === 'active'
+            };
+        }
+        
+        // Check localStorage for cached user status (fallback)
         const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
         const membershipLevel = localStorage.getItem('membershipLevel') || 'free';
+        const subscriptionData = localStorage.getItem('eplSubscription');
+        
+        if (subscriptionData) {
+            try {
+                const parsed = JSON.parse(subscriptionData);
+                return {
+                    isLoggedIn: isLoggedIn,
+                    membershipLevel: parsed.tier || membershipLevel,
+                    dailyUsage: this.getDailyUsage(),
+                    isActive: parsed.status === 'active'
+                };
+            } catch (error) {
+                console.error('Error parsing subscription data:', error);
+            }
+        }
         
         return {
             isLoggedIn: isLoggedIn,
             membershipLevel: membershipLevel, // 'free', 'starter', 'pro'
-            dailyUsage: this.getDailyUsage()
+            dailyUsage: this.getDailyUsage(),
+            isActive: false
         };
+    }
+
+    /**
+     * Refresh user status (call when subscription changes)
+     */
+    refreshUserStatus() {
+        this.userStatus = this.getUserStatus();
+        this.addPremiumIndicators();
+        
+        // Re-check access for current page
+        const currentPage = window.location.pathname.split('/').pop();
+        if (this.requiresAccessControl(currentPage)) {
+            this.enforceAccess(currentPage);
+        }
     }
 
     /**
@@ -85,16 +138,20 @@ class PremiumAccessControl {
      * Check if user has access to a specific feature
      */
     hasAccess(feature) {
-        const { isLoggedIn, membershipLevel, dailyUsage } = this.userStatus;
+        const { isLoggedIn, membershipLevel, dailyUsage, isActive } = this.userStatus;
         
         // Special handling for AI Assistant (has limited free access)
         if (feature === this.aiAssistantFeature) {
-            if (membershipLevel === 'pro') return { hasAccess: true, unlimited: true };
-            if (membershipLevel === 'starter') return { 
-                hasAccess: dailyUsage.aiQueries < 50, 
-                unlimited: false,
-                remaining: 50 - dailyUsage.aiQueries 
-            };
+            if (isLoggedIn && isActive && membershipLevel === 'pro') {
+                return { hasAccess: true, unlimited: true };
+            }
+            if (isLoggedIn && isActive && membershipLevel === 'starter') {
+                return { 
+                    hasAccess: dailyUsage.aiQueries < 50, 
+                    unlimited: false,
+                    remaining: 50 - dailyUsage.aiQueries 
+                };
+            }
             // Free users get 5 queries per day
             return { 
                 hasAccess: dailyUsage.aiQueries < 5, 
@@ -103,19 +160,19 @@ class PremiumAccessControl {
             };
         }
         
-        // Pro-only features
+        // Pro-only features - require active pro subscription
         if (this.proOnlyFeatures.includes(feature)) {
             return { 
-                hasAccess: membershipLevel === 'pro', 
+                hasAccess: isLoggedIn && isActive && membershipLevel === 'pro', 
                 unlimited: true,
                 requiredTier: 'pro'
             };
         }
         
-        // Starter + Pro features
+        // Starter + Pro features - require active starter or pro subscription
         if (this.starterPlusFeatures.includes(feature)) {
             return { 
-                hasAccess: membershipLevel === 'starter' || membershipLevel === 'pro', 
+                hasAccess: isLoggedIn && isActive && (membershipLevel === 'starter' || membershipLevel === 'pro'), 
                 unlimited: true,
                 requiredTier: 'starter'
             };
@@ -152,6 +209,12 @@ class PremiumAccessControl {
      */
     enforceAccess(page) {
         const access = this.hasAccess(page);
+        
+        // Remove any existing overlay first
+        const existingOverlay = document.getElementById('premium-access-overlay');
+        if (existingOverlay) {
+            document.body.removeChild(existingOverlay);
+        }
         
         if (!access.hasAccess) {
             this.showAccessDeniedOverlay(page);
@@ -438,6 +501,38 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add premium indicators to UI
     window.premiumAccessControl.addPremiumIndicators();
+    
+    // Listen for subscription updates from subscription manager
+    window.addEventListener('subscriptionUpdated', (event) => {
+        console.log('Subscription updated, refreshing access control...', event.detail);
+        window.premiumAccessControl.refreshUserStatus();
+        
+        // Remove any existing access denied overlays if user now has access
+        const overlay = document.getElementById('premium-access-overlay');
+        if (overlay) {
+            const currentPage = window.location.pathname.split('/').pop();
+            const access = window.premiumAccessControl.hasAccess(currentPage);
+            if (access.hasAccess) {
+                document.body.removeChild(overlay);
+            }
+        }
+    });
+    
+    // Listen for auth service events
+    window.addEventListener('authChanged', (event) => {
+        console.log('Authentication changed, refreshing access control...', event.detail);
+        window.premiumAccessControl.refreshUserStatus();
+        
+        // Remove any existing access denied overlays if user now has access
+        const overlay = document.getElementById('premium-access-overlay');
+        if (overlay) {
+            const currentPage = window.location.pathname.split('/').pop();
+            const access = window.premiumAccessControl.hasAccess(currentPage);
+            if (access.hasAccess) {
+                document.body.removeChild(overlay);
+            }
+        }
+    });
     
     // Development helper functions (remove in production)
     if (localStorage.getItem('devMode') === 'true') {
