@@ -826,6 +826,11 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100%); }
+        }
     </style>
 </head>
 <body>
@@ -880,10 +885,14 @@
                         <label>Team</label>
                         <select id="teamFilter">
                             <option value="all">All Teams</option>
-                            <option value="ARS">Arsenal</option>
-                            <option value="CHE">Chelsea</option>
-                            <option value="LIV">Liverpool</option>
-                            <option value="MCI">Man City</option>
+                            <option value="1">Manchester City</option>
+                            <option value="2">Liverpool</option>
+                            <option value="3">Chelsea</option>
+                            <option value="4">Arsenal</option>
+                            <option value="5">Nottingham Forest</option>
+                            <option value="6">Crystal Palace</option>
+                            <option value="7">Everton</option>
+                            <option value="8">Tottenham</option>
                         </select>
                     </div>
                     <div class="filter-item">
@@ -1112,43 +1121,123 @@
             async loadData() {
                 try {
                     const fplService = new FPLDataService();
+                    
+                    // Try to load real data first
+                    console.log('Attempting to load live FPL data...');
                     const data = await fplService.getBootstrapData();
-                    this.processPlayerData(data);
-                    this.updateDashboard();
-                    this.renderTable();
+                    
+                    if (data && data.elements && data.elements.length > 0) {
+                        console.log('Successfully loaded live FPL data');
+                        this.processPlayerData(data);
+                    } else {
+                        throw new Error('Invalid data structure received');
+                    }
+                    
                 } catch (error) {
-                    console.error('Error loading data:', error);
+                    console.error('Failed to load live data, using mock data:', error);
+                    
                     // Use mock data as fallback
                     const fplService = new FPLDataService();
                     const mockData = fplService.getMockBootstrapData();
                     this.processPlayerData(mockData);
+                    
+                    // Show notification that we're using mock data
+                    this.showMockDataNotification();
                 }
+                
+                this.updateDashboard();
+                this.renderTable();
+            }
+            
+            showMockDataNotification() {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 80px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                    z-index: 10000;
+                    font-weight: 600;
+                    max-width: 300px;
+                `;
+                notification.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span>⚠️</span>
+                        <div>
+                            <div>Demo Mode Active</div>
+                            <div style="font-size: 0.8rem; opacity: 0.9; margin-top: 2px;">
+                                Using sample data for demonstration
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.style.animation = 'fadeOut 0.3s ease';
+                        setTimeout(() => notification.remove(), 300);
+                    }
+                }, 5000);
             }
             
             processPlayerData(data) {
-                this.players = data.elements.map(player => ({
-                    id: player.id,
-                    name: `${player.first_name} ${player.second_name}`,
-                    team: player.team,
-                    position: this.getPositionName(player.element_type),
-                    price: player.now_cost / 10,
-                    points: player.total_points,
-                    form: parseFloat(player.form),
-                    ownership: parseFloat(player.selected_by_percent),
-                    value: player.total_points > 0 ? (player.total_points / (player.now_cost / 10)).toFixed(1) : '0.0',
-                    ict: parseFloat(player.ict_index),
-                    goals: player.goals_scored,
-                    assists: player.assists,
-                    cleanSheets: player.clean_sheets,
-                    saves: player.saves || 0,
-                    bonus: player.bonus,
-                    minutes: player.minutes,
-                    transfersIn: player.transfers_in_event,
-                    transfersOut: player.transfers_out_event,
-                    chanceOfPlaying: player.chance_of_playing_next_round
-                }));
+                // Store teams data for mapping
+                this.teams = {};
+                if (data.teams) {
+                    data.teams.forEach(team => {
+                        this.teams[team.id] = team;
+                    });
+                }
                 
+                // Store element types for mapping
+                this.elementTypes = {};
+                if (data.element_types) {
+                    data.element_types.forEach(type => {
+                        this.elementTypes[type.id] = type;
+                    });
+                }
+                
+                this.players = data.elements.map(player => {
+                    const team = this.teams[player.team] || { short_name: `T${player.team}` };
+                    const price = player.now_cost / 10;
+                    const totalPoints = player.total_points || 0;
+                    
+                    return {
+                        id: player.id,
+                        name: `${player.first_name} ${player.second_name}`.trim(),
+                        team: player.team,
+                        teamName: team.short_name || team.name || `Team ${player.team}`,
+                        position: this.getPositionName(player.element_type),
+                        price: price,
+                        points: totalPoints,
+                        form: parseFloat(player.form || 0),
+                        ownership: parseFloat(player.selected_by_percent || 0),
+                        value: totalPoints > 0 ? (totalPoints / price).toFixed(1) : '0.0',
+                        ict: parseFloat(player.ict_index || 0),
+                        goals: player.goals_scored || 0,
+                        assists: player.assists || 0,
+                        cleanSheets: player.clean_sheets || 0,
+                        saves: player.saves || 0,
+                        bonus: player.bonus || 0,
+                        minutes: player.minutes || 0,
+                        transfersIn: player.transfers_in_event || 0,
+                        transfersOut: player.transfers_out_event || 0,
+                        chanceOfPlaying: player.chance_of_playing_next_round || 100
+                    };
+                });
+                
+                // Sort players by total points descending
+                this.players.sort((a, b) => b.points - a.points);
                 this.filteredPlayers = [...this.players];
+                
+                console.log(`Processed ${this.players.length} players`);
             }
             
             getPositionName(type) {
@@ -1185,7 +1274,7 @@
                         <span class="trend-rank">${index + 1}</span>
                         <div class="trend-info">
                             <div class="trend-name">${player.name}</div>
-                            <div class="trend-stats">${player.position} • £${player.price.toFixed(1)}m</div>
+                            <div class="trend-stats">${player.teamName} • ${player.position} • £${player.price.toFixed(1)}m</div>
                         </div>
                         <div class="trend-change">
                             <div style="color: ${player.transfersIn > player.transfersOut ? '#22c55e' : '#ef4444'}; font-weight: 600;">
@@ -1209,7 +1298,7 @@
                         <span class="trend-rank" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);">💎</span>
                         <div class="trend-info">
                             <div class="trend-name">${player.name}</div>
-                            <div class="trend-stats">${player.position} • £${player.price.toFixed(1)}m</div>
+                            <div class="trend-stats">${player.teamName} • ${player.position} • £${player.price.toFixed(1)}m</div>
                         </div>
                         <div class="trend-change">
                             <div style="color: #667eea; font-weight: 600;">${player.value}</div>
@@ -1258,10 +1347,10 @@
                     <tr>
                         <td>
                             <div class="player-cell">
-                                <div class="player-photo">${player.name.charAt(0)}</div>
+                                <div class="player-photo">${player.name.charAt(0)}${player.name.split(' ')[1] ? player.name.split(' ')[1].charAt(0) : ''}</div>
                                 <div class="player-details">
                                     <div class="player-name">${player.name}</div>
-                                    <div class="player-team">Team ${player.team}</div>
+                                    <div class="player-team">${player.teamName}</div>
                                 </div>
                             </div>
                         </td>
