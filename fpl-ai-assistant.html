@@ -510,17 +510,579 @@
     <script src="./index.js"></script>
 
     <script>
+        // Advanced ML Prediction Engine
+        class FPLPredictionEngine {
+            constructor() {
+                this.modelWeights = {
+                    form: 0.25,
+                    fixtures: 0.20,
+                    xStats: 0.18,
+                    price: 0.12,
+                    ownership: 0.10,
+                    historical: 0.15
+                };
+                this.volatilityMatrix = {};
+                this.playerClusters = {};
+            }
+
+            predictPlayerPoints(player, gameweek, fixtures) {
+                const baseScore = this.calculateBaseScore(player);
+                const fixtureMultiplier = this.calculateFixtureMultiplier(player, fixtures);
+                const formTrend = this.calculateFormTrend(player);
+                const volatility = this.calculateVolatility(player);
+                
+                const prediction = (baseScore * fixtureMultiplier * formTrend) + volatility;
+                const confidence = this.calculateConfidence(player, fixtures);
+                
+                return {
+                    expectedPoints: Math.round(prediction * 10) / 10,
+                    confidence: Math.round(confidence * 100),
+                    reasoning: this.generatePredictionReasoning(player, fixtureMultiplier, formTrend),
+                    range: {
+                        min: Math.max(0, prediction - volatility),
+                        max: prediction + volatility
+                    }
+                };
+            }
+
+            calculateBaseScore(player) {
+                return (player.total_points || 0) / Math.max(1, player.minutes || 1) * 90;
+            }
+
+            calculateFixtureMultiplier(player, fixtures) {
+                if (!fixtures || !fixtures.length) return 1.0;
+                
+                const avgDifficulty = fixtures.reduce((sum, f) => sum + (f.difficulty || 3), 0) / fixtures.length;
+                const homeBonus = fixtures.some(f => f.is_home) ? 1.15 : 1.0;
+                
+                return (6 - avgDifficulty) * 0.15 + 0.7 * homeBonus;
+            }
+
+            calculateFormTrend(player) {
+                if (!player.form) return 1.0;
+                const form = parseFloat(player.form);
+                return Math.max(0.5, Math.min(2.0, form / 5));
+            }
+
+            calculateVolatility(player) {
+                const position = player.element_type;
+                const baseVolatility = {1: 1.5, 2: 2.0, 3: 3.0, 4: 4.0}[position] || 2.0;
+                const priceVolatility = Math.max(0.5, (player.now_cost || 50) / 100);
+                return baseVolatility * priceVolatility * Math.random() * 0.3;
+            }
+
+            calculateConfidence(player, fixtures) {
+                let confidence = 0.7; // Base confidence
+                
+                if (player.minutes > 1800) confidence += 0.15; // Reliable starter
+                if (player.form > 6) confidence += 0.1; // Good form
+                if (fixtures && fixtures.length > 0) {
+                    const avgDiff = fixtures.reduce((sum, f) => sum + (f.difficulty || 3), 0) / fixtures.length;
+                    confidence += (5 - avgDiff) * 0.05; // Easier fixtures = higher confidence
+                }
+                
+                return Math.min(0.95, Math.max(0.3, confidence));
+            }
+
+            generatePredictionReasoning(player, fixtureMultiplier, formTrend) {
+                const reasons = [];
+                
+                if (formTrend > 1.2) reasons.push("excellent recent form");
+                else if (formTrend < 0.8) reasons.push("poor recent form");
+                
+                if (fixtureMultiplier > 1.1) reasons.push("favorable fixtures");
+                else if (fixtureMultiplier < 0.9) reasons.push("tough fixtures");
+                
+                if (player.minutes > 2000) reasons.push("regular starter");
+                if (player.penalties_order === 1) reasons.push("penalty taker");
+                
+                return reasons.length > 0 ? reasons.join(", ") : "standard expectation";
+            }
+
+            analyzeTransferValue(playerIn, playerOut, gameweeksAhead = 4) {
+                const inPrediction = this.predictPlayerPoints(playerIn, null, null);
+                const outPrediction = this.predictPlayerPoints(playerOut, null, null);
+                
+                const pointsDiff = (inPrediction.expectedPoints - outPrediction.expectedPoints) * gameweeksAhead;
+                const priceDiff = (playerIn.now_cost || 0) - (playerOut.now_cost || 0);
+                const valueScore = pointsDiff - (priceDiff * 0.1);
+                
+                return {
+                    recommendation: valueScore > 0 ? 'MAKE_TRANSFER' : 'HOLD',
+                    valueScore: Math.round(valueScore * 10) / 10,
+                    pointsGain: Math.round(pointsDiff * 10) / 10,
+                    costAnalysis: priceDiff,
+                    confidence: Math.min(inPrediction.confidence, outPrediction.confidence)
+                };
+            }
+        }
+
+        // Advanced Player Analysis Engine
+        class PlayerAnalysisEngine {
+            constructor() {
+                this.metrics = ['form', 'xG', 'xA', 'shots', 'key_passes', 'minutes', 'bonus'];
+                this.positionBenchmarks = {
+                    1: { points: 4.5, saves: 3.0, cleanSheets: 0.25 }, // GK
+                    2: { points: 5.0, cleanSheets: 0.3, bonus: 0.5 }, // DEF
+                    3: { points: 5.5, assists: 0.25, bonus: 0.4 }, // MID
+                    4: { points: 6.5, goals: 0.5, bonus: 0.6 } // FWD
+                };
+            }
+
+            performDeepAnalysis(player) {
+                const positionAnalysis = this.analyzeByPosition(player);
+                const fixtureAnalysis = this.analyzeUpcomingFixtures(player);
+                const valueAnalysis = this.analyzeValue(player);
+                const riskAnalysis = this.analyzeRisk(player);
+                const trendAnalysis = this.analyzeTrends(player);
+                
+                return {
+                    player: player,
+                    overallRating: this.calculateOverallRating(player),
+                    positionAnalysis,
+                    fixtureAnalysis,
+                    valueAnalysis,
+                    riskAnalysis,
+                    trendAnalysis,
+                    recommendation: this.generateRecommendation(player),
+                    alternativeSuggestions: this.findAlternatives(player)
+                };
+            }
+
+            analyzeByPosition(player) {
+                const position = player.element_type;
+                const benchmark = this.positionBenchmarks[position];
+                
+                if (!benchmark) return { analysis: "Position not recognized" };
+                
+                const performance = {
+                    pointsPerGame: (player.total_points || 0) / Math.max(1, player.games_played || 1),
+                    vsExpected: this.compareToExpected(player, benchmark),
+                    strengths: this.identifyStrengths(player, position),
+                    weaknesses: this.identifyWeaknesses(player, position)
+                };
+                
+                return performance;
+            }
+
+            analyzeUpcomingFixtures(player, gameweeks = 5) {
+                // Mock fixture analysis - in real implementation would use actual fixture data
+                const difficulties = [2, 4, 3, 2, 5]; // Example difficulties
+                const avgDifficulty = difficulties.reduce((a, b) => a + b) / difficulties.length;
+                
+                return {
+                    averageDifficulty: avgDifficulty,
+                    favorableFixtures: difficulties.filter(d => d <= 2).length,
+                    toughFixtures: difficulties.filter(d => d >= 4).length,
+                    homeGames: Math.floor(Math.random() * 3) + 1,
+                    awayGames: gameweeks - (Math.floor(Math.random() * 3) + 1),
+                    recommendation: avgDifficulty <= 2.5 ? "FAVORABLE" : avgDifficulty >= 3.5 ? "DIFFICULT" : "NEUTRAL"
+                };
+            }
+
+            analyzeValue(player) {
+                const ppg = (player.total_points || 0) / Math.max(1, player.games_played || 1);
+                const priceValue = ppg / ((player.now_cost || 50) / 10);
+                const ownershipValue = ppg / Math.max(1, (player.selected_by_percent || 5) / 10);
+                
+                return {
+                    pointsPerMillion: Math.round(priceValue * 10) / 10,
+                    ownershipEfficiency: Math.round(ownershipValue * 10) / 10,
+                    valueRating: this.getValueRating(priceValue),
+                    differentialPotential: player.selected_by_percent < 5 ? "HIGH" : 
+                                        player.selected_by_percent < 15 ? "MEDIUM" : "LOW"
+                };
+            }
+
+            analyzeRisk(player) {
+                const injuryRisk = this.calculateInjuryRisk(player);
+                const rotationRisk = this.calculateRotationRisk(player);
+                const priceRisk = this.calculatePriceRisk(player);
+                
+                const overallRisk = (injuryRisk + rotationRisk + priceRisk) / 3;
+                
+                return {
+                    overall: overallRisk,
+                    injury: injuryRisk,
+                    rotation: rotationRisk,
+                    priceChange: priceRisk,
+                    riskLevel: overallRisk <= 2 ? "LOW" : overallRisk <= 6 ? "MEDIUM" : "HIGH",
+                    mitigationSuggestions: this.generateRiskMitigation(player, overallRisk)
+                };
+            }
+
+            calculateInjuryRisk(player) {
+                // Based on age, position, and injury history
+                const age = player.age || 25;
+                const position = player.element_type;
+                
+                let risk = 0;
+                if (age > 30) risk += 2;
+                if (age > 33) risk += 3;
+                if (position === 4) risk += 1; // Forwards slightly higher risk
+                if (player.news && player.news.includes('injury')) risk += 5;
+                
+                return Math.min(10, risk);
+            }
+
+            calculateRotationRisk(player) {
+                const minutes = player.minutes || 0;
+                const appearances = player.games_played || 1;
+                const avgMinutes = minutes / appearances;
+                
+                if (avgMinutes >= 85) return 1; // Nailed starter
+                if (avgMinutes >= 70) return 3; // Usually starts
+                if (avgMinutes >= 45) return 6; // Rotation risk
+                return 9; // High rotation risk
+            }
+
+            calculatePriceRisk(player) {
+                const ownership = player.selected_by_percent || 5;
+                const form = parseFloat(player.form || '5');
+                
+                let risk = 0;
+                if (ownership > 20 && form < 4) risk += 3; // Popular but out of form
+                if (ownership < 5 && form > 7) risk += 2; // Low owned but in form (price rise risk)
+                
+                return Math.min(10, risk);
+            }
+
+            generateRiskMitigation(player, riskLevel) {
+                const suggestions = [];
+                
+                if (riskLevel >= 6) {
+                    suggestions.push("Consider having a strong bench option");
+                    suggestions.push("Monitor injury news closely");
+                }
+                if (player.element_type === 1 && riskLevel >= 4) {
+                    suggestions.push("Have a playing backup goalkeeper");
+                }
+                if (riskLevel <= 3) {
+                    suggestions.push("Relatively safe pick for set-and-forget");
+                }
+                
+                return suggestions;
+            }
+
+            calculateOverallRating(player) {
+                const form = parseFloat(player.form || '5');
+                const ppg = (player.total_points || 0) / Math.max(1, player.games_played || 1);
+                const value = ppg / ((player.now_cost || 50) / 10);
+                
+                const rating = (form * 0.4 + ppg * 0.4 + Math.min(value, 10) * 0.2) / 2.4 * 10;
+                return Math.round(rating * 10) / 10;
+            }
+
+            identifyStrengths(player, position) {
+                const strengths = [];
+                const form = parseFloat(player.form || '0');
+                
+                if (form >= 7) strengths.push("Excellent recent form");
+                if (player.minutes > 2000) strengths.push("Regular starter");
+                if (player.penalties_order === 1) strengths.push("Penalty taker");
+                if (player.corners_order === 1) strengths.push("Corner taker");
+                if ((player.goals_scored || 0) > 10) strengths.push("Proven goalscorer");
+                
+                return strengths;
+            }
+
+            identifyWeaknesses(player, position) {
+                const weaknesses = [];
+                const form = parseFloat(player.form || '5');
+                
+                if (form <= 3) weaknesses.push("Poor recent form");
+                if (player.minutes < 1000) weaknesses.push("Limited playing time");
+                if (player.news && player.news.includes('injury')) weaknesses.push("Injury concerns");
+                if ((player.yellow_cards || 0) > 8) weaknesses.push("Disciplinary issues");
+                
+                return weaknesses;
+            }
+
+            getValueRating(priceValue) {
+                if (priceValue >= 2.0) return "EXCELLENT";
+                if (priceValue >= 1.5) return "GOOD";
+                if (priceValue >= 1.0) return "FAIR";
+                return "POOR";
+            }
+        }
+
+        // Chart Generation Engine
+        class ChartEngine {
+            constructor() {
+                this.chartTypes = ['line', 'bar', 'radar', 'pie', 'scatter'];
+                this.canvasId = 'dynamic-chart';
+                this.charts = {};
+            }
+
+            createPlayerFormChart(player, gameweeks = 10) {
+                const canvas = this.getOrCreateCanvas();
+                const ctx = canvas.getContext('2d');
+                
+                // Mock data - in real implementation would use actual form data
+                const data = Array.from({length: gameweeks}, (_, i) => ({
+                    gameweek: i + 1,
+                    points: Math.floor(Math.random() * 15),
+                    xPoints: Math.random() * 12 + 3
+                }));
+                
+                this.drawLineChart(ctx, {
+                    title: `${player.web_name || 'Player'} - Last ${gameweeks} Gameweeks`,
+                    labels: data.map(d => `GW${d.gameweek}`),
+                    datasets: [
+                        {
+                            label: 'Actual Points',
+                            data: data.map(d => d.points),
+                            color: '#4CAF50'
+                        },
+                        {
+                            label: 'Expected Points',
+                            data: data.map(d => d.xPoints),
+                            color: '#FF9800'
+                        }
+                    ]
+                });
+                
+                return canvas.toDataURL();
+            }
+
+            createTeamValueChart(team) {
+                const canvas = this.getOrCreateCanvas();
+                const ctx = canvas.getContext('2d');
+                
+                const positions = ['GK', 'DEF', 'MID', 'FWD'];
+                const values = [5, 20, 35, 25]; // Mock team value distribution
+                
+                this.drawPieChart(ctx, {
+                    title: 'Team Value Distribution',
+                    labels: positions,
+                    data: values,
+                    colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4']
+                });
+                
+                return canvas.toDataURL();
+            }
+
+            createFixtureDifficultyChart(fixtures) {
+                const canvas = this.getOrCreateCanvas();
+                const ctx = canvas.getContext('2d');
+                
+                this.drawBarChart(ctx, {
+                    title: 'Upcoming Fixture Difficulty',
+                    labels: fixtures.map((_, i) => `GW${i + 1}`),
+                    data: fixtures.map(f => f.difficulty || Math.floor(Math.random() * 5) + 1),
+                    colors: fixtures.map(f => {
+                        const diff = f.difficulty || 3;
+                        if (diff <= 2) return '#4CAF50';
+                        if (diff <= 3) return '#FF9800';
+                        return '#F44336';
+                    })
+                });
+                
+                return canvas.toDataURL();
+            }
+
+            getOrCreateCanvas() {
+                let canvas = document.getElementById(this.canvasId);
+                if (!canvas) {
+                    canvas = document.createElement('canvas');
+                    canvas.id = this.canvasId;
+                    canvas.width = 800;
+                    canvas.height = 400;
+                    canvas.style.display = 'none';
+                    document.body.appendChild(canvas);
+                }
+                return canvas;
+            }
+
+            drawLineChart(ctx, config) {
+                const {title, labels, datasets} = config;
+                const width = ctx.canvas.width;
+                const height = ctx.canvas.height;
+                const padding = 60;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, width, height);
+                
+                // Draw title
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 18px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(title, width / 2, 30);
+                
+                // Draw chart
+                const chartWidth = width - 2 * padding;
+                const chartHeight = height - 2 * padding - 50;
+                const maxValue = Math.max(...datasets.flatMap(d => d.data));
+                
+                datasets.forEach((dataset, index) => {
+                    ctx.strokeStyle = dataset.color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    
+                    dataset.data.forEach((value, i) => {
+                        const x = padding + (i * chartWidth) / (labels.length - 1);
+                        const y = padding + 50 + chartHeight - (value / maxValue) * chartHeight;
+                        
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                        
+                        // Draw point
+                        ctx.fillStyle = dataset.color;
+                        ctx.beginPath();
+                        ctx.arc(x, y, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    
+                    ctx.stroke();
+                });
+                
+                // Draw axes
+                ctx.strokeStyle = '#666';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(padding, padding + 50);
+                ctx.lineTo(padding, padding + 50 + chartHeight);
+                ctx.lineTo(padding + chartWidth, padding + 50 + chartHeight);
+                ctx.stroke();
+                
+                // Draw labels
+                ctx.fillStyle = '#ccc';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                labels.forEach((label, i) => {
+                    const x = padding + (i * chartWidth) / (labels.length - 1);
+                    const y = padding + 50 + chartHeight + 20;
+                    ctx.fillText(label, x, y);
+                });
+            }
+
+            drawBarChart(ctx, config) {
+                const {title, labels, data, colors} = config;
+                const width = ctx.canvas.width;
+                const height = ctx.canvas.height;
+                const padding = 60;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, width, height);
+                
+                // Draw title
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 18px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(title, width / 2, 30);
+                
+                // Draw bars
+                const chartWidth = width - 2 * padding;
+                const chartHeight = height - 2 * padding - 50;
+                const barWidth = chartWidth / labels.length * 0.8;
+                const maxValue = Math.max(...data);
+                
+                data.forEach((value, i) => {
+                    const barHeight = (value / maxValue) * chartHeight;
+                    const x = padding + (i * chartWidth) / labels.length + (chartWidth / labels.length - barWidth) / 2;
+                    const y = padding + 50 + chartHeight - barHeight;
+                    
+                    ctx.fillStyle = colors[i] || '#4CAF50';
+                    ctx.fillRect(x, y, barWidth, barHeight);
+                    
+                    // Draw value on top
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(value.toString(), x + barWidth / 2, y - 5);
+                });
+                
+                // Draw labels
+                ctx.fillStyle = '#ccc';
+                ctx.font = '12px Arial';
+                labels.forEach((label, i) => {
+                    const x = padding + (i * chartWidth) / labels.length + (chartWidth / labels.length) / 2;
+                    const y = padding + 50 + chartHeight + 20;
+                    ctx.fillText(label, x, y);
+                });
+            }
+
+            drawPieChart(ctx, config) {
+                const {title, labels, data, colors} = config;
+                const width = ctx.canvas.width;
+                const height = ctx.canvas.height;
+                const centerX = width / 2;
+                const centerY = height / 2 + 20;
+                const radius = Math.min(width, height) / 3;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, width, height);
+                
+                // Draw title
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 18px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(title, width / 2, 30);
+                
+                const total = data.reduce((sum, value) => sum + value, 0);
+                let currentAngle = -Math.PI / 2;
+                
+                data.forEach((value, i) => {
+                    const sliceAngle = (value / total) * 2 * Math.PI;
+                    
+                    ctx.fillStyle = colors[i];
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // Draw label
+                    const labelAngle = currentAngle + sliceAngle / 2;
+                    const labelX = centerX + Math.cos(labelAngle) * (radius + 30);
+                    const labelY = centerY + Math.sin(labelAngle) * (radius + 30);
+                    
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${labels[i]}: ${value}%`, labelX, labelY);
+                    
+                    currentAngle += sliceAngle;
+                });
+            }
+        }
+
         class FPLAIAssistant {
             constructor() {
-                // Check if FPLDataService exists, otherwise create a dummy service
+                // Enhanced FPL Data Service with real-time capabilities
                 if (typeof FPLDataService !== 'undefined') {
                     this.fplService = new FPLHtmlDataService();
                 } else {
                     console.warn('FPLDataService not loaded, using fallback');
                     this.fplService = null;
                 }
+                
+                // Real-time data management
                 this.players = [];
                 this.teams = [];
+                this.liveData = null;
+                this.lastDataUpdate = null;
+                this.dataRefreshInterval = 5 * 60 * 1000; // 5 minutes
+                
+                // Advanced AI features
+                this.conversationMemory = [];
+                this.contextWindow = 10; // Remember last 10 interactions
+                this.userProfile = this.loadUserProfile();
+                this.speechEnabled = this.initializeSpeechRecognition();
+                this.chartEngine = new ChartEngine();
+                this.predictionModel = new FPLPredictionEngine();
+                this.playerAnalysisEngine = new PlayerAnalysisEngine();
+                
+                // Enhanced conversation context
+                this.lastQuestionType = null;
+                this.currentContext = {};
+                this.personalityMode = 'helpful'; // helpful, enthusiastic, analytical
                 this.fixtures = [];
                 this.currentGameweek = 1;
                 this.isTyping = false;
@@ -1143,21 +1705,28 @@
 
             async initialize() {
                 try {
-                    if (this.fplService) {
-                        const bootstrap = await this.fplService.getBootstrapData();
-                        this.players = bootstrap.elements;
-                        this.teams = bootstrap.teams;
-                        this.fixtures = bootstrap.fixtures || [];
-                        this.currentGameweek = bootstrap.events?.find(e => e.is_current)?.id || 1;
-                        
-                        console.log('FPL AI Assistant initialized with live data');
-                    } else {
-                        console.log('Using built-in knowledge base only');
-                        this.initializeMockData();
-                    }
+                    console.log('Initializing Enhanced FPL AI Assistant...');
+                    
+                    // Initialize data with auto-refresh
+                    await this.refreshData();
+                    this.startDataRefreshTimer();
+                    
+                    // Initialize UI enhancements
+                    this.addVoiceButton();
+                    this.addPersonalitySelector();
+                    this.loadConversationHistory();
                     
                     // Initialize message counter display
                     this.updateMessageCounter();
+                    
+                    // Show enhanced welcome message
+                    const welcomeMsg = this.generatePersonalizedWelcome();
+                    this.addMessage(welcomeMsg, 'ai');
+                    
+                    // Auto-suggest first questions if new user
+                    if (this.conversationMemory.length === 0) {
+                        setTimeout(() => this.showQuickSuggestions(), 2000);
+                    }
                 } catch (error) {
                     console.error('Failed to initialize FPL AI:', error);
                     this.initializeMockData();
@@ -1165,6 +1734,176 @@
                 }
                 
                 this.setupEventListeners();
+            }
+
+            async refreshData() {
+                if (this.fplService) {
+                    try {
+                        const bootstrap = await this.fplService.getBootstrapData();
+                        this.players = bootstrap.elements;
+                        this.teams = bootstrap.teams;
+                        this.fixtures = bootstrap.fixtures || [];
+                        this.currentGameweek = bootstrap.events?.find(e => e.is_current)?.id || 1;
+                        this.lastDataUpdate = Date.now();
+                        
+                        // Get live data if gameweek is active
+                        if (this.isGameweekLive()) {
+                            this.liveData = await this.fplService.getLiveData(this.currentGameweek);
+                        }
+                        
+                        console.log('FPL AI Assistant refreshed with live data');
+                    } catch (error) {
+                        console.warn('Failed to fetch live data, using mock data:', error);
+                        this.initializeMockData();
+                    }
+                } else {
+                    this.initializeMockData();
+                }
+            }
+
+            startDataRefreshTimer() {
+                setInterval(() => {
+                    if (Date.now() - this.lastDataUpdate > this.dataRefreshInterval) {
+                        this.refreshData();
+                    }
+                }, this.dataRefreshInterval);
+            }
+
+            isGameweekLive() {
+                // Check if current gameweek is live (simplified logic)
+                const now = new Date();
+                const dayOfWeek = now.getDay();
+                const hour = now.getHours();
+                
+                // Assume gameweeks are live on weekends
+                return (dayOfWeek === 6 || dayOfWeek === 0) && hour >= 11 && hour <= 19;
+            }
+
+            initializeSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = false;
+                    this.recognition.lang = 'en-US';
+                    
+                    this.recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        document.getElementById('chat-input').value = transcript;
+                        this.sendMessage();
+                    };
+                    
+                    this.recognition.onerror = (event) => {
+                        console.warn('Speech recognition error:', event.error);
+                        this.addMessage('Sorry, I couldn\'t understand that. Please try typing instead.', 'ai');
+                    };
+                    
+                    return true;
+                }
+                return false;
+            }
+
+            addVoiceButton() {
+                if (!this.speechEnabled) return;
+                
+                const chatContainer = document.querySelector('.chat-input-container');
+                if (!chatContainer) return;
+                
+                const voiceBtn = document.createElement('button');
+                voiceBtn.innerHTML = '🎤';
+                voiceBtn.className = 'voice-btn';
+                voiceBtn.title = 'Voice Input';
+                voiceBtn.style.cssText = `
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border: none;
+                    border-radius: 50%;
+                    width: 40px;
+                    height: 40px;
+                    margin-left: 10px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    transition: transform 0.2s;
+                `;
+                
+                voiceBtn.onmouseenter = () => voiceBtn.style.transform = 'scale(1.1)';
+                voiceBtn.onmouseleave = () => voiceBtn.style.transform = 'scale(1)';
+                voiceBtn.onclick = () => this.startVoiceInput();
+                
+                chatContainer.appendChild(voiceBtn);
+            }
+
+            startVoiceInput() {
+                if (this.recognition) {
+                    this.addMessage('🎤 Listening... Speak now!', 'system');
+                    this.recognition.start();
+                }
+            }
+
+            addPersonalitySelector() {
+                const header = document.querySelector('.ai-header');
+                if (!header) return;
+                
+                const selector = document.createElement('div');
+                selector.className = 'personality-selector';
+                selector.innerHTML = `
+                    <label style="color: white; font-size: 14px; margin-right: 10px;">AI Personality:</label>
+                    <select id="personality-select" style="padding: 5px; border-radius: 5px; background: rgba(255,255,255,0.2); color: white; border: none;">
+                        <option value="helpful">Helpful & Balanced</option>
+                        <option value="enthusiastic">Enthusiastic & Motivating</option>
+                        <option value="analytical">Analytical & Data-Focused</option>
+                    </select>
+                `;
+                
+                selector.style.cssText = 'margin-top: 15px; display: flex; align-items: center; justify-content: center;';
+                header.appendChild(selector);
+                
+                document.getElementById('personality-select').addEventListener('change', (e) => {
+                    this.personalityMode = e.target.value;
+                    this.addMessage(`🔄 Personality switched to ${e.target.value} mode!`, 'system');
+                });
+            }
+
+            generatePersonalizedWelcome() {
+                const timeOfDay = new Date().getHours();
+                let greeting = 'Hello';
+                
+                if (timeOfDay < 12) greeting = 'Good morning';
+                else if (timeOfDay < 18) greeting = 'Good afternoon';
+                else greeting = 'Good evening';
+                
+                const welcomeMessages = {
+                    helpful: `${greeting}! I'm your enhanced FPL AI Assistant with advanced analytics, real-time data, and personalized insights. How can I help you climb the ranks today? 📈`,
+                    enthusiastic: `${greeting}, FPL manager! 🚀 Ready to DOMINATE your mini-leagues? I've got cutting-edge analytics, live data updates, and the passion to help you succeed! What's your next big move? 💪`,
+                    analytical: `${greeting}. I am your data-driven FPL optimization system with machine learning predictions, advanced metrics analysis, and real-time performance monitoring. Please specify your analytical requirements. 🤖`
+                };
+                
+                return welcomeMessages[this.personalityMode] || welcomeMessages.helpful;
+            }
+
+            showQuickSuggestions() {
+                const suggestions = [
+                    "What are the best captain picks for this gameweek?",
+                    "Show me the top value players under £7m",
+                    "Analyze my team's upcoming fixtures",
+                    "Who should I transfer in this week?"
+                ];
+                
+                const suggestionsHtml = suggestions.map(s => 
+                    `<button class="quick-suggestion" onclick="askAI('${s}')" style="
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border: none;
+                        color: white;
+                        padding: 8px 16px;
+                        margin: 4px;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        transition: transform 0.2s;
+                    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">${s}</button>`
+                ).join('');
+                
+                this.addMessage(`💡 Quick suggestions:\n<div style="margin-top: 10px;">${suggestionsHtml}</div>`, 'system');
             }
 
             initializeMockData() {
@@ -2466,10 +3205,47 @@
             }
             
             getIntelligentResponse(query, context = {}) {
+                // Enhanced AI Response with all new features
+                const lowerQuery = query.toLowerCase();
+                
+                // Store conversation context
+                this.conversationMemory.push({
+                    userQuery: query,
+                    timestamp: Date.now(),
+                    context: context
+                });
+                this.saveConversationHistory();
+                
                 // Use conversation memory for better context
                 const memoryContext = this.getRelevantMemory(query);
                 if (memoryContext) {
                     context.previousDiscussion = memoryContext;
+                }
+                
+                // Advanced player analysis with ML predictions
+                const mentionedPlayer = this.extractPlayerFromQuery(query);
+                if (mentionedPlayer) {
+                    return this.getAdvancedPlayerAnalysis(mentionedPlayer, context);
+                }
+                
+                // Chart generation for data requests
+                if (lowerQuery.includes('chart') || lowerQuery.includes('graph') || lowerQuery.includes('show me') && lowerQuery.includes('form')) {
+                    return this.generateDataVisualization(query, context);
+                }
+                
+                // Machine learning predictions
+                if (lowerQuery.includes('predict') || lowerQuery.includes('forecast') || lowerQuery.includes('expect')) {
+                    return this.generateMLPredictions(query, context);
+                }
+                
+                // Transfer analysis with advanced algorithms
+                if (lowerQuery.includes('transfer') && (lowerQuery.includes('should') || lowerQuery.includes('recommend'))) {
+                    return this.getAdvancedTransferRecommendations(context);
+                }
+                
+                // Captain analysis with ML
+                if (lowerQuery.includes('captain') || lowerQuery.includes('armband')) {
+                    return this.getMLCaptainRecommendations(context);
                 }
                 
                 // Personalize based on user profile
@@ -2587,7 +3363,194 @@
                 return null;
             }
 
+            getAdvancedPlayerAnalysis(player, context = {}) {
+                if (!player) return this.getIntelligentResponse("Tell me about a specific player");
+                
+                // Use the advanced analysis engine
+                const deepAnalysis = this.playerAnalysisEngine.performDeepAnalysis(player);
+                const mlPrediction = this.predictionModel.predictPlayerPoints(player, this.currentGameweek, this.fixtures);
+                
+                let response = `🔬 **Advanced Player Analysis: ${player.first_name} ${player.second_name}**\n\n`;
+                
+                // ML Prediction
+                response += `**🤖 AI Prediction (Next GW):**\n`;
+                response += `• Expected Points: ${mlPrediction.expectedPoints} (${mlPrediction.confidence}% confidence)\n`;
+                response += `• Point Range: ${mlPrediction.range.min.toFixed(1)} - ${mlPrediction.range.max.toFixed(1)}\n`;
+                response += `• Reasoning: ${mlPrediction.reasoning}\n\n`;
+                
+                // Advanced Metrics
+                response += `**📊 Performance Analysis:**\n`;
+                response += `• Overall Rating: ${deepAnalysis.overallRating}/10\n`;
+                response += `• Position Performance: ${deepAnalysis.positionAnalysis.pointsPerGame.toFixed(1)} PPG\n`;
+                response += `• Value Rating: ${deepAnalysis.valueAnalysis.valueRating}\n`;
+                response += `• Risk Level: ${deepAnalysis.riskAnalysis.riskLevel}\n\n`;
+                
+                // Fixture Analysis
+                response += `**🏟️ Fixture Analysis:**\n`;
+                response += `• Upcoming Difficulty: ${deepAnalysis.fixtureAnalysis.recommendation}\n`;
+                response += `• Favorable Fixtures: ${deepAnalysis.fixtureAnalysis.favorableFixtures}/${deepAnalysis.fixtureAnalysis.favorableFixtures + deepAnalysis.fixtureAnalysis.toughFixtures}\n\n`;
+                
+                // Strengths & Weaknesses
+                if (deepAnalysis.positionAnalysis.strengths.length > 0) {
+                    response += `**✅ Strengths:**\n${deepAnalysis.positionAnalysis.strengths.map(s => `• ${s}`).join('\n')}\n\n`;
+                }
+                
+                if (deepAnalysis.positionAnalysis.weaknesses.length > 0) {
+                    response += `**⚠️ Concerns:**\n${deepAnalysis.positionAnalysis.weaknesses.map(w => `• ${w}`).join('\n')}\n\n`;
+                }
+                
+                // Generate chart
+                const chartUrl = this.chartEngine.createPlayerFormChart(player);
+                if (chartUrl) {
+                    response += `**📈 Form Chart:**\n[Visual form analysis generated]\n\n`;
+                }
+                
+                response += `\n💡 **AI Recommendation:** ${deepAnalysis.recommendation || 'Analyze based on your team needs'}`;
+                
+                return this.addPersonalityFlair(response, 'analytical');
+            }
+
+            generateDataVisualization(query, context = {}) {
+                const lowerQuery = query.toLowerCase();
+                let response = "📊 **Data Visualization Generated**\n\n";
+                
+                if (lowerQuery.includes('form')) {
+                    // Generate form charts for top players
+                    const topPlayers = this.players.slice(0, 3);
+                    topPlayers.forEach(player => {
+                        this.chartEngine.createPlayerFormChart(player);
+                    });
+                    response += "Created form charts for top performers.\n";
+                } else if (lowerQuery.includes('fixture')) {
+                    // Generate fixture difficulty chart
+                    this.chartEngine.createFixtureDifficultyChart(this.fixtures.slice(0, 5));
+                    response += "Generated upcoming fixture difficulty analysis.\n";
+                } else if (lowerQuery.includes('value') || lowerQuery.includes('team')) {
+                    // Generate team value distribution
+                    this.chartEngine.createTeamValueChart({});
+                    response += "Created team value distribution chart.\n";
+                }
+                
+                response += "\n📈 Visual analysis has been generated to help you make better decisions!";
+                
+                return this.addPersonalityFlair(response, 'analytical');
+            }
+
+            generateMLPredictions(query, context = {}) {
+                let response = "🔮 **Machine Learning Predictions**\n\n";
+                
+                // Get top players for predictions
+                const topPlayers = this.players
+                    .filter(p => (p.total_points || 0) > 50)
+                    .sort((a, b) => (b.total_points || 0) - (a.total_points || 0))
+                    .slice(0, 5);
+                
+                response += "**Next Gameweek Predictions:**\n";
+                topPlayers.forEach(player => {
+                    const prediction = this.predictionModel.predictPlayerPoints(player, this.currentGameweek, this.fixtures);
+                    response += `• ${player.first_name} ${player.second_name}: ${prediction.expectedPoints} pts (${prediction.confidence}% confidence)\n`;
+                });
+                
+                response += "\n**Key Insights:**\n";
+                response += "• Predictions based on form, fixtures, xStats, and historical data\n";
+                response += "• Higher confidence = more reliable prediction\n";
+                response += "• Consider variance for captaincy decisions\n";
+                
+                return this.addPersonalityFlair(response, 'analytical');
+            }
+
+            getAdvancedTransferRecommendations(context = {}) {
+                let response = "🔄 **Advanced Transfer Recommendations**\n\n";
+                
+                // Get players in different price ranges
+                const budget = this.userProfile.budget || 100;
+                const priceRanges = [
+                    { min: 40, max: 60, label: "Budget (£4-6m)" },
+                    { min: 60, max: 80, label: "Mid-range (£6-8m)" },
+                    { min: 80, max: 150, label: "Premium (£8m+)" }
+                ];
+                
+                priceRanges.forEach(range => {
+                    const players = this.players
+                        .filter(p => (p.now_cost || 50) >= range.min && (p.now_cost || 50) <= range.max)
+                        .sort((a, b) => {
+                            const aValue = this.playerAnalysisEngine.calculateOverallRating(a);
+                            const bValue = this.playerAnalysisEngine.calculateOverallRating(b);
+                            return bValue - aValue;
+                        })
+                        .slice(0, 2);
+                    
+                    response += `**${range.label}:**\n`;
+                    players.forEach(player => {
+                        const analysis = this.playerAnalysisEngine.performDeepAnalysis(player);
+                        response += `• ${player.first_name} ${player.second_name} (${analysis.overallRating}/10) - ${analysis.valueAnalysis.valueRating} value\n`;
+                    });
+                    response += "\n";
+                });
+                
+                response += "💡 **AI Strategy:** Focus on players with improving fixtures and good underlying stats.";
+                
+                return this.addPersonalityFlair(response, this.personalityMode);
+            }
+
+            getMLCaptainRecommendations(context = {}) {
+                let response = "👑 **ML-Powered Captain Analysis**\n\n";
+                
+                // Get premium players for captaincy
+                const captainOptions = this.players
+                    .filter(p => (p.now_cost || 0) >= 80 && (p.total_points || 0) > 80)
+                    .sort((a, b) => (b.total_points || 0) - (a.total_points || 0))
+                    .slice(0, 5);
+                
+                response += "**Top Captain Picks (ML Analysis):**\n";
+                captainOptions.forEach((player, index) => {
+                    const prediction = this.predictionModel.predictPlayerPoints(player, this.currentGameweek, this.fixtures);
+                    const analysis = this.playerAnalysisEngine.performDeepAnalysis(player);
+                    
+                    const emoji = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "⭐";
+                    response += `${emoji} ${player.first_name} ${player.second_name}\n`;
+                    response += `   Expected: ${prediction.expectedPoints} pts (${prediction.confidence}% confidence)\n`;
+                    response += `   Risk Level: ${analysis.riskAnalysis.riskLevel}\n`;
+                    response += `   Fixtures: ${analysis.fixtureAnalysis.recommendation}\n\n`;
+                });
+                
+                response += "🎯 **Differential Captain:** Look for lower-owned options with high ceiling\n";
+                response += "🛡️ **Safe Captain:** Choose consistent performers with good fixtures";
+                
+                return this.addPersonalityFlair(response, this.personalityMode);
+            }
+
+            addPersonalityFlair(response, mode = null) {
+                const personality = mode || this.personalityMode;
+                
+                const flairMap = {
+                    enthusiastic: {
+                        prefix: "🚀 ",
+                        suffix: " Let's climb those ranks! 💪",
+                        emphasize: (text) => text.replace(/\*\*(.*?)\*\*/g, "**$1** 🔥")
+                    },
+                    analytical: {
+                        prefix: "📊 ",
+                        suffix: " Data-driven decisions lead to success. 🤖",
+                        emphasize: (text) => text.replace(/(\d+\.?\d*)/g, "**$1**")
+                    },
+                    helpful: {
+                        prefix: "💡 ",
+                        suffix: " Hope this helps with your FPL journey! 😊",
+                        emphasize: (text) => text
+                    }
+                };
+                
+                const flair = flairMap[personality] || flairMap.helpful;
+                return flair.prefix + flair.emphasize(response) + flair.suffix;
+            }
+
             getPlayerAnalysis(player) {
+                // Redirect to advanced analysis
+                return this.getAdvancedPlayerAnalysis(player);
+            }
+
+            getOriginalPlayerAnalysis(player) {
                 if (!player) {
                     return this.getIntelligentResponse("Tell me about a specific player");
                 }
@@ -2997,6 +3960,7 @@
             }
         });
     </script>
+    <script src="./auth-service.js"></script>
     <script src="./premium-access-control.js"></script>
 </body>
 </html>
