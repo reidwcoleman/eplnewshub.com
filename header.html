@@ -3,7 +3,7 @@
     <div class="header-top">
         <div class="header-content">
             <div class="logo">
-                <img src="../upscalemedia-transformed.png" alt="EPL News Hub Logo" class="logo-image">
+                <img src="/upscalemedia-transformed.png" alt="EPL News Hub Logo" class="logo-image">
                 <div class="logo-text">
                     <h1>EPL News Hub</h1>
                     <p class="tagline">Premier League News & Analysis</p>
@@ -323,13 +323,48 @@
         const style = document.createElement('style');
         style.setAttribute('data-header-auth', 'true');
         style.textContent = `
+            /* Header CSS Reset & Overrides */
+            .site-header * {
+                box-sizing: border-box !important;
+            }
+            
+            .site-header ul, .site-header li {
+                list-style: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .site-header a {
+                text-decoration: none !important;
+                color: inherit !important;
+            }
+            
+            .site-header h1, .site-header h2, .site-header h3, .site-header p {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .site-header button {
+                border: none !important;
+                background: none !important;
+                cursor: pointer !important;
+                font-family: inherit !important;
+            }
+            
             .hidden {
                 display: none !important;
             }
             
             /* FPL Dropdown Styles */
             .dropdown {
-                position: relative;
+                position: relative !important;
+            }
+            
+            /* Ensure dropdown container has proper stacking context */
+            .nav-links .dropdown,
+            .nav-links li.dropdown {
+                position: relative !important;
+                z-index: 1000 !important;
             }
             
             /* Ensure header doesn't clip dropdown */
@@ -337,10 +372,61 @@
                 position: relative;
                 z-index: 100;
                 overflow: visible !important;
+                background: #fff !important;
+                border-bottom: 1px solid #e9ecef !important;
+                width: 100% !important;
             }
             
             .header-top {
                 overflow: visible !important;
+                background: #fff !important;
+                width: 100% !important;
+            }
+            
+            .header-content {
+                max-width: 1200px !important;
+                margin: 0 auto !important;
+                padding: 15px 20px !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            
+            .logo {
+                display: flex !important;
+                align-items: center !important;
+                gap: 12px !important;
+                text-decoration: none !important;
+            }
+            
+            .logo-image {
+                width: 50px !important;
+                height: 50px !important;
+                border-radius: 8px !important;
+                object-fit: cover !important;
+            }
+            
+            .logo-text h1 {
+                margin: 0 !important;
+                font-size: 1.5rem !important;
+                font-weight: 800 !important;
+                color: #38003c !important;
+                line-height: 1.2 !important;
+            }
+            
+            .logo-text .tagline {
+                margin: 0 !important;
+                font-size: 0.85rem !important;
+                color: #666 !important;
+                font-weight: 400 !important;
+            }
+            
+            .header-utils {
+                display: flex !important;
+                align-items: center !important;
+                gap: 15px !important;
             }
             
             .main-nav {
@@ -445,31 +531,31 @@
             }
             
             .dropdown-menu {
-                position: absolute;
-                top: calc(100% + 5px);
-                left: 50%;
-                transform: translateX(-50%) translateY(-10px) scale(0.95);
-                background: white;
-                border-radius: 12px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                min-width: 320px;
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                z-index: 99999;
-                pointer-events: none;
-                border: 1px solid rgba(0,0,0,0.1);
-                transform-origin: top center;
-                backdrop-filter: blur(10px);
-                background: rgba(255, 255, 255, 0.95);
+                position: absolute !important;
+                top: calc(100% + 5px) !important;
+                left: 50% !important;
+                transform: translateX(-50%) translateY(-10px) scale(0.95) !important;
+                background: white !important;
+                border-radius: 12px !important;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+                min-width: 320px !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+                z-index: 999999 !important;
+                pointer-events: none !important;
+                border: 1px solid rgba(0,0,0,0.1) !important;
+                transform-origin: top center !important;
+                backdrop-filter: blur(10px) !important;
+                background: rgba(255, 255, 255, 0.95) !important;
             }
             
             .dropdown:hover .dropdown-menu,
             .dropdown:focus-within .dropdown-menu {
-                opacity: 1;
-                visibility: visible;
-                pointer-events: auto;
-                transform: translateX(-50%) translateY(0) scale(1);
+                opacity: 1 !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+                transform: translateX(-50%) translateY(0) scale(1) !important;
             }
             
             .dropdown-header {
@@ -929,13 +1015,14 @@
             
             /* Prevent button clumping */
             .main-nav {
-                background: #fff;
-                border-top: 1px solid #e9ecef;
-                border-bottom: 1px solid #e9ecef;
-                padding: 10px 0;
-                position: relative;
-                z-index: 1000;
+                background: #fff !important;
+                border-top: 1px solid #e9ecef !important;
+                border-bottom: 1px solid #e9ecef !important;
+                padding: 10px 0 !important;
+                position: relative !important;
+                z-index: 1000 !important;
                 overflow: visible !important;
+                width: 100% !important;
             }
             
             /* Tablet styles */
@@ -963,46 +1050,62 @@
                     padding: 6px 12px;
                     font-size: 0.9rem;
                 }
+                
+                /* Ensure dropdown still appears correctly on tablets */
+                .dropdown-menu {
+                    min-width: 280px !important;
+                    left: 50% !important;
+                    transform: translateX(-50%) translateY(-10px) scale(0.95) !important;
+                }
+                
+                .dropdown:hover .dropdown-menu,
+                .dropdown:focus-within .dropdown-menu {
+                    transform: translateX(-50%) translateY(0) scale(1) !important;
+                }
             }
             
             /* Mobile Responsive Styles */
             @media (max-width: 768px) {
                 /* Header mobile optimization */
                 .site-header {
-                    position: sticky;
-                    top: 0;
-                    z-index: 1000;
-                    background: white;
+                    position: sticky !important;
+                    top: 0 !important;
+                    z-index: 1000 !important;
+                    background: white !important;
+                    width: 100% !important;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
                 }
                 
                 .header-top {
-                    padding: 10px 0;
+                    padding: 8px 0 !important;
+                    width: 100% !important;
                 }
                 
                 .header-content {
-                    padding: 0 10px;
-                    flex-wrap: nowrap;
-                    justify-content: space-between;
+                    padding: 0 10px !important;
+                    flex-wrap: nowrap !important;
+                    justify-content: space-between !important;
+                    max-width: 100% !important;
                 }
                 
                 .logo {
-                    flex-direction: row;
-                    align-items: center;
-                    gap: 8px;
+                    flex-direction: row !important;
+                    align-items: center !important;
+                    gap: 8px !important;
                 }
                 
                 .logo-image {
-                    width: 35px;
-                    height: 35px;
+                    width: 35px !important;
+                    height: 35px !important;
                 }
                 
                 .logo-text h1 {
-                    font-size: 1.2rem;
-                    margin: 0;
+                    font-size: 1.1rem !important;
+                    margin: 0 !important;
                 }
                 
                 .tagline {
-                    display: none;
+                    display: none !important;
                 }
                 
                 /* Hide desktop nav on mobile */
@@ -1095,7 +1198,21 @@
             /* Ensure dropdown appears above all page content */
             .fpl-dropdown {
                 position: absolute !important;
-                z-index: 99999 !important;
+                z-index: 999999 !important;
+            }
+            
+            /* Ensure all dropdown components have consistent high z-index */
+            .dropdown-menu,
+            .dropdown-menu.fpl-dropdown {
+                z-index: 999999 !important;
+                position: absolute !important;
+            }
+            
+            /* Force dropdown to appear above any page modals or overlays */
+            .site-header .dropdown .dropdown-menu {
+                z-index: 999999 !important;
+                position: absolute !important;
+                will-change: opacity, visibility, transform !important;
             }
             
             .mobile-sidebar.active {
@@ -1400,6 +1517,28 @@
                 border: 1px solid #ddd;
                 border-radius: 8px;
                 font-size: 0.95rem;
+            }
+            
+            /* Final override to ensure FPL dropdown consistency across all pages */
+            body .site-header .dropdown .dropdown-menu,
+            body .site-header .dropdown-menu.fpl-dropdown,
+            body .site-header .nav-links .dropdown .dropdown-menu {
+                z-index: 999999 !important;
+                position: absolute !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                backdrop-filter: blur(10px) !important;
+                border-radius: 12px !important;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+                border: 1px solid rgba(0,0,0,0.1) !important;
+            }
+            
+            /* Ensure dropdown always appears above page content */
+            body .site-header .dropdown:hover .dropdown-menu,
+            body .site-header .dropdown:focus-within .dropdown-menu {
+                opacity: 1 !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+                z-index: 999999 !important;
             }
             
             /* Mobile Search Responsive */
