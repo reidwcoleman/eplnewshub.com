@@ -505,6 +505,9 @@
                 max-width: 1200px;
                 margin: 0 auto;
                 padding: 0 20px;
+                position: relative;
+                width: 100%;
+                box-sizing: border-box;
             }
             
             .nav-links {
@@ -539,6 +542,7 @@
                 border-radius: 12px !important;
                 box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
                 min-width: 320px !important;
+                max-width: 90vw !important;
                 opacity: 0 !important;
                 visibility: hidden !important;
                 transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
@@ -548,6 +552,8 @@
                 transform-origin: top center !important;
                 backdrop-filter: blur(10px) !important;
                 background: rgba(255, 255, 255, 0.95) !important;
+                width: auto !important;
+                box-sizing: border-box !important;
             }
             
             .dropdown:hover .dropdown-menu,
@@ -1025,6 +1031,31 @@
                 width: 100% !important;
             }
             
+            /* Smart dropdown positioning for different viewport sizes */
+            @media (max-width: 1400px) {
+                .dropdown-menu {
+                    left: auto !important;
+                    right: 0 !important;
+                    transform: translateY(-10px) scale(0.95) !important;
+                    transform-origin: top right !important;
+                }
+                
+                .dropdown:hover .dropdown-menu,
+                .dropdown:focus-within .dropdown-menu {
+                    transform: translateY(0) scale(1) !important;
+                }
+            }
+            
+            @media (max-width: 1200px) {
+                .dropdown-menu {
+                    left: auto !important;
+                    right: -20px !important;
+                    transform: translateY(-10px) scale(0.95) !important;
+                    min-width: 300px !important;
+                    max-width: calc(100vw - 40px) !important;
+                }
+            }
+            
             /* Tablet styles */
             @media (max-width: 1024px) {
                 .nav-content {
@@ -1051,16 +1082,18 @@
                     font-size: 0.9rem;
                 }
                 
-                /* Ensure dropdown still appears correctly on tablets */
+                /* Ensure dropdown fits within viewport on tablets */
                 .dropdown-menu {
                     min-width: 280px !important;
-                    left: 50% !important;
-                    transform: translateX(-50%) translateY(-10px) scale(0.95) !important;
+                    max-width: calc(100vw - 30px) !important;
+                    left: auto !important;
+                    right: -10px !important;
+                    transform: translateY(-10px) scale(0.95) !important;
                 }
                 
                 .dropdown:hover .dropdown-menu,
                 .dropdown:focus-within .dropdown-menu {
-                    transform: translateX(-50%) translateY(0) scale(1) !important;
+                    transform: translateY(0) scale(1) !important;
                 }
             }
             
@@ -1530,6 +1563,46 @@
                 border-radius: 12px !important;
                 box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
                 border: 1px solid rgba(0,0,0,0.1) !important;
+                max-width: 90vw !important;
+                box-sizing: border-box !important;
+                white-space: nowrap !important;
+            }
+            
+            /* Prevent page content from interfering with dropdown positioning */
+            body .site-header {
+                isolation: isolate !important;
+                contain: layout style !important;
+            }
+            
+            body .site-header .main-nav {
+                overflow: visible !important;
+                position: relative !important;
+            }
+            
+            body .site-header .nav-content {
+                position: relative !important;
+                overflow: visible !important;
+                contain: none !important;
+            }
+            
+            /* Ensure dropdown content doesn't wrap unless necessary */
+            body .site-header .dropdown-item {
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+            
+            body .site-header .item-content {
+                min-width: 0 !important;
+                flex: 1 !important;
+            }
+            
+            body .site-header .item-content strong,
+            body .site-header .item-content small {
+                display: block !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
             }
             
             /* Ensure dropdown always appears above page content */
@@ -1908,11 +1981,56 @@
         }
     }
     
+    // Smart dropdown positioning to prevent overflow
+    function adjustDropdownPosition() {
+        const dropdown = document.querySelector('.dropdown-menu');
+        const dropdownParent = document.querySelector('.dropdown');
+        
+        if (dropdown && dropdownParent) {
+            const rect = dropdown.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const dropdownWidth = dropdown.offsetWidth;
+            
+            // Reset positioning
+            dropdown.style.left = '';
+            dropdown.style.right = '';
+            dropdown.style.transform = '';
+            
+            // Check if dropdown would overflow on the right
+            if (rect.right > viewportWidth - 20) {
+                dropdown.style.left = 'auto';
+                dropdown.style.right = '0';
+                dropdown.style.transform = 'translateY(-10px) scale(0.95)';
+                dropdown.style.transformOrigin = 'top right';
+            } 
+            // Check if dropdown would overflow on the left  
+            else if (rect.left < 20) {
+                dropdown.style.left = '0';
+                dropdown.style.right = 'auto';
+                dropdown.style.transform = 'translateY(-10px) scale(0.95)';
+                dropdown.style.transformOrigin = 'top left';
+            }
+            // Default centered positioning
+            else {
+                dropdown.style.left = '50%';
+                dropdown.style.right = 'auto';
+                dropdown.style.transform = 'translateX(-50%) translateY(-10px) scale(0.95)';
+                dropdown.style.transformOrigin = 'top center';
+            }
+        }
+    }
+
     // Handle FPL dropdown on touch devices
     document.addEventListener('DOMContentLoaded', function() {
         const fplDropdown = document.querySelector('.dropdown');
         const fplLink = document.querySelector('.fpl-premium-nav');
         
+        // Add hover and resize listeners for smart positioning
+        if (fplDropdown) {
+            fplDropdown.addEventListener('mouseenter', adjustDropdownPosition);
+            window.addEventListener('resize', adjustDropdownPosition);
+        }
+
         if (fplDropdown && fplLink) {
             // For touch devices - toggle dropdown on click but allow navigation
             let clickCount = 0;

@@ -66,14 +66,16 @@
                 position: fixed;
                 top: 50%;
                 transform: translateY(-50%);
-                width: 160px;
-                background: white;
-                border-radius: 12px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                padding: 20px 15px;
+                width: 200px;
+                background: linear-gradient(135deg, #ffffff, #f8f9ff);
+                border-radius: 16px;
+                box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+                padding: 25px 20px;
                 z-index: 100;
-                transition: all 0.3s ease;
+                transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                 animation: slideIn 0.5s ease;
+                border: 2px solid transparent;
+                backdrop-filter: blur(10px);
             }
 
             .left-side-ad {
@@ -107,26 +109,29 @@
             }
 
             .floating-side-ad:hover {
-                transform: translateY(-50%) scale(1.05);
-                box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+                transform: translateY(-50%) scale(1.08);
+                box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+                border: 2px solid #37003c;
             }
 
             .close-ad-btn {
                 position: absolute;
-                top: 5px;
-                right: 5px;
-                background: #f0f0f0;
+                top: 8px;
+                right: 8px;
+                background: rgba(240, 240, 240, 0.9);
                 border: none;
-                width: 25px;
-                height: 25px;
+                width: 28px;
+                height: 28px;
                 border-radius: 50%;
-                font-size: 18px;
+                font-size: 16px;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 transition: all 0.3s ease;
-                opacity: 0.7;
+                opacity: 0.8;
+                backdrop-filter: blur(5px);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             }
 
             .close-ad-btn:hover {
@@ -141,82 +146,113 @@
             }
 
             .ad-icon-small {
-                font-size: 2.5rem;
-                margin-bottom: 10px;
+                font-size: 3rem;
+                margin-bottom: 15px;
                 background: linear-gradient(135deg, #37003c, #00ff87);
                 background-clip: text;
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
-                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+                filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
+                transition: transform 0.3s ease;
+            }
+
+            .floating-side-ad:hover .ad-icon-small {
+                transform: scale(1.1) rotate(5deg);
             }
 
             .ad-title-small {
-                font-size: 1rem;
-                font-weight: 700;
+                font-size: 1.1rem;
+                font-weight: 800;
                 color: #37003c;
-                margin: 0 0 8px 0;
-                line-height: 1.2;
+                margin: 0 0 12px 0;
+                line-height: 1.3;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.05);
             }
 
             .ad-desc-small {
-                font-size: 0.75rem;
-                color: #666;
-                line-height: 1.3;
-                margin: 0 0 10px 0;
+                font-size: 0.85rem;
+                color: #555;
+                line-height: 1.4;
+                margin: 0 0 15px 0;
+                font-weight: 400;
             }
 
             .ad-price-small {
-                font-size: 1.2rem;
-                font-weight: 800;
-                color: #00ff87;
-                margin-bottom: 12px;
+                font-size: 1.3rem;
+                font-weight: 900;
+                background: linear-gradient(135deg, #00ff87, #28a745);
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 18px;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.1);
             }
 
             .ad-btn-small {
                 display: inline-block;
-                background: linear-gradient(135deg, #37003c, #00ff87);
+                background: linear-gradient(135deg, #37003c, #4a0e4e);
                 color: white;
-                padding: 8px 16px;
-                border-radius: 20px;
+                padding: 12px 20px;
+                border-radius: 25px;
                 text-decoration: none;
-                font-size: 0.85rem;
-                font-weight: 600;
-                transition: all 0.3s ease;
+                font-size: 0.9rem;
+                font-weight: 700;
+                transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                 width: 100%;
                 box-sizing: border-box;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                box-shadow: 0 4px 15px rgba(55, 0, 60, 0.3);
+                position: relative;
+                overflow: hidden;
             }
 
             .ad-btn-small:hover {
-                background: linear-gradient(135deg, #00ff87, #37003c);
-                transform: scale(1.05);
-                box-shadow: 0 5px 15px rgba(0,255,135,0.3);
+                background: linear-gradient(135deg, #00ff87, #28a745);
+                transform: translateY(-2px) scale(1.05);
+                box-shadow: 0 8px 25px rgba(0,255,135,0.4);
             }
 
-            /* Hide on medium screens */
-            @media (max-width: 1400px) {
+            .ad-btn-small::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                transition: left 0.6s ease;
+            }
+
+            .ad-btn-small:hover::before {
+                left: 100%;
+            }
+
+            /* Adjust on large screens */
+            @media (max-width: 1600px) {
                 .floating-side-ad {
-                    width: 140px;
-                    padding: 15px 12px;
+                    width: 180px;
+                    padding: 22px 18px;
                 }
 
                 .left-side-ad {
-                    left: 10px;
+                    left: 15px;
                 }
 
                 .right-side-ad {
-                    right: 10px;
+                    right: 15px;
                 }
 
                 .ad-icon-small {
-                    font-size: 2rem;
+                    font-size: 2.7rem;
                 }
 
                 .ad-title-small {
-                    font-size: 0.9rem;
+                    font-size: 1rem;
                 }
 
                 .ad-desc-small {
-                    font-size: 0.7rem;
+                    font-size: 0.8rem;
                 }
             }
 
@@ -245,6 +281,7 @@
             .left-side-ad {
                 background: linear-gradient(135deg, #ffffff, #f8f9ff);
                 border: 2px solid #37003c;
+                box-shadow: 0 15px 40px rgba(55, 0, 60, 0.2);
             }
 
             .left-side-ad .ad-icon-small {
@@ -264,6 +301,7 @@
             .right-side-ad {
                 background: linear-gradient(135deg, #ffffff, #f0fff9);
                 border: 2px solid #00ff87;
+                box-shadow: 0 15px 40px rgba(0, 255, 135, 0.2);
             }
 
             .right-side-ad .ad-price-small {
