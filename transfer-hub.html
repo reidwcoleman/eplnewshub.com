@@ -3827,135 +3827,75 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Transfer Window Countdown Timer
+            // Transfer Window Countdown Timer - Simplified and Fixed
             function updateCountdown() {
-                const now = new Date().getTime();
-                
-                // Define transfer window periods for 2025
-                const transferWindows = [
-                    {
-                        name: 'Summer Transfer Window 2025',
-                        start: new Date('June 14, 2025 00:00:00').getTime(),
-                        end: new Date('August 30, 2025 23:00:00').getTime()
-                    },
-                    {
-                        name: 'Winter Transfer Window 2026',
-                        start: new Date('January 1, 2026 00:00:00').getTime(),
-                        end: new Date('February 3, 2026 23:00:00').getTime()
-                    }
-                ];
-                
-                // Find current active window or next window
-                let currentWindow = null;
-                let nextWindow = null;
-                
-                for (let window of transferWindows) {
-                    if (now >= window.start && now <= window.end) {
-                        currentWindow = window;
-                        break;
-                    } else if (now < window.start) {
-                        nextWindow = window;
-                        break;
-                    }
-                }
-                
-                let deadline, windowTitle;
-                if (currentWindow) {
-                    deadline = currentWindow.end;
-                    windowTitle = `${currentWindow.name} Closes In:`;
-                } else if (nextWindow) {
-                    deadline = nextWindow.start;
-                    windowTitle = `${nextWindow.name} Opens In:`;
-                } else {
-                    // No upcoming window found, show next summer window
-                    deadline = new Date('June 14, 2026 00:00:00').getTime();
-                    windowTitle = 'Summer Transfer Window 2026 Opens In:';
-                }
-                const timeLeft = deadline - now;
-                
-                if (timeLeft < 0 && currentWindow) {
-                    // Current transfer window has closed
-                    document.querySelector('.countdown-title').textContent = '🚫 Transfer Window Closed!';
-                    document.getElementById('days').textContent = '00';
-                    document.getElementById('hours').textContent = '00';
-                    document.getElementById('minutes').textContent = '00';
-                    document.getElementById('seconds').textContent = '00';
+                try {
+                    // Simple countdown to August 30, 2025 11:00 PM
+                    const deadline = new Date('August 30, 2025 23:00:00').getTime();
+                    const now = new Date().getTime();
+                    const timeLeft = deadline - now;
                     
-                    // Add visual indication that window is closed
-                    const countdownContainer = document.querySelector('.countdown-container');
-                    countdownContainer.style.background = 'linear-gradient(135deg, #dc2626, #b91c1c)';
-                    countdownContainer.style.animation = 'pulse 2s infinite';
+                    console.log('Countdown running - Time left:', timeLeft);
                     
-                    // Show notification about window closure
-                    const notificationKey = `windowClosed_${currentWindow.name}`;
-                    if (!sessionStorage.getItem(notificationKey)) {
-                        setTimeout(() => {
-                            const nextWindowText = nextWindow ? ` Next window opens ${nextWindow.name.toLowerCase()}.` : ' Next window: January 2026.';
-                            showNotification(`🚫 ${currentWindow.name} has closed!${nextWindowText}`, 'error');
-                            sessionStorage.setItem(notificationKey, 'true');
-                        }, 1000);
+                    if (timeLeft < 0) {
+                        // Transfer window closed
+                        document.querySelector('.countdown-title').textContent = '🚫 Transfer Window Closed!';
+                        const elements = ['days', 'hours', 'minutes', 'seconds'];
+                        elements.forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.textContent = '00';
+                        });
+                        
+                        const container = document.querySelector('.countdown-container');
+                        if (container) {
+                            container.style.background = 'linear-gradient(135deg, #dc2626, #b91c1c)';
+                            container.style.animation = 'pulse 2s infinite';
+                        }
+                        return;
                     }
-                    return;
-                }
-                
-                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                
-                // Update countdown display
-                document.getElementById('days').textContent = days.toString().padStart(2, '0');
-                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
-                
-                // Add urgency styling when less than 24 hours remain (only for closing windows)
-                const countdownContainer = document.querySelector('.countdown-container');
-                const isClosingWindow = currentWindow && deadline === currentWindow.end;
-                
-                if (isClosingWindow && timeLeft < 24 * 60 * 60 * 1000) {
-                    countdownContainer.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-                    countdownContainer.style.animation = 'urgentPulse 1s infinite';
                     
-                    const urgencyKey = `urgency_${currentWindow.name}`;
-                    if (!sessionStorage.getItem(urgencyKey)) {
-                        showNotification('⚠️ URGENT: Transfer window closes in less than 24 hours!', 'warning');
-                        sessionStorage.setItem(urgencyKey, 'true');
+                    // Calculate time components
+                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                    
+                    console.log(`Time: ${days}d ${hours}h ${minutes}m ${seconds}s`);
+                    
+                    // Update display elements
+                    const daysEl = document.getElementById('days');
+                    const hoursEl = document.getElementById('hours');
+                    const minutesEl = document.getElementById('minutes');
+                    const secondsEl = document.getElementById('seconds');
+                    
+                    if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
+                    if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+                    if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+                    if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+                    
+                    // Update title and styling based on time remaining
+                    const titleEl = document.querySelector('.countdown-title');
+                    const container = document.querySelector('.countdown-container');
+                    
+                    if (titleEl && container) {
+                        if (timeLeft < 24 * 60 * 60 * 1000) {
+                            // Less than 24 hours - urgent
+                            titleEl.textContent = '🚨 FINAL HOURS: Transfer Window Closes In:';
+                            container.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                            container.style.animation = 'urgentPulse 1s infinite';
+                        } else if (timeLeft < 7 * 24 * 60 * 60 * 1000) {
+                            // Less than 7 days - warning
+                            titleEl.textContent = '⚠️ FINAL WEEK: Transfer Window Closes In:';
+                            container.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                        } else {
+                            // Normal state
+                            titleEl.textContent = '⏰ Summer Transfer Window Closes In:';
+                            container.style.background = 'linear-gradient(135deg, #ffd700, #ffed4e)';
+                            container.style.animation = 'none';
+                        }
                     }
-                } else if (isClosingWindow && timeLeft < 7 * 24 * 60 * 60 * 1000) {
-                    // Less than 7 days - amber warning
-                    countdownContainer.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
-                } else if (isClosingWindow) {
-                    // Normal closing state
-                    countdownContainer.style.background = 'linear-gradient(135deg, #ffd700, #ffed4e)';
-                } else {
-                    // Window opening countdown - blue theme
-                    countdownContainer.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
-                    countdownContainer.style.animation = 'none';
-                }
-                
-                // Update title based on time remaining and window type
-                if (isClosingWindow) {
-                    if (days === 0 && hours === 0) {
-                        document.querySelector('.countdown-title').textContent = '🚨 FINAL MINUTES: ' + windowTitle;
-                    } else if (days === 0) {
-                        document.querySelector('.countdown-title').textContent = '🔥 FINAL HOURS: ' + windowTitle;
-                    } else if (days < 7) {
-                        document.querySelector('.countdown-title').textContent = '⚠️ FINAL WEEK: ' + windowTitle;
-                    } else {
-                        document.querySelector('.countdown-title').textContent = '⏰ ' + windowTitle;
-                    }
-                } else {
-                    // Window opening countdown
-                    if (days === 0 && hours === 0) {
-                        document.querySelector('.countdown-title').textContent = '🚨 OPENING SOON: ' + windowTitle;
-                    } else if (days === 0) {
-                        document.querySelector('.countdown-title').textContent = '🔔 OPENS TODAY: ' + windowTitle;
-                    } else if (days < 7) {
-                        document.querySelector('.countdown-title').textContent = '📅 OPENS THIS WEEK: ' + windowTitle;
-                    } else {
-                        document.querySelector('.countdown-title').textContent = '📆 ' + windowTitle;
-                    }
+                } catch (error) {
+                    console.error('Countdown error:', error);
                 }
             }
             

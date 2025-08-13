@@ -90,17 +90,54 @@
 
 <style>
     .sleek-footer {
-        width: 100%;
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
         margin-top: 60px;
         background: #0a0a0a;
         color: #a0a0a0;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         position: relative;
+        box-sizing: border-box;
+    }
+    
+    /* Ensure footer breaks out of any container constraints */
+    .site-footer,
+    .footer {
+        width: 100vw !important;
+        margin-left: calc(-50vw + 50%) !important;
+        padding: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Ensure footer covers the very bottom of all pages */
+    body {
+        min-height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        margin: 0 !important;
+        overflow-x: hidden !important;
+    }
+    
+    main, .main-content, .content, article, .container, .page-content {
+        flex: 1 !important;
+    }
+    
+    /* Force footer to bottom for short pages */
+    .sleek-footer {
+        margin-top: auto !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* Prevent horizontal scroll from full width footer */
+    html {
+        overflow-x: hidden !important;
     }
 
     /* Top accent line */
     .footer-accent {
-        width: 100%;
+        width: 100vw;
         height: 2px;
         background: linear-gradient(90deg, 
             transparent,
@@ -110,12 +147,15 @@
             transparent
         );
         opacity: 0.8;
+        margin-left: calc(-50vw + 50%);
     }
 
     /* Main content area */
     .footer-content {
-        width: 100%;
+        width: 100vw;
         padding: 40px 40px 30px;
+        margin-left: calc(-50vw + 50%);
+        box-sizing: border-box;
     }
 
     .footer-grid {
@@ -260,10 +300,12 @@
 
     /* Bottom Bar */
     .footer-bottom {
-        width: 100%;
+        width: 100vw;
         background: #000;
         border-top: 1px solid #1a1a1a;
         padding: 20px 40px;
+        margin-left: calc(-50vw + 50%);
+        box-sizing: border-box;
     }
 
     .bottom-content {
@@ -295,6 +337,10 @@
 
         .footer-column:nth-child(5) {
             grid-column: 1;
+        }
+        
+        .footer-content {
+            padding: 35px 30px 25px;
         }
     }
 
@@ -370,6 +416,15 @@
         .footer-bottom {
             padding: 15px;
         }
+        
+        /* Ensure full width on mobile */
+        .sleek-footer,
+        .footer-accent,
+        .footer-content,
+        .footer-bottom {
+            width: 100vw !important;
+            margin-left: calc(-50vw + 50%) !important;
+        }
 
         .copyright,
         .made-with {
@@ -401,6 +456,21 @@
         border-radius: 4px;
     }
 
+    /* Ensure compatibility with all page layouts */
+    .nyt-article,
+    .article-container,
+    .page-wrapper,
+    .main-wrapper {
+        flex: 1 !important;
+    }
+    
+    /* Override any existing footer positioning */
+    footer.site-footer {
+        margin-top: auto !important;
+        width: 100vw !important;
+        margin-left: calc(-50vw + 50%) !important;
+    }
+    
     /* Print styles */
     @media print {
         .sleek-footer {
