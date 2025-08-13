@@ -4086,9 +4086,19 @@
             }
 
             function loadMoreTransfers() {
+                console.log('loadMoreTransfers called');
+                
                 const activeSection = document.querySelector('.transfer-section.active');
+                if (!activeSection) {
+                    console.error('No active section found');
+                    return;
+                }
+                
                 const activeCategory = activeSection.id;
                 const transfersGrid = activeSection.querySelector('.transfers-grid');
+                
+                console.log('Active category:', activeCategory);
+                console.log('Transfers grid found:', !!transfersGrid);
                 
                 // Map category IDs to database keys
                 const categoryMap = {
@@ -4102,12 +4112,23 @@
                 const currentLoaded = loadedTransfers[activeCategory];
                 const availableTransfers = transferDatabase[dbCategory];
                 
+                console.log('Database category:', dbCategory);
+                console.log('Currently loaded:', currentLoaded);
+                console.log('Available transfers:', availableTransfers ? availableTransfers.length : 'undefined');
+                
+                if (!availableTransfers) {
+                    console.error('No transfers found for category:', dbCategory);
+                    return;
+                }
+                
                 // Load 3 more transfers
                 const transfersToLoad = availableTransfers.slice(currentLoaded, currentLoaded + 3);
+                console.log('Transfers to load:', transfersToLoad.length);
                 
                 if (transfersToLoad.length === 0) {
                     showNotification('No more transfers to load in this category', 'info');
-                    loadMoreBtn.style.display = 'none';
+                    const loadMoreBtn = document.querySelector('.load-more-btn');
+                    if (loadMoreBtn) loadMoreBtn.style.display = 'none';
                     return;
                 }
                 
@@ -4149,9 +4170,10 @@
                 loadedTransfers[activeCategory] = currentLoaded + transfersToLoad.length;
                 
                 // Hide button if no more transfers
+                const loadMoreBtn = document.querySelector('.load-more-btn');
                 if (loadedTransfers[activeCategory] >= availableTransfers.length) {
                     setTimeout(() => {
-                        loadMoreBtn.style.display = 'none';
+                        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
                         showNotification('All transfers loaded for this category! 🎉', 'success');
                     }, 1000);
                 } else {
