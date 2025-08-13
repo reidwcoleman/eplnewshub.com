@@ -495,114 +495,250 @@
         <header class="mobile-header">
             <div class="mobile-header-content">
                 <div class="mobile-logo">
-                    <img src="eplnewshub.png" alt="EPL News Hub" class="mobile-logo-img">
-                    <h1>EPL News Hub</h1>
+                    <img src="upscalemedia-transformed.png" alt="EPL News Hub Logo" class="mobile-logo-img">
+                    <div class="mobile-logo-text">
+                        <h1>EPL News Hub</h1>
+                        <p class="mobile-tagline">Premier League News & Analysis</p>
+                    </div>
                 </div>
-                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
+                <div class="mobile-header-utils">
+                    <button class="mobile-search-btn" id="mobileSearchBtn" aria-label="Search">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                    </button>
+                    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Search (initially hidden) -->
+            <div class="mobile-search-container" id="mobileSearchContainer">
+                <div class="mobile-search-wrapper">
+                    <input type="text" id="mobile-search-input" placeholder="Search articles..." autocomplete="off">
+                    <button class="mobile-search-close" onclick="closeMobileSearch()">×</button>
+                </div>
+                <div id="mobile-search-results" class="mobile-search-results"></div>
             </div>
             
             <!-- Mobile Navigation -->
             <nav class="mobile-nav" id="mobileNav">
                 <ul class="mobile-nav-list">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/articles.html">Latest News</a></li>
-                    <li><a href="/fpl.html">FPL Tools</a></li>
-                    <li><a href="/epl-table.html">Premier League Table</a></li>
-                    <li><a href="/transfer-hub.html">Transfer Hub</a></li>
-                    <li><a href="/premium.html">Premium Features</a></li>
-                    <li><a href="/account.html">My Account</a></li>
+                    <li><a href="/">🏠 Home</a></li>
+                    <li><a href="/news.html">📰 News</a></li>
+                    <li><a href="/transfer-hub.html">🔄 Transfer Hub</a></li>
+                    <li><a href="/stats.html">📈 Stats</a></li>
+                    <li class="mobile-nav-section">
+                        <span class="mobile-nav-header">⚡ FPL Premium Tools</span>
+                        <ul class="mobile-submenu">
+                            <li><a href="/fpl-ai-assistant.html">🤖 AI Assistant <span class="badge-hot">HOT</span></a></li>
+                            <li><a href="/transfer-simulator-pro.html">🔄 Transfer Simulator</a></li>
+                            <li><a href="/player-predictor.html">🔮 Points Predictor</a></li>
+                            <li><a href="/player-data-enhanced.html">📊 Player Analytics</a></li>
+                            <li><a href="/fpl-premium-hub.html">💎 All FPL Tools</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/fpl.html">⚽ Fantasy Hub</a></li>
+                    <li><a href="/polls.html">🗳️ Polls</a></li>
+                    <li><a href="/social.html">💬 Social</a></li>
+                    <li class="mobile-nav-divider"></li>
+                    <li><a href="/account.html">👤 My Account</a></li>
+                    <li><a href="/membership.html">👑 Premium</a></li>
                 </ul>
             </nav>
         </header>
         
+        <!-- FPL Banner (Mobile Optimized) -->
+        <div class="mobile-fpl-banner" id="mobileFPLBanner">
+            <button class="mobile-banner-close" onclick="closeMobileBanner()" aria-label="Close banner">×</button>
+            <div class="mobile-banner-content">
+                <h2 class="mobile-banner-title">⚡ FPL Premium - 50% OFF!</h2>
+                <p class="mobile-banner-description">AI-powered tools used by 5,000+ managers</p>
+                <div class="mobile-banner-features">
+                    <span class="mobile-feature-badge">🤖 AI Assistant</span>
+                    <span class="mobile-feature-badge">🔄 Transfer Tools</span>
+                    <span class="mobile-feature-badge">📊 Advanced Stats</span>
+                </div>
+                <div class="mobile-banner-cta">
+                    <a href="/fpl-premium-hub.html" class="mobile-banner-btn-primary">Get Premium Tools</a>
+                </div>
+            </div>
+        </div>
+        
         <!-- Mobile Main Content -->
         <main class="mobile-main">
-            <!-- Quick Action Cards -->
-            <section class="mobile-quick-actions">
-                <a href="/fpl.html" class="action-card">
-                    <div class="action-icon">⚽</div>
-                    <div class="action-text">
-                        <h3>FPL Tools</h3>
-                        <p>Optimize your Fantasy Premier League team</p>
+            <!-- Top Stories Section -->
+            <section class="mobile-top-stories">
+                <div class="mobile-section-header">
+                    <h2 class="mobile-section-title">Top Stories</h2>
+                    <div class="mobile-section-divider"></div>
+                </div>
+                
+                <!-- Featured Article -->
+                <div class="mobile-featured-story" id="mobileMainHeadline">
+                    <!-- This will be populated with the main headline content -->
+                    <div class="mobile-modern-featured-article">
+                        <a href="articles/fantasy-premier-league-2025-26-gw1-best-fpl-team-scoring-rules-2025-08-13.html" class="mobile-featured-link">
+                            <div class="mobile-article-header">
+                                <div class="mobile-breaking-badge">🚨 FPL Breaking</div>
+                                <h1 class="mobile-article-title">Fantasy Premier League 2025/26 GW1: Best FPL Team, New Scoring Rules Explained</h1>
+                                <div class="mobile-article-meta">
+                                    <div class="mobile-meta-item">
+                                        <span>✍️ EPL News Hub</span>
+                                    </div>
+                                    <div class="mobile-meta-item">
+                                        <span>📅 August 13, 2025</span>
+                                    </div>
+                                    <div class="mobile-meta-item">
+                                        <span>⚽ Fantasy Guide</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mobile-hero-section">
+                                <img src="fpl-picks-gameweek-1.jpg" alt="Fantasy Premier League 2025/26 GW1 Best Team" class="mobile-hero-image" onerror="this.style.display='none'">
+                                <div class="mobile-hero-overlay">
+                                    <div class="mobile-hero-caption">Fantasy Premier League 2025/26 Gameweek 1</div>
+                                    <div class="mobile-hero-subcaption">Complete guide to the best FPL team and new scoring rules</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mobile-content-section">
+                                <p class="mobile-article-excerpt">Get ready for FPL 2025/26 with our complete Gameweek 1 guide! Discover the best FPL team, new scoring rules that boost defenders, and expert tools to dominate from day one.</p>
+                            </div>
+                        </a>
                     </div>
-                </a>
-                <a href="/epl-table.html" class="action-card">
-                    <div class="action-icon">📊</div>
-                    <div class="action-text">
-                        <h3>Live Table</h3>
-                        <p>Current Premier League standings</p>
-                    </div>
-                </a>
-                <a href="/transfer-hub.html" class="action-card">
-                    <div class="action-icon">🔄</div>
-                    <div class="action-text">
-                        <h3>Transfer Hub</h3>
-                        <p>Latest transfer news and rumors</p>
-                    </div>
-                </a>
+                </div>
             </section>
             
-            <!-- Featured News -->
-            <section class="mobile-section">
-                <h2>Latest Premier League News</h2>
-                <div class="mobile-news-grid" id="mobileNewsGrid">
-                    <!-- News items will be loaded here -->
-                    <div class="mobile-news-item">
-                        <img src="premier-league-transfer-deadline-day-january-2025-watkins-marmoush-dorgu.avif" alt="Transfer News" class="mobile-news-image" onerror="this.style.display='none'">
-                        <div class="mobile-news-content">
-                            <h3 class="mobile-news-title">January Transfer Window Latest</h3>
-                            <p class="mobile-news-excerpt">All the latest moves and rumors from the January transfer window as clubs look to strengthen their squads...</p>
-                            <div class="mobile-news-meta">2 hours ago</div>
+            <!-- Account Dashboard Widget (Mobile) -->
+            <section class="mobile-account-widget" id="mobileAccountWidget">
+                <div class="mobile-widget-header">
+                    <h3>👤 My Account</h3>
+                    <div class="mobile-account-status">
+                        <span id="mobile-user-welcome">Welcome back!</span>
+                    </div>
+                </div>
+                <div class="mobile-widget-content">
+                    <div class="mobile-account-stats">
+                        <div class="mobile-stat-item">
+                            <span class="mobile-stat-icon">📖</span>
+                            <div class="mobile-stat-info">
+                                <span class="mobile-stat-label">Articles Read</span>
+                                <span class="mobile-stat-value">12</span>
+                            </div>
+                        </div>
+                        <div class="mobile-stat-item">
+                            <span class="mobile-stat-icon">💎</span>
+                            <div class="mobile-stat-info">
+                                <span class="mobile-stat-label">Membership</span>
+                                <span class="mobile-stat-value">Free</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="mobile-news-item">
-                        <img src="DALL·E 2025-01-05 17.03.36 - A visually detailed and dramatic image of the Premier League trophy on a podium, surrounded by cheering fans in a packed stadium under bright floodlig.webp" alt="Premier League" class="mobile-news-image" onerror="this.style.display='none'">
-                        <div class="mobile-news-content">
-                            <h3 class="mobile-news-title">Premier League Title Race Heats Up</h3>
-                            <p class="mobile-news-excerpt">Analysis of the current standings and what each team needs to do to claim the Premier League title...</p>
-                            <div class="mobile-news-meta">4 hours ago</div>
+                    <div class="mobile-account-actions">
+                        <a href="/account.html" class="mobile-account-btn primary">⚙️ Account Settings</a>
+                        <a href="/membership.html" class="mobile-account-btn secondary">👑 Upgrade to Premium</a>
+                    </div>
+                    <div class="mobile-quick-links">
+                        <a href="/fpl.html" class="mobile-quick-link">⚽ FPL Dashboard</a>
+                        <a href="/articles/latest-premier-league-standings-and-highlights-2025-edition-01-05-2025.html" class="mobile-quick-link">📊 Latest Standings</a>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- FPL Tools Showcase (Mobile) -->
+            <section class="mobile-fpl-showcase">
+                <div class="mobile-showcase-header">
+                    <h2 class="mobile-showcase-title">
+                        <span class="mobile-title-icon">⚡</span>
+                        Level Up Your FPL Game
+                        <span class="mobile-title-badge">PRO TOOLS</span>
+                    </h2>
+                    <p class="mobile-showcase-subtitle">Join 5,000+ managers using AI-powered tools to dominate their mini-leagues</p>
+                </div>
+                
+                <div class="mobile-tools-grid">
+                    <!-- AI Assistant Tool -->
+                    <div class="mobile-tool-card ai-assistant">
+                        <div class="mobile-tool-badge">MOST POPULAR</div>
+                        <div class="mobile-tool-icon-wrapper">
+                            <span class="mobile-tool-icon">🤖</span>
                         </div>
+                        <h3 class="mobile-tool-name">AI Assistant</h3>
+                        <p class="mobile-tool-description">Instant transfer advice, captain picks & differential recommendations</p>
+                        <div class="mobile-tool-features">
+                            <span class="mobile-feature-tag">Smart AI</span>
+                            <span class="mobile-feature-tag">xG Analysis</span>
+                            <span class="mobile-feature-tag">24/7 Support</span>
+                        </div>
+                        <a href="/fpl-ai-assistant.html" class="mobile-tool-cta">
+                            <span>Launch AI Assistant</span>
+                            <span class="mobile-cta-arrow">→</span>
+                        </a>
                     </div>
                     
-                    <div class="mobile-news-item">
-                        <img src="DALL·E 2024-09-25 18.33.02 - A dynamic scene showing a Premier League Fantasy Football (FPL) concept. The image includes a stadium backdrop with vibrant lighting, featuring a mix .webp" alt="FPL News" class="mobile-news-image" onerror="this.style.display='none'">
-                        <div class="mobile-news-content">
-                            <h3 class="mobile-news-title">FPL Gameweek Preview</h3>
-                            <p class="mobile-news-excerpt">Essential tips and player recommendations for the upcoming Fantasy Premier League gameweek...</p>
-                            <div class="mobile-news-meta">6 hours ago</div>
+                    <!-- Transfer Simulator -->
+                    <div class="mobile-tool-card">
+                        <div class="mobile-tool-badge special">NEW FEATURES</div>
+                        <div class="mobile-tool-icon-wrapper">
+                            <span class="mobile-tool-icon">🔄</span>
                         </div>
+                        <h3 class="mobile-tool-name">Transfer Simulator Pro</h3>
+                        <p class="mobile-tool-description">Plan perfect transfers with advanced modeling & predictions</p>
+                        <div class="mobile-tool-features">
+                            <span class="mobile-feature-tag">5-Week Preview</span>
+                            <span class="mobile-feature-tag">Risk Analysis</span>
+                        </div>
+                        <a href="/transfer-simulator-pro.html" class="mobile-tool-cta">
+                            <span>Try Simulator</span>
+                            <span class="mobile-cta-arrow">→</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Points Predictor -->
+                    <div class="mobile-tool-card">
+                        <div class="mobile-tool-icon-wrapper">
+                            <span class="mobile-tool-icon">🔮</span>
+                        </div>
+                        <h3 class="mobile-tool-name">Points Predictor</h3>
+                        <p class="mobile-tool-description">ML-powered predictions for every gameweek with accuracy metrics</p>
+                        <div class="mobile-tool-features">
+                            <span class="mobile-feature-tag">85% Accuracy</span>
+                            <span class="mobile-feature-tag">Fixture Analysis</span>
+                        </div>
+                        <a href="/player-predictor.html" class="mobile-tool-cta">
+                            <span>View Predictions</span>
+                            <span class="mobile-cta-arrow">→</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Player Analytics -->
+                    <div class="mobile-tool-card">
+                        <div class="mobile-tool-icon-wrapper">
+                            <span class="mobile-tool-icon">📊</span>
+                        </div>
+                        <h3 class="mobile-tool-name">Player Analytics</h3>
+                        <p class="mobile-tool-description">Advanced stats, xG trends & performance insights for every player</p>
+                        <div class="mobile-tool-features">
+                            <span class="mobile-feature-tag">xG Dashboard</span>
+                            <span class="mobile-feature-tag">Heat Maps</span>
+                        </div>
+                        <a href="/player-data-enhanced.html" class="mobile-tool-cta">
+                            <span>Explore Analytics</span>
+                            <span class="mobile-cta-arrow">→</span>
+                        </a>
                     </div>
                 </div>
                 
-                <div style="text-align: center; margin-top: 20px;">
-                    <a href="/articles.html" style="background: linear-gradient(135deg, #37003c, #6f42c1); color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: 600;">View All News</a>
-                </div>
-            </section>
-            
-            <!-- Mobile FPL Widget -->
-            <section class="mobile-section">
-                <h2>FPL Quick Tools</h2>
-                <div class="fpl-tools-grid">
-                    <a href="/player-predictor.html" class="fpl-tool-card">
-                        <h3>Player Predictor</h3>
-                        <p>AI-powered predictions</p>
-                    </a>
-                    <a href="/budget-optimizer.html" class="fpl-tool-card">
-                        <h3>Budget Optimizer</h3>
-                        <p>Maximize your budget</p>
-                    </a>
-                    <a href="/transfer-simulator.html" class="fpl-tool-card">
-                        <h3>Transfer Simulator</h3>
-                        <p>Plan your moves</p>
-                    </a>
-                    <a href="/fixture-tracker.html" class="fpl-tool-card">
-                        <h3>Fixture Tracker</h3>
-                        <p>Difficulty analysis</p>
+                <div class="mobile-showcase-cta">
+                    <a href="/fpl-premium-hub.html" class="mobile-showcase-btn">
+                        <span class="mobile-btn-icon">⚡</span>
+                        <span>Unlock All Premium Tools</span>
+                        <span class="mobile-btn-badge">50% OFF</span>
                     </a>
                 </div>
             </section>
