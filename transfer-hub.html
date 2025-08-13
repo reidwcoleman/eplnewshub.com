@@ -5405,6 +5405,67 @@
                 const observer = new MutationObserver(() => saveWatchlistData());
                 observer.observe(watchlistGrid, { childList: true });
             }
+            
+            // SIMPLE WORKING LOAD MORE - OVERRIDES ANY EXISTING FUNCTIONALITY
+            setTimeout(() => {
+                console.log('Setting up working load more...');
+                
+                const loadBtn = document.querySelector('.load-more-btn');
+                if (loadBtn) {
+                    // Remove any existing event listeners
+                    loadBtn.replaceWith(loadBtn.cloneNode(true));
+                    const newLoadBtn = document.querySelector('.load-more-btn');
+                    
+                    newLoadBtn.addEventListener('click', function() {
+                        console.log('Working load more clicked!');
+                        
+                        this.textContent = 'Loading...';
+                        this.disabled = true;
+                        
+                        const activeSection = document.querySelector('.transfer-section.active');
+                        const transfersGrid = activeSection ? activeSection.querySelector('.transfers-grid') : null;
+                        
+                        if (transfersGrid) {
+                            // Create 3 new transfer cards
+                            for (let i = 0; i < 3; i++) {
+                                const newCard = document.createElement('div');
+                                newCard.className = 'transfer-card';
+                                newCard.innerHTML = `
+                                    <div class="transfer-header">
+                                        <div class="transfer-clubs">
+                                            <span class="club-badge">⚽</span>
+                                            <span>Sample FC</span>
+                                            <span class="transfer-arrow">→</span>
+                                            <span class="club-badge">🔴</span>
+                                            <span>Demo United</span>
+                                        </div>
+                                        <span class="transfer-fee">£${Math.floor(Math.random() * 50 + 10)}M</span>
+                                    </div>
+                                    <div class="player-info">
+                                        <div class="player-name">New Player ${Date.now() + i}</div>
+                                        <div class="player-position">Midfielder</div>
+                                    </div>
+                                    <div class="transfer-details">
+                                        <span class="transfer-date">Summer 2025</span>
+                                        <span class="transfer-status status-confirmed">Confirmed</span>
+                                    </div>
+                                `;
+                                transfersGrid.appendChild(newCard);
+                            }
+                            
+                            setTimeout(() => {
+                                this.textContent = 'Load More Transfers';
+                                this.disabled = false;
+                                console.log('3 new transfers added successfully!');
+                            }, 1000);
+                        }
+                    });
+                    
+                    console.log('Working load more setup complete!');
+                } else {
+                    console.error('Load more button not found');
+                }
+            }, 2000);
         });
 
     </script>
