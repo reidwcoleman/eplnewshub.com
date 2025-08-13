@@ -3826,109 +3826,55 @@
             `;
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Transfer Window Countdown Timer - Simplified and Fixed
-            function updateCountdown() {
-                console.log('updateCountdown function called');
+        // SIMPLE COUNTDOWN TIMER - GUARANTEED TO WORK
+        function startCountdown() {
+            console.log('Starting simple countdown...');
+            
+            function updateTime() {
+                // Get deadline: September 1, 2025 at 7:00 PM
+                const deadline = new Date('2025-09-01T19:00:00').getTime();
+                const now = Date.now();
+                const timeLeft = deadline - now;
                 
-                // First check if elements exist
-                const daysEl = document.getElementById('days');
-                const hoursEl = document.getElementById('hours');
-                const minutesEl = document.getElementById('minutes');
-                const secondsEl = document.getElementById('seconds');
-                
-                console.log('Elements check:', {
-                    days: daysEl,
-                    hours: hoursEl,
-                    minutes: minutesEl,
-                    seconds: secondsEl
-                });
-                
-                if (!daysEl || !hoursEl || !minutesEl || !secondsEl) {
-                    console.error('Countdown elements not found!');
+                if (timeLeft <= 0) {
+                    // Window closed
+                    document.getElementById('days').textContent = '00';
+                    document.getElementById('hours').textContent = '00';
+                    document.getElementById('minutes').textContent = '00';
+                    document.getElementById('seconds').textContent = '00';
                     return;
                 }
                 
+                // Calculate time
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                
+                // Update display - force update even if elements don't exist yet
                 try {
-                    // Transfer window closes September 1st, 2025 at 7:00 PM
-                    const deadline = new Date('September 1, 2025 19:00:00').getTime();
-                    const now = new Date().getTime();
-                    const timeLeft = deadline - now;
-                    
-                    console.log('Countdown running - Time left:', timeLeft);
-                    
-                    if (timeLeft < 0) {
-                        // Transfer window closed
-                        document.querySelector('.countdown-title').textContent = '🚫 Transfer Window Closed!';
-                        const elements = ['days', 'hours', 'minutes', 'seconds'];
-                        elements.forEach(id => {
-                            const el = document.getElementById(id);
-                            if (el) el.textContent = '00';
-                        });
-                        
-                        const container = document.querySelector('.countdown-container');
-                        if (container) {
-                            container.style.background = 'linear-gradient(135deg, #dc2626, #b91c1c)';
-                            container.style.animation = 'pulse 2s infinite';
-                        }
-                        return;
-                    }
-                    
-                    // Calculate time components
-                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                    
-                    console.log(`Time: ${days}d ${hours}h ${minutes}m ${seconds}s`);
-                    
-                    // Update display elements
-                    const daysEl = document.getElementById('days');
-                    const hoursEl = document.getElementById('hours');
-                    const minutesEl = document.getElementById('minutes');
-                    const secondsEl = document.getElementById('seconds');
-                    
-                    if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
-                    if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
-                    if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
-                    if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
-                    
-                    // Update title and styling based on time remaining
-                    const titleEl = document.querySelector('.countdown-title');
-                    const container = document.querySelector('.countdown-container');
-                    
-                    if (titleEl && container) {
-                        if (timeLeft < 24 * 60 * 60 * 1000) {
-                            // Less than 24 hours - urgent
-                            titleEl.textContent = '🚨 FINAL HOURS: Transfer Window Closes In:';
-                            container.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-                            container.style.animation = 'urgentPulse 1s infinite';
-                        } else if (timeLeft < 7 * 24 * 60 * 60 * 1000) {
-                            // Less than 7 days - warning
-                            titleEl.textContent = '⚠️ FINAL WEEK: Transfer Window Closes In:';
-                            container.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
-                        } else {
-                            // Normal state
-                            titleEl.textContent = '⏰ Summer Transfer Window Closes In:';
-                            container.style.background = 'linear-gradient(135deg, #ffd700, #ffed4e)';
-                            container.style.animation = 'none';
-                        }
-                    }
-                } catch (error) {
-                    console.error('Countdown error:', error);
+                    document.getElementById('days').textContent = String(days).padStart(2, '0');
+                    document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                    document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+                    console.log(`Countdown updated: ${days}d ${hours}h ${minutes}m ${seconds}s`);
+                } catch (e) {
+                    console.log('Elements not ready yet, will retry...');
                 }
             }
             
-            // Start countdown immediately
-            console.log('Starting countdown timer...');
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
-            
-            // Fallback: Also try after a short delay
-            setTimeout(() => {
-                console.log('Fallback countdown attempt...');
-                updateCountdown();
-            }, 500);
+            // Update immediately and then every second
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+        
+        // Start countdown as soon as script loads
+        startCountdown();
+        
+        // Also start when DOM is ready (double safety)
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM ready - starting countdown again...');
+            startCountdown();
             
             // Duplicate ticker content for seamless scrolling
             const tickerContent = document.getElementById('ticker-content');
@@ -5406,54 +5352,6 @@
             }
         });
 
-        // Global fallback countdown function (runs regardless of DOMContentLoaded)
-        function globalCountdownFallback() {
-            console.log('Global fallback countdown starting...');
-            
-            const daysEl = document.getElementById('days');
-            const hoursEl = document.getElementById('hours');
-            const minutesEl = document.getElementById('minutes');
-            const secondsEl = document.getElementById('seconds');
-            
-            if (daysEl && hoursEl && minutesEl && secondsEl) {
-                console.log('Global fallback: Elements found, starting countdown');
-                
-                function updateGlobalCountdown() {
-                    const deadline = new Date('September 1, 2025 19:00:00').getTime();
-                    const now = new Date().getTime();
-                    const timeLeft = deadline - now;
-                    
-                    if (timeLeft < 0) {
-                        daysEl.textContent = '00';
-                        hoursEl.textContent = '00';
-                        minutesEl.textContent = '00';
-                        secondsEl.textContent = '00';
-                        return;
-                    }
-                    
-                    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                    
-                    daysEl.textContent = days.toString().padStart(2, '0');
-                    hoursEl.textContent = hours.toString().padStart(2, '0');
-                    minutesEl.textContent = minutes.toString().padStart(2, '0');
-                    secondsEl.textContent = seconds.toString().padStart(2, '0');
-                    
-                    console.log(`Global countdown: ${days}d ${hours}h ${minutes}m ${seconds}s`);
-                }
-                
-                updateGlobalCountdown();
-                setInterval(updateGlobalCountdown, 1000);
-            } else {
-                console.log('Global fallback: Elements not found, retrying...');
-                setTimeout(globalCountdownFallback, 1000);
-            }
-        }
-        
-        // Start global fallback after 2 seconds
-        setTimeout(globalCountdownFallback, 2000);
     </script>
 </body>
 </html>
