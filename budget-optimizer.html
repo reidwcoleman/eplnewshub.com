@@ -2917,6 +2917,59 @@
             }
         });
         
+        // Team of the Week functionality
+        function getTeamOfTheWeek() {
+            const totwSection = document.getElementById('team-of-week');
+            const analysisSection = document.getElementById('totw-analysis');
+            const totwButton = document.getElementById('totw-button');
+            
+            if (totwSection.style.display === 'none' || !totwSection.style.display) {
+                // Show Team of the Week section
+                totwSection.style.display = 'block';
+                analysisSection.style.display = 'block';
+                totwButton.innerHTML = '✅ TOTW Loaded';
+                totwButton.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                
+                // Update constraints to match TOTW formation (3-5-2)
+                document.getElementById('def-play').value = 3;
+                document.getElementById('mid-play').value = 5;
+                document.getElementById('fwd-play').value = 2;
+                
+                // Scroll to TOTW section
+                totwSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Show success message
+                setTimeout(() => {
+                    alert('🏆 Team of the Week loaded!\n\n✅ Formation set to 3-5-2\n✅ Expert picks displayed\n✅ Detailed analysis shown\n\nClick "Optimize My Squad" to find similar players in your budget!');
+                }, 500);
+                
+                // Update budget optimizer with TOTW preferences if available
+                if (optimizer) {
+                    optimizer.selectedStrategy = 'best';
+                    document.querySelectorAll('.strategy-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    document.querySelector('[data-strategy="best"]').classList.add('selected');
+                }
+                
+            } else {
+                // Hide Team of the Week section
+                totwSection.style.display = 'none';
+                analysisSection.style.display = 'none';
+                totwButton.innerHTML = '🏆 Team of the Week';
+                totwButton.style.background = 'linear-gradient(135deg, #ffd700, #ff6b6b, #ffd700)';
+            }
+        }
+        
+        function toggleTOTWDetails() {
+            const analysis = document.getElementById('totw-analysis');
+            if (analysis.style.display === 'none') {
+                analysis.style.display = 'block';
+            } else {
+                analysis.style.display = 'none';
+            }
+        }
+        
         // Auto-refresh data when tab becomes visible
         document.addEventListener('visibilitychange', async function() {
             if (!document.hidden && optimizer) {
