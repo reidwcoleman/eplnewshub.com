@@ -289,6 +289,656 @@
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
+
+        /* Transfer Comparison Tool */
+        .transfer-comparison-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .comparison-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .comparison-title {
+            font-size: 2em;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .comparison-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .comparison-selects {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .comparison-select {
+            padding: 12px 20px;
+            border: 2px solid #8e6bb3;
+            border-radius: 25px;
+            background: white;
+            color: #333;
+            font-size: 1em;
+            min-width: 250px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-select:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .vs-indicator {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #4a2c7a;
+            padding: 10px 20px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .compare-button {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #4a2c7a, #6b4c9a);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 44, 122, 0.3);
+        }
+
+        .compare-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 44, 122, 0.4);
+        }
+
+        .compare-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .comparison-results {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Transfer Timeline */
+        .transfer-timeline-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .timeline-title {
+            font-size: 2em;
+            color: #ffd700;
+        }
+
+        .timeline-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .timeline-filter {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #8e6bb3;
+            border-radius: 20px;
+            color: #4a2c7a;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .timeline-filter.active,
+        .timeline-filter:hover {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            border-color: #ffd700;
+            transform: translateY(-2px);
+        }
+
+        .timeline-container {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #ffd700, #ffed4e, #ffd700);
+            transform: translateX(-50%);
+        }
+
+        .timeline-event {
+            display: flex;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .timeline-event:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-event-content {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            width: 45%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-event-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2);
+        }
+
+        .timeline-event-dot {
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            width: 16px;
+            height: 16px;
+            background: #ffd700;
+            border: 4px solid white;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 0 4px #ffd700;
+        }
+
+        /* Advanced Filters Panel */
+        .advanced-filters-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+            z-index: 1003;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+
+        .advanced-filters-panel.active {
+            right: 0;
+        }
+
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 2px solid #e9ecef;
+            background: linear-gradient(135deg, #4a2c7a, #6b4c9a);
+            color: white;
+        }
+
+        .filters-header h3 {
+            margin: 0;
+            font-size: 1.3em;
+        }
+
+        .close-filters {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .close-filters:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .filters-grid {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #4a2c7a;
+        }
+
+        .range-slider {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .range-slider input[type="range"] {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 5px;
+            background: none;
+            pointer-events: none;
+            -webkit-appearance: none;
+        }
+
+        .range-slider input[type="range"]::-webkit-slider-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #ffd700;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            pointer-events: auto;
+            -webkit-appearance: none;
+        }
+
+        .range-values {
+            text-align: center;
+            margin-top: 20px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .age-range {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .age-range input {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            width: 80px;
+            text-align: center;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .filters-actions {
+            padding: 20px;
+            border-top: 2px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+        }
+
+        .apply-filters-btn,
+        .reset-filters-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .apply-filters-btn {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #4a2c7a;
+        }
+
+        .reset-filters-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .apply-filters-btn:hover,
+        .reset-filters-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Transfer Insights */
+        .transfer-insights-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .insights-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .insights-title {
+            font-size: 2em;
+            color: #ffd700;
+        }
+
+        .toggle-advanced-filters {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #4a2c7a, #6b4c9a);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-advanced-filters:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(74, 44, 122, 0.3);
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .insight-card {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .insight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+        }
+
+        .insight-icon {
+            font-size: 2.5em;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .insight-content h4 {
+            margin: 0 0 8px 0;
+            color: #4a2c7a;
+            font-size: 1.1em;
+        }
+
+        .insight-content p {
+            margin: 0 0 8px 0;
+            color: #6c757d;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .insight-trend {
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .insight-trend.positive {
+            color: #28a745;
+        }
+
+        .insight-detail {
+            background: rgba(255, 215, 0, 0.2);
+            color: #4a2c7a;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Watchlist Section */
+        .watchlist-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .watchlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .watchlist-title {
+            font-size: 2em;
+            color: #ffd700;
+        }
+
+        .watchlist-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .add-to-watchlist-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #28a745, #34ce57);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-to-watchlist-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .watchlist-sort select {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .watchlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .empty-watchlist {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-watchlist i {
+            font-size: 4em;
+            color: #8e6bb3;
+            margin-bottom: 20px;
+        }
+
+        /* Alerts Section */
+        .alerts-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .alerts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .alerts-title {
+            font-size: 2em;
+            color: #ffd700;
+        }
+
+        .setup-alerts-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8787);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .setup-alerts-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .alerts-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .alert-example {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .alert-example:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .alert-type {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: #4a2c7a;
+            font-weight: 600;
+        }
+
+        .alert-content {
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .advanced-filters-panel {
+                width: 100%;
+                right: -100%;
+            }
+
+            .comparison-selects {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .comparison-select {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .vs-indicator {
+                order: -1;
+            }
+
+            .timeline-line {
+                left: 20px;
+            }
+
+            .timeline-event-content {
+                width: calc(100% - 60px);
+                margin-left: 60px;
+            }
+
+            .timeline-event:nth-child(even) .timeline-event-content {
+                margin-left: 60px;
+            }
+
+            .timeline-event-dot {
+                left: 20px;
+            }
+
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .insight-card {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
         
         .transfers-grid {
             display: grid;
@@ -1887,6 +2537,203 @@
         </div>
     </div>
 
+    <!-- Transfer Comparison Tool -->
+    <div class="transfer-comparison-section">
+        <div class="comparison-header">
+            <h2 class="comparison-title">⚖️ Transfer Comparison Tool</h2>
+            <p style="color: #6c757d; text-align: center; margin-bottom: 30px;">Compare transfers side-by-side with detailed analytics</p>
+        </div>
+        <div class="comparison-controls">
+            <div class="comparison-selects">
+                <select id="compare-transfer-1" class="comparison-select">
+                    <option value="">Select first transfer...</option>
+                </select>
+                <div class="vs-indicator">VS</div>
+                <select id="compare-transfer-2" class="comparison-select">
+                    <option value="">Select second transfer...</option>
+                </select>
+            </div>
+            <button id="compare-btn" class="compare-button" disabled>Compare Transfers</button>
+        </div>
+        <div id="comparison-results" class="comparison-results" style="display: none;">
+            <!-- Comparison results will be populated here -->
+        </div>
+    </div>
+
+    <!-- Transfer Timeline -->
+    <div class="transfer-timeline-section">
+        <div class="timeline-header">
+            <h2 class="timeline-title">⏱️ Transfer Timeline</h2>
+            <div class="timeline-controls">
+                <button class="timeline-filter active" data-period="all">All Time</button>
+                <button class="timeline-filter" data-period="today">Today</button>
+                <button class="timeline-filter" data-period="week">This Week</button>
+                <button class="timeline-filter" data-period="month">This Month</button>
+            </div>
+        </div>
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+            <div class="timeline-events" id="timeline-events">
+                <!-- Timeline events will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Filters Panel -->
+    <div class="advanced-filters-panel" id="advanced-filters-panel">
+        <div class="filters-header">
+            <h3>🔍 Advanced Filters</h3>
+            <button class="close-filters" onclick="toggleAdvancedFilters()">×</button>
+        </div>
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label>Transfer Value Range</label>
+                <div class="range-slider">
+                    <input type="range" id="min-value" min="0" max="100" value="0">
+                    <input type="range" id="max-value" min="0" max="100" value="100">
+                    <div class="range-values">
+                        <span id="min-value-display">£0M</span> - <span id="max-value-display">£100M+</span>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label>Player Age Range</label>
+                <div class="age-range">
+                    <input type="number" id="min-age" min="16" max="40" value="16" placeholder="Min">
+                    <span>to</span>
+                    <input type="number" id="max-age" min="16" max="40" value="40" placeholder="Max">
+                </div>
+            </div>
+            <div class="filter-group">
+                <label>League</label>
+                <select id="league-filter" multiple>
+                    <option value="premier-league">Premier League</option>
+                    <option value="championship">Championship</option>
+                    <option value="la-liga">La Liga</option>
+                    <option value="bundesliga">Bundesliga</option>
+                    <option value="serie-a">Serie A</option>
+                    <option value="ligue-1">Ligue 1</option>
+                    <option value="mls">MLS</option>
+                    <option value="saudi-league">Saudi Pro League</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Contract Status</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="expiring"> Expiring Contract</label>
+                    <label><input type="checkbox" value="new-contract"> New Contract</label>
+                    <label><input type="checkbox" value="extension"> Extension</label>
+                </div>
+            </div>
+        </div>
+        <div class="filters-actions">
+            <button class="apply-filters-btn">Apply Filters</button>
+            <button class="reset-filters-btn">Reset All</button>
+        </div>
+    </div>
+
+    <!-- Transfer Insights Dashboard -->
+    <div class="transfer-insights-section">
+        <div class="insights-header">
+            <h2 class="insights-title">💡 Transfer Market Insights</h2>
+            <button class="toggle-advanced-filters" onclick="toggleAdvancedFilters()">
+                <i class="fas fa-sliders-h"></i> Advanced Filters
+            </button>
+        </div>
+        <div class="insights-grid">
+            <div class="insight-card">
+                <div class="insight-icon">🔥</div>
+                <div class="insight-content">
+                    <h4>Hottest Market</h4>
+                    <p>Midfielders are seeing 45% more activity than last window</p>
+                    <div class="insight-trend positive">+45% ↗</div>
+                </div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-icon">💰</div>
+                <div class="insight-content">
+                    <h4>Price Inflation</h4>
+                    <p>Average transfer fee up by £12.3M from last season</p>
+                    <div class="insight-trend positive">+29% ↗</div>
+                </div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-icon">🎯</div>
+                <div class="insight-content">
+                    <h4>Success Rate</h4>
+                    <p>87% of rumored transfers completed this window</p>
+                    <div class="insight-trend positive">+12% ↗</div>
+                </div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-icon">⚡</div>
+                <div class="insight-content">
+                    <h4>Fastest Deal</h4>
+                    <p>Grealish to Everton completed in just 3 days</p>
+                    <div class="insight-detail">Record pace</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Transfer Watchlist -->
+    <div class="watchlist-section">
+        <div class="watchlist-header">
+            <h2 class="watchlist-title">👀 My Transfer Watchlist</h2>
+            <div class="watchlist-controls">
+                <button class="add-to-watchlist-btn" onclick="showPlayerSearch()">
+                    <i class="fas fa-plus"></i> Add Player
+                </button>
+                <div class="watchlist-sort">
+                    <select id="watchlist-sort">
+                        <option value="recent">Recently Added</option>
+                        <option value="probability">By Probability</option>
+                        <option value="value">By Transfer Value</option>
+                        <option value="alphabetical">Alphabetical</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="watchlist-grid" id="watchlist-grid">
+            <div class="empty-watchlist">
+                <i class="fas fa-eye"></i>
+                <p>Your watchlist is empty</p>
+                <small>Add players you want to track for transfer updates</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Alerts Setup -->
+    <div class="alerts-section">
+        <div class="alerts-header">
+            <h2 class="alerts-title">🔔 Transfer Alerts</h2>
+            <button class="setup-alerts-btn" onclick="showAlertsSetup()">Setup Alerts</button>
+        </div>
+        <div class="alerts-preview">
+            <div class="alert-example">
+                <div class="alert-type">
+                    <i class="fas fa-bell"></i>
+                    <span>Breaking News</span>
+                </div>
+                <div class="alert-content">Get instant notifications when transfers are confirmed</div>
+            </div>
+            <div class="alert-example">
+                <div class="alert-type">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Probability Changes</span>
+                </div>
+                <div class="alert-content">Track when transfer probabilities increase or decrease</div>
+            </div>
+            <div class="alert-example">
+                <div class="alert-type">
+                    <i class="fas fa-heart"></i>
+                    <span>Favorite Players</span>
+                </div>
+                <div class="alert-content">Monitor your favorite players for any transfer activity</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Transfer Analytics Section -->
     <div class="transfer-analytics">
         <div class="analytics-header">
@@ -2951,6 +3798,294 @@
             icon.classList.add('fas');
             btn.style.background = '#ffd700';
         }
+
+        // Advanced Filters Functionality
+        function toggleAdvancedFilters() {
+            const panel = document.getElementById('advanced-filters-panel');
+            panel.classList.toggle('active');
+            
+            if (panel.classList.contains('active')) {
+                populateComparisonSelects();
+                setupTimelineEvents();
+            }
+        }
+
+        // Transfer Comparison Functionality
+        function populateComparisonSelects() {
+            const select1 = document.getElementById('compare-transfer-1');
+            const select2 = document.getElementById('compare-transfer-2');
+            const compareBtn = document.getElementById('compare-btn');
+            
+            // Clear existing options
+            select1.innerHTML = '<option value="">Select first transfer...</option>';
+            select2.innerHTML = '<option value="">Select second transfer...</option>';
+            
+            // Populate with all transfers
+            Object.values(transferDatabase).flat().forEach((transfer, index) => {
+                const option1 = new Option(`${transfer.player} (${transfer.fromClub} → ${transfer.toClub})`, index);
+                const option2 = new Option(`${transfer.player} (${transfer.fromClub} → ${transfer.toClub})`, index);
+                select1.add(option1);
+                select2.add(option2);
+            });
+            
+            // Enable compare button when both selects have values
+            function checkCompareBtnState() {
+                const canCompare = select1.value && select2.value && select1.value !== select2.value;
+                compareBtn.disabled = !canCompare;
+            }
+            
+            select1.addEventListener('change', checkCompareBtnState);
+            select2.addEventListener('change', checkCompareBtnState);
+            
+            compareBtn.addEventListener('click', function() {
+                if (!this.disabled) {
+                    performTransferComparison(select1.value, select2.value);
+                }
+            });
+        }
+
+        function performTransferComparison(index1, index2) {
+            const allTransfers = Object.values(transferDatabase).flat();
+            const transfer1 = allTransfers[index1];
+            const transfer2 = allTransfers[index2];
+            
+            const resultsDiv = document.getElementById('comparison-results');
+            resultsDiv.style.display = 'grid';
+            
+            resultsDiv.innerHTML = `
+                <div class="comparison-card">
+                    <h3>${transfer1.player}</h3>
+                    <div class="comparison-details">
+                        <p><strong>From:</strong> ${transfer1.fromClub}</p>
+                        <p><strong>To:</strong> ${transfer1.toClub}</p>
+                        <p><strong>Fee:</strong> ${transfer1.fee}</p>
+                        <p><strong>Position:</strong> ${transfer1.position}</p>
+                        <p><strong>Status:</strong> ${transfer1.status}</p>
+                    </div>
+                </div>
+                <div class="comparison-vs">
+                    <div class="vs-icon">⚖️</div>
+                    <p>Comparison</p>
+                </div>
+                <div class="comparison-card">
+                    <h3>${transfer2.player}</h3>
+                    <div class="comparison-details">
+                        <p><strong>From:</strong> ${transfer2.fromClub}</p>
+                        <p><strong>To:</strong> ${transfer2.toClub}</p>
+                        <p><strong>Fee:</strong> ${transfer2.fee}</p>
+                        <p><strong>Position:</strong> ${transfer2.position}</p>
+                        <p><strong>Status:</strong> ${transfer2.status}</p>
+                    </div>
+                </div>
+            `;
+            
+            showNotification('Transfer comparison generated! 📊', 'success');
+        }
+
+        // Timeline Events Setup
+        function setupTimelineEvents() {
+            const timelineEvents = document.getElementById('timeline-events');
+            const mockEvents = [
+                {
+                    time: '2 hours ago',
+                    title: 'Viktor Gyokeres Medical Complete',
+                    description: 'Arsenal striker completes medical ahead of £55.3M move from Sporting CP',
+                    type: 'medical'
+                },
+                {
+                    time: '5 hours ago',
+                    title: 'Mbeumo Signs 5-Year Deal',
+                    description: 'Manchester United confirms £71M signing of Bryan Mbeumo from Brentford',
+                    type: 'confirmed'
+                },
+                {
+                    time: '8 hours ago',
+                    title: 'Son Heung-min Agrees Terms',
+                    description: 'Tottenham captain agrees personal terms with Los Angeles FC for summer move',
+                    type: 'negotiation'
+                },
+                {
+                    time: '1 day ago',
+                    title: 'Benjamin Sesko Unveiled',
+                    description: 'Manchester United unveils new striker signing in front of 50,000 fans',
+                    type: 'confirmed'
+                },
+                {
+                    time: '2 days ago',
+                    title: 'Grealish Loan Confirmed',
+                    description: 'Jack Grealish joins Everton on season-long loan from Manchester City',
+                    type: 'loan'
+                }
+            ];
+            
+            timelineEvents.innerHTML = mockEvents.map(event => `
+                <div class="timeline-event">
+                    <div class="timeline-event-content">
+                        <div class="timeline-time">${event.time}</div>
+                        <h4 class="timeline-title">${event.title}</h4>
+                        <p class="timeline-description">${event.description}</p>
+                        <span class="timeline-badge ${event.type}">${event.type.toUpperCase()}</span>
+                    </div>
+                    <div class="timeline-event-dot"></div>
+                </div>
+            `).join('');
+        }
+
+        // Watchlist Functionality
+        function showPlayerSearch() {
+            const modal = document.createElement('div');
+            modal.className = 'player-search-modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Add Player to Watchlist</h3>
+                        <button onclick="this.closest('.player-search-modal').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" id="player-search-input" placeholder="Search for a player..." 
+                               style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 10px; margin-bottom: 15px;">
+                        <div class="suggested-players">
+                            <div class="suggested-player" onclick="addToWatchlist('Kylian Mbappé', this)">
+                                <span>🇫🇷 Kylian Mbappé</span>
+                                <small>Real Madrid</small>
+                            </div>
+                            <div class="suggested-player" onclick="addToWatchlist('Erling Haaland', this)">
+                                <span>🇳🇴 Erling Haaland</span>
+                                <small>Manchester City</small>
+                            </div>
+                            <div class="suggested-player" onclick="addToWatchlist('Jude Bellingham', this)">
+                                <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿 Jude Bellingham</span>
+                                <small>Real Madrid</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.7); z-index: 1004;
+                display: flex; align-items: center; justify-content: center;
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        function addToWatchlist(playerName, element) {
+            const watchlistGrid = document.getElementById('watchlist-grid');
+            const emptyState = watchlistGrid.querySelector('.empty-watchlist');
+            
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            const watchlistCard = document.createElement('div');
+            watchlistCard.className = 'watchlist-card';
+            watchlistCard.innerHTML = `
+                <div class="watchlist-player-info">
+                    <h4>${playerName}</h4>
+                    <p>Transfer probability: <span class="probability-value">67%</span></p>
+                    <small>Added just now</small>
+                </div>
+                <button class="remove-from-watchlist" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            watchlistCard.style.cssText = `
+                background: linear-gradient(135deg, #ffffff, #f8f9fa);
+                border: 2px solid #e9ecef; border-radius: 15px; padding: 20px;
+                display: flex; justify-content: space-between; align-items: center;
+                transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            `;
+            
+            watchlistGrid.appendChild(watchlistCard);
+            element.closest('.player-search-modal').remove();
+            showNotification(`${playerName} added to your watchlist! 👀`, 'success');
+        }
+
+        // Alerts Setup
+        function showAlertsSetup() {
+            const modal = document.createElement('div');
+            modal.className = 'alerts-setup-modal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 500px;">
+                    <div class="modal-header">
+                        <h3>Setup Transfer Alerts</h3>
+                        <button onclick="this.closest('.alerts-setup-modal').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert-setting">
+                            <label>
+                                <input type="checkbox" checked> Breaking News Alerts
+                                <small>Get notified when transfers are officially confirmed</small>
+                            </label>
+                        </div>
+                        <div class="alert-setting">
+                            <label>
+                                <input type="checkbox"> Probability Changes
+                                <small>Track when transfer likelihood increases/decreases</small>
+                            </label>
+                        </div>
+                        <div class="alert-setting">
+                            <label>
+                                <input type="checkbox"> Favorite Players
+                                <small>Monitor your favorited players for any activity</small>
+                            </label>
+                        </div>
+                        <div class="alert-setting">
+                            <label>
+                                <input type="checkbox"> Club Specific
+                                <small>Get alerts for your favorite club's transfers</small>
+                            </label>
+                        </div>
+                        <button class="save-alerts-btn" onclick="saveAlertSettings(this)" 
+                                style="width: 100%; padding: 12px; background: linear-gradient(135deg, #ffd700, #ffed4e); 
+                                       color: #4a2c7a; border: none; border-radius: 25px; font-weight: 600; margin-top: 20px;">
+                            Save Alert Settings
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.7); z-index: 1004;
+                display: flex; align-items: center; justify-content: center;
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        function saveAlertSettings(button) {
+            const modal = button.closest('.alerts-setup-modal');
+            const checkedAlerts = modal.querySelectorAll('input[type="checkbox"]:checked').length;
+            
+            modal.remove();
+            showNotification(`Alert preferences saved! ${checkedAlerts} alert types enabled 🔔`, 'success');
+        }
+
+        // Range Slider Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const minValue = document.getElementById('min-value');
+            const maxValue = document.getElementById('max-value');
+            const minDisplay = document.getElementById('min-value-display');
+            const maxDisplay = document.getElementById('max-value-display');
+            
+            if (minValue && maxValue) {
+                function updateRangeValues() {
+                    const min = parseInt(minValue.value);
+                    const max = parseInt(maxValue.value);
+                    
+                    minDisplay.textContent = min === 0 ? '£0M' : `£${min}M`;
+                    maxDisplay.textContent = max === 100 ? '£100M+' : `£${max}M`;
+                }
+                
+                minValue.addEventListener('input', updateRangeValues);
+                maxValue.addEventListener('input', updateRangeValues);
+                updateRangeValues();
+            }
+        });
     </script>
 </body>
 </html>
