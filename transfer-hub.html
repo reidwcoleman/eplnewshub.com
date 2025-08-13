@@ -2266,6 +2266,55 @@
         </div>
     </div>
 
+    <script>
+    // Inline countdown script - runs immediately after HTML elements are created
+    (function() {
+        console.log('Inline countdown script starting...');
+        
+        function updateCountdownNow() {
+            // September 1, 2025 at 7:00 PM
+            const deadline = new Date('2025-09-01T19:00:00').getTime();
+            const now = Date.now();
+            const timeLeft = deadline - now;
+            
+            if (timeLeft <= 0) {
+                document.getElementById('days').innerHTML = '00';
+                document.getElementById('hours').innerHTML = '00';
+                document.getElementById('minutes').innerHTML = '00';
+                document.getElementById('seconds').innerHTML = '00';
+                console.log('Transfer window closed');
+                return;
+            }
+            
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            // Force update using innerHTML
+            const daysEl = document.getElementById('days');
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+            
+            if (daysEl) daysEl.innerHTML = String(days).padStart(2, '0');
+            if (hoursEl) hoursEl.innerHTML = String(hours).padStart(2, '0');
+            if (minutesEl) minutesEl.innerHTML = String(minutes).padStart(2, '0');
+            if (secondsEl) secondsEl.innerHTML = String(seconds).padStart(2, '0');
+            
+            console.log(`Inline countdown: ${days}d ${hours}h ${minutes}m ${seconds}s`);
+        }
+        
+        // Start immediately
+        updateCountdownNow();
+        
+        // Update every second
+        setInterval(updateCountdownNow, 1000);
+        
+        console.log('Inline countdown started successfully');
+    })();
+    </script>
+
     <!-- Live Transfer Ticker -->
     <div class="transfer-ticker-section">
         <div class="ticker-header">
@@ -3826,55 +3875,7 @@
             `;
         }
 
-        // SIMPLE COUNTDOWN TIMER - GUARANTEED TO WORK
-        function startCountdown() {
-            console.log('Starting simple countdown...');
-            
-            function updateTime() {
-                // Get deadline: September 1, 2025 at 7:00 PM
-                const deadline = new Date('2025-09-01T19:00:00').getTime();
-                const now = Date.now();
-                const timeLeft = deadline - now;
-                
-                if (timeLeft <= 0) {
-                    // Window closed
-                    document.getElementById('days').textContent = '00';
-                    document.getElementById('hours').textContent = '00';
-                    document.getElementById('minutes').textContent = '00';
-                    document.getElementById('seconds').textContent = '00';
-                    return;
-                }
-                
-                // Calculate time
-                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                
-                // Update display - force update even if elements don't exist yet
-                try {
-                    document.getElementById('days').textContent = String(days).padStart(2, '0');
-                    document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-                    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-                    document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-                    console.log(`Countdown updated: ${days}d ${hours}h ${minutes}m ${seconds}s`);
-                } catch (e) {
-                    console.log('Elements not ready yet, will retry...');
-                }
-            }
-            
-            // Update immediately and then every second
-            updateTime();
-            setInterval(updateTime, 1000);
-        }
-        
-        // Start countdown as soon as script loads
-        startCountdown();
-        
-        // Also start when DOM is ready (double safety)
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM ready - starting countdown again...');
-            startCountdown();
             
             // Duplicate ticker content for seamless scrolling
             const tickerContent = document.getElementById('ticker-content');
