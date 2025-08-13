@@ -33,21 +33,50 @@
             background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
             border-radius: 16px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            min-height: 100vh;
         }
 
         .optimizer-header {
             text-align: center;
-            margin-bottom: 30px;
-            padding: 30px;
-            background: linear-gradient(135deg, #6f42c1 0%, #17a2b8 100%);
+            margin-bottom: 40px;
+            padding: 40px;
+            background: linear-gradient(135deg, #6f42c1 0%, #667eea 50%, #17a2b8 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 6s ease infinite;
             color: white;
-            border-radius: 12px;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .optimizer-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         .optimizer-header h1 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin-bottom: 15px;
-            font-weight: 800;
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
         }
 
         .strategy-selector {
@@ -183,32 +212,69 @@
         .optimization-controls {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 25px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
         }
 
         .optimize-btn {
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #6f42c1, #17a2b8);
+            padding: 18px 35px;
+            background: linear-gradient(135deg, #6f42c1, #667eea, #17a2b8);
+            background-size: 200% 200%;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 700;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 800;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 8px 20px rgba(111, 66, 193, 0.3);
+            position: relative;
+            overflow: hidden;
+            min-width: 200px;
+            animation: gradientShift 4s ease infinite;
+        }
+
+        .optimize-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .optimize-btn:hover::before {
+            left: 100%;
         }
 
         .optimize-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(111, 66, 193, 0.4);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(111, 66, 193, 0.4);
         }
 
         .optimize-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+            animation: none;
+        }
+
+        .btn-totw {
+            background: linear-gradient(135deg, #ffd700, #ff6b6b, #ffd700) !important;
+            background-size: 200% 200% !important;
+            animation: goldShift 3s ease infinite !important;
+        }
+
+        @keyframes goldShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #dc3545, #fd7e14) !important;
         }
 
         .results-container {
@@ -1054,10 +1120,13 @@
 
             <!-- Optimization Controls -->
             <div class="optimization-controls">
+                <button class="optimize-btn btn-totw" onclick="getTeamOfTheWeek()" id="totw-button">
+                    🏆 Team of the Week
+                </button>
                 <button class="optimize-btn" onclick="optimizeTeam()" id="optimize-button">
                     🚀 Optimize My Squad
                 </button>
-                <button class="optimize-btn" onclick="resetTeam()" id="reset-button" style="background: linear-gradient(135deg, #dc3545, #fd7e14);">
+                <button class="optimize-btn btn-reset" onclick="resetTeam()" id="reset-button">
                     🔄 Reset Team
                 </button>
             </div>

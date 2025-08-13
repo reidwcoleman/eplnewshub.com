@@ -1309,34 +1309,56 @@
             }
             
             initCharts() {
-                const ctx = document.getElementById('performanceChart').getContext('2d');
-                this.charts.performance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['GW1', 'GW2', 'GW3', 'GW4', 'GW5', 'GW6'],
-                        datasets: [{
-                            label: 'Top Performers',
-                            data: [12, 19, 3, 5, 2, 3],
-                            borderColor: 'rgb(102, 126, 234)',
-                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top'
+                try {
+                    if (typeof Chart === 'undefined') {
+                        console.warn('Chart.js not loaded, skipping chart initialization');
+                        return;
+                    }
+                    
+                    const ctx = document.getElementById('performanceChart').getContext('2d');
+                    
+                    // Sample data based on top performers
+                    const topPerformers = this.players.slice(0, 5);
+                    const labels = topPerformers.map(p => p.name.split(' ')[1] || p.name);
+                    const pointsData = topPerformers.map(p => p.points);
+                    
+                    this.charts.performance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Total Points',
+                                data: pointsData,
+                                borderColor: 'rgb(102, 126, 234)',
+                                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Top Player Performance'
+                                }
                             },
-                            title: {
-                                display: true,
-                                text: 'Player Performance Trends'
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                } catch (error) {
+                    console.error('Error initializing charts:', error);
+                    document.getElementById('performanceChart').style.display = 'none';
+                }
             }
             
             renderTable() {
