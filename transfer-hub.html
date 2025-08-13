@@ -672,6 +672,243 @@
             transition: width 1s ease;
         }
         
+        /* Transfer Probability Tracker */
+        .transfer-probability-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .probability-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .probability-title {
+            font-size: 2em;
+            color: #ffd700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .probability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        
+        .probability-card {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .probability-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4caf50, #8bc34a, #ffc107, #ff9800, #f44336);
+            background-size: 200% 100%;
+            animation: probabilityGradient 3s linear infinite;
+        }
+        
+        @keyframes probabilityGradient {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .probability-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .probability-header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .probability-clubs {
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .probability-percentage {
+            font-size: 1.8em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .probability-bar-container {
+            background: #e9ecef;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .probability-bar {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .probability-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .probability-high { background: linear-gradient(90deg, #4caf50, #66bb6a); }
+        .probability-medium { background: linear-gradient(90deg, #ffc107, #ffeb3b); }
+        .probability-low { background: linear-gradient(90deg, #ff9800, #ffb74d); }
+        .probability-unlikely { background: linear-gradient(90deg, #f44336, #ef5350); }
+        
+        .probability-factors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .factor-tag {
+            background: rgba(255, 215, 0, 0.1);
+            color: #4a2c7a;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        /* Social Sharing Section */
+        .social-sharing {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .share-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .share-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .share-btn:hover::before {
+            opacity: 1;
+            animation: shine 0.6s ease;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+        
+        .share-twitter { background: #1da1f2; }
+        .share-facebook { background: #4267b2; }
+        .share-linkedin { background: #0077b5; }
+        .share-whatsapp { background: #25d366; }
+        .share-copy { background: #6c757d; }
+        
+        .share-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        /* Enhanced Transfer Cards with Interactive Elements */
+        .transfer-card-enhanced {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .transfer-card-enhanced .quick-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .transfer-card-enhanced:hover .quick-actions {
+            opacity: 1;
+        }
+        
+        .quick-action-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #4a2c7a;
+        }
+        
+        .quick-action-btn:hover {
+            background: #ffd700;
+            transform: scale(1.1);
+        }
+        
         /* Transfer News Feed */
         .transfer-news-section {
             max-width: 1200px;
@@ -690,6 +927,179 @@
             font-size: 1.8em;
             color: #ffd700;
             font-weight: bold;
+        }
+        
+        /* Live Updates Badge */
+        .live-updates-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8787);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            z-index: 1001;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        .live-updates-badge::before {
+            content: '🔴';
+            margin-right: 8px;
+        }
+        
+        /* Interactive Filter Chips */
+        .filter-chips {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .filter-chip {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #8e6bb3;
+            color: #4a2c7a;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .filter-chip::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .filter-chip:hover::before {
+            left: 100%;
+        }
+        
+        .filter-chip.active {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            border-color: #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+        
+        .filter-chip .chip-count {
+            background: rgba(74, 44, 122, 0.1);
+            color: #4a2c7a;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            margin-left: 8px;
+        }
+        
+        /* Enhanced Analytics with Charts */
+        .analytics-chart-container {
+            background: linear-gradient(135deg, #6b4c9a, #8e6bb3);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .analytics-chart-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            animation: movePattern 15s linear infinite;
+        }
+        
+        @keyframes movePattern {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(20px, 20px) rotate(360deg); }
+        }
+        
+        .chart-placeholder {
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffd700;
+            font-size: 1.2em;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Notification System */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1002;
+            pointer-events: none;
+        }
+        
+        .notification {
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            animation: slideInDown 0.5s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Advanced Mobile Enhancements */
+        @media (max-width: 768px) {
+            .social-sharing {
+                position: static;
+                transform: none;
+                flex-direction: row;
+                justify-content: center;
+                margin: 20px 0;
+            }
+            
+            .probability-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-chips {
+                justify-content: center;
+            }
+            
+            .live-updates-badge {
+                top: auto;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                right: auto;
+            }
         }
         
         .news-grid {
@@ -809,6 +1219,33 @@
 <body>
     <!-- Include Header -->
     <div include="./header.html"></div>
+
+    <!-- Live Updates Badge -->
+    <div class="live-updates-badge">
+        Live Updates
+    </div>
+
+    <!-- Social Sharing -->
+    <div class="social-sharing">
+        <a href="#" class="share-btn share-twitter" onclick="shareOnTwitter()" title="Share on Twitter">
+            <i class="fab fa-twitter"></i>
+        </a>
+        <a href="#" class="share-btn share-facebook" onclick="shareOnFacebook()" title="Share on Facebook">
+            <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="#" class="share-btn share-linkedin" onclick="shareOnLinkedIn()" title="Share on LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+        </a>
+        <a href="#" class="share-btn share-whatsapp" onclick="shareOnWhatsApp()" title="Share on WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+        <a href="#" class="share-btn share-copy" onclick="copyToClipboard()" title="Copy Link">
+            <i class="fas fa-link"></i>
+        </a>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notification-container"></div>
 
     <div class="transfer-hub-hero">
         <div class="hero-content">
@@ -1269,6 +1706,117 @@
         <button class="load-more-btn">Load More Transfers</button>
     </div>
 
+    <!-- Transfer Probability Tracker -->
+    <div class="transfer-probability-section">
+        <div class="probability-header">
+            <h2 class="probability-title">📈 Transfer Probability Tracker</h2>
+            <p style="color: #6c757d; text-align: center; margin-bottom: 30px;">AI-powered predictions based on latest reports, club finances, and player contracts</p>
+        </div>
+        <div class="probability-grid">
+            <div class="probability-card">
+                <div class="probability-header-info">
+                    <div class="probability-clubs">
+                        <span>🔴 Arsenal ← Zubimendi</span>
+                    </div>
+                    <div class="probability-percentage">87%</div>
+                </div>
+                <div class="probability-bar-container">
+                    <div class="probability-bar probability-high" style="width: 87%;"></div>
+                </div>
+                <div class="probability-factors">
+                    <span class="factor-tag">Personal Terms Agreed</span>
+                    <span class="factor-tag">Release Clause Met</span>
+                    <span class="factor-tag">Medical Scheduled</span>
+                </div>
+            </div>
+
+            <div class="probability-card">
+                <div class="probability-header-info">
+                    <div class="probability-clubs">
+                        <span>⚪ Tottenham ← Palhinha</span>
+                    </div>
+                    <div class="probability-percentage">92%</div>
+                </div>
+                <div class="probability-bar-container">
+                    <div class="probability-bar probability-high" style="width: 92%;"></div>
+                </div>
+                <div class="probability-factors">
+                    <span class="factor-tag">Medical Complete</span>
+                    <span class="factor-tag">Announcement Pending</span>
+                    <span class="factor-tag">Loan Deal</span>
+                </div>
+            </div>
+
+            <div class="probability-card">
+                <div class="probability-header-info">
+                    <div class="probability-clubs">
+                        <span>🇺🇸 LA FC ← Son Heung-min</span>
+                    </div>
+                    <div class="probability-percentage">76%</div>
+                </div>
+                <div class="probability-bar-container">
+                    <div class="probability-bar probability-medium" style="width: 76%;"></div>
+                </div>
+                <div class="probability-factors">
+                    <span class="factor-tag">Advanced Talks</span>
+                    <span class="factor-tag">Player Interest</span>
+                    <span class="factor-tag">Contract Expires 2025</span>
+                </div>
+            </div>
+
+            <div class="probability-card">
+                <div class="probability-header-info">
+                    <div class="probability-clubs">
+                        <span>⚫ Al-Hilal ← Darwin Nunez</span>
+                    </div>
+                    <div class="probability-percentage">45%</div>
+                </div>
+                <div class="probability-bar-container">
+                    <div class="probability-bar probability-low" style="width: 45%;"></div>
+                </div>
+                <div class="probability-factors">
+                    <span class="factor-tag">Bid Submitted</span>
+                    <span class="factor-tag">Player Undecided</span>
+                    <span class="factor-tag">Liverpool Reluctant</span>
+                </div>
+            </div>
+
+            <div class="probability-card">
+                <div class="probability-header-info">
+                    <div class="probability-clubs">
+                        <span>🔵 Chelsea ← Jorrel Hato</span>
+                    </div>
+                    <div class="probability-percentage">68%</div>
+                </div>
+                <div class="probability-bar-container">
+                    <div class="probability-bar probability-medium" style="width: 68%;"></div>
+                </div>
+                <div class="probability-factors">
+                    <span class="factor-tag">Fee Agreed</span>
+                    <span class="factor-tag">Medical This Week</span>
+                    <span class="factor-tag">Ajax Accept Offer</span>
+                </div>
+            </div>
+
+            <div class="probability-card">
+                <div class="probability-header-info">
+                    <div class="probability-clubs">
+                        <span>🔴 Liverpool ← Kerkez</span>
+                    </div>
+                    <div class="probability-percentage">28%</div>
+                </div>
+                <div class="probability-bar-container">
+                    <div class="probability-bar probability-unlikely" style="width: 28%;"></div>
+                </div>
+                <div class="probability-factors">
+                    <span class="factor-tag">Initial Interest</span>
+                    <span class="factor-tag">Bournemouth Demand High</span>
+                    <span class="factor-tag">Competition from Arsenal</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Transfer Analytics Section -->
     <div class="transfer-analytics">
         <div class="analytics-header">
@@ -1647,31 +2195,200 @@
                         this.disabled = false;
                         
                         // Show notification
-                        const notification = document.createElement('div');
-                        notification.className = 'load-notification';
-                        notification.textContent = '5 new transfers loaded!';
-                        notification.style.cssText = `
-                            position: fixed;
-                            bottom: 20px;
-                            right: 20px;
-                            background: #28a745;
-                            color: white;
-                            padding: 15px 25px;
-                            border-radius: 50px;
-                            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
-                            animation: slideInRight 0.3s ease;
-                            z-index: 1000;
-                        `;
-                        document.body.appendChild(notification);
-                        
-                        setTimeout(() => {
-                            notification.style.animation = 'slideOutRight 0.3s ease';
-                            setTimeout(() => notification.remove(), 300);
-                        }, 2000);
+                        showNotification('5 new transfers loaded!', 'success');
                     }, 1500);
                 });
             }
+
+            // Animate probability bars on page load
+            setTimeout(() => {
+                const probabilityBars = document.querySelectorAll('.probability-bar');
+                probabilityBars.forEach((bar, index) => {
+                    setTimeout(() => {
+                        const width = bar.style.width;
+                        bar.style.width = '0%';
+                        bar.style.transition = 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                        setTimeout(() => {
+                            bar.style.width = width;
+                        }, 50);
+                    }, index * 200);
+                });
+            }, 1000);
+
+            // Random live updates simulation
+            const liveUpdates = [
+                '🚨 BREAKING: Zubimendi medical scheduled for tomorrow',
+                '✅ CONFIRMED: Palhinha deal announcement imminent',
+                '📈 UPDATE: Son transfer probability increased to 82%',
+                '💰 LATEST: Chelsea increase Hato bid by £5M',
+                '🔥 HOT: Liverpool enter race for Darwin replacement'
+            ];
+
+            let updateIndex = 0;
+            setInterval(() => {
+                if (Math.random() > 0.7) { // 30% chance every 30 seconds
+                    showNotification(liveUpdates[updateIndex % liveUpdates.length], 'info');
+                    updateIndex++;
+                }
+            }, 30000);
         });
+
+        // Social Sharing Functions
+        function shareOnTwitter() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Check out the latest EPL Transfer Hub with live updates and probability tracker! 🔥⚽');
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank', 'width=550,height=420');
+        }
+
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=555,height=400');
+        }
+
+        function shareOnLinkedIn() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent('EPL Transfer Hub - Live Updates');
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}`, '_blank', 'width=550,height=400');
+        }
+
+        function shareOnWhatsApp() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Check out the latest EPL transfers! ⚽');
+            window.open(`https://api.whatsapp.com/send?text=${text} ${url}`, '_blank');
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                showNotification('Link copied to clipboard! 📋', 'success');
+            }).catch(() => {
+                // Fallback for older browsers
+                const tempInput = document.createElement('input');
+                tempInput.value = window.location.href;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                showNotification('Link copied to clipboard! 📋', 'success');
+            });
+        }
+
+        // Enhanced Notification System
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            if (!container) return;
+
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            
+            const typeIcons = {
+                success: '✅',
+                info: 'ℹ️',
+                warning: '⚠️',
+                error: '❌'
+            };
+
+            notification.innerHTML = `
+                <span>${typeIcons[type] || 'ℹ️'}</span>
+                <span>${message}</span>
+            `;
+
+            // Style based on type
+            const typeColors = {
+                success: 'linear-gradient(135deg, #4caf50, #66bb6a)',
+                info: 'linear-gradient(135deg, #2196f3, #42a5f5)',
+                warning: 'linear-gradient(135deg, #ff9800, #ffb74d)',
+                error: 'linear-gradient(135deg, #f44336, #ef5350)'
+            };
+
+            notification.style.background = typeColors[type] || typeColors.info;
+            container.appendChild(notification);
+
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                if (notification && notification.parentNode) {
+                    notification.style.animation = 'slideOutUp 0.5s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 500);
+                }
+            }, 4000);
+        }
+
+        // Enhanced Quick Actions for Transfer Cards
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add quick action buttons to transfer cards
+            const transferCards = document.querySelectorAll('.transfer-card');
+            transferCards.forEach(card => {
+                card.classList.add('transfer-card-enhanced');
+                
+                // Add quick actions container
+                const quickActions = document.createElement('div');
+                quickActions.className = 'quick-actions';
+                quickActions.innerHTML = `
+                    <button class="quick-action-btn" onclick="toggleFavorite(this)" title="Add to Favorites">
+                        <i class="far fa-heart"></i>
+                    </button>
+                    <button class="quick-action-btn" onclick="shareTransfer(this)" title="Share Transfer">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                    <button class="quick-action-btn" onclick="setReminder(this)" title="Set Reminder">
+                        <i class="far fa-bell"></i>
+                    </button>
+                `;
+                card.appendChild(quickActions);
+            });
+        });
+
+        // Quick Action Functions
+        function toggleFavorite(btn) {
+            const icon = btn.querySelector('i');
+            const isFavorited = icon.classList.contains('fas');
+            
+            if (isFavorited) {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                showNotification('Removed from favorites', 'info');
+            } else {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                showNotification('Added to favorites! ❤️', 'success');
+            }
+        }
+
+        function shareTransfer(btn) {
+            const card = btn.closest('.transfer-card');
+            const playerName = card.querySelector('.player-name').textContent;
+            const clubs = card.querySelector('.transfer-clubs').textContent.trim();
+            
+            const shareText = `${playerName} transfer update: ${clubs}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'EPL Transfer Update',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(`${shareText} - ${window.location.href}`);
+                showNotification('Transfer details copied to clipboard!', 'success');
+            }
+        }
+
+        function setReminder(btn) {
+            const card = btn.closest('.transfer-card');
+            const playerName = card.querySelector('.player-name').textContent;
+            
+            // Simulate setting a reminder
+            showNotification(`Reminder set for ${playerName} transfer updates! 🔔`, 'success');
+            
+            // Change button to indicate reminder is set
+            const icon = btn.querySelector('i');
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            btn.style.background = '#ffd700';
+        }
     </script>
 </body>
 </html>
