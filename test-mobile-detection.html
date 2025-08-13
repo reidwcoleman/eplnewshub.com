@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Detection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-result {
+            background: #f0f0f0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .mobile { background: #d4edda; }
+        .desktop { background: #f8d7da; }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mobile Detection Test</h1>
+    
+    <div id="testResults"></div>
+    
+    <h2>Manual Tests</h2>
+    <button class="button" onclick="testMobilePageSwitcher()">Test Mobile Page Switcher</button>
+    <button class="button" onclick="testPreferences()">Test Preferences</button>
+    <button class="button" onclick="clearPreferences()">Clear Preferences</button>
+    
+    <h2>Actions</h2>
+    <button class="button" onclick="goToMobile()">Go to Mobile Page</button>
+    <button class="button" onclick="goToDesktop()">Go to Desktop Page</button>
+    
+    <script src="mobile-page-switcher.js"></script>
+    <script>
+        function runTests() {
+            const results = document.getElementById('testResults');
+            let html = '<h2>Detection Results</h2>';
+            
+            // Test MobileDetector if available
+            if (typeof MobileDetector !== 'undefined') {
+                html += `
+                    <div class="test-result ${MobileDetector.isMobile() ? 'mobile' : 'desktop'}">
+                        <strong>Overall Mobile Detection:</strong> ${MobileDetector.isMobile() ? 'MOBILE' : 'DESKTOP'}
+                    </div>
+                    <div class="test-result">
+                        <strong>Mobile Device (User Agent):</strong> ${MobileDetector.isMobileDevice()}
+                    </div>
+                    <div class="test-result">
+                        <strong>Mobile Screen Size:</strong> ${MobileDetector.isMobileScreen()}
+                    </div>
+                    <div class="test-result">
+                        <strong>Touch Device:</strong> ${MobileDetector.isTouchDevice()}
+                    </div>
+                    <div class="test-result">
+                        <strong>Prefers Mobile:</strong> ${MobileDetector.prefersMobile()}
+                    </div>
+                    <div class="test-result">
+                        <strong>Prefers Desktop:</strong> ${MobileDetector.prefersDesktop()}
+                    </div>
+                `;
+            } else {
+                html += '<div class="test-result">MobileDetector not loaded</div>';
+            }
+            
+            // Browser info
+            html += `
+                <h3>Browser Information</h3>
+                <div class="test-result">
+                    <strong>User Agent:</strong><br>${navigator.userAgent}
+                </div>
+                <div class="test-result">
+                    <strong>Screen Size:</strong> ${window.innerWidth}x${window.innerHeight}
+                </div>
+                <div class="test-result">
+                    <strong>Touch Support:</strong> ${'ontouchstart' in window || navigator.maxTouchPoints > 0}
+                </div>
+                <div class="test-result">
+                    <strong>Mobile Page Active:</strong> ${document.body.classList.contains('mobile-page-active')}
+                </div>
+            `;
+            
+            results.innerHTML = html;
+        }
+        
+        function testMobilePageSwitcher() {
+            if (typeof PageSwitcher !== 'undefined') {
+                alert('PageSwitcher loaded successfully!');
+                PageSwitcher.checkAndSwitchPage();
+            } else {
+                alert('PageSwitcher not loaded!');
+            }
+        }
+        
+        function testPreferences() {
+            localStorage.setItem('preferMobile', 'true');
+            alert('Set preference to mobile. Reload to test.');
+        }
+        
+        function clearPreferences() {
+            localStorage.removeItem('preferMobile');
+            localStorage.removeItem('preferDesktop');
+            alert('Preferences cleared. Reload to test.');
+        }
+        
+        function goToMobile() {
+            window.location.href = './mobile.html';
+        }
+        
+        function goToDesktop() {
+            window.location.href = './index.html';
+        }
+        
+        // Run tests when page loads
+        window.addEventListener('load', runTests);
+        
+        // Re-run tests on resize
+        window.addEventListener('resize', runTests);
+    </script>
+</body>
+</html>
