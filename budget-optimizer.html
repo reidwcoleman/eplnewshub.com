@@ -1482,16 +1482,36 @@
                 document.getElementById('loading-overlay').style.display = 'flex';
                 document.getElementById('optimize-button').disabled = true;
                 
-                // Update loading message based on algorithm
+                // Update loading message based on algorithm with progress tracking
                 const loadingMessage = document.querySelector('#loading-overlay p');
+                const progressUpdates = [
+                    'Analyzing player data and statistics...',
+                    'Calculating optimal budget distribution...',
+                    'Running advanced optimization algorithms...',
+                    'Evaluating thousands of player combinations...',
+                    'Fine-tuning squad selections...',
+                    'Finalizing optimal team structure...'
+                ];
+                
+                let updateIndex = 0;
+                const updateInterval = setInterval(() => {
+                    if (updateIndex < progressUpdates.length) {
+                        loadingMessage.textContent = progressUpdates[updateIndex];
+                        updateIndex++;
+                    }
+                }, 800);
+                
+                // Clear interval when optimization completes
+                setTimeout(() => clearInterval(updateInterval), 5000);
+                
                 if (this.selectedAlgorithm === 'genetic') {
-                    loadingMessage.textContent = 'Running genetic algorithm to evolve optimal squad...';
+                    loadingMessage.textContent = '🧬 Running genetic algorithm to evolve optimal squad...';
                 } else if (this.selectedAlgorithm === 'annealing') {
-                    loadingMessage.textContent = 'Applying simulated annealing optimization...';
+                    loadingMessage.textContent = '🔥 Applying simulated annealing optimization...';
                 } else if (this.selectedAlgorithm === 'hybrid') {
-                    loadingMessage.textContent = 'Using hybrid AI to find the perfect squad...';
+                    loadingMessage.textContent = '🤖 Using hybrid AI to find the perfect squad...';
                 } else {
-                    loadingMessage.textContent = 'Analyzing thousands of player combinations to find your perfect team...';
+                    loadingMessage.textContent = '⚡ Analyzing thousands of player combinations...';
                 }
 
                 try {
@@ -1537,21 +1557,21 @@
                         this.optimizedSquad = await this.generateOptimalSquad(constraints);
                     }
                     
-                    // Validate the optimized squad
+                    // Comprehensive squad validation
                     if (!this.optimizedSquad || !this.optimizedSquad.squad) {
                         throw new Error('Failed to generate valid squad');
                     }
                     
-                    // Check if squad has players
-                    let totalPlayers = 0;
-                    Object.values(this.optimizedSquad.squad).forEach(position => {
-                        if (Array.isArray(position)) {
-                            totalPlayers += position.length;
-                        }
-                    });
+                    const validationResult = this.validateOptimizedSquad(this.optimizedSquad);
+                    if (!validationResult.isValid) {
+                        console.warn('Squad validation issues:', validationResult.issues);
+                        // Try to fix minor issues
+                        this.optimizedSquad = this.fixSquadIssues(this.optimizedSquad, validationResult.issues);
+                    }
                     
-                    if (totalPlayers === 0) {
-                        throw new Error('Generated squad has no players');
+                    // Final check
+                    if (!this.optimizedSquad || this.getTotalPlayers(this.optimizedSquad.squad) === 0) {
+                        throw new Error('Generated squad has no players after validation');
                     }
                     
                     console.log('Optimization successful:', this.optimizedSquad);
@@ -1674,20 +1694,71 @@
             }
 
             getBudgetAllocation(strategy, totalBudget) {
-                const allocations = {
+                // Enhanced budget allocation based on strategy and formation
+                const baseAllocations = {
                     balanced: { 1: 0.08, 2: 0.28, 3: 0.38, 4: 0.26 },
-                    best: { 1: 0.07, 2: 0.26, 3: 0.37, 4: 0.30 },
-                    budget: { 1: 0.09, 2: 0.32, 3: 0.36, 4: 0.23 },
-                    wildcard: { 1: 0.08, 2: 0.27, 3: 0.38, 4: 0.27 }
+                    best: { 1: 0.07, 2: 0.25, 3: 0.35, 4: 0.33 }, // More on forwards for premium strategy
+                    budget: { 1: 0.10, 2: 0.33, 3: 0.37, 4: 0.20 }, // Focus on defense/midfield value
+                    wildcard: { 1: 0.08, 2: 0.26, 3: 0.40, 4: 0.26 } // Midfield heavy for form
                 };
 
-                const allocation = allocations[strategy];
-                return {
-                    1: Math.floor(totalBudget * allocation[1]),
-                    2: Math.floor(totalBudget * allocation[2]),
-                    3: Math.floor(totalBudget * allocation[3]),
-                    4: Math.floor(totalBudget * allocation[4])
+                const allocation = baseAllocations[strategy] || baseAllocations.balanced;
+                
+                // Adjust allocation based on formation (if available)
+                const formationAdjustment = this.getFormationAdjustment();
+                const adjustedAllocation = { ...allocation };
+                
+                if (formationAdjustment) {
+                    // Slightly increase budget for positions with more players
+                    adjustedAllocation[2] *= formationAdjustment.defenseMultiplier;
+                    adjustedAllocation[3] *= formationAdjustment.midfieldMultiplier;
+                    adjustedAllocation[4] *= formationAdjustment.forwardMultiplier;
+                    
+                    // Normalize to ensure total = 1
+                    const total = Object.values(adjustedAllocation).reduce((sum, val) => sum + val, 0);
+                    Object.keys(adjustedAllocation).forEach(pos => {
+                        adjustedAllocation[pos] /= total;
+                    });
+                }
+                
+                // Calculate actual budget amounts
+                const budgetAllocation = {
+                    1: Math.floor(totalBudget * adjustedAllocation[1]),
+                    2: Math.floor(totalBudget * adjustedAllocation[2]),
+                    3: Math.floor(totalBudget * adjustedAllocation[3]),
+                    4: Math.floor(totalBudget * adjustedAllocation[4])
                 };
+                
+                // Ensure total doesn't exceed budget due to rounding
+                const allocatedTotal = Object.values(budgetAllocation).reduce((sum, val) => sum + val, 0);
+                if (allocatedTotal > totalBudget) {
+                    // Reduce from highest allocation
+                    const positions = Object.keys(budgetAllocation).sort((a, b) => budgetAllocation[b] - budgetAllocation[a]);
+                    budgetAllocation[positions[0]] -= (allocatedTotal - totalBudget);
+                }
+                
+                return budgetAllocation;
+            }
+            
+            getFormationAdjustment() {
+                try {
+                    const def = parseInt(document.getElementById('def-play')?.value) || 4;
+                    const mid = parseInt(document.getElementById('mid-play')?.value) || 4;
+                    const fwd = parseInt(document.getElementById('fwd-play')?.value) || 2;
+                    
+                    // Calculate multipliers based on formation
+                    const totalOutfield = def + mid + fwd;
+                    if (totalOutfield === 0) return null;
+                    
+                    return {
+                        defenseMultiplier: def / totalOutfield * 3, // Base multiplier
+                        midfieldMultiplier: mid / totalOutfield * 3,
+                        forwardMultiplier: fwd / totalOutfield * 3
+                    };
+                } catch (error) {
+                    console.warn('Could not get formation adjustment:', error);
+                    return null;
+                }
             }
 
             getRequiredCount(position, formation) {
@@ -1818,7 +1889,7 @@
             }
 
             knapsackOptimization(players, budget, count) {
-                // Enhanced knapsack optimization for FPL
+                // Enhanced knapsack optimization for FPL with dynamic programming
                 const selected = [];
                 let remainingBudget = budget;
                 let remainingCount = count;
@@ -1829,59 +1900,263 @@
                     return [];
                 }
                 
-                // Group players by price ranges for better distribution
+                // Sort players by score/cost ratio for better selections
+                const sortedPlayers = [...players].sort((a, b) => {
+                    const ratioA = a.score / Math.max(a.now_cost, 1);
+                    const ratioB = b.score / Math.max(b.now_cost, 1);
+                    return ratioB - ratioA;
+                });
+                
+                // Use a hybrid approach: strategic distribution + optimization
+                const distribution = this.getOptimalDistribution(count, this.selectedStrategy);
                 const priceRanges = {
-                    premium: players.filter(p => p.now_cost >= 100),
-                    mid: players.filter(p => p.now_cost >= 65 && p.now_cost < 100),
-                    budget: players.filter(p => p.now_cost < 65)
+                    premium: sortedPlayers.filter(p => p.now_cost >= 100),
+                    mid: sortedPlayers.filter(p => p.now_cost >= 65 && p.now_cost < 100),
+                    budget: sortedPlayers.filter(p => p.now_cost < 65)
                 };
                 
-                // Determine optimal distribution based on strategy
-                const distribution = this.getOptimalDistribution(count, this.selectedStrategy);
-                
-                // Select from each price range
+                // Phase 1: Strategic distribution selection
                 for (const [range, targetCount] of Object.entries(distribution)) {
                     const rangePlayers = priceRanges[range];
-                    const toSelect = Math.min(targetCount, rangePlayers.length);
+                    let selectedFromRange = 0;
                     
-                    for (let i = 0; i < toSelect && remainingCount > 0; i++) {
-                        const player = rangePlayers[i];
-                        if (player && player.now_cost <= remainingBudget) {
+                    for (const player of rangePlayers) {
+                        if (selectedFromRange >= targetCount || remainingCount <= 0) break;
+                        
+                        if (player.now_cost <= remainingBudget) {
                             selected.push(player);
                             remainingBudget -= player.now_cost;
                             remainingCount--;
+                            selectedFromRange++;
                         }
                     }
                 }
                 
-                // Fill remaining slots with best available within budget
-                if (remainingCount > 0) {
+                // Phase 2: Fill remaining slots with optimal combination
+                if (remainingCount > 0 && remainingBudget > 0) {
                     const usedIds = new Set(selected.map(p => p.id));
-                    const available = players
-                        .filter(p => !usedIds.has(p.id) && p.now_cost <= remainingBudget / Math.max(remainingCount, 1) * 2)
-                        .slice(0, Math.max(remainingCount * 3, 10)); // Get more candidates
+                    const available = sortedPlayers.filter(p => 
+                        !usedIds.has(p.id) && 
+                        p.now_cost <= remainingBudget &&
+                        p.now_cost <= (remainingBudget / remainingCount) * 1.5 // Allow some flexibility
+                    );
                     
                     if (available.length > 0) {
-                        // Dynamic programming approach for remaining slots
-                        const bestCombination = this.findBestCombination(
+                        // Use dynamic programming for remaining selections
+                        const bestCombination = this.dynamicProgrammingSelection(
                             available,
                             remainingBudget,
                             remainingCount
                         );
-                        
                         selected.push(...bestCombination);
-                    } else {
-                        // Last resort: just get cheapest players
-                        const cheapest = players
-                            .filter(p => !usedIds.has(p.id))
-                            .sort((a, b) => a.now_cost - b.now_cost)
-                            .slice(0, remainingCount);
-                        selected.push(...cheapest);
+                        
+                        // Update remaining values
+                        bestCombination.forEach(player => {
+                            remainingBudget -= player.now_cost;
+                            remainingCount--;
+                        });
                     }
                 }
                 
-                // Ensure we have exactly 'count' players
+                // Phase 3: Emergency fill with cheapest available players
+                if (remainingCount > 0) {
+                    const usedIds = new Set(selected.map(p => p.id));
+                    const cheapest = sortedPlayers
+                        .filter(p => !usedIds.has(p.id))
+                        .sort((a, b) => a.now_cost - b.now_cost)
+                        .slice(0, remainingCount);
+                    
+                    selected.push(...cheapest);
+                }
+                
                 return selected.slice(0, count);
+            }
+            
+            dynamicProgrammingSelection(players, budget, count) {
+                if (count <= 0 || budget <= 0 || players.length === 0) return [];
+                
+                // For performance, limit the problem size
+                const maxPlayers = Math.min(players.length, 50);
+                const limitedPlayers = players.slice(0, maxPlayers);
+                
+                // Create DP table: dp[i][j][k] = max score using first i players, j budget, k selections
+                const dp = Array(limitedPlayers.length + 1).fill(null).map(() =>
+                    Array(budget + 1).fill(null).map(() =>
+                        Array(count + 1).fill(-1)
+                    )
+                );
+                
+                // Initialize base case
+                for (let i = 0; i <= limitedPlayers.length; i++) {
+                    for (let j = 0; j <= budget; j++) {
+                        dp[i][j][0] = 0;
+                    }
+                }
+                
+                // Fill DP table
+                for (let i = 1; i <= limitedPlayers.length; i++) {
+                    const player = limitedPlayers[i - 1];
+                    for (let j = 0; j <= budget; j++) {
+                        for (let k = 1; k <= count; k++) {
+                            // Option 1: Don't take current player
+                            dp[i][j][k] = dp[i - 1][j][k];
+                            
+                            // Option 2: Take current player (if possible)
+                            if (j >= player.now_cost && dp[i - 1][j - player.now_cost][k - 1] >= 0) {
+                                const newScore = dp[i - 1][j - player.now_cost][k - 1] + player.score;
+                                if (newScore > dp[i][j][k]) {
+                                    dp[i][j][k] = newScore;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Backtrack to find the actual selection
+                const selected = [];
+                let i = limitedPlayers.length;
+                let j = budget;
+                let k = count;
+                
+                while (i > 0 && k > 0 && j >= 0) {
+                    if (dp[i][j][k] !== dp[i - 1][j][k]) {
+                        // Player i-1 was selected
+                        const player = limitedPlayers[i - 1];
+                        selected.push(player);
+                        j -= player.now_cost;
+                        k--;
+                    }
+                    i--;
+                }
+                
+                return selected;
+            }
+            
+            validateOptimizedSquad(optimizedSquad) {
+                const issues = [];
+                let isValid = true;
+                
+                if (!optimizedSquad || !optimizedSquad.squad) {
+                    return { isValid: false, issues: ['No squad data'] };
+                }
+                
+                const squad = optimizedSquad.squad;
+                
+                // Check each position has players
+                for (let pos = 1; pos <= 4; pos++) {
+                    if (!squad[pos] || !Array.isArray(squad[pos])) {
+                        issues.push(`Position ${pos} has no players array`);
+                        isValid = false;
+                    } else if (squad[pos].length === 0) {
+                        issues.push(`Position ${pos} is empty`);
+                        isValid = false;
+                    }
+                }
+                
+                // Check total cost doesn't exceed budget
+                const totalCost = this.calculateTotalCost(squad);
+                const budget = parseInt(document.getElementById('budget-slider')?.value) || 1000;
+                if (totalCost > budget) {
+                    issues.push(`Total cost ${totalCost} exceeds budget ${budget}`);
+                    isValid = false;
+                }
+                
+                // Check formation requirements
+                const formation = this.getCurrentFormation();
+                if (formation) {
+                    if (squad[1] && squad[1].length !== formation.gkp) {
+                        issues.push(`Goalkeeper count mismatch: ${squad[1].length} vs ${formation.gkp}`);
+                    }
+                    if (squad[2] && squad[2].length !== formation.def) {
+                        issues.push(`Defender count mismatch: ${squad[2].length} vs ${formation.def}`);
+                    }
+                    if (squad[3] && squad[3].length !== formation.mid) {
+                        issues.push(`Midfielder count mismatch: ${squad[3].length} vs ${formation.mid}`);
+                    }
+                    if (squad[4] && squad[4].length !== formation.fwd) {
+                        issues.push(`Forward count mismatch: ${squad[4].length} vs ${formation.fwd}`);
+                    }
+                }
+                
+                // Check for duplicate players
+                const allPlayerIds = [];
+                Object.values(squad).forEach(position => {
+                    if (Array.isArray(position)) {
+                        position.forEach(player => {
+                            if (player && player.id) {
+                                if (allPlayerIds.includes(player.id)) {
+                                    issues.push(`Duplicate player ID: ${player.id}`);
+                                    isValid = false;
+                                }
+                                allPlayerIds.push(player.id);
+                            }
+                        });
+                    }
+                });
+                
+                return { isValid, issues };
+            }
+            
+            fixSquadIssues(optimizedSquad, issues) {
+                // Attempt to fix common squad issues
+                const squad = { ...optimizedSquad.squad };
+                
+                // Fill empty positions with cheapest available players
+                for (let pos = 1; pos <= 4; pos++) {
+                    if (!squad[pos] || squad[pos].length === 0) {
+                        const cheapestInPosition = this.allPlayers
+                            .filter(p => p.element_type === pos)
+                            .sort((a, b) => a.now_cost - b.now_cost)
+                            .slice(0, 1);
+                        
+                        if (cheapestInPosition.length > 0) {
+                            squad[pos] = cheapestInPosition;
+                        }
+                    }
+                }
+                
+                return {
+                    ...optimizedSquad,
+                    squad: squad,
+                    totalCost: this.calculateTotalCost(squad)
+                };
+            }
+            
+            getCurrentFormation() {
+                try {
+                    return {
+                        gkp: parseInt(document.getElementById('gkp-play')?.value) || 2,
+                        def: parseInt(document.getElementById('def-play')?.value) || 5,
+                        mid: parseInt(document.getElementById('mid-play')?.value) || 5,
+                        fwd: parseInt(document.getElementById('fwd-play')?.value) || 3
+                    };
+                } catch (error) {
+                    return null;
+                }
+            }
+            
+            getTotalPlayers(squad) {
+                let total = 0;
+                Object.values(squad).forEach(position => {
+                    if (Array.isArray(position)) {
+                        total += position.length;
+                    }
+                });
+                return total;
+            }
+            
+            calculateTotalCost(squad) {
+                let total = 0;
+                Object.values(squad).forEach(position => {
+                    if (Array.isArray(position)) {
+                        position.forEach(player => {
+                            if (player && player.now_cost) {
+                                total += player.now_cost;
+                            }
+                        });
+                    }
+                });
+                return total;
             }
             
             getOptimalDistribution(count, strategy) {
