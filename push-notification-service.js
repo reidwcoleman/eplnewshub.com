@@ -1,22 +1,30 @@
 // Push Notification Service for EPL News Hub
 // Handles both web push notifications and native mobile notifications via Capacitor
 
-import { Capacitor } from '@capacitor/core';
-import { PushNotifications } from '@capacitor/push-notifications';
+// Check if we're in a Capacitor environment
+let Capacitor, PushNotifications;
+if (typeof window !== 'undefined' && window.Capacitor) {
+    try {
+        Capacitor = window.Capacitor;
+        PushNotifications = window.CapacitorPushNotifications || window.Capacitor.Plugins?.PushNotifications;
+    } catch (error) {
+        console.log('Capacitor not available, using web-only mode');
+    }
+}
 
 class PushNotificationService {
     constructor() {
         this.isSupported = false;
         this.isPermissionGranted = false;
         this.registrationToken = null;
-        this.vapidPublicKey = 'BMfWK9G4cVz6KJf8gH6JQ5q8mQ6vM3zH8fZl8nT5qFZ5fZl8nT5qFZ5fZl8nT5qFZ'; // Replace with your VAPID key
+        this.vapidPublicKey = 'BL5VL01cPRxVGIFos-hFQffeR4iOmCp1Pasa2i8_slDCxO5x_MNdAnJMiy75VIGbNDpdEznsSX2RXXCvaWTRj5c';
         
         this.init();
     }
 
     async init() {
         // Check if running on native mobile platform
-        if (Capacitor.isNativePlatform()) {
+        if (Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform()) {
             await this.initNativePushNotifications();
         } else {
             await this.initWebPushNotifications();
@@ -28,6 +36,11 @@ class PushNotificationService {
         console.log('Initializing native push notifications...');
         
         try {
+            if (!PushNotifications) {
+                console.warn('PushNotifications plugin not available');
+                return;
+            }
+
             // Check if push notifications are available
             const permission = await PushNotifications.checkPermissions();
             console.log('Native push permission status:', permission);
@@ -54,6 +67,8 @@ class PushNotificationService {
             }
         } catch (error) {
             console.error('Failed to initialize native push notifications:', error);
+            // Fall back to web notifications
+            await this.initWebPushNotifications();
         }
     }
 
@@ -154,7 +169,7 @@ class PushNotificationService {
                 },
                 body: JSON.stringify({
                     token: token,
-                    platform: Capacitor.getPlatform(),
+                    platform: Capacitor ? Capacitor.getPlatform() : 'web',
                     userId: this.getCurrentUserId() // Implement this based on your auth system
                 })
             });
@@ -208,7 +223,7 @@ class PushNotificationService {
         
         // Navigate to specific page based on notification data
         const url = notification.data?.url || '/';
-        if (Capacitor.isNativePlatform()) {
+        if (Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform()) {
             // Handle navigation in native app
             window.location.href = url;
         } else {
@@ -257,12 +272,24 @@ class PushNotificationService {
 
     // Request notification permission
     async requestPermission() {
-        if (Capacitor.isNativePlatform()) {
+        if (Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform() && PushNotifications) {
             const result = await PushNotifications.requestPermissions();
             this.isPermissionGranted = result.receive === 'granted';
+            
+            if (this.isPermissionGranted) {
+                await PushNotifications.register();
+                this.isSupported = true;
+                this.setupNativeEventListeners();
+            }
         } else {
             const permission = await Notification.requestPermission();
             this.isPermissionGranted = permission === 'granted';
+            
+            if (this.isPermissionGranted && 'serviceWorker' in navigator) {
+                const registration = await navigator.serviceWorker.register('/sw.js');
+                await this.subscribeToWebPush(registration);
+                this.isSupported = true;
+            }
         }
         
         return this.isPermissionGranted;

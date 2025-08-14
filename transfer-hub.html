@@ -2189,6 +2189,254 @@
                 width: 100%;
             }
         }
+
+        /* Enhanced Transfer Hub Styles */
+        .search-highlight {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .value-indicator {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 6px;
+            border-left: 3px solid #38003c;
+            font-size: 0.85rem;
+        }
+
+        .market-value {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .value-change {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .value-change.up {
+            color: #28a745;
+        }
+
+        .value-change.down {
+            color: #dc3545;
+        }
+
+        .timeline-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            background: rgba(56, 0, 60, 0.05);
+            border-radius: 8px;
+        }
+
+        .timeline-item.expanded {
+            background: rgba(56, 0, 60, 0.08);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .timeline-details {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 6px;
+            border-left: 3px solid #38003c;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-item i {
+            color: #38003c;
+            width: 16px;
+        }
+
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            max-width: 350px;
+        }
+
+        .live-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin-bottom: 10px;
+            transform: translateX(100%);
+            animation: slideIn 0.3s ease forwards;
+            border-left: 4px solid #38003c;
+        }
+
+        .live-notification.high {
+            border-left-color: #dc3545;
+            background: linear-gradient(135deg, #fff5f5, #ffffff);
+        }
+
+        .live-notification.medium {
+            border-left-color: #ffc107;
+            background: linear-gradient(135deg, #fffbf0, #ffffff);
+        }
+
+        .live-notification.low {
+            border-left-color: #17a2b8;
+            background: linear-gradient(135deg, #f0f9ff, #ffffff);
+        }
+
+        .notification-content {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-message {
+            flex: 1;
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 12px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-close:hover {
+            color: #333;
+        }
+
+        .live-notification.fade-out {
+            animation: slideOut 0.3s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        .search-results-indicator {
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            border-left: 4px solid #38003c;
+        }
+
+        .results-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .results-info i {
+            color: #38003c;
+        }
+
+        .clear-search {
+            background: #38003c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .clear-search:hover {
+            background: #4a1a4e;
+        }
+
+        .transfer-card {
+            transition: all 0.3s ease;
+        }
+
+        .transfer-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(56, 0, 60, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .notification-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+
+            .live-notification {
+                transform: translateY(-100%);
+                animation: slideInMobile 0.3s ease forwards;
+            }
+
+            .live-notification.fade-out {
+                animation: slideOutMobile 0.3s ease forwards;
+            }
+
+            @keyframes slideInMobile {
+                from { transform: translateY(-100%); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+
+            @keyframes slideOutMobile {
+                from { transform: translateY(0); opacity: 1; }
+                to { transform: translateY(-100%); opacity: 0; }
+            }
+
+            .value-indicator {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+
+            .timeline-details {
+                padding: 10px;
+            }
+
+            .detail-item {
+                font-size: 0.85rem;
+            }
+        }
     </style>
 </head>
 <body>

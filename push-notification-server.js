@@ -6,10 +6,10 @@ const webpush = require('web-push');
 const fs = require('fs').promises;
 const path = require('path');
 
-// VAPID keys for web push (generate your own in production)
+// VAPID keys for web push
 const vapidKeys = {
-    publicKey: 'BMfWK9G4cVz6KJf8gH6JQ5q8mQ6vM3zH8fZl8nT5qFZ5fZl8nT5qFZ5fZl8nT5qFZ',
-    privateKey: 'your-private-vapid-key-here' // Replace with your actual private key
+    publicKey: 'BL5VL01cPRxVGIFos-hFQffeR4iOmCp1Pasa2i8_slDCxO5x_MNdAnJMiy75VIGbNDpdEznsSX2RXXCvaWTRj5c',
+    privateKey: 'r8BcZ3qgje0Zrh8_hupDJIINvlRQQqGY4SWbuI3RGy4'
 };
 
 // Configure web-push
