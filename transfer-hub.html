@@ -274,19 +274,6 @@
 
 
 
-        .comparison-card.enhanced {
-            background: linear-gradient(135deg, #ffffff, #f8f9fa);
-            border: 2px solid #e9ecef;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .comparison-card.enhanced:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.2);
-        }
 
         .player-header {
             display: flex;
@@ -1036,9 +1023,17 @@
         
         .transfers-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 25px;
             margin-bottom: 40px;
+        }
+
+        /* Tablet responsive - 2 columns on medium screens */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .transfers-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
         }
         
         .transfer-card {
@@ -1989,6 +1984,7 @@
             
             .transfers-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
             }
             
             .transfer-stats {
@@ -3467,28 +3463,6 @@
         </div>
     </div>
 
-    <!-- Transfer Comparison Tool -->
-    <div class="transfer-comparison-section">
-        <div class="comparison-header">
-            <h2 class="comparison-title">⚖️ Transfer Comparison Tool</h2>
-            <p style="color: #6c757d; text-align: center; margin-bottom: 30px;">Compare transfers side-by-side with detailed analytics</p>
-        </div>
-        <div class="comparison-controls">
-            <div class="comparison-selects">
-                <select id="compare-transfer-1" class="comparison-select">
-                    <option value="">Select first transfer...</option>
-                </select>
-                <div class="vs-indicator">VS</div>
-                <select id="compare-transfer-2" class="comparison-select">
-                    <option value="">Select second transfer...</option>
-                </select>
-            </div>
-            <button id="compare-btn" class="compare-button" disabled>Compare Transfers</button>
-        </div>
-        <div id="comparison-results" class="comparison-results" style="display: none;">
-            <!-- Comparison results will be populated here -->
-        </div>
-    </div>
 
     <!-- Transfer Timeline -->
     <div class="transfer-timeline-section">
@@ -4912,7 +4886,6 @@
                 const isActive = panel.classList.toggle('active');
                 
                 if (isActive) {
-                    populateComparisonSelects();
                     setupTimelineEvents();
                     document.body.style.overflow = 'hidden'; // Prevent body scroll
                 } else {
@@ -4923,15 +4896,6 @@
             }
         }
 
-        // Transfer Comparison Functionality
-        function populateComparisonSelects() {
-            const select1 = document.getElementById('compare-transfer-1');
-            const select2 = document.getElementById('compare-transfer-2');
-            const compareBtn = document.getElementById('compare-btn');
-            
-            // Clear existing options
-            select1.innerHTML = '<option value="">Select first transfer...</option>';
-            select2.innerHTML = '<option value="">Select second transfer...</option>';
             
             // Populate with all transfers
             Object.values(transferDatabase).flat().forEach((transfer, index) => {
