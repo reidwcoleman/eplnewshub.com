@@ -23,22 +23,34 @@ const LiveGameStats = () => {
         const service = new window.FPLDataService()
         await loadGameData(service)
       } else {
-        // Fallback: Load the script dynamically
-        const script = document.createElement('script')
-        script.src = '/fpl-api-optimized.js'
-        script.onload = async () => {
+        // Wait a bit for the script to load, then check again
+        setTimeout(() => {
           if (window.FPLDataService) {
             const service = new window.FPLDataService()
-            await loadGameData(service)
+            loadGameData(service)
+          } else {
+            // Fallback: Load the script dynamically
+            const script = document.createElement('script')
+            script.src = '/fpl-api-optimized.js'
+            script.onload = async () => {
+              if (window.FPLDataService) {
+                const service = new window.FPLDataService()
+                await loadGameData(service)
+              } else {
+                setError('FPL service not available')
+                setLoading(false)
+              }
+            }
+            script.onerror = () => {
+              setError('Failed to load FPL service')
+              setLoading(false)
+            }
+            document.head.appendChild(script)
           }
-        }
-        script.onerror = () => {
-          setError('Failed to load FPL service')
-          setLoading(false)
-        }
-        document.head.appendChild(script)
+        }, 1000)
       }
     } catch (err) {
+      console.error('FPL service initialization error:', err)
       setError('Failed to initialize FPL service')
       setLoading(false)
     }
