@@ -2,6 +2,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { getFeaturedArticles, getRecentArticles, categories } from '../data/articles'
 import LiveGameStats from '../components/LiveGameStats'
+import InteractiveMatchCenter from '../components/InteractiveMatchCenter'
+import FantasyFootballHub from '../components/FantasyFootballHub'
 
 function Home() {
   const featuredArticles = getFeaturedArticles()
@@ -54,6 +56,12 @@ function Home() {
 
       {/* Live Game Stats */}
       <LiveGameStats />
+
+      {/* Interactive Match Center */}
+      <InteractiveMatchCenter />
+
+      {/* Fantasy Football Hub */}
+      <FantasyFootballHub />
 
       {/* Featured Articles Grid */}
       <section className="featured-section">
