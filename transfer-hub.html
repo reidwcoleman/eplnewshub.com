@@ -2511,10 +2511,46 @@
         updateCountdownNow();
         
         // Update every second
-        setInterval(updateCountdownNow, 1000);
+        window.countdownInterval = setInterval(updateCountdownNow, 1000);
         
         console.log('Inline countdown started successfully');
     })();
+    
+    // Function to show transfer window closed message
+    function showTransferWindowClosed() {
+        const countdownSection = document.querySelector('.transfer-countdown-section');
+        if (countdownSection) {
+            const closedMessage = document.createElement('div');
+            closedMessage.className = 'window-closed-message';
+            closedMessage.style.cssText = `
+                padding: 20px;
+                background: linear-gradient(135deg, #dc3545, #c82333);
+                color: white;
+                border-radius: 10px;
+                margin: 20px auto;
+                text-align: center;
+                font-size: 1.1em;
+                font-weight: bold;
+                max-width: 600px;
+                animation: fadeIn 0.5s ease;
+            `;
+            closedMessage.innerHTML = `
+                <i class="fas fa-lock" style="font-size: 2em; margin-bottom: 10px; display: block;"></i>
+                <h3 style="margin: 10px 0;">Transfer Window Closed</h3>
+                <p style="margin: 10px 0; opacity: 0.9;">The summer transfer window has officially closed. Check back for winter window updates!</p>
+            `;
+            
+            countdownSection.innerHTML = '';
+            countdownSection.appendChild(closedMessage);
+        }
+        
+        // Show notification if function exists
+        if (typeof showNotification === 'function') {
+            setTimeout(() => {
+                showNotification('Transfer window is now closed!', 'info');
+            }, 1000);
+        }
+    }
     </script>
 
     <!-- Live Transfer Ticker -->
@@ -4631,18 +4667,18 @@
             `;
         }
 
-        // Update transfer stats dynamically
+        // Update transfer stats dynamically with error handling
         function updateTransferStats() {
             try {
-                // Count transfers from database
-                const confirmedCount = transferDatabase.confirmed ? transferDatabase.confirmed.length : 20;
-                const rumorsCount = transferDatabase.rumors ? transferDatabase.rumors.length : 13;
-                const doneDealsCount = transferDatabase.doneDeals ? transferDatabase.doneDeals.length : 12;
-                const medicalCount = transferDatabase.medical ? transferDatabase.medical.length : 8;
+                // Count transfers from database with proper validation
+                const confirmedCount = transferDatabase?.confirmed?.length || 20;
+                const rumorsCount = transferDatabase?.rumors?.length || 13;
+                const doneDealsCount = transferDatabase?.doneDeals?.length || 12;
+                const medicalCount = transferDatabase?.medical?.length || 8;
                 
                 const totalTransfers = confirmedCount + rumorsCount + doneDealsCount + medicalCount;
                 
-                // Calculate total spent (estimate £40M average per transfer)
+                // Calculate total spent with more accurate estimate
                 const totalSpentBillions = Math.round((totalTransfers * 40) / 1000 * 10) / 10;
                 
                 // Update stat displays
@@ -4752,24 +4788,48 @@
             
             // Reset Filters
             window.resetFilters = function() {
-                document.querySelector('.filter-btn[data-filter="all"]').click();
-                if (clubFilter) clubFilter.value = 'all';
-                if (positionFilter) positionFilter.value = 'all';
-                if (feeRange) feeRange.value = 'all';
-                applyFilters();
+                try {
+                    const allFilterBtn = document.querySelector('.filter-btn[data-filter="all"]');
+                    if (allFilterBtn) allFilterBtn.click();
+                    if (clubFilter) clubFilter.value = 'all';
+                    if (positionFilter) positionFilter.value = 'all';
+                    if (feeRange) feeRange.value = 'all';
+                    applyFilters();
+                    showNotification('Filters reset', 'info');
+                } catch (error) {
+                    console.error('Error resetting filters:', error);
+                }
             };
             
-            // Enhanced Search functionality
+            // Enhanced Search functionality with debouncing
             const searchInput = document.getElementById('transfer-search');
+            let searchTimeout = null;
             
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    const searchTerm = this.value.toLowerCase().trim();
+                    
+                    searchTimeout = setTimeout(() => {
+                        performSearch(searchTerm);
+                    }, 300); // Debounce for 300ms
+                });
+                
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        this.value = '';
+                        performSearch('');
+                    }
+                });
+            }
+            
+            function performSearch(searchTerm) {
                 const transferCards = document.querySelectorAll('.transfer-card');
                 let visibleCount = 0;
                 
                 transferCards.forEach(card => {
                     const text = card.textContent.toLowerCase();
-                    if (text.includes(searchTerm)) {
+                    if (!searchTerm || text.includes(searchTerm)) {
                         card.style.display = 'block';
                         visibleCount++;
                     } else {
@@ -5018,27 +5078,74 @@
         }
 
         function setReminder(btn) {
-            const card = btn.closest('.transfer-card');
-            const playerName = card.querySelector('.player-name').textContent;
-            
-            // Simulate setting a reminder
-            showNotification(`Reminder set for ${playerName} transfer updates! 🔔`, 'success');
-            
-            // Change button to indicate reminder is set
-            const icon = btn.querySelector('i');
-            icon.classList.remove('far');
-            icon.classList.add('fas');
-            btn.style.background = '#ffd700';
+            try {
+                const card = btn.closest('.transfer-card');
+                const playerName = card?.querySelector('.player-name')?.textContent || 'Player';
+                const icon = btn.querySelector('i');
+                
+                if (!icon) return;
+                
+                // Toggle reminder state
+                const isSet = icon.classList.contains('fas');
+                
+                if (isSet) {
+                    // Remove reminder
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    btn.style.background = '';
+                    showNotification(`Reminder removed for ${playerName}`, 'info');
+                    
+                    // Remove from localStorage
+                    const reminders = JSON.parse(localStorage.getItem('transferReminders') || '[]');
+                    const index = reminders.indexOf(playerName);
+                    if (index > -1) reminders.splice(index, 1);
+                    localStorage.setItem('transferReminders', JSON.stringify(reminders));
+                } else {
+                    // Set reminder
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    btn.style.background = '#ffd700';
+                    showNotification(`Reminder set for ${playerName} transfer updates! 🔔`, 'success');
+                    
+                    // Save to localStorage
+                    const reminders = JSON.parse(localStorage.getItem('transferReminders') || '[]');
+                    if (!reminders.includes(playerName)) {
+                        reminders.push(playerName);
+                        localStorage.setItem('transferReminders', JSON.stringify(reminders));
+                    }
+                    
+                    // Animate button
+                    btn.style.transform = 'scale(1.2) rotate(15deg)';
+                    setTimeout(() => {
+                        btn.style.transform = 'scale(1) rotate(0)';
+                    }, 300);
+                }
+            } catch (error) {
+                console.error('Error setting reminder:', error);
+                showNotification('Failed to set reminder', 'error');
+            }
         }
 
         // Advanced Filters Functionality
         function toggleAdvancedFilters() {
-            const panel = document.getElementById('advanced-filters-panel');
-            panel.classList.toggle('active');
-            
-            if (panel.classList.contains('active')) {
-                populateComparisonSelects();
-                setupTimelineEvents();
+            try {
+                const panel = document.getElementById('advanced-filters-panel');
+                if (!panel) {
+                    console.error('Advanced filters panel not found');
+                    return;
+                }
+                
+                const isActive = panel.classList.toggle('active');
+                
+                if (isActive) {
+                    populateComparisonSelects();
+                    setupTimelineEvents();
+                    document.body.style.overflow = 'hidden'; // Prevent body scroll
+                } else {
+                    document.body.style.overflow = ''; // Restore body scroll
+                }
+            } catch (error) {
+                console.error('Error toggling advanced filters:', error);
             }
         }
 
@@ -5077,12 +5184,24 @@
         }
 
         function performTransferComparison(index1, index2) {
-            const allTransfers = Object.values(transferDatabase).flat();
-            const transfer1 = allTransfers[index1];
-            const transfer2 = allTransfers[index2];
-            
-            const resultsDiv = document.getElementById('comparison-results');
-            resultsDiv.style.display = 'block';
+            try {
+                const allTransfers = Object.values(transferDatabase).flat();
+                const transfer1 = allTransfers[index1];
+                const transfer2 = allTransfers[index2];
+                
+                if (!transfer1 || !transfer2) {
+                    showNotification('Invalid transfers selected', 'error');
+                    return;
+                }
+                
+                const resultsDiv = document.getElementById('comparison-results');
+                if (!resultsDiv) {
+                    console.error('Comparison results div not found');
+                    return;
+                }
+                
+                resultsDiv.style.display = 'block';
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
             // Calculate comparison metrics
             const metrics = calculateComparisonMetrics(transfer1, transfer2);
