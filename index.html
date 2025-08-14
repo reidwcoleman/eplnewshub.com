@@ -31,7 +31,14 @@
     <script src="seo-helper.js" defer></script>
     
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="enhanced-homepage-v2.css">
     <link rel="stylesheet" href="remove-ads.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="upscalemedia-transformed.png">
     <link rel="icon" type="image/png" href="upscalemedia-transformed.png">
     <link rel="shortcut icon" href="upscalemedia-transformed.png">
@@ -164,6 +171,29 @@
     
 </head>
 <body>
+    <!-- Dark Mode Toggle -->
+    <div class="dark-mode-toggle" id="darkModeToggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Live Ticker -->
+    <div class="live-ticker" id="liveTicker">
+        <div class="ticker-label">
+            <span class="live-dot"></span>
+            <span>LIVE</span>
+        </div>
+        <div class="ticker-content">
+            <div class="ticker-text" id="tickerText">
+                🚨 BREAKING: Alexander Isak refuses to train for Newcastle • Liverpool preparing £120M bid • Grealish completes Everton medical • Transfer deadline day approaching
+            </div>
+        </div>
+    </div>
+
     <!-- Include Header -->
     <div class="header" include="./header.html"></div>
 
@@ -206,6 +236,94 @@
                     <div class="section-divider"></div>
                 </div>
                 
+                <!-- Real-time Widgets -->
+                <section class="real-time-widgets">
+                    <div class="widgets-container">
+                        <!-- Live Scores Widget -->
+                        <div class="widget live-scores-widget">
+                            <div class="widget-header">
+                                <h3><i class="fas fa-futbol"></i> Live Scores</h3>
+                                <div class="live-indicator">
+                                    <span class="live-dot"></span>
+                                    <span>LIVE</span>
+                                </div>
+                            </div>
+                            <div class="widget-content" id="liveScoresContent">
+                                <div class="match-item">
+                                    <div class="match-teams">
+                                        <span class="team">Liverpool</span>
+                                        <span class="score">2 - 1</span>
+                                        <span class="team">Chelsea</span>
+                                    </div>
+                                    <div class="match-time">87'</div>
+                                </div>
+                                <div class="match-item">
+                                    <div class="match-teams">
+                                        <span class="team">Arsenal</span>
+                                        <span class="score">vs</span>
+                                        <span class="team">Man City</span>
+                                    </div>
+                                    <div class="match-time">16:30</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transfer Activity -->
+                        <div class="widget transfer-activity-widget">
+                            <div class="widget-header">
+                                <h3><i class="fas fa-exchange-alt"></i> Transfer Activity</h3>
+                                <span class="update-time">Updated 5m ago</span>
+                            </div>
+                            <div class="widget-content" id="transferActivityContent">
+                                <div class="transfer-item">
+                                    <div class="transfer-probability">
+                                        <div class="probability-bar">
+                                            <div class="probability-fill" style="width: 85%"></div>
+                                        </div>
+                                        <span class="probability-text">85%</span>
+                                    </div>
+                                    <div class="transfer-details">
+                                        <span class="player-name">Marc Guéhi</span>
+                                        <span class="transfer-route">Crystal Palace → Liverpool</span>
+                                    </div>
+                                </div>
+                                <div class="transfer-item">
+                                    <div class="transfer-probability">
+                                        <div class="probability-bar">
+                                            <div class="probability-fill" style="width: 75%"></div>
+                                        </div>
+                                        <span class="probability-text">75%</span>
+                                    </div>
+                                    <div class="transfer-details">
+                                        <span class="player-name">Alexander Isak</span>
+                                        <span class="transfer-route">Newcastle → Liverpool</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FPL Countdown -->
+                        <div class="widget fpl-countdown-widget">
+                            <div class="widget-header">
+                                <h3><i class="fas fa-clock"></i> FPL Deadline</h3>
+                                <span class="gameweek">GW1</span>
+                            </div>
+                            <div class="widget-content">
+                                <div class="countdown-display">
+                                    <div class="countdown-item">
+                                        <span class="countdown-number" id="fplHours">23</span>
+                                        <span class="countdown-label">hours</span>
+                                    </div>
+                                    <div class="countdown-item">
+                                        <span class="countdown-number" id="fplMinutes">45</span>
+                                        <span class="countdown-label">minutes</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <div class="featured-story">
                     <div class="main_headline" include="./main_headline.html"></div>
                 </div>
@@ -299,6 +417,7 @@
     </footer>
 
     <script src="./index.js"></script>
+    <script src="./enhanced-homepage-v2.js"></script>
     <script type="module">
         // Initialize push notifications on page load
         import PushNotificationService from './push-notification-service.js';
@@ -3379,5 +3498,14 @@
     </style>
     <script src="/mobile-enhance.js"></script>
     <script src="./premium-access-control.js"></script>
+    
+    <!-- Service Worker for PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.log('SW registration failed'));
+        }
+    </script>
 </body>
 </html>
