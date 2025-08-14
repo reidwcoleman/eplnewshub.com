@@ -118,37 +118,7 @@
             flex-wrap: wrap;
         }
         
-        .search-box {
-            flex: 1;
-            min-width: 300px;
-            position: relative;
-        }
-        
-        .search-box input {
-            width: 100%;
-            padding: 15px 50px 15px 20px;
-            border: 2px solid #8e6bb3;
-            border-radius: 50px;
-            background: #ffffff;
-            color: #333333;
-            font-size: 1em;
-            transition: all 0.3s ease;
-        }
-        
-        .search-box input:focus {
-            outline: none;
-            border-color: #ffd700;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-        }
-        
-        .search-box i {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #ffd700;
-            font-size: 1.2em;
-        }
+        /* Search box styles removed - cleaner interface */
         
         .filter-buttons {
             display: flex;
@@ -1405,60 +1375,108 @@
             letter-spacing: 1px;
         }
         
-        /* Live Transfer Ticker */
+        /* Enhanced Live Transfer Ticker */
         .transfer-ticker-section {
-            background: linear-gradient(135deg, #4a2c7a, #6b4c9a);
-            padding: 15px 0;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+            padding: 18px 0;
             position: relative;
             overflow: hidden;
             margin-bottom: 30px;
+            border-top: 2px solid #ffd700;
+            border-bottom: 2px solid #ffd700;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .transfer-ticker-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.15), transparent);
+            animation: shimmer 8s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
         
         .ticker-header {
             position: absolute;
-            left: 20px;
+            left: 30px;
             top: 50%;
             transform: translateY(-50%);
             z-index: 10;
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: transparent;
-            padding-right: 20px;
+            gap: 15px;
+            background: linear-gradient(90deg, #0a0a0f 0%, rgba(10, 10, 15, 0.8) 85%, transparent 100%);
+            padding-right: 40px;
         }
         
         .ticker-badge {
-            background: #ff0000;
+            background: linear-gradient(135deg, #ff0000, #ff3333);
             color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 8px 14px;
+            border-radius: 20px;
             font-weight: bold;
-            font-size: 0.8em;
-            animation: pulse 1.5s infinite;
+            font-size: 0.85em;
+            animation: pulse 1.5s ease-in-out infinite;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.5px;
+        }
+        
+        .ticker-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1s ease-in-out infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
         
         .ticker-title {
-            color: white;
-            font-weight: 600;
-            font-size: 0.9em;
+            color: #ffd700;
+            font-weight: 700;
+            font-size: 1.05em;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
         }
         
         .ticker-wrapper {
             overflow: hidden;
-            padding-left: 250px;
+            padding-left: 300px;
         }
         
         .ticker-content {
             display: flex;
-            animation: scroll 30s linear infinite;
+            animation: scroll 45s linear infinite;
             white-space: nowrap;
         }
         
         .ticker-item {
-            color: #ffd700;
-            padding: 0 50px;
-            font-size: 1em;
+            color: #ffffff;
+            padding: 0 70px;
+            font-size: 1.05em;
             font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .ticker-item:hover {
+            color: #ffd700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+            transform: scale(1.02);
         }
         
         @keyframes scroll {
@@ -2553,30 +2571,29 @@
     }
     </script>
 
-    <!-- Live Transfer Ticker -->
+    <!-- Enhanced Live Transfer Ticker -->
     <div class="transfer-ticker-section">
         <div class="ticker-header">
-            <span class="ticker-badge">🔴 LIVE</span>
-            <span class="ticker-title">Latest Transfer Updates</span>
+            <span class="ticker-badge">LIVE</span>
+            <span class="ticker-title">Breaking Transfer News</span>
         </div>
         <div class="ticker-wrapper">
             <div class="ticker-content" id="ticker-content">
-                <span class="ticker-item">⚡ BREAKING: Arsenal close to signing Martin Zubimendi for £56M</span>
-                <span class="ticker-item">📝 DONE DEAL: Jack Grealish joins Everton on season-long loan</span>
-                <span class="ticker-item">🔥 HOT: Man United complete £71M Bryan Mbeumo signing</span>
-                <span class="ticker-item">💰 RECORD: Illia Zabarnyi to PSG for £53.5M - Bournemouth's biggest sale</span>
-                <span class="ticker-item">✅ CONFIRMED: Viktor Gyokeres signs for Arsenal from Sporting CP</span>
+                <span class="ticker-item">⚡ BREAKING: Arsenal close to signing Martin Zubimendi for £56M - Medical scheduled tomorrow</span>
+                <span class="ticker-item">📝 DONE DEAL: Jack Grealish joins Everton on season-long loan with £30M option</span>
+                <span class="ticker-item">🔥 HOT: Man United complete £71M Bryan Mbeumo signing from Brentford</span>
+                <span class="ticker-item">💰 RECORD: Illia Zabarnyi to PSG for £53.5M - Bournemouth's record sale</span>
+                <span class="ticker-item">✅ CONFIRMED: Viktor Gyokeres signs 5-year Arsenal deal from Sporting CP</span>
                 <span class="ticker-item">🚨 EXCLUSIVE: Son Heung-min in advanced talks with Los Angeles FC</span>
+                <span class="ticker-item">🎯 UPDATE: Chelsea submit improved £65M bid for Michael Olise from Crystal Palace</span>
+                <span class="ticker-item">⏰ DEADLINE: Liverpool racing to complete Florian Wirtz deal before window closes</span>
             </div>
         </div>
     </div>
 
     <div class="transfer-controls">
         <div class="search-filter-container">
-            <div class="search-box">
-                <input type="text" id="transfer-search" placeholder="Search players, clubs, or agents...">
-                <i class="fas fa-search"></i>
-            </div>
+            <!-- Search removed for cleaner interface -->
             <div class="filter-buttons">
                 <button class="filter-btn active" data-filter="all">All Clubs</button>
                 <button class="filter-btn" data-filter="top6">Top 6</button>
