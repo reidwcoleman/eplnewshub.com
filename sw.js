@@ -9,15 +9,22 @@ const DYNAMIC_CACHE = 'eplnewshub-dynamic-v1.2';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
+    '/enhanced-homepage-v2.html',
     '/styles.css',
+    '/enhanced-homepage-v2.css',
     '/index.js',
+    '/enhanced-homepage-v2.js',
     '/scripts.js',
     '/seo-enhancer.js',
     '/performance-optimizer.js',
     '/header.html',
     '/footer.html',
+    '/main_headline.html',
     '/reidsnbest.webp',
-    '/fpl.html'
+    '/upscalemedia-transformed.png',
+    '/fpl.html',
+    '/transfer-hub.html',
+    '/manifest.json'
 ];
 
 // Cache strategies for different types of content

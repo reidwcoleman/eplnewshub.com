@@ -162,7 +162,11 @@ class PushNotificationService {
     // Send registration token to your server
     async sendTokenToServer(token) {
         try {
-            const response = await fetch('/api/push-notification/register', {
+            // Use localhost for development, otherwise use current domain
+            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                ? 'http://localhost:3001' 
+                : '';
+            const response = await fetch(`${baseUrl}/api/push-notification/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -187,7 +191,11 @@ class PushNotificationService {
     // Send web push subscription to your server
     async sendSubscriptionToServer(subscription) {
         try {
-            const response = await fetch('/api/push-notification/subscribe', {
+            // Use localhost for development, otherwise use current domain
+            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                ? 'http://localhost:3001' 
+                : '';
+            const response = await fetch(`${baseUrl}/api/push-notification/subscribe`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -303,7 +311,11 @@ class PushNotificationService {
         }
 
         try {
-            const response = await fetch('/api/push-notification/send-test', {
+            // Use localhost for development, otherwise use current domain
+            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                ? 'http://localhost:3001' 
+                : '';
+            const response = await fetch(`${baseUrl}/api/push-notification/send-test`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
