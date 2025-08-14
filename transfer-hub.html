@@ -295,12 +295,6 @@
             transition: color 0.3s ease;
         }
 
-        /* Loading state improvements */
-        .load-more-btn.loading {
-            background: linear-gradient(90deg, #ffd700, #ffed4e, #ffd700);
-            background-size: 200% 100%;
-            animation: loadingGradient 1.5s ease infinite;
-        }
 
         @keyframes loadingGradient {
             0% { background-position: 200% 0; }
@@ -1339,48 +1333,6 @@
             border: 1px solid #2196f3;
         }
         
-        .load-more-btn {
-            display: block;
-            margin: 40px auto;
-            padding: 18px 60px;
-            background: linear-gradient(135deg, #ffd700, #ffed4e);
-            color: #1a0033;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .load-more-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transition: left 0.6s ease;
-        }
-        
-        .load-more-btn:hover::before {
-            left: 100%;
-        }
-        
-        .load-more-btn:hover {
-            transform: translateY(-4px) scale(1.05);
-            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.4);
-        }
-        
-        .load-more-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none !important;
-        }
         
         .no-results {
             text-align: center;
@@ -2975,7 +2927,6 @@
             </div>
         </div>
 
-        <button class="load-more-btn">Load More Transfers</button>
     </div>
 
     <!-- Transfer Probability Tracker -->
@@ -4092,13 +4043,62 @@
             ]
         };
 
-        // Track loaded transfers for each category
-        let loadedTransfers = {
-            confirmed: 6,
-            rumors: 3,
-            'done-deals': 3,
-            medical: 3
-        };
+        // Initialize all transfers to be loaded
+        function loadAllTransfersForCategory(category) {
+            const transfersGrid = document.querySelector(`#${category} .transfers-grid`);
+            if (!transfersGrid) return;
+            
+            // Clear existing transfers first
+            transfersGrid.innerHTML = '';
+            
+            // Map category IDs to database keys
+            const categoryMap = {
+                'confirmed': 'confirmed',
+                'rumors': 'rumors',
+                'done-deals': 'doneDeals',
+                'medical': 'medical'
+            };
+            
+            const dbCategory = categoryMap[category];
+            const transfers = transferDatabase[dbCategory];
+            
+            if (!transfers) return;
+            
+            // Create all transfer cards
+            transfers.forEach((transfer, index) => {
+                const cardHTML = createTransferCard(transfer);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = cardHTML;
+                const newCard = tempDiv.firstElementChild;
+                
+                // Remove the opacity and transform styles for immediate display
+                newCard.style.opacity = '1';
+                newCard.style.transform = 'translateY(0)';
+                
+                transfersGrid.appendChild(newCard);
+                
+                // Add enhanced features to new cards
+                addEnhancedFeaturesToCard(newCard);
+            });
+        }
+        
+        function addEnhancedFeaturesToCard(card) {
+            card.classList.add('transfer-card-enhanced');
+            const quickActions = document.createElement('div');
+            quickActions.className = 'quick-actions';
+            quickActions.innerHTML = `
+                <button class="quick-action-btn" onclick="toggleFavorite(this)" title="Add to Favorites">
+                    <i class="far fa-heart"></i>
+                </button>
+                <button class="quick-action-btn" onclick="shareTransfer(this)" title="Share Transfer">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+                <button class="quick-action-btn" onclick="setReminder(this)" title="Set Reminder">
+                    <i class="far fa-bell"></i>
+                </button>
+            `;
+            card.appendChild(quickActions);
+        }
 
         function createTransferCard(transfer) {
             return `
@@ -4315,140 +4315,25 @@
                 observer.observe(analyticsSection);
             }
             
-            // Load more button with real transfer data
-            const loadMoreBtn = document.querySelector('.load-more-btn');
+
+            // Initialize all transfers on page load
+            function initializeAllTransfers() {
+                console.log('Initializing all transfers...');
+                
+                // Load all transfers for each category
+                const categories = ['confirmed', 'rumors', 'done-deals', 'medical'];
+                categories.forEach(category => {
+                    loadAllTransfersForCategory(category);
+                });
+                
+                console.log('All transfers loaded successfully!');
+            }
+
+            // Initialize all transfers when page loads
+            initializeAllTransfers();
             
-            if (loadMoreBtn) {
-                loadMoreBtn.addEventListener('click', function() {
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-                    this.disabled = true;
-                    this.classList.add('loading');
-                    
-                    setTimeout(() => {
-                        loadMoreTransfers();
-                        this.innerHTML = 'Load More Transfers';
-                        this.disabled = false;
-                        this.classList.remove('loading');
-                    }, 1500);
-                });
-            }
-
-            function loadMoreTransfers() {
-                console.log('loadMoreTransfers called');
-                
-                const activeSection = document.querySelector('.transfer-section.active');
-                if (!activeSection) {
-                    console.error('No active section found');
-                    return;
-                }
-                
-                const activeCategory = activeSection.id;
-                const transfersGrid = activeSection.querySelector('.transfers-grid');
-                
-                console.log('Active category:', activeCategory);
-                console.log('Transfers grid found:', !!transfersGrid);
-                
-                // Map category IDs to database keys
-                const categoryMap = {
-                    'confirmed': 'confirmed',
-                    'rumors': 'rumors',
-                    'done-deals': 'doneDeals',
-                    'medical': 'medical'
-                };
-                
-                const dbCategory = categoryMap[activeCategory];
-                const currentLoaded = loadedTransfers[activeCategory];
-                const availableTransfers = transferDatabase[dbCategory];
-                
-                console.log('Database category:', dbCategory);
-                console.log('Currently loaded:', currentLoaded);
-                console.log('Available transfers:', availableTransfers ? availableTransfers.length : 'undefined');
-                
-                if (!availableTransfers) {
-                    console.error('No transfers found for category:', dbCategory);
-                    return;
-                }
-                
-                // Load 3 more transfers
-                const transfersToLoad = availableTransfers.slice(currentLoaded, currentLoaded + 3);
-                console.log('Transfers to load:', transfersToLoad.length);
-                
-                if (transfersToLoad.length === 0) {
-                    showNotification('No more transfers to load in this category', 'info');
-                    const loadMoreBtn = document.querySelector('.load-more-btn');
-                    if (loadMoreBtn) loadMoreBtn.style.display = 'none';
-                    return;
-                }
-                
-                // Create and append new transfer cards
-                transfersToLoad.forEach((transfer, index) => {
-                    const cardHTML = createTransferCard(transfer);
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = cardHTML;
-                    const newCard = tempDiv.firstElementChild;
-                    
-                    transfersGrid.appendChild(newCard);
-                    
-                    // Add quick actions to new cards
-                    newCard.classList.add('transfer-card-enhanced');
-                    const quickActions = document.createElement('div');
-                    quickActions.className = 'quick-actions';
-                    quickActions.innerHTML = `
-                        <button class="quick-action-btn" onclick="toggleFavorite(this)" title="Add to Favorites">
-                            <i class="far fa-heart"></i>
-                        </button>
-                        <button class="quick-action-btn" onclick="shareTransfer(this)" title="Share Transfer">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
-                        <button class="quick-action-btn" onclick="setReminder(this)" title="Set Reminder">
-                            <i class="far fa-bell"></i>
-                        </button>
-                    `;
-                    newCard.appendChild(quickActions);
-                    
-                    // Animate in with staggered delay
-                    setTimeout(() => {
-                        newCard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-                        newCard.style.opacity = '1';
-                        newCard.style.transform = 'translateY(0)';
-                    }, index * 150);
-                });
-                
-                // Update loaded count
-                loadedTransfers[activeCategory] = currentLoaded + transfersToLoad.length;
-                
-                // Hide button if no more transfers
-                const loadMoreBtn = document.querySelector('.load-more-btn');
-                if (loadedTransfers[activeCategory] >= availableTransfers.length) {
-                    setTimeout(() => {
-                        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
-                        showNotification('All transfers loaded for this category! 🎉', 'success');
-                    }, 1000);
-                } else {
-                    showNotification(`${transfersToLoad.length} new transfers loaded!`, 'success');
-                }
-            }
-
-            // Reset load more button when changing categories
-            const categoryTabs = document.querySelectorAll('.category-tab');
-            categoryTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const category = this.dataset.category;
-                    const dbCategory = {
-                        'confirmed': 'confirmed',
-                        'rumors': 'rumors',
-                        'done-deals': 'doneDeals',
-                        'medical': 'medical'
-                    }[category];
-                    
-                    // Show/hide load more button based on available transfers
-                    if (loadedTransfers[category] < transferDatabase[dbCategory].length) {
-                        loadMoreBtn.style.display = 'block';
-                    } else {
-                        loadMoreBtn.style.display = 'none';
-                    }
-                });
-            });
+            // Update stats after loading all transfers
+            updateTransferStats();
 
             // Animate probability bars on page load
             setTimeout(() => {
@@ -5654,66 +5539,6 @@
                 observer.observe(watchlistGrid, { childList: true });
             }
             
-            // SIMPLE WORKING LOAD MORE - OVERRIDES ANY EXISTING FUNCTIONALITY
-            setTimeout(() => {
-                console.log('Setting up working load more...');
-                
-                const loadBtn = document.querySelector('.load-more-btn');
-                if (loadBtn) {
-                    // Remove any existing event listeners
-                    loadBtn.replaceWith(loadBtn.cloneNode(true));
-                    const newLoadBtn = document.querySelector('.load-more-btn');
-                    
-                    newLoadBtn.addEventListener('click', function() {
-                        console.log('Working load more clicked!');
-                        
-                        this.textContent = 'Loading...';
-                        this.disabled = true;
-                        
-                        const activeSection = document.querySelector('.transfer-section.active');
-                        const transfersGrid = activeSection ? activeSection.querySelector('.transfers-grid') : null;
-                        
-                        if (transfersGrid) {
-                            // Create 3 new transfer cards
-                            for (let i = 0; i < 3; i++) {
-                                const newCard = document.createElement('div');
-                                newCard.className = 'transfer-card';
-                                newCard.innerHTML = `
-                                    <div class="transfer-header">
-                                        <div class="transfer-clubs">
-                                            <span class="club-badge">⚽</span>
-                                            <span>Sample FC</span>
-                                            <span class="transfer-arrow">→</span>
-                                            <span class="club-badge">🔴</span>
-                                            <span>Demo United</span>
-                                        </div>
-                                        <span class="transfer-fee">£${Math.floor(Math.random() * 50 + 10)}M</span>
-                                    </div>
-                                    <div class="player-info">
-                                        <div class="player-name">New Player ${Date.now() + i}</div>
-                                        <div class="player-position">Midfielder</div>
-                                    </div>
-                                    <div class="transfer-details">
-                                        <span class="transfer-date">Summer 2025</span>
-                                        <span class="transfer-status status-confirmed">Confirmed</span>
-                                    </div>
-                                `;
-                                transfersGrid.appendChild(newCard);
-                            }
-                            
-                            setTimeout(() => {
-                                this.textContent = 'Load More Transfers';
-                                this.disabled = false;
-                                console.log('3 new transfers added successfully!');
-                            }, 1000);
-                        }
-                    });
-                    
-                    console.log('Working load more setup complete!');
-                } else {
-                    console.error('Load more button not found');
-                }
-            }, 2000);
 
             // Enhanced Transfer Hub Functionality
             function initializeEnhancedFeatures() {
