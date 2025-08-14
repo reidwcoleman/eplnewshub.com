@@ -55,25 +55,27 @@ injectAll();
 
 // Load advertising systems after content injection
 window.addEventListener('DOMContentLoaded', function() {
-    // Load FPL Premium Ads System
+    // Always load FPL Premium Ads System to ensure top banner appears everywhere
     (function loadFPLAds() {
-        // Only load ads if not on FPL tool pages themselves
-        const fplToolPages = [
-            'fpl-ai-assistant.html',
-            'transfer-simulator-pro.html', 
-            'player-predictor.html',
-            'player-data-enhanced.html',
-            'fpl-premium-hub.html'
-        ];
+        const script = document.createElement('script');
+        script.src = '/fpl-ads.js';
+        script.async = true;
         
-        const currentPage = window.location.pathname.split('/').pop();
+        // Add fallback banner in case the script fails to load
+        script.onerror = function() {
+            console.warn('FPL ads script failed to load, inserting fallback banner');
+            insertFallbackBanner();
+        };
         
-        if (!fplToolPages.includes(currentPage)) {
-            const script = document.createElement('script');
-            script.src = '/fpl-ads.js';
-            script.async = true;
-            document.head.appendChild(script);
-        }
+        document.head.appendChild(script);
+        
+        // Also set a timeout to ensure banner shows even if script is delayed
+        setTimeout(() => {
+            if (!document.getElementById('fpl-top-banner')) {
+                console.log('FPL banner not found after timeout, inserting fallback');
+                insertFallbackBanner();
+            }
+        }, 3000); // Wait 3 seconds for the main script
     })();
 
     // Load Ezoic Ad Placement System
@@ -85,6 +87,196 @@ window.addEventListener('DOMContentLoaded', function() {
         document.head.appendChild(ezoicScript);
     }, 500); // Small delay to ensure content is fully loaded
 });
+
+// Fallback FPL banner function in case main script fails
+function insertFallbackBanner() {
+    // Don't insert if banner already exists
+    if (document.getElementById('fpl-top-banner') || document.getElementById('fpl-fallback-banner')) {
+        return;
+    }
+    
+    const fallbackBannerHtml = `
+        <div class="fpl-top-banner" id="fpl-fallback-banner">
+            <div class="top-banner-content">
+                <div class="banner-left">
+                    <span class="banner-icon">⚡</span>
+                    <div class="banner-text">
+                        <strong>FPL Tools Available!</strong>
+                        <span>AI Assistant, Transfer Simulator, Points Predictor & More</span>
+                    </div>
+                </div>
+                <div class="banner-actions">
+                    <a href="/fpl-premium-hub.html" class="banner-cta-primary">View All Tools</a>
+                    <button class="banner-close" onclick="document.getElementById('fpl-fallback-banner').style.display='none'">×</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Insert at the very beginning of body
+    document.body.insertAdjacentHTML('afterbegin', fallbackBannerHtml);
+    
+    // Add fallback styles
+    if (!document.getElementById('fallback-banner-styles')) {
+        const fallbackStyles = `
+            <style id="fallback-banner-styles">
+                .fpl-top-banner {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    background: linear-gradient(135deg, #37003c, #00ff87);
+                    color: white;
+                    z-index: 9998;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    animation: slideDownBanner 0.5s ease;
+                }
+                
+                @keyframes slideDownBanner {
+                    from { transform: translateY(-100%); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+                
+                .top-banner-content {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 12px 20px;
+                    gap: 15px;
+                }
+                
+                .banner-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    flex: 1;
+                }
+                
+                .banner-icon {
+                    font-size: 1.5rem;
+                    animation: pulse 2s infinite;
+                }
+                
+                @keyframes pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                }
+                
+                .banner-text {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                }
+                
+                .banner-text strong {
+                    font-size: 0.95rem;
+                    font-weight: 700;
+                }
+                
+                .banner-text span {
+                    font-size: 0.8rem;
+                    opacity: 0.9;
+                }
+                
+                .banner-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                
+                .banner-cta-primary {
+                    background: rgba(255,255,255,0.15);
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    text-decoration: none;
+                    font-weight: 600;
+                    font-size: 0.85rem;
+                    transition: all 0.3s ease;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255,255,255,0.2);
+                    white-space: nowrap;
+                }
+                
+                .banner-cta-primary:hover {
+                    background: rgba(255,255,255,0.25);
+                    transform: scale(1.05);
+                    color: white;
+                    text-decoration: none;
+                }
+                
+                .banner-close {
+                    background: rgba(255,255,255,0.1);
+                    border: none;
+                    color: white;
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    font-size: 18px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.3s ease;
+                }
+                
+                .banner-close:hover {
+                    background: rgba(255,255,255,0.2);
+                    transform: scale(1.1);
+                }
+                
+                /* Push down page content */
+                body {
+                    padding-top: 60px !important;
+                }
+                
+                /* Mobile responsive */
+                @media (max-width: 768px) {
+                    .top-banner-content {
+                        padding: 10px 15px;
+                        flex-wrap: wrap;
+                    }
+                    
+                    .banner-text span {
+                        display: none;
+                    }
+                    
+                    .banner-cta-primary {
+                        font-size: 0.8rem;
+                        padding: 6px 12px;
+                    }
+                    
+                    body {
+                        padding-top: 50px !important;
+                    }
+                }
+                
+                @media (max-width: 480px) {
+                    .banner-left {
+                        gap: 8px;
+                    }
+                    
+                    .banner-text strong {
+                        font-size: 0.85rem;
+                    }
+                    
+                    .banner-actions {
+                        gap: 6px;
+                    }
+                    
+                    .banner-close {
+                        width: 24px;
+                        height: 24px;
+                        font-size: 16px;
+                    }
+                }
+            </style>
+        `;
+        document.head.insertAdjacentHTML('beforeend', fallbackStyles);
+    }
+}
 
 // Search functionality
 const articles = [

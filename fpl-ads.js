@@ -686,6 +686,198 @@
         }
     }
 
+    // Insert top banner on every page regardless of DOM structure
+    function insertTopBanner() {
+        // Create a top banner that appears at the top of every page
+        const topBannerHtml = `
+            <div class="fpl-top-banner" id="fpl-top-banner">
+                <div class="top-banner-content">
+                    <div class="banner-left">
+                        <span class="banner-icon">⚡</span>
+                        <div class="banner-text">
+                            <strong>FPL Tools Available!</strong>
+                            <span>AI Assistant, Transfer Simulator, Points Predictor & More</span>
+                        </div>
+                    </div>
+                    <div class="banner-actions">
+                        <a href="/fpl-premium-hub.html" class="banner-cta-primary">View All Tools</a>
+                        <button class="banner-close" onclick="document.getElementById('fpl-top-banner').style.display='none'">×</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insert at the very beginning of body
+        document.body.insertAdjacentHTML('afterbegin', topBannerHtml);
+        
+        // Add styles for top banner if not already added
+        if (!document.getElementById('top-banner-styles')) {
+            const topBannerStyles = `
+                <style id="top-banner-styles">
+                    .fpl-top-banner {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        background: linear-gradient(135deg, #37003c, #00ff87);
+                        color: white;
+                        z-index: 9998;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                        animation: slideDownBanner 0.5s ease;
+                    }
+                    
+                    @keyframes slideDownBanner {
+                        from { transform: translateY(-100%); opacity: 0; }
+                        to { transform: translateY(0); opacity: 1; }
+                    }
+                    
+                    .top-banner-content {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        max-width: 1200px;
+                        margin: 0 auto;
+                        padding: 12px 20px;
+                        gap: 15px;
+                    }
+                    
+                    .banner-left {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        flex: 1;
+                    }
+                    
+                    .banner-icon {
+                        font-size: 1.5rem;
+                        animation: pulse 2s infinite;
+                    }
+                    
+                    .banner-text {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 2px;
+                    }
+                    
+                    .banner-text strong {
+                        font-size: 0.95rem;
+                        font-weight: 700;
+                    }
+                    
+                    .banner-text span {
+                        font-size: 0.8rem;
+                        opacity: 0.9;
+                    }
+                    
+                    .banner-actions {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    }
+                    
+                    .banner-cta-primary {
+                        background: rgba(255,255,255,0.15);
+                        color: white;
+                        padding: 8px 16px;
+                        border-radius: 20px;
+                        text-decoration: none;
+                        font-weight: 600;
+                        font-size: 0.85rem;
+                        transition: all 0.3s ease;
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255,255,255,0.2);
+                        white-space: nowrap;
+                    }
+                    
+                    .banner-cta-primary:hover {
+                        background: rgba(255,255,255,0.25);
+                        transform: scale(1.05);
+                        color: white;
+                        text-decoration: none;
+                    }
+                    
+                    .banner-close {
+                        background: rgba(255,255,255,0.1);
+                        border: none;
+                        color: white;
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 18px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .banner-close:hover {
+                        background: rgba(255,255,255,0.2);
+                        transform: scale(1.1);
+                    }
+                    
+                    /* Push down page content */
+                    body {
+                        padding-top: 60px !important;
+                    }
+                    
+                    /* Mobile responsive */
+                    @media (max-width: 768px) {
+                        .top-banner-content {
+                            padding: 10px 15px;
+                            flex-wrap: wrap;
+                        }
+                        
+                        .banner-text span {
+                            display: none;
+                        }
+                        
+                        .banner-cta-primary {
+                            font-size: 0.8rem;
+                            padding: 6px 12px;
+                        }
+                        
+                        body {
+                            padding-top: 50px !important;
+                        }
+                    }
+                    
+                    @media (max-width: 480px) {
+                        .banner-left {
+                            gap: 8px;
+                        }
+                        
+                        .banner-text strong {
+                            font-size: 0.85rem;
+                        }
+                        
+                        .banner-actions {
+                            gap: 6px;
+                        }
+                        
+                        .banner-close {
+                            width: 24px;
+                            height: 24px;
+                            font-size: 16px;
+                        }
+                    }
+                </style>
+            `;
+            document.head.insertAdjacentHTML('beforeend', topBannerStyles);
+        }
+        
+        // Track impression
+        trackAdEvent('impression', 'top-banner');
+        
+        // Track clicks
+        const cta = document.querySelector('.banner-cta-primary');
+        if (cta) {
+            cta.addEventListener('click', function() {
+                trackAdEvent('click', 'top-banner');
+            });
+        }
+    }
+
     // Insert floating ad
     function insertFloatingAd() {
         // Only show on certain pages
@@ -742,16 +934,20 @@
 
     // Initialize ads system
     function init() {
-        // Don't show ads on FPL tool pages themselves
-        const fplPages = ['/fpl-ai-assistant.html', '/transfer-simulator-pro.html', '/player-predictor.html'];
         const currentPath = window.location.pathname;
         
+        // Always show the top banner on every page
+        injectStyles();
+        insertTopBanner();
+        
+        // Show other ads only on non-FPL tool pages
+        const fplPages = ['/fpl-ai-assistant.html', '/transfer-simulator-pro.html', '/player-predictor.html'];
+        
         if (!fplPages.some(page => currentPath.includes(page))) {
-            injectStyles();
             insertSidebarAds();
             insertBannerAd();
             insertFloatingAd();
-            // insertBigBannerPopup(); // Disabled - big banner popup removed per user request
+            insertBigBannerPopup(); // Re-enabled to show on appropriate pages
             attachAdListeners();
             rotateAds();
         }
