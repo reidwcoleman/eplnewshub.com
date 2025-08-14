@@ -4394,74 +4394,60 @@
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = cardHTML;
                 const newCard = tempDiv.firstElementChild;
-                    position: "Striker",
-                    fromClub: "Al-Ahli",
-                    fromBadge: "🇸🇦",
-                    toClub: "West Ham",
-                    toBadge: "⚒️",
-                    fee: "£35M",
-                    date: "Interest",
-                    status: "Exploring",
-                    statusClass: "status-rumor"
-                },
-                {
-                    player: "Joao Felix",
-                    position: "Forward",
-                    fromClub: "Chelsea",
-                    fromBadge: "🔵",
-                    toClub: "Atletico Madrid",
-                    toBadge: "🔴",
-                    fee: "£42M",
-                    date: "Discussions",
-                    status: "Return Possible",
-                    statusClass: "status-rumor"
-                },
-                {
-                    player: "Kalvin Phillips",
-                    position: "Defensive Midfielder",
-                    fromClub: "Man City",
-                    fromBadge: "🔵",
-                    toClub: "Everton",
-                    toBadge: "🔵",
-                    fee: "Loan",
-                    date: "Interest",
-                    status: "Considering",
-                    statusClass: "status-rumor"
-                },
-                {
-                    player: "Jarrad Branthwaite",
-                    position: "Centre-Back",
-                    fromClub: "Everton",
-                    fromBadge: "🔵",
-                    toClub: "Man United",
-                    toBadge: "🔴",
-                    fee: "£75M",
-                    date: "Under Discussion",
-                    status: "Interest",
-                    statusClass: "status-rumor"
-                },
-                {
-                    player: "Anthony Gordon",
-                    position: "Left Winger",
-                    fromClub: "Newcastle",
-                    fromBadge: "⚫",
-                    toClub: "Liverpool",
-                    toBadge: "🔴",
-                    fee: "£45M",
-                    date: "Exploring",
-                    status: "Rumored",
-                    statusClass: "status-rumor"
-                },
-                {
-                    player: "Ivan Toney",
-                    position: "Striker",
-                    fromClub: "Al-Ahli",
-                    fromBadge: "🇸🇦",
-                    toClub: "Newcastle",
-                    toBadge: "⚫",
-                    fee: "£30M",
-                    date: "January Window",
-                    status: "Linked",
+                
+                // Remove the opacity and transform styles for immediate display
+                newCard.style.opacity = '1';
+                newCard.style.transform = 'translateY(0)';
+                
+                transfersGrid.appendChild(newCard);
+                
+                // Add enhanced features to new cards
+                addEnhancedFeaturesToCard(newCard);
+            });
+        }
+        
+        function addEnhancedFeaturesToCard(card) {
+            card.classList.add('transfer-card-enhanced');
+            const quickActions = document.createElement('div');
+            quickActions.className = 'quick-actions';
+            quickActions.innerHTML = `
+                <button class="quick-action-btn" onclick="toggleFavorite(this)" title="Add to Favorites">
+                    <i class="far fa-heart"></i>
+                </button>
+                <button class="quick-action-btn" onclick="shareTransfer(this)" title="Share Transfer">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+                <button class="quick-action-btn" onclick="setReminder(this)" title="Set Reminder">
+                    <i class="far fa-bell"></i>
+                </button>
+            `;
+            card.appendChild(quickActions);
+        }
+
+        function createTransferCard(transfer) {
+            return `
+                <div class="transfer-card transfer-card-new" style="opacity: 0; transform: translateY(20px);">
+                    <div class="transfer-header">
+                        <div class="transfer-clubs">
+                            <span class="club-badge">${transfer.fromBadge}</span>
+                            <span>${transfer.fromClub}</span>
+                            <span class="transfer-arrow">→</span>
+                            <span class="club-badge">${transfer.toBadge}</span>
+                            <span>${transfer.toClub}</span>
+                        </div>
+                        <span class="transfer-fee">${transfer.fee}</span>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">${transfer.player}</div>
+                        <div class="player-position">${transfer.position}</div>
+                    </div>
+                    <div class="transfer-details">
+                        <span class="transfer-date">${transfer.date}</span>
+                        <span class="transfer-status ${transfer.statusClass}">${transfer.status}</span>
+                    </div>
+                </div>
+            `;
+        }
                     statusClass: "status-rumor"
                 },
                 {
