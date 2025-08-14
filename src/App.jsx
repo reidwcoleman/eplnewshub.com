@@ -6,21 +6,24 @@ import Home from './pages/Home'
 import ArticlePage from './pages/ArticlePage'
 import NewsletterPopup from './components/NewsletterPopup'
 import InstallPrompt from './components/InstallPrompt'
+import { ThemeProvider } from './contexts/ThemeContext'
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/article/:slug" element={<ArticlePage />} />
-        </Routes>
-        <Footer />
-        <NewsletterPopup />
-        <InstallPrompt />
-      </div>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <div className="App">
+          <Header />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/article/:slug" element={<ArticlePage />} />
+          </Routes>
+          <Footer />
+          <NewsletterPopup />
+          <InstallPrompt />
+        </div>
+      </Router>
+    </ThemeProvider>
   )
 }
 

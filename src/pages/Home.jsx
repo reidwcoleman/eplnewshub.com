@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { getFeaturedArticles, getRecentArticles, categories } from '../data/articles'
+import LiveGameStats from '../components/LiveGameStats'
 
 function Home() {
   const featuredArticles = getFeaturedArticles()
@@ -50,6 +51,9 @@ function Home() {
           </div>
         )}
       </section>
+
+      {/* Live Game Stats */}
+      <LiveGameStats />
 
       {/* Featured Articles Grid */}
       <section className="featured-section">

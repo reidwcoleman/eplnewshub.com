@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTheme } from '../contexts/ThemeContext'
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const { darkMode, toggleTheme } = useTheme()
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -35,6 +37,13 @@ function Header() {
               <button className="search-btn" onClick={performSearch}>🔍</button>
               <div id="search-results" className="search-results"></div>
             </div>
+            <button 
+              className="theme-toggle" 
+              onClick={toggleTheme}
+              title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {darkMode ? '☀️' : '🌙'}
+            </button>
             <button className="menu-btn" onClick={toggleMobileMenu}>☰</button>
           </div>
         </div>
