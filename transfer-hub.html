@@ -5466,6 +5466,449 @@
                     console.error('Load more button not found');
                 }
             }, 2000);
+
+            // Enhanced Transfer Hub Functionality
+            function initializeEnhancedFeatures() {
+                // Enhanced Search with debouncing
+                const searchInput = document.getElementById('transfer-search');
+                let searchTimeout;
+                
+                if (searchInput) {
+                    searchInput.addEventListener('input', function() {
+                        clearTimeout(searchTimeout);
+                        const searchTerm = this.value.toLowerCase().trim();
+                        
+                        searchTimeout = setTimeout(() => {
+                            performEnhancedSearch(searchTerm);
+                        }, 300);
+                    });
+                }
+
+                // Real-time transfer data updates
+                initializeRealTimeUpdates();
+                
+                // Enhanced filter combinations
+                setupAdvancedFiltering();
+                
+                // Transfer value tracking
+                initializeValueTracking();
+                
+                // Interactive transfer timeline
+                setupInteractiveTimeline();
+                
+                // Live notifications system
+                initializeLiveNotifications();
+                
+                console.log('Enhanced transfer hub features initialized');
+            }
+
+            function performEnhancedSearch(searchTerm) {
+                const transferCards = document.querySelectorAll('.transfer-card');
+                const rumorCards = document.querySelectorAll('.rumor-card');
+                let visibleCount = 0;
+                
+                // Enhanced search algorithm
+                const searchWords = searchTerm.split(' ').filter(word => word.length > 0);
+                
+                [...transferCards, ...rumorCards].forEach(card => {
+                    if (!card) return;
+                    
+                    const cardData = extractCardData(card);
+                    const relevanceScore = calculateRelevanceScore(cardData, searchWords);
+                    
+                    if (relevanceScore > 0) {
+                        card.style.display = 'block';
+                        card.style.order = Math.floor((1 - relevanceScore) * 1000);
+                        visibleCount++;
+                        highlightSearchTerms(card, searchWords);
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                updateSearchResults(visibleCount, searchTerm);
+            }
+
+            function extractCardData(card) {
+                const playerName = card.querySelector('.player-name')?.textContent || '';
+                const clubs = card.querySelector('.transfer-clubs')?.textContent || '';
+                const position = card.querySelector('.player-position')?.textContent || '';
+                const fee = card.querySelector('.transfer-fee')?.textContent || '';
+                const status = card.querySelector('.transfer-status')?.textContent || '';
+                
+                return {
+                    playerName: playerName.toLowerCase(),
+                    clubs: clubs.toLowerCase(),
+                    position: position.toLowerCase(),
+                    fee: fee.toLowerCase(),
+                    status: status.toLowerCase(),
+                    fullText: card.textContent.toLowerCase()
+                };
+            }
+
+            function calculateRelevanceScore(cardData, searchWords) {
+                let score = 0;
+                
+                searchWords.forEach(word => {
+                    // Player name gets highest weight
+                    if (cardData.playerName.includes(word)) score += 3;
+                    // Club names get high weight
+                    if (cardData.clubs.includes(word)) score += 2.5;
+                    // Position gets medium weight
+                    if (cardData.position.includes(word)) score += 1.5;
+                    // Fee and status get lower weight
+                    if (cardData.fee.includes(word)) score += 1;
+                    if (cardData.status.includes(word)) score += 1;
+                    // General text match gets minimal weight
+                    if (cardData.fullText.includes(word)) score += 0.5;
+                });
+                
+                return Math.min(score / searchWords.length, 1);
+            }
+
+            function highlightSearchTerms(card, searchWords) {
+                // Remove existing highlights
+                card.querySelectorAll('.search-highlight').forEach(highlight => {
+                    const parent = highlight.parentNode;
+                    parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
+                    parent.normalize();
+                });
+                
+                // Add new highlights
+                searchWords.forEach(word => {
+                    const walker = document.createTreeWalker(
+                        card,
+                        NodeFilter.SHOW_TEXT,
+                        null,
+                        false
+                    );
+                    
+                    const textNodes = [];
+                    let node;
+                    
+                    while (node = walker.nextNode()) {
+                        if (node.nodeValue.toLowerCase().includes(word)) {
+                            textNodes.push(node);
+                        }
+                    }
+                    
+                    textNodes.forEach(textNode => {
+                        const regex = new RegExp(`(${word})`, 'gi');
+                        const content = textNode.nodeValue;
+                        
+                        if (regex.test(content)) {
+                            const span = document.createElement('span');
+                            span.innerHTML = content.replace(regex, '<span class="search-highlight">$1</span>');
+                            textNode.parentNode.replaceChild(span, textNode);
+                        }
+                    });
+                });
+            }
+
+            function initializeRealTimeUpdates() {
+                const transferData = [
+                    {
+                        player: 'Martin Zubimendi',
+                        from: 'Real Sociedad',
+                        to: 'Liverpool',
+                        fee: '€60M',
+                        position: 'Defensive Midfielder',
+                        status: 'In Progress',
+                        probability: 85
+                    },
+                    {
+                        player: 'João Palhinha',
+                        from: 'Fulham',
+                        to: 'Bayern Munich',
+                        fee: '€50M',
+                        position: 'Defensive Midfielder',
+                        status: 'Medical Pending',
+                        probability: 92
+                    },
+                    {
+                        player: 'Jorrel Hato',
+                        from: 'Ajax',
+                        to: 'Chelsea',
+                        fee: '€35M',
+                        position: 'Centre-Back',
+                        status: 'Negotiating',
+                        probability: 68
+                    }
+                ];
+
+                // Simulate real-time updates
+                setInterval(() => {
+                    const randomTransfer = transferData[Math.floor(Math.random() * transferData.length)];
+                    const probabilityChange = (Math.random() - 0.5) * 10;
+                    randomTransfer.probability = Math.max(0, Math.min(100, randomTransfer.probability + probabilityChange));
+                    
+                    updateTransferProbability(randomTransfer);
+                    
+                    if (Math.random() > 0.8) {
+                        showLiveUpdate(randomTransfer);
+                    }
+                }, 15000);
+            }
+
+            function updateTransferProbability(transfer) {
+                const cards = document.querySelectorAll('.transfer-card');
+                cards.forEach(card => {
+                    const playerName = card.querySelector('.player-name')?.textContent;
+                    if (playerName && playerName.includes(transfer.player)) {
+                        const probabilityElement = card.querySelector('.probability-bar');
+                        if (probabilityElement) {
+                            probabilityElement.style.width = `${transfer.probability}%`;
+                            probabilityElement.style.transition = 'width 0.8s ease';
+                        }
+                    }
+                });
+            }
+
+            function setupAdvancedFiltering() {
+                const filters = {
+                    club: document.getElementById('club-filter'),
+                    position: document.getElementById('position-filter'),
+                    feeRange: document.getElementById('fee-range')
+                };
+
+                // Enhanced fee range filtering
+                if (filters.feeRange) {
+                    filters.feeRange.addEventListener('change', function() {
+                        const range = this.value;
+                        filterByFeeRange(range);
+                    });
+                }
+
+                // Enhanced position filtering
+                if (filters.position) {
+                    filters.position.addEventListener('change', function() {
+                        const position = this.value;
+                        filterByPosition(position);
+                    });
+                }
+            }
+
+            function filterByFeeRange(range) {
+                const transferCards = document.querySelectorAll('.transfer-card');
+                
+                transferCards.forEach(card => {
+                    const feeText = card.querySelector('.transfer-fee')?.textContent || '';
+                    const feeValue = extractFeeValue(feeText);
+                    
+                    let show = true;
+                    
+                    switch(range) {
+                        case '0-20':
+                            show = feeValue >= 0 && feeValue <= 20;
+                            break;
+                        case '20-50':
+                            show = feeValue > 20 && feeValue <= 50;
+                            break;
+                        case '50-100':
+                            show = feeValue > 50 && feeValue <= 100;
+                            break;
+                        case '100+':
+                            show = feeValue > 100;
+                            break;
+                        default:
+                            show = true;
+                    }
+                    
+                    if (feeText.toLowerCase().includes('loan') || feeText.toLowerCase().includes('free')) {
+                        show = range === 'all' || range === '0-20';
+                    }
+                    
+                    card.style.display = show ? 'block' : 'none';
+                });
+            }
+
+            function extractFeeValue(feeText) {
+                const match = feeText.match(/[£€]?(\d+(?:\.\d+)?)[mM]/);
+                return match ? parseFloat(match[1]) : 0;
+            }
+
+            function filterByPosition(position) {
+                const transferCards = document.querySelectorAll('.transfer-card');
+                const positionMappings = {
+                    'goalkeeper': ['goalkeeper', 'keeper', 'gk'],
+                    'defender': ['defender', 'back', 'centre-back', 'full-back', 'wing-back'],
+                    'midfielder': ['midfielder', 'midfield', 'central', 'attacking midfielder', 'defensive midfielder'],
+                    'forward': ['forward', 'striker', 'winger', 'centre-forward', 'right winger', 'left winger']
+                };
+                
+                transferCards.forEach(card => {
+                    const positionText = card.querySelector('.player-position')?.textContent.toLowerCase() || '';
+                    
+                    let show = position === 'all';
+                    
+                    if (position !== 'all' && positionMappings[position]) {
+                        show = positionMappings[position].some(pos => positionText.includes(pos));
+                    }
+                    
+                    card.style.display = show ? 'block' : 'none';
+                });
+            }
+
+            function initializeValueTracking() {
+                // Add market value tracking for players
+                const playerValues = {
+                    'Viktor Gyokeres': { current: 55.3, change: +12.8, trend: 'up' },
+                    'Bryan Mbeumo': { current: 71.0, change: +25.5, trend: 'up' },
+                    'Benjamin Sesko': { current: 66.3, change: +8.2, trend: 'up' },
+                    'Jack Grealish': { current: 45.0, change: -15.0, trend: 'down' },
+                    'Milos Kerkez': { current: 40.0, change: +18.0, trend: 'up' }
+                };
+
+                // Update transfer cards with value information
+                document.querySelectorAll('.transfer-card').forEach(card => {
+                    const playerName = card.querySelector('.player-name')?.textContent;
+                    if (playerName && playerValues[playerName]) {
+                        const value = playerValues[playerName];
+                        addValueIndicator(card, value);
+                    }
+                });
+            }
+
+            function addValueIndicator(card, value) {
+                const playerInfo = card.querySelector('.player-info');
+                if (playerInfo && !playerInfo.querySelector('.value-indicator')) {
+                    const indicator = document.createElement('div');
+                    indicator.className = 'value-indicator';
+                    indicator.innerHTML = `
+                        <span class="market-value">Market Value: £${value.current}M</span>
+                        <span class="value-change ${value.trend}">
+                            ${value.change > 0 ? '+' : ''}${value.change}M
+                            <i class="fas fa-arrow-${value.trend === 'up' ? 'up' : 'down'}"></i>
+                        </span>
+                    `;
+                    playerInfo.appendChild(indicator);
+                }
+            }
+
+            function setupInteractiveTimeline() {
+                const timelineItems = document.querySelectorAll('.timeline-item');
+                
+                timelineItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        this.classList.toggle('expanded');
+                        
+                        // Add detailed information
+                        if (this.classList.contains('expanded') && !this.querySelector('.timeline-details')) {
+                            const details = document.createElement('div');
+                            details.className = 'timeline-details';
+                            details.innerHTML = `
+                                <div class="detail-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>Expected completion: Next 48 hours</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Transfer probability: 85%</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-newspaper"></i>
+                                    <span>Last update: 2 hours ago</span>
+                                </div>
+                            `;
+                            this.appendChild(details);
+                        }
+                    });
+                });
+            }
+
+            function initializeLiveNotifications() {
+                // Create notification container
+                if (!document.querySelector('.notification-container')) {
+                    const container = document.createElement('div');
+                    container.className = 'notification-container';
+                    document.body.appendChild(container);
+                }
+                
+                // Show random live updates
+                const liveUpdates = [
+                    { type: 'transfer', message: '🚨 BREAKING: Medical scheduled for tomorrow', priority: 'high' },
+                    { type: 'rumor', message: '📈 UPDATE: Transfer probability increased', priority: 'medium' },
+                    { type: 'confirmed', message: '✅ CONFIRMED: Deal announcement imminent', priority: 'high' },
+                    { type: 'bid', message: '💰 NEW BID: Club increases offer by £5M', priority: 'medium' }
+                ];
+                
+                setInterval(() => {
+                    if (Math.random() > 0.85) {
+                        const update = liveUpdates[Math.floor(Math.random() * liveUpdates.length)];
+                        showLiveNotification(update);
+                    }
+                }, 25000);
+            }
+
+            function showLiveNotification(update) {
+                const container = document.querySelector('.notification-container');
+                if (!container) return;
+                
+                const notification = document.createElement('div');
+                notification.className = `live-notification ${update.priority}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <span class="notification-message">${update.message}</span>
+                        <button class="notification-close">&times;</button>
+                    </div>
+                `;
+                
+                container.appendChild(notification);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    notification.classList.add('fade-out');
+                    setTimeout(() => notification.remove(), 300);
+                }, 5000);
+                
+                // Manual close
+                notification.querySelector('.notification-close').addEventListener('click', () => {
+                    notification.classList.add('fade-out');
+                    setTimeout(() => notification.remove(), 300);
+                });
+            }
+
+            function showLiveUpdate(transfer) {
+                const message = `📊 ${transfer.player}: Transfer probability updated to ${Math.round(transfer.probability)}%`;
+                showLiveNotification({ type: 'update', message, priority: 'low' });
+            }
+
+            function updateSearchResults(visibleCount, searchTerm) {
+                const container = document.querySelector('.transfers-grid')?.parentElement;
+                if (!container) return;
+                
+                let resultsIndicator = container.querySelector('.search-results-indicator');
+                
+                if (searchTerm.length > 0) {
+                    if (!resultsIndicator) {
+                        resultsIndicator = document.createElement('div');
+                        resultsIndicator.className = 'search-results-indicator';
+                        container.insertBefore(resultsIndicator, container.querySelector('.transfers-grid'));
+                    }
+                    
+                    resultsIndicator.innerHTML = `
+                        <div class="results-info">
+                            <i class="fas fa-search"></i>
+                            <span>${visibleCount} result${visibleCount !== 1 ? 's' : ''} for "${searchTerm}"</span>
+                            ${visibleCount === 0 ? '<button class="clear-search" onclick="clearSearch()">Clear search</button>' : ''}
+                        </div>
+                    `;
+                } else if (resultsIndicator) {
+                    resultsIndicator.remove();
+                }
+            }
+
+            function clearSearch() {
+                const searchInput = document.getElementById('transfer-search');
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input'));
+                }
+            }
+
+            // Initialize enhanced features
+            setTimeout(initializeEnhancedFeatures, 1000);
+
         });
 
     </script>

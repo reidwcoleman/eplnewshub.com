@@ -8,6 +8,7 @@ const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { createPushNotificationRouter } = require('./push-notification-server');
 require('dotenv').config();
 
 const app = express();
@@ -666,9 +667,13 @@ app.get('/logout', (req, res) => {
     });
 });
 
+// Push notification routes
+app.use('/api/push-notification', createPushNotificationRouter());
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
     console.log('Account creation API available at: POST /api/create-account');
+    console.log('Push notification API available at: /api/push-notification');
     console.log('Google OAuth available at: GET /auth/google');
     console.log(`Google OAuth configured: ${!!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)}`);
 });
