@@ -109,7 +109,30 @@
                         </div>
                         <div class="banner-center">
                             <div class="banner-features">
-                                ${premiumAd.features.map(f => `<div class="feature-item">✨ ${f}</div>`).join('')}
+                                <a href="/fpl-ai-assistant.html" class="feature-item feature-link">
+                                    <span class="feature-icon">🤖</span>
+                                    <span class="feature-text">AI Assistant</span>
+                                </a>
+                                <a href="/transfer-simulator-pro.html" class="feature-item feature-link">
+                                    <span class="feature-icon">🔄</span>
+                                    <span class="feature-text">Transfer Simulator</span>
+                                </a>
+                                <a href="/player-predictor.html" class="feature-item feature-link">
+                                    <span class="feature-icon">🔮</span>
+                                    <span class="feature-text">Points Predictor</span>
+                                </a>
+                                <a href="/fixture-analyzer-pro.html" class="feature-item feature-link">
+                                    <span class="feature-icon">📊</span>
+                                    <span class="feature-text">Fixture Analyzer</span>
+                                </a>
+                                <a href="/team-analyzer.html" class="feature-item feature-link">
+                                    <span class="feature-icon">⚽</span>
+                                    <span class="feature-text">Team Analyzer</span>
+                                </a>
+                                <a href="/budget-optimizer.html" class="feature-item feature-link">
+                                    <span class="feature-icon">💰</span>
+                                    <span class="feature-text">Budget Optimizer</span>
+                                </a>
                             </div>
                             <div class="countdown-timer" id="countdown-timer">
                                 <div class="countdown-label">⏰ Offer Ends In:</div>
@@ -457,11 +480,34 @@
 
                 .banner-features .feature-item {
                     background: rgba(255, 255, 255, 0.15);
-                    padding: 6px 12px;
+                    padding: 8px 12px;
                     border-radius: 15px;
                     backdrop-filter: blur(10px);
                     font-size: 0.85rem;
                     border: 1px solid rgba(255, 255, 255, 0.2);
+                    transition: all 0.3s ease;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 5px;
+                }
+
+                .feature-link {
+                    text-decoration: none;
+                    color: white;
+                }
+
+                .feature-link:hover {
+                    background: rgba(255, 255, 255, 0.25);
+                    transform: scale(1.05);
+                    border-color: rgba(255, 255, 255, 0.4);
+                }
+
+                .feature-icon {
+                    font-size: 1rem;
+                }
+
+                .feature-text {
+                    font-weight: 600;
                 }
 
                 .banner-right {
@@ -713,8 +759,13 @@
                     }
                     
                     .banner-features .feature-item {
-                        padding: 4px 8px;
+                        padding: 6px 10px;
                         font-size: 0.75rem;
+                        gap: 3px;
+                    }
+
+                    .feature-icon {
+                        font-size: 0.9rem;
                     }
                     
                     .banner-special-badge {
