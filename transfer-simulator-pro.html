@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="fpl-mobile-optimize.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Load FPL Data Service from player-data.html -->
+    <script src="fpl-api.js"></script>
     
     <style>
         * {
@@ -2663,7 +2665,6 @@
     </div>
 
     <script src="./index.js"></script>
-    <script src="./fpl-html-data-service.js"></script>
     <script>
         // Transfer Simulator Pro
         class TransferSimulatorPro {
@@ -2697,31 +2698,72 @@
 
             async loadPlayerData() {
                 try {
-                    const fplService = new FPLHtmlDataService();
+                    // Use the same FPL Data Service as player-data-enhanced.html
+                    const fplService = new FPLDataService();
+                    
+                    // Try to load real data first
+                    console.log('Loading player data using FPLDataService (same as player-data-enhanced.html)...');
                     const data = await fplService.getBootstrapData();
-                    this.allPlayers = data.elements;
-                    this.teams = data.teams;
                     
-                    // Log player count for verification
-                    console.log(`Loaded ${this.allPlayers.length} players from FPL API`);
+                    if (data && data.elements && data.elements.length > 0) {
+                        console.log('Successfully loaded live FPL data');
+                        
+                        // Store raw data
+                        this.allPlayers = data.elements;
+                        this.teams = data.teams;
+                        
+                        // Also store teams as lookup object for convenience
+                        this.teamsLookup = {};
+                        if (data.teams) {
+                            data.teams.forEach(team => {
+                                this.teamsLookup[team.id] = {
+                                    name: team.name,
+                                    short_name: team.short_name
+                                };
+                            });
+                        }
+                        
+                        // Log player count for verification
+                        console.log(`Loaded ${this.allPlayers.length} players from FPL API`);
+                        
+                        // Update status
+                        document.getElementById('lastUpdate').textContent = `Just now (${this.allPlayers.length} players)`;
+                        
+                        // Show notification
+                        this.showNotification(`✅ Loaded ${this.allPlayers.length} players successfully!`, 'success');
+                    } else {
+                        throw new Error('Invalid data structure received');
+                    }
                     
-                    // Update status
-                    document.getElementById('lastUpdate').textContent = `Just now (${this.allPlayers.length} players)`;
-                    
-                    // Show notification
-                    this.showNotification(`✅ Loaded ${this.allPlayers.length} players successfully!`, 'success');
                 } catch (error) {
-                    console.error('Error loading player data:', error);
-                    // Use mock data
-                    const fplService = new FPLHtmlDataService();
+                    console.error('Failed to load live data, using mock data:', error);
+                    
+                    // Use mock data as fallback (same as player-data-enhanced.html)
+                    const fplService = new FPLDataService();
                     const mockData = fplService.getMockBootstrapData();
-                    this.allPlayers = mockData.elements;
-                    this.teams = mockData.teams;
                     
-                    console.log(`Loaded ${this.allPlayers.length} players from cache`);
-                    document.getElementById('lastUpdate').textContent = `Using cached data (${this.allPlayers.length} players)`;
-                    
-                    this.showNotification(`📦 Using cached data with ${this.allPlayers.length} players`, 'info');
+                    if (mockData) {
+                        this.allPlayers = mockData.elements;
+                        this.teams = mockData.teams;
+                        
+                        // Also store teams as lookup object
+                        this.teamsLookup = {};
+                        if (mockData.teams) {
+                            mockData.teams.forEach(team => {
+                                this.teamsLookup[team.id] = {
+                                    name: team.name,
+                                    short_name: team.short_name
+                                };
+                            });
+                        }
+                        
+                        console.log(`Loaded ${this.allPlayers.length} players from mock data`);
+                        document.getElementById('lastUpdate').textContent = `Using cached data (${this.allPlayers.length} players)`;
+                        
+                        this.showNotification(`📦 Using cached data with ${this.allPlayers.length} players`, 'info');
+                    } else {
+                        this.showNotification('❌ Failed to load player data', 'error');
+                    }
                 }
             }
 
