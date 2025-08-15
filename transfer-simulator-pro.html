@@ -5208,6 +5208,16 @@
                     
                     if (cleaned && cleaned.length > 2) {
                         potentialNames.push(cleaned);
+                        
+                        // Also extract individual words as potential single names
+                        const words = cleaned.split(' ').filter(word => word.length >= 3);
+                        words.forEach(word => {
+                            // Skip common non-name words
+                            const wordLower = word.toLowerCase();
+                            if (!['the', 'and', 'for', 'with', 'from', 'bench', 'captain', 'vice', 'team', 'squad', 'points', 'player', 'game', 'week', 'total', 'your'].includes(wordLower)) {
+                                potentialNames.push(word);
+                            }
+                        });
                     }
                 });
             }
@@ -5271,12 +5281,16 @@
                         });
                     }
                     
-                    // Also try to extract just last names
+                    // Also try to extract individual words as potential single names
                     const words = line.split(/\s+/);
                     words.forEach(word => {
                         const cleaned = word.replace(/[^A-Za-z-']/g, '');
-                        if (cleaned.length > 2) {
-                            potentialNames.push(cleaned);
+                        if (cleaned.length >= 3 && cleaned.length <= 20) {
+                            // Skip common non-name words
+                            const cleanedLower = cleaned.toLowerCase();
+                            if (!['the', 'and', 'for', 'with', 'from', 'bench', 'captain', 'vice', 'team', 'squad', 'points', 'player', 'game', 'week', 'total', 'your'].includes(cleanedLower)) {
+                                potentialNames.push(cleaned);
+                            }
                         }
                     });
                 });
@@ -5367,32 +5381,68 @@
                     }
                 }
                 
-                // 4. Try last name match with higher confidence threshold
-                if (!matched && playerLookup.byLastName[nameLower]) {
-                    const candidates = playerLookup.byLastName[nameLower];
-                    // If only one player with this last name, match it
-                    if (candidates.length === 1) {
-                        const player = candidates[0];
-                        if (!matchedPlayerIds.has(player.id)) {
-                            matchedPlayerIds.add(player.id);
-                            detectedPlayers.push(player);
-                            console.log(`Matched by unique last name: ${name} -> ${player.first_name} ${player.second_name}`);
-                            matched = true;
+                // 4. Try single name matching (first or last name)
+                if (!matched && nameLower.length >= 3) {
+                    // Try last name match
+                    if (playerLookup.byLastName[nameLower]) {
+                        const candidates = playerLookup.byLastName[nameLower];
+                        // If only one player with this last name, match it
+                        if (candidates.length === 1) {
+                            const player = candidates[0];
+                            if (!matchedPlayerIds.has(player.id)) {
+                                matchedPlayerIds.add(player.id);
+                                detectedPlayers.push(player);
+                                console.log(`Matched by unique last name: ${name} -> ${player.first_name} ${player.second_name}`);
+                                matched = true;
+                            }
+                        } else if (candidates.length > 1) {
+                            // Multiple players with same last name, pick the one with highest ownership
+                            const best = candidates.sort((a, b) => {
+                                // Prioritize by ownership percentage (more likely to be in someone's team)
+                                const ownershipDiff = parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent);
+                                if (Math.abs(ownershipDiff) > 5) return ownershipDiff;
+                                // Then by total points
+                                return b.total_points - a.total_points;
+                            })[0];
+                            // Accept if ownership is high enough
+                            if (parseFloat(best.selected_by_percent) > 5) {
+                                if (!matchedPlayerIds.has(best.id)) {
+                                    matchedPlayerIds.add(best.id);
+                                    detectedPlayers.push(best);
+                                    console.log(`Matched by last name (best): ${name} -> ${best.first_name} ${best.second_name}`);
+                                    matched = true;
+                                }
+                            }
                         }
-                    } else if (candidates.length > 1) {
-                        // Multiple players with same last name, pick the one with highest ownership
-                        const best = candidates.sort((a, b) => {
-                            // Prioritize by ownership percentage (more likely to be in someone's team)
-                            const ownershipDiff = parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent);
-                            if (Math.abs(ownershipDiff) > 5) return ownershipDiff;
-                            // Then by total points
-                            return b.total_points - a.total_points;
-                        })[0];
-                        if (!matchedPlayerIds.has(best.id)) {
-                            matchedPlayerIds.add(best.id);
-                            detectedPlayers.push(best);
-                            console.log(`Matched by last name (best): ${name} -> ${best.first_name} ${best.second_name}`);
-                            matched = true;
+                    }
+                    
+                    // Try first name match if not matched yet
+                    if (!matched && playerLookup.byFirstName[nameLower]) {
+                        const candidates = playerLookup.byFirstName[nameLower];
+                        if (candidates.length === 1) {
+                            const player = candidates[0];
+                            if (!matchedPlayerIds.has(player.id)) {
+                                matchedPlayerIds.add(player.id);
+                                detectedPlayers.push(player);
+                                console.log(`Matched by unique first name: ${name} -> ${player.first_name} ${player.second_name}`);
+                                matched = true;
+                            }
+                        } else if (candidates.length > 1) {
+                            // For common first names, only match if ownership is very high
+                            const best = candidates.sort((a, b) => {
+                                const ownershipDiff = parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent);
+                                if (Math.abs(ownershipDiff) > 5) return ownershipDiff;
+                                return b.total_points - a.total_points;
+                            })[0];
+                            // Only accept if very popular player
+                            if (parseFloat(best.selected_by_percent) > 20) {
+                                if (!matchedPlayerIds.has(best.id)) {
+                                    matchedPlayerIds.add(best.id);
+                                    detectedPlayers.push(best);
+                                    console.log(`Matched by first name (popular): ${name} -> ${best.first_name} ${best.second_name}`);
+                                    matched = true;
+                                }
+                            }
                         }
                     }
                 }
