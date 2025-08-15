@@ -1581,6 +1581,7 @@
             align-items: center;
             justify-content: center;
             z-index: 10000;
+            overflow-y: auto;
             backdrop-filter: blur(10px);
         }
 
@@ -1890,6 +1891,111 @@
         }
 
         /* Responsive Updates for Advanced Features */
+        /* Floating Action Button */
+        .floating-menu {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .fab-main {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .fab-main:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .fab-menu {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .fab-menu.active {
+            display: flex;
+        }
+
+        .fab-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            color: #37003c;
+            border: 2px solid #667eea;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .fab-item:hover {
+            transform: scale(1.1);
+            background: #667eea;
+            color: white;
+        }
+
+        .fab-tooltip {
+            position: absolute;
+            right: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .fab-item:hover .fab-tooltip {
+            opacity: 1;
+        }
+
+        /* Quick Feature Button Hover Effects */
+        .quick-feature-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Advanced Features Panel Enhancement */
+        .advanced-features-panel {
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(240,240,255,0.98));
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 2px solid #667eea;
+        }
+
+        .advanced-features-panel h2 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
             .advanced-modal-content {
                 width: 95%;
@@ -1919,6 +2025,16 @@
                 flex-direction: column;
                 align-items: center;
             }
+
+            .floating-menu {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .fab-main {
+                width: 50px;
+                height: 50px;
+            }
         }
     </style>
 </head>
@@ -1933,6 +2049,32 @@
                 <span class="live-dot"></span>
                 <span>LIVE FPL DATA</span>
                 <span style="margin-left: 20px;">Last Update: <span id="lastUpdate">Just now</span></span>
+            </div>
+            
+            <!-- NEW: Quick Access Advanced Features Hero -->
+            <div class="advanced-features-hero" style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px; backdrop-filter: blur(10px);">
+                <h2 style="color: #00ff88; margin-bottom: 15px; font-size: 1.5rem;">🚀 Advanced AI Tools - Quick Access</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                    <button onclick="showPriceTracker()" class="quick-feature-btn" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                        💹 Price Alerts
+                    </button>
+                    <button onclick="showCaptainOptimizer()" class="quick-feature-btn" style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                        👑 Captain AI
+                    </button>
+                    <button onclick="showSquadComparison()" class="quick-feature-btn" style="background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                        ⚔️ Squad Compare
+                    </button>
+                    <button onclick="showStrategySimulator()" class="quick-feature-btn" style="background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                        🎮 Transfer Plan
+                    </button>
+                    <button onclick="showXGStats()" class="quick-feature-btn" style="background: linear-gradient(135deg, #fa709a, #fee140); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                        📊 xG Stats
+                    </button>
+                    <button onclick="showChipOptimizer()" class="quick-feature-btn" style="background: linear-gradient(135deg, #30cfd0, #330867); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                        🎯 Chip Strategy
+                    </button>
+                </div>
+                <p style="color: #fff; opacity: 0.9; margin-top: 10px; font-size: 0.9rem;">Click any tool above or scroll down for all 16 advanced features</p>
             </div>
         </div>
 
@@ -2483,6 +2625,35 @@
     
     <div class="loading-overlay" id="loadingOverlay" style="display: none;">
         <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Floating Action Button Menu -->
+    <div class="floating-menu">
+        <div class="fab-menu" id="fabMenu">
+            <button class="fab-item" onclick="showCaptainOptimizer()">
+                👑
+                <span class="fab-tooltip">Captain AI</span>
+            </button>
+            <button class="fab-item" onclick="showPriceTracker()">
+                💹
+                <span class="fab-tooltip">Price Tracker</span>
+            </button>
+            <button class="fab-item" onclick="showSquadComparison()">
+                ⚔️
+                <span class="fab-tooltip">Squad Compare</span>
+            </button>
+            <button class="fab-item" onclick="showStrategySimulator()">
+                🎮
+                <span class="fab-tooltip">Transfer Plan</span>
+            </button>
+            <button class="fab-item" onclick="showXGStats()">
+                📊
+                <span class="fab-tooltip">xG Stats</span>
+            </button>
+        </div>
+        <button class="fab-main" onclick="toggleFabMenu()">
+            🚀
+        </button>
     </div>
 
     <script src="./index.js"></script>
@@ -4734,39 +4905,64 @@
         // NEW ADVANCED FEATURE FUNCTIONS
         
         function showPriceTracker() {
-            if (!window.transferSimPro) return;
+            if (!window.transferSimPro) {
+                console.log('Transfer Simulator Pro not initialized');
+                return;
+            }
+            
+            // Ensure price tracker is initialized
+            if (!window.transferSimPro.priceTracker) {
+                window.transferSimPro.initializePriceTracker();
+            }
             
             const modal = document.createElement('div');
             modal.className = 'advanced-modal';
+            
+            // Get sample players for predictions
+            const samplePlayers = window.transferSimPro.allPlayers && window.transferSimPro.allPlayers.length > 0 
+                ? window.transferSimPro.allPlayers.slice(0, 6)
+                : [
+                    {first_name: 'Mohamed', second_name: 'Salah', transfers_in_event: 150000, transfers_out_event: 50000},
+                    {first_name: 'Erling', second_name: 'Haaland', transfers_in_event: 200000, transfers_out_event: 30000},
+                    {first_name: 'Cole', second_name: 'Palmer', transfers_in_event: 180000, transfers_out_event: 20000},
+                    {first_name: 'Bukayo', second_name: 'Saka', transfers_in_event: 90000, transfers_out_event: 60000},
+                    {first_name: 'Son', second_name: 'Heung-min', transfers_in_event: 40000, transfers_out_event: 80000},
+                    {first_name: 'Bruno', second_name: 'Fernandes', transfers_in_event: 60000, transfers_out_event: 70000}
+                ];
+            
             modal.innerHTML = `
                 <div class="modal-content advanced-modal-content">
-                    <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                    <span class="close-modal" onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: 20px; right: 20px; font-size: 2rem; cursor: pointer; color: #666;">&times;</span>
                     <h2>💹 Real-time Price Tracker</h2>
                     
                     <div class="price-tracker-content">
                         <h3>🔔 Price Alerts</h3>
-                        <div class="alert-list">
-                            ${window.transferSimPro.priceTracker.priceAlerts.length > 0 ? 
+                        <div class="alert-list" style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                            ${window.transferSimPro.priceTracker && window.transferSimPro.priceTracker.priceAlerts && window.transferSimPro.priceTracker.priceAlerts.length > 0 ? 
                                 window.transferSimPro.priceTracker.priceAlerts.map(alert => `
-                                    <div class="alert-item">
+                                    <div class="alert-item" style="padding: 10px; background: white; margin: 5px 0; border-radius: 5px;">
                                         Player ID: ${alert.playerId} | Target: £${(alert.targetPrice/10).toFixed(1)}m
                                     </div>
-                                `).join('') : '<p>No active price alerts</p>'
+                                `).join('') : '<p style="color: #666;">No active price alerts. Add players to track their prices!</p>'
                             }
                         </div>
                         
                         <h3 style="margin-top: 20px;">📈 Price Predictions</h3>
-                        <div class="prediction-grid">
-                            ${window.transferSimPro.allPlayers.slice(0, 6).map(player => {
+                        <div class="prediction-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            ${samplePlayers.map(player => {
                                 const prediction = window.transferSimPro.priceTracker.getPredictedChange(player);
                                 return `
-                                    <div class="prediction-card">
-                                        <div>${player.first_name} ${player.second_name}</div>
-                                        <div style="font-size: 1.5rem;">${prediction.direction}</div>
-                                        <div>Probability: ${prediction.probability}%</div>
+                                    <div class="prediction-card" style="background: white; padding: 15px; border-radius: 10px; text-align: center; border: 2px solid ${prediction.direction === '↑' ? '#28a745' : prediction.direction === '↓' ? '#dc3545' : '#ffc107'};">
+                                        <div style="font-weight: 600; margin-bottom: 10px;">${player.first_name} ${player.second_name}</div>
+                                        <div style="font-size: 2rem; color: ${prediction.direction === '↑' ? '#28a745' : prediction.direction === '↓' ? '#dc3545' : '#ffc107'};">${prediction.direction}</div>
+                                        <div style="color: #666;">Probability: ${prediction.probability}%</div>
                                     </div>
                                 `;
                             }).join('')}
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 10px;">
+                            <p style="margin: 0; color: #2e7d32;"><strong>💡 Tip:</strong> Players with high transfer activity (↑) are likely to rise in price soon!</p>
                         </div>
                     </div>
                 </div>
@@ -5069,7 +5265,15 @@
         }
         
         function showCaptainOptimizer() {
-            if (!window.transferSimPro) return;
+            if (!window.transferSimPro) {
+                console.log('Transfer Simulator Pro not initialized');
+                return;
+            }
+            
+            // Ensure captain optimizer is initialized
+            if (!window.transferSimPro.captainOptimizer) {
+                window.transferSimPro.initializeCaptainOptimizer();
+            }
             
             const captaincy = window.transferSimPro.captainOptimizer.optimizeCaptaincy();
             
@@ -5118,6 +5322,21 @@
             `;
             document.body.appendChild(modal);
         }
+
+        // Floating Action Button Toggle
+        function toggleFabMenu() {
+            const fabMenu = document.getElementById('fabMenu');
+            fabMenu.classList.toggle('active');
+        }
+
+        // Close FAB menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const fabMenu = document.getElementById('fabMenu');
+            const floatingMenu = document.querySelector('.floating-menu');
+            if (fabMenu && !floatingMenu.contains(e.target)) {
+                fabMenu.classList.remove('active');
+            }
+        });
 
         // Initialize
         window.transferSimPro = new TransferSimulatorPro();
