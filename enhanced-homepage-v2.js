@@ -581,10 +581,8 @@ function initNotifications() {
 }
 
 function simulateNotifications() {
-    setTimeout(() => {
-        updateNotificationCount(4);
-        showToast('New transfer rumor: Isak to Liverpool update!');
-    }, 10000);
+    // Disabled automatic popups for better user experience
+    // Users can still check notifications manually via the bell icon
 }
 
 function updateNotificationCount(count) {
@@ -594,6 +592,9 @@ function updateNotificationCount(count) {
 }
 
 function showToast(message) {
+    // Toast notifications disabled for better user experience
+    // Uncomment below to re-enable toast notifications
+    /*
     const toast = document.createElement('div');
     toast.className = 'toast-notification';
     toast.textContent = message;
@@ -610,6 +611,7 @@ function showToast(message) {
             document.body.removeChild(toast);
         }, 300);
     }, 5000);
+    */
 }
 
 // Performance Optimizations
