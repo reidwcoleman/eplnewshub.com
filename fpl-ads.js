@@ -90,51 +90,56 @@
         `;
     }
 
-    // Create big popup banner
-    function createBigBannerPopup() {
+    // Create big banner (not popup - full width banner)
+    function createBigBanner() {
         // Prioritize the premium bundle for maximum impact
         const premiumAd = fplAds.find(ad => ad.id === 'premium-bundle-ad') || fplAds.filter(ad => ad.priority === 1)[0] || fplAds[0];
         return `
-            <div class="fpl-big-banner-popup" id="fpl-big-banner-popup">
-                <div class="popup-overlay" onclick="closeBigBanner()"></div>
-                <div class="popup-content" style="background: ${premiumAd.color}">
-                    <button class="popup-close" onclick="closeBigBanner()">×</button>
-                    <div class="popup-inner">
-                        <div class="popup-icon">⚡</div>
-                        <h2 class="popup-title">${premiumAd.title}</h2>
-                        <p class="popup-subtitle">${premiumAd.subtitle}</p>
-                        <div class="popup-description">
-                            <p>${premiumAd.description}</p>
+            <div class="fpl-big-banner" id="fpl-big-banner" style="background: ${premiumAd.color}">
+                <div class="banner-container">
+                    <button class="banner-close" onclick="closeBigBanner()">×</button>
+                    <div class="banner-content">
+                        <div class="banner-left">
+                            <div class="banner-icon">⚡</div>
+                            <div class="banner-text">
+                                <h2 class="banner-title">${premiumAd.title}</h2>
+                                <p class="banner-subtitle">${premiumAd.subtitle}</p>
+                                <p class="banner-description">${premiumAd.description}</p>
+                            </div>
                         </div>
-                        <div class="popup-features">
-                            ${premiumAd.features.map(f => `<div class="feature-item">✨ ${f}</div>`).join('')}
-                        </div>
-                        <div class="countdown-timer" id="countdown-timer">
-                            <div class="countdown-label">⏰ Offer Ends In:</div>
-                            <div class="countdown-display">
-                                <div class="time-unit">
-                                    <span class="time-value" id="days">--</span>
-                                    <span class="time-label">Days</span>
-                                </div>
-                                <div class="time-unit">
-                                    <span class="time-value" id="hours">--</span>
-                                    <span class="time-label">Hours</span>
-                                </div>
-                                <div class="time-unit">
-                                    <span class="time-value" id="minutes">--</span>
-                                    <span class="time-label">Minutes</span>
-                                </div>
-                                <div class="time-unit">
-                                    <span class="time-value" id="seconds">--</span>
-                                    <span class="time-label">Seconds</span>
+                        <div class="banner-center">
+                            <div class="banner-features">
+                                ${premiumAd.features.map(f => `<div class="feature-item">✨ ${f}</div>`).join('')}
+                            </div>
+                            <div class="countdown-timer" id="countdown-timer">
+                                <div class="countdown-label">⏰ Offer Ends In:</div>
+                                <div class="countdown-display">
+                                    <div class="time-unit">
+                                        <span class="time-value" id="days">--</span>
+                                        <span class="time-label">Days</span>
+                                    </div>
+                                    <div class="time-unit">
+                                        <span class="time-value" id="hours">--</span>
+                                        <span class="time-label">Hours</span>
+                                    </div>
+                                    <div class="time-unit">
+                                        <span class="time-value" id="minutes">--</span>
+                                        <span class="time-label">Minutes</span>
+                                    </div>
+                                    <div class="time-unit">
+                                        <span class="time-value" id="seconds">--</span>
+                                        <span class="time-label">Seconds</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="popup-cta-group">
-                            <a href="${premiumAd.link}" class="popup-cta-primary">${premiumAd.cta}</a>
-                            <button class="popup-cta-secondary" onclick="closeBigBanner()">Maybe Later</button>
+                        <div class="banner-right">
+                            <div class="banner-cta-group">
+                                <a href="${premiumAd.link}" class="banner-cta-primary">${premiumAd.cta}</a>
+                                <button class="banner-cta-secondary" onclick="closeBigBanner()">Maybe Later</button>
+                            </div>
                         </div>
-                        ${premiumAd.special ? '<div class="popup-special-badge">🔥 LIMITED TIME OFFER - 50% OFF</div>' : ''}
+                        ${premiumAd.special ? '<div class="banner-special-badge">🔥 LIMITED TIME OFFER - 50% OFF</div>' : ''}
                     </div>
                 </div>
             </div>
@@ -143,13 +148,11 @@
 
     // Close big banner function
     window.closeBigBanner = function() {
-        const popup = document.getElementById('fpl-big-banner-popup');
-        if (popup) {
-            popup.classList.add('closing');
+        const banner = document.getElementById('fpl-big-banner');
+        if (banner) {
+            banner.classList.add('closing');
             setTimeout(() => {
-                popup.remove();
-                // Re-enable body scroll
-                document.body.style.overflow = '';
+                banner.remove();
             }, 300);
             // Banner will load again on next page load
         }
@@ -348,183 +351,179 @@
                     opacity: 0.9;
                 }
 
-                /* Big Banner Popup */
-                .fpl-big-banner-popup {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
+                /* Big Banner (Full Width) */
+                .fpl-big-banner {
                     width: 100%;
-                    height: 100%;
-                    z-index: 9999;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    animation: fadeIn 0.3s ease;
-                }
-
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-
-                .fpl-big-banner-popup.closing {
-                    animation: fadeOut 0.3s ease;
-                }
-
-                @keyframes fadeOut {
-                    from { opacity: 1; }
-                    to { opacity: 0; }
-                }
-
-                .popup-overlay {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0, 0, 0, 0.7);
-                    backdrop-filter: blur(5px);
-                }
-
-                .popup-content {
                     position: relative;
-                    max-width: 600px;
-                    width: 90%;
-                    max-height: 90vh;
-                    overflow-y: auto;
-                    border-radius: 20px;
-                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                    animation: slideUp 0.4s ease;
+                    z-index: 1000;
+                    color: white;
+                    margin: 0;
+                    padding: 0;
+                    animation: slideDown 0.5s ease;
                 }
 
-                @keyframes slideUp {
-                    from { transform: translateY(50px); opacity: 0; }
+                @keyframes slideDown {
+                    from { transform: translateY(-100%); opacity: 0; }
                     to { transform: translateY(0); opacity: 1; }
                 }
 
-                .popup-close {
+                .fpl-big-banner.closing {
+                    animation: slideUp 0.3s ease forwards;
+                }
+
+                @keyframes slideUp {
+                    from { transform: translateY(0); opacity: 1; }
+                    to { transform: translateY(-100%); opacity: 0; }
+                }
+
+                .banner-container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    position: relative;
+                    padding: 30px 20px;
+                }
+
+                .banner-close {
                     position: absolute;
                     top: 15px;
                     right: 15px;
                     background: rgba(255, 255, 255, 0.2);
                     border: none;
                     color: white;
-                    font-size: 30px;
-                    width: 40px;
-                    height: 40px;
+                    font-size: 24px;
+                    width: 35px;
+                    height: 35px;
                     border-radius: 50%;
                     cursor: pointer;
                     transition: all 0.3s ease;
                     z-index: 10;
                 }
 
-                .popup-close:hover {
+                .banner-close:hover {
                     background: rgba(255, 255, 255, 0.3);
                     transform: rotate(90deg);
                 }
 
-                .popup-inner {
-                    padding: 40px;
-                    color: white;
-                    text-align: center;
+                .banner-content {
+                    display: grid;
+                    grid-template-columns: 1fr 2fr 1fr;
+                    gap: 30px;
+                    align-items: center;
+                    position: relative;
                 }
 
-                .popup-icon {
-                    font-size: 4rem;
-                    margin-bottom: 20px;
-                    animation: bounce 2s infinite;
+                .banner-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
                 }
 
-                @keyframes bounce {
-                    0%, 100% { transform: translateY(0); }
-                    50% { transform: translateY(-10px); }
+                .banner-icon {
+                    font-size: 3rem;
+                    animation: pulse 2s infinite;
                 }
 
-                .popup-title {
-                    font-size: 2.5rem;
+                .banner-title {
+                    font-size: 1.8rem;
                     font-weight: 800;
-                    margin-bottom: 10px;
+                    margin: 0 0 5px 0;
                     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
                 }
 
-                .popup-subtitle {
-                    font-size: 1.2rem;
+                .banner-subtitle {
+                    font-size: 1rem;
                     opacity: 0.95;
+                    margin: 0 0 10px 0;
+                }
+
+                .banner-description {
+                    font-size: 0.9rem;
+                    opacity: 0.9;
+                    margin: 0;
+                    line-height: 1.4;
+                }
+
+                .banner-center {
+                    text-align: center;
+                }
+
+                .banner-features {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                    justify-content: center;
                     margin-bottom: 20px;
                 }
 
-                .popup-description {
-                    font-size: 1.1rem;
-                    line-height: 1.6;
-                    margin-bottom: 25px;
-                    opacity: 0.9;
-                }
-
-                .popup-features {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 15px;
-                    justify-content: center;
-                    margin-bottom: 30px;
-                }
-
-                .feature-item {
-                    background: rgba(255, 255, 255, 0.1);
-                    padding: 8px 15px;
-                    border-radius: 20px;
+                .banner-features .feature-item {
+                    background: rgba(255, 255, 255, 0.15);
+                    padding: 6px 12px;
+                    border-radius: 15px;
                     backdrop-filter: blur(10px);
-                    font-size: 0.95rem;
+                    font-size: 0.85rem;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
                 }
 
-                .popup-cta-group {
+                .banner-right {
+                    text-align: center;
+                }
+
+                .banner-cta-group {
                     display: flex;
-                    gap: 15px;
-                    justify-content: center;
-                    flex-wrap: wrap;
+                    flex-direction: column;
+                    gap: 12px;
+                    align-items: center;
                 }
 
-                .popup-cta-primary {
+                .banner-cta-primary {
                     background: rgba(255, 255, 255, 0.95);
                     color: #38003c;
-                    padding: 15px 35px;
-                    border-radius: 30px;
+                    padding: 12px 25px;
+                    border-radius: 25px;
                     text-decoration: none;
-                    font-weight: 800;
-                    font-size: 1.1rem;
+                    font-weight: 700;
+                    font-size: 1rem;
                     transition: all 0.3s ease;
-                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+                    width: 100%;
+                    max-width: 200px;
+                    display: block;
+                    text-align: center;
                 }
 
-                .popup-cta-primary:hover {
+                .banner-cta-primary:hover {
                     background: white;
                     transform: scale(1.05);
-                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
                 }
 
-                .popup-cta-secondary {
+                .banner-cta-secondary {
                     background: transparent;
                     color: white;
-                    padding: 15px 25px;
+                    padding: 10px 20px;
                     border: 2px solid rgba(255, 255, 255, 0.3);
-                    border-radius: 30px;
+                    border-radius: 25px;
                     font-weight: 600;
                     cursor: pointer;
                     transition: all 0.3s ease;
+                    font-size: 0.9rem;
+                    width: 100%;
+                    max-width: 200px;
                 }
 
-                .popup-cta-secondary:hover {
+                .banner-cta-secondary:hover {
                     background: rgba(255, 255, 255, 0.1);
                     border-color: rgba(255, 255, 255, 0.5);
                 }
 
-                .popup-special-badge {
+                .banner-special-badge {
                     position: absolute;
-                    top: 20px;
-                    left: 20px;
+                    top: 15px;
+                    left: 15px;
                     background: linear-gradient(135deg, #ff3366, #ff6633);
-                    padding: 8px 20px;
-                    border-radius: 20px;
-                    font-size: 0.85rem;
+                    padding: 6px 15px;
+                    border-radius: 15px;
+                    font-size: 0.75rem;
                     font-weight: 700;
                     animation: pulse 2s infinite;
                 }
@@ -677,22 +676,75 @@
                         width: 100%;
                     }
                     
-                    /* Countdown Timer Mobile */
-                    .countdown-display {
+                    /* Big Banner Mobile */
+                    .banner-container {
+                        padding: 20px 15px;
+                    }
+                    
+                    .banner-content {
+                        grid-template-columns: 1fr;
+                        gap: 20px;
+                        text-align: center;
+                    }
+                    
+                    .banner-left {
+                        flex-direction: column;
                         gap: 10px;
                     }
                     
-                    .time-unit {
-                        padding: 8px 12px;
-                        min-width: 50px;
+                    .banner-icon {
+                        font-size: 2.5rem;
                     }
                     
-                    .time-value {
+                    .banner-title {
                         font-size: 1.4rem;
                     }
                     
+                    .banner-subtitle {
+                        font-size: 0.9rem;
+                    }
+                    
+                    .banner-description {
+                        font-size: 0.8rem;
+                    }
+                    
+                    .banner-features {
+                        gap: 8px;
+                    }
+                    
+                    .banner-features .feature-item {
+                        padding: 4px 8px;
+                        font-size: 0.75rem;
+                    }
+                    
+                    .banner-special-badge {
+                        font-size: 0.65rem;
+                        padding: 4px 10px;
+                        top: 10px;
+                        left: 10px;
+                    }
+                    
+                    /* Countdown Timer Mobile */
+                    .countdown-display {
+                        gap: 8px;
+                    }
+                    
+                    .time-unit {
+                        padding: 6px 10px;
+                        min-width: 45px;
+                    }
+                    
+                    .time-value {
+                        font-size: 1.2rem;
+                    }
+                    
                     .time-label {
-                        font-size: 0.6rem;
+                        font-size: 0.55rem;
+                    }
+                    
+                    .countdown-label {
+                        font-size: 0.9rem;
+                        margin-bottom: 10px;
                     }
                 }
             </style>
@@ -735,37 +787,39 @@
         }
     }
 
-    // Insert big banner popup
-    function insertBigBannerPopup() {
-        // Banner will always load on every page visit
-        // Show popup after a delay (reduced to 1.5 seconds for better UX)
+    // Insert big banner (below header)
+    function insertBigBanner() {
+        // Only show on homepage (index.html)
+        const isHomepage = window.location.pathname === '/' || window.location.pathname === '/index.html';
+        if (!isHomepage) return;
+        
+        // Banner will always load on homepage visits
+        // Show banner after a delay (reduced to 1 second for better UX)
         setTimeout(() => {
-                // Remove any existing newsletter popups first
-                const existingPopups = document.querySelectorAll('.popup-overlay, #popupForm');
-                existingPopups.forEach(popup => popup.remove());
+                // Find header element to insert banner after it
+                const header = document.querySelector('.header, header, nav');
+                if (!header) return;
                 
-                const popupDiv = document.createElement('div');
-                popupDiv.innerHTML = createBigBannerPopup();
-                document.body.appendChild(popupDiv.firstElementChild);
+                const bannerDiv = document.createElement('div');
+                bannerDiv.innerHTML = createBigBanner();
                 
-                // Ensure body scroll is disabled when popup is shown
-                document.body.style.overflow = 'hidden';
+                // Insert banner after header
+                header.parentNode.insertBefore(bannerDiv.firstElementChild, header.nextSibling);
                 
                 // Track impression
-                trackAdEvent('impression', 'big-banner-popup');
+                trackAdEvent('impression', 'big-banner');
                 
                 // Add click tracking to CTA
-                const primaryCta = document.querySelector('.popup-cta-primary');
+                const primaryCta = document.querySelector('.banner-cta-primary');
                 if (primaryCta) {
                     primaryCta.addEventListener('click', function() {
-                        trackAdEvent('click', 'big-banner-popup');
-                        document.body.style.overflow = ''; // Re-enable scroll
+                        trackAdEvent('click', 'big-banner');
                     });
                 }
                 
                 // Start countdown timer
                 startCountdownTimer();
-            }, 1500); // Show after 1.5 seconds
+            }, 1000); // Show after 1 second
     }
 
 
@@ -868,7 +922,7 @@
         insertSidebarAds();
         insertBannerAd();
         insertFloatingAd();
-        insertBigBannerPopup(); // Restored - full-screen popup with countdown
+        insertBigBanner(); // Full-width banner below header (homepage only)
         attachAdListeners();
         rotateAds();
     }
