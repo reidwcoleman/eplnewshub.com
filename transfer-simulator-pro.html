@@ -249,8 +249,73 @@
 
         .player-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
+        }
+
+        .search-instructions {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 2px dashed #6f42c1;
+        }
+
+        .search-prompt h3 {
+            color: #37003c;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .search-prompt p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .search-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .position-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .position-btn {
+            background: linear-gradient(135deg, #6f42c1, #37003c);
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .position-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(111, 66, 193, 0.3);
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+        }
+
+        .position-emoji {
+            font-size: 2rem;
+        }
+
+        .position-btn span:last-child {
+            font-size: 1rem;
         }
 
         .market-player-card {
@@ -588,6 +653,36 @@
             .player-cards {
                 grid-template-columns: 1fr;
                 gap: 15px;
+            }
+            
+            .search-instructions {
+                padding: 25px 15px;
+            }
+            
+            .search-prompt h3 {
+                font-size: 1.4rem;
+            }
+            
+            .search-prompt p {
+                font-size: 1rem;
+            }
+            
+            .search-icon {
+                font-size: 3rem;
+            }
+            
+            .position-buttons {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .position-btn {
+                padding: 15px 10px;
+                font-size: 0.9rem;
+            }
+            
+            .position-emoji {
+                font-size: 1.5rem;
             }
             
             .market-player-card {
@@ -1568,8 +1663,34 @@
                         </div>
                     </div>
 
-                    <div class="player-cards" id="playerCards">
-                        <!-- Players will be loaded here -->
+                    <div class="search-instructions" id="searchInstructions">
+                        <div class="search-prompt">
+                            <div class="search-icon">🔍</div>
+                            <h3>Search for Players to Add to Your Squad</h3>
+                            <p>Use the search box above to find specific players, or click a position button below to browse by position:</p>
+                            <div class="position-buttons">
+                                <button class="position-btn" onclick="showPositionPlayers(1)">
+                                    <span class="position-emoji">🥅</span>
+                                    <span>Goalkeepers</span>
+                                </button>
+                                <button class="position-btn" onclick="showPositionPlayers(2)">
+                                    <span class="position-emoji">🛡️</span>
+                                    <span>Defenders</span>
+                                </button>
+                                <button class="position-btn" onclick="showPositionPlayers(3)">
+                                    <span class="position-emoji">⚽</span>
+                                    <span>Midfielders</span>
+                                </button>
+                                <button class="position-btn" onclick="showPositionPlayers(4)">
+                                    <span class="position-emoji">⚡</span>
+                                    <span>Forwards</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="player-cards" id="playerCards" style="display: none;">
+                        <!-- Players will be loaded here after search -->
                     </div>
                 </div>
 
@@ -1926,7 +2047,6 @@
                     const data = await fplService.getBootstrapData();
                     this.allPlayers = data.elements;
                     this.teams = data.teams;
-                    this.displayPlayers();
                     document.getElementById('lastUpdate').textContent = 'Just now';
                 } catch (error) {
                     console.error('Error loading player data:', error);
@@ -1935,7 +2055,6 @@
                     const mockData = fplService.getMockBootstrapData();
                     this.allPlayers = mockData.elements;
                     this.teams = mockData.teams;
-                    this.displayPlayers();
                     document.getElementById('lastUpdate').textContent = 'Using cached data';
                 }
             }
@@ -1995,14 +2114,84 @@
 
             displayPlayers() {
                 const container = document.getElementById('playerCards');
+                const instructionsContainer = document.getElementById('searchInstructions');
+                
                 const filteredPlayers = this.filterPlayers();
                 
+                // Check if there's an active search/filter
+                const hasActiveSearch = this.hasActiveSearchOrFilter();
+                
+                if (!hasActiveSearch || filteredPlayers.length === 0) {
+                    // Show instructions, hide results
+                    container.style.display = 'none';
+                    instructionsContainer.style.display = 'block';
+                    if (hasActiveSearch && filteredPlayers.length === 0) {
+                        this.showNoResultsMessage();
+                    }
+                    return;
+                }
+                
+                // Show results, hide instructions
+                container.style.display = 'grid';
+                instructionsContainer.style.display = 'none';
                 container.innerHTML = '';
                 
                 filteredPlayers.slice(0, 50).forEach(player => {
                     const card = this.createPlayerCard(player);
                     container.appendChild(card);
                 });
+            }
+
+            hasActiveSearchOrFilter() {
+                const position = document.getElementById('positionFilter').value;
+                const search = document.getElementById('searchPlayer').value.trim();
+                const maxPrice = parseInt(document.getElementById('priceFilter').value);
+                const minForm = parseFloat(document.getElementById('formFilter').value);
+                
+                return !!(position || search || maxPrice < 150 || minForm > 0);
+            }
+
+            showNoResultsMessage() {
+                const container = document.getElementById('playerCards');
+                container.style.display = 'block';
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                        <div style="font-size: 3rem; margin-bottom: 20px;">😔</div>
+                        <h3 style="color: #37003c; margin-bottom: 10px;">No Players Found</h3>
+                        <p style="color: #666;">Try adjusting your search criteria or browse by position.</p>
+                        <button onclick="clearAllFilters()" style="margin-top: 15px; padding: 10px 20px; background: #6f42c1; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            Clear All Filters
+                        </button>
+                    </div>
+                `;
+            }
+
+            showPositionPlayers(position) {
+                // Set the position filter
+                document.getElementById('positionFilter').value = position;
+                
+                // Clear other filters to show all players of this position
+                document.getElementById('searchPlayer').value = '';
+                document.getElementById('priceFilter').value = 150;
+                document.getElementById('formFilter').value = 0;
+                document.getElementById('priceValue').textContent = '£15.0m';
+                document.getElementById('formValue').textContent = '0.0';
+                
+                // Display players
+                this.displayPlayers();
+            }
+
+            clearAllFilters() {
+                document.getElementById('positionFilter').value = '';
+                document.getElementById('searchPlayer').value = '';
+                document.getElementById('priceFilter').value = 150;
+                document.getElementById('formFilter').value = 0;
+                document.getElementById('priceValue').textContent = '£15.0m';
+                document.getElementById('formValue').textContent = '0.0';
+                
+                // Hide results and show instructions
+                document.getElementById('playerCards').style.display = 'none';
+                document.getElementById('searchInstructions').style.display = 'block';
             }
 
             filterPlayers() {
@@ -2934,6 +3123,18 @@
         function showPriceChanges(type) {
             if (window.transferSimPro) {
                 window.transferSimPro.displayPriceChanges(type);
+            }
+        }
+
+        function showPositionPlayers(position) {
+            if (window.transferSimPro) {
+                window.transferSimPro.showPositionPlayers(position);
+            }
+        }
+
+        function clearAllFilters() {
+            if (window.transferSimPro) {
+                window.transferSimPro.clearAllFilters();
             }
         }
 
