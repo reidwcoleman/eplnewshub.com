@@ -132,8 +132,7 @@
                 // Redirect to homepage
                 window.location.href = '/';
             }, 300);
-            // Set cookie to not show again for 24 hours
-            document.cookie = "fplBannerClosed=true; max-age=86400; path=/";
+            // Cookie removed - banner will load again on next page load
         }
     };
 
@@ -653,13 +652,9 @@
 
     // Insert big banner popup
     function insertBigBannerPopup() {
-        // Check if cookie exists (user closed it recently)
-        const cookies = document.cookie.split(';');
-        const bannerClosed = cookies.some(cookie => cookie.trim().startsWith('fplBannerClosed='));
-        
-        if (!bannerClosed) {
-            // Show popup after a delay (reduced to 1.5 seconds for better UX)
-            setTimeout(() => {
+        // Banner will always load on every page visit
+        // Show popup after a delay (reduced to 1.5 seconds for better UX)
+        setTimeout(() => {
                 // Remove any existing newsletter popups first
                 const existingPopups = document.querySelectorAll('.popup-overlay, #popupForm');
                 existingPopups.forEach(popup => popup.remove());
@@ -683,7 +678,6 @@
                     });
                 }
             }, 1500); // Show after 1.5 seconds
-        }
     }
 
 
@@ -748,7 +742,7 @@
         insertSidebarAds();
         insertBannerAd();
         insertFloatingAd();
-        // insertBigBannerPopup(); // Disabled - big banner popup removed per user request
+        insertBigBannerPopup(); // Re-enabled - banner loads every time
         attachAdListeners();
         rotateAds();
     }
