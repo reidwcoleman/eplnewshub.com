@@ -109,6 +109,27 @@
                         <div class="popup-features">
                             ${premiumAd.features.map(f => `<div class="feature-item">✨ ${f}</div>`).join('')}
                         </div>
+                        <div class="countdown-timer" id="countdown-timer">
+                            <div class="countdown-label">⏰ Offer Ends In:</div>
+                            <div class="countdown-display">
+                                <div class="time-unit">
+                                    <span class="time-value" id="days">--</span>
+                                    <span class="time-label">Days</span>
+                                </div>
+                                <div class="time-unit">
+                                    <span class="time-value" id="hours">--</span>
+                                    <span class="time-label">Hours</span>
+                                </div>
+                                <div class="time-unit">
+                                    <span class="time-value" id="minutes">--</span>
+                                    <span class="time-label">Minutes</span>
+                                </div>
+                                <div class="time-unit">
+                                    <span class="time-value" id="seconds">--</span>
+                                    <span class="time-label">Seconds</span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="popup-cta-group">
                             <a href="${premiumAd.link}" class="popup-cta-primary">${premiumAd.cta}</a>
                             <button class="popup-cta-secondary" onclick="closeBigBanner()">Maybe Later</button>
@@ -508,6 +529,54 @@
                     animation: pulse 2s infinite;
                 }
 
+                /* Countdown Timer Styles */
+                .countdown-timer {
+                    margin: 25px 0;
+                    text-align: center;
+                }
+
+                .countdown-label {
+                    color: white;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    margin-bottom: 15px;
+                    opacity: 0.95;
+                }
+
+                .countdown-display {
+                    display: flex;
+                    justify-content: center;
+                    gap: 20px;
+                    flex-wrap: wrap;
+                }
+
+                .time-unit {
+                    background: rgba(255, 255, 255, 0.15);
+                    padding: 12px 16px;
+                    border-radius: 12px;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    min-width: 60px;
+                }
+
+                .time-value {
+                    display: block;
+                    font-size: 1.8rem;
+                    font-weight: 800;
+                    color: white;
+                    line-height: 1;
+                    margin-bottom: 4px;
+                }
+
+                .time-label {
+                    display: block;
+                    font-size: 0.7rem;
+                    color: rgba(255, 255, 255, 0.8);
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
                 /* Banner Ads */
                 .fpl-banner-ad {
                     border-radius: 12px;
@@ -607,6 +676,24 @@
                     .popup-cta-secondary {
                         width: 100%;
                     }
+                    
+                    /* Countdown Timer Mobile */
+                    .countdown-display {
+                        gap: 10px;
+                    }
+                    
+                    .time-unit {
+                        padding: 8px 12px;
+                        min-width: 50px;
+                    }
+                    
+                    .time-value {
+                        font-size: 1.4rem;
+                    }
+                    
+                    .time-label {
+                        font-size: 0.6rem;
+                    }
                 }
             </style>
         `;
@@ -675,6 +762,9 @@
                         document.body.style.overflow = ''; // Re-enable scroll
                     });
                 }
+                
+                // Start countdown timer
+                startCountdownTimer();
             }, 1500); // Show after 1.5 seconds
     }
 
@@ -697,6 +787,44 @@
                 });
             }
         }
+    }
+
+    // Countdown timer functionality
+    function startCountdownTimer() {
+        // Set the end date to 7 days from now
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + 7);
+        
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = endDate.getTime() - now;
+            
+            if (distance < 0) {
+                // Timer expired, reset to 7 days
+                endDate.setDate(new Date().getDate() + 7);
+                return;
+            }
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            // Update the countdown display
+            const daysEl = document.getElementById('days');
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+            
+            if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
+            if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+            if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+            if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+        }
+        
+        // Update immediately and then every second
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
     }
 
     // Track ad impressions and clicks
@@ -740,7 +868,7 @@
         insertSidebarAds();
         insertBannerAd();
         insertFloatingAd();
-        // insertBigBannerPopup(); // Removed - no full-screen popup
+        insertBigBannerPopup(); // Restored - full-screen popup with countdown
         attachAdListeners();
         rotateAds();
     }
