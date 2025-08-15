@@ -5141,6 +5141,23 @@
                     playerLookup.byCommonName[webName.replace('-', '')] = player;
                 }
                 
+                // Special handling for web_name with initials like M.Salah
+                if (webName.includes('.')) {
+                    // Add variations without the dot
+                    playerLookup.byCommonName[webName.replace('.', '')] = player;
+                    playerLookup.byCommonName[webName.replace('.', ' ')] = player;
+                    
+                    // For M.Salah specifically
+                    if (webName === 'm.salah') {
+                        playerLookup.byCommonName['mo salah'] = player;
+                        playerLookup.byCommonName['mosalah'] = player;
+                        playerLookup.byCommonName['mohamed salah'] = player;
+                        playerLookup.byCommonName['mohammed salah'] = player;
+                        playerLookup.byCommonName['m salah'] = player;
+                        playerLookup.byCommonName['salah'] = player;
+                    }
+                }
+                
                 // Add nickname variations for known players
                 const nicknames = {
                     'alexander-arnold': ['taa', 'trent', 'alexander arnold'],
@@ -5151,6 +5168,7 @@
                     'diogo j.': ['jota', 'diogo jota'],
                     'gabriel': ['gabriel m', 'gabriel magalhaes'],
                     'martinelli': ['gabriel martinelli', 'gabi'],
+                    'salah': ['mo salah', 'mohamed salah', 'm.salah', 'mo', 'mohamed', 'm salah', 'mo.salah', 'm. salah', 'mosalah', 'msalah', 'mohammed salah'],
                 };
                 
                 Object.entries(nicknames).forEach(([key, variations]) => {
@@ -5171,8 +5189,15 @@
                     const lineText = line.text || '';
                     console.log('Processing line:', lineText);
                     
-                    // Clean the line
-                    const cleaned = lineText
+                    // Clean the line but handle special cases first
+                    let cleaned = lineText;
+                    
+                    // Special handling for common patterns before cleaning
+                    if (cleaned.match(/^(Mo|M)\s+Salah/i) || cleaned.match(/^M\.\s*Salah/i)) {
+                        potentialNames.push('Mohamed Salah');
+                    }
+                    
+                    cleaned = cleaned
                         .replace(/[0-9]+\.[0-9]+/g, '') // Remove prices like 11.5
                         .replace(/£/g, '')
                         .replace(/\$/g, '')
@@ -5280,6 +5305,22 @@
                 corrected = corrected.replace(/Gord[0o]n/gi, 'Gordon');
                 corrected = corrected.replace(/S[0o]n/gi, 'Son');
                 corrected = corrected.replace(/Kulusevsk[il]/gi, 'Kulusevski');
+                // Additional common OCR errors
+                corrected = corrected.replace(/Jodo Pedro/gi, 'João Pedro');
+                corrected = corrected.replace(/Joao Pedro/gi, 'João Pedro');
+                corrected = corrected.replace(/Betano/gi, 'Beto');
+                corrected = corrected.replace(/Rash[if]ord/gi, 'Rashford');
+                corrected = corrected.replace(/Fernand[ae]s/gi, 'Fernandes');
+                corrected = corrected.replace(/McG[il]nn/gi, 'McGinn');
+                corrected = corrected.replace(/Mad[uü]eke/gi, 'Madueke');
+                corrected = corrected.replace(/Eze/gi, 'Eze');
+                corrected = corrected.replace(/Mitoma/gi, 'Mitoma');
+                // Handle Mo Salah and M.Salah variations
+                corrected = corrected.replace(/M\.\s*Salah/gi, 'Mohamed Salah');
+                corrected = corrected.replace(/Mo\s+Salah/gi, 'Mohamed Salah');
+                corrected = corrected.replace(/M\s+Salah/gi, 'Mohamed Salah');
+                corrected = corrected.replace(/A\.\s*Ramsey/gi, 'Aaron Ramsey');
+                corrected = corrected.replace(/J\.\s*Ramsey/gi, 'Jacob Ramsey');
                 return corrected;
             }
             
