@@ -3277,7 +3277,7 @@
 
             addPlayerFromImage(player) {
                 // Similar to addPlayer but doesn't show individual notifications
-                if (!player) return;
+                if (!player) return false;
 
                 const position = player.element_type;
                 const maxPlayers = { 1: 2, 2: 5, 3: 5, 4: 3 };
@@ -3308,7 +3308,11 @@
                 // Add to transfer history
                 this.addToHistory('in', player);
                 
-                // Update display (will be called once after all players added)
+                // Update squad display immediately for visual feedback
+                this.updateSquadDisplay();
+                this.updateDisplay();
+                
+                console.log(`Added ${player.first_name} ${player.second_name} to squad`);
                 return true;
             }
 
@@ -5433,7 +5437,12 @@ Mbeumo"></textarea>
         }
 
         function populateSquadFromImage(detectedPlayers) {
-            if (!window.transferSimPro) return;
+            if (!window.transferSimPro) {
+                console.error('Transfer simulator not initialized');
+                return;
+            }
+            
+            console.log(`Starting to populate squad with ${detectedPlayers.length} detected players`);
             
             // Reset current squad first
             window.transferSimPro.resetTeam();
@@ -5460,29 +5469,50 @@ Mbeumo"></textarea>
             // Add players to squad respecting formation limits
             const limits = { 1: 2, 2: 5, 3: 5, 4: 3 };
             let totalAdded = 0;
+            let successfullyAdded = [];
             
             Object.keys(playersByPosition).forEach(pos => {
                 const posNum = parseInt(pos);
                 const players = playersByPosition[pos];
                 const limit = limits[posNum];
                 
+                console.log(`Adding ${players.length} players for position ${posNum} (limit: ${limit})`);
+                
                 for (let i = 0; i < Math.min(players.length, limit); i++) {
                     if (totalAdded < 15) { // Max squad size
-                        window.transferSimPro.addPlayerFromImage(players[i]);
-                        totalAdded++;
+                        const added = window.transferSimPro.addPlayerFromImage(players[i]);
+                        if (added) {
+                            totalAdded++;
+                            successfullyAdded.push(players[i]);
+                        }
                     }
                 }
             });
             
-            // Show notification
-            window.transferSimPro.showNotification(
-                `📸 Imported ${totalAdded} players from screenshot!`,
-                'success'
-            );
-            
-            // Update displays
-            window.transferSimPro.updateDisplay();
-            window.transferSimPro.updateCharts();
+            // Final update to ensure everything is displayed
+            if (totalAdded > 0) {
+                // Force a complete refresh of displays
+                window.transferSimPro.updateSquadDisplay();
+                window.transferSimPro.updateDisplay();
+                window.transferSimPro.updateCharts();
+                
+                // Show detailed notification
+                const playerNames = successfullyAdded.slice(0, 5).map(p => p.second_name).join(', ');
+                const moreText = successfullyAdded.length > 5 ? ` and ${successfullyAdded.length - 5} more` : '';
+                
+                window.transferSimPro.showNotification(
+                    `📸 Added ${totalAdded} players: ${playerNames}${moreText}`,
+                    'success'
+                );
+                
+                console.log(`Successfully added ${totalAdded} players to squad`);
+            } else {
+                window.transferSimPro.showNotification(
+                    '❌ Could not add any players to squad',
+                    'error'
+                );
+                console.log('Failed to add any players to squad');
+            }
         }
 
         function optimizeTeam() {
