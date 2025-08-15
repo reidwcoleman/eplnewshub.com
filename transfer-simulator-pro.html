@@ -2809,9 +2809,49 @@
                             throw new Error('No valid data available');
                         }
                     } catch (fallbackError) {
-                        console.error('All methods failed:', fallbackError);
+                        console.error('All methods failed, trying player-data-2.html:', fallbackError);
                         
-                        // Last resort: Use mock data
+                        // Try loading from player-data-2.html file
+                        try {
+                            const timestamp = Date.now();
+                            const response = await fetch(`/player-data-2.html?t=${timestamp}`, {
+                                headers: {
+                                    'Cache-Control': 'no-cache',
+                                    'Pragma': 'no-cache'
+                                },
+                                cache: 'no-store'
+                            });
+                            
+                            if (response.ok) {
+                                const text = await response.text();
+                                const data = JSON.parse(text);
+                                
+                                if (data && data.elements && data.teams) {
+                                    this.allPlayers = data.elements;
+                                    this.teams = data.teams;
+                                    
+                                    this.teamsLookup = {};
+                                    data.teams.forEach(team => {
+                                        this.teamsLookup[team.id] = {
+                                            name: team.name,
+                                            short_name: team.short_name
+                                        };
+                                    });
+                                    
+                                    const now = new Date();
+                                    const timeString = now.toLocaleTimeString();
+                                    document.getElementById('lastUpdate').textContent = `Backup data at ${timeString} (${this.allPlayers.length} players)`;
+                                    
+                                    this.showNotification(`📂 Loaded ${this.allPlayers.length} players from backup file`, 'info');
+                                    console.log('Successfully loaded data from player-data-2.html');
+                                    return; // Exit early on success
+                                }
+                            }
+                        } catch (fileError) {
+                            console.error('Failed to load from player-data-2.html:', fileError);
+                        }
+                        
+                        // Last resort: Use mock data from FPLDataService
                         const fplService = new FPLDataService();
                         const mockData = fplService.getMockBootstrapData();
                         
