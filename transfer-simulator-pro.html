@@ -2054,6 +2054,9 @@
             <!-- NEW: Quick Access Advanced Features Hero -->
             <div class="advanced-features-hero" style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px; backdrop-filter: blur(10px);">
                 <h2 style="color: #00ff88; margin-bottom: 15px; font-size: 1.5rem;">🚀 Advanced AI Tools - Quick Access</h2>
+                <button onclick="testAllFeatures(); alert('Check browser console for feature status')" style="position: absolute; top: 20px; right: 20px; padding: 5px 10px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer; font-size: 0.8rem;">
+                    🧪 Test Features
+                </button>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
                     <button onclick="showPriceTracker()" class="quick-feature-btn" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
                         💹 Price Alerts
@@ -4278,16 +4281,23 @@
 
             // Initialize all advanced features when class is created
             initializeAllAdvancedSystems() {
-                this.initializeAIPredictionEngine();
-                this.initializePriceTracker();
-                this.initializeSquadComparison();
-                this.initializeFDRCalculator();
-                this.initializeStrategySimulator();
-                this.initializeAdvancedStats();
-                this.initializeCompetitorAnalysis();
-                this.initializeChipOptimizer();
-                this.initializeOwnershipAnalysis();
-                this.initializeCaptainOptimizer();
+                try {
+                    console.log('🚀 Initializing Advanced Systems...');
+                    this.initializeAIPredictionEngine();
+                    this.initializePriceTracker();
+                    this.initializeSquadComparison();
+                    this.initializeFDRCalculator();
+                    this.initializeStrategySimulator();
+                    this.initializeAdvancedStats();
+                    this.initializeCompetitorAnalysis();
+                    this.initializeChipOptimizer();
+                    this.initializeOwnershipAnalysis();
+                    this.initializeCaptainOptimizer();
+                    console.log('✅ All Advanced Systems Initialized Successfully');
+                } catch (error) {
+                    console.error('Error initializing advanced systems:', error);
+                    this.showNotification('Some advanced features may be limited', 'warning');
+                }
             }
 
             // 1. AI Prediction Engine with Machine Learning
@@ -5079,7 +5089,15 @@
         }
         
         function showSquadComparison() {
-            if (!window.transferSimPro) return;
+            if (!window.transferSimPro) {
+                console.log('Transfer Simulator Pro not initialized');
+                return;
+            }
+            
+            // Ensure squad comparison is initialized
+            if (!window.transferSimPro.squadComparison) {
+                window.transferSimPro.initializeSquadComparison();
+            }
             
             const comparison = window.transferSimPro.squadComparison.compareWithTop();
             const differentials = window.transferSimPro.squadComparison.findDifferentials();
@@ -5130,7 +5148,15 @@
         }
         
         function showFDRAnalysis() {
-            if (!window.transferSimPro) return;
+            if (!window.transferSimPro) {
+                console.log('Transfer Simulator Pro not initialized');
+                return;
+            }
+            
+            // Ensure FDR calculator is initialized
+            if (!window.transferSimPro.fdrCalculator) {
+                window.transferSimPro.initializeFDRCalculator();
+            }
             
             const modal = document.createElement('div');
             modal.className = 'advanced-modal';
@@ -5163,7 +5189,15 @@
         }
         
         function showStrategySimulator() {
-            if (!window.transferSimPro) return;
+            if (!window.transferSimPro) {
+                console.log('Transfer Simulator Pro not initialized');
+                return;
+            }
+            
+            // Ensure strategy simulator is initialized
+            if (!window.transferSimPro.strategySimulator) {
+                window.transferSimPro.initializeStrategySimulator();
+            }
             
             const strategy = window.transferSimPro.strategySimulator.simulateStrategy();
             
@@ -5217,7 +5251,15 @@
         }
         
         function showXGStats() {
-            if (!window.transferSimPro) return;
+            if (!window.transferSimPro) {
+                console.log('Transfer Simulator Pro not initialized');
+                return;
+            }
+            
+            // Ensure advanced stats are initialized
+            if (!window.transferSimPro.advancedStats) {
+                window.transferSimPro.initializeAdvancedStats();
+            }
             
             const modal = document.createElement('div');
             modal.className = 'advanced-modal';
@@ -5258,7 +5300,15 @@
         }
         
         function showCompetitorAnalysis() {
-            if (!window.transferSimPro) return;
+            if (!window.transferSimPro) {
+                console.log('Transfer Simulator Pro not initialized');
+                return;
+            }
+            
+            // Ensure competitor analysis is initialized
+            if (!window.transferSimPro.competitorAnalysis) {
+                window.transferSimPro.initializeCompetitorAnalysis();
+            }
             
             const analysis = window.transferSimPro.competitorAnalysis.analyzeRivals();
             
@@ -5299,7 +5349,15 @@
         }
         
         function showChipOptimizer() {
-            if (!window.transferSimPro) return;
+            if (!window.transferSimPro) {
+                console.log('Transfer Simulator Pro not initialized');
+                return;
+            }
+            
+            // Ensure chip optimizer is initialized
+            if (!window.transferSimPro.chipOptimizer) {
+                window.transferSimPro.initializeChipOptimizer();
+            }
             
             const recommendations = window.transferSimPro.chipOptimizer.optimizeChipTiming();
             
@@ -5329,7 +5387,15 @@
         }
         
         function showOwnershipHeatmap() {
-            if (!window.transferSimPro) return;
+            if (!window.transferSimPro) {
+                console.log('Transfer Simulator Pro not initialized');
+                return;
+            }
+            
+            // Ensure ownership analysis is initialized
+            if (!window.transferSimPro.ownershipAnalysis) {
+                window.transferSimPro.initializeOwnershipAnalysis();
+            }
             
             const heatmap = window.transferSimPro.ownershipAnalysis.generateHeatmap();
             const gems = window.transferSimPro.ownershipAnalysis.findHiddenGems();
@@ -5446,10 +5512,55 @@
             }
         });
 
+        // Debug function to test all features
+        function testAllFeatures() {
+            console.log('🧪 Testing All Advanced Features...');
+            
+            const features = [
+                'aiPredictor', 'priceTracker', 'squadComparison', 'fdrCalculator',
+                'strategySimulator', 'advancedStats', 'competitorAnalysis',
+                'chipOptimizer', 'ownershipAnalysis', 'captainOptimizer',
+                'chemistryCalculator', 'marketSentiment', 'wildcardPlanner',
+                'injuryRiskAssessment', 'historicalTrends', 'fixtureAnalyzer',
+                'performancePredictor'
+            ];
+            
+            let working = 0;
+            let failed = 0;
+            
+            features.forEach(feature => {
+                if (window.transferSimPro && window.transferSimPro[feature]) {
+                    console.log(`✅ ${feature} is initialized`);
+                    working++;
+                } else {
+                    console.log(`❌ ${feature} is NOT initialized`);
+                    failed++;
+                }
+            });
+            
+            console.log(`📊 Results: ${working} working, ${failed} failed out of ${features.length} features`);
+            
+            if (failed > 0) {
+                console.log('🔧 Attempting to fix failed features...');
+                window.transferSimPro.initializeAllAdvancedSystems();
+                window.transferSimPro.initializeAdvancedFeatures();
+            }
+            
+            return { working, failed, total: features.length };
+        }
+
         // Initialize
         window.transferSimPro = new TransferSimulatorPro();
         document.addEventListener('DOMContentLoaded', () => {
             window.transferSimPro.init();
+            
+            // Test features in development mode
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                setTimeout(() => {
+                    console.log('Running feature test in development mode...');
+                    testAllFeatures();
+                }, 2000);
+            }
         });
         // Animate transfer statistics on scroll
         function animateTransferStats() {
