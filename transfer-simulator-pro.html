@@ -5030,10 +5030,11 @@
                 await worker.loadLanguage('eng');
                 await worker.initialize('eng');
                 
-                // Configure for better accuracy
+                // Configure for better accuracy with FPL-specific settings
                 await worker.setParameters({
-                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .£',
+                    tessedit_pageseg_mode: '11', // Sparse text mode
                     preserve_interword_spaces: '1',
+                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .£àáâäèéêëìíîïñòóôöùúûüÁÉÍÓÚÑÇ', // Include accented chars for foreign names
                 });
                 
                 // Perform OCR
@@ -5095,12 +5096,23 @@
             const allPlayers = window.transferSimPro.allPlayers;
             const matchedPlayerIds = new Set();
             
+            // Common OCR mistakes to fix
+            const ocrCorrections = {
+                '0': 'O', 'O': '0',  // O/0 confusion
+                '1': 'I', 'I': '1', 'l': '1',  // I/1/l confusion
+                '5': 'S', 'S': '5',  // S/5 confusion
+                '8': 'B',  // 8/B confusion
+                'rn': 'm', 'm': 'rn',  // rn/m confusion
+                'vv': 'w', 'w': 'vv',  // w/vv confusion
+            };
+            
             // Create lookup maps for faster matching
             const playerLookup = {
                 byFullName: {},
                 byLastName: {},
                 byWebName: {},
-                byFirstName: {}
+                byFirstName: {},
+                byCommonName: {} // Add common variations
             };
             
             allPlayers.forEach(player => {
@@ -5110,13 +5122,44 @@
                 const webName = (player.web_name || '').toLowerCase();
                 
                 playerLookup.byFullName[fullName] = player;
+                playerLookup.byFullName[fullName.replace(/[^a-z]/g, '')] = player; // Without spaces/special chars
+                
                 playerLookup.byLastName[lastName] = playerLookup.byLastName[lastName] || [];
                 playerLookup.byLastName[lastName].push(player);
+                
                 playerLookup.byFirstName[firstName] = playerLookup.byFirstName[firstName] || [];
                 playerLookup.byFirstName[firstName].push(player);
+                
                 if (webName) {
                     playerLookup.byWebName[webName] = player;
+                    playerLookup.byWebName[webName.replace(/[^a-z]/g, '')] = player; // Without special chars
                 }
+                
+                // Add common name variations
+                if (webName.includes('-')) {
+                    // For hyphenated names, also index without hyphen
+                    playerLookup.byCommonName[webName.replace('-', '')] = player;
+                }
+                
+                // Add nickname variations for known players
+                const nicknames = {
+                    'alexander-arnold': ['taa', 'trent', 'alexander arnold'],
+                    'van dijk': ['vvd', 'vandijk'],
+                    'de bruyne': ['kdb', 'debruyne', 'kevin'],
+                    'son': ['sonny', 'son heung-min'],
+                    'fernandes': ['bruno'],
+                    'diogo j.': ['jota', 'diogo jota'],
+                    'gabriel': ['gabriel m', 'gabriel magalhaes'],
+                    'martinelli': ['gabriel martinelli', 'gabi'],
+                };
+                
+                Object.entries(nicknames).forEach(([key, variations]) => {
+                    if (webName.includes(key) || lastName.includes(key)) {
+                        variations.forEach(nick => {
+                            playerLookup.byCommonName[nick] = player;
+                        });
+                    }
+                });
             });
             
             // Process structured OCR data if available
@@ -5216,16 +5259,43 @@
             
             console.log('Potential player names found:', potentialNames);
             
+            // Function to apply OCR corrections
+            function applyOCRCorrections(text) {
+                let corrected = text;
+                // Fix common OCR mistakes
+                corrected = corrected.replace(/0degaard/gi, 'Odegaard');
+                corrected = corrected.replace(/5alah/gi, 'Salah');
+                corrected = corrected.replace(/5aka/gi, 'Saka');
+                corrected = corrected.replace(/Hal[il]and/gi, 'Haaland');
+                corrected = corrected.replace(/Watk[il]ns/gi, 'Watkins');
+                corrected = corrected.replace(/R[il]ce/gi, 'Rice');
+                corrected = corrected.replace(/Palm[ae]r/gi, 'Palmer');
+                corrected = corrected.replace(/F[0o]den/gi, 'Foden');
+                corrected = corrected.replace(/Mart[il]nez/gi, 'Martinez');
+                corrected = corrected.replace(/Gabr[il]el/gi, 'Gabriel');
+                corrected = corrected.replace(/[Il]sak/gi, 'Isak');
+                corrected = corrected.replace(/Tr[il]pp[il]er/gi, 'Trippier');
+                corrected = corrected.replace(/D[il]az/gi, 'Diaz');
+                corrected = corrected.replace(/Mbu?eu?mo/gi, 'Mbeumo');
+                corrected = corrected.replace(/Gord[0o]n/gi, 'Gordon');
+                corrected = corrected.replace(/S[0o]n/gi, 'Son');
+                corrected = corrected.replace(/Kulusevsk[il]/gi, 'Kulusevski');
+                return corrected;
+            }
+            
             // Match potential names with actual players
             potentialNames.forEach(name => {
                 if (!name || name.length < 2) return;
                 
-                const nameLower = name.toLowerCase().trim();
+                // Apply OCR corrections to the name
+                const correctedName = applyOCRCorrections(name);
+                const nameLower = correctedName.toLowerCase().trim();
+                const nameNoSpaces = nameLower.replace(/[^a-z]/g, '');
                 let matched = false;
                 
-                // 1. Try exact full name match
-                if (playerLookup.byFullName[nameLower]) {
-                    const player = playerLookup.byFullName[nameLower];
+                // 1. Try exact full name match (with and without spaces)
+                if (playerLookup.byFullName[nameLower] || playerLookup.byFullName[nameNoSpaces]) {
+                    const player = playerLookup.byFullName[nameLower] || playerLookup.byFullName[nameNoSpaces];
                     if (!matchedPlayerIds.has(player.id)) {
                         matchedPlayerIds.add(player.id);
                         detectedPlayers.push(player);
@@ -5234,9 +5304,20 @@
                     }
                 }
                 
-                // 2. Try web name match
-                if (!matched && playerLookup.byWebName[nameLower]) {
-                    const player = playerLookup.byWebName[nameLower];
+                // 2. Try common name variations
+                if (!matched && playerLookup.byCommonName[nameLower]) {
+                    const player = playerLookup.byCommonName[nameLower];
+                    if (!matchedPlayerIds.has(player.id)) {
+                        matchedPlayerIds.add(player.id);
+                        detectedPlayers.push(player);
+                        console.log(`Matched by common name: ${name} -> ${player.first_name} ${player.second_name}`);
+                        matched = true;
+                    }
+                }
+                
+                // 3. Try web name match (with and without spaces)
+                if (!matched && (playerLookup.byWebName[nameLower] || playerLookup.byWebName[nameNoSpaces])) {
+                    const player = playerLookup.byWebName[nameLower] || playerLookup.byWebName[nameNoSpaces];
                     if (!matchedPlayerIds.has(player.id)) {
                         matchedPlayerIds.add(player.id);
                         detectedPlayers.push(player);
@@ -5245,7 +5326,7 @@
                     }
                 }
                 
-                // 3. Try last name match
+                // 4. Try last name match with higher confidence threshold
                 if (!matched && playerLookup.byLastName[nameLower]) {
                     const candidates = playerLookup.byLastName[nameLower];
                     // If only one player with this last name, match it
@@ -5258,8 +5339,14 @@
                             matched = true;
                         }
                     } else if (candidates.length > 1) {
-                        // Multiple players with same last name, pick the one with most points
-                        const best = candidates.sort((a, b) => b.total_points - a.total_points)[0];
+                        // Multiple players with same last name, pick the one with highest ownership
+                        const best = candidates.sort((a, b) => {
+                            // Prioritize by ownership percentage (more likely to be in someone's team)
+                            const ownershipDiff = parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent);
+                            if (Math.abs(ownershipDiff) > 5) return ownershipDiff;
+                            // Then by total points
+                            return b.total_points - a.total_points;
+                        })[0];
                         if (!matchedPlayerIds.has(best.id)) {
                             matchedPlayerIds.add(best.id);
                             detectedPlayers.push(best);
@@ -5269,42 +5356,67 @@
                     }
                 }
                 
-                // 4. Try fuzzy matching for close matches
-                if (!matched) {
+                // 5. Try fuzzy matching for close matches (more conservative)
+                if (!matched && nameLower.length >= 4) { // Only for names with 4+ chars
                     const fuzzyMatches = allPlayers.filter(player => {
                         const fullName = `${player.first_name} ${player.second_name}`.toLowerCase();
                         const webName = (player.web_name || '').toLowerCase();
                         const lastName = player.second_name.toLowerCase();
                         
-                        // Check if the name contains the last name
-                        if (nameLower.includes(lastName) || lastName.includes(nameLower)) {
+                        // Skip if name is too short for reliable fuzzy matching
+                        if (lastName.length < 3) return false;
+                        
+                        // Check if the corrected name contains the last name (exact substring)
+                        if (nameLower.includes(lastName) && lastName.length >= 4) {
                             return true;
                         }
                         
-                        // Check Levenshtein distance for close matches
-                        if (levenshteinDistance(nameLower, lastName) <= 2 ||
-                            levenshteinDistance(nameLower, webName) <= 2 ||
-                            levenshteinDistance(nameLower, fullName) <= 3) {
+                        // Check Levenshtein distance but be more strict
+                        const lastNameDistance = levenshteinDistance(nameLower, lastName);
+                        const webNameDistance = levenshteinDistance(nameLower, webName);
+                        
+                        // Only allow 1 character difference for short names, 2 for longer names
+                        const maxDistance = nameLower.length <= 5 ? 1 : 2;
+                        
+                        if (lastNameDistance <= maxDistance || webNameDistance <= maxDistance) {
                             return true;
                         }
                         
                         return false;
                     });
                     
-                    if (fuzzyMatches.length > 0) {
-                        // Sort by total points and selected percentage
-                        fuzzyMatches.sort((a, b) => {
-                            const scoreA = b.total_points + (b.selected_by_percent * 10);
-                            const scoreB = a.total_points + (a.selected_by_percent * 10);
-                            return scoreA - scoreB;
-                        });
-                        
+                    if (fuzzyMatches.length === 1) {
+                        // Only one fuzzy match - likely correct
                         const best = fuzzyMatches[0];
                         if (!matchedPlayerIds.has(best.id)) {
                             matchedPlayerIds.add(best.id);
                             detectedPlayers.push(best);
-                            console.log(`Fuzzy matched: ${name} -> ${best.first_name} ${best.second_name}`);
+                            console.log(`Fuzzy matched (single): ${name} -> ${best.first_name} ${best.second_name}`);
                         }
+                    } else if (fuzzyMatches.length > 1 && fuzzyMatches.length <= 3) {
+                        // Multiple fuzzy matches - pick based on ownership (more likely to be in a team)
+                        fuzzyMatches.sort((a, b) => {
+                            // Heavy weight on ownership for disambiguation
+                            return (parseFloat(b.selected_by_percent) * 100 + b.total_points) - 
+                                   (parseFloat(a.selected_by_percent) * 100 + a.total_points);
+                        });
+                        
+                        const best = fuzzyMatches[0];
+                        const secondBest = fuzzyMatches[1];
+                        
+                        // Only accept if there's a clear winner (significantly higher ownership)
+                        if (parseFloat(best.selected_by_percent) > parseFloat(secondBest.selected_by_percent) * 2) {
+                            if (!matchedPlayerIds.has(best.id)) {
+                                matchedPlayerIds.add(best.id);
+                                detectedPlayers.push(best);
+                                console.log(`Fuzzy matched (best of ${fuzzyMatches.length}): ${name} -> ${best.first_name} ${best.second_name}`);
+                            }
+                        } else {
+                            console.log(`Skipping ambiguous fuzzy match for: ${name} (${fuzzyMatches.length} candidates)`);
+                        }
+                    } else if (fuzzyMatches.length > 3) {
+                        // Too many matches - likely unreliable
+                        console.log(`Too many fuzzy matches for: ${name} (${fuzzyMatches.length} candidates) - skipping`);
                     }
                 }
             });
