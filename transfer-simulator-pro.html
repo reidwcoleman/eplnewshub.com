@@ -5232,9 +5232,19 @@
                             // Clean up the word
                             const cleanWord = word.replace(/[^a-zA-Z'-]/g, '').trim();
                             if (cleanWord.length >= 3) {
-                                // Skip common non-name words
+                                // Skip common non-name words and team abbreviations
                                 const wordLower = cleanWord.toLowerCase();
-                                if (!['the', 'and', 'for', 'with', 'from', 'bench', 'captain', 'vice', 'team', 'squad', 'points', 'player', 'game', 'week', 'total', 'your', 'free', 'hit', 'wildcard', 'boost', 'triple', 'chips', 'transfers', 'bank'].includes(wordLower)) {
+                                
+                                // Team abbreviations (3-letter codes)
+                                const teamCodes = ['ars', 'avl', 'bha', 'bre', 'bur', 'che', 'cry', 'eve', 'ful', 'liv', 'lut', 'mci', 'mun', 'new', 'nfo', 'shu', 'tot', 'whu', 'wol', 'lei', 
+                                                  // Also common variations
+                                                  'bou', 'lee', 'sou', 'wat', 'nor', 'bri', 'mid', 'hul', 'ips', 'pne', 'qpr', 'swa', 'car', 'sto', 'wba', 'der', 'rea'];
+                                
+                                // Skip if it's a team code (especially 3-letter ones)
+                                if (teamCodes.includes(wordLower) || 
+                                    (cleanWord.length === 3 && cleanWord === cleanWord.toUpperCase())) {
+                                    // Skip team codes
+                                } else if (!['the', 'and', 'for', 'with', 'from', 'bench', 'captain', 'vice', 'team', 'squad', 'points', 'player', 'game', 'week', 'total', 'your', 'free', 'hit', 'wildcard', 'boost', 'triple', 'chips', 'transfers', 'bank', 'gkp', 'def', 'mid', 'fwd'].includes(wordLower)) {
                                     potentialNames.push(cleanWord);
                                     // Also try without apostrophes or hyphens
                                     if (cleanWord.includes("'") || cleanWord.includes('-')) {
@@ -5311,9 +5321,17 @@
                     words.forEach(word => {
                         const cleaned = word.replace(/[^A-Za-z-']/g, '');
                         if (cleaned.length >= 3 && cleaned.length <= 20) {
-                            // Skip common non-name words
+                            // Skip common non-name words and team abbreviations
                             const cleanedLower = cleaned.toLowerCase();
-                            if (!['the', 'and', 'for', 'with', 'from', 'bench', 'captain', 'vice', 'team', 'squad', 'points', 'player', 'game', 'week', 'total', 'your'].includes(cleanedLower)) {
+                            
+                            // Team abbreviations
+                            const teamCodes = ['ars', 'avl', 'bha', 'bre', 'bur', 'che', 'cry', 'eve', 'ful', 'liv', 'lut', 'mci', 'mun', 'new', 'nfo', 'shu', 'tot', 'whu', 'wol', 'lei', 
+                                              'bou', 'lee', 'sou', 'wat', 'nor', 'bri', 'mid', 'hul', 'ips', 'pne', 'qpr', 'swa', 'car', 'sto', 'wba', 'der', 'rea'];
+                            
+                            // Skip team codes and common words  
+                            if (!teamCodes.includes(cleanedLower) && 
+                                !(cleaned.length === 3 && cleaned === cleaned.toUpperCase()) &&
+                                !['the', 'and', 'for', 'with', 'from', 'bench', 'captain', 'vice', 'team', 'squad', 'points', 'player', 'game', 'week', 'total', 'your', 'gkp', 'def', 'mid', 'fwd'].includes(cleanedLower)) {
                                 potentialNames.push(cleaned);
                             }
                         }
@@ -5442,9 +5460,21 @@
                 return corrected;
             }
             
-            // Remove duplicates from potential names
-            const uniqueNames = [...new Set(potentialNames)];
-            console.log('Total unique names to check:', uniqueNames.length);
+            // Remove duplicates and filter out team codes from potential names
+            const teamCodes = ['ars', 'avl', 'bha', 'bre', 'bur', 'che', 'cry', 'eve', 'ful', 'liv', 'lut', 'mci', 'mun', 'new', 'nfo', 'shu', 'tot', 'whu', 'wol', 'lei', 
+                              'bou', 'lee', 'sou', 'wat', 'nor', 'bri', 'mid', 'hul', 'ips', 'pne', 'qpr', 'swa', 'car', 'sto', 'wba', 'der', 'rea',
+                              // Additional position codes
+                              'gkp', 'def', 'mid', 'fwd', 'gk'];
+            
+            const uniqueNames = [...new Set(potentialNames)].filter(name => {
+                const nameLower = name.toLowerCase();
+                // Filter out team codes and 3-letter uppercase abbreviations
+                return !teamCodes.includes(nameLower) && 
+                       !(name.length === 3 && name === name.toUpperCase()) &&
+                       !(name.length === 2 && name === name.toUpperCase()); // Also skip 2-letter codes
+            });
+            
+            console.log('Total unique names to check (after filtering team codes):', uniqueNames.length);
             console.log('Sample names:', uniqueNames.slice(0, 20));
             
             // Match potential names with actual players
