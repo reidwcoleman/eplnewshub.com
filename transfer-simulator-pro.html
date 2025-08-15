@@ -2720,6 +2720,12 @@
             }
 
             async loadPlayerData() {
+                // Ensure fetch is not overridden before we start
+                if (window.originalFetch) {
+                    window.fetch = window.originalFetch;
+                    window.originalFetch = null;
+                }
+                
                 try {
                     // Add timestamp to bypass cache
                     const timestamp = Date.now();
@@ -2784,13 +2790,29 @@
                     try {
                         const fplService = new FPLDataService();
                         
-                        // Override the fetch to bypass cache
-                        const originalFetch = window.fetch;
+                        // Store original fetch if not already stored
+                        if (!window.originalFetch) {
+                            window.originalFetch = window.fetch;
+                        }
+                        
+                        // Override the fetch to bypass cache (but not for blob URLs)
                         window.fetch = function(url, options = {}) {
-                            const timestamp = Date.now();
-                            const urlWithTimestamp = url.includes('?') ? `${url}&t=${timestamp}` : `${url}?t=${timestamp}`;
+                            // Don't modify blob URLs, data URLs, or local files
+                            if (typeof url === 'string' && (
+                                url.startsWith('blob:') || 
+                                url.startsWith('data:') ||
+                                url.startsWith('file:') ||
+                                url.includes('localhost') ||
+                                !url.includes('fantasy.premierleague.com')
+                            )) {
+                                return window.originalFetch(url, options);
+                            }
                             
-                            return originalFetch(urlWithTimestamp, {
+                            const timestamp = Date.now();
+                            const urlString = typeof url === 'string' ? url : url.toString();
+                            const urlWithTimestamp = urlString.includes('?') ? `${urlString}&t=${timestamp}` : `${urlString}?t=${timestamp}`;
+                            
+                            return window.originalFetch(urlWithTimestamp, {
                                 ...options,
                                 headers: {
                                     ...options.headers,
@@ -2803,8 +2825,8 @@
                         
                         const data = await fplService.getBootstrapData();
                         
-                        // Restore original fetch
-                        window.fetch = originalFetch;
+                        // Restore original fetch immediately
+                        window.fetch = window.originalFetch;
                         
                         if (data && data.elements) {
                             this.allPlayers = data.elements;
@@ -4985,6 +5007,11 @@
             }
             
             try {
+                // Ensure we're using the original fetch for OCR
+                if (window.originalFetch) {
+                    window.fetch = window.originalFetch;
+                }
+                
                 // Create image URL
                 const imageUrl = URL.createObjectURL(file);
                 
