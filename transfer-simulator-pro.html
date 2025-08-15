@@ -5338,8 +5338,13 @@
                 return corrected;
             }
             
+            // Remove duplicates from potential names
+            const uniqueNames = [...new Set(potentialNames)];
+            console.log('Total unique names to check:', uniqueNames.length);
+            console.log('Sample names:', uniqueNames.slice(0, 20));
+            
             // Match potential names with actual players
-            potentialNames.forEach(name => {
+            uniqueNames.forEach(name => {
                 if (!name || name.length < 2) return;
                 
                 // Apply OCR corrections to the name
@@ -5381,12 +5386,12 @@
                     }
                 }
                 
-                // 4. Try single name matching (first or last name)
+                // 4. Try single name matching (prioritize last names)
                 if (!matched && nameLower.length >= 3) {
-                    // Try last name match
+                    // Try last name match FIRST (most reliable)
                     if (playerLookup.byLastName[nameLower]) {
                         const candidates = playerLookup.byLastName[nameLower];
-                        // If only one player with this last name, match it
+                        // If only one player with this last name, match it immediately
                         if (candidates.length === 1) {
                             const player = candidates[0];
                             if (!matchedPlayerIds.has(player.id)) {
@@ -5400,16 +5405,16 @@
                             const best = candidates.sort((a, b) => {
                                 // Prioritize by ownership percentage (more likely to be in someone's team)
                                 const ownershipDiff = parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent);
-                                if (Math.abs(ownershipDiff) > 5) return ownershipDiff;
+                                if (Math.abs(ownershipDiff) > 2) return ownershipDiff;
                                 // Then by total points
                                 return b.total_points - a.total_points;
                             })[0];
-                            // Accept if ownership is high enough
-                            if (parseFloat(best.selected_by_percent) > 5) {
+                            // Lower threshold - accept even less popular players
+                            if (parseFloat(best.selected_by_percent) > 1 || best.total_points > 10) {
                                 if (!matchedPlayerIds.has(best.id)) {
                                     matchedPlayerIds.add(best.id);
                                     detectedPlayers.push(best);
-                                    console.log(`Matched by last name (best): ${name} -> ${best.first_name} ${best.second_name}`);
+                                    console.log(`Matched by last name (best): ${name} -> ${best.first_name} ${best.second_name} (${best.selected_by_percent}% owned)`);
                                     matched = true;
                                 }
                             }
