@@ -120,7 +120,7 @@
         `;
     }
 
-    // Close big banner function - redirects to homepage
+    // Close big banner function
     window.closeBigBanner = function() {
         const popup = document.getElementById('fpl-big-banner-popup');
         if (popup) {
@@ -129,10 +129,8 @@
                 popup.remove();
                 // Re-enable body scroll
                 document.body.style.overflow = '';
-                // Redirect to homepage
-                window.location.href = '/';
             }, 300);
-            // Cookie removed - banner will load again on next page load
+            // Banner will load again on next page load
         }
     };
 
