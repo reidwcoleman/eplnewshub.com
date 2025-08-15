@@ -5227,12 +5227,20 @@
                         potentialNames.push(cleaned);
                         
                         // Also extract individual words as potential single names
-                        const words = cleaned.split(' ').filter(word => word.length >= 3);
+                        const words = cleaned.split(/[\s,;]+/).filter(word => word.length >= 3);
                         words.forEach(word => {
-                            // Skip common non-name words
-                            const wordLower = word.toLowerCase();
-                            if (!['the', 'and', 'for', 'with', 'from', 'bench', 'captain', 'vice', 'team', 'squad', 'points', 'player', 'game', 'week', 'total', 'your', 'free', 'hit', 'wildcard', 'boost', 'triple'].includes(wordLower)) {
-                                potentialNames.push(word);
+                            // Clean up the word
+                            const cleanWord = word.replace(/[^a-zA-Z'-]/g, '').trim();
+                            if (cleanWord.length >= 3) {
+                                // Skip common non-name words
+                                const wordLower = cleanWord.toLowerCase();
+                                if (!['the', 'and', 'for', 'with', 'from', 'bench', 'captain', 'vice', 'team', 'squad', 'points', 'player', 'game', 'week', 'total', 'your', 'free', 'hit', 'wildcard', 'boost', 'triple', 'chips', 'transfers', 'bank'].includes(wordLower)) {
+                                    potentialNames.push(cleanWord);
+                                    // Also try without apostrophes or hyphens
+                                    if (cleanWord.includes("'") || cleanWord.includes('-')) {
+                                        potentialNames.push(cleanWord.replace(/['-]/g, ''));
+                                    }
+                                }
                             }
                         });
                     }
@@ -5346,12 +5354,91 @@
                 corrected = corrected.replace(/Mad[uü]eke/gi, 'Madueke');
                 corrected = corrected.replace(/Eze/gi, 'Eze');
                 corrected = corrected.replace(/Mitoma/gi, 'Mitoma');
+                
+                // Common OCR misreads for specific players
+                corrected = corrected.replace(/Alisson/gi, 'Alisson');
+                corrected = corrected.replace(/A[l1]isson/gi, 'Alisson');
+                corrected = corrected.replace(/Ha[a@]land/gi, 'Haaland');
+                corrected = corrected.replace(/Tr[il1]pp[il1]er/gi, 'Trippier');
+                corrected = corrected.replace(/Wh[il1]te/gi, 'White');
+                corrected = corrected.replace(/Cancelo/gi, 'Cancelo');
+                corrected = corrected.replace(/Z[il1]nchenko/gi, 'Zinchenko');
+                corrected = corrected.replace(/T[il1]mber/gi, 'Timber');
+                corrected = corrected.replace(/Konat[eé]/gi, 'Konate');
+                corrected = corrected.replace(/Gvard[il1]ol/gi, 'Gvardiol');
+                corrected = corrected.replace(/Cucu?rella/gi, 'Cucurella');
+                corrected = corrected.replace(/Estup[il1]nan/gi, 'Estupinan');
+                corrected = corrected.replace(/Bot?man/gi, 'Botman');
+                corrected = corrected.replace(/Sal[il1]ba/gi, 'Saliba');
+                corrected = corrected.replace(/M[il1]ngs/gi, 'Mings');
+                corrected = corrected.replace(/K[il1]lman/gi, 'Kilman');
+                corrected = corrected.replace(/Gueh[il1]/gi, 'Guehi');
+                corrected = corrected.replace(/D[il1]gne/gi, 'Digne');
+                corrected = corrected.replace(/Rodr[il1]/gi, 'Rodri');
+                corrected = corrected.replace(/Ca[il1]cedo/gi, 'Caicedo');
+                corrected = corrected.replace(/Szoboszla[il1]/gi, 'Szoboszlai');
+                corrected = corrected.replace(/Mad?dison/gi, 'Maddison');
+                corrected = corrected.replace(/B[il1]ssouma/gi, 'Bissouma');
+                corrected = corrected.replace(/T[il1]elemans/gi, 'Tielemans');
+                corrected = corrected.replace(/Nd[il1]d[il1]/gi, 'Ndidi');
+                corrected = corrected.replace(/Doucour[eé]/gi, 'Doucoure');
+                corrected = corrected.replace(/Ba[il1]ley/gi, 'Bailey');
+                corrected = corrected.replace(/Douglas Lu[il1]z/gi, 'Douglas Luiz');
+                corrected = corrected.replace(/G[il1]bbs.?Wh[il1]te/gi, 'Gibbs-White');
+                corrected = corrected.replace(/Johnson/gi, 'Johnson');
+                corrected = corrected.replace(/Elanga/gi, 'Elanga');
+                corrected = corrected.replace(/W[il1]lson/gi, 'Wilson');
+                corrected = corrected.replace(/Vardy/gi, 'Vardy');
+                corrected = corrected.replace(/Jesus/gi, 'Jesus');
+                corrected = corrected.replace(/F[il1]rm[il1]no/gi, 'Firmino');
+                corrected = corrected.replace(/Nunez/gi, 'Nunez');
+                corrected = corrected.replace(/N[uú]n?ez/gi, 'Nunez');
+                corrected = corrected.replace(/Gakpo/gi, 'Gakpo');
+                corrected = corrected.replace(/Toney/gi, 'Toney');
+                corrected = corrected.replace(/W[il1]ssa/gi, 'Wissa');
+                corrected = corrected.replace(/Bamford/gi, 'Bamford');
+                corrected = corrected.replace(/Rodr[il1]go/gi, 'Rodrigo');
+                corrected = corrected.replace(/Greenwood/gi, 'Greenwood');
+                corrected = corrected.replace(/Sancho/gi, 'Sancho');
+                corrected = corrected.replace(/Antony/gi, 'Antony');
+                corrected = corrected.replace(/Garnacho/gi, 'Garnacho');
+                corrected = corrected.replace(/Mart[il1]al/gi, 'Martial');
+                corrected = corrected.replace(/Sterl[il1]ng/gi, 'Sterling');
+                corrected = corrected.replace(/Mudryk/gi, 'Mudryk');
+                corrected = corrected.replace(/Z[il1]yech/gi, 'Ziyech');
+                corrected = corrected.replace(/Pul[il1]s[il1]c/gi, 'Pulisic');
+                corrected = corrected.replace(/R[il1]charl[il1]son/gi, 'Richarlison');
+                corrected = corrected.replace(/Per[il1]s[il1]c/gi, 'Perisic');
+                corrected = corrected.replace(/Solomon/gi, 'Solomon');
+                corrected = corrected.replace(/Werner/gi, 'Werner');
+                corrected = corrected.replace(/[AÁ]lvarez/gi, 'Alvarez');
+                corrected = corrected.replace(/Greal[il1]sh/gi, 'Grealish');
+                corrected = corrected.replace(/Doku/gi, 'Doku');
+                corrected = corrected.replace(/Bernardo/gi, 'Bernardo');
+                corrected = corrected.replace(/Mahrez/gi, 'Mahrez');
+                corrected = corrected.replace(/Bowen/gi, 'Bowen');
+                corrected = corrected.replace(/Anton[il1]o/gi, 'Antonio');
+                corrected = corrected.replace(/Benrahma/gi, 'Benrahma');
+                corrected = corrected.replace(/Paquet[aá]/gi, 'Paqueta');
+                corrected = corrected.replace(/Kudus/gi, 'Kudus');
+                corrected = corrected.replace(/Ward.?Prowse/gi, 'Ward-Prowse');
+                corrected = corrected.replace(/[Il1]ngs/gi, 'Ings');
+                corrected = corrected.replace(/Zaha/gi, 'Zaha');
+                corrected = corrected.replace(/Ol[il1]se/gi, 'Olise');
+                corrected = corrected.replace(/Ayew/gi, 'Ayew');
+                corrected = corrected.replace(/[EÉ]douard/gi, 'Edouard');
+                corrected = corrected.replace(/Mateta/gi, 'Mateta');
+                
                 // Handle Mo Salah and M.Salah variations
                 corrected = corrected.replace(/M\.\s*Salah/gi, 'Mohamed Salah');
                 corrected = corrected.replace(/Mo\s+Salah/gi, 'Mohamed Salah');
                 corrected = corrected.replace(/M\s+Salah/gi, 'Mohamed Salah');
                 corrected = corrected.replace(/A\.\s*Ramsey/gi, 'Aaron Ramsey');
                 corrected = corrected.replace(/J\.\s*Ramsey/gi, 'Jacob Ramsey');
+                
+                // Fix spacing issues
+                corrected = corrected.replace(/\s+/g, ' ').trim();
+                
                 return corrected;
             }
             
@@ -5426,8 +5513,8 @@
                                 // Then by total points
                                 return b.total_points - a.total_points;
                             })[0];
-                            // Lower threshold - accept even less popular players
-                            if (parseFloat(best.selected_by_percent) > 1 || best.total_points > 10) {
+                            // Very low threshold - accept almost any player if they're the best match
+                            if (parseFloat(best.selected_by_percent) > 0.5 || best.total_points > 5) {
                                 if (!matchedPlayerIds.has(best.id)) {
                                     matchedPlayerIds.add(best.id);
                                     detectedPlayers.push(best);
@@ -5465,15 +5552,17 @@
                             const secondOwnership = parseFloat(secondBest?.selected_by_percent || 0);
                             
                             // Accept if:
-                            // 1. Very popular player (10%+ ownership)
+                            // 1. Popular player (5%+ ownership)
                             // 2. OR significantly more popular than second choice
-                            // 3. OR unique popular first name (like Erling, Bukayo, Mohamed)
-                            const popularFirstNames = ['erling', 'bukayo', 'mohamed', 'mo', 'virgil', 'heung-min', 'ollie', 'cole', 'phil', 'declan', 'bruno', 'kai', 'marcus'];
+                            // 3. OR unique popular first name
+                            // 4. OR any reasonable points/ownership
+                            const popularFirstNames = ['erling', 'bukayo', 'mohamed', 'mo', 'virgil', 'heung-min', 'ollie', 'cole', 'phil', 'declan', 'bruno', 'kai', 'marcus', 'ivan', 'james', 'jack', 'harry', 'luis', 'pedro', 'david'];
                             
-                            if (bestOwnership > 10 || 
-                                bestOwnership > secondOwnership * 2 || 
-                                (popularFirstNames.includes(nameLower) && bestOwnership > 5) ||
-                                best.total_points > 50) {
+                            if (bestOwnership > 5 || 
+                                bestOwnership > secondOwnership * 1.5 || 
+                                (popularFirstNames.includes(nameLower) && bestOwnership > 2) ||
+                                best.total_points > 20 ||
+                                (bestOwnership > 1 && !secondBest)) {
                                 if (!matchedPlayerIds.has(best.id)) {
                                     matchedPlayerIds.add(best.id);
                                     detectedPlayers.push(best);
@@ -5485,8 +5574,53 @@
                     }
                 }
                 
-                // 5. Try fuzzy matching for close matches (more conservative)
-                if (!matched && nameLower.length >= 4) { // Only for names with 4+ chars
+                // 5. Try partial/substring matching for any part of the name
+                if (!matched && nameLower.length >= 3) {
+                    // Check if the input is a substring of any player name
+                    const substringMatches = allPlayers.filter(player => {
+                        const fullName = `${player.first_name} ${player.second_name}`.toLowerCase();
+                        const lastName = player.second_name.toLowerCase();
+                        const firstName = player.first_name.toLowerCase();
+                        const webName = (player.web_name || '').toLowerCase().replace('.', '');
+                        
+                        // Check if input matches part of any name
+                        return lastName.includes(nameLower) || 
+                               firstName.includes(nameLower) || 
+                               fullName.includes(nameLower) ||
+                               webName.includes(nameLower) ||
+                               nameLower.includes(lastName) ||
+                               nameLower.includes(firstName);
+                    });
+                    
+                    if (substringMatches.length === 1) {
+                        const player = substringMatches[0];
+                        if (!matchedPlayerIds.has(player.id)) {
+                            matchedPlayerIds.add(player.id);
+                            detectedPlayers.push(player);
+                            console.log(`Matched by substring: ${name} -> ${player.first_name} ${player.second_name}`);
+                            matched = true;
+                        }
+                    } else if (substringMatches.length > 1 && substringMatches.length <= 5) {
+                        // Pick best by ownership
+                        const best = substringMatches.sort((a, b) => {
+                            const ownershipDiff = parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent);
+                            if (Math.abs(ownershipDiff) > 1) return ownershipDiff;
+                            return b.total_points - a.total_points;
+                        })[0];
+                        
+                        if (parseFloat(best.selected_by_percent) > 0.5 || best.total_points > 5) {
+                            if (!matchedPlayerIds.has(best.id)) {
+                                matchedPlayerIds.add(best.id);
+                                detectedPlayers.push(best);
+                                console.log(`Matched by substring (best): ${name} -> ${best.first_name} ${best.second_name}`);
+                                matched = true;
+                            }
+                        }
+                    }
+                }
+                
+                // 6. Try fuzzy matching for close matches (more aggressive)
+                if (!matched && nameLower.length >= 3) {
                     const fuzzyMatches = allPlayers.filter(player => {
                         const fullName = `${player.first_name} ${player.second_name}`.toLowerCase();
                         const webName = (player.web_name || '').toLowerCase();
@@ -5504,8 +5638,8 @@
                         const lastNameDistance = levenshteinDistance(nameLower, lastName);
                         const webNameDistance = levenshteinDistance(nameLower, webName);
                         
-                        // Only allow 1 character difference for short names, 2 for longer names
-                        const maxDistance = nameLower.length <= 5 ? 1 : 2;
+                        // Allow more character differences for better matching
+                        const maxDistance = nameLower.length <= 4 ? 1 : nameLower.length <= 6 ? 2 : 3;
                         
                         if (lastNameDistance <= maxDistance || webNameDistance <= maxDistance) {
                             return true;
