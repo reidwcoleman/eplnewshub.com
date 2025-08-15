@@ -2142,6 +2142,11 @@
                         <div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div>
                         <p style="margin-top: 5px;">Processing image...</p>
                     </div>
+                    <div style="margin-top: 10px;">
+                        <button onclick="showManualPlayerEntry()" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer; font-size: 0.9rem;">
+                            ✏️ Or Enter Players Manually
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -4960,7 +4965,24 @@
             // Show processing status
             const statusDiv = document.getElementById('imageProcessingStatus');
             statusDiv.style.display = 'block';
-            statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Initializing OCR...</p>';
+            statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Initializing...</p>';
+            
+            // Ensure player data is loaded
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
+                console.log('Player data not loaded, loading now...');
+                statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Loading player data...</p>';
+                
+                // Wait for player data to load
+                if (window.transferSimPro) {
+                    await window.transferSimPro.loadPlayerData();
+                } else {
+                    statusDiv.innerHTML = '<p style="color: #ff4444;">❌ Error: Transfer simulator not initialized. Please refresh the page.</p>';
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 3000);
+                    return;
+                }
+            }
             
             try {
                 // Create image URL
@@ -4971,15 +4993,8 @@
                 // Initialize Tesseract with better settings
                 statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Loading OCR engine...</p>';
                 
-                const worker = await Tesseract.createWorker({
-                    logger: m => {
-                        console.log('OCR Progress:', m);
-                        if (m.status === 'recognizing text') {
-                            const percent = Math.round(m.progress * 100);
-                            statusDiv.innerHTML = `<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Analyzing: ${percent}%</p>`;
-                        }
-                    }
-                });
+                // Create worker without logger to avoid serialization issues
+                const worker = await Tesseract.createWorker();
                 
                 await worker.loadLanguage('eng');
                 await worker.initialize('eng');
@@ -4995,9 +5010,9 @@
                 
                 const { data: { text, words, lines } } = await worker.recognize(imageUrl);
                 
-                console.log('OCR Complete. Raw text:', text);
-                console.log('Detected words:', words?.map(w => w.text));
-                console.log('Detected lines:', lines?.map(l => l.text));
+                console.log('OCR Complete. Text length:', text?.length || 0);
+                console.log('Detected words count:', words?.length || 0);
+                console.log('Sample text (first 200 chars):', text?.substring(0, 200));
                 
                 // Terminate worker
                 await worker.terminate();
@@ -5303,6 +5318,91 @@
             }
             
             return matrix[str2.length][str1.length];
+        }
+
+        function showManualPlayerEntry() {
+            const modal = document.createElement('div');
+            modal.className = 'advanced-modal';
+            modal.innerHTML = `
+                <div class="modal-content advanced-modal-content" style="max-width: 600px;">
+                    <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                    <h2>✏️ Enter Player Names</h2>
+                    <p style="margin-bottom: 20px;">Enter player names (one per line). You can use last names only for unique players.</p>
+                    
+                    <textarea id="manualPlayerNames" style="width: 100%; height: 300px; padding: 10px; font-size: 14px; border: 2px solid #667eea; border-radius: 5px;" placeholder="Example:
+Salah
+Haaland
+Alexander-Arnold
+Saka
+Palmer
+Martinez
+Gabriel
+Watkins
+Rice
+Solanke
+Gordon
+Raya
+Colwill
+Lewis
+Mbeumo"></textarea>
+                    
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button onclick="processManualPlayers()" style="flex: 1; padding: 10px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                            ✅ Add Players to Squad
+                        </button>
+                        <button onclick="this.closest('.advanced-modal').remove()" style="flex: 1; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                            Cancel
+                        </button>
+                    </div>
+                    
+                    <div id="manualEntryStatus" style="margin-top: 15px; display: none;">
+                        <p style="color: #667eea; font-weight: 600;">Processing...</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Focus on textarea
+            setTimeout(() => {
+                document.getElementById('manualPlayerNames')?.focus();
+            }, 100);
+        }
+
+        function processManualPlayers() {
+            const textarea = document.getElementById('manualPlayerNames');
+            const statusDiv = document.getElementById('manualEntryStatus');
+            
+            if (!textarea || !window.transferSimPro) return;
+            
+            const playerNames = textarea.value
+                .split('\n')
+                .map(name => name.trim())
+                .filter(name => name.length > 0);
+            
+            if (playerNames.length === 0) {
+                statusDiv.style.display = 'block';
+                statusDiv.innerHTML = '<p style="color: #dc3545;">Please enter at least one player name.</p>';
+                return;
+            }
+            
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<p style="color: #667eea;">Matching players...</p>';
+            
+            // Use the same OCR text processing function but with manual names
+            const manualText = playerNames.join('\n');
+            const detectedPlayers = processOCRText(manualText, null, null);
+            
+            if (detectedPlayers.length > 0) {
+                populateSquadFromImage(detectedPlayers);
+                statusDiv.innerHTML = `<p style="color: #28a745;">✅ Added ${detectedPlayers.length} players to squad!</p>`;
+                
+                // Close modal after 2 seconds
+                setTimeout(() => {
+                    document.querySelector('.advanced-modal')?.remove();
+                }, 2000);
+            } else {
+                statusDiv.innerHTML = '<p style="color: #dc3545;">❌ No matching players found. Try using exact player names.</p>';
+            }
         }
 
         function populateSquadFromImage(detectedPlayers) {
