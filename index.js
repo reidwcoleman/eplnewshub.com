@@ -57,23 +57,11 @@ injectAll();
 window.addEventListener('DOMContentLoaded', function() {
     // Load FPL Premium Ads System
     (function loadFPLAds() {
-        // Only load ads if not on FPL tool pages themselves
-        const fplToolPages = [
-            'fpl-ai-assistant.html',
-            'transfer-simulator-pro.html', 
-            'player-predictor.html',
-            'player-data-enhanced.html',
-            'fpl-premium-hub.html'
-        ];
-        
-        const currentPage = window.location.pathname.split('/').pop();
-        
-        if (!fplToolPages.includes(currentPage)) {
-            const script = document.createElement('script');
-            script.src = '/fpl-ads.js';
-            script.async = true;
-            document.head.appendChild(script);
-        }
+        // Load FPL banner on all pages
+        const script = document.createElement('script');
+        script.src = '/fpl-ads.js';
+        script.async = true;
+        document.head.appendChild(script);
     })();
 
     // Load Ezoic Ad Placement System

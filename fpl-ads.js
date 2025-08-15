@@ -743,19 +743,14 @@
 
     // Initialize ads system
     function init() {
-        // Don't show ads on FPL tool pages themselves
-        const fplPages = ['/fpl-ai-assistant.html', '/transfer-simulator-pro.html', '/player-predictor.html'];
-        const currentPath = window.location.pathname;
-        
-        if (!fplPages.some(page => currentPath.includes(page))) {
-            injectStyles();
-            insertSidebarAds();
-            insertBannerAd();
-            insertFloatingAd();
-            // insertBigBannerPopup(); // Disabled - big banner popup removed per user request
-            attachAdListeners();
-            rotateAds();
-        }
+        // Load FPL banner on all pages
+        injectStyles();
+        insertSidebarAds();
+        insertBannerAd();
+        insertFloatingAd();
+        // insertBigBannerPopup(); // Disabled - big banner popup removed per user request
+        attachAdListeners();
+        rotateAds();
     }
 
     // Wait for DOM to be ready
