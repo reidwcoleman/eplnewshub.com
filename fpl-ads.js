@@ -740,7 +740,7 @@
         insertSidebarAds();
         insertBannerAd();
         insertFloatingAd();
-        insertBigBannerPopup(); // Re-enabled - banner loads every time
+        // insertBigBannerPopup(); // Removed - no full-screen popup
         attachAdListeners();
         rotateAds();
     }
