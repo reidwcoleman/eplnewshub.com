@@ -5161,14 +5161,31 @@
                 // Add nickname variations for known players
                 const nicknames = {
                     'alexander-arnold': ['taa', 'trent', 'alexander arnold'],
-                    'van dijk': ['vvd', 'vandijk'],
+                    'van dijk': ['vvd', 'vandijk', 'virgil'],
                     'de bruyne': ['kdb', 'debruyne', 'kevin'],
-                    'son': ['sonny', 'son heung-min'],
+                    'son': ['sonny', 'son heung-min', 'heung-min'],
                     'fernandes': ['bruno'],
-                    'diogo j.': ['jota', 'diogo jota'],
+                    'diogo j.': ['jota', 'diogo jota', 'diogo'],
                     'gabriel': ['gabriel m', 'gabriel magalhaes'],
                     'martinelli': ['gabriel martinelli', 'gabi'],
                     'salah': ['mo salah', 'mohamed salah', 'm.salah', 'mo', 'mohamed', 'm salah', 'mo.salah', 'm. salah', 'mosalah', 'msalah', 'mohammed salah'],
+                    'haaland': ['erling', 'erling haaland'],
+                    'saka': ['bukayo', 'bukayo saka'],
+                    'palmer': ['cole', 'cole palmer'],
+                    'watkins': ['ollie', 'ollie watkins'],
+                    'foden': ['phil', 'phil foden'],
+                    'rice': ['declan', 'declan rice'],
+                    'havertz': ['kai', 'kai havertz'],
+                    'rashford': ['marcus', 'marcus rashford'],
+                    'isak': ['alexander', 'alex', 'alexander isak'],
+                    'gordon': ['anthony', 'anthony gordon'],
+                    'jackson': ['nicolas', 'nico', 'nicolas jackson'],
+                    'nunez': ['darwin', 'darwin nunez'],
+                    'eze': ['eberechi', 'ebere', 'eberechi eze'],
+                    'madueke': ['noni', 'noni madueke'],
+                    'mitoma': ['kaoru', 'kaoru mitoma'],
+                    'mcginn': ['john', 'john mcginn'],
+                    'odegaard': ['martin', 'martin odegaard'],
                 };
                 
                 Object.entries(nicknames).forEach(([key, variations]) => {
@@ -5214,7 +5231,7 @@
                         words.forEach(word => {
                             // Skip common non-name words
                             const wordLower = word.toLowerCase();
-                            if (!['the', 'and', 'for', 'with', 'from', 'bench', 'captain', 'vice', 'team', 'squad', 'points', 'player', 'game', 'week', 'total', 'your'].includes(wordLower)) {
+                            if (!['the', 'and', 'for', 'with', 'from', 'bench', 'captain', 'vice', 'team', 'squad', 'points', 'player', 'game', 'week', 'total', 'your', 'free', 'hit', 'wildcard', 'boost', 'triple'].includes(wordLower)) {
                                 potentialNames.push(word);
                             }
                         });
@@ -5433,18 +5450,34 @@
                                 matched = true;
                             }
                         } else if (candidates.length > 1) {
-                            // For common first names, only match if ownership is very high
-                            const best = candidates.sort((a, b) => {
+                            // Sort by ownership and points
+                            const sorted = candidates.sort((a, b) => {
                                 const ownershipDiff = parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent);
-                                if (Math.abs(ownershipDiff) > 5) return ownershipDiff;
+                                if (Math.abs(ownershipDiff) > 2) return ownershipDiff;
                                 return b.total_points - a.total_points;
-                            })[0];
-                            // Only accept if very popular player
-                            if (parseFloat(best.selected_by_percent) > 20) {
+                            });
+                            
+                            const best = sorted[0];
+                            const secondBest = sorted[1];
+                            
+                            // Check if there's a clear winner
+                            const bestOwnership = parseFloat(best.selected_by_percent);
+                            const secondOwnership = parseFloat(secondBest?.selected_by_percent || 0);
+                            
+                            // Accept if:
+                            // 1. Very popular player (10%+ ownership)
+                            // 2. OR significantly more popular than second choice
+                            // 3. OR unique popular first name (like Erling, Bukayo, Mohamed)
+                            const popularFirstNames = ['erling', 'bukayo', 'mohamed', 'mo', 'virgil', 'heung-min', 'ollie', 'cole', 'phil', 'declan', 'bruno', 'kai', 'marcus'];
+                            
+                            if (bestOwnership > 10 || 
+                                bestOwnership > secondOwnership * 2 || 
+                                (popularFirstNames.includes(nameLower) && bestOwnership > 5) ||
+                                best.total_points > 50) {
                                 if (!matchedPlayerIds.has(best.id)) {
                                     matchedPlayerIds.add(best.id);
                                     detectedPlayers.push(best);
-                                    console.log(`Matched by first name (popular): ${name} -> ${best.first_name} ${best.second_name}`);
+                                    console.log(`Matched by first name: ${name} -> ${best.first_name} ${best.second_name} (${bestOwnership}% owned)`);
                                     matched = true;
                                 }
                             }
