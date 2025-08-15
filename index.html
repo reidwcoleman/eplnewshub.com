@@ -1,48 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <!-- Ezoic Integration - MUST be at very top of head -->
     <div include="./ezoic-integration.html"></div>
     
-    <!-- Google tag (gtag.js) -->
+    <!-- Critical Meta Tags First -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- DNS Prefetch and Preconnect for Performance -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//www.googletagmanager.com">
+    <link rel="dns-prefetch" href="//pagead2.googlesyndication.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>
+    
+    <!-- Google tag (gtag.js) - Async Loading -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-TVPLGM5QY9');
+      gtag('config', 'G-TVPLGM5QY9', {
+        'page_title': 'EPL News Hub - Homepage',
+        'page_location': window.location.href,
+        'page_path': window.location.pathname
+      });
     </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="Get the latest Premier League news, transfer rumors, match analysis, and league standings at EPL News Hub. Expert coverage of Manchester United, Liverpool, Arsenal, Chelsea and all 20 Premier League teams with breaking news, player updates and tactical insights.">
     <meta name="keywords" content="Premier League news, EPL news, transfer rumors, Manchester United news, Liverpool news, Arsenal news, Chelsea news, Manchester City news, Tottenham news, Premier League standings, football news, soccer news, EPL transfers, Premier League fixtures, match analysis, football predictions, league table, player stats, team news">
     <meta name="author" content="EPL News Hub">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-    <title>Premier League News & Transfer Updates | EPL News Hub</title>
+    <title>Premier League News & Transfer Updates | EPL News Hub - Latest EPL News</title>
     
-    <!-- Preconnect to external domains for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://www.googletagmanager.com">
-    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    <!-- Critical CSS - Inline for Performance -->
+    <style>
+        /* Critical Above-the-Fold CSS */
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+        .header { background: #262627; color: white; }
+        .main-content { min-height: 100vh; }
+        .site-footer { background: #262627; color: white; }
+        /* Prevent Layout Shift */
+        img { max-width: 100%; height: auto; }
+    </style>
     
-    <!-- SEO Helper Script -->
-    <script src="seo-helper.js" defer></script>
-    
+    <!-- Stylesheets with Preload for Critical Resources -->
+    <link rel="preload" href="styles.css" as="style">
+    <link rel="preload" href="enhanced-homepage-v2.css" as="style">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="enhanced-homepage-v2.css">
     <link rel="stylesheet" href="remove-ads.css">
     
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Font Awesome - Load with Display Swap -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
     
-    <!-- PWA Manifest -->
+    <!-- SEO Helper Script - Deferred -->
+    <script src="seo-helper.js" defer></script>
+    
+    <!-- PWA Manifest and Icons -->
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="upscalemedia-transformed.png">
-    <link rel="icon" type="image/png" href="upscalemedia-transformed.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="upscalemedia-transformed.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="upscalemedia-transformed.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="upscalemedia-transformed.png">
     <link rel="shortcut icon" href="upscalemedia-transformed.png">
     <link rel="canonical" href="https://www.eplnewshub.com/">
+    
+    <!-- Service Worker Registration for PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed'));
+            });
+        }
+    </script>
     
     <!-- Open Graph Meta Tags -->
     <meta property="og:type" content="website">
@@ -65,7 +100,7 @@
     <meta name="twitter:image" content="https://www.eplnewshub.com/upscalemedia-transformed.png">
     <meta name="twitter:image:alt" content="EPL News Hub - Premier League News">
     
-    <!-- Additional SEO Meta Tags -->
+    <!-- Additional SEO and Performance Meta Tags -->
     <meta name="theme-color" content="#38003c">
     <meta name="msapplication-TileColor" content="#38003c">
     <meta name="application-name" content="EPL News Hub">
@@ -75,16 +110,41 @@
     <meta name="format-detection" content="telephone=no">
     <meta http-equiv="x-dns-prefetch-control" content="on">
     <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta name="google-site-verification" content="verification-code-here">
+    <meta name="rating" content="general">
+    <meta name="coverage" content="Worldwide">
+    <meta name="distribution" content="Global">
     
-    <!-- Alternate language versions -->
+    <!-- Alternate language versions and RSS Feed -->
     <link rel="alternate" hreflang="en-GB" href="https://www.eplnewshub.com/" />
+    <link rel="alternate" hreflang="en-US" href="https://www.eplnewshub.com/" />
     <link rel="alternate" hreflang="x-default" href="https://www.eplnewshub.com/" />
+    <link rel="alternate" type="application/rss+xml" title="EPL News Hub RSS Feed" href="/rss.xml" />
     
+    <!-- Redirect and Performance Scripts -->
     <script>
-    if (window.location.pathname === "/index.html") {
-        window.location.href = "https://eplnewshub.com/";
-    }
-</script>
+        // Redirect index.html to clean URL
+        if (window.location.pathname === "/index.html") {
+            window.location.replace("https://eplnewshub.com/");
+        }
+        
+        // Add performance timing
+        window.addEventListener('load', function() {
+            if (window.performance && window.performance.timing) {
+                const loadTime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
+                console.log('Page load time:', loadTime + 'ms');
+                
+                // Send to analytics if needed
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'page_timing', {
+                        'event_category': 'Performance',
+                        'event_label': 'Page Load',
+                        'value': loadTime
+                    });
+                }
+            }
+        });
+    </script>
     <!-- Enhanced Structured Data - Website/Organization Schema with Latest Article -->
     <script type="application/ld+json">
     {
@@ -94,6 +154,9 @@
         "alternateName": "EPL News Hub - Premier League News",
         "url": "https://www.eplnewshub.com/",
         "description": "Premier League news, transfer updates, match analysis, and league standings. Expert coverage of all 20 Premier League teams with breaking news and tactical insights.",
+        "inLanguage": "en-GB",
+        "dateCreated": "2024-01-01",
+        "dateModified": "2025-08-15",
         "publisher": {
             "@type": "Organization",
             "name": "EPL News Hub",
@@ -102,11 +165,18 @@
                 "@type": "ImageObject",
                 "url": "https://www.eplnewshub.com/upscalemedia-transformed.png",
                 "width": 400,
-                "height": 400
+                "height": 400,
+                "caption": "EPL News Hub Logo"
             },
             "sameAs": [
                 "https://twitter.com/coleman_re19092"
-            ]
+            ],
+            "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "Editorial",
+                "areaServed": "GB",
+                "availableLanguage": ["English"]
+            }
         },
         "potentialAction": {
             "@type": "SearchAction",
@@ -123,9 +193,9 @@
         },
         "mainEntity": {
             "@type": "Article",
-            "headline": "Premier League 2025/26 Season Preview: Expert Predictions, Team-by-Team Analysis, Key Transfers, and Relegation Battles",
-            "description": "Complete Premier League 2025/26 season preview with expert predictions, team-by-team analysis, key transfers, and relegation battles. Arsenal, Liverpool, and Chelsea battle for the title with £4.8B summer spending creating the most competitive season yet.",
-            "image": "https://www.eplnewshub.com/i.jpeg",
+            "headline": "Soccer Barclays Premier League: Ultimate SEO Guide to History, Champions, Records, 2025-26 Fixtures, Transfers, Predictions & How to Watch",
+            "description": "Ultimate guide to Soccer Barclays Premier League: History, champions, 2025-26 fixtures, transfers, predictions, and how to watch. Complete EPL resource with all-time records, team analysis, and US viewing options.",
+            "image": "https://www.eplnewshub.com/955249480.webp",
             "author": {
                 "@type": "Organization",
                 "name": "EPL News Hub"
@@ -139,10 +209,10 @@
                 }
             },
             "datePublished": "2025-08-15T10:00:00+00:00",
-            "dateModified": "2025-08-15T15:30:00+00:00",
-            "url": "https://www.eplnewshub.com/articles/premier-league-2025-26-season-preview-predictions-analysis.html",
-            "articleSection": "Season Preview",
-            "keywords": "Premier League 2025/26, season preview, predictions, Arsenal, Liverpool, Chelsea, Manchester City, transfers, relegation battle, title race"
+            "dateModified": "2025-08-15T16:00:00+00:00",
+            "url": "https://www.eplnewshub.com/articles/soccer-barclays-premier-league-seo-guide-2025.html",
+            "articleSection": "Season Guide",
+            "keywords": "soccer Barclays Premier League, Barclays Premier League, EPL, Premier League 2025-26, Premier League transfers, Premier League predictions, English Premier League"
         }
     }
     </script>
@@ -584,6 +654,24 @@
                 
                 <div class="secondary-stories">
                     <article class="story-card compact">
+                        <a href="articles/premier-league-2025-26-season-preview-predictions-analysis.html" class="story-link">
+                            <div class="story-image-wrapper">
+                                <img src="i.jpeg" alt="Premier League 2025/26 Season Preview" loading="lazy">
+                                <div class="story-overlay">
+                                    <span class="story-category preview">🏆 SEASON PREVIEW</span>
+                                </div>
+                            </div>
+                            <div class="story-content-wrapper">
+                                <h2 class="story-headline">Premier League 2025/26 Season Preview: Expert Predictions & Team Analysis</h2>
+                                <p class="story-summary">Complete Premier League 2025/26 season preview with expert predictions, team-by-team analysis, key transfers, and relegation battles. Arsenal, Liverpool, and Chelsea battle for the title.</p>
+                                <div class="story-footer">
+                                    <span class="story-date">📅 August 15, 2025</span>
+                                    <span class="read-more">Read More →</span>
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                    <article class="story-card compact">
                         <a href="articles/transfer-hub-ultimate-guide-august-2025.html" class="story-link">
                             <div class="story-image-wrapper">
                                 <img src="a54ce246-1923-4266-a655-5f4979075838.webp" alt="Premier League Transfer Hub Ultimate Guide" loading="lazy">
@@ -668,6 +756,24 @@
                                 <p class="story-summary">Chelsea wins FIFA Club World Cup 2025, while Manchester United dominates Premier League Summer Series with unbeaten record.</p>
                                 <div class="story-footer">
                                     <span class="story-date">📅 August 12, 2025</span>
+                                    <span class="read-more">Read More →</span>
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                    <article class="story-card compact">
+                        <a href="articles/man-city-guardiola-contract-2025.html" class="story-link">
+                            <div class="story-image-wrapper">
+                                <img src="guardiola-city.jpg" alt="Pep Guardiola Manchester City" loading="lazy">
+                                <div class="story-overlay">
+                                    <span class="story-category news">📰 NEWS</span>
+                                </div>
+                            </div>
+                            <div class="story-content-wrapper">
+                                <h2 class="story-headline">Guardiola's Future: Will He Stay at Manchester City?</h2>
+                                <p class="story-summary">As Pep Guardiola enters the final year of his contract, speculation mounts about his future at Manchester City and potential successors.</p>
+                                <div class="story-footer">
+                                    <span class="story-date">📅 August 11, 2025</span>
                                     <span class="read-more">Read More →</span>
                                 </div>
                             </div>
@@ -3987,15 +4093,21 @@
             }
         }
     </style>
-    <script src="/mobile-enhance.js"></script>
-    <script src="./premium-access-control.js"></script>
+    <!-- Performance Boost Script - Load First for Maximum Impact -->
+    <script src="./performance-boost.js" async></script>
+    
+    <!-- Deferred Scripts -->
+    <script src="/mobile-enhance.js" defer></script>
+    <script src="./premium-access-control.js" defer></script>
     
     <!-- Service Worker for PWA -->
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('SW registered'))
-                .catch(err => console.log('SW registration failed'));
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registered'))
+                    .catch(err => console.log('SW registration failed'));
+            });
         }
     </script>
 </body>
