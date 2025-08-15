@@ -2153,7 +2153,10 @@
                         
                         <div class="filter-group">
                             <label>Search Player</label>
-                            <input type="text" id="searchPlayer" placeholder="Player name..." onkeyup="filterPlayers()">
+                            <input type="text" id="searchPlayer" placeholder="Type player name..." onkeyup="filterPlayers()" style="padding: 8px; border: 2px solid #667eea; border-radius: 5px;">
+                            <button onclick="searchAllPlayers()" style="margin-top: 5px; padding: 8px 15px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; width: 100%;">
+                                🔍 Search All Players
+                            </button>
                         </div>
                     </div>
 
@@ -2695,7 +2698,15 @@
                     const data = await fplService.getBootstrapData();
                     this.allPlayers = data.elements;
                     this.teams = data.teams;
-                    document.getElementById('lastUpdate').textContent = 'Just now';
+                    
+                    // Log player count for verification
+                    console.log(`Loaded ${this.allPlayers.length} players from FPL API`);
+                    
+                    // Update status
+                    document.getElementById('lastUpdate').textContent = `Just now (${this.allPlayers.length} players)`;
+                    
+                    // Show notification
+                    this.showNotification(`✅ Loaded ${this.allPlayers.length} players successfully!`, 'success');
                 } catch (error) {
                     console.error('Error loading player data:', error);
                     // Use mock data
@@ -2703,7 +2714,11 @@
                     const mockData = fplService.getMockBootstrapData();
                     this.allPlayers = mockData.elements;
                     this.teams = mockData.teams;
-                    document.getElementById('lastUpdate').textContent = 'Using cached data';
+                    
+                    console.log(`Loaded ${this.allPlayers.length} players from cache`);
+                    document.getElementById('lastUpdate').textContent = `Using cached data (${this.allPlayers.length} players)`;
+                    
+                    this.showNotification(`📦 Using cached data with ${this.allPlayers.length} players`, 'info');
                 }
             }
 
@@ -2760,7 +2775,7 @@
                 });
             }
 
-            displayPlayers() {
+            displayPlayers(page = 1) {
                 const container = document.getElementById('playerCards');
                 const instructionsContainer = document.getElementById('searchInstructions');
                 
@@ -2782,9 +2797,93 @@
                 // Show results, hide instructions
                 container.style.display = 'grid';
                 instructionsContainer.style.display = 'none';
-                container.innerHTML = '';
                 
-                filteredPlayers.slice(0, 50).forEach(player => {
+                // Pagination settings
+                const playersPerPage = 30;
+                const startIndex = (page - 1) * playersPerPage;
+                const endIndex = startIndex + playersPerPage;
+                const paginatedPlayers = filteredPlayers.slice(startIndex, endIndex);
+                const totalPages = Math.ceil(filteredPlayers.length / playersPerPage);
+                
+                // Clear container and add player count
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+                        <h3 style="margin: 0;">📊 Found ${filteredPlayers.length} Players</h3>
+                        <p style="margin: 5px 0 0 0; opacity: 0.9;">Showing ${startIndex + 1}-${Math.min(endIndex, filteredPlayers.length)} of ${filteredPlayers.length} players</p>
+                    </div>
+                `;
+                
+                // Display players
+                paginatedPlayers.forEach(player => {
+                    const card = this.createPlayerCard(player);
+                    container.appendChild(card);
+                });
+                
+                // Add pagination controls if needed
+                if (totalPages > 1) {
+                    const paginationDiv = document.createElement('div');
+                    paginationDiv.style.cssText = 'grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap;';
+                    
+                    // Previous button
+                    if (page > 1) {
+                        const prevBtn = document.createElement('button');
+                        prevBtn.textContent = '← Previous';
+                        prevBtn.style.cssText = 'padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;';
+                        prevBtn.onclick = () => this.displayPlayers(page - 1);
+                        paginationDiv.appendChild(prevBtn);
+                    }
+                    
+                    // Page numbers
+                    const maxVisiblePages = 5;
+                    let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+                    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                    
+                    if (endPage - startPage < maxVisiblePages - 1) {
+                        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                    }
+                    
+                    for (let i = startPage; i <= endPage; i++) {
+                        const pageBtn = document.createElement('button');
+                        pageBtn.textContent = i;
+                        pageBtn.style.cssText = `padding: 10px 15px; background: ${i === page ? '#37003c' : '#f0f0f0'}; color: ${i === page ? 'white' : '#333'}; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;`;
+                        pageBtn.onclick = () => this.displayPlayers(i);
+                        paginationDiv.appendChild(pageBtn);
+                    }
+                    
+                    // Next button
+                    if (page < totalPages) {
+                        const nextBtn = document.createElement('button');
+                        nextBtn.textContent = 'Next →';
+                        nextBtn.style.cssText = 'padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;';
+                        nextBtn.onclick = () => this.displayPlayers(page + 1);
+                        paginationDiv.appendChild(nextBtn);
+                    }
+                    
+                    // Load All button
+                    const loadAllBtn = document.createElement('button');
+                    loadAllBtn.textContent = `Load All ${filteredPlayers.length} Players`;
+                    loadAllBtn.style.cssText = 'padding: 10px 20px; background: linear-gradient(135deg, #f093fb, #f5576c); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; margin-left: 10px;';
+                    loadAllBtn.onclick = () => this.displayAllPlayers(filteredPlayers);
+                    paginationDiv.appendChild(loadAllBtn);
+                    
+                    container.appendChild(paginationDiv);
+                }
+                
+                // Store current page for reference
+                this.currentPage = page;
+            }
+            
+            displayAllPlayers(players) {
+                const container = document.getElementById('playerCards');
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; padding: 15px; background: linear-gradient(135deg, #f093fb, #f5576c); color: white; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+                        <h3 style="margin: 0;">⚡ Showing All ${players.length} Players</h3>
+                        <p style="margin: 5px 0 0 0; opacity: 0.9;">This may take a moment to load...</p>
+                    </div>
+                `;
+                
+                // Display all players
+                players.forEach(player => {
                     const card = this.createPlayerCard(player);
                     container.appendChild(card);
                 });
@@ -2825,8 +2924,8 @@
                 document.getElementById('priceValue').textContent = '£15.0m';
                 document.getElementById('formValue').textContent = '0.0';
                 
-                // Display players
-                this.displayPlayers();
+                // Display players from page 1
+                this.displayPlayers(1);
             }
 
             clearAllFilters() {
@@ -4657,6 +4756,15 @@
         function clearAllFilters() {
             if (window.transferSimPro) {
                 window.transferSimPro.clearAllFilters();
+            }
+        }
+        
+        function searchAllPlayers() {
+            if (window.transferSimPro) {
+                // Clear position filter to search all players
+                document.getElementById('positionFilter').value = '';
+                // Trigger search
+                window.transferSimPro.displayPlayers(1);
             }
         }
 
