@@ -4960,18 +4960,44 @@
             // Show processing status
             const statusDiv = document.getElementById('imageProcessingStatus');
             statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Initializing OCR...</p>';
             
             try {
                 // Create image URL
                 const imageUrl = URL.createObjectURL(file);
                 
-                // Initialize Tesseract worker
-                const worker = await Tesseract.createWorker('eng');
+                console.log('Starting OCR processing for image:', file.name);
+                
+                // Initialize Tesseract with better settings
+                statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Loading OCR engine...</p>';
+                
+                const worker = await Tesseract.createWorker({
+                    logger: m => {
+                        console.log('OCR Progress:', m);
+                        if (m.status === 'recognizing text') {
+                            const percent = Math.round(m.progress * 100);
+                            statusDiv.innerHTML = `<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Analyzing: ${percent}%</p>`;
+                        }
+                    }
+                });
+                
+                await worker.loadLanguage('eng');
+                await worker.initialize('eng');
+                
+                // Configure for better accuracy
+                await worker.setParameters({
+                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .£',
+                    preserve_interword_spaces: '1',
+                });
                 
                 // Perform OCR
-                statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Analyzing screenshot...</p>';
+                statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Reading text from image...</p>';
                 
-                const { data: { text } } = await worker.recognize(imageUrl);
+                const { data: { text, words, lines } } = await worker.recognize(imageUrl);
+                
+                console.log('OCR Complete. Raw text:', text);
+                console.log('Detected words:', words?.map(w => w.text));
+                console.log('Detected lines:', lines?.map(l => l.text));
                 
                 // Terminate worker
                 await worker.terminate();
@@ -4979,117 +5005,275 @@
                 // Clean up URL
                 URL.revokeObjectURL(imageUrl);
                 
-                // Process detected text
+                // Process detected text with both raw text and structured data
                 statusDiv.innerHTML = '<p>Matching players...</p>';
-                const detectedPlayers = processOCRText(text);
+                const detectedPlayers = processOCRText(text, words, lines);
                 
                 // Auto-populate squad
                 if (detectedPlayers.length > 0) {
                     populateSquadFromImage(detectedPlayers);
                     statusDiv.innerHTML = `<p style="color: #00ff88;">✅ Found ${detectedPlayers.length} players!</p>`;
+                    
+                    // Show detected player names
+                    const playerNames = detectedPlayers.map(p => p.web_name || `${p.first_name} ${p.second_name}`).join(', ');
+                    console.log('Successfully matched players:', playerNames);
                 } else {
-                    statusDiv.innerHTML = '<p style="color: #ff4444;">❌ No players detected. Try a clearer screenshot.</p>';
+                    statusDiv.innerHTML = '<p style="color: #ff4444;">❌ No players detected. Try a clearer screenshot of your FPL team.</p>';
+                    console.log('No players matched. OCR text was:', text);
                 }
                 
-                // Hide status after 3 seconds
+                // Hide status after 5 seconds
                 setTimeout(() => {
                     statusDiv.style.display = 'none';
-                }, 3000);
+                }, 5000);
                 
             } catch (error) {
                 console.error('Error processing image:', error);
-                statusDiv.innerHTML = '<p style="color: #ff4444;">❌ Error processing image. Please try again.</p>';
+                statusDiv.innerHTML = `<p style="color: #ff4444;">❌ Error: ${error.message}</p>`;
                 setTimeout(() => {
                     statusDiv.style.display = 'none';
-                }, 3000);
+                }, 5000);
             }
             
             // Reset file input
             event.target.value = '';
         }
 
-        function processOCRText(text) {
+        function processOCRText(text, words, lines) {
             if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
                 console.error('Player data not loaded');
                 return [];
             }
             
             const detectedPlayers = [];
-            const lines = text.split('\n').filter(line => line.trim());
+            const allPlayers = window.transferSimPro.allPlayers;
+            const matchedPlayerIds = new Set();
             
-            // Common FPL name patterns and variations
-            const playerNamePatterns = [
-                // Clean up common OCR mistakes
-                /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/g,
-                // Handle names with special characters
-                /([A-Za-z]+(?:[-'\s][A-Za-z]+)*)/g
-            ];
+            // Create lookup maps for faster matching
+            const playerLookup = {
+                byFullName: {},
+                byLastName: {},
+                byWebName: {},
+                byFirstName: {}
+            };
             
-            // Extract potential player names
-            const potentialNames = [];
-            lines.forEach(line => {
-                // Remove common non-player text
-                const cleanedLine = line
-                    .replace(/\d+\.\d+/g, '') // Remove prices
-                    .replace(/[£$]/g, '') // Remove currency
-                    .replace(/\(\d+\)/g, '') // Remove numbers in parentheses
-                    .replace(/GKP|DEF|MID|FWD/g, '') // Remove positions
-                    .replace(/\d{1,3}pts?/gi, '') // Remove point values
-                    .trim();
+            allPlayers.forEach(player => {
+                const fullName = `${player.first_name} ${player.second_name}`.toLowerCase();
+                const lastName = player.second_name.toLowerCase();
+                const firstName = player.first_name.toLowerCase();
+                const webName = (player.web_name || '').toLowerCase();
                 
-                // Extract names using patterns
-                playerNamePatterns.forEach(pattern => {
-                    const matches = cleanedLine.match(pattern);
+                playerLookup.byFullName[fullName] = player;
+                playerLookup.byLastName[lastName] = playerLookup.byLastName[lastName] || [];
+                playerLookup.byLastName[lastName].push(player);
+                playerLookup.byFirstName[firstName] = playerLookup.byFirstName[firstName] || [];
+                playerLookup.byFirstName[firstName].push(player);
+                if (webName) {
+                    playerLookup.byWebName[webName] = player;
+                }
+            });
+            
+            // Process structured OCR data if available
+            const potentialNames = [];
+            
+            // First try to use structured lines data
+            if (lines && lines.length > 0) {
+                lines.forEach(line => {
+                    const lineText = line.text || '';
+                    console.log('Processing line:', lineText);
+                    
+                    // Clean the line
+                    const cleaned = lineText
+                        .replace(/[0-9]+\.[0-9]+/g, '') // Remove prices like 11.5
+                        .replace(/£/g, '')
+                        .replace(/\$/g, '')
+                        .replace(/\d+pts?/gi, '') // Remove points
+                        .replace(/\([^)]*\)/g, '') // Remove content in parentheses
+                        .replace(/\s+/g, ' ') // Normalize spaces
+                        .trim();
+                    
+                    if (cleaned && cleaned.length > 2) {
+                        potentialNames.push(cleaned);
+                    }
+                });
+            }
+            
+            // Also process individual words
+            if (words && words.length > 0) {
+                let currentName = '';
+                words.forEach((word, index) => {
+                    const text = (word.text || '').trim();
+                    
+                    // Skip numbers, prices, and short words
+                    if (/^\d+$/.test(text) || /^[£$]/.test(text) || text.length < 2) {
+                        if (currentName) {
+                            potentialNames.push(currentName.trim());
+                            currentName = '';
+                        }
+                        return;
+                    }
+                    
+                    // Check if this could be part of a name
+                    if (/^[A-Za-z]/.test(text)) {
+                        // Check if next word is also alphabetic (likely part of same name)
+                        if (index < words.length - 1) {
+                            const nextWord = words[index + 1].text || '';
+                            if (/^[A-Za-z]/.test(nextWord)) {
+                                currentName += text + ' ';
+                            } else {
+                                // This is likely a single-word name or last part
+                                currentName += text;
+                                potentialNames.push(currentName.trim());
+                                currentName = '';
+                            }
+                        } else {
+                            currentName += text;
+                            potentialNames.push(currentName.trim());
+                            currentName = '';
+                        }
+                    } else if (currentName) {
+                        potentialNames.push(currentName.trim());
+                        currentName = '';
+                    }
+                });
+                
+                if (currentName) {
+                    potentialNames.push(currentName.trim());
+                }
+            }
+            
+            // Also process raw text as fallback
+            if (text) {
+                const textLines = text.split('\n');
+                textLines.forEach(line => {
+                    // Extract potential names using regex
+                    const namePattern = /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/g;
+                    const matches = line.match(namePattern);
                     if (matches) {
                         matches.forEach(match => {
-                            if (match.length > 2) { // Filter out very short strings
-                                potentialNames.push(match.trim());
+                            if (match.length > 2) {
+                                potentialNames.push(match);
                             }
                         });
                     }
+                    
+                    // Also try to extract just last names
+                    const words = line.split(/\s+/);
+                    words.forEach(word => {
+                        const cleaned = word.replace(/[^A-Za-z-']/g, '');
+                        if (cleaned.length > 2) {
+                            potentialNames.push(cleaned);
+                        }
+                    });
                 });
-            });
+            }
             
-            // Match names with actual players
-            const allPlayers = window.transferSimPro.allPlayers;
-            const matchedPlayers = new Set();
+            console.log('Potential player names found:', potentialNames);
             
+            // Match potential names with actual players
             potentialNames.forEach(name => {
-                const nameLower = name.toLowerCase();
+                if (!name || name.length < 2) return;
                 
-                // Try to find exact or partial matches
-                const matches = allPlayers.filter(player => {
-                    const fullName = `${player.first_name} ${player.second_name}`.toLowerCase();
-                    const webName = (player.web_name || '').toLowerCase();
-                    const lastName = player.second_name.toLowerCase();
-                    
-                    // Check various matching strategies
-                    return (
-                        fullName === nameLower || // Exact full name match
-                        webName === nameLower || // Exact web name match
-                        lastName === nameLower || // Last name only match
-                        fullName.includes(nameLower) || // Partial full name match
-                        nameLower.includes(lastName) || // Input contains last name
-                        (nameLower.length > 4 && fullName.includes(nameLower.substring(0, 4))) || // First 4 chars match
-                        levenshteinDistance(nameLower, webName) <= 2 // Fuzzy match with max 2 char difference
-                    );
-                });
+                const nameLower = name.toLowerCase().trim();
+                let matched = false;
                 
-                // Add best match if found
-                if (matches.length > 0) {
-                    // Sort by total points to get most likely player
-                    matches.sort((a, b) => b.total_points - a.total_points);
-                    const bestMatch = matches[0];
+                // 1. Try exact full name match
+                if (playerLookup.byFullName[nameLower]) {
+                    const player = playerLookup.byFullName[nameLower];
+                    if (!matchedPlayerIds.has(player.id)) {
+                        matchedPlayerIds.add(player.id);
+                        detectedPlayers.push(player);
+                        console.log(`Matched by full name: ${name} -> ${player.first_name} ${player.second_name}`);
+                        matched = true;
+                    }
+                }
+                
+                // 2. Try web name match
+                if (!matched && playerLookup.byWebName[nameLower]) {
+                    const player = playerLookup.byWebName[nameLower];
+                    if (!matchedPlayerIds.has(player.id)) {
+                        matchedPlayerIds.add(player.id);
+                        detectedPlayers.push(player);
+                        console.log(`Matched by web name: ${name} -> ${player.web_name}`);
+                        matched = true;
+                    }
+                }
+                
+                // 3. Try last name match
+                if (!matched && playerLookup.byLastName[nameLower]) {
+                    const candidates = playerLookup.byLastName[nameLower];
+                    // If only one player with this last name, match it
+                    if (candidates.length === 1) {
+                        const player = candidates[0];
+                        if (!matchedPlayerIds.has(player.id)) {
+                            matchedPlayerIds.add(player.id);
+                            detectedPlayers.push(player);
+                            console.log(`Matched by unique last name: ${name} -> ${player.first_name} ${player.second_name}`);
+                            matched = true;
+                        }
+                    } else if (candidates.length > 1) {
+                        // Multiple players with same last name, pick the one with most points
+                        const best = candidates.sort((a, b) => b.total_points - a.total_points)[0];
+                        if (!matchedPlayerIds.has(best.id)) {
+                            matchedPlayerIds.add(best.id);
+                            detectedPlayers.push(best);
+                            console.log(`Matched by last name (best): ${name} -> ${best.first_name} ${best.second_name}`);
+                            matched = true;
+                        }
+                    }
+                }
+                
+                // 4. Try fuzzy matching for close matches
+                if (!matched) {
+                    const fuzzyMatches = allPlayers.filter(player => {
+                        const fullName = `${player.first_name} ${player.second_name}`.toLowerCase();
+                        const webName = (player.web_name || '').toLowerCase();
+                        const lastName = player.second_name.toLowerCase();
+                        
+                        // Check if the name contains the last name
+                        if (nameLower.includes(lastName) || lastName.includes(nameLower)) {
+                            return true;
+                        }
+                        
+                        // Check Levenshtein distance for close matches
+                        if (levenshteinDistance(nameLower, lastName) <= 2 ||
+                            levenshteinDistance(nameLower, webName) <= 2 ||
+                            levenshteinDistance(nameLower, fullName) <= 3) {
+                            return true;
+                        }
+                        
+                        return false;
+                    });
                     
-                    // Avoid duplicates
-                    if (!matchedPlayers.has(bestMatch.id)) {
-                        matchedPlayers.add(bestMatch.id);
-                        detectedPlayers.push(bestMatch);
+                    if (fuzzyMatches.length > 0) {
+                        // Sort by total points and selected percentage
+                        fuzzyMatches.sort((a, b) => {
+                            const scoreA = b.total_points + (b.selected_by_percent * 10);
+                            const scoreB = a.total_points + (a.selected_by_percent * 10);
+                            return scoreA - scoreB;
+                        });
+                        
+                        const best = fuzzyMatches[0];
+                        if (!matchedPlayerIds.has(best.id)) {
+                            matchedPlayerIds.add(best.id);
+                            detectedPlayers.push(best);
+                            console.log(`Fuzzy matched: ${name} -> ${best.first_name} ${best.second_name}`);
+                        }
                     }
                 }
             });
             
-            console.log('Detected players:', detectedPlayers.map(p => `${p.first_name} ${p.second_name}`));
+            // Sort detected players by position and points
+            detectedPlayers.sort((a, b) => {
+                if (a.element_type !== b.element_type) {
+                    return a.element_type - b.element_type;
+                }
+                return b.total_points - a.total_points;
+            });
+            
+            console.log(`Final detected players (${detectedPlayers.length}):`, 
+                detectedPlayers.map(p => `${p.first_name} ${p.second_name} (${p.element_type})`));
+            
             return detectedPlayers;
         }
 
