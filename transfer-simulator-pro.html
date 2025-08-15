@@ -5482,7 +5482,21 @@
                 if (!name || name.length < 2) return;
                 
                 // Apply OCR corrections to the name
-                const correctedName = applyOCRCorrections(name);
+                let correctedName = applyOCRCorrections(name);
+                
+                // Additional aggressive character corrections
+                correctedName = correctedName
+                    .replace(/[0O]/g, 'o')  // 0 to o
+                    .replace(/[1l!|]/gi, 'i')  // 1, l, !, | to i
+                    .replace(/[5S\$]/g, 's')  // 5, $ to s
+                    .replace(/[3]/g, 'e')  // 3 to e
+                    .replace(/[4]/g, 'a')  // 4 to a
+                    .replace(/[8]/g, 'b')  // 8 to b
+                    .replace(/[@]/g, 'a')  // @ to a
+                    .replace(/[\[\]\{\}\(\)]/g, '')  // Remove brackets
+                    .replace(/[_\-\.]/g, ' ')  // Replace separators with space
+                    .trim();
+                
                 const nameLower = correctedName.toLowerCase().trim();
                 const nameNoSpaces = nameLower.replace(/[^a-z]/g, '');
                 let matched = false;
@@ -5543,8 +5557,8 @@
                                 // Then by total points
                                 return b.total_points - a.total_points;
                             })[0];
-                            // Very low threshold - accept almost any player if they're the best match
-                            if (parseFloat(best.selected_by_percent) > 0.5 || best.total_points > 5) {
+                            // Extremely low threshold - accept any player if they're the best match
+                            if (parseFloat(best.selected_by_percent) > 0.1 || best.total_points > 1) {
                                 if (!matchedPlayerIds.has(best.id)) {
                                     matchedPlayerIds.add(best.id);
                                     detectedPlayers.push(best);
@@ -5638,7 +5652,7 @@
                             return b.total_points - a.total_points;
                         })[0];
                         
-                        if (parseFloat(best.selected_by_percent) > 0.5 || best.total_points > 5) {
+                        if (parseFloat(best.selected_by_percent) > 0.1 || best.total_points > 1) {
                             if (!matchedPlayerIds.has(best.id)) {
                                 matchedPlayerIds.add(best.id);
                                 detectedPlayers.push(best);
@@ -5668,8 +5682,8 @@
                         const lastNameDistance = levenshteinDistance(nameLower, lastName);
                         const webNameDistance = levenshteinDistance(nameLower, webName);
                         
-                        // Allow more character differences for better matching
-                        const maxDistance = nameLower.length <= 4 ? 1 : nameLower.length <= 6 ? 2 : 3;
+                        // Very lenient - allow up to half the characters to be different
+                        const maxDistance = Math.floor(nameLower.length / 2) + 1;
                         
                         if (lastNameDistance <= maxDistance || webNameDistance <= maxDistance) {
                             return true;
@@ -5721,6 +5735,45 @@
                 }
                 return b.total_points - a.total_points;
             });
+            
+            // 7. ULTIMATE FALLBACK - If we still have no matches, try the most popular players
+            if (detectedPlayers.length === 0 && uniqueNames.length > 0) {
+                console.log('No matches found, trying ultimate fallback...');
+                
+                // Get most popular players
+                const popularPlayers = allPlayers
+                    .filter(p => parseFloat(p.selected_by_percent) > 10)
+                    .sort((a, b) => parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent));
+                
+                // Try to match any word with any part of popular player names
+                uniqueNames.forEach(name => {
+                    if (name.length < 3) return;
+                    const nameLower = name.toLowerCase();
+                    
+                    for (const player of popularPlayers) {
+                        const lastName = player.second_name.toLowerCase();
+                        const firstName = player.first_name.toLowerCase();
+                        const webName = (player.web_name || '').toLowerCase().replace('.', '');
+                        
+                        // Very loose matching - any 3+ character match
+                        if ((nameLower.length >= 3 && lastName.includes(nameLower.substring(0, 3))) ||
+                            (nameLower.length >= 3 && firstName.includes(nameLower.substring(0, 3))) ||
+                            (nameLower.length >= 3 && webName.includes(nameLower.substring(0, 3))) ||
+                            (lastName.length >= 3 && nameLower.includes(lastName.substring(0, 3)))) {
+                            
+                            if (!matchedPlayerIds.has(player.id)) {
+                                matchedPlayerIds.add(player.id);
+                                detectedPlayers.push(player);
+                                console.log(`Ultimate fallback match: ${name} -> ${player.first_name} ${player.second_name}`);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Stop after finding 15 players
+                    if (detectedPlayers.length >= 15) break;
+                });
+            }
             
             console.log(`Final detected players (${detectedPlayers.length}):`, 
                 detectedPlayers.map(p => `${p.first_name} ${p.second_name} (${p.element_type})`));
