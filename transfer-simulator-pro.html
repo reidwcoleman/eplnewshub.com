@@ -2734,6 +2734,7 @@
             async init() {
                 console.log('Initializing Transfer Simulator Pro...');
                 await this.loadPlayerData();
+                console.log(`Player data loaded: ${this.allPlayers ? this.allPlayers.length : 0} players available`);
                 this.initializeSquadSlots();
                 this.setupEventListeners();
                 this.initializeCharts();
@@ -5123,16 +5124,22 @@
                 console.log('Player data not loaded, loading now...');
                 statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Loading player data...</p>';
                 
-                // Wait for player data to load
-                if (window.transferSimPro) {
-                    await window.transferSimPro.loadPlayerData();
-                } else {
-                    statusDiv.innerHTML = '<p style="color: #ff4444;">❌ Error: Transfer simulator not initialized. Please refresh the page.</p>';
-                    setTimeout(() => {
-                        statusDiv.style.display = 'none';
-                    }, 3000);
+                // Initialize the simulator if not already done
+                if (!window.transferSimPro) {
+                    window.transferSimPro = new TransferSimulatorPro();
+                }
+                
+                // Always try to load player data
+                await window.transferSimPro.loadPlayerData();
+                
+                // Check again after loading
+                if (!window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
+                    statusDiv.innerHTML = '<p style="color: #ff6b6b;">❌ Failed to load player data. Please refresh and try again.</p>';
+                    setTimeout(() => statusDiv.style.display = 'none', 3000);
                     return;
                 }
+                
+                console.log(`Player data loaded successfully: ${window.transferSimPro.allPlayers.length} players`);
             }
             
             try {
