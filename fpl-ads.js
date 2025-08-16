@@ -92,19 +92,19 @@
 
     // Create big banner (not popup - full width banner)
     function createBigBanner() {
-        // Prioritize the premium bundle for maximum impact
-        const premiumAd = fplAds.find(ad => ad.id === 'premium-bundle-ad') || fplAds.filter(ad => ad.priority === 1)[0] || fplAds[0];
+        // Pink gradient for 50% off promotion
+        const pinkGradient = 'linear-gradient(135deg, #ff1493, #ff69b4, #ffb6c1)';
         return `
-            <div class="fpl-big-banner" id="fpl-big-banner" style="background: ${premiumAd.color}">
+            <div class="fpl-big-banner" id="fpl-big-banner" style="background: ${pinkGradient}">
                 <div class="banner-container">
                     <button class="banner-close" onclick="closeBigBanner()">×</button>
                     <div class="banner-content">
                         <div class="banner-left">
-                            <div class="banner-icon">⚡</div>
+                            <div class="banner-icon">💖</div>
                             <div class="banner-text">
-                                <h2 class="banner-title">${premiumAd.title}</h2>
-                                <p class="banner-subtitle">${premiumAd.subtitle}</p>
-                                <p class="banner-description">${premiumAd.description}</p>
+                                <h2 class="banner-title">50% OFF Everything!</h2>
+                                <p class="banner-subtitle">Limited Time Offer - All Premium Tools</p>
+                                <p class="banner-description">Get instant access to all FPL premium features at half price</p>
                             </div>
                         </div>
                         <div class="banner-center">
@@ -135,7 +135,7 @@
                                 </a>
                             </div>
                             <div class="countdown-timer" id="countdown-timer">
-                                <div class="countdown-label">⏰ Offer Ends In:</div>
+                                <div class="countdown-label">⏰ 50% OFF Ends In:</div>
                                 <div class="countdown-display">
                                     <div class="time-unit">
                                         <span class="time-value" id="days">--</span>
@@ -158,11 +158,11 @@
                         </div>
                         <div class="banner-right">
                             <div class="banner-cta-group">
-                                <a href="${premiumAd.link}" class="banner-cta-primary">${premiumAd.cta}</a>
+                                <a href="/fpl-premium-hub.html" class="banner-cta-primary">🎯 CLAIM 50% OFF</a>
                                 <button class="banner-cta-secondary" onclick="closeBigBanner()">Maybe Later</button>
                             </div>
                         </div>
-                        ${premiumAd.special ? '<div class="banner-special-badge">🔥 LIMITED TIME OFFER - 50% OFF</div>' : ''}
+                        <div class="banner-special-badge">🔥 50% OFF - TODAY ONLY!</div>
                     </div>
                 </div>
             </div>
@@ -479,12 +479,12 @@
                 }
 
                 .banner-features .feature-item {
-                    background: rgba(255, 255, 255, 0.15);
+                    background: rgba(255, 255, 255, 0.25);
                     padding: 8px 12px;
                     border-radius: 15px;
                     backdrop-filter: blur(10px);
                     font-size: 0.85rem;
-                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border: 2px solid rgba(255, 255, 255, 0.4);
                     transition: all 0.3s ease;
                     display: inline-flex;
                     align-items: center;
@@ -494,12 +494,15 @@
                 .feature-link {
                     text-decoration: none;
                     color: white;
+                    font-weight: 600;
+                    text-shadow: 1px 1px 2px rgba(255, 20, 147, 0.3);
                 }
 
                 .feature-link:hover {
-                    background: rgba(255, 255, 255, 0.25);
+                    background: rgba(255, 255, 255, 0.4);
                     transform: scale(1.05);
-                    border-color: rgba(255, 255, 255, 0.4);
+                    border-color: white;
+                    box-shadow: 0 3px 10px rgba(255, 20, 147, 0.3);
                 }
 
                 .feature-icon {
@@ -522,25 +525,29 @@
                 }
 
                 .banner-cta-primary {
-                    background: rgba(255, 255, 255, 0.95);
-                    color: #38003c;
-                    padding: 12px 25px;
-                    border-radius: 25px;
+                    background: white;
+                    color: #ff1493;
+                    padding: 15px 30px;
+                    border-radius: 30px;
                     text-decoration: none;
-                    font-weight: 700;
-                    font-size: 1rem;
+                    font-weight: 800;
+                    font-size: 1.1rem;
                     transition: all 0.3s ease;
-                    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+                    box-shadow: 0 5px 20px rgba(255, 20, 147, 0.4);
                     width: 100%;
-                    max-width: 200px;
+                    max-width: 220px;
                     display: block;
                     text-align: center;
+                    animation: pulse 2s infinite;
+                    border: 2px solid transparent;
                 }
 
                 .banner-cta-primary:hover {
-                    background: white;
-                    transform: scale(1.05);
-                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                    background: #ff1493;
+                    color: white;
+                    transform: scale(1.08);
+                    box-shadow: 0 8px 30px rgba(255, 20, 147, 0.6);
+                    border-color: white;
                 }
 
                 .banner-cta-secondary {
@@ -566,12 +573,15 @@
                     position: absolute;
                     top: 15px;
                     left: 15px;
-                    background: linear-gradient(135deg, #ff3366, #ff6633);
-                    padding: 6px 15px;
-                    border-radius: 15px;
-                    font-size: 0.75rem;
-                    font-weight: 700;
-                    animation: pulse 2s infinite;
+                    background: linear-gradient(135deg, #fff, #ffe0ec);
+                    color: #ff1493;
+                    padding: 8px 20px;
+                    border-radius: 20px;
+                    font-size: 0.9rem;
+                    font-weight: 800;
+                    animation: pulse 1.5s infinite;
+                    box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+                    border: 2px solid #ff1493;
                 }
 
                 /* Countdown Timer Styles */
