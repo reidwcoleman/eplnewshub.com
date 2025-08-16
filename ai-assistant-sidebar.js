@@ -1424,7 +1424,7 @@
                 return true; // Premium users have unlimited messages
             }
             
-            // Free users limited to 5 messages
+            // Free users limited to 10 messages
             if (this.messageCount >= CONFIG.FREE_MESSAGE_LIMIT) {
                 return false;
             }
@@ -1436,7 +1436,7 @@
         }
 
         showUpgradePrompt() {
-            const upgradeMessage = "🚀 **Upgrade to Premium for Unlimited AI Assistance!**\n\nYou've used your 5 free AI messages. Premium members get:\n\n✅ **Unlimited AI conversations**\n✅ **Advanced FPL analytics**\n✅ **Exclusive transfer insights**\n✅ **Priority captain recommendations**";
+            const upgradeMessage = "🚀 **Upgrade to Premium for Unlimited AI Assistance!**\n\nYou've used your 10 free AI messages. Premium members get:\n\n✅ **Unlimited AI conversations**\n✅ **Advanced FPL analytics**\n✅ **Exclusive transfer insights**\n✅ **Priority captain recommendations**";
             
             this.addMessage(upgradeMessage);
             

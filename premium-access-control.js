@@ -236,12 +236,13 @@ class PremiumAccessControl {
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             z-index: 10000;
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
+            animation: fadeIn 0.3s ease;
         `;
         
         const modal = document.createElement('div');
@@ -267,11 +268,11 @@ class PremiumAccessControl {
                 upgradeContent = `
                     <div style="background: #f0f8ff; color: #37003c; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #37003c;">
                         <strong>⚽ Starter Membership - $2/month</strong><br>
-                        <small>Unlock this tool + 50 AI queries/day</small>
+                        <small>✓ Access to this premium FPL tool<br>✓ Transfer Simulator Pro<br>✓ 50 AI Assistant queries/day</small>
                     </div>
                     <div style="background: linear-gradient(135deg, #37003c, #6f42c1); color: white; padding: 15px; border-radius: 10px;">
                         <strong>🏆 Pro Membership - $7/month</strong><br>
-                        <small>All premium FPL tools + unlimited access</small>
+                        <small>✓ All premium FPL tools<br>✓ Unlimited AI queries<br>✓ Points Predictor & Budget Optimizer</small>
                     </div>
                 `;
             }
@@ -300,9 +301,10 @@ class PremiumAccessControl {
         
         modal.innerHTML = `
             <div style="font-size: 3rem; margin-bottom: 20px;">🔒</div>
-            <h2 style="color: #37003c; margin-bottom: 15px; font-size: 1.8rem;">${requiredTier === 'starter' ? 'Premium Feature' : 'Pro Feature'}</h2>
-            <p style="color: #666; margin-bottom: 25px; line-height: 1.6;">
-                <strong>${featureName}</strong> requires ${requiredTier === 'starter' ? 'Starter or Pro' : 'Pro'} membership.
+            <h2 style="color: #37003c; margin-bottom: 15px; font-size: 1.8rem;">Premium FPL Tool</h2>
+            <p style="color: #666; margin-bottom: 25px; line-height: 1.6; font-size: 1.1rem;">
+                <strong>You need Pro or Starter membership for this feature</strong><br>
+                <span style="font-size: 0.95rem; margin-top: 10px; display: block;">${featureName} is a premium tool that requires an active subscription.</span>
             </p>
             <div style="margin-bottom: 25px;">
                 ${upgradeContent}
