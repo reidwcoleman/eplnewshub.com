@@ -5573,7 +5573,7 @@
         }
 
         async function processTeamImage(event) {
-            const file = event.target.files[0];
+            const file = event.target.files ? event.target.files[0] : event;
             if (!file) return;
             
             // Show processing status
@@ -5625,11 +5625,13 @@
                 await worker.loadLanguage('eng');
                 await worker.initialize('eng');
                 
-                // Configure for better accuracy with FPL-specific settings
+                // Configure for maximum accuracy with FPL-specific settings
                 await worker.setParameters({
-                    tessedit_pageseg_mode: '11', // Sparse text mode
+                    tessedit_pageseg_mode: '3', // Fully automatic page segmentation
                     preserve_interword_spaces: '1',
-                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .£àáâäèéêëìíîïñòóôöùúûüÁÉÍÓÚÑÇ', // Include accented chars for foreign names
+                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .£àáâäèéêëìíîïñòóôöùúûüÁÉÍÓÚÑÇãõ',
+                    tessedit_min_confidence: '30', // Lower threshold to catch more text
+                    textord_min_linesize: '2.0', // Better line detection
                 });
                 
                 // Perform OCR
@@ -5659,9 +5661,22 @@
                     // Show detected player names
                     const playerNames = detectedPlayers.map(p => p.web_name || `${p.first_name} ${p.second_name}`).join(', ');
                     console.log('Successfully matched players:', playerNames);
+                    
+                    // If we didn't detect a full team, offer to add more manually
+                    if (detectedPlayers.length < 11) {
+                        setTimeout(() => {
+                            if (confirm(`Only found ${detectedPlayers.length} players. Would you like to add the remaining players manually?`)) {
+                                showManualPlayerEntry();
+                            }
+                        }, 2000);
+                    }
                 } else {
-                    statusDiv.innerHTML = '<p style="color: #ff4444;">❌ No players detected. Try a clearer screenshot of your FPL team.</p>';
+                    statusDiv.innerHTML = '<p style="color: #ff4444;">Could not detect players automatically. Opening manual entry...</p>';
                     console.log('No players matched. OCR text was:', text);
+                    // Automatically open manual entry as fallback
+                    setTimeout(() => {
+                        showManualPlayerEntry();
+                    }, 1500);
                 }
                 
                 // Hide status after 5 seconds
@@ -5690,6 +5705,9 @@
             const detectedPlayers = [];
             const allPlayers = window.transferSimPro.allPlayers;
             const matchedPlayerIds = new Set();
+            
+            // Normalize text for better matching
+            const normalizedText = text.toUpperCase().replace(/[^A-Z\s]/g, ' ');
             
             // Common OCR mistakes to fix
             const ocrCorrections = {
@@ -5938,25 +5956,96 @@
             
             console.log('Potential player names found:', potentialNames);
             
-            // Function to apply OCR corrections
+            // Comprehensive function to apply OCR corrections
             function applyOCRCorrections(text) {
                 let corrected = text;
-                // Fix common OCR mistakes
-                corrected = corrected.replace(/0degaard/gi, 'Odegaard');
-                corrected = corrected.replace(/5alah/gi, 'Salah');
-                corrected = corrected.replace(/5aka/gi, 'Saka');
-                corrected = corrected.replace(/Hal[il]and/gi, 'Haaland');
-                corrected = corrected.replace(/Watk[il]ns/gi, 'Watkins');
-                corrected = corrected.replace(/R[il]ce/gi, 'Rice');
-                corrected = corrected.replace(/Palm[ae]r/gi, 'Palmer');
-                corrected = corrected.replace(/F[0o]den/gi, 'Foden');
-                corrected = corrected.replace(/Mart[il]nez/gi, 'Martinez');
-                corrected = corrected.replace(/Gabr[il]el/gi, 'Gabriel');
-                corrected = corrected.replace(/[Il]sak/gi, 'Isak');
-                corrected = corrected.replace(/Tr[il]pp[il]er/gi, 'Trippier');
-                corrected = corrected.replace(/D[il]az/gi, 'Diaz');
-                corrected = corrected.replace(/Mbu?eu?mo/gi, 'Mbeumo');
-                corrected = corrected.replace(/Gord[0o]n/gi, 'Gordon');
+                
+                // Create a comprehensive correction map for ALL common players
+                const playerCorrections = {
+                    // Top players with common OCR errors
+                    '0degaard|Odegaard|0degard|Ødegaard': 'Odegaard',
+                    '5alah|Salah|Sa1ah|Saleh': 'Salah',
+                    '5aka|Saka|Sake': 'Saka',
+                    'Ha[al][al]and|Haaland|Haa1and|Ha1and': 'Haaland',
+                    'Watk[il]ns|Watkins|Watk1ns': 'Watkins',
+                    'R[il]ce|Rice|R1ce': 'Rice',
+                    'Palm[ae]r|Palmer|Pa1mer': 'Palmer',
+                    'F[0o]den|Foden|F0den': 'Foden',
+                    'Mart[il]nez|Martinez|Mart1nez': 'Martinez',
+                    'Gabr[il]el|Gabriel|Gabrie1': 'Gabriel',
+                    'Tr[il]pp[il]er|Trippier|Tr1pp1er': 'Trippier',
+                    'Rash[if]ord|Rashford': 'Rashford',
+                    'Fernand[ae]s|Fernandes|Bruno': 'Fernandes',
+                    'Kulu[sz]evsk[il]|Kulusevski': 'Kulusevski',
+                    'Eze|Ez[ae]': 'Eze',
+                    'Mad[uü]eke|Madueke': 'Madueke',
+                    'Al[il]sson|Alisson|A11isson': 'Alisson',
+                    'Ederson|Ed[ae]rson': 'Ederson',
+                    'Pickford|P[il]ckford': 'Pickford',
+                    'Raya|Ray[ae]': 'Raya',
+                    'V[il]rg[il]l|Virgil|Van Dijk': 'Virgil',
+                    'Sal[il]ba|Saliba|Sa11ba': 'Saliba',
+                    'Wh[il]te|White|Wh1te': 'White',
+                    'Z[il]nchenko|Zinchenko': 'Zinchenko',
+                    'Gvard[il]ol|Gvardiol': 'Gvardiol',
+                    'Konat[eé]|Konate': 'Konate',
+                    'Jo[aã]o Pedro|João Pedro|Joao Pedro': 'João Pedro',
+                    'Mbeumo|Mbuemo|Mbeuma': 'Mbeumo',
+                    'Gord[0o]n|Gordon': 'Gordon',
+                    'S[0o]n|Son|5on': 'Son',
+                    'D[il]az|Diaz|D1az': 'Diaz',
+                    '[Il]sak|Isak|1sak': 'Isak',
+                    'So1anke|Solanke': 'Solanke',
+                    'Cunha|Cunh[ae]': 'Cunha',
+                    'Bowen|Bow[ae]n': 'Bowen',
+                    'Porro|P[0o]rro': 'Porro',
+                    'Trent|Alexander-Arnold|TAA': 'Alexander-Arnold',
+                    'Robertson|Rob[ae]rtson': 'Robertson',
+                    'Cancelo|Canc[ae]lo': 'Cancelo',
+                    'Gueh[il]|Guehi': 'Guehi',
+                    'Ait-Nouri|A[il]t-Nour[il]': 'Ait-Nouri',
+                    'Estupinan|Estup[il]nan': 'Estupinan',
+                    'Dunk|D[uü]nk': 'Dunk',
+                    'Romero|Rom[ae]ro': 'Romero',
+                    'Ud[0o]gie|Udogie': 'Udogie',
+                    'Mitr[0o]vic|Mitrovic': 'Mitrovic',
+                    'Neto|N[ae]to': 'Neto',
+                    'Sanchez|Sanch[ae]z': 'Sanchez',
+                    'Onana|[0O]nana': 'Onana',
+                    'Casemiro|Cas[ae]miro': 'Casemiro',
+                    'Mount|M[0o]unt': 'Mount',
+                    'Grealish|Gr[ae]alish': 'Grealish',
+                    'Bernardo|B[ae]rnardo': 'Bernardo',
+                    'De Bruyne|D[ae] Bruyne|KDB': 'De Bruyne',
+                    'Sterling|St[ae]rling': 'Sterling',
+                    'Jesus|J[ae]sus': 'Jesus',
+                    'Nunez|N[uü]nez|Darwin': 'Nunez',
+                    'Jota|J[0o]ta': 'Jota',
+                    'Richarlison|R[il]charlison': 'Richarlison',
+                    'Maddison|Madd[il]son': 'Maddison',
+                    'Odoi|[0O]doi|Hudson-Odoi': 'Hudson-Odoi',
+                    'Welbeck|W[ae]lbeck': 'Welbeck',
+                    'Toney|T[0o]ney': 'Toney',
+                    'Awoniyi|Aw[0o]niyi': 'Awoniyi',
+                    'Jimenez|J[il]menez|Raul': 'Jimenez',
+                    'Pedro|P[ae]dro': 'Pedro',
+                    'Wilson|W[il]lson|Callum': 'Wilson',
+                    'Mitrovic|M[il]trovic': 'Mitrovic',
+                    'Mateta|Mat[ae]ta': 'Mateta',
+                    'Edouard|[AE]douard': 'Edouard'
+                };
+                
+                // Apply all corrections
+                for (const [pattern, replacement] of Object.entries(playerCorrections)) {
+                    const regex = new RegExp(pattern, 'gi');
+                    corrected = corrected.replace(regex, replacement);
+                }
+                
+                return corrected;
+            }
+            
+            // Skip the duplicate code - REMOVED
+            function skipDuplicateCode() {
                 corrected = corrected.replace(/S[0o]n/gi, 'Son');
                 corrected = corrected.replace(/Kulusevsk[il]/gi, 'Kulusevski');
                 // Additional common OCR errors
@@ -6054,7 +6143,7 @@
                 // Fix spacing issues
                 corrected = corrected.replace(/\s+/g, ' ').trim();
                 
-                return corrected;
+                // This duplicate code has been removed - keeping for reference only
             }
             
             // Remove duplicates and filter out team codes from potential names
@@ -6073,6 +6162,26 @@
             
             console.log('Total unique names to check (after filtering team codes):', uniqueNames.length);
             console.log('Sample names:', uniqueNames.slice(0, 20));
+            
+            // Create a comprehensive player name index for better matching
+            const playerIndex = {};
+            allPlayers.forEach(player => {
+                const lastName = player.second_name.toLowerCase();
+                const firstName = player.first_name.toLowerCase();
+                const webName = (player.web_name || '').toLowerCase();
+                const fullName = `${firstName} ${lastName}`;
+                
+                // Index by various name formats
+                playerIndex[lastName] = player;
+                playerIndex[firstName] = player;
+                playerIndex[webName] = player;
+                playerIndex[fullName] = player;
+                
+                // Also index by last name only (most common in FPL)
+                if (lastName.length > 3) {
+                    playerIndex[lastName.substring(0, 4)] = player;
+                }
+            });
             
             // Match potential names with actual players
             uniqueNames.forEach(name => {
