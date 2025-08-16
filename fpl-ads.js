@@ -74,8 +74,10 @@
         `;
     }
 
-    // Create floating corner ad
+    // Create floating corner ad - DISABLED (Using sidebar AI instead)
     function createFloatingAd() {
+        return ''; // Disabled - using AI sidebar instead
+        /* Original code commented out:
         return `
             <div class="fpl-floating-ad" id="fpl-floating-ad">
                 <button class="floating-close" onclick="this.parentElement.style.display='none'">×</button>
@@ -88,6 +90,7 @@
                 </div>
             </div>
         `;
+        */
     }
 
     // Create big banner (not popup - full width banner)
@@ -306,73 +309,8 @@
                     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
                 }
 
-                /* Floating Corner Ad */
-                .fpl-floating-ad {
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    background: linear-gradient(135deg, #38003c, #00ff87);
-                    border-radius: 60px;
-                    padding: 15px 20px;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                    z-index: 1000;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    animation: pulse 2s infinite;
-                }
-
-                @keyframes pulse {
-                    0%, 100% { transform: scale(1); }
-                    50% { transform: scale(1.05); }
-                }
-
-                .fpl-floating-ad:hover {
-                    transform: scale(1.1);
-                    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-                }
-
-                .floating-close {
-                    position: absolute;
-                    top: -5px;
-                    right: 5px;
-                    background: rgba(255,255,255,0.9);
-                    border: none;
-                    border-radius: 50%;
-                    width: 25px;
-                    height: 25px;
-                    font-size: 18px;
-                    cursor: pointer;
-                    display: none;
-                }
-
-                .fpl-floating-ad:hover .floating-close {
-                    display: block;
-                }
-
-                .floating-content {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    color: white;
-                }
-
-                .floating-icon {
-                    font-size: 2rem;
-                }
-
-                .floating-text {
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                .floating-text strong {
-                    font-size: 0.9rem;
-                }
-
-                .floating-text span {
-                    font-size: 0.75rem;
-                    opacity: 0.9;
-                }
+                /* Floating Corner Ad - DISABLED (Using sidebar AI instead) */
+                /* CSS for floating ad removed - using AI sidebar instead */
 
                 /* Big Banner (Full Width) */
                 .fpl-big-banner {
@@ -668,15 +606,7 @@
 
                 /* Responsive */
                 @media (max-width: 768px) {
-                    .fpl-floating-ad {
-                        bottom: 10px;
-                        right: 10px;
-                        padding: 10px 15px;
-                    }
-
-                    .floating-text {
-                        display: none;
-                    }
+                    /* Floating ad styles removed - using AI sidebar instead */
 
                     .banner-content {
                         flex-direction: column;
@@ -875,8 +805,12 @@
     }
 
 
-    // Insert floating ad
+    // Insert floating ad - DISABLED (Using sidebar AI instead)
     function insertFloatingAd() {
+        // Disabled - using AI sidebar instead
+        return;
+        
+        /* Original code commented out:
         // Only show on certain pages
         if (!window.location.pathname.includes('fpl-premium-hub')) {
             const floatingDiv = document.createElement('div');
@@ -893,6 +827,7 @@
                 });
             }
         }
+        */
     }
 
     // Countdown timer functionality
@@ -973,7 +908,7 @@
         injectStyles();
         insertSidebarAds();
         insertBannerAd();
-        insertFloatingAd();
+        // insertFloatingAd(); // Disabled - using AI sidebar instead
         insertBigBanner(); // Full-width banner below header (homepage only)
         attachAdListeners();
         rotateAds();
