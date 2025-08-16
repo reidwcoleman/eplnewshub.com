@@ -2790,9 +2790,9 @@
                 this.charts = {};
             }
 
-            async init() {
+            init() {
                 console.log('Initializing Transfer Simulator Pro...');
-                await this.loadPlayerData(); // Now properly awaiting the async data load
+                this.loadPlayerData(); // No await needed - synchronous with embedded data
                 console.log(`Player data loaded: ${this.allPlayers ? this.allPlayers.length : 0} players available`);
                 this.initializeSquadSlots();
                 this.setupEventListeners();
@@ -2849,241 +2849,77 @@
                 }
             }
             
-            async loadPlayerData() {
+            loadPlayerData() {
                 console.log('Loading player data...');
                 
-                // PRIORITY 1: Try to load from player-data-2.html first
-                try {
-                    const response = await fetch('player-data-2.html');
-                    
-                    if (response.ok) {
-                        const text = await response.text();
-                        // Parse the JSON content from the HTML file
-                        const data = JSON.parse(text);
-                        
-                        if (data && data.elements && data.elements.length > 0) {
-                            console.log('Successfully loaded data from player-data-2.html');
-                            
-                            // Store raw data
-                            this.allPlayers = data.elements;
-                            this.teams = data.teams || this.getFallbackTeams();
-                            
-                            // Create teams lookup
-                            this.teamsLookup = {};
-                            if (this.teams) {
-                                this.teams.forEach(team => {
-                                    this.teamsLookup[team.id] = {
-                                        name: team.name,
-                                        short_name: team.short_name
-                                    };
-                                });
-                            }
-                            
-                            // Process player data with additional fields
-                            this.allPlayers = this.allPlayers.map(player => ({
-                                ...player,
-                                team_name: this.teamsLookup[player.team]?.name || 'Unknown',
-                                team_short: this.teamsLookup[player.team]?.short_name || 'UNK',
-                                display_name: `${player.first_name} ${player.second_name}`,
-                                position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
-                            }));
-                            
-                            console.log(`Loaded ${this.allPlayers.length} players from player-data-2.html`);
-                            
-                            // Update status
-                            const now = new Date();
-                            const timeString = now.toLocaleTimeString();
-                            document.getElementById('lastUpdate').textContent = `Loaded at ${timeString} (${this.allPlayers.length} players)`;
-                            
-                            // Show notification
-                            if (this.showNotification) {
-                                this.showNotification(`✅ Loaded ${this.allPlayers.length} players!`, 'success');
-                            }
-                            return; // Success! Exit early
-                        }
-                    }
-                } catch (error) {
-                    console.warn('Failed to load from player-data-2.html:', error);
-                }
-                
-                // PRIORITY 2: Try fpl-premium-hub-stats-data.json
-                try {
-                    const response = await fetch('fpl-premium-hub-stats-data.json');
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        
-                        if (data && data.elements && data.elements.length > 0) {
-                            console.log('Successfully loaded data from fpl-premium-hub-stats-data.json');
-                            
-                            // Store raw data
-                            this.allPlayers = data.elements;
-                            this.teams = data.teams || this.getFallbackTeams();
-                            
-                            // Create teams lookup
-                            this.teamsLookup = {};
-                            if (this.teams) {
-                                this.teams.forEach(team => {
-                                    this.teamsLookup[team.id] = {
-                                        name: team.name,
-                                        short_name: team.short_name
-                                    };
-                                });
-                            }
-                            
-                            // Process player data with additional fields
-                            this.allPlayers = this.allPlayers.map(player => ({
-                                ...player,
-                                team_name: this.teamsLookup[player.team]?.name || 'Unknown',
-                                team_short: this.teamsLookup[player.team]?.short_name || 'UNK',
-                                display_name: `${player.first_name} ${player.second_name}`,
-                                position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
-                            }));
-                            
-                            console.log(`Loaded ${this.allPlayers.length} players from JSON file`);
-                            
-                            // Update status
-                            document.getElementById('lastUpdate').textContent = `${this.allPlayers.length} players loaded`;
-                            
-                            // Show notification
-                            if (this.showNotification) {
-                                this.showNotification(`✅ Loaded ${this.allPlayers.length} players!`, 'success');
-                            }
-                            return; // Success! Exit early
-                        }
-                    }
-                } catch (error) {
-                    console.warn('Failed to load from fpl-premium-hub-stats-data.json:', error);
-                }
-                
-                // PRIORITY 3: Try embedded data
+                // Use embedded data - this will ALWAYS work since it's hardcoded
                 if (typeof EMBEDDED_FPL_DATA !== 'undefined' && EMBEDDED_FPL_DATA) {
                     console.log('Using embedded player data...');
                     const data = expandPlayerData(EMBEDDED_FPL_DATA);
                     
                     this.allPlayers = data.elements || [];
                     this.teams = data.teams || [];
-                } else {
-                    // PRIORITY 4: Use hardcoded fallback data if everything else fails
-                    console.log('Using fallback player data...');
-                    this.allPlayers = this.getFallbackPlayers();
-                    this.teams = this.getFallbackTeams();
-                }
-                
-                // Create teams lookup
-                this.teamsLookup = {};
-                if (this.teams && this.teams.length > 0) {
-                    this.teams.forEach(team => {
-                        this.teamsLookup[team.id] = {
-                            name: team.name,
-                            short_name: team.short_name
-                        };
-                    });
-                }
-                
-                // Process player data with additional fields
-                if (this.allPlayers && this.allPlayers.length > 0) {
-                    this.allPlayers = this.allPlayers.map(player => ({
-                        ...player,
-                        team_name: this.teamsLookup[player.team]?.name || 'Unknown',
-                        team_short: this.teamsLookup[player.team]?.short_name || 'UNK',
-                        display_name: `${player.first_name} ${player.second_name}`,
-                        position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
-                    }));
-                }
-                
-                console.log(`Loaded ${this.allPlayers.length} players`);
-                
-                // Update status
-                const statusEl = document.getElementById('lastUpdate');
-                if (statusEl) {
-                    statusEl.textContent = `${this.allPlayers.length} players loaded`;
-                }
-                
-                // Show notification if we have the method
-                if (this.showNotification) {
-                    this.showNotification(`✅ ${this.allPlayers.length} players ready!`, 'success');
-                }
-            }
-            
-            getFallbackPlayers() {
-                // Hardcoded popular players as absolute fallback
-                return [
-                    {id: 381, first_name: "Mohamed", second_name: "Salah", web_name: "Salah", team: 12, element_type: 3, now_cost: 145, total_points: 0, form: "0", selected_by_percent: "55.0"},
-                    {id: 235, first_name: "Cole", second_name: "Palmer", web_name: "Palmer", team: 7, element_type: 3, now_cost: 105, total_points: 0, form: "0", selected_by_percent: "63.9"},
-                    {id: 430, first_name: "Erling", second_name: "Haaland", web_name: "Haaland", team: 13, element_type: 4, now_cost: 140, total_points: 0, form: "0", selected_by_percent: "24.1"},
-                    {id: 16, first_name: "Bukayo", second_name: "Saka", web_name: "Saka", team: 1, element_type: 3, now_cost: 100, total_points: 0, form: "0", selected_by_percent: "16.9"},
-                    {id: 373, first_name: "Virgil", second_name: "van Dijk", web_name: "Van Dijk", team: 12, element_type: 2, now_cost: 60, total_points: 0, form: "0", selected_by_percent: "23.5"},
-                    {id: 5, first_name: "Gabriel", second_name: "Magalhães", web_name: "Gabriel", team: 1, element_type: 2, now_cost: 60, total_points: 0, form: "0", selected_by_percent: "17.9"},
-                    {id: 6, first_name: "William", second_name: "Saliba", web_name: "Saliba", team: 1, element_type: 2, now_cost: 60, total_points: 0, form: "0", selected_by_percent: "13.3"},
-                    {id: 1, first_name: "David", second_name: "Raya", web_name: "Raya", team: 1, element_type: 1, now_cost: 55, total_points: 0, form: "0", selected_by_percent: "16.2"},
-                    {id: 287, first_name: "Jordan", second_name: "Pickford", web_name: "Pickford", team: 9, element_type: 1, now_cost: 55, total_points: 0, form: "0", selected_by_percent: "11.6"},
-                    {id: 249, first_name: "João", second_name: "Pedro", web_name: "João Pedro", team: 7, element_type: 4, now_cost: 75, total_points: 0, form: "0", selected_by_percent: "57.0"}
-                ];
-            }
-            
-            getFallbackTeams() {
-                return [
-                    {id: 1, name: "Arsenal", short_name: "ARS"},
-                    {id: 2, name: "Aston Villa", short_name: "AVL"},
-                    {id: 3, name: "Bournemouth", short_name: "BOU"},
-                    {id: 4, name: "Brentford", short_name: "BRE"},
-                    {id: 5, name: "Brighton", short_name: "BHA"},
-                    {id: 6, name: "Burnley", short_name: "BUR"},
-                    {id: 7, name: "Chelsea", short_name: "CHE"},
-                    {id: 8, name: "Crystal Palace", short_name: "CRY"},
-                    {id: 9, name: "Everton", short_name: "EVE"},
-                    {id: 10, name: "Fulham", short_name: "FUL"},
-                    {id: 11, name: "Leeds", short_name: "LEE"},
-                    {id: 12, name: "Liverpool", short_name: "LIV"},
-                    {id: 13, name: "Man City", short_name: "MCI"},
-                    {id: 14, name: "Man Utd", short_name: "MUN"},
-                    {id: 15, name: "Newcastle", short_name: "NEW"},
-                    {id: 16, name: "Nottm Forest", short_name: "NFO"},
-                    {id: 17, name: "Sheffield Utd", short_name: "SHU"},
-                    {id: 18, name: "Spurs", short_name: "TOT"},
-                    {id: 19, name: "West Ham", short_name: "WHU"},
-                    {id: 20, name: "Wolves", short_name: "WOL"}
-                ];
-            }
-
-            initializeSquadSlots() {
-                const positions = {
-                    1: { id: 'gkp-slots', count: 2 },
-                    2: { id: 'def-slots', count: 5 },
-                    3: { id: 'mid-slots', count: 5 },
-                    4: { id: 'fwd-slots', count: 3 }
-                };
-
-                Object.entries(positions).forEach(([posType, config]) => {
-                    const container = document.getElementById(config.id);
-                    container.innerHTML = '';
                     
-                    for (let i = 0; i < config.count; i++) {
-                        const slot = document.createElement('div');
-                        slot.className = 'player-slot';
-                        slot.dataset.position = posType;
-                        slot.dataset.index = i;
-                        slot.innerHTML = `
-                            <div class="player-info">
-                                <div class="player-name">Empty Slot</div>
-                                <div class="player-details">Click to add player</div>
-                            </div>
-                            <div class="player-price">-</div>
-                        `;
-                        slot.onclick = () => this.selectSlot(posType, i);
-                        container.appendChild(slot);
+                    // Create teams lookup
+                    this.teamsLookup = {};
+                    if (this.teams && this.teams.length > 0) {
+                        this.teams.forEach(team => {
+                            this.teamsLookup[team.id] = {
+                                name: team.name,
+                                short_name: team.short_name
+                            };
+                        });
                     }
-                });
-            }
-
-            setupEventListeners() {
-                // Price filter
-                document.getElementById('priceFilter').addEventListener('input', (e) => {
-                    document.getElementById('priceValue').textContent = `£${(e.target.value / 10).toFixed(1)}m`;
-                });
-
-                // Form filter
+                    
+                    // Process player data with additional fields
+                    if (this.allPlayers && this.allPlayers.length > 0) {
+                        this.allPlayers = this.allPlayers.map(player => ({
+                            ...player,
+                            team_name: this.teamsLookup[player.team]?.name || 'Unknown',
+                            team_short: this.teamsLookup[player.team]?.short_name || 'UNK',
+                            display_name: `${player.first_name} ${player.second_name}`,
+                            position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
+                        }));
+                    }
+                    
+                    console.log(`Loaded ${this.allPlayers.length} players from embedded data`);
+                    
+                    // Update status
+                    const statusEl = document.getElementById('lastUpdate');
+                    if (statusEl) {
+                        statusEl.textContent = `${this.allPlayers.length} players loaded`;
+                    }
+                    
+                    // Show notification
+                    this.showNotification(`✅ ${this.allPlayers.length} players ready!`, 'success');
+                    
+                    // Try to load more data in background
+                    setTimeout(() => this.loadFullPlayerData(), 2000);
+                    return;
+                }
+                
+                // PRIORITY 2: Load from player-data-2.html (local cached data)
+                try {
+                    const localResponse = await fetch('player-data-2.html', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
+                    
+                    if (localResponse.ok) {
+                        const data = await localResponse.json();
+                        
+                        if (data && data.elements && data.elements.length > 0) {
+                            console.log('Successfully loaded data from player-data-2.html');
+                            
+                            // Store raw data
+                            this.allPlayers = data.elements;
+                            this.teams = data.teams;
+                            
+                            // Create teams lookup
+                            this.teamsLookup = {};
                             if (data.teams) {
                                 data.teams.forEach(team => {
                                     this.teamsLookup[team.id] = {

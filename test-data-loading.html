@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Data Loading</title>
+</head>
+<body>
+    <h1>Test Data Loading</h1>
+    <div id="status">Testing...</div>
+    <div id="results"></div>
+
+    <script>
+        async function testDataLoading() {
+            const statusEl = document.getElementById('status');
+            const resultsEl = document.getElementById('results');
+            let results = [];
+
+            // Test 1: player-data-2.html
+            try {
+                statusEl.textContent = 'Testing player-data-2.html...';
+                const response1 = await fetch('player-data-2.html');
+                if (response1.ok) {
+                    const text = await response1.text();
+                    const data = JSON.parse(text);
+                    results.push(`✅ player-data-2.html: ${data.elements ? data.elements.length : 0} players, ${data.teams ? data.teams.length : 0} teams`);
+                } else {
+                    results.push(`❌ player-data-2.html: HTTP ${response1.status}`);
+                }
+            } catch (error) {
+                results.push(`❌ player-data-2.html: ${error.message}`);
+            }
+
+            // Test 2: fpl-premium-hub-stats-data.json
+            try {
+                statusEl.textContent = 'Testing fpl-premium-hub-stats-data.json...';
+                const response2 = await fetch('fpl-premium-hub-stats-data.json');
+                if (response2.ok) {
+                    const data = await response2.json();
+                    results.push(`✅ fpl-premium-hub-stats-data.json: ${data.elements ? data.elements.length : 0} players, ${data.teams ? data.teams.length : 0} teams`);
+                } else {
+                    results.push(`❌ fpl-premium-hub-stats-data.json: HTTP ${response2.status}`);
+                }
+            } catch (error) {
+                results.push(`❌ fpl-premium-hub-stats-data.json: ${error.message}`);
+            }
+
+            // Test 3: FPL API (with CORS)
+            try {
+                statusEl.textContent = 'Testing FPL API...';
+                const response3 = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
+                if (response3.ok) {
+                    const data = await response3.json();
+                    results.push(`✅ FPL API: ${data.elements ? data.elements.length : 0} players, ${data.teams ? data.teams.length : 0} teams`);
+                } else {
+                    results.push(`❌ FPL API: HTTP ${response3.status}`);
+                }
+            } catch (error) {
+                results.push(`❌ FPL API: ${error.message} (likely CORS issue)`);
+            }
+
+            // Display results
+            statusEl.textContent = 'Test Complete!';
+            resultsEl.innerHTML = '<h2>Results:</h2><ul>' + 
+                results.map(r => `<li>${r}</li>`).join('') + 
+                '</ul>';
+        }
+
+        // Run test on load
+        testDataLoading();
+    </script>
+</body>
+</html>
