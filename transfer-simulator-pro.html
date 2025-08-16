@@ -7049,14 +7049,14 @@
                 statusDiv.style.display = 'block';
             }
             
-            try {
-                // Create image element to display
-                const img = new Image();
-                const reader = new FileReader();
+            // Create image element to display
+            const img = new Image();
+            const reader = new FileReader();
+            
+            reader.onload = async function(e) {
+                img.src = e.target.result;
                 
-                reader.onload = async function(e) {
-                    img.src = e.target.result;
-                    
+                try {
                     // Initialize Tesseract worker
                     const worker = await Tesseract.createWorker('eng');
                     

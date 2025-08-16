@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant Test Page - EPL News Hub</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .info-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box h2 {
+            margin-top: 0;
+            color: #ffd700;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .test-actions {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .test-btn {
+            padding: 12px 24px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .status-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🤖 AI Assistant Test Page</h1>
+        
+        <div class="info-box">
+            <h2>✨ New Features</h2>
+            <ul class="feature-list">
+                <li>✅ Sidebar popup design instead of circular button</li>
+                <li>✅ Available on all pages across the website</li>
+                <li>✅ Enhanced AI responses for FPL queries</li>
+                <li>✅ Quick action buttons for common questions</li>
+                <li>✅ Message history and counter</li>
+                <li>✅ Premium upgrade prompts for free users</li>
+                <li>✅ Responsive mobile design</li>
+                <li>✅ Smooth animations and transitions</li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <h2>🎯 How to Use</h2>
+            <p>Look for the AI Assistant button in the bottom-right corner of your screen. Click it to open the sidebar and start chatting!</p>
+            <p>The assistant can help with:</p>
+            <ul class="feature-list">
+                <li>📊 Captain picks and vice-captain selections</li>
+                <li>🔄 Transfer recommendations</li>
+                <li>💰 Budget optimization and value picks</li>
+                <li>📅 Fixture analysis</li>
+                <li>⭐ Premium player recommendations</li>
+                <li>🎯 Differential picks for mini-leagues</li>
+                <li>🃏 Wildcard and chip strategies</li>
+            </ul>
+        </div>
+        
+        <div class="test-actions">
+            <button class="test-btn" onclick="testOpenAssistant()">Open AI Assistant</button>
+            <button class="test-btn" onclick="testNotification()">Show Notification</button>
+            <button class="test-btn" onclick="testQuickAction()">Test Quick Action</button>
+        </div>
+        
+        <div class="status-message">
+            <p id="status-text">AI Assistant should appear in the bottom-right corner. If you don't see it, please refresh the page.</p>
+        </div>
+    </div>
+    
+    <!-- AI Assistant Script -->
+    <script src="/ai-assistant-sidebar.js"></script>
+    
+    <script>
+        function testOpenAssistant() {
+            if (window.aiAssistant) {
+                window.aiAssistant.toggleSidebar();
+                document.getElementById('status-text').textContent = '✅ AI Assistant opened successfully!';
+            } else {
+                document.getElementById('status-text').textContent = '❌ AI Assistant not loaded. Please refresh the page.';
+            }
+        }
+        
+        function testNotification() {
+            if (window.aiAssistant) {
+                window.aiAssistant.showNotificationDot();
+                document.getElementById('status-text').textContent = '🔔 Notification dot activated! Check the AI Assistant button.';
+            } else {
+                document.getElementById('status-text').textContent = '❌ AI Assistant not loaded. Please refresh the page.';
+            }
+        }
+        
+        function testQuickAction() {
+            if (window.aiAssistant) {
+                window.aiAssistant.toggleSidebar();
+                setTimeout(() => {
+                    window.aiAssistant.handleQuickAction('captain');
+                }, 500);
+                document.getElementById('status-text').textContent = '⚡ Quick action triggered! Captain recommendation sent.';
+            } else {
+                document.getElementById('status-text').textContent = '❌ AI Assistant not loaded. Please refresh the page.';
+            }
+        }
+        
+        // Check if assistant loaded
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (window.aiAssistant) {
+                    document.getElementById('status-text').textContent = '✅ AI Assistant loaded successfully! Click the button in the bottom-right corner.';
+                } else {
+                    document.getElementById('status-text').textContent = '⏳ Loading AI Assistant...';
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
