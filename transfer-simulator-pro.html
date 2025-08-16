@@ -5650,31 +5650,13 @@
                 statusDiv.innerHTML = '<p>Matching players...</p>';
                 const detectedPlayers = processOCRText(text, words, lines);
                 
-                // Auto-populate squad
-                if (detectedPlayers.length > 0) {
-                    populateSquadFromImage(detectedPlayers);
-                    statusDiv.innerHTML = `<p style="color: #00ff88;">✅ Found ${detectedPlayers.length} players!</p>`;
-                    
-                    // Show detected player names
-                    const playerNames = detectedPlayers.map(p => p.web_name || `${p.first_name} ${p.second_name}`).join(', ');
-                    console.log('Successfully matched players:', playerNames);
-                    
-                    // If we didn't detect a full team, offer to add more manually
-                    if (detectedPlayers.length < 11) {
-                        setTimeout(() => {
-                            if (confirm(`Only found ${detectedPlayers.length} players. Would you like to add the remaining players manually?`)) {
-                                showManualPlayerEntry();
-                            }
-                        }, 2000);
-                    }
-                } else {
-                    statusDiv.innerHTML = '<p style="color: #ff4444;">Could not detect players automatically. Opening manual entry...</p>';
-                    console.log('No players matched. OCR text was:', text);
-                    // Automatically open manual entry as fallback
-                    setTimeout(() => {
-                        showManualPlayerEntry();
-                    }, 1500);
-                }
+                // Extract all potential player names from OCR
+                const extractedNames = extractPotentialPlayerNames(text, words, lines);
+                console.log('Extracted potential names from OCR:', extractedNames);
+                
+                // Always show the smart player picker with OCR suggestions
+                showSmartPlayerPicker(extractedNames, detectedPlayers);
+                statusDiv.innerHTML = '<p style="color: #00ff88;">✅ OCR complete! Please confirm your players.</p>';
                 
                 // Hide status after 5 seconds
                 setTimeout(() => {
@@ -6740,6 +6722,323 @@
             return matrix[str2.length][str1.length];
         }
 
+        function extractPotentialPlayerNames(text, words, lines) {
+            const names = [];
+            
+            // Extract from lines (most structured)
+            if (lines && lines.length > 0) {
+                lines.forEach(line => {
+                    const lineText = (line.text || '').trim();
+                    // Skip obvious non-player text
+                    if (lineText.length > 2 && lineText.length < 30 && 
+                        !lineText.toLowerCase().includes('gameweek') &&
+                        !lineText.toLowerCase().includes('deadline') &&
+                        !lineText.toLowerCase().includes('fantasy') &&
+                        !lineText.toLowerCase().includes('pitch') &&
+                        !lineText.toLowerCase().includes('bench') &&
+                        !lineText.toLowerCase().includes('captain') &&
+                        /[a-zA-Z]/.test(lineText)) {
+                        
+                        // Split by common separators and add each part
+                        const parts = lineText.split(/[\s,\/]+/);
+                        parts.forEach(part => {
+                            const cleaned = part.trim();
+                            if (cleaned.length > 2 && /^[A-Za-z]/.test(cleaned)) {
+                                names.push(cleaned);
+                            }
+                        });
+                    }
+                });
+            }
+            
+            // Remove duplicates and return
+            return [...new Set(names)];
+        }
+        
+        function showSmartPlayerPicker(ocrNames, detectedPlayers) {
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.className = 'advanced-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(5px);
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 20px;
+                padding: 30px;
+                max-width: 900px;
+                width: 90%;
+                max-height: 85vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                color: white;
+            `;
+            
+            modalContent.innerHTML = `
+                <h2 style="margin-bottom: 20px; font-size: 24px;">🎯 Confirm Your Team</h2>
+                <p style="margin-bottom: 20px; opacity: 0.9;">We found these names in your screenshot. Search and select the correct players:</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <h3 style="font-size: 18px; margin-bottom: 10px;">📋 Detected Text</h3>
+                        <div id="ocrNamesList" style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; max-height: 200px; overflow-y: auto;">
+                            ${ocrNames.length > 0 ? ocrNames.map(name => `<div style="padding: 5px;">${name}</div>`).join('') : '<div>No names detected</div>'}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 style="font-size: 18px; margin-bottom: 10px;">✅ Selected Players (<span id="selectedCount">0</span>/15)</h3>
+                        <div id="selectedPlayersList" style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; max-height: 200px; overflow-y: auto;">
+                            <div style="opacity: 0.7;">No players selected yet</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 18px; margin-bottom: 10px;">🔍 Search and Add Players</h3>
+                    <div style="position: relative;">
+                        <input type="text" id="playerSearchInput" placeholder="Type player name (e.g., Salah, Haaland, Palmer)" 
+                            style="width: 100%; padding: 12px; border-radius: 8px; border: none; background: white; color: #333; font-size: 16px;">
+                        <div id="searchSuggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border-radius: 8px; margin-top: 5px; max-height: 300px; overflow-y: auto; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1000;"></div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 18px; margin-bottom: 10px;">⚡ Quick Add Popular Players</h3>
+                    <div id="popularPlayers" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <!-- Will be populated with popular player buttons -->
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                    <button onclick="clearSelectedPlayers()" style="padding: 12px 24px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-size: 16px;">
+                        🗑️ Clear All
+                    </button>
+                    <div>
+                        <button onclick="this.closest('.advanced-modal').remove()" style="padding: 12px 24px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-size: 16px; margin-right: 10px;">
+                            Cancel
+                        </button>
+                        <button onclick="confirmSelectedPlayers()" style="padding: 12px 24px; background: white; color: #667eea; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600;">
+                            ✅ Add to Squad
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // Initialize the smart picker
+            initializeSmartPicker(ocrNames, detectedPlayers);
+        }
+        
+        let selectedPlayersForPicker = [];
+        
+        function initializeSmartPicker(ocrNames, detectedPlayers) {
+            selectedPlayersForPicker = [...detectedPlayers];
+            updateSelectedPlayersList();
+            
+            // Add popular players buttons
+            const popularPlayersDiv = document.getElementById('popularPlayers');
+            const popularPlayers = window.transferSimPro.allPlayers
+                .filter(p => parseFloat(p.selected_by_percent) > 20)
+                .sort((a, b) => parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent))
+                .slice(0, 15);
+            
+            popularPlayers.forEach(player => {
+                const btn = document.createElement('button');
+                btn.textContent = `${player.web_name || player.second_name} (${player.selected_by_percent}%)`;
+                btn.style.cssText = 'padding: 8px 12px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; cursor: pointer; font-size: 14px;';
+                btn.onclick = () => addPlayerToPicker(player);
+                popularPlayersDiv.appendChild(btn);
+            });
+            
+            // Setup search functionality
+            const searchInput = document.getElementById('playerSearchInput');
+            const suggestionsDiv = document.getElementById('searchSuggestions');
+            
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                if (query.length < 2) {
+                    suggestionsDiv.style.display = 'none';
+                    return;
+                }
+                
+                // Search players
+                const matches = window.transferSimPro.allPlayers
+                    .filter(p => {
+                        const fullName = `${p.first_name} ${p.second_name}`.toLowerCase();
+                        const webName = (p.web_name || '').toLowerCase();
+                        return fullName.includes(query) || 
+                               webName.includes(query) || 
+                               p.second_name.toLowerCase().includes(query) ||
+                               p.first_name.toLowerCase().includes(query);
+                    })
+                    .slice(0, 10);
+                
+                if (matches.length > 0) {
+                    suggestionsDiv.innerHTML = matches.map(player => `
+                        <div onclick="addPlayerToPicker(${player.id})" style="padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; color: #333; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${player.first_name} ${player.second_name}</strong>
+                                <span style="color: #666; font-size: 12px; margin-left: 10px;">${['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1]}</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="color: #667eea; font-weight: 600;">£${(player.now_cost / 10).toFixed(1)}m</span>
+                                <span style="color: #999; font-size: 12px; margin-left: 10px;">${player.selected_by_percent}%</span>
+                            </div>
+                        </div>
+                    `).join('');
+                    suggestionsDiv.style.display = 'block';
+                } else {
+                    suggestionsDiv.innerHTML = '<div style="padding: 10px; color: #999;">No players found</div>';
+                    suggestionsDiv.style.display = 'block';
+                }
+            });
+            
+            // Click outside to close suggestions
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                    suggestionsDiv.style.display = 'none';
+                }
+            });
+            
+            // Try to auto-match OCR names to players
+            ocrNames.forEach(name => {
+                const player = findBestPlayerMatch(name);
+                if (player && !selectedPlayersForPicker.find(p => p.id === player.id)) {
+                    selectedPlayersForPicker.push(player);
+                }
+            });
+            
+            updateSelectedPlayersList();
+        }
+        
+        function findBestPlayerMatch(name) {
+            const nameLower = name.toLowerCase().trim();
+            const players = window.transferSimPro.allPlayers;
+            
+            // Try exact last name match
+            let match = players.find(p => p.second_name.toLowerCase() === nameLower);
+            if (match) return match;
+            
+            // Try web name match
+            match = players.find(p => (p.web_name || '').toLowerCase() === nameLower);
+            if (match) return match;
+            
+            // Try partial match
+            match = players.find(p => p.second_name.toLowerCase().includes(nameLower) || nameLower.includes(p.second_name.toLowerCase()));
+            if (match) return match;
+            
+            return null;
+        }
+        
+        function addPlayerToPicker(playerOrId) {
+            const player = typeof playerOrId === 'number' 
+                ? window.transferSimPro.allPlayers.find(p => p.id === playerOrId)
+                : playerOrId;
+            
+            if (!player) return;
+            
+            // Check if already selected
+            if (selectedPlayersForPicker.find(p => p.id === player.id)) {
+                alert('Player already selected!');
+                return;
+            }
+            
+            // Check max players
+            if (selectedPlayersForPicker.length >= 15) {
+                alert('Maximum 15 players allowed!');
+                return;
+            }
+            
+            selectedPlayersForPicker.push(player);
+            updateSelectedPlayersList();
+            
+            // Clear search
+            document.getElementById('playerSearchInput').value = '';
+            document.getElementById('searchSuggestions').style.display = 'none';
+        }
+        
+        function updateSelectedPlayersList() {
+            const listDiv = document.getElementById('selectedPlayersList');
+            const countSpan = document.getElementById('selectedCount');
+            
+            if (selectedPlayersForPicker.length === 0) {
+                listDiv.innerHTML = '<div style="opacity: 0.7;">No players selected yet</div>';
+            } else {
+                // Group by position
+                const byPosition = {1: [], 2: [], 3: [], 4: []};
+                selectedPlayersForPicker.forEach(p => {
+                    byPosition[p.element_type].push(p);
+                });
+                
+                let html = '';
+                const posNames = ['GKP', 'DEF', 'MID', 'FWD'];
+                [1, 2, 3, 4].forEach(pos => {
+                    if (byPosition[pos].length > 0) {
+                        html += `<div style="margin-bottom: 10px;"><strong>${posNames[pos - 1]}:</strong> `;
+                        html += byPosition[pos].map(p => 
+                            `<span style="display: inline-block; margin: 2px; padding: 3px 8px; background: rgba(255,255,255,0.2); border-radius: 4px; font-size: 14px;">
+                                ${p.web_name || p.second_name}
+                                <span onclick="removePlayerFromPicker(${p.id})" style="margin-left: 5px; cursor: pointer;">❌</span>
+                            </span>`
+                        ).join('');
+                        html += '</div>';
+                    }
+                });
+                listDiv.innerHTML = html;
+            }
+            
+            countSpan.textContent = selectedPlayersForPicker.length;
+        }
+        
+        function removePlayerFromPicker(playerId) {
+            selectedPlayersForPicker = selectedPlayersForPicker.filter(p => p.id !== playerId);
+            updateSelectedPlayersList();
+        }
+        
+        function clearSelectedPlayers() {
+            selectedPlayersForPicker = [];
+            updateSelectedPlayersList();
+        }
+        
+        function confirmSelectedPlayers() {
+            if (selectedPlayersForPicker.length === 0) {
+                alert('Please select at least one player!');
+                return;
+            }
+            
+            // Add players to squad
+            populateSquadFromImage(selectedPlayersForPicker);
+            
+            // Close modal
+            document.querySelector('.advanced-modal').remove();
+            
+            // Show success message
+            if (window.transferSimPro && window.transferSimPro.showNotification) {
+                window.transferSimPro.showNotification(`✅ Added ${selectedPlayersForPicker.length} players to your squad!`, 'success');
+            }
+        }
+        
+        // Make functions globally available
+        window.addPlayerToPicker = addPlayerToPicker;
+        window.removePlayerFromPicker = removePlayerFromPicker;
+        window.clearSelectedPlayers = clearSelectedPlayers;
+        window.confirmSelectedPlayers = confirmSelectedPlayers;
+        
         function showManualPlayerEntry() {
             const modal = document.createElement('div');
             modal.className = 'advanced-modal';
