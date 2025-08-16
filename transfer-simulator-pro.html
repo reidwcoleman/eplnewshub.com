@@ -5813,6 +5813,19 @@
             // Process structured OCR data if available
             const potentialNames = [];
             
+            // Pattern to identify player-like text (starts with capital, has vowels)
+            const isLikelyPlayerName = (text) => {
+                // Must have at least one vowel
+                if (!/[aeiouAEIOU]/.test(text)) return false;
+                // Must start with a letter
+                if (!/^[A-Za-z]/.test(text)) return false;
+                // Should not be all uppercase (unless it's a known abbreviation)
+                if (text.length > 3 && text === text.toUpperCase()) return false;
+                // Should be reasonable length for a name
+                if (text.length < 2 || text.length > 20) return false;
+                return true;
+            };
+            
             // First try to use structured lines data
             if (lines && lines.length > 0) {
                 lines.forEach(line => {
@@ -5887,22 +5900,26 @@
                         return;
                     }
                     
-                    // Check if this could be part of a name
-                    if (/^[A-Za-z]/.test(text)) {
+                    // Check if this could be part of a name (must look like a name)
+                    if (/^[A-Za-z]/.test(text) && isLikelyPlayerName(text)) {
                         // Check if next word is also alphabetic (likely part of same name)
                         if (index < words.length - 1) {
                             const nextWord = words[index + 1].text || '';
-                            if (/^[A-Za-z]/.test(nextWord)) {
+                            if (/^[A-Za-z]/.test(nextWord) && !ignoredWords.includes(nextWord.toLowerCase())) {
                                 currentName += text + ' ';
                             } else {
                                 // This is likely a single-word name or last part
                                 currentName += text;
-                                potentialNames.push(currentName.trim());
+                                if (isLikelyPlayerName(currentName.trim())) {
+                                    potentialNames.push(currentName.trim());
+                                }
                                 currentName = '';
                             }
                         } else {
                             currentName += text;
-                            potentialNames.push(currentName.trim());
+                            if (isLikelyPlayerName(currentName.trim())) {
+                                potentialNames.push(currentName.trim());
+                            }
                             currentName = '';
                         }
                     } else if (currentName) {
@@ -6146,22 +6163,139 @@
                 // This duplicate code has been removed - keeping for reference only
             }
             
-            // Remove duplicates and filter out team codes from potential names
-            const teamCodes = ['ars', 'avl', 'bha', 'bre', 'bur', 'che', 'cry', 'eve', 'ful', 'liv', 'lut', 'mci', 'mun', 'new', 'nfo', 'shu', 'tot', 'whu', 'wol', 'lei', 
-                              'bou', 'lee', 'sou', 'wat', 'nor', 'bri', 'mid', 'hul', 'ips', 'pne', 'qpr', 'swa', 'car', 'sto', 'wba', 'der', 'rea',
-                              // Additional position codes
-                              'gkp', 'def', 'mid', 'fwd', 'gk'];
+            // Comprehensive list of non-player words to ignore
+            const ignoredWords = [
+                // Team abbreviations (ALL Premier League teams)
+                'ars', 'avl', 'bha', 'bre', 'bur', 'che', 'cry', 'eve', 'ful', 'liv', 
+                'lut', 'mci', 'mun', 'new', 'nfo', 'shu', 'tot', 'whu', 'wol', 'lei',
+                'bou', 'lee', 'sou', 'wat', 'nor', 'bri', 'mid', 'hul', 'ips', 'pne',
+                'qpr', 'swa', 'car', 'sto', 'wba', 'der', 'rea', 'mnc', 'lfc', 'afc',
+                'cfc', 'mufc', 'thfc', 'nufc', 'lufc', 'sufc', 'bfc', 'wfc', 'efc',
+                
+                // Position codes
+                'gkp', 'def', 'mid', 'fwd', 'gk', 'goalkeeper', 'defender', 'midfielder', 'forward',
+                
+                // FPL UI words
+                'fantasy', 'premier', 'league', 'fpl', 'points', 'team', 'squad', 'pick',
+                'gameweek', 'gw', 'captain', 'vice', 'bench', 'triple', 'wildcard', 'chips',
+                'transfers', 'bank', 'value', 'itb', 'overall', 'rank', 'score', 'total',
+                'my', 'your', 'the', 'player', 'players', 'view', 'edit', 'save', 'cancel',
+                'confirm', 'back', 'next', 'previous', 'home', 'fixtures', 'stats', 'help',
+                'logout', 'login', 'register', 'password', 'email', 'username', 'account',
+                'settings', 'profile', 'history', 'leagues', 'cup', 'head', 'mini', 'classic',
+                'global', 'country', 'gameweek', 'deadline', 'live', 'bonus', 'bps', 'price',
+                'rise', 'fall', 'locked', 'unlocked', 'available', 'unavailable', 'injured',
+                'suspended', 'doubtful', 'chance', 'news', 'scout', 'selection', 'ownership',
+                'effective', 'template', 'differential', 'essential', 'rotation', 'nailed',
+                'minutes', 'played', 'starts', 'substitute', 'subbed', 'yellow', 'red', 'card',
+                'clean', 'sheet', 'goal', 'assist', 'penalty', 'saved', 'missed', 'scored',
+                'conceded', 'points', 'last', 'round', 'season', 'form', 'difficulty',
+                'home', 'away', 'opponent', 'result', 'win', 'draw', 'loss', 'match',
+                
+                // Numbers and symbols that aren't part of names
+                '2024', '2025', '2023', 'pts', 'vs', 'fc', 'united', 'city', 'town',
+                'albion', 'athletic', 'rovers', 'wanderers', 'hotspur', 'palace', 'villa',
+                'forest', 'ham', 'bromwich', 'wednesday', 'saturday', 'sunday', 'monday',
+                
+                // Common OCR artifacts
+                'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x',
+                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
+                'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'w', 'y', 'z',
+                
+                // Price indicators
+                '£', '$', 'm', 'mil', 'million', '.', ',', '-', '+', '=',
+                
+                // Days and months (often appear in fixtures)
+                'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+                'january', 'february', 'march', 'april', 'june', 'july', 'august', 'september',
+                'october', 'november', 'december', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'
+            ];
             
             const uniqueNames = [...new Set(potentialNames)].filter(name => {
-                const nameLower = name.toLowerCase();
-                // Filter out team codes and 3-letter uppercase abbreviations
-                return !teamCodes.includes(nameLower) && 
-                       !(name.length === 3 && name === name.toUpperCase()) &&
-                       !(name.length === 2 && name === name.toUpperCase()); // Also skip 2-letter codes
+                const nameLower = name.toLowerCase().trim();
+                
+                // Filter out all ignored words (teams, UI elements, etc.)
+                if (ignoredWords.includes(nameLower)) {
+                    console.log(`Filtered out: "${name}" (ignored word)`);
+                    return false;
+                }
+                
+                // Filter out pure numbers or prices (e.g., "5.5", "10.0", "100")
+                if (name.match(/^[\d.]+$/)) {
+                    console.log(`Filtered out: "${name}" (number/price)`);
+                    return false;
+                }
+                
+                // Filter out single letters
+                if (name.length === 1) {
+                    console.log(`Filtered out: "${name}" (single letter)`);
+                    return false;
+                }
+                
+                // Filter out 3-letter uppercase codes UNLESS they're known player initials
+                const knownPlayerInitials = ['SON', 'CHO', 'AWB', 'TAA', 'DCL', 'JWP', 'KDB', 'ESR', 'ASM'];
+                if (name.length === 3 && name === name.toUpperCase() && !knownPlayerInitials.includes(name)) {
+                    console.log(`Filtered out: "${name}" (3-letter code)`);
+                    return false;
+                }
+                
+                // Filter out 2-letter codes
+                if (name.length === 2 && name === name.toUpperCase()) {
+                    console.log(`Filtered out: "${name}" (2-letter code)`);
+                    return false;
+                }
+                
+                // Filter out currency/price indicators
+                if (name.includes('£') || name.includes('$') || name.includes('€') || name.includes('%')) {
+                    console.log(`Filtered out: "${name}" (currency/symbol)`);
+                    return false;
+                }
+                
+                // Keep valid player names
+                console.log(`Keeping potential player name: "${name}"`);
+                return true;
             });
             
             console.log('Total unique names to check (after filtering team codes):', uniqueNames.length);
             console.log('Sample names:', uniqueNames.slice(0, 20));
+            
+            // FIRST: Try direct search for known player names in the raw text
+            const directMatches = [];
+            const textLower = (text || '').toLowerCase();
+            
+            // Search for each player's name directly in the text
+            allPlayers.forEach(player => {
+                const lastName = player.second_name.toLowerCase();
+                const webName = (player.web_name || '').toLowerCase();
+                const firstName = player.first_name.toLowerCase();
+                
+                // Check if player's last name appears in the text (most reliable)
+                if (lastName.length > 3 && textLower.includes(lastName)) {
+                    if (!matchedPlayerIds.has(player.id)) {
+                        matchedPlayerIds.add(player.id);
+                        detectedPlayers.push(player);
+                        directMatches.push(lastName);
+                        console.log(`Direct match found: ${player.first_name} ${player.second_name}`);
+                    }
+                }
+                // Check web name (e.g., "Salah" for "Mohamed Salah")
+                else if (webName.length > 3 && webName !== lastName && textLower.includes(webName)) {
+                    if (!matchedPlayerIds.has(player.id)) {
+                        matchedPlayerIds.add(player.id);
+                        detectedPlayers.push(player);
+                        directMatches.push(webName);
+                        console.log(`Direct match found (web name): ${player.web_name}`);
+                    }
+                }
+            });
+            
+            console.log(`Direct search found ${directMatches.length} players:`, directMatches);
+            
+            // If we found enough players directly, we can skip the complex processing
+            if (detectedPlayers.length >= 11) {
+                console.log('Found full team through direct search!');
+                return detectedPlayers.slice(0, 15); // Return max 15 players
+            }
             
             // Create a comprehensive player name index for better matching
             const playerIndex = {};
