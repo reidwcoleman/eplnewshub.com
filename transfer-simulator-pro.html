@@ -5243,8 +5243,10 @@
                                 // Skip if it's a team code (especially 3-letter ones)
                                 if (teamCodes.includes(wordLower) || 
                                     (cleanWord.length === 3 && cleanWord === cleanWord.toUpperCase())) {
-                                    // Skip team codes
-                                } else if (!['the', 'and', 'for', 'with', 'from', 'bench', 'captain', 'vice', 'team', 'squad', 'points', 'player', 'game', 'week', 'total', 'your', 'free', 'hit', 'wildcard', 'boost', 'triple', 'chips', 'transfers', 'bank', 'gkp', 'def', 'mid', 'fwd'].includes(wordLower)) {
+                                    continue; // Skip team codes
+                                }
+                                
+                                if (!['the', 'and', 'for', 'with', 'from', 'bench', 'captain', 'vice', 'team', 'squad', 'points', 'player', 'game', 'week', 'total', 'your', 'free', 'hit', 'wildcard', 'boost', 'triple', 'chips', 'transfers', 'bank', 'gkp', 'def', 'mid', 'fwd'].includes(wordLower)) {
                                     potentialNames.push(cleanWord);
                                     // Also try without apostrophes or hyphens
                                     if (cleanWord.includes("'") || cleanWord.includes('-')) {
@@ -5484,18 +5486,21 @@
                 // Apply OCR corrections to the name
                 let correctedName = applyOCRCorrections(name);
                 
-                // Additional aggressive character corrections
-                correctedName = correctedName
-                    .replace(/[0O]/g, 'o')  // 0 to o
-                    .replace(/[1l!|]/gi, 'i')  // 1, l, !, | to i
-                    .replace(/[5S\$]/g, 's')  // 5, $ to s
-                    .replace(/[3]/g, 'e')  // 3 to e
-                    .replace(/[4]/g, 'a')  // 4 to a
-                    .replace(/[8]/g, 'b')  // 8 to b
-                    .replace(/[@]/g, 'a')  // @ to a
-                    .replace(/[\[\]\{\}\(\)]/g, '')  // Remove brackets
-                    .replace(/[_\-\.]/g, ' ')  // Replace separators with space
-                    .trim();
+                // Additional character corrections - only if it looks like OCR errors
+                if (correctedName.match(/[0-9!@#$%^&*()\[\]{}|]/)) {
+                    correctedName = correctedName
+                        .replace(/0([a-z])/gi, 'O$1')  // 0 before letter -> O
+                        .replace(/([a-z])0/gi, '$1o')  // 0 after letter -> o
+                        .replace(/1([a-z])/gi, 'l$1')  // 1 before letter -> l
+                        .replace(/([a-z])1/gi, '$1i')  // 1 after letter -> i
+                        .replace(/5([a-z])/gi, 'S$1')  // 5 before letter -> S
+                        .replace(/([a-z])5/gi, '$1s')  // 5 after letter -> s
+                        .replace(/[!|]/g, 'i')  // ! or | -> i
+                        .replace(/[@]/g, 'a')  // @ -> a
+                        .replace(/[\[\]\{\}\(\)]/g, '')  // Remove brackets
+                        .replace(/[_]/g, ' ')  // Underscore to space
+                        .trim();
+                }
                 
                 const nameLower = correctedName.toLowerCase().trim();
                 const nameNoSpaces = nameLower.replace(/[^a-z]/g, '');
@@ -5557,8 +5562,8 @@
                                 // Then by total points
                                 return b.total_points - a.total_points;
                             })[0];
-                            // Extremely low threshold - accept any player if they're the best match
-                            if (parseFloat(best.selected_by_percent) > 0.1 || best.total_points > 1) {
+                            // Low threshold but reasonable - accept player if they're the best match
+                            if (parseFloat(best.selected_by_percent) > 1 || best.total_points > 10) {
                                 if (!matchedPlayerIds.has(best.id)) {
                                     matchedPlayerIds.add(best.id);
                                     detectedPlayers.push(best);
@@ -5652,7 +5657,7 @@
                             return b.total_points - a.total_points;
                         })[0];
                         
-                        if (parseFloat(best.selected_by_percent) > 0.1 || best.total_points > 1) {
+                        if (parseFloat(best.selected_by_percent) > 1 || best.total_points > 5) {
                             if (!matchedPlayerIds.has(best.id)) {
                                 matchedPlayerIds.add(best.id);
                                 detectedPlayers.push(best);
@@ -5682,8 +5687,8 @@
                         const lastNameDistance = levenshteinDistance(nameLower, lastName);
                         const webNameDistance = levenshteinDistance(nameLower, webName);
                         
-                        // Very lenient - allow up to half the characters to be different
-                        const maxDistance = Math.floor(nameLower.length / 2) + 1;
+                        // Allow reasonable character differences
+                        const maxDistance = nameLower.length <= 4 ? 1 : nameLower.length <= 6 ? 2 : 3;
                         
                         if (lastNameDistance <= maxDistance || webNameDistance <= maxDistance) {
                             return true;
