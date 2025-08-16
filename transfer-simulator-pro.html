@@ -6096,15 +6096,22 @@
                     'Mitrovic|M[il]trovic': 'Mitrovic',
                     'Mateta|Mat[ae]ta': 'Mateta',
                     'Edouard|[AE]douard': 'Edouard',
+                    // Your specific team players
+                    'Raya|Ray[ae]': 'Raya',
                     'Petrovic|P[ae]trovic': 'Petrovic',
-                    'Moreno|Mor[ae]no': 'Moreno',
-                    'Alex Moreno': 'Moreno',
-                    'Ramsey|Rams[ae]y': 'Ramsey',
-                    'A\.Ramsey|A Ramsey': 'Ramsey',
-                    'J\.Ramsey|J Ramsey': 'Ramsey',
-                    'Redmond|R[ae]dmond': 'Redmond',
-                    'M\.Salah|M Salah': 'Salah',
+                    'Gabr[il]el|Gabriel|Gabrie1': 'Gabriel',
+                    'Gueh[il]|Guehi|Guhei': 'Guehi', // Common OCR: Guhei -> Guehi
+                    'Munoz|Mun[0o]z': 'Muñoz',
+                    'Gvard[il]ol|Gvardiol': 'Gvardiol',
+                    'Moreno|Mor[ae]no|Alex Moreno': 'Moreno',
+                    'Mbeumo|Mbuemo|Mbeuma': 'Mbeumo',
                     'Mitoma|M[il]toma': 'Mitoma',
+                    'Palm[ae]r|Palmer|Pa1mer': 'Palmer',
+                    'Mo Salah|M\.Salah|M Salah|Mohamed Salah|Salah': 'Salah',
+                    'Arron Ramsey|Aaron Ramsey|A\.Ramsey|A Ramsey|Ramsey': 'Ramsey',
+                    'Wood|W[0o]od': 'Wood',
+                    'Jo[aã]o Pedro|João Pedro|Joao Pedro|Jodo Pedro': 'João Pedro',
+                    'Redmond|R[ae]dmond': 'Redmond',
                     'Snapdragon': '', // Remove sponsor text that might appear
                 };
                 
@@ -6289,15 +6296,33 @@
                     lastName.replace(/[^a-z]/g, ''), // Remove special chars
                 ];
                 
-                // Special cases for commonly abbreviated names
+                // Special cases for commonly abbreviated names and your team
                 if (lastName === 'alexander-arnold') {
                     nameVariations.push('taa', 't.a.a', 'alexander arnold', 'trent');
                 }
                 if (lastName === 'wan-bissaka') {
                     nameVariations.push('awb', 'a.w.b', 'wan bissaka', 'bissaka');
                 }
-                if (webName === 'joão pedro') {
-                    nameVariations.push('joao pedro', 'jodo pedro', 'j.pedro', 'pedro');
+                if (webName === 'joão pedro' || lastName === 'pedro') {
+                    nameVariations.push('joao pedro', 'jodo pedro', 'j.pedro', 'pedro', 'joão');
+                }
+                if (lastName === 'guehi') {
+                    nameVariations.push('guhei', 'gueh', 'guehi'); // Common OCR mistake
+                }
+                if (lastName === 'muñoz' || lastName === 'munoz') {
+                    nameVariations.push('munoz', 'muñoz', 'munos');
+                }
+                if (lastName === 'moreno') {
+                    nameVariations.push('alex moreno', 'a.moreno', 'moreno');
+                }
+                if (webName === 'salah' || lastName === 'salah') {
+                    nameVariations.push('mo salah', 'm.salah', 'mohamed salah', 'm salah', 'salah');
+                }
+                if (lastName === 'ramsey') {
+                    nameVariations.push('arron ramsey', 'aaron ramsey', 'a.ramsey', 'a ramsey');
+                }
+                if (lastName === 'wood') {
+                    nameVariations.push('c.wood', 'chris wood', 'wood');
                 }
                 
                 // Check each variation
