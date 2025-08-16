@@ -165,7 +165,6 @@
                                 <button class="banner-cta-secondary" onclick="closeBigBanner()">Maybe Later</button>
                             </div>
                         </div>
-                        ${premiumAd.special ? '<div class="banner-special-badge">🔥 LIMITED TIME OFFER - 50% OFF</div>' : ''}
                     </div>
                 </div>
             </div>
@@ -500,18 +499,6 @@
                     border-color: rgba(255, 255, 255, 0.5);
                 }
 
-                .banner-special-badge {
-                    position: absolute;
-                    top: 10px;
-                    left: 15px;
-                    background: linear-gradient(135deg, #2563eb, #1e40af);
-                    color: white;
-                    padding: 6px 15px;
-                    border-radius: 15px;
-                    font-size: 0.75rem;
-                    font-weight: 700;
-                    animation: pulse 2s infinite;
-                }
 
                 /* Countdown Timer Styles */
                 .countdown-timer {
@@ -697,13 +684,6 @@
 
                     .feature-icon {
                         font-size: 0.9rem;
-                    }
-                    
-                    .banner-special-badge {
-                        font-size: 0.65rem;
-                        padding: 4px 10px;
-                        top: 10px;
-                        left: 10px;
                     }
                     
                     /* Countdown Timer Mobile */
