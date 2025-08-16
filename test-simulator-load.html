@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Transfer Simulator Load</title>
+</head>
+<body>
+    <h1>Testing Transfer Simulator Data Load</h1>
+    <div id="status">Checking...</div>
+    <div id="results"></div>
+    
+    <script>
+        async function testDataLoad() {
+            const statusEl = document.getElementById('status');
+            const resultsEl = document.getElementById('results');
+            let results = [];
+            
+            // Test loading the transfer simulator page
+            try {
+                statusEl.textContent = 'Loading transfer-simulator-pro.html...';
+                const response = await fetch('transfer-simulator-pro.html');
+                if (response.ok) {
+                    const html = await response.text();
+                    
+                    // Check for syntax errors in JavaScript
+                    const scriptMatches = html.match(/<script[^>]*>([\s\S]*?)<\/script>/gi);
+                    let hasError = false;
+                    
+                    if (scriptMatches) {
+                        scriptMatches.forEach((script, index) => {
+                            try {
+                                // Extract script content
+                                const scriptContent = script.replace(/<\/?script[^>]*>/gi, '');
+                                // Try to parse as a function to check syntax
+                                new Function(scriptContent);
+                                results.push(`✅ Script block ${index + 1}: No syntax errors`);
+                            } catch (error) {
+                                hasError = true;
+                                results.push(`❌ Script block ${index + 1}: ${error.message}`);
+                                console.error('Script error:', error);
+                            }
+                        });
+                    }
+                    
+                    // Check if critical functions exist
+                    const criticalFunctions = [
+                        'TransferSimulatorPro',
+                        'processTeamImage',
+                        'showSmartPlayerPicker',
+                        'processOCRText'
+                    ];
+                    
+                    criticalFunctions.forEach(func => {
+                        if (html.includes(`function ${func}`) || html.includes(`class ${func}`)) {
+                            results.push(`✅ ${func} found`);
+                        } else {
+                            results.push(`❌ ${func} not found`);
+                        }
+                    });
+                    
+                } else {
+                    results.push(`❌ Failed to load transfer-simulator-pro.html: HTTP ${response.status}`);
+                }
+            } catch (error) {
+                results.push(`❌ Error loading page: ${error.message}`);
+            }
+            
+            // Test data files
+            try {
+                statusEl.textContent = 'Testing player-data-2.html...';
+                const response = await fetch('player-data-2.html');
+                if (response.ok) {
+                    const text = await response.text();
+                    const data = JSON.parse(text);
+                    results.push(`✅ player-data-2.html: ${data.elements ? data.elements.length : 0} players`);
+                } else {
+                    results.push(`❌ player-data-2.html: HTTP ${response.status}`);
+                }
+            } catch (error) {
+                results.push(`❌ player-data-2.html: ${error.message}`);
+            }
+            
+            statusEl.textContent = 'Test Complete!';
+            resultsEl.innerHTML = '<h2>Results:</h2><ul>' + 
+                results.map(r => `<li>${r}</li>`).join('') + 
+                '</ul>';
+        }
+        
+        testDataLoad();
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-// AI Assistant Sidebar - Global implementation for all pages
+// AI Assistant Sidebar - Persistent chat sidebar for all pages
 (function() {
     'use strict';
 
@@ -8,7 +8,8 @@
         PREMIUM_MESSAGE_LIMIT: -1, // Unlimited
         STORAGE_KEY: 'fpl_ai_messages',
         SESSION_KEY: 'fpl_ai_session',
-        API_ENDPOINT: '/api/ai-assistant' // Update with actual endpoint
+        SIDEBAR_STATE: 'fpl_sidebar_state',
+        API_ENDPOINT: '/api/ai-assistant'
     };
 
     // AI responses database
@@ -80,7 +81,7 @@
 
     class AIAssistantSidebar {
         constructor() {
-            this.isOpen = false;
+            this.isOpen = localStorage.getItem(CONFIG.SIDEBAR_STATE) === 'open';
             this.messageCount = 0;
             this.messages = [];
             this.userType = 'free';
@@ -94,41 +95,76 @@
             this.createSidebarHTML();
             this.attachEventListeners();
             this.addWelcomeMessage();
+            
+            // Auto-open on desktop, closed on mobile by default
+            if (window.innerWidth > 768 && this.isOpen) {
+                this.openSidebar();
+            }
         }
 
         createSidebarHTML() {
             // Create sidebar container
             const sidebar = document.createElement('div');
-            sidebar.className = 'ai-sidebar';
+            sidebar.className = 'ai-chat-sidebar';
             sidebar.innerHTML = `
-                <div class="ai-sidebar-toggle">
-                    <span class="ai-icon">🤖</span>
-                    <span class="ai-label">AI Assistant</span>
-                    <span class="ai-notification-dot"></span>
-                </div>
+                <!-- Toggle Button -->
+                <button class="ai-sidebar-toggle-btn">
+                    <span class="toggle-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6" class="chevron-right"/>
+                            <path d="M15 18l-6-6 6-6" class="chevron-left" style="display:none;"/>
+                        </svg>
+                    </span>
+                    <span class="toggle-label">AI Chat</span>
+                </button>
                 
+                <!-- Sidebar Panel -->
                 <div class="ai-sidebar-panel">
+                    <!-- Header -->
                     <div class="ai-sidebar-header">
-                        <div class="ai-header-title">
+                        <div class="ai-header-content">
                             <span class="ai-icon">🤖</span>
-                            <h3>FPL AI Assistant</h3>
+                            <div class="ai-header-text">
+                                <h3>FPL AI Assistant</h3>
+                                <span class="ai-status">
+                                    <span class="status-dot"></span>
+                                    Online
+                                </span>
+                            </div>
                         </div>
-                        <button class="ai-close-btn">×</button>
+                        <button class="ai-minimize-btn" title="Minimize">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M15 18l-6-6 6-6" stroke-width="2"/>
+                            </svg>
+                        </button>
                     </div>
                     
-                    <div class="ai-status-bar">
-                        <span class="ai-status-indicator"></span>
-                        <span class="ai-status-text">Online</span>
+                    <!-- Message Counter -->
+                    <div class="ai-message-info">
                         <span class="ai-message-counter">${this.getMessageCounterText()}</span>
                     </div>
                     
+                    <!-- Quick Actions -->
                     <div class="ai-quick-actions">
-                        <button class="ai-quick-btn" data-action="captain">Captain Pick</button>
-                        <button class="ai-quick-btn" data-action="transfers">Transfers</button>
-                        <button class="ai-quick-btn" data-action="value">Value Picks</button>
-                        <button class="ai-quick-btn" data-action="fixtures">Fixtures</button>
+                        <button class="ai-quick-btn" data-action="captain" title="Captain recommendations">
+                            <span>©️</span>
+                            <span class="btn-text">Captain</span>
+                        </button>
+                        <button class="ai-quick-btn" data-action="transfers" title="Transfer suggestions">
+                            <span>🔄</span>
+                            <span class="btn-text">Transfers</span>
+                        </button>
+                        <button class="ai-quick-btn" data-action="value" title="Best value players">
+                            <span>💰</span>
+                            <span class="btn-text">Value</span>
+                        </button>
+                        <button class="ai-quick-btn" data-action="fixtures" title="Fixture analysis">
+                            <span>📅</span>
+                            <span class="btn-text">Fixtures</span>
+                        </button>
                     </div>
                     
+                    <!-- Chat Messages -->
                     <div class="ai-chat-container">
                         <div class="ai-messages" id="ai-messages"></div>
                         <div class="ai-typing-indicator">
@@ -136,23 +172,25 @@
                         </div>
                     </div>
                     
+                    <!-- Input Area -->
                     <div class="ai-input-container">
                         <textarea 
                             class="ai-input" 
                             id="ai-input" 
-                            placeholder="Ask me anything about FPL..."
+                            placeholder="Ask about FPL strategies, transfers, captains..."
                             rows="1"
                         ></textarea>
-                        <button class="ai-send-btn" id="ai-send-btn">
+                        <button class="ai-send-btn" id="ai-send-btn" title="Send message">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" stroke-width="2"/>
                             </svg>
                         </button>
                     </div>
                     
+                    <!-- Upgrade Prompt -->
                     <div class="ai-upgrade-prompt" style="display: none;">
-                        <p>🔒 Upgrade to Premium for unlimited AI assistance</p>
-                        <button class="ai-upgrade-btn">Upgrade Now</button>
+                        <p>🔒 Upgrade for unlimited AI assistance</p>
+                        <button class="ai-upgrade-btn">Go Premium</button>
                     </div>
                 </div>
             `;
@@ -160,35 +198,96 @@
             // Add styles
             const styles = document.createElement('style');
             styles.innerHTML = `
-                .ai-sidebar {
+                /* Main Sidebar Container */
+                .ai-chat-sidebar {
                     position: fixed;
-                    right: 20px;
-                    bottom: 20px;
-                    z-index: 10000;
+                    right: 0;
+                    top: 0;
+                    height: 100vh;
+                    z-index: 9999;
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 }
                 
-                .ai-sidebar-toggle {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    padding: 12px 20px;
+                /* Toggle Button */
+                .ai-sidebar-toggle-btn {
+                    position: absolute;
+                    left: -48px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 48px;
+                    height: 100px;
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border: none;
+                    border-radius: 8px 0 0 8px;
                     color: white;
-                    border-radius: 50px;
                     cursor: pointer;
-                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
                     transition: all 0.3s ease;
-                    position: relative;
+                    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
                 }
                 
-                .ai-sidebar-toggle:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+                .ai-sidebar-toggle-btn:hover {
+                    left: -52px;
+                    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
+                }
+                
+                .toggle-label {
+                    writing-mode: vertical-rl;
+                    text-orientation: mixed;
+                    font-size: 12px;
+                    font-weight: 600;
+                    letter-spacing: 1px;
+                }
+                
+                /* Sidebar Panel */
+                .ai-sidebar-panel {
+                    position: fixed;
+                    right: -400px;
+                    top: 0;
+                    width: 400px;
+                    height: 100vh;
+                    background: white;
+                    box-shadow: -2px 0 20px rgba(0, 0, 0, 0.1);
+                    display: flex;
+                    flex-direction: column;
+                    transition: right 0.3s ease;
+                }
+                
+                .ai-chat-sidebar.open .ai-sidebar-panel {
+                    right: 0;
+                }
+                
+                .ai-chat-sidebar.open .chevron-right {
+                    display: none;
+                }
+                
+                .ai-chat-sidebar.open .chevron-left {
+                    display: block !important;
+                }
+                
+                /* Header */
+                .ai-sidebar-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 20px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .ai-header-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
                 }
                 
                 .ai-icon {
-                    font-size: 24px;
+                    font-size: 28px;
                     animation: pulse 2s infinite;
                 }
                 
@@ -197,111 +296,21 @@
                     50% { transform: scale(1.1); }
                 }
                 
-                .ai-label {
-                    font-weight: 600;
-                    font-size: 14px;
-                }
-                
-                .ai-notification-dot {
-                    position: absolute;
-                    top: -2px;
-                    right: -2px;
-                    width: 12px;
-                    height: 12px;
-                    background: #ff4757;
-                    border-radius: 50%;
-                    border: 2px solid white;
-                    display: none;
-                    animation: blink 1s infinite;
-                }
-                
-                @keyframes blink {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.5; }
-                }
-                
-                .ai-sidebar-panel {
-                    position: absolute;
-                    bottom: 70px;
-                    right: 0;
-                    width: 380px;
-                    height: 600px;
-                    background: white;
-                    border-radius: 16px;
-                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-                    display: none;
-                    flex-direction: column;
-                    overflow: hidden;
-                    animation: slideUp 0.3s ease;
-                }
-                
-                .ai-sidebar.open .ai-sidebar-panel {
-                    display: flex;
-                }
-                
-                @keyframes slideUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(20px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                
-                .ai-sidebar-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 16px 20px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    color: white;
-                }
-                
-                .ai-header-title {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-                
-                .ai-header-title h3 {
+                .ai-header-text h3 {
                     margin: 0;
-                    font-size: 16px;
+                    font-size: 18px;
                     font-weight: 600;
                 }
                 
-                .ai-close-btn {
-                    background: none;
-                    border: none;
-                    color: white;
-                    font-size: 28px;
-                    cursor: pointer;
-                    padding: 0;
-                    width: 30px;
-                    height: 30px;
+                .ai-status {
                     display: flex;
                     align-items: center;
-                    justify-content: center;
-                    border-radius: 50%;
-                    transition: background 0.2s;
-                }
-                
-                .ai-close-btn:hover {
-                    background: rgba(255, 255, 255, 0.2);
-                }
-                
-                .ai-status-bar {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    padding: 10px 20px;
-                    background: #f8f9fa;
-                    border-bottom: 1px solid #e9ecef;
+                    gap: 6px;
                     font-size: 12px;
+                    opacity: 0.9;
                 }
                 
-                .ai-status-indicator {
+                .status-dot {
                     width: 8px;
                     height: 8px;
                     background: #51cf66;
@@ -309,42 +318,85 @@
                     animation: pulse 2s infinite;
                 }
                 
-                .ai-message-counter {
-                    margin-left: auto;
-                    background: white;
-                    padding: 4px 8px;
-                    border-radius: 12px;
-                    font-weight: 500;
+                .ai-minimize-btn {
+                    background: rgba(255, 255, 255, 0.2);
+                    border: none;
+                    color: white;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background 0.2s;
                 }
                 
-                .ai-quick-actions {
-                    display: grid;
-                    grid-template-columns: repeat(2, 1fr);
-                    gap: 8px;
-                    padding: 12px 20px;
+                .ai-minimize-btn:hover {
+                    background: rgba(255, 255, 255, 0.3);
+                }
+                
+                /* Message Info */
+                .ai-message-info {
+                    padding: 10px 20px;
                     background: #f8f9fa;
                     border-bottom: 1px solid #e9ecef;
+                    display: flex;
+                    justify-content: center;
+                }
+                
+                .ai-message-counter {
+                    background: white;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: #495057;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                }
+                
+                /* Quick Actions */
+                .ai-quick-actions {
+                    padding: 12px;
+                    background: #f8f9fa;
+                    border-bottom: 1px solid #e9ecef;
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 8px;
                 }
                 
                 .ai-quick-btn {
-                    padding: 8px 12px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 4px;
+                    padding: 10px 8px;
                     background: white;
                     border: 1px solid #dee2e6;
                     border-radius: 8px;
-                    font-size: 12px;
-                    font-weight: 500;
+                    font-size: 11px;
                     color: #495057;
                     cursor: pointer;
                     transition: all 0.2s;
                 }
                 
                 .ai-quick-btn:hover {
-                    background: #667eea;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     color: white;
-                    border-color: #667eea;
-                    transform: translateY(-1px);
+                    border-color: transparent;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
                 }
                 
+                .ai-quick-btn span:first-child {
+                    font-size: 20px;
+                }
+                
+                .btn-text {
+                    font-weight: 500;
+                }
+                
+                /* Chat Container */
                 .ai-chat-container {
                     flex: 1;
                     display: flex;
@@ -359,12 +411,36 @@
                     padding: 20px;
                     display: flex;
                     flex-direction: column;
-                    gap: 12px;
+                    gap: 16px;
                 }
                 
+                .ai-messages::-webkit-scrollbar {
+                    width: 6px;
+                }
+                
+                .ai-messages::-webkit-scrollbar-track {
+                    background: #f1f3f5;
+                }
+                
+                .ai-messages::-webkit-scrollbar-thumb {
+                    background: #adb5bd;
+                    border-radius: 3px;
+                }
+                
+                .ai-messages::-webkit-scrollbar-thumb:hover {
+                    background: #868e96;
+                }
+                
+                /* Message Bubbles */
                 .ai-message {
-                    max-width: 85%;
+                    max-width: 80%;
                     word-wrap: break-word;
+                    animation: fadeIn 0.3s ease;
+                }
+                
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
                 }
                 
                 .ai-message.user {
@@ -374,10 +450,11 @@
                 .ai-message.user .message-bubble {
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     color: white;
-                    padding: 10px 14px;
-                    border-radius: 16px 16px 4px 16px;
+                    padding: 12px 16px;
+                    border-radius: 18px 18px 4px 18px;
                     font-size: 14px;
-                    line-height: 1.4;
+                    line-height: 1.5;
+                    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
                 }
                 
                 .ai-message.assistant {
@@ -387,15 +464,17 @@
                 .ai-message.assistant .message-bubble {
                     background: #f1f3f5;
                     color: #212529;
-                    padding: 10px 14px;
-                    border-radius: 16px 16px 16px 4px;
+                    padding: 12px 16px;
+                    border-radius: 18px 18px 18px 4px;
                     font-size: 14px;
-                    line-height: 1.5;
+                    line-height: 1.6;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
                 }
                 
+                /* Typing Indicator */
                 .ai-typing-indicator {
                     display: none;
-                    padding: 10px 20px;
+                    padding: 12px 20px;
                     gap: 4px;
                     align-items: center;
                 }
@@ -421,42 +500,41 @@
                 }
                 
                 @keyframes typing {
-                    0%, 60%, 100% {
-                        transform: translateY(0);
-                    }
-                    30% {
-                        transform: translateY(-10px);
-                    }
+                    0%, 60%, 100% { transform: translateY(0); }
+                    30% { transform: translateY(-10px); }
                 }
                 
+                /* Input Container */
                 .ai-input-container {
                     display: flex;
-                    gap: 10px;
-                    padding: 12px 20px;
+                    gap: 12px;
+                    padding: 16px;
                     background: #f8f9fa;
                     border-top: 1px solid #e9ecef;
                 }
                 
                 .ai-input {
                     flex: 1;
-                    padding: 10px 14px;
+                    padding: 12px 16px;
                     border: 1px solid #dee2e6;
-                    border-radius: 20px;
+                    border-radius: 24px;
                     font-size: 14px;
                     resize: none;
                     outline: none;
                     font-family: inherit;
-                    min-height: 40px;
-                    max-height: 100px;
+                    transition: border-color 0.2s;
+                    min-height: 44px;
+                    max-height: 120px;
                 }
                 
                 .ai-input:focus {
                     border-color: #667eea;
+                    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
                 }
                 
                 .ai-send-btn {
-                    width: 40px;
-                    height: 40px;
+                    width: 44px;
+                    height: 44px;
                     border-radius: 50%;
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     border: none;
@@ -466,62 +544,93 @@
                     align-items: center;
                     justify-content: center;
                     transition: all 0.2s;
+                    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
                 }
                 
                 .ai-send-btn:hover {
                     transform: scale(1.1);
+                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
                 }
                 
                 .ai-send-btn:disabled {
                     opacity: 0.5;
                     cursor: not-allowed;
+                    transform: scale(1);
                 }
                 
+                /* Upgrade Prompt */
                 .ai-upgrade-prompt {
-                    padding: 16px 20px;
+                    padding: 16px;
                     background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
                     text-align: center;
+                    border-top: 1px solid rgba(0, 0, 0, 0.1);
                 }
                 
                 .ai-upgrade-prompt p {
-                    margin: 0 0 10px 0;
-                    font-size: 13px;
+                    margin: 0 0 12px 0;
+                    font-size: 14px;
                     font-weight: 500;
                     color: #2d3436;
                 }
                 
                 .ai-upgrade-btn {
-                    padding: 8px 20px;
+                    padding: 10px 24px;
                     background: #2d3436;
                     color: white;
                     border: none;
-                    border-radius: 20px;
-                    font-size: 13px;
+                    border-radius: 24px;
+                    font-size: 14px;
                     font-weight: 600;
                     cursor: pointer;
-                    transition: transform 0.2s;
+                    transition: all 0.2s;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
                 }
                 
                 .ai-upgrade-btn:hover {
-                    transform: scale(1.05);
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
                 }
                 
-                /* Mobile responsiveness */
-                @media (max-width: 480px) {
-                    .ai-sidebar {
-                        right: 10px;
-                        bottom: 10px;
+                /* Mobile Responsive */
+                @media (max-width: 768px) {
+                    .ai-sidebar-panel {
+                        width: 100vw;
+                        right: -100vw;
                     }
                     
-                    .ai-sidebar-panel {
-                        width: calc(100vw - 20px);
-                        height: calc(100vh - 100px);
-                        right: -10px;
-                        bottom: 60px;
+                    .ai-sidebar-toggle-btn {
+                        left: -44px;
+                        width: 44px;
+                        height: 88px;
+                    }
+                    
+                    .ai-sidebar-toggle-btn:hover {
+                        left: -44px;
+                    }
+                    
+                    .toggle-label {
+                        font-size: 11px;
                     }
                     
                     .ai-quick-actions {
                         grid-template-columns: repeat(2, 1fr);
+                    }
+                    
+                    .ai-message {
+                        max-width: 90%;
+                    }
+                }
+                
+                /* Adjust main content when sidebar is open */
+                body.ai-sidebar-open {
+                    margin-right: 400px;
+                    transition: margin-right 0.3s ease;
+                }
+                
+                @media (max-width: 768px) {
+                    body.ai-sidebar-open {
+                        margin-right: 0;
+                        overflow: hidden;
                     }
                 }
             `;
@@ -537,19 +646,19 @@
 
         attachEventListeners() {
             // Toggle sidebar
-            this.sidebar.querySelector('.ai-sidebar-toggle').addEventListener('click', () => {
+            this.sidebar.querySelector('.ai-sidebar-toggle-btn').addEventListener('click', () => {
                 this.toggleSidebar();
             });
 
-            // Close button
-            this.sidebar.querySelector('.ai-close-btn').addEventListener('click', () => {
+            // Minimize button
+            this.sidebar.querySelector('.ai-minimize-btn').addEventListener('click', () => {
                 this.closeSidebar();
             });
 
             // Quick action buttons
             this.sidebar.querySelectorAll('.ai-quick-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const action = e.target.dataset.action;
+                    const action = e.currentTarget.dataset.action;
                     this.handleQuickAction(action);
                 });
             });
@@ -570,7 +679,7 @@
             // Auto-resize textarea
             this.input.addEventListener('input', () => {
                 this.input.style.height = 'auto';
-                this.input.style.height = Math.min(this.input.scrollHeight, 100) + 'px';
+                this.input.style.height = Math.min(this.input.scrollHeight, 120) + 'px';
             });
 
             // Upgrade button
@@ -580,31 +689,40 @@
                     this.handleUpgrade();
                 });
             }
+
+            // Handle ESC key to close
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.isOpen) {
+                    this.closeSidebar();
+                }
+            });
         }
 
         toggleSidebar() {
-            this.isOpen = !this.isOpen;
-            this.sidebar.classList.toggle('open', this.isOpen);
-            
             if (this.isOpen) {
-                this.input.focus();
-                this.hideNotificationDot();
+                this.closeSidebar();
+            } else {
+                this.openSidebar();
             }
+        }
+
+        openSidebar() {
+            this.isOpen = true;
+            this.sidebar.classList.add('open');
+            document.body.classList.add('ai-sidebar-open');
+            localStorage.setItem(CONFIG.SIDEBAR_STATE, 'open');
+            
+            // Focus on input
+            setTimeout(() => {
+                this.input.focus();
+            }, 300);
         }
 
         closeSidebar() {
             this.isOpen = false;
             this.sidebar.classList.remove('open');
-        }
-
-        showNotificationDot() {
-            const dot = this.sidebar.querySelector('.ai-notification-dot');
-            if (dot) dot.style.display = 'block';
-        }
-
-        hideNotificationDot() {
-            const dot = this.sidebar.querySelector('.ai-notification-dot');
-            if (dot) dot.style.display = 'none';
+            document.body.classList.remove('ai-sidebar-open');
+            localStorage.setItem(CONFIG.SIDEBAR_STATE, 'closed');
         }
 
         handleQuickAction(action) {
@@ -702,7 +820,7 @@
         }
 
         addWelcomeMessage() {
-            const welcomeText = "👋 Hi! I'm your FPL AI Assistant. Ask me anything about Fantasy Premier League - transfers, captains, differentials, or strategy!";
+            const welcomeText = "👋 Welcome! I'm your FPL AI Assistant. Ask me anything about Fantasy Premier League - transfers, captains, differentials, or strategy. Use the quick action buttons above for common questions!";
             this.addMessage(welcomeText, 'assistant');
         }
 
@@ -747,10 +865,10 @@
 
         getMessageCounterText() {
             if (this.userType === 'premium') {
-                return 'Premium ✨';
+                return '✨ Premium Member';
             }
             const remaining = CONFIG.FREE_MESSAGE_LIMIT - this.messageCount;
-            return `Free: ${remaining}/${CONFIG.FREE_MESSAGE_LIMIT}`;
+            return `Free: ${remaining}/${CONFIG.FREE_MESSAGE_LIMIT} messages`;
         }
 
         checkUserStatus() {
@@ -794,6 +912,13 @@
                     } else {
                         this.messageCount = data.count || 0;
                         this.messages = data.messages || [];
+                        
+                        // Restore previous messages
+                        if (this.messages.length > 0) {
+                            this.messages.slice(-10).forEach(msg => {
+                                this.addMessage(msg.text, msg.sender);
+                            });
+                        }
                     }
                 } catch (e) {
                     this.messageCount = 0;

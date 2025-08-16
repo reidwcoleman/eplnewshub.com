@@ -5384,22 +5384,7 @@
             }
         }
         
-        function processTeamImage(input) {
-            // Handle team image upload
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // You can add logic here to process the team image
-                    console.log('Team image loaded:', e.target.result);
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-        
-        // Make functions globally available
-        window.filterPlayers = filterPlayers;
-        window.showPositionPlayers = showPositionPlayers;
-        window.processTeamImage = processTeamImage;
+        // Functions are made globally available after their definitions
 
         async function forceLoadPlayerData() {
             console.log('Force loading player data...');
@@ -5572,24 +5557,7 @@
             }
         }
 
-        async function processTeamImage(event) {
-            const file = event.target.files ? event.target.files[0] : event;
-            if (!file) return;
-            
-            // Show processing status
-            const statusDiv = document.getElementById('imageProcessingStatus');
-            statusDiv.style.display = 'block';
-            statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Initializing...</p>';
-            
-            // Ensure player data is loaded
-            if (!window.transferSimPro || !window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
-                console.log('Player data not loaded, loading now...');
-                statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Loading player data...</p>';
-                
-                // Initialize the simulator if not already done
-                if (!window.transferSimPro) {
-                    window.transferSimPro = new TransferSimulatorPro();
-                }
+        // Duplicate processTeamImage removed - using the one defined later
                 
                 // Always try to load player data
                 await window.transferSimPro.loadPlayerData();
