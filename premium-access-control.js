@@ -8,12 +8,15 @@ class PremiumAccessControl {
         // Pro-only features (most advanced)
         this.proOnlyFeatures = [
             'player-predictor.html',
-            'budget-optimizer.html'
+            'budget-optimizer.html',
+            'fixture-analyzer-pro.html'
         ];
         
         // Starter + Pro features (intermediate) 
         this.starterPlusFeatures = [
             'transfer-simulator-pro.html',
+            'transfer-simulator.html',
+            'team-analyzer.html',
             'player-data-enhanced.html'
         ];
         
@@ -227,6 +230,11 @@ class PremiumAccessControl {
      * Show access denied overlay for premium features
      */
     showAccessDeniedOverlay(page) {
+        // Use the membership popup if available
+        if (typeof window.showMembershipPopup === 'function') {
+            window.showMembershipPopup(page);
+            return;
+        }
         const access = this.hasAccess(page);
         const overlay = document.createElement('div');
         overlay.id = 'premium-access-overlay';
@@ -383,6 +391,9 @@ class PremiumAccessControl {
         const names = {
             'fpl-ai-assistant.html': 'FPL AI Assistant',
             'transfer-simulator-pro.html': 'Transfer Simulator Pro',
+            'transfer-simulator.html': 'Transfer Simulator',
+            'team-analyzer.html': 'Team Analyzer',
+            'fixture-analyzer-pro.html': 'Fixture Analyzer Pro',
             'player-data-enhanced.html': 'Player Analytics Suite',
             'player-predictor.html': 'Points Predictor',
             'budget-optimizer.html': 'Budget Optimizer'
@@ -547,4 +558,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = PremiumAccessControl;
-}
+}// Initialize premium access control on page load
+document.addEventListener("DOMContentLoaded", function() {
+    // Initialize premium access control if not already initialized
+    if (!window.premiumAccessControl) {
+        window.premiumAccessControl = new PremiumAccessControl();
+    }
+});

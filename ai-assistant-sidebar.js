@@ -4,7 +4,8 @@
 
     // Configuration
     const CONFIG = {
-        FREE_MESSAGE_LIMIT: 10,
+        FREE_MESSAGE_LIMIT: 5,  // Updated to match premium access control
+        STARTER_MESSAGE_LIMIT: 50,
         PREMIUM_MESSAGE_LIMIT: -1,
         STORAGE_KEY: 'fpl-ai-messages',
         SESSION_KEY: 'fpl-ai-session',
@@ -598,8 +599,15 @@
                 }
                 
                 .ai-message-counter.premium {
-                    background: rgba(0, 255, 136, 0.2);
-                    color: #00b341;
+                    background: linear-gradient(135deg, rgba(111, 66, 193, 0.2), rgba(32, 201, 151, 0.2));
+                    color: #6f42c1;
+                    font-weight: 600;
+                }
+                
+                .ai-message-counter.starter {
+                    background: rgba(243, 156, 18, 0.2);
+                    color: #f39c12;
+                    font-weight: 600;
                 }
                 
                 .ai-message-counter.warning {
@@ -1417,15 +1425,33 @@
         }
 
         async checkMessageLimit() {
-            // Check if user has premium membership
+            // Check if premium access control is available
+            if (window.premiumAccessControl) {
+                const userStatus = window.premiumAccessControl.getUserStatus();
+                const access = window.premiumAccessControl.hasAccess('fpl-ai-assistant.html');
+                
+                if (access.hasAccess) {
+                    // Check if user has remaining queries
+                    if (!access.unlimited && access.remaining <= 0) {
+                        return false;
+                    }
+                    
+                    // Update daily usage for AI Assistant
+                    window.premiumAccessControl.updateDailyUsage('ai-assistant');
+                    return true;
+                }
+                return false;
+            }
+            
+            // Fallback to old system if premium access control not loaded
             const hasPremium = localStorage.getItem('fpl-ai-premium') === 'true';
             
             if (hasPremium) {
                 return true; // Premium users have unlimited messages
             }
             
-            // Free users limited to 10 messages
-            if (this.messageCount >= CONFIG.FREE_MESSAGE_LIMIT) {
+            // Free users limited to 5 messages per day
+            if (this.messageCount >= 5) {
                 return false;
             }
             
@@ -1436,7 +1462,7 @@
         }
 
         showUpgradePrompt() {
-            const upgradeMessage = "🚀 **Upgrade to Premium for Unlimited AI Assistance!**\n\nYou've used your 10 free AI messages. Premium members get:\n\n✅ **Unlimited AI conversations**\n✅ **Advanced FPL analytics**\n✅ **Exclusive transfer insights**\n✅ **Priority captain recommendations**";
+            const upgradeMessage = "🚀 **Upgrade to Premium for More AI Assistance!**\n\nYou've reached your daily AI query limit. Upgrade to get:\n\n⚽ **Starter ($2/month)**: 50 AI queries per day\n🏆 **Pro ($7/month)**: Unlimited AI queries\n\n✅ **Advanced FPL analytics**\n✅ **Exclusive transfer insights**\n✅ **Priority captain recommendations**";
             
             this.addMessage(upgradeMessage);
             
@@ -1468,14 +1494,43 @@
             const counter = this.sidebar.querySelector('#message-counter');
             if (!counter) return;
             
+            // Use premium access control if available
+            if (window.premiumAccessControl) {
+                const userStatus = window.premiumAccessControl.getUserStatus();
+                const access = window.premiumAccessControl.hasAccess('fpl-ai-assistant.html');
+                
+                if (userStatus.membershipLevel === 'pro') {
+                    counter.textContent = '🏆 Pro: Unlimited';
+                    counter.className = 'ai-message-counter premium';
+                } else if (userStatus.membershipLevel === 'starter') {
+                    const remaining = access.remaining || 0;
+                    counter.textContent = `⚽ Starter: ${remaining}/50`;
+                    counter.className = remaining <= 5 ? 'ai-message-counter warning' : 'ai-message-counter starter';
+                } else {
+                    // Free user
+                    const remaining = access.remaining || 0;
+                    counter.textContent = `Free: ${remaining}/5`;
+                    
+                    if (remaining === 0) {
+                        counter.className = 'ai-message-counter danger';
+                    } else if (remaining <= 2) {
+                        counter.className = 'ai-message-counter warning';
+                    } else {
+                        counter.className = 'ai-message-counter';
+                    }
+                }
+                return;
+            }
+            
+            // Fallback to old system
             const hasPremium = localStorage.getItem('fpl-ai-premium') === 'true';
             
             if (hasPremium) {
                 counter.textContent = 'Premium: Unlimited';
                 counter.className = 'ai-message-counter premium';
             } else {
-                const remaining = Math.max(0, CONFIG.FREE_MESSAGE_LIMIT - this.messageCount);
-                counter.textContent = `Free: ${remaining}/${CONFIG.FREE_MESSAGE_LIMIT} messages`;
+                const remaining = Math.max(0, 5 - this.messageCount);
+                counter.textContent = `Free: ${remaining}/5 messages`;
                 
                 if (remaining === 0) {
                     counter.className = 'ai-message-counter danger';
@@ -1488,12 +1543,29 @@
         }
 
         getMessageCounterText() {
+            // Use premium access control if available
+            if (window.premiumAccessControl) {
+                const userStatus = window.premiumAccessControl.getUserStatus();
+                const access = window.premiumAccessControl.hasAccess('fpl-ai-assistant.html');
+                
+                if (userStatus.membershipLevel === 'pro') {
+                    return '🏆 Pro: Unlimited';
+                } else if (userStatus.membershipLevel === 'starter') {
+                    const remaining = access.remaining || 0;
+                    return `⚽ Starter: ${remaining}/50`;
+                } else {
+                    const remaining = access.remaining || 0;
+                    return `Free: ${remaining}/5`;
+                }
+            }
+            
+            // Fallback to old system
             const hasPremium = localStorage.getItem('fpl-ai-premium') === 'true';
             if (hasPremium) {
                 return 'Premium: Unlimited';
             }
-            const remaining = Math.max(0, CONFIG.FREE_MESSAGE_LIMIT - this.messageCount);
-            return `Free: ${remaining}/${CONFIG.FREE_MESSAGE_LIMIT} messages`;
+            const remaining = Math.max(0, 5 - this.messageCount);
+            return `Free: ${remaining}/5 messages`;
         }
 
         checkUserStatus() {
