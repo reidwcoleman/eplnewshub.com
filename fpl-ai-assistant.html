@@ -400,7 +400,7 @@
                     <span>AI Online & Ready</span>
                 </div>
                 <div class="message-counter" id="message-counter" style="margin-left: 20px; padding: 8px 16px; background: rgba(255,255,255,0.1); border-radius: 20px; font-size: 14px;">
-                    Free: 10/10 messages
+                    Loading...
                 </div>
             </div>
 
@@ -1339,7 +1339,25 @@
             }
 
             async checkMessageLimit() {
-                // Check if user has premium membership
+                // Check if premium access control is available
+                if (window.premiumAccessControl) {
+                    const userStatus = window.premiumAccessControl.getUserStatus();
+                    const access = window.premiumAccessControl.hasAccess('fpl-ai-assistant.html');
+                    
+                    if (access.hasAccess) {
+                        // Check if user has remaining queries
+                        if (!access.unlimited && access.remaining <= 0) {
+                            return false;
+                        }
+                        
+                        // Update daily usage for AI Assistant
+                        window.premiumAccessControl.updateDailyUsage('ai-assistant');
+                        return true;
+                    }
+                    return false;
+                }
+                
+                // Fallback to old system if premium access control not loaded
                 const membershipPlan = await window.membershipPopup?.checkMembership();
                 
                 if (membershipPlan) {
@@ -1349,8 +1367,8 @@
                 // Get current message count for free users
                 const messageCount = parseInt(localStorage.getItem('fpl-ai-message-count') || '0');
                 
-                // Free users limited to 10 messages
-                if (messageCount >= 10) {
+                // Free users limited to 5 messages per day
+                if (messageCount >= 5) {
                     return false;
                 }
                 
@@ -1360,7 +1378,7 @@
             }
 
             showUpgradePrompt() {
-                const upgradeMessage = `🚀 **Upgrade to Premium for Unlimited AI Assistance!**\n\nYou've used your 10 free AI messages. Premium members get:\n\n✅ **Unlimited AI conversations**\n✅ **Advanced FPL analytics**\n✅ **Exclusive transfer insights**\n✅ **Priority captain recommendations**`;
+                const upgradeMessage = `🚀 **Upgrade to Premium for More AI Assistance!**\n\nYou've reached your daily AI query limit. Upgrade to get:\n\n⚽ **Starter ($2/month)**: 50 AI queries per day\n🏆 **Pro ($7/month)**: Unlimited AI queries\n\n✅ **Advanced FPL analytics**\n✅ **Exclusive transfer insights**\n✅ **Priority captain recommendations**`;
                 
                 this.addMessage(upgradeMessage);
                 
@@ -1393,24 +1411,62 @@
             }
 
             updateMessageCounter() {
-                const messageCount = parseInt(localStorage.getItem('fpl-ai-message-count') || '0');
-                const hasPremium = localStorage.getItem('fpl-ai-premium') === 'true';
                 const counter = document.getElementById('message-counter');
+                if (!counter) return;
                 
-                if (counter) {
-                    if (hasPremium) {
-                        counter.textContent = 'Premium: Unlimited';
-                        counter.style.background = 'rgba(0, 255, 136, 0.2)';
+                // Use premium access control if available
+                if (window.premiumAccessControl) {
+                    const userStatus = window.premiumAccessControl.getUserStatus();
+                    const access = window.premiumAccessControl.hasAccess('fpl-ai-assistant.html');
+                    
+                    if (userStatus.membershipLevel === 'pro') {
+                        counter.textContent = '🏆 Pro: Unlimited AI queries';
+                        counter.style.background = 'linear-gradient(135deg, rgba(111, 66, 193, 0.3), rgba(32, 201, 151, 0.3))';
+                        counter.style.color = 'white';
+                    } else if (userStatus.membershipLevel === 'starter') {
+                        const remaining = access.remaining || 0;
+                        counter.textContent = `⚽ Starter: ${remaining}/50 queries today`;
+                        counter.style.background = 'rgba(243, 156, 18, 0.2)';
+                        counter.style.color = 'white';
+                        
+                        if (remaining <= 5) {
+                            counter.style.background = 'rgba(255, 170, 0, 0.3)';
+                        }
                     } else {
-                        const remaining = Math.max(0, 10 - messageCount);
-                        counter.textContent = `Free: ${remaining}/10 messages`;
+                        // Free user
+                        const remaining = access.remaining || 0;
+                        counter.textContent = `Free: ${remaining}/5 queries today`;
+                        
                         if (remaining === 0) {
-                            counter.style.background = 'rgba(255, 68, 68, 0.2)';
+                            counter.style.background = 'rgba(255, 68, 68, 0.3)';
+                            counter.style.color = '#ffcccc';
                         } else if (remaining <= 2) {
-                            counter.style.background = 'rgba(255, 170, 0, 0.2)';
+                            counter.style.background = 'rgba(255, 170, 0, 0.3)';
+                            counter.style.color = '#ffe0aa';
                         } else {
                             counter.style.background = 'rgba(255, 255, 255, 0.1)';
+                            counter.style.color = 'white';
                         }
+                    }
+                    return;
+                }
+                
+                // Fallback to old system
+                const messageCount = parseInt(localStorage.getItem('fpl-ai-message-count') || '0');
+                const hasPremium = localStorage.getItem('fpl-ai-premium') === 'true';
+                
+                if (hasPremium) {
+                    counter.textContent = 'Premium: Unlimited';
+                    counter.style.background = 'rgba(0, 255, 136, 0.2)';
+                } else {
+                    const remaining = Math.max(0, 5 - messageCount);
+                    counter.textContent = `Free: ${remaining}/5 messages`;
+                    if (remaining === 0) {
+                        counter.style.background = 'rgba(255, 68, 68, 0.2)';
+                    } else if (remaining <= 2) {
+                        counter.style.background = 'rgba(255, 170, 0, 0.2)';
+                    } else {
+                        counter.style.background = 'rgba(255, 255, 255, 0.1)';
                     }
                 }
             }
@@ -3955,6 +4011,13 @@
                 window.fplAI = new FPLAIAssistant();
                 await window.fplAI.initialize();
                 console.log('FPL AI Assistant initialized successfully');
+                
+                // Update counter when premium access control loads
+                setTimeout(() => {
+                    if (window.fplAI) {
+                        window.fplAI.updateMessageCounter();
+                    }
+                }, 500);
             } catch (error) {
                 console.error('Failed to initialize FPL AI Assistant:', error);
             }
