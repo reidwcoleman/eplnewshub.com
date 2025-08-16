@@ -4,7 +4,7 @@
 
     // Configuration
     const CONFIG = {
-        FREE_MESSAGE_LIMIT: 5,
+        FREE_MESSAGE_LIMIT: 10,
         PREMIUM_MESSAGE_LIMIT: -1,
         STORAGE_KEY: 'fpl-ai-messages',
         SESSION_KEY: 'fpl-ai-session',
