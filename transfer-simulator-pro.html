@@ -2062,6 +2062,8 @@
     </style>
     <!-- Tesseract.js for OCR -->
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
+    <!-- Enhanced OCR Processing -->
+    <script src="enhanced-ocr-processing.js"></script>
 </head>
 <body>
     <div class="header" include="./header.html"></div>
@@ -6731,7 +6733,14 @@
         let selectedPlayersForPicker = [];
         
         function initializeSmartPicker(ocrNames, detectedPlayers) {
-            selectedPlayersForPicker = [...detectedPlayers];
+            // Sort detected players by confidence if available
+            const sortedPlayers = [...detectedPlayers].sort((a, b) => {
+                const confA = a.matchConfidence || 0.5;
+                const confB = b.matchConfidence || 0.5;
+                return confB - confA;
+            });
+            
+            selectedPlayersForPicker = sortedPlayers;
             updateSelectedPlayersList();
             
             // Add popular players buttons
@@ -6874,12 +6883,16 @@
                 [1, 2, 3, 4].forEach(pos => {
                     if (byPosition[pos].length > 0) {
                         html += `<div style="margin-bottom: 10px;"><strong>${posNames[pos - 1]}:</strong> `;
-                        html += byPosition[pos].map(p => 
-                            `<span style="display: inline-block; margin: 2px; padding: 3px 8px; background: rgba(255,255,255,0.2); border-radius: 4px; font-size: 14px;">
-                                ${p.web_name || p.second_name}
+                        html += byPosition[pos].map(p => {
+                            const confidence = p.matchConfidence ? ` (${(p.matchConfidence * 100).toFixed(0)}%)` : '';
+                            const bgColor = p.matchConfidence ? 
+                                `rgba(255,255,255,${Math.max(0.1, p.matchConfidence * 0.3)})` : 
+                                'rgba(255,255,255,0.2)';
+                            return `<span style="display: inline-block; margin: 2px; padding: 3px 8px; background: ${bgColor}; border-radius: 4px; font-size: 14px;" title="${p.matchReason || 'Manual selection'}">
+                                ${p.web_name || p.second_name}${confidence}
                                 <span onclick="removePlayerFromPicker(${p.id})" style="margin-left: 5px; cursor: pointer;">❌</span>
-                            </span>`
-                        ).join('');
+                            </span>`;
+                        }).join('');
                         html += '</div>';
                     }
                 });
@@ -6949,9 +6962,20 @@
                         const { data } = await worker.recognize(img.src);
                         console.log('OCR Result:', data);
                         
-                        // Process the OCR text
+                        // Process the OCR text with enhanced algorithm
+                        let detectedPlayers;
+                        if (typeof enhancedProcessOCRText === 'function') {
+                            // Use enhanced processing if available
+                            console.log('Using enhanced OCR processing...');
+                            detectedPlayers = enhancedProcessOCRText(data.text, data.words, data.lines);
+                        } else {
+                            // Fallback to original processing
+                            console.log('Using standard OCR processing...');
+                            detectedPlayers = processOCRText(data.text, data.words, data.lines);
+                        }
+                        
+                        // Extract potential names for display
                         const detectedNames = extractPotentialPlayerNames(data.text, data.words, data.lines);
-                        const detectedPlayers = processOCRText(data.text, data.words, data.lines);
                         
                         // Show the smart player picker dialog
                         showSmartPlayerPicker(detectedNames, detectedPlayers);
