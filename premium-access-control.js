@@ -39,16 +39,31 @@ class PremiumAccessControl {
      * Integrates with auth service, subscription manager, and server-side authentication
      */
     getUserStatus() {
+        // Debug logging
+        console.log('Getting user status...', {
+            authService: !!window.authService,
+            subscriptionManager: !!window.subscriptionManager,
+            userLoggedIn: localStorage.getItem('userLoggedIn'),
+            membershipLevel: localStorage.getItem('membershipLevel'),
+            eplSubscription: localStorage.getItem('eplSubscription')
+        });
+        
         // First check if auth service has current user data
-        if (window.authService && window.authService.getCurrentUser()) {
-            const user = window.authService.getCurrentUser();
-            const subscription = window.authService.getSubscription();
-            return {
-                isLoggedIn: window.authService.isLoggedIn(),
-                membershipLevel: window.authService.getMembershipTier() || 'free',
-                dailyUsage: this.getDailyUsage(),
-                isActive: window.authService.hasActiveSubscription()
-            };
+        if (window.authService && window.authService.getCurrentUser) {
+            try {
+                const user = window.authService.getCurrentUser();
+                if (user) {
+                    const subscription = window.authService.getSubscription ? window.authService.getSubscription() : null;
+                    return {
+                        isLoggedIn: window.authService.isLoggedIn ? window.authService.isLoggedIn() : true,
+                        membershipLevel: window.authService.getMembershipTier ? window.authService.getMembershipTier() : 'free',
+                        dailyUsage: this.getDailyUsage(),
+                        isActive: window.authService.hasActiveSubscription ? window.authService.hasActiveSubscription() : false
+                    };
+                }
+            } catch (error) {
+                console.error('Error accessing authService:', error);
+            }
         }
         
         // Second, check if subscription manager has current user data
@@ -64,17 +79,31 @@ class PremiumAccessControl {
         
         // Check localStorage for cached user status (fallback)
         const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+        const membershipLevel = localStorage.getItem('membershipLevel');
         const subscriptionData = localStorage.getItem('eplSubscription');
         
-        if (isLoggedIn && subscriptionData) {
+        // If explicitly logged in with membership level set
+        if (isLoggedIn && membershipLevel && membershipLevel !== 'free') {
+            return {
+                isLoggedIn: true,
+                membershipLevel: membershipLevel,
+                dailyUsage: this.getDailyUsage(),
+                isActive: true // Assume active if explicitly set
+            };
+        }
+        
+        // Try parsing subscription data
+        if (subscriptionData) {
             try {
                 const parsed = JSON.parse(subscriptionData);
-                return {
-                    isLoggedIn: true,
-                    membershipLevel: parsed.tier || 'free',
-                    dailyUsage: this.getDailyUsage(),
-                    isActive: parsed.status === 'active'
-                };
+                if (parsed.tier) {
+                    return {
+                        isLoggedIn: isLoggedIn || true, // If subscription exists, user is logged in
+                        membershipLevel: parsed.tier,
+                        dailyUsage: this.getDailyUsage(),
+                        isActive: parsed.status === 'active'
+                    };
+                }
             } catch (error) {
                 console.error('Error parsing subscription data:', error);
             }
@@ -492,6 +521,15 @@ class PremiumAccessControl {
     simulateLogin(membershipLevel = 'free') {
         localStorage.setItem('userLoggedIn', 'true');
         localStorage.setItem('membershipLevel', membershipLevel);
+        
+        // Also set subscription data for consistency
+        if (membershipLevel !== 'free') {
+            localStorage.setItem('eplSubscription', JSON.stringify({
+                tier: membershipLevel,
+                status: 'active'
+            }));
+        }
+        
         this.userStatus = this.getUserStatus();
         location.reload();
     }
@@ -503,8 +541,22 @@ class PremiumAccessControl {
         localStorage.removeItem('userLoggedIn');
         localStorage.removeItem('membershipLevel');
         localStorage.removeItem('dailyUsage');
+        localStorage.removeItem('eplSubscription');
         this.userStatus = this.getUserStatus();
         location.reload();
+    }
+    
+    /**
+     * Clear all authentication data (for testing)
+     */
+    clearAllAuth() {
+        localStorage.removeItem('userLoggedIn');
+        localStorage.removeItem('membershipLevel');
+        localStorage.removeItem('eplSubscription');
+        localStorage.removeItem('dailyUsage');
+        localStorage.removeItem('fpl-ai-premium');
+        this.refreshUserStatus();
+        console.log('All auth data cleared. Status:', this.getUserStatus());
     }
 }
 
@@ -514,6 +566,30 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add premium indicators to UI
     window.premiumAccessControl.addPremiumIndicators();
+    
+    // Add global helper functions for testing
+    window.setMembership = function(level) {
+        if (!['free', 'starter', 'pro'].includes(level)) {
+            console.error('Invalid membership level. Use: free, starter, or pro');
+            return;
+        }
+        window.premiumAccessControl.simulateLogin(level);
+        console.log(`Membership set to: ${level}`);
+    };
+    
+    window.clearMembership = function() {
+        window.premiumAccessControl.clearAllAuth();
+        console.log('Membership cleared - now using free plan');
+    };
+    
+    window.checkMembership = function() {
+        const status = window.premiumAccessControl.getUserStatus();
+        console.log('Current membership status:', status);
+        return status;
+    };
+    
+    // Log initial status
+    console.log('Premium Access Control initialized. Current status:', window.premiumAccessControl.getUserStatus());
     
     // Listen for subscription updates from subscription manager
     window.addEventListener('subscriptionUpdated', (event) => {
