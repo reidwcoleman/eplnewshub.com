@@ -5619,11 +5619,8 @@
                 // Initialize Tesseract with better settings
                 statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="margin-top: 5px;">Loading OCR engine...</p>';
                 
-                // Create worker without logger to avoid serialization issues
-                const worker = await Tesseract.createWorker();
-                
-                await worker.loadLanguage('eng');
-                await worker.initialize('eng');
+                // Create worker with language pre-loaded (new API)
+                const worker = await Tesseract.createWorker('eng');
                 
                 // Configure for maximum accuracy with FPL-specific settings
                 await worker.setParameters({
@@ -5705,6 +5702,55 @@
             const detectedPlayers = [];
             const allPlayers = window.transferSimPro.allPlayers;
             const matchedPlayerIds = new Set();
+            
+            // Define ignoredWords at the top of the function so it's available everywhere
+            const ignoredWords = [
+                // Team abbreviations (ALL Premier League teams)
+                'ars', 'avl', 'bha', 'bre', 'bur', 'che', 'cry', 'eve', 'ful', 'liv', 
+                'lut', 'mci', 'mun', 'new', 'nfo', 'shu', 'tot', 'whu', 'wol', 'lei',
+                'bou', 'lee', 'sou', 'wat', 'nor', 'bri', 'mid', 'hul', 'ips', 'pne',
+                'qpr', 'swa', 'car', 'sto', 'wba', 'der', 'rea', 'mnc', 'lfc', 'afc',
+                'cfc', 'mufc', 'thfc', 'nufc', 'lufc', 'sufc', 'bfc', 'wfc', 'efc',
+                
+                // Position codes
+                'gkp', 'def', 'mid', 'fwd', 'gk', 'goalkeeper', 'defender', 'midfielder', 'forward',
+                
+                // FPL UI words
+                'fantasy', 'premier', 'league', 'fpl', 'points', 'team', 'squad', 'pick',
+                'gameweek', 'gw', 'captain', 'vice', 'bench', 'triple', 'wildcard', 'chips',
+                'transfers', 'bank', 'value', 'itb', 'overall', 'rank', 'score', 'total',
+                'my', 'your', 'the', 'player', 'players', 'view', 'edit', 'save', 'cancel',
+                'confirm', 'back', 'next', 'previous', 'home', 'fixtures', 'stats', 'help',
+                'logout', 'login', 'register', 'password', 'email', 'username', 'account',
+                'settings', 'profile', 'history', 'leagues', 'cup', 'head', 'mini', 'classic',
+                'global', 'country', 'gameweek', 'deadline', 'live', 'bonus', 'bps', 'price',
+                'rise', 'fall', 'locked', 'unlocked', 'available', 'unavailable', 'injured',
+                'suspended', 'doubtful', 'chance', 'news', 'scout', 'selection', 'ownership',
+                'effective', 'template', 'differential', 'essential', 'rotation', 'nailed',
+                'minutes', 'played', 'starts', 'substitute', 'subbed', 'yellow', 'red', 'card',
+                'clean', 'sheet', 'goal', 'assist', 'penalty', 'saved', 'missed', 'scored',
+                'conceded', 'points', 'last', 'round', 'season', 'form', 'difficulty',
+                'home', 'away', 'opponent', 'result', 'win', 'draw', 'loss', 'match',
+                'pitch', 'list', 'boost', 'free', 'hit',
+                
+                // Numbers and symbols that aren't part of names
+                '2024', '2025', '2023', 'pts', 'vs', 'fc', 'united', 'city', 'town',
+                'albion', 'athletic', 'rovers', 'wanderers', 'hotspur', 'palace', 'villa',
+                'forest', 'ham', 'bromwich', 'wednesday', 'saturday', 'sunday', 'monday',
+                
+                // Common OCR artifacts
+                'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x',
+                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
+                'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'w', 'y', 'z',
+                
+                // Price indicators
+                '£', '$', 'm', 'mil', 'million', '.', ',', '-', '+', '=',
+                
+                // Days and months (often appear in fixtures)
+                'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+                'january', 'february', 'march', 'april', 'june', 'july', 'august', 'september',
+                'october', 'november', 'december', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'
+            ];
             
             // Normalize text for better matching
             const normalizedText = text.toUpperCase().replace(/[^A-Z\s]/g, ' ');
@@ -6006,7 +6052,7 @@
                     'Z[il]nchenko|Zinchenko': 'Zinchenko',
                     'Gvard[il]ol|Gvardiol': 'Gvardiol',
                     'Konat[eé]|Konate': 'Konate',
-                    'Jo[aã]o Pedro|João Pedro|Joao Pedro': 'João Pedro',
+                    'Jo[aã]o Pedro|João Pedro|Joao Pedro|Jodo Pedro': 'João Pedro',
                     'Mbeumo|Mbuemo|Mbeuma': 'Mbeumo',
                     'Gord[0o]n|Gordon': 'Gordon',
                     'S[0o]n|Son|5on': 'Son',
@@ -6163,53 +6209,7 @@
                 // This duplicate code has been removed - keeping for reference only
             }
             
-            // Comprehensive list of non-player words to ignore
-            const ignoredWords = [
-                // Team abbreviations (ALL Premier League teams)
-                'ars', 'avl', 'bha', 'bre', 'bur', 'che', 'cry', 'eve', 'ful', 'liv', 
-                'lut', 'mci', 'mun', 'new', 'nfo', 'shu', 'tot', 'whu', 'wol', 'lei',
-                'bou', 'lee', 'sou', 'wat', 'nor', 'bri', 'mid', 'hul', 'ips', 'pne',
-                'qpr', 'swa', 'car', 'sto', 'wba', 'der', 'rea', 'mnc', 'lfc', 'afc',
-                'cfc', 'mufc', 'thfc', 'nufc', 'lufc', 'sufc', 'bfc', 'wfc', 'efc',
-                
-                // Position codes
-                'gkp', 'def', 'mid', 'fwd', 'gk', 'goalkeeper', 'defender', 'midfielder', 'forward',
-                
-                // FPL UI words
-                'fantasy', 'premier', 'league', 'fpl', 'points', 'team', 'squad', 'pick',
-                'gameweek', 'gw', 'captain', 'vice', 'bench', 'triple', 'wildcard', 'chips',
-                'transfers', 'bank', 'value', 'itb', 'overall', 'rank', 'score', 'total',
-                'my', 'your', 'the', 'player', 'players', 'view', 'edit', 'save', 'cancel',
-                'confirm', 'back', 'next', 'previous', 'home', 'fixtures', 'stats', 'help',
-                'logout', 'login', 'register', 'password', 'email', 'username', 'account',
-                'settings', 'profile', 'history', 'leagues', 'cup', 'head', 'mini', 'classic',
-                'global', 'country', 'gameweek', 'deadline', 'live', 'bonus', 'bps', 'price',
-                'rise', 'fall', 'locked', 'unlocked', 'available', 'unavailable', 'injured',
-                'suspended', 'doubtful', 'chance', 'news', 'scout', 'selection', 'ownership',
-                'effective', 'template', 'differential', 'essential', 'rotation', 'nailed',
-                'minutes', 'played', 'starts', 'substitute', 'subbed', 'yellow', 'red', 'card',
-                'clean', 'sheet', 'goal', 'assist', 'penalty', 'saved', 'missed', 'scored',
-                'conceded', 'points', 'last', 'round', 'season', 'form', 'difficulty',
-                'home', 'away', 'opponent', 'result', 'win', 'draw', 'loss', 'match',
-                
-                // Numbers and symbols that aren't part of names
-                '2024', '2025', '2023', 'pts', 'vs', 'fc', 'united', 'city', 'town',
-                'albion', 'athletic', 'rovers', 'wanderers', 'hotspur', 'palace', 'villa',
-                'forest', 'ham', 'bromwich', 'wednesday', 'saturday', 'sunday', 'monday',
-                
-                // Common OCR artifacts
-                'i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x',
-                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
-                'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'w', 'y', 'z',
-                
-                // Price indicators
-                '£', '$', 'm', 'mil', 'million', '.', ',', '-', '+', '=',
-                
-                // Days and months (often appear in fixtures)
-                'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
-                'january', 'february', 'march', 'april', 'june', 'july', 'august', 'september',
-                'october', 'november', 'december', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'
-            ];
+            // ignoredWords already defined at the top of the function
             
             const uniqueNames = [...new Set(potentialNames)].filter(name => {
                 const nameLower = name.toLowerCase().trim();
