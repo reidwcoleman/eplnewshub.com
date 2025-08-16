@@ -7039,6 +7039,60 @@
         window.clearSelectedPlayers = clearSelectedPlayers;
         window.confirmSelectedPlayers = confirmSelectedPlayers;
         
+        // Process team image upload with OCR
+        async function processTeamImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const statusDiv = document.getElementById('imageProcessingStatus');
+            if (statusDiv) {
+                statusDiv.style.display = 'block';
+            }
+            
+            try {
+                // Create image element to display
+                const img = new Image();
+                const reader = new FileReader();
+                
+                reader.onload = async function(e) {
+                    img.src = e.target.result;
+                    
+                    // Initialize Tesseract worker
+                    const worker = await Tesseract.createWorker('eng');
+                    
+                    try {
+                        // Perform OCR
+                        const { data } = await worker.recognize(img.src);
+                        console.log('OCR Result:', data);
+                        
+                        // Process the OCR text
+                        const detectedNames = extractPotentialPlayerNames(data.text, data.words, data.lines);
+                        const detectedPlayers = processOCRText(data.text, data.words, data.lines);
+                        
+                        // Show the smart player picker dialog
+                        showSmartPlayerPicker(detectedNames, detectedPlayers);
+                        
+                    } finally {
+                        await worker.terminate();
+                    }
+                } catch (error) {
+                    console.error('OCR Error:', error);
+                    alert('Failed to process image. Please try again or enter players manually.');
+                } finally {
+                    if (statusDiv) {
+                        statusDiv.style.display = 'none';
+                    }
+                    // Reset file input
+                    event.target.value = '';
+                }
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        // Make it globally available
+        window.processTeamImage = processTeamImage;
+        
         function showManualPlayerEntry() {
             const modal = document.createElement('div');
             modal.className = 'advanced-modal';
@@ -7372,6 +7426,26 @@ Mbeumo"></textarea>
                 window.transferSimPro.displayPlayers(1);
             }
         }
+        
+        function filterPlayers() {
+            if (window.transferSimPro) {
+                window.transferSimPro.displayPlayers(1);
+            }
+        }
+        
+        function showPositionPlayers(position) {
+            if (window.transferSimPro) {
+                // Set the position filter
+                document.getElementById('positionFilter').value = position;
+                // Display players for that position
+                window.transferSimPro.displayPlayers(1);
+            }
+        }
+        
+        // Make functions globally available
+        window.filterPlayers = filterPlayers;
+        window.showPositionPlayers = showPositionPlayers;
+        window.processTeamImage = processTeamImage;
 
         // Add animations
         const style = document.createElement('style');
