@@ -44,7 +44,7 @@
             description: 'Get all premium tools for the price of one',
             cta: 'Unlock Everything',
             link: '/fpl-premium-hub.html',
-            color: 'linear-gradient(135deg, #fa709a, #fee140)',
+            color: 'linear-gradient(135deg, #2563eb, #1e40af)',
             features: ['All Tools Included', 'Priority Support', 'Season Pass'],
             priority: 1,
             special: true
@@ -300,7 +300,7 @@
                     position: absolute;
                     top: 10px;
                     right: -35px;
-                    background: linear-gradient(135deg, #ff3366, #ff6633);
+                    background: linear-gradient(135deg, #2563eb, #1e40af);
                     color: white;
                     padding: 5px 40px;
                     transform: rotate(45deg);
@@ -341,7 +341,7 @@
                     max-width: 1200px;
                     margin: 0 auto;
                     position: relative;
-                    padding: 30px 20px;
+                    padding: 15px 20px;
                 }
 
                 .banner-close {
@@ -380,28 +380,28 @@
                 }
 
                 .banner-icon {
-                    font-size: 3rem;
+                    font-size: 2rem;
                     animation: pulse 2s infinite;
                 }
 
                 .banner-title {
-                    font-size: 1.8rem;
+                    font-size: 1.4rem;
                     font-weight: 800;
-                    margin: 0 0 5px 0;
+                    margin: 0 0 3px 0;
                     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
                 }
 
                 .banner-subtitle {
-                    font-size: 1rem;
+                    font-size: 0.9rem;
                     opacity: 0.95;
-                    margin: 0 0 10px 0;
+                    margin: 0 0 5px 0;
                 }
 
                 .banner-description {
-                    font-size: 0.9rem;
+                    font-size: 0.85rem;
                     opacity: 0.9;
                     margin: 0;
-                    line-height: 1.4;
+                    line-height: 1.3;
                 }
 
                 .banner-center {
@@ -413,12 +413,12 @@
                     flex-wrap: wrap;
                     gap: 10px;
                     justify-content: center;
-                    margin-bottom: 20px;
+                    margin-bottom: 15px;
                 }
 
                 .banner-features .feature-item {
                     background: rgba(255, 255, 255, 0.15);
-                    padding: 8px 12px;
+                    padding: 6px 10px;
                     border-radius: 15px;
                     backdrop-filter: blur(10px);
                     font-size: 0.85rem;
@@ -461,8 +461,8 @@
 
                 .banner-cta-primary {
                     background: rgba(255, 255, 255, 0.95);
-                    color: #38003c;
-                    padding: 12px 25px;
+                    color: #1e40af;
+                    padding: 10px 20px;
                     border-radius: 25px;
                     text-decoration: none;
                     font-weight: 700;
@@ -502,9 +502,9 @@
 
                 .banner-special-badge {
                     position: absolute;
-                    top: 15px;
+                    top: 10px;
                     left: 15px;
-                    background: linear-gradient(135deg, #ff3366, #ff6633);
+                    background: linear-gradient(135deg, #2563eb, #1e40af);
                     color: white;
                     padding: 6px 15px;
                     border-radius: 15px;
@@ -515,46 +515,46 @@
 
                 /* Countdown Timer Styles */
                 .countdown-timer {
-                    margin: 25px 0;
+                    margin: 10px 0;
                     text-align: center;
                 }
 
                 .countdown-label {
                     color: white;
-                    font-size: 1rem;
+                    font-size: 0.85rem;
                     font-weight: 600;
-                    margin-bottom: 15px;
+                    margin-bottom: 8px;
                     opacity: 0.95;
                 }
 
                 .countdown-display {
                     display: flex;
                     justify-content: center;
-                    gap: 20px;
+                    gap: 10px;
                     flex-wrap: wrap;
                 }
 
                 .time-unit {
                     background: rgba(255, 255, 255, 0.15);
-                    padding: 12px 16px;
-                    border-radius: 12px;
+                    padding: 8px 12px;
+                    border-radius: 8px;
                     backdrop-filter: blur(10px);
                     border: 1px solid rgba(255, 255, 255, 0.2);
-                    min-width: 60px;
+                    min-width: 50px;
                 }
 
                 .time-value {
                     display: block;
-                    font-size: 1.8rem;
+                    font-size: 1.3rem;
                     font-weight: 800;
                     color: white;
                     line-height: 1;
-                    margin-bottom: 4px;
+                    margin-bottom: 2px;
                 }
 
                 .time-label {
                     display: block;
-                    font-size: 0.7rem;
+                    font-size: 0.65rem;
                     color: rgba(255, 255, 255, 0.8);
                     font-weight: 600;
                     text-transform: uppercase;

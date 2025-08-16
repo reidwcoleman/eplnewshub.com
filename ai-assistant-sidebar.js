@@ -278,9 +278,24 @@
             this.attachEventListeners();
             this.addWelcomeMessage();
             
+            // Check if first time user
+            const hasSeenAI = localStorage.getItem('fpl-ai-seen');
+            if (!hasSeenAI) {
+                // Show attention-grabbing animation for first-time users
+                setTimeout(() => {
+                    this.showFirstTimeHint();
+                }, 2000);
+                localStorage.setItem('fpl-ai-seen', 'true');
+            }
+            
             // Auto-open on desktop if previously open
             if (window.innerWidth > 768 && this.isOpen) {
                 this.openSidebar();
+            }
+            
+            // Periodically pulse the button if sidebar hasn't been opened
+            if (!this.isOpen) {
+                this.startAttentionAnimation();
             }
         }
 
@@ -288,14 +303,16 @@
             const sidebar = document.createElement('div');
             sidebar.className = 'ai-chat-sidebar';
             sidebar.innerHTML = `
-                <!-- Toggle Button -->
-                <button class="ai-sidebar-toggle-btn">
+                <!-- Toggle Button - Enhanced Visibility -->
+                <button class="ai-sidebar-toggle-btn" title="Click to open FPL AI Assistant">
+                    <span class="ai-new-badge">NEW!</span>
                     <span class="toggle-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M9 18l6-6-6-6" class="chevron-right"/>
                             <path d="M15 18l-6-6 6-6" class="chevron-left" style="display:none;"/>
                         </svg>
                     </span>
+                    <span class="ai-emoji">🤖</span>
                     <span class="toggle-label">AI Chat</span>
                 </button>
                 
@@ -389,17 +406,17 @@
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 }
                 
-                /* Toggle Button */
+                /* Toggle Button - More Visible */
                 .ai-sidebar-toggle-btn {
                     position: absolute;
-                    left: -48px;
+                    left: -65px;
                     top: 50%;
                     transform: translateY(-50%);
-                    width: 48px;
-                    height: 100px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    width: 65px;
+                    height: 120px;
+                    background: linear-gradient(135deg, #ff6b6b 0%, #667eea 50%, #764ba2 100%);
                     border: none;
-                    border-radius: 8px 0 0 8px;
+                    border-radius: 12px 0 0 12px;
                     color: white;
                     cursor: pointer;
                     display: flex;
@@ -408,20 +425,63 @@
                     justify-content: center;
                     gap: 8px;
                     transition: all 0.3s ease;
-                    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+                    box-shadow: -4px 0 20px rgba(102, 126, 234, 0.4);
+                    animation: pulseGlow 2s infinite;
+                }
+                
+                @keyframes pulseGlow {
+                    0%, 100% { 
+                        box-shadow: -4px 0 20px rgba(102, 126, 234, 0.4);
+                        transform: translateY(-50%) scale(1);
+                    }
+                    50% { 
+                        box-shadow: -6px 0 30px rgba(102, 126, 234, 0.6);
+                        transform: translateY(-50%) scale(1.05);
+                    }
                 }
                 
                 .ai-sidebar-toggle-btn:hover {
-                    left: -52px;
-                    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
+                    left: -70px;
+                    box-shadow: -8px 0 35px rgba(102, 126, 234, 0.7);
+                    transform: translateY(-50%) scale(1.08);
+                    background: linear-gradient(135deg, #ff8787 0%, #7b8ff5 50%, #8e5db8 100%);
                 }
                 
                 .toggle-label {
                     writing-mode: vertical-rl;
                     text-orientation: mixed;
-                    font-size: 12px;
-                    font-weight: 600;
-                    letter-spacing: 1px;
+                    font-size: 14px;
+                    font-weight: 700;
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
+                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                }
+                
+                /* New Badge */
+                .ai-new-badge {
+                    position: absolute;
+                    top: -8px;
+                    right: -8px;
+                    background: #ff4757;
+                    color: white;
+                    font-size: 10px;
+                    font-weight: 700;
+                    padding: 2px 6px;
+                    border-radius: 10px;
+                    animation: bounce 1s infinite;
+                    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.5);
+                    z-index: 1;
+                }
+                
+                @keyframes bounce {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-3px); }
+                }
+                
+                .ai-emoji {
+                    font-size: 28px;
+                    margin: 4px 0;
+                    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
                 }
                 
                 /* Sidebar Panel */
@@ -468,8 +528,9 @@
                 }
                 
                 .ai-icon {
-                    font-size: 28px;
+                    font-size: 32px;
                     animation: pulse 2s infinite;
+                    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
                 }
                 
                 @keyframes pulse {
@@ -811,13 +872,19 @@
                     }
                     
                     .ai-sidebar-toggle-btn {
-                        left: -44px;
-                        width: 44px;
-                        height: 88px;
+                        left: -55px;
+                        width: 55px;
+                        height: 100px;
                     }
                     
                     .ai-sidebar-toggle-btn:hover {
-                        left: -44px;
+                        left: -55px;
+                    }
+                    
+                    .ai-new-badge {
+                        top: -5px;
+                        right: -5px;
+                        font-size: 9px;
                     }
                     
                     .toggle-label {
@@ -1556,6 +1623,117 @@
             
             this.updateMessageCounter();
             console.log('Message count reset');
+        }
+        
+        // Show hint for first-time users
+        showFirstTimeHint() {
+            // Create hint tooltip
+            const hint = document.createElement('div');
+            hint.className = 'ai-first-time-hint';
+            hint.innerHTML = `
+                <div class="hint-arrow"></div>
+                <div class="hint-content">
+                    <strong>👋 New AI Assistant!</strong>
+                    <p>Click here for instant FPL advice!</p>
+                </div>
+            `;
+            
+            // Add styles for hint
+            const styles = document.createElement('style');
+            styles.innerHTML = `
+                .ai-first-time-hint {
+                    position: fixed;
+                    right: 80px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+                    z-index: 10000;
+                    animation: slideInHint 0.5s ease;
+                }
+                
+                @keyframes slideInHint {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-50%) translateX(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(-50%) translateX(0);
+                    }
+                }
+                
+                .hint-arrow {
+                    position: absolute;
+                    right: -10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 0;
+                    height: 0;
+                    border-left: 10px solid #764ba2;
+                    border-top: 10px solid transparent;
+                    border-bottom: 10px solid transparent;
+                }
+                
+                .hint-content strong {
+                    display: block;
+                    font-size: 16px;
+                    margin-bottom: 5px;
+                }
+                
+                .hint-content p {
+                    margin: 0;
+                    font-size: 14px;
+                    opacity: 0.95;
+                }
+            `;
+            document.head.appendChild(styles);
+            document.body.appendChild(hint);
+            
+            // Remove hint after 5 seconds or on click
+            setTimeout(() => {
+                if (hint.parentNode) {
+                    hint.style.animation = 'fadeOut 0.5s ease';
+                    setTimeout(() => hint.remove(), 500);
+                }
+            }, 5000);
+            
+            hint.addEventListener('click', () => {
+                hint.remove();
+                this.openSidebar();
+            });
+        }
+        
+        // Start attention animation
+        startAttentionAnimation() {
+            // Add extra pulsing after 10 seconds of inactivity
+            this.attentionTimer = setTimeout(() => {
+                const btn = this.sidebar.querySelector('.ai-sidebar-toggle-btn');
+                if (btn && !this.isOpen) {
+                    btn.style.animation = 'pulseGlow 1s infinite, wiggle 0.5s ease';
+                    
+                    // Add wiggle animation
+                    const wiggleStyle = document.createElement('style');
+                    wiggleStyle.innerHTML = `
+                        @keyframes wiggle {
+                            0%, 100% { transform: translateY(-50%) rotate(0deg); }
+                            25% { transform: translateY(-50%) rotate(-3deg); }
+                            75% { transform: translateY(-50%) rotate(3deg); }
+                        }
+                    `;
+                    document.head.appendChild(wiggleStyle);
+                    
+                    // Stop wiggle after 2 seconds
+                    setTimeout(() => {
+                        if (btn) {
+                            btn.style.animation = 'pulseGlow 2s infinite';
+                        }
+                    }, 2000);
+                }
+            }, 10000);
         }
     }
 
