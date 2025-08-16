@@ -279,6 +279,16 @@
             this.attachEventListeners();
             this.addWelcomeMessage();
             
+            // Update counter when premium access control loads
+            setTimeout(() => {
+                this.updateMessageCounter();
+            }, 500);
+            
+            // Listen for premium access control updates
+            window.addEventListener('subscriptionUpdated', () => {
+                this.updateMessageCounter();
+            });
+            
             // Check if first time user
             const hasSeenAI = localStorage.getItem('fpl-ai-seen');
             if (!hasSeenAI) {
