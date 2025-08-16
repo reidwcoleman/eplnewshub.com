@@ -1,6 +1,55 @@
 // Enhanced OCR Processing with Advanced Algorithms
 // This file contains improved player matching logic for better accuracy
 
+// Image preprocessing function for better OCR accuracy
+function preprocessImageForOCR(img) {
+    return new Promise((resolve) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Scale image up for better OCR (2x size)
+        const scale = 2;
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        
+        // Draw scaled image
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        // Get image data
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        
+        // Apply image enhancements
+        for (let i = 0; i < data.length; i += 4) {
+            // Convert to grayscale
+            const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            
+            // Increase contrast and apply threshold
+            let value;
+            if (gray < 128) {
+                value = Math.max(0, gray - 30); // Darken dark pixels
+            } else {
+                value = Math.min(255, gray + 30); // Brighten light pixels
+            }
+            
+            // Apply binary threshold for cleaner text
+            value = value > 140 ? 255 : 0;
+            
+            data[i] = value;     // Red
+            data[i + 1] = value; // Green
+            data[i + 2] = value; // Blue
+            // Alpha remains unchanged
+        }
+        
+        // Put enhanced image back
+        ctx.putImageData(imageData, 0, 0);
+        
+        // Return canvas as image URL
+        resolve(canvas.toDataURL('image/png'));
+    });
+}
+
 function enhancedProcessOCRText(text, words, lines) {
     if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
         console.error('Player data not loaded');
@@ -11,14 +60,15 @@ function enhancedProcessOCRText(text, words, lines) {
     const detectedPlayers = [];
     const matchedPlayerIds = new Set();
     
-    // Enhanced configuration
+    // Enhanced configuration with lower thresholds for better matching
     const config = {
-        minConfidence: 0.3,        // Minimum confidence score to accept a match
+        minConfidence: 0.25,        // Lower threshold for better detection
         maxPlayers: 15,             // Maximum squad size
-        fuzzyThreshold: 0.8,        // Fuzzy matching threshold
-        popularityWeight: 2.5,      // Weight for player popularity in scoring
+        fuzzyThreshold: 0.7,        // Lower fuzzy threshold for OCR errors
+        popularityWeight: 3.0,      // Increased weight for popular players
         formWeight: 1.5,            // Weight for player form in scoring
-        priceWeight: 0.5            // Weight for player price in scoring
+        priceWeight: 0.5,           // Weight for player price in scoring
+        ocrConfidenceBoost: 1.2     // Boost factor for high OCR confidence
     };
     
     // Enhanced ignore list with better categorization
@@ -34,7 +84,7 @@ function enhancedProcessOCRText(text, words, lines) {
         prices: /^[£$]\d+\.?\d*m?$/i
     };
     
-    // Enhanced OCR corrections with machine learning patterns
+    // Enhanced OCR corrections with more patterns
     const ocrPatterns = [
         { pattern: /rn/g, replacement: 'm' },
         { pattern: /nn/g, replacement: 'm' },
@@ -47,7 +97,14 @@ function enhancedProcessOCRText(text, words, lines) {
         { pattern: /é/g, replacement: 'e' },
         { pattern: /í/g, replacement: 'i' },
         { pattern: /ó/g, replacement: 'o' },
-        { pattern: /ú/g, replacement: 'u' }
+        { pattern: /ú/g, replacement: 'u' },
+        { pattern: /ll/g, replacement: 'n', context: 'double' },
+        { pattern: /cl/g, replacement: 'd', context: 'ocr' },
+        { pattern: /cI/g, replacement: 'd', context: 'ocr' },
+        { pattern: /IVl/g, replacement: 'M', context: 'ocr' },
+        { pattern: /l\/l/g, replacement: 'M', context: 'ocr' },
+        { pattern: /\|/g, replacement: 'l', context: 'ocr' },
+        { pattern: /[\[\]\{\}]/g, replacement: '', context: 'cleanup' }
     ];
     
     // Build enhanced player index with multiple access patterns
@@ -439,27 +496,39 @@ function isIgnored(text, ignoredCategories) {
 function getCommonNicknames(firstName, lastName) {
     const nicknames = [];
     
-    // Common football nicknames
+    // Common football nicknames and variations
     const nicknameMap = {
-        'mohamed': ['mo', 'salah'],
-        'trent': ['taa'],
-        'virgil': ['vvd', 'van dijk'],
-        'heung-min': ['son', 'sonny'],
-        'gabriel': ['gabi'],
-        'benjamin': ['ben'],
-        'alexander': ['alex'],
-        'matthew': ['matt'],
-        'nicholas': ['nick'],
-        'christopher': ['chris'],
-        'robert': ['rob', 'bobby'],
-        'william': ['will', 'billy'],
-        'james': ['jimmy'],
-        'anthony': ['tony'],
-        'joseph': ['joe'],
-        'michael': ['mike', 'micky'],
-        'david': ['dave'],
-        'richard': ['rick', 'ricky'],
-        'thomas': ['tom', 'tommy']
+        'mohamed': ['mo', 'salah', 'moh'],
+        'trent': ['taa', 'trent aa'],
+        'virgil': ['vvd', 'van dijk', 'vandijk'],
+        'heung-min': ['son', 'sonny', 'heungmin'],
+        'gabriel': ['gabi', 'gabby'],
+        'benjamin': ['ben', 'benny'],
+        'alexander': ['alex', 'xander'],
+        'matthew': ['matt', 'matty'],
+        'nicholas': ['nick', 'nicky'],
+        'christopher': ['chris', 'kit'],
+        'robert': ['rob', 'bobby', 'robbie'],
+        'william': ['will', 'billy', 'bill'],
+        'james': ['jimmy', 'jim', 'jamie'],
+        'anthony': ['tony', 'ant'],
+        'joseph': ['joe', 'joey'],
+        'michael': ['mike', 'micky', 'mick'],
+        'david': ['dave', 'davey'],
+        'richard': ['rick', 'ricky', 'rich'],
+        'thomas': ['tom', 'tommy'],
+        'martin': ['marty'],
+        'pedro': ['joão pedro', 'joao pedro'],
+        'bruno': ['fernandes', 'bruno f'],
+        'erling': ['haaland', 'håland'],
+        'bukayo': ['saka', 'b.saka'],
+        'cole': ['palmer', 'c.palmer'],
+        'phil': ['foden', 'p.foden'],
+        'marcus': ['rashford', 'm.rashford'],
+        'kai': ['havertz', 'k.havertz'],
+        'diogo': ['jota', 'd.jota'],
+        'luis': ['diaz', 'l.diaz'],
+        'darwin': ['nunez', 'nuñez', 'd.nunez']
     };
     
     if (nicknameMap[firstName]) {
@@ -467,7 +536,16 @@ function getCommonNicknames(firstName, lastName) {
     }
     
     // Add last name as nickname for popular players
-    if (['salah', 'haaland', 'saka', 'palmer', 'kane', 'son'].includes(lastName)) {
+    const popularLastNames = [
+        'salah', 'haaland', 'saka', 'palmer', 'kane', 'son', 'foden',
+        'rashford', 'fernandes', 'rice', 'odegaard', 'martinelli',
+        'watkins', 'isak', 'gordon', 'mbeumo', 'mitoma', 'jota',
+        'nunez', 'diaz', 'havertz', 'trossard', 'maddison', 'kulusevski',
+        'bowen', 'kudus', 'eze', 'olise', 'bailey', 'grealish', 'doku',
+        'gvardiol', 'trippier', 'robertson', 'james', 'chilwell', 'shaw'
+    ];
+    
+    if (popularLastNames.includes(lastName.toLowerCase())) {
         nicknames.push(lastName);
     }
     
@@ -569,7 +647,74 @@ function levenshteinDistance(str1, str2) {
     return matrix[str2.length][str1.length];
 }
 
-// Export the enhanced function
+// Additional helper for common OCR mistakes in player names
+function applySpecificPlayerCorrections(text) {
+    const corrections = {
+        // Common OCR errors for specific players
+        'guehl': 'guehi',
+        'gueh1': 'guehi',
+        'gvardlol': 'gvardiol',
+        'gvard1ol': 'gvardiol',
+        'kuluzevski': 'kulusevski',
+        'kulusevsk1': 'kulusevski',
+        'mbeurno': 'mbeumo',
+        'mbeuno': 'mbeumo',
+        'm1toma': 'mitoma',
+        'mltoma': 'mitoma',
+        'od3gaard': 'odegaard',
+        '0degaard': 'odegaard',
+        'ødegaard': 'odegaard',
+        'sa1ah': 'salah',
+        '5alah': 'salah',
+        'haa1and': 'haaland',
+        'haaiand': 'haaland',
+        'pa1mer': 'palmer',
+        'palrner': 'palmer',
+        'watk1ns': 'watkins',
+        'watklns': 'watkins',
+        '1sak': 'isak',
+        'lsak': 'isak',
+        'mart1nelli': 'martinelli',
+        'martinelll': 'martinelli',
+        'rash4ord': 'rashford',
+        'rashf0rd': 'rashford',
+        'f0den': 'foden',
+        'fod3n': 'foden',
+        'maddis0n': 'maddison',
+        'madd1son': 'maddison',
+        'tr0ssard': 'trossard',
+        'tros5ard': 'trossard',
+        'ez3': 'eze',
+        '3ze': 'eze',
+        'ollse': 'olise',
+        '0lise': 'olise',
+        'bal1ey': 'bailey',
+        'ba1ley': 'bailey',
+        'greal1sh': 'grealish',
+        'greallsh': 'grealish',
+        'd0ku': 'doku',
+        'doku': 'doku',
+        'trlppier': 'trippier',
+        'tr1ppier': 'trippier',
+        'robertz0n': 'robertson',
+        'r0bertson': 'robertson',
+        'chllwell': 'chilwell',
+        'ch1lwell': 'chilwell',
+        'joao pedr0': 'joão pedro',
+        'jodo pedro': 'joão pedro',
+        'bruno fernand3s': 'bruno fernandes',
+        'brun0 fernandes': 'bruno fernandes'
+    };
+    
+    let corrected = text.toLowerCase();
+    Object.entries(corrections).forEach(([wrong, right]) => {
+        corrected = corrected.replace(new RegExp(wrong, 'gi'), right);
+    });
+    
+    return corrected;
+}
+
+// Export the enhanced functions
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = enhancedProcessOCRText;
+    module.exports = { enhancedProcessOCRText, preprocessImageForOCR, applySpecificPlayerCorrections };
 }
