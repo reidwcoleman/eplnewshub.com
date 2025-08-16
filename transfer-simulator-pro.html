@@ -2169,11 +2169,16 @@
                 
                 <!-- Image Upload Feature -->
                 <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 10px;">
-                    <h3 style="color: white; margin-bottom: 10px; font-size: 1rem;">📸 Import Team from Screenshot</h3>
-                    <input type="file" id="teamImageUpload" accept="image/*" style="display: none;" onchange="processTeamImage(event)">
-                    <button onclick="document.getElementById('teamImageUpload').click()" style="width: 100%; padding: 10px; background: white; color: #667eea; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                        📷 Upload FPL Team Screenshot
-                    </button>
+                    <h3 style="color: white; margin-bottom: 10px; font-size: 1rem;">📸 Import Your Team</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <button onclick="createManualTeamBuilder()" style="flex: 1; padding: 10px; background: white; color: #667eea; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                            🏗️ Build Team Manually
+                        </button>
+                        <input type="file" id="teamImageUpload" accept="image/*" style="display: none;" onchange="processTeamImage(event)">
+                        <button onclick="document.getElementById('teamImageUpload').click()" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.9); color: #667eea; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                            📷 Upload Screenshot
+                        </button>
+                    </div>
                     <div id="imageProcessingStatus" style="margin-top: 10px; color: white; font-size: 0.9rem; display: none;">
                         <div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div>
                         <p style="margin-top: 5px;">Processing image...</p>
@@ -6960,63 +6965,32 @@
                 });
                 
                 try {
-                    // Apply image preprocessing if available
-                    let processedImageSrc = img.src;
-                    if (typeof preprocessImageForOCR === 'function') {
-                        console.log('Applying image preprocessing for better OCR...');
-                        processedImageSrc = await preprocessImageForOCR(img);
-                    }
-                    
-                    // Initialize Tesseract worker with optimized settings
-                    const worker = await Tesseract.createWorker('eng', 1, {
-                        logger: m => {
-                            if (m.status === 'recognizing text' && statusDiv) {
-                                const progress = Math.round(m.progress * 100);
-                                statusDiv.innerHTML = `<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="color: white; margin-top: 10px;">Reading text... ${progress}%</p>`;
-                            }
-                        }
-                    });
+                    // Initialize Tesseract worker - simple setup
+                    const worker = await Tesseract.createWorker('eng');
                     
                     try {
-                        // Configure OCR for better accuracy
-                        await worker.setParameters({
-                            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' ñüöäéíóúáàèìòùâêîôûçÑÜÖÄÉÍÓÚÁÀÈÌÒÙÂÊÎÔÛÇ',
-                            preserve_interword_spaces: '1',
-                            tessedit_pageseg_mode: '6' // Uniform block of text
-                        });
-                        
-                        // Perform OCR on preprocessed image
-                        const { data } = await worker.recognize(processedImageSrc);
-                        console.log('OCR Result:', data);
-                        
-                        // Apply specific player corrections if available
-                        let correctedText = data.text;
-                        if (typeof applySpecificPlayerCorrections === 'function') {
-                            correctedText = applySpecificPlayerCorrections(data.text);
-                            console.log('Applied specific player corrections');
-                        }
+                        // Perform OCR with minimal configuration
+                        const { data } = await worker.recognize(img.src);
+                        console.log('OCR Result:', data.text);
                         
                         // Update status
                         if (statusDiv) {
                             statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="color: white; margin-top: 10px;">Matching players...</p>';
                         }
                         
-                        // Process the OCR text with enhanced algorithm
+                        // Use simple OCR processor
                         let detectedPlayers;
-                        if (typeof enhancedProcessOCRText === 'function') {
-                            // Use enhanced processing if available
-                            console.log('Using enhanced OCR processing...');
-                            // Pass corrected text along with original data
-                            const enhancedData = { ...data, text: correctedText };
-                            detectedPlayers = enhancedProcessOCRText(enhancedData.text, enhancedData.words, enhancedData.lines);
+                        if (typeof simpleProcessOCR === 'function') {
+                            console.log('Using simple OCR processing...');
+                            detectedPlayers = simpleProcessOCR(data.text, data.words, data.lines);
                         } else {
-                            // Fallback to original processing with corrected text
+                            // Fallback to original processing
                             console.log('Using standard OCR processing...');
-                            detectedPlayers = processOCRText(correctedText, data.words, data.lines);
+                            detectedPlayers = processOCRText(data.text, data.words, data.lines);
                         }
                         
                         // Extract potential names for display
-                        const detectedNames = extractPotentialPlayerNames(correctedText, data.words, data.lines);
+                        const detectedNames = extractPotentialPlayerNames(data.text, data.words, data.lines);
                         
                         // Show the smart player picker dialog
                         showSmartPlayerPicker(detectedNames, detectedPlayers);
