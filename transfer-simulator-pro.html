@@ -2790,9 +2790,9 @@
                 this.charts = {};
             }
 
-            async init() {
+            init() {
                 console.log('Initializing Transfer Simulator Pro...');
-                await this.loadPlayerData();
+                this.loadPlayerData(); // No await needed - synchronous with embedded data
                 console.log(`Player data loaded: ${this.allPlayers ? this.allPlayers.length : 0} players available`);
                 this.initializeSquadSlots();
                 this.setupEventListeners();
@@ -2849,57 +2849,102 @@
                 }
             }
             
-            async loadPlayerData() {
+            loadPlayerData() {
                 console.log('Loading player data...');
                 
-                // PRIORITY 1: Use embedded data if available
+                // First try embedded data
                 if (typeof EMBEDDED_FPL_DATA !== 'undefined' && EMBEDDED_FPL_DATA) {
                     console.log('Using embedded player data...');
-                    try {
-                        const data = expandPlayerData(EMBEDDED_FPL_DATA);
-                        
-                        if (data && data.elements && data.elements.length > 0) {
-                            this.allPlayers = data.elements;
-                            this.teams = data.teams;
-                            
-                            // Create teams lookup
-                            this.teamsLookup = {};
-                            if (data.teams) {
-                                data.teams.forEach(team => {
-                                    this.teamsLookup[team.id] = {
-                                        name: team.name,
-                                        short_name: team.short_name
-                                    };
-                                });
-                            }
-                            
-                            // Process player data with additional fields
-                            this.allPlayers = this.allPlayers.map(player => ({
-                                ...player,
-                                team_name: this.teamsLookup[player.team]?.name || 'Unknown',
-                                team_short: this.teamsLookup[player.team]?.short_name || 'UNK',
-                                display_name: `${player.first_name} ${player.second_name}`,
-                                position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
-                            }));
-                            
-                            console.log(`Loaded ${this.allPlayers.length} players from embedded data`);
-                            
-                            // Try to load more data from player-data-2.html to get all players
-                            setTimeout(() => this.loadFullPlayerData(), 1000);
-                            
-                            // Update status
-                            const now = new Date();
-                            const timeString = now.toLocaleTimeString();
-                            document.getElementById('lastUpdate').textContent = `Ready (${this.allPlayers.length} players)`;
-                            
-                            // Show notification
-                            this.showNotification(`✅ Loaded ${this.allPlayers.length} players!`, 'success');
-                            return;
-                        }
-                    } catch (embeddedError) {
-                        console.warn('Failed to use embedded data:', embeddedError);
-                    }
+                    const data = expandPlayerData(EMBEDDED_FPL_DATA);
+                    
+                    this.allPlayers = data.elements || [];
+                    this.teams = data.teams || [];
+                } else {
+                    // Use hardcoded fallback data if embedded data fails
+                    console.log('Using fallback player data...');
+                    this.allPlayers = this.getFallbackPlayers();
+                    this.teams = this.getFallbackTeams();
                 }
+                
+                // Create teams lookup
+                this.teamsLookup = {};
+                if (this.teams && this.teams.length > 0) {
+                    this.teams.forEach(team => {
+                        this.teamsLookup[team.id] = {
+                            name: team.name,
+                            short_name: team.short_name
+                        };
+                    });
+                }
+                
+                // Process player data with additional fields
+                if (this.allPlayers && this.allPlayers.length > 0) {
+                    this.allPlayers = this.allPlayers.map(player => ({
+                        ...player,
+                        team_name: this.teamsLookup[player.team]?.name || 'Unknown',
+                        team_short: this.teamsLookup[player.team]?.short_name || 'UNK',
+                        display_name: `${player.first_name} ${player.second_name}`,
+                        position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
+                    }));
+                }
+                
+                console.log(`Loaded ${this.allPlayers.length} players`);
+                
+                // Update status
+                const statusEl = document.getElementById('lastUpdate');
+                if (statusEl) {
+                    statusEl.textContent = `${this.allPlayers.length} players loaded`;
+                }
+                
+                // Show notification if we have the method
+                if (this.showNotification) {
+                    this.showNotification(`✅ ${this.allPlayers.length} players ready!`, 'success');
+                }
+                
+                // Try to load full data in background
+                setTimeout(() => this.loadFullPlayerData(), 2000);
+            }
+            
+            getFallbackPlayers() {
+                // Hardcoded popular players as absolute fallback
+                return [
+                    {id: 381, first_name: "Mohamed", second_name: "Salah", web_name: "Salah", team: 12, element_type: 3, now_cost: 145, total_points: 0, form: "0", selected_by_percent: "55.0"},
+                    {id: 235, first_name: "Cole", second_name: "Palmer", web_name: "Palmer", team: 7, element_type: 3, now_cost: 105, total_points: 0, form: "0", selected_by_percent: "63.9"},
+                    {id: 430, first_name: "Erling", second_name: "Haaland", web_name: "Haaland", team: 13, element_type: 4, now_cost: 140, total_points: 0, form: "0", selected_by_percent: "24.1"},
+                    {id: 16, first_name: "Bukayo", second_name: "Saka", web_name: "Saka", team: 1, element_type: 3, now_cost: 100, total_points: 0, form: "0", selected_by_percent: "16.9"},
+                    {id: 373, first_name: "Virgil", second_name: "van Dijk", web_name: "Van Dijk", team: 12, element_type: 2, now_cost: 60, total_points: 0, form: "0", selected_by_percent: "23.5"},
+                    {id: 5, first_name: "Gabriel", second_name: "Magalhães", web_name: "Gabriel", team: 1, element_type: 2, now_cost: 60, total_points: 0, form: "0", selected_by_percent: "17.9"},
+                    {id: 6, first_name: "William", second_name: "Saliba", web_name: "Saliba", team: 1, element_type: 2, now_cost: 60, total_points: 0, form: "0", selected_by_percent: "13.3"},
+                    {id: 1, first_name: "David", second_name: "Raya", web_name: "Raya", team: 1, element_type: 1, now_cost: 55, total_points: 0, form: "0", selected_by_percent: "16.2"},
+                    {id: 287, first_name: "Jordan", second_name: "Pickford", web_name: "Pickford", team: 9, element_type: 1, now_cost: 55, total_points: 0, form: "0", selected_by_percent: "11.6"},
+                    {id: 249, first_name: "João", second_name: "Pedro", web_name: "João Pedro", team: 7, element_type: 4, now_cost: 75, total_points: 0, form: "0", selected_by_percent: "57.0"}
+                ];
+            }
+            
+            getFallbackTeams() {
+                return [
+                    {id: 1, name: "Arsenal", short_name: "ARS"},
+                    {id: 2, name: "Aston Villa", short_name: "AVL"},
+                    {id: 3, name: "Bournemouth", short_name: "BOU"},
+                    {id: 4, name: "Brentford", short_name: "BRE"},
+                    {id: 5, name: "Brighton", short_name: "BHA"},
+                    {id: 6, name: "Burnley", short_name: "BUR"},
+                    {id: 7, name: "Chelsea", short_name: "CHE"},
+                    {id: 8, name: "Crystal Palace", short_name: "CRY"},
+                    {id: 9, name: "Everton", short_name: "EVE"},
+                    {id: 10, name: "Fulham", short_name: "FUL"},
+                    {id: 11, name: "Leeds", short_name: "LEE"},
+                    {id: 12, name: "Liverpool", short_name: "LIV"},
+                    {id: 13, name: "Man City", short_name: "MCI"},
+                    {id: 14, name: "Man Utd", short_name: "MUN"},
+                    {id: 15, name: "Newcastle", short_name: "NEW"},
+                    {id: 16, name: "Nottm Forest", short_name: "NFO"},
+                    {id: 17, name: "Sheffield Utd", short_name: "SHU"},
+                    {id: 18, name: "Spurs", short_name: "TOT"},
+                    {id: 19, name: "West Ham", short_name: "WHU"},
+                    {id: 20, name: "Wolves", short_name: "WOL"}
+                ];
+            }
                 
                 // PRIORITY 2: Load from player-data-2.html (local cached data)
                 try {
@@ -7471,87 +7516,25 @@ Mbeumo"></textarea>
             };
         }
         
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM Content Loaded - Initializing Transfer Simulator Pro...');
             
-            // Show loading indicator
-            const container = document.querySelector('.pro-container');
-            if (container && !document.getElementById('initialLoadingIndicator')) {
-                const loadingDiv = document.createElement('div');
-                loadingDiv.id = 'initialLoadingIndicator';
-                loadingDiv.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: linear-gradient(135deg, #667eea, #764ba2);
-                    color: white;
-                    padding: 30px 50px;
-                    border-radius: 15px;
-                    font-size: 1.2rem;
-                    font-weight: 600;
-                    z-index: 9999;
-                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                    text-align: center;
-                `;
-                loadingDiv.innerHTML = `
-                    <div style="margin-bottom: 15px;">⚽ Loading Player Data...</div>
-                    <div style="font-size: 0.9rem; opacity: 0.9;">Please wait while we fetch the latest FPL data</div>
-                    <div class="spinner" style="margin-top: 15px; width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin: 15px auto 0;"></div>
-                `;
-                document.body.appendChild(loadingDiv);
-            }
-            
             try {
-                await window.transferSimPro.init();
+                // Initialize immediately with embedded data
+                window.transferSimPro.init();
                 
                 // Check if data loaded successfully
                 if (!window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
-                    console.warn('No player data loaded on first attempt, retrying...');
-                    
-                    // Retry loading data
-                    await window.transferSimPro.loadPlayerData();
-                    
-                    if (!window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
-                        // Show error message
-                        const errorDiv = document.getElementById('initialLoadingIndicator');
-                        if (errorDiv) {
-                            errorDiv.innerHTML = `
-                                <div style="margin-bottom: 15px;">⚠️ Unable to Load Player Data</div>
-                                <div style="font-size: 0.9rem; opacity: 0.9;">Please check your internet connection and refresh the page</div>
-                                <button onclick="location.reload()" style="margin-top: 15px; padding: 10px 20px; background: white; color: #667eea; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                                    Refresh Page
-                                </button>
-                            `;
-                        }
-                        return;
-                    }
+                    console.error('No player data available!');
+                    alert('Failed to load player data. Please refresh the page.');
+                    return;
                 }
                 
                 console.log(`Transfer Simulator Pro initialized with ${window.transferSimPro.allPlayers.length} players`);
                 
-                // Hide loading indicator after successful load
-                const loadingIndicator = document.getElementById('initialLoadingIndicator');
-                if (loadingIndicator) {
-                    loadingIndicator.style.transition = 'opacity 0.5s';
-                    loadingIndicator.style.opacity = '0';
-                    setTimeout(() => loadingIndicator.remove(), 500);
-                }
-                
             } catch (error) {
                 console.error('Failed to initialize Transfer Simulator Pro:', error);
-                
-                // Show error message
-                const errorDiv = document.getElementById('initialLoadingIndicator');
-                if (errorDiv) {
-                    errorDiv.innerHTML = `
-                        <div style="margin-bottom: 15px;">❌ Initialization Error</div>
-                        <div style="font-size: 0.9rem; opacity: 0.9;">${error.message || 'An unexpected error occurred'}</div>
-                        <button onclick="location.reload()" style="margin-top: 15px; padding: 10px 20px; background: white; color: #667eea; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                            Retry
-                        </button>
-                    `;
-                }
+                alert('Failed to initialize. Please refresh the page.');
             }
             
             // Test features in development mode
