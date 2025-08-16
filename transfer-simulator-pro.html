@@ -89,6 +89,22 @@
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(1.2); }
         }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         .main-grid {
             display: grid;
@@ -2131,6 +2147,16 @@
                     </button>
                 </div>
                 
+                <!-- Save/Load Team Feature -->
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="btn btn-success" onclick="saveCurrentTeam()" style="flex: 1; background: linear-gradient(135deg, #28a745, #218838); color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                        💾 Save Team
+                    </button>
+                    <button class="btn btn-info" onclick="showSavedTeams()" style="flex: 1; background: linear-gradient(135deg, #17a2b8, #138496); color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                        📂 Load Team
+                    </button>
+                </div>
+                
                 <!-- Image Upload Feature -->
                 <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 10px;">
                     <h3 style="color: white; margin-bottom: 10px; font-size: 1rem;">📸 Import Team from Screenshot</h3>
@@ -3771,6 +3797,105 @@
                 
                 // Show notification
                 this.showNotification('🔄 Team has been reset!', 'info');
+            }
+            
+            saveTeam(teamName) {
+                if (!teamName) {
+                    teamName = prompt('Enter a name for this team:');
+                    if (!teamName) return;
+                }
+                
+                // Get existing saved teams or initialize empty array
+                let savedTeams = JSON.parse(localStorage.getItem('fplSavedTeams') || '[]');
+                
+                // Create team object with all necessary data
+                const teamData = {
+                    name: teamName,
+                    date: new Date().toISOString(),
+                    squad: JSON.parse(JSON.stringify(this.currentSquad)), // Deep copy
+                    budget: this.budget,
+                    totalValue: (1000 - this.budget) / 10,
+                    playerCount: Object.values(this.currentSquad).flat().length,
+                    expectedPoints: this.calculateTeamExpectedPoints(this.currentSquad),
+                    formation: this.getFormation(),
+                    transferHistory: [...this.transferHistory]
+                };
+                
+                // Check if team with same name exists
+                const existingIndex = savedTeams.findIndex(t => t.name === teamName);
+                if (existingIndex >= 0) {
+                    if (confirm(`Team "${teamName}" already exists. Overwrite?`)) {
+                        savedTeams[existingIndex] = teamData;
+                    } else {
+                        return;
+                    }
+                } else {
+                    savedTeams.push(teamData);
+                }
+                
+                // Limit to 10 saved teams
+                if (savedTeams.length > 10) {
+                    savedTeams = savedTeams.slice(-10);
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('fplSavedTeams', JSON.stringify(savedTeams));
+                
+                this.showNotification(`✅ Team "${teamName}" saved successfully!`, 'success');
+            }
+            
+            loadTeam(teamData) {
+                if (!teamData) return;
+                
+                // Load the squad
+                this.currentSquad = JSON.parse(JSON.stringify(teamData.squad));
+                this.budget = teamData.budget || 1000;
+                this.transferHistory = teamData.transferHistory || [];
+                
+                // Update displays
+                this.updateSquadDisplay();
+                this.updateDisplay();
+                this.updateCharts();
+                
+                // Update transfer history display
+                const history = document.getElementById('transferHistory');
+                if (history && this.transferHistory.length > 0) {
+                    history.innerHTML = this.transferHistory.map(transfer => `
+                        <div class="history-item">
+                            <div class="history-icon ${transfer.type === 'in' ? 'history-in' : 'history-out'}">
+                                ${transfer.type === 'in' ? '➕' : '➖'}
+                            </div>
+                            <div>
+                                <div style="font-weight: 700;">${transfer.playerName}</div>
+                                <div style="color: #666; font-size: 0.9rem;">
+                                    £${(transfer.price / 10).toFixed(1)}m • ${transfer.timestamp}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else if (history) {
+                    history.innerHTML = '<div class="history-item" style="color: #666;">No transfers yet</div>';
+                }
+                
+                this.showNotification(`✅ Team "${teamData.name}" loaded successfully!`, 'success');
+            }
+            
+            getSavedTeams() {
+                return JSON.parse(localStorage.getItem('fplSavedTeams') || '[]');
+            }
+            
+            deleteSavedTeam(teamName) {
+                let savedTeams = this.getSavedTeams();
+                savedTeams = savedTeams.filter(t => t.name !== teamName);
+                localStorage.setItem('fplSavedTeams', JSON.stringify(savedTeams));
+                this.showNotification(`🗑️ Team "${teamName}" deleted`, 'info');
+            }
+            
+            getFormation() {
+                const def = this.currentSquad[2].length;
+                const mid = this.currentSquad[3].length;
+                const fwd = this.currentSquad[4].length;
+                return `${def}-${mid}-${fwd}`;
             }
 
             comparePlayer(playerId) {
@@ -5987,6 +6112,123 @@ Mbeumo"></textarea>
         function resetTeam() {
             if (window.transferSimPro) {
                 window.transferSimPro.resetTeam();
+            }
+        }
+        
+        function saveCurrentTeam() {
+            if (window.transferSimPro) {
+                window.transferSimPro.saveTeam();
+            }
+        }
+        
+        function showSavedTeams() {
+            if (!window.transferSimPro) return;
+            
+            const savedTeams = window.transferSimPro.getSavedTeams();
+            
+            if (savedTeams.length === 0) {
+                alert('No saved teams found. Save your current team first!');
+                return;
+            }
+            
+            // Create modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                animation: slideUp 0.3s ease;
+            `;
+            
+            modalContent.innerHTML = `
+                <h2 style="margin-bottom: 20px; color: #333;">📂 Saved Teams</h2>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    ${savedTeams.map(team => `
+                        <div style="border: 2px solid #e0e0e0; border-radius: 10px; padding: 15px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0; color: #333;">${team.name}</h3>
+                                    <p style="margin: 5px 0; color: #666; font-size: 0.9rem;">
+                                        Formation: ${team.formation || 'N/A'} | 
+                                        Players: ${team.playerCount || 0} | 
+                                        Value: £${team.totalValue ? team.totalValue.toFixed(1) : '0.0'}m
+                                    </p>
+                                    <p style="margin: 5px 0; color: #666; font-size: 0.85rem;">
+                                        Expected Points: ${team.expectedPoints ? Math.round(team.expectedPoints) : 'N/A'}
+                                    </p>
+                                    <p style="margin: 5px 0; color: #999; font-size: 0.8rem;">
+                                        Saved: ${new Date(team.date).toLocaleDateString()}
+                                    </p>
+                                </div>
+                                <div style="display: flex; gap: 10px;">
+                                    <button onclick="loadSavedTeam('${team.name}')" style="padding: 8px 16px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                                        Load
+                                    </button>
+                                    <button onclick="deleteSavedTeam('${team.name}')" style="padding: 8px 16px; background: linear-gradient(135deg, #dc3545, #c82333); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <button onclick="closeSavedTeamsModal()" style="margin-top: 20px; width: 100%; padding: 12px; background: #333; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                    Close
+                </button>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // Store modal reference for closing
+            window.savedTeamsModal = modal;
+        }
+        
+        function closeSavedTeamsModal() {
+            if (window.savedTeamsModal) {
+                window.savedTeamsModal.remove();
+                window.savedTeamsModal = null;
+            }
+        }
+        
+        function loadSavedTeam(teamName) {
+            if (window.transferSimPro) {
+                const savedTeams = window.transferSimPro.getSavedTeams();
+                const team = savedTeams.find(t => t.name === teamName);
+                if (team) {
+                    window.transferSimPro.loadTeam(team);
+                    closeSavedTeamsModal();
+                }
+            }
+        }
+        
+        function deleteSavedTeam(teamName) {
+            if (confirm(`Are you sure you want to delete team "${teamName}"?`)) {
+                if (window.transferSimPro) {
+                    window.transferSimPro.deleteSavedTeam(teamName);
+                    closeSavedTeamsModal();
+                    showSavedTeams(); // Refresh the modal
+                }
             }
         }
 
