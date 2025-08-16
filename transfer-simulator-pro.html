@@ -105,6 +105,11 @@
                 transform: translateY(0);
             }
         }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
 
         .main-grid {
             display: grid;
@@ -2068,9 +2073,12 @@
             <div class="live-status">
                 <span class="live-dot"></span>
                 <span>LIVE FPL DATA</span>
-                <span style="margin-left: 20px;">Last Update: <span id="lastUpdate">Just now</span></span>
+                <span style="margin-left: 20px;">Last Update: <span id="lastUpdate">Loading...</span></span>
                 <button onclick="refreshPlayerData()" style="margin-left: 20px; padding: 5px 15px; background: linear-gradient(135deg, #00ff88, #00c851); color: #333; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
                     🔄 Refresh Data
+                </button>
+                <button onclick="forceLoadPlayerData()" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                    ⚠️ Force Load
                 </button>
             </div>
             
@@ -2813,8 +2821,50 @@
                 } catch (error) {
                     console.error('Failed to load live data:', error);
                     
+                    // Try CORS proxy as fallback
+                    try {
+                        console.log('Attempting to load via CORS proxy...');
+                        const timestamp = Date.now();
+                        const apiUrl = `https://fantasy.premierleague.com/api/bootstrap-static/`;
+                        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl + '?t=' + timestamp)}`;
+                        
+                        const proxyResponse = await fetch(proxyUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json'
+                            },
+                            cache: 'no-store'
+                        });
+                        
+                        if (proxyResponse.ok) {
+                            const proxyData = await proxyResponse.json();
+                            if (proxyData && proxyData.elements && proxyData.elements.length > 0) {
+                                this.allPlayers = proxyData.elements;
+                                this.teams = proxyData.teams;
+                                
+                                // Create teams lookup
+                                this.teamsLookup = {};
+                                if (proxyData.teams) {
+                                    proxyData.teams.forEach(team => {
+                                        this.teamsLookup[team.id] = {
+                                            name: team.name,
+                                            short_name: team.short_name
+                                        };
+                                    });
+                                }
+                                
+                                console.log(`Loaded ${this.allPlayers.length} players via CORS proxy`);
+                                this.showNotification(`✅ Loaded ${this.allPlayers.length} players via proxy!`, 'success');
+                                return;
+                            }
+                        }
+                    } catch (proxyError) {
+                        console.error('CORS proxy failed:', proxyError);
+                    }
+                    
                     // Try alternative approach using FPLDataService without cache
                     try {
+                        console.log('Attempting to load via FPLDataService...');
                         const fplService = new FPLDataService();
                         
                         // Store original fetch if not already stored
@@ -5079,6 +5129,88 @@
             }
         }
 
+        async function forceLoadPlayerData() {
+            console.log('Force loading player data...');
+            
+            // Show loading indicator
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+            loadingOverlay.innerHTML = `
+                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; border-radius: 15px; text-align: center;">
+                    <div style="font-size: 1.5rem; margin-bottom: 10px;">⚠️ Force Loading Data</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">This may take a moment...</div>
+                    <div class="spinner" style="margin-top: 15px; width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin: 15px auto 0;"></div>
+                </div>
+            `;
+            document.body.appendChild(loadingOverlay);
+            
+            try {
+                // First ensure we have a FPLDataService
+                if (typeof FPLDataService === 'undefined') {
+                    // Try to load the script again
+                    const script = document.createElement('script');
+                    script.src = 'fpl-api.js';
+                    document.head.appendChild(script);
+                    
+                    // Wait for script to load
+                    await new Promise(resolve => {
+                        script.onload = resolve;
+                        setTimeout(resolve, 2000); // Timeout after 2 seconds
+                    });
+                }
+                
+                // Try to get mock data as a fallback
+                if (typeof FPLDataService !== 'undefined') {
+                    const fplService = new FPLDataService();
+                    const mockData = fplService.getMockBootstrapData();
+                    
+                    if (mockData && mockData.elements && mockData.elements.length > 0) {
+                        window.transferSimPro.allPlayers = mockData.elements;
+                        window.transferSimPro.teams = mockData.teams;
+                        
+                        // Create teams lookup
+                        window.transferSimPro.teamsLookup = {};
+                        if (mockData.teams) {
+                            mockData.teams.forEach(team => {
+                                window.transferSimPro.teamsLookup[team.id] = {
+                                    name: team.name,
+                                    short_name: team.short_name
+                                };
+                            });
+                        }
+                        
+                        console.log(`Force loaded ${window.transferSimPro.allPlayers.length} players from mock data`);
+                        window.transferSimPro.showNotification(`✅ Loaded ${window.transferSimPro.allPlayers.length} players (sample data)`, 'success');
+                        
+                        // Update displays
+                        window.transferSimPro.updateDisplay();
+                        window.transferSimPro.updateCharts();
+                        
+                        // Update last update time
+                        document.getElementById('lastUpdate').textContent = 'Sample data loaded';
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Force load failed:', error);
+                alert('Unable to load player data. Please check your internet connection and try again.');
+            } finally {
+                // Remove loading overlay
+                loadingOverlay.remove();
+            }
+        }
+        
         function refreshPlayerData() {
             if (window.transferSimPro) {
                 // Show loading indicator
@@ -7063,8 +7195,103 @@ Mbeumo"></textarea>
 
         // Initialize
         window.transferSimPro = new TransferSimulatorPro();
-        document.addEventListener('DOMContentLoaded', () => {
-            window.transferSimPro.init();
+        
+        // Ensure FPLDataService is available globally
+        if (typeof FPLDataService === 'undefined') {
+            console.error('FPLDataService not found! Loading fallback...');
+            // Define a minimal FPLDataService if not available
+            window.FPLDataService = class {
+                getMockBootstrapData() {
+                    return {
+                        elements: [],
+                        teams: []
+                    };
+                }
+            };
+        }
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('DOM Content Loaded - Initializing Transfer Simulator Pro...');
+            
+            // Show loading indicator
+            const container = document.querySelector('.pro-container');
+            if (container && !document.getElementById('initialLoadingIndicator')) {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.id = 'initialLoadingIndicator';
+                loadingDiv.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    color: white;
+                    padding: 30px 50px;
+                    border-radius: 15px;
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    z-index: 9999;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    text-align: center;
+                `;
+                loadingDiv.innerHTML = `
+                    <div style="margin-bottom: 15px;">⚽ Loading Player Data...</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Please wait while we fetch the latest FPL data</div>
+                    <div class="spinner" style="margin-top: 15px; width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin: 15px auto 0;"></div>
+                `;
+                document.body.appendChild(loadingDiv);
+            }
+            
+            try {
+                await window.transferSimPro.init();
+                
+                // Check if data loaded successfully
+                if (!window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
+                    console.warn('No player data loaded on first attempt, retrying...');
+                    
+                    // Retry loading data
+                    await window.transferSimPro.loadPlayerData();
+                    
+                    if (!window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
+                        // Show error message
+                        const errorDiv = document.getElementById('initialLoadingIndicator');
+                        if (errorDiv) {
+                            errorDiv.innerHTML = `
+                                <div style="margin-bottom: 15px;">⚠️ Unable to Load Player Data</div>
+                                <div style="font-size: 0.9rem; opacity: 0.9;">Please check your internet connection and refresh the page</div>
+                                <button onclick="location.reload()" style="margin-top: 15px; padding: 10px 20px; background: white; color: #667eea; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                                    Refresh Page
+                                </button>
+                            `;
+                        }
+                        return;
+                    }
+                }
+                
+                console.log(`Transfer Simulator Pro initialized with ${window.transferSimPro.allPlayers.length} players`);
+                
+                // Hide loading indicator after successful load
+                const loadingIndicator = document.getElementById('initialLoadingIndicator');
+                if (loadingIndicator) {
+                    loadingIndicator.style.transition = 'opacity 0.5s';
+                    loadingIndicator.style.opacity = '0';
+                    setTimeout(() => loadingIndicator.remove(), 500);
+                }
+                
+            } catch (error) {
+                console.error('Failed to initialize Transfer Simulator Pro:', error);
+                
+                // Show error message
+                const errorDiv = document.getElementById('initialLoadingIndicator');
+                if (errorDiv) {
+                    errorDiv.innerHTML = `
+                        <div style="margin-bottom: 15px;">❌ Initialization Error</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">${error.message || 'An unexpected error occurred'}</div>
+                        <button onclick="location.reload()" style="margin-top: 15px; padding: 10px 20px; background: white; color: #667eea; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                            Retry
+                        </button>
+                    `;
+                }
+            }
             
             // Test features in development mode
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
