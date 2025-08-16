@@ -630,6 +630,16 @@
                     color: #ff2244;
                 }
                 
+                .ai-message-counter.sign-in {
+                    background: rgba(255, 215, 0, 0.2);
+                    color: #ffd700;
+                }
+                
+                .ai-message-counter.sign-in a {
+                    color: #ffd700;
+                    text-decoration: underline;
+                }
+                
                 /* Quick Actions */
                 .ai-quick-actions {
                     padding: 12px;
@@ -1509,15 +1519,26 @@
                 const userStatus = window.premiumAccessControl.getUserStatus();
                 const access = window.premiumAccessControl.hasAccess('fpl-ai-assistant.html');
                 
-                if (userStatus.membershipLevel === 'pro') {
+                if (!userStatus.isLoggedIn) {
+                    // Not logged in - show sign-in prompt
+                    counter.innerHTML = `📝 <a href="/signin.html" style="color: #ffd700;">Sign in</a>`;
+                    counter.className = 'ai-message-counter sign-in';
+                    counter.title = 'Sign in if you have Pro or Starter membership';
+                    
+                    // Still show remaining for free users
+                    const remaining = access.remaining || 0;
+                    if (remaining < 5) {
+                        counter.innerHTML += ` | ${remaining}/5`;
+                    }
+                } else if (userStatus.membershipLevel === 'pro' && userStatus.isActive) {
                     counter.textContent = '🏆 Pro: Unlimited';
                     counter.className = 'ai-message-counter premium';
-                } else if (userStatus.membershipLevel === 'starter') {
+                } else if (userStatus.membershipLevel === 'starter' && userStatus.isActive) {
                     const remaining = access.remaining || 0;
                     counter.textContent = `⚽ Starter: ${remaining}/50`;
                     counter.className = remaining <= 5 ? 'ai-message-counter warning' : 'ai-message-counter starter';
                 } else {
-                    // Free user
+                    // Free user (logged in but no active subscription)
                     const remaining = access.remaining || 0;
                     counter.textContent = `Free: ${remaining}/5`;
                     
@@ -1558,9 +1579,11 @@
                 const userStatus = window.premiumAccessControl.getUserStatus();
                 const access = window.premiumAccessControl.hasAccess('fpl-ai-assistant.html');
                 
-                if (userStatus.membershipLevel === 'pro') {
+                if (!userStatus.isLoggedIn) {
+                    return 'Sign in for Pro/Starter';
+                } else if (userStatus.membershipLevel === 'pro' && userStatus.isActive) {
                     return '🏆 Pro: Unlimited';
-                } else if (userStatus.membershipLevel === 'starter') {
+                } else if (userStatus.membershipLevel === 'starter' && userStatus.isActive) {
                     const remaining = access.remaining || 0;
                     return `⚽ Starter: ${remaining}/50`;
                 } else {

@@ -45,7 +45,7 @@ class PremiumAccessControl {
             const subscription = window.authService.getSubscription();
             return {
                 isLoggedIn: window.authService.isLoggedIn(),
-                membershipLevel: window.authService.getMembershipTier(),
+                membershipLevel: window.authService.getMembershipTier() || 'free',
                 dailyUsage: this.getDailyUsage(),
                 isActive: window.authService.hasActiveSubscription()
             };
@@ -64,15 +64,14 @@ class PremiumAccessControl {
         
         // Check localStorage for cached user status (fallback)
         const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
-        const membershipLevel = localStorage.getItem('membershipLevel') || 'free';
         const subscriptionData = localStorage.getItem('eplSubscription');
         
-        if (subscriptionData) {
+        if (isLoggedIn && subscriptionData) {
             try {
                 const parsed = JSON.parse(subscriptionData);
                 return {
-                    isLoggedIn: isLoggedIn,
-                    membershipLevel: parsed.tier || membershipLevel,
+                    isLoggedIn: true,
+                    membershipLevel: parsed.tier || 'free',
                     dailyUsage: this.getDailyUsage(),
                     isActive: parsed.status === 'active'
                 };
@@ -81,9 +80,10 @@ class PremiumAccessControl {
             }
         }
         
+        // Default to free plan for non-authenticated users
         return {
-            isLoggedIn: isLoggedIn,
-            membershipLevel: membershipLevel, // 'free', 'starter', 'pro'
+            isLoggedIn: false,
+            membershipLevel: 'free',
             dailyUsage: this.getDailyUsage(),
             isActive: false
         };
