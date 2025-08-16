@@ -6095,7 +6095,17 @@
                     'Wilson|W[il]lson|Callum': 'Wilson',
                     'Mitrovic|M[il]trovic': 'Mitrovic',
                     'Mateta|Mat[ae]ta': 'Mateta',
-                    'Edouard|[AE]douard': 'Edouard'
+                    'Edouard|[AE]douard': 'Edouard',
+                    'Petrovic|P[ae]trovic': 'Petrovic',
+                    'Moreno|Mor[ae]no': 'Moreno',
+                    'Alex Moreno': 'Moreno',
+                    'Ramsey|Rams[ae]y': 'Ramsey',
+                    'A\.Ramsey|A Ramsey': 'Ramsey',
+                    'J\.Ramsey|J Ramsey': 'Ramsey',
+                    'Redmond|R[ae]dmond': 'Redmond',
+                    'M\.Salah|M Salah': 'Salah',
+                    'Mitoma|M[il]toma': 'Mitoma',
+                    'Snapdragon': '', // Remove sponsor text that might appear
                 };
                 
                 // Apply all corrections
@@ -6263,28 +6273,43 @@
             const directMatches = [];
             const textLower = (text || '').toLowerCase();
             
-            // Search for each player's name directly in the text
+            // Search for each player's name directly in the text with more flexible matching
             allPlayers.forEach(player => {
                 const lastName = player.second_name.toLowerCase();
                 const webName = (player.web_name || '').toLowerCase();
                 const firstName = player.first_name.toLowerCase();
                 
-                // Check if player's last name appears in the text (most reliable)
-                if (lastName.length > 3 && textLower.includes(lastName)) {
-                    if (!matchedPlayerIds.has(player.id)) {
-                        matchedPlayerIds.add(player.id);
-                        detectedPlayers.push(player);
-                        directMatches.push(lastName);
-                        console.log(`Direct match found: ${player.first_name} ${player.second_name}`);
-                    }
+                // Create variations for matching
+                const nameVariations = [
+                    lastName,
+                    webName,
+                    firstName,
+                    `${firstName.charAt(0)}.${lastName}`, // e.g., "A.Ramsey"
+                    `${firstName} ${lastName}`,
+                    lastName.replace(/[^a-z]/g, ''), // Remove special chars
+                ];
+                
+                // Special cases for commonly abbreviated names
+                if (lastName === 'alexander-arnold') {
+                    nameVariations.push('taa', 't.a.a', 'alexander arnold', 'trent');
                 }
-                // Check web name (e.g., "Salah" for "Mohamed Salah")
-                else if (webName.length > 3 && webName !== lastName && textLower.includes(webName)) {
-                    if (!matchedPlayerIds.has(player.id)) {
-                        matchedPlayerIds.add(player.id);
-                        detectedPlayers.push(player);
-                        directMatches.push(webName);
-                        console.log(`Direct match found (web name): ${player.web_name}`);
+                if (lastName === 'wan-bissaka') {
+                    nameVariations.push('awb', 'a.w.b', 'wan bissaka', 'bissaka');
+                }
+                if (webName === 'joão pedro') {
+                    nameVariations.push('joao pedro', 'jodo pedro', 'j.pedro', 'pedro');
+                }
+                
+                // Check each variation
+                for (const variation of nameVariations) {
+                    if (variation && variation.length >= 3 && textLower.includes(variation)) {
+                        if (!matchedPlayerIds.has(player.id)) {
+                            matchedPlayerIds.add(player.id);
+                            detectedPlayers.push(player);
+                            directMatches.push(variation);
+                            console.log(`Direct match found: ${player.first_name} ${player.second_name} (matched: "${variation}")`);
+                            break; // Stop checking variations once we find a match
+                        }
                     }
                 }
             });
@@ -6344,6 +6369,45 @@
                 const nameNoSpaces = nameLower.replace(/[^a-z]/g, '');
                 let matched = false;
                 
+                // Handle abbreviated names like "A.Ramsey" or "M.Salah"
+                if (nameLower.match(/^[a-z]\..*/) || nameLower.includes('.')) {
+                    const parts = nameLower.split('.');
+                    if (parts.length === 2) {
+                        const initial = parts[0].trim();
+                        const lastName = parts[1].trim();
+                        
+                        // Find players with matching initial and last name
+                        const matchingPlayers = allPlayers.filter(p => {
+                            const firstInitial = p.first_name.charAt(0).toLowerCase();
+                            const lastNameLower = p.second_name.toLowerCase();
+                            return firstInitial === initial && lastNameLower === lastName;
+                        });
+                        
+                        if (matchingPlayers.length === 1) {
+                            const player = matchingPlayers[0];
+                            if (!matchedPlayerIds.has(player.id)) {
+                                matchedPlayerIds.add(player.id);
+                                detectedPlayers.push(player);
+                                console.log(`Matched by initial.lastname: ${name} -> ${player.first_name} ${player.second_name}`);
+                                matched = true;
+                            }
+                        } else if (matchingPlayers.length > 1) {
+                            // Pick the most popular one
+                            const best = matchingPlayers.sort((a, b) => 
+                                parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent)
+                            )[0];
+                            if (!matchedPlayerIds.has(best.id)) {
+                                matchedPlayerIds.add(best.id);
+                                detectedPlayers.push(best);
+                                console.log(`Matched by initial.lastname (best): ${name} -> ${best.first_name} ${best.second_name}`);
+                                matched = true;
+                            }
+                        }
+                    }
+                }
+                
+                if (matched) return; // Skip other matching if we found via initial.lastname
+                
                 // 1. Try exact full name match (with and without spaces)
                 if (playerLookup.byFullName[nameLower] || playerLookup.byFullName[nameNoSpaces]) {
                     const player = playerLookup.byFullName[nameLower] || playerLookup.byFullName[nameNoSpaces];
@@ -6400,14 +6464,13 @@
                                 // Then by total points
                                 return b.total_points - a.total_points;
                             })[0];
-                            // Low threshold but reasonable - accept player if they're the best match
-                            if (parseFloat(best.selected_by_percent) > 1 || best.total_points > 10) {
-                                if (!matchedPlayerIds.has(best.id)) {
-                                    matchedPlayerIds.add(best.id);
-                                    detectedPlayers.push(best);
-                                    console.log(`Matched by last name (best): ${name} -> ${best.first_name} ${best.second_name} (${best.selected_by_percent}% owned)`);
-                                    matched = true;
-                                }
+                            // Very low threshold - accept any player that matches last name
+                            // Since we're matching from OCR text, we should trust the match
+                            if (!matchedPlayerIds.has(best.id)) {
+                                matchedPlayerIds.add(best.id);
+                                detectedPlayers.push(best);
+                                console.log(`Matched by last name (best): ${name} -> ${best.first_name} ${best.second_name} (${best.selected_by_percent}% owned)`);
+                                matched = true;
                             }
                         }
                     }
