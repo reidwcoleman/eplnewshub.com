@@ -2755,6 +2755,67 @@
             }
 
             async loadPlayerData() {
+                console.log('Loading player data from player-data-2.html...');
+                
+                // PRIORITY 1: Load from player-data-2.html (local cached data)
+                try {
+                    const localResponse = await fetch('player-data-2.html', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
+                    
+                    if (localResponse.ok) {
+                        const data = await localResponse.json();
+                        
+                        if (data && data.elements && data.elements.length > 0) {
+                            console.log('Successfully loaded data from player-data-2.html');
+                            
+                            // Store raw data
+                            this.allPlayers = data.elements;
+                            this.teams = data.teams;
+                            
+                            // Create teams lookup
+                            this.teamsLookup = {};
+                            if (data.teams) {
+                                data.teams.forEach(team => {
+                                    this.teamsLookup[team.id] = {
+                                        name: team.name,
+                                        short_name: team.short_name
+                                    };
+                                });
+                            }
+                            
+                            // Process player data with additional fields
+                            this.allPlayers = this.allPlayers.map(player => ({
+                                ...player,
+                                team_name: this.teamsLookup[player.team]?.name || 'Unknown',
+                                team_short: this.teamsLookup[player.team]?.short_name || 'UNK',
+                                display_name: `${player.first_name} ${player.second_name}`,
+                                position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
+                            }));
+                            
+                            console.log(`Loaded ${this.allPlayers.length} players from player-data-2.html`);
+                            
+                            // Update status
+                            const now = new Date();
+                            const timeString = now.toLocaleTimeString();
+                            document.getElementById('lastUpdate').textContent = `Loaded at ${timeString} (${this.allPlayers.length} players)`;
+                            
+                            // Show notification
+                            this.showNotification(`✅ Loaded ${this.allPlayers.length} players from local data!`, 'success');
+                            return; // Success! Exit early
+                        }
+                    }
+                } catch (localError) {
+                    console.warn('Failed to load from player-data-2.html:', localError);
+                }
+                
+                // FALLBACK: Try other methods if local file fails
+                console.log('player-data-2.html not available, trying alternative methods...');
+                
                 // Ensure fetch is not overridden before we start
                 if (window.originalFetch) {
                     window.fetch = window.originalFetch;
@@ -2766,7 +2827,7 @@
                     const timestamp = Date.now();
                     const cacheBuster = `?t=${timestamp}`;
                     
-                    console.log('Loading fresh player data from FPL API...');
+                    console.log('Attempting to load fresh player data from FPL API...');
                     
                     // Fetch directly from FPL API with cache busting
                     const response = await fetch(`https://fantasy.premierleague.com/api/bootstrap-static/${cacheBuster}`, {
@@ -5149,13 +5210,69 @@
             loadingOverlay.innerHTML = `
                 <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; border-radius: 15px; text-align: center;">
                     <div style="font-size: 1.5rem; margin-bottom: 10px;">⚠️ Force Loading Data</div>
-                    <div style="font-size: 0.9rem; opacity: 0.9;">This may take a moment...</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Loading from player-data-2.html...</div>
                     <div class="spinner" style="margin-top: 15px; width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin: 15px auto 0;"></div>
                 </div>
             `;
             document.body.appendChild(loadingOverlay);
             
             try {
+                // First try to load from player-data-2.html
+                try {
+                    const response = await fetch('player-data-2.html', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        if (data && data.elements && data.elements.length > 0) {
+                            window.transferSimPro.allPlayers = data.elements;
+                            window.transferSimPro.teams = data.teams;
+                            
+                            // Create teams lookup
+                            window.transferSimPro.teamsLookup = {};
+                            if (data.teams) {
+                                data.teams.forEach(team => {
+                                    window.transferSimPro.teamsLookup[team.id] = {
+                                        name: team.name,
+                                        short_name: team.short_name
+                                    };
+                                });
+                            }
+                            
+                            // Process player data
+                            window.transferSimPro.allPlayers = window.transferSimPro.allPlayers.map(player => ({
+                                ...player,
+                                team_name: window.transferSimPro.teamsLookup[player.team]?.name || 'Unknown',
+                                team_short: window.transferSimPro.teamsLookup[player.team]?.short_name || 'UNK',
+                                display_name: `${player.first_name} ${player.second_name}`,
+                                position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
+                            }));
+                            
+                            console.log(`Force loaded ${window.transferSimPro.allPlayers.length} players from player-data-2.html`);
+                            window.transferSimPro.showNotification(`✅ Loaded ${window.transferSimPro.allPlayers.length} players from local data!`, 'success');
+                            
+                            // Update displays
+                            window.transferSimPro.updateDisplay();
+                            window.transferSimPro.updateCharts();
+                            window.transferSimPro.updateSquadDisplay();
+                            
+                            // Update last update time
+                            const now = new Date();
+                            document.getElementById('lastUpdate').textContent = `Force loaded at ${now.toLocaleTimeString()}`;
+                            
+                            loadingOverlay.remove();
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to load from player-data-2.html:', e);
+                }
+                
                 // First ensure we have a FPLDataService
                 if (typeof FPLDataService === 'undefined') {
                     // Try to load the script again
