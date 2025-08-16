@@ -5375,6 +5375,29 @@
                 window.transferSimPro.displayPlayers();
             }
         }
+        
+        function showPositionPlayers(position) {
+            if (window.transferSimPro) {
+                window.transferSimPro.showPositionPlayers(position);
+            }
+        }
+        
+        function processTeamImage(input) {
+            // Handle team image upload
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // You can add logic here to process the team image
+                    console.log('Team image loaded:', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        // Make functions globally available
+        window.filterPlayers = filterPlayers;
+        window.showPositionPlayers = showPositionPlayers;
+        window.processTeamImage = processTeamImage;
 
         async function forceLoadPlayerData() {
             console.log('Force loading player data...');
@@ -6318,8 +6341,8 @@
                     .sort((a, b) => parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent));
                 
                 // Try to match any word with any part of popular player names
-                uniqueNames.forEach(name => {
-                    if (name.length < 3) return;
+                for (const name of uniqueNames) {
+                    if (name.length < 3) continue;
                     const nameLower = name.toLowerCase();
                     
                     for (const player of popularPlayers) {
@@ -6344,7 +6367,7 @@
                     
                     // Stop after finding 15 players
                     if (detectedPlayers.length >= 15) break;
-                });
+                }
             }
             
             console.log(`Final detected players (${detectedPlayers.length}):`, 
@@ -6704,17 +6727,7 @@ Mbeumo"></textarea>
             }
         }
 
-        function showPositionPlayers(position) {
-            if (window.transferSimPro) {
-                window.transferSimPro.showPositionPlayers(position);
-            }
-        }
-
-        function clearAllFilters() {
-            if (window.transferSimPro) {
-                window.transferSimPro.clearAllFilters();
-            }
-        }
+        // Removed duplicate - already defined above
         
         function searchAllPlayers() {
             if (window.transferSimPro) {
