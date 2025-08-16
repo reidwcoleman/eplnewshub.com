@@ -2062,8 +2062,9 @@
     </style>
     <!-- Tesseract.js for OCR -->
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
-    <!-- Simple OCR Processing -->
+    <!-- OCR Processing Scripts -->
     <script src="simple-ocr-processor.js"></script>
+    <script src="advanced-screenshot-processor.js"></script>
 </head>
 <body>
     <div class="header" include="./header.html"></div>
@@ -6949,68 +6950,84 @@
             const statusDiv = document.getElementById('imageProcessingStatus');
             if (statusDiv) {
                 statusDiv.style.display = 'block';
-                statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="color: white; margin-top: 10px;">Processing screenshot...</p>';
+                statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="color: white; margin-top: 10px;">🔍 Analyzing screenshot with multiple methods...</p>';
             }
             
-            // Create image element to display
-            const img = new Image();
-            const reader = new FileReader();
-            
-            reader.onload = async function(e) {
-                img.src = e.target.result;
-                
-                // Wait for image to load
-                await new Promise(resolve => {
-                    img.onload = resolve;
-                });
-                
-                try {
-                    // Initialize Tesseract worker - simple setup
-                    const worker = await Tesseract.createWorker('eng');
+            try {
+                // Use advanced multi-pass OCR processor
+                if (typeof processScreenshotAdvanced === 'function') {
+                    console.log('Using advanced multi-pass OCR...');
                     
-                    try {
-                        // Perform OCR with minimal configuration
-                        const { data } = await worker.recognize(img.src);
-                        console.log('OCR Result:', data.text);
-                        
-                        // Update status
-                        if (statusDiv) {
-                            statusDiv.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div><p style="color: white; margin-top: 10px;">Matching players...</p>';
-                        }
-                        
-                        // Use simple OCR processor
-                        let detectedPlayers;
-                        if (typeof simpleProcessOCR === 'function') {
-                            console.log('Using simple OCR processing...');
-                            detectedPlayers = simpleProcessOCR(data.text, data.words, data.lines);
-                        } else {
-                            // Fallback to original processing
-                            console.log('Using standard OCR processing...');
-                            detectedPlayers = processOCRText(data.text, data.words, data.lines);
-                        }
-                        
-                        // Extract potential names for display
-                        const detectedNames = extractPotentialPlayerNames(data.text, data.words, data.lines);
-                        
-                        // Show the smart player picker dialog
-                        showSmartPlayerPicker(detectedNames, detectedPlayers);
-                        
-                    } finally {
-                        await worker.terminate();
-                    }
-                } catch (error) {
-                    console.error('OCR Error:', error);
-                    alert('Failed to process image. Please try again or enter players manually.');
-                } finally {
+                    const detectedPlayers = await processScreenshotAdvanced(file);
+                    
                     if (statusDiv) {
                         statusDiv.style.display = 'none';
                     }
-                    // Reset file input
-                    event.target.value = '';
+                    
+                    if (detectedPlayers.length > 0) {
+                        // Show review modal for detected players
+                        showAdvancedPlayerReview(detectedPlayers);
+                    } else {
+                        // No players found - offer manual entry
+                        alert('Could not detect any players in the screenshot. Please use the manual team builder instead.');
+                        createManualTeamBuilder();
+                    }
+                    
+                } else {
+                    // Fallback to simple OCR
+                    console.log('Falling back to simple OCR...');
+                    
+                    const img = new Image();
+                    const reader = new FileReader();
+                    
+                    reader.onload = async function(e) {
+                        img.src = e.target.result;
+                        
+                        await new Promise(resolve => {
+                            img.onload = resolve;
+                        });
+                        
+                        const worker = await Tesseract.createWorker('eng');
+                        
+                        try {
+                            const { data } = await worker.recognize(img.src);
+                            
+                            let detectedPlayers;
+                            if (typeof simpleProcessOCR === 'function') {
+                                detectedPlayers = simpleProcessOCR(data.text, data.words, data.lines);
+                            } else {
+                                detectedPlayers = processOCRText(data.text, data.words, data.lines);
+                            }
+                            
+                            if (detectedPlayers.length > 0) {
+                                const detectedNames = extractPotentialPlayerNames(data.text, data.words, data.lines);
+                                showSmartPlayerPicker(detectedNames, detectedPlayers);
+                            } else {
+                                alert('Could not detect any players. Please use the manual team builder.');
+                                createManualTeamBuilder();
+                            }
+                            
+                        } finally {
+                            await worker.terminate();
+                        }
+                    };
+                    
+                    reader.readAsDataURL(file);
                 }
-            };
-            
-            reader.readAsDataURL(file);
+                
+            } catch (error) {
+                console.error('Screenshot processing error:', error);
+                alert('Failed to process screenshot. Please use the manual team builder instead.');
+                createManualTeamBuilder();
+            } finally {
+                if (statusDiv) {
+                    setTimeout(() => {
+                        statusDiv.style.display = 'none';
+                    }, 500);
+                }
+                // Reset file input
+                event.target.value = '';
+            }
         }
         
         // Make it globally available
