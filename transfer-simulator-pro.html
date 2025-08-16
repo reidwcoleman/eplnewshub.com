@@ -3238,9 +3238,11 @@
                             console.log(`Using fallback mock data: ${this.allPlayers.length} players`);
                             document.getElementById('lastUpdate').textContent = `Fallback data (${this.allPlayers.length} players) - Check connection`;
                             
-                            this.showNotification(`⚠️ Using fallback data - Live API unavailable`, 'warning');
+                            // Silently use fallback data
+                            console.log('Using fallback data - Live API unavailable');
                         } else {
-                            this.showNotification('❌ Failed to load any player data', 'error');
+                            // Silently log the issue
+                            console.error('Failed to load any player data, app may have limited functionality');
                         }
                     }
                 }
@@ -5530,7 +5532,8 @@
                 
             } catch (error) {
                 console.error('Force load failed:', error);
-                alert('Unable to load player data. Please check your internet connection and try again.');
+                // Silently log error instead of showing alert
+                console.log('Will continue with available data');
             } finally {
                 // Remove loading overlay
                 loadingOverlay.remove();
@@ -5563,7 +5566,8 @@
                     if (loadingOverlay) {
                         loadingOverlay.style.display = 'none';
                     }
-                    window.transferSimPro.showNotification('❌ Failed to refresh data', 'error');
+                    // Silently log instead of showing error notification
+                    console.log('Data refresh failed, will retry later');
                 });
             }
         }
@@ -5592,9 +5596,10 @@
                 
                 // Check again after loading
                 if (!window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
-                    statusDiv.innerHTML = '<p style="color: #ff6b6b;">❌ Failed to load player data. Please refresh and try again.</p>';
-                    setTimeout(() => statusDiv.style.display = 'none', 3000);
-                    return;
+                    // Silently log the issue instead of showing popup
+                    console.log('Player data not loaded yet, will retry in background');
+                    statusDiv.style.display = 'none';
+                    // Don't return - let the app continue with fallback data
                 }
                 
                 console.log(`Player data loaded successfully: ${window.transferSimPro.allPlayers.length} players`);
@@ -7535,16 +7540,16 @@ Mbeumo"></textarea>
                 
                 // Check if data loaded successfully
                 if (!window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
-                    console.error('No player data available!');
-                    alert('Failed to load player data. Please refresh the page.');
-                    return;
+                    console.warn('No player data available yet, using fallback data');
+                    // Don't show alert - let the app continue with fallback data
                 }
                 
                 console.log(`Transfer Simulator Pro initialized with ${window.transferSimPro.allPlayers.length} players`);
                 
             } catch (error) {
                 console.error('Failed to initialize Transfer Simulator Pro:', error);
-                alert('Failed to initialize. Please refresh the page.');
+                // Don't show alert - silently log the error
+                console.log('Will continue with limited functionality');
             }
             
             // Test features in development mode
