@@ -2237,6 +2237,9 @@
                             <div class="search-icon">🔍</div>
                             <h3>Search for Players to Add to Your Squad</h3>
                             <p>Use the search box above to find specific players, or click a position button below to browse by position:</p>
+                            <div id="loadDataMessage" style="display: none; margin: 10px 0; padding: 10px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px;">
+                                <p style="margin: 0;">Player data not loaded yet. <button onclick="window.forceLoadPlayers()" style="padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">Load Players Now</button></p>
+                            </div>
                             <div class="position-buttons">
                                 <button class="position-btn" onclick="showPositionPlayers(1)">
                                     <span class="position-emoji">🥅</span>
@@ -3046,7 +3049,10 @@
                 // If no players are loaded yet, show loading message
                 if (!this.allPlayers || this.allPlayers.length === 0) {
                     container.innerHTML = '<div style="text-align: center; padding: 40px; color: #667eea;"><h3>Loading players...</h3></div>';
-                    if (instructionsContainer) instructionsContainer.style.display = 'none';
+                    if (instructionsContainer) instructionsContainer.style.display = 'block';
+                    // Show the load data message
+                    const loadMsg = document.getElementById('loadDataMessage');
+                    if (loadMsg) loadMsg.style.display = 'block';
                     return;
                 }
                 
@@ -7950,38 +7956,64 @@ Mbeumo"></textarea>
         
         // Immediately load player data without waiting
         (function loadDataImmediately() {
-            console.log('Immediately loading embedded data...');
-            if (typeof EMBEDDED_FPL_DATA !== 'undefined' && EMBEDDED_FPL_DATA.elements && EMBEDDED_FPL_DATA.elements.length > 0) {
-                const expandedData = expandPlayerData(EMBEDDED_FPL_DATA);
-                window.transferSimPro.allPlayers = expandedData.elements;
-                window.transferSimPro.teams = expandedData.teams || window.transferSimPro.getFallbackTeams();
+            try {
+                console.log('Starting immediate data load...');
+                console.log('EMBEDDED_FPL_DATA exists:', typeof EMBEDDED_FPL_DATA !== 'undefined');
                 
-                // Create teams lookup
-                window.transferSimPro.teamsLookup = {};
-                if (expandedData.teams) {
-                    expandedData.teams.forEach(team => {
-                        window.transferSimPro.teamsLookup[team.id] = {
-                            name: team.name,
-                            short_name: team.short_name
-                        };
-                    });
+                if (typeof EMBEDDED_FPL_DATA !== 'undefined') {
+                    console.log('EMBEDDED_FPL_DATA.elements exists:', !!EMBEDDED_FPL_DATA.elements);
+                    console.log('EMBEDDED_FPL_DATA.elements length:', EMBEDDED_FPL_DATA.elements ? EMBEDDED_FPL_DATA.elements.length : 0);
+                    console.log('EMBEDDED_FPL_DATA.teams exists:', !!EMBEDDED_FPL_DATA.teams);
+                    console.log('EMBEDDED_FPL_DATA.teams length:', EMBEDDED_FPL_DATA.teams ? EMBEDDED_FPL_DATA.teams.length : 0);
+                    
+                    if (EMBEDDED_FPL_DATA.elements && EMBEDDED_FPL_DATA.elements.length > 0) {
+                        const expandedData = expandPlayerData(EMBEDDED_FPL_DATA);
+                        window.transferSimPro.allPlayers = expandedData.elements;
+                        window.transferSimPro.teams = expandedData.teams || window.transferSimPro.getFallbackTeams();
+                        
+                        // Create teams lookup
+                        window.transferSimPro.teamsLookup = {};
+                        if (expandedData.teams && expandedData.teams.length > 0) {
+                            expandedData.teams.forEach(team => {
+                                window.transferSimPro.teamsLookup[team.id] = {
+                                    name: team.name,
+                                    short_name: team.short_name
+                                };
+                            });
+                            console.log('Teams lookup created with', Object.keys(window.transferSimPro.teamsLookup).length, 'teams');
+                        } else {
+                            console.warn('No teams data, using fallback teams');
+                            window.transferSimPro.teams = window.transferSimPro.getFallbackTeams();
+                            window.transferSimPro.teams.forEach(team => {
+                                window.transferSimPro.teamsLookup[team.id] = {
+                                    name: team.name,
+                                    short_name: team.short_name
+                                };
+                            });
+                        }
+                        
+                        // Process and add team names to players
+                        window.transferSimPro.allPlayers = window.transferSimPro.allPlayers.map(player => ({
+                            ...player,
+                            team_name: window.transferSimPro.teamsLookup[player.team]?.name || 'Unknown',
+                            team_short: window.transferSimPro.teamsLookup[player.team]?.short_name || 'UNK',
+                            display_name: `${player.first_name} ${player.second_name}`,
+                            position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
+                        }));
+                        
+                        console.log(`✅ Successfully loaded ${window.transferSimPro.allPlayers.length} players`);
+                        console.log('Sample player:', window.transferSimPro.allPlayers[0]);
+                        
+                        // Set data loaded flag
+                        window.transferSimPro.dataLoaded = true;
+                    } else {
+                        console.error('EMBEDDED_FPL_DATA.elements is empty or missing');
+                    }
+                } else {
+                    console.error('EMBEDDED_FPL_DATA is undefined!');
                 }
-                
-                // Process and add team names to players
-                window.transferSimPro.allPlayers = window.transferSimPro.allPlayers.map(player => ({
-                    ...player,
-                    team_name: window.transferSimPro.teamsLookup[player.team]?.name || 'Unknown',
-                    team_short: window.transferSimPro.teamsLookup[player.team]?.short_name || 'UNK',
-                    display_name: `${player.first_name} ${player.second_name}`,
-                    position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
-                }));
-                
-                console.log(`Immediately loaded ${window.transferSimPro.allPlayers.length} players from embedded data`);
-                
-                // Set data loaded flag
-                window.transferSimPro.dataLoaded = true;
-            } else {
-                console.error('EMBEDDED_FPL_DATA not found or empty!');
+            } catch (error) {
+                console.error('Error loading data immediately:', error);
             }
         })();
         
