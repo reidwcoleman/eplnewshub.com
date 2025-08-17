@@ -2892,6 +2892,41 @@
                 this.initializePriceChanges();
                 this.initializeAllAdvancedSystems();
             }
+            
+            getFallbackTeams() {
+                // Return the teams from embedded data or default teams
+                if (typeof EMBEDDED_FPL_DATA !== 'undefined' && EMBEDDED_FPL_DATA.t) {
+                    return EMBEDDED_FPL_DATA.t.map(t => ({
+                        id: t.id,
+                        name: t.n,
+                        short_name: t.s
+                    }));
+                }
+                
+                // Return a default set of teams
+                return [
+                    {id: 1, name: "Arsenal", short_name: "ARS"},
+                    {id: 2, name: "Aston Villa", short_name: "AVL"},
+                    {id: 3, name: "Bournemouth", short_name: "BOU"},
+                    {id: 4, name: "Brentford", short_name: "BRE"},
+                    {id: 5, name: "Brighton", short_name: "BHA"},
+                    {id: 6, name: "Burnley", short_name: "BUR"},
+                    {id: 7, name: "Chelsea", short_name: "CHE"},
+                    {id: 8, name: "Crystal Palace", short_name: "CRY"},
+                    {id: 9, name: "Everton", short_name: "EVE"},
+                    {id: 10, name: "Fulham", short_name: "FUL"},
+                    {id: 11, name: "Leeds", short_name: "LEE"},
+                    {id: 12, name: "Liverpool", short_name: "LIV"},
+                    {id: 13, name: "Man City", short_name: "MCI"},
+                    {id: 14, name: "Man Utd", short_name: "MUN"},
+                    {id: 15, name: "Newcastle", short_name: "NEW"},
+                    {id: 16, name: "Nott'm Forest", short_name: "NFO"},
+                    {id: 17, name: "Sheffield Utd", short_name: "SHU"},
+                    {id: 18, name: "Spurs", short_name: "TOT"},
+                    {id: 19, name: "West Ham", short_name: "WHU"},
+                    {id: 20, name: "Wolves", short_name: "WOL"}
+                ];
+            }
 
             async loadFullPlayerData() {
                 // Try to load complete data from player-data-2.html in the background
@@ -2939,12 +2974,15 @@
             
             async loadPlayerData() {
                 console.log('Loading player data...');
+                console.log('EMBEDDED_FPL_DATA exists?', typeof EMBEDDED_FPL_DATA !== 'undefined');
+                console.log('expandPlayerData exists?', typeof expandPlayerData === 'function');
                 
                 // Check if embedded data is available first
                 if (typeof EMBEDDED_FPL_DATA !== 'undefined' && EMBEDDED_FPL_DATA.p && EMBEDDED_FPL_DATA.p.length > 0) {
-                    console.log('Using embedded player data...');
+                    console.log('Using embedded player data...', EMBEDDED_FPL_DATA.p.length, 'players found');
                     const expandedData = expandPlayerData(EMBEDDED_FPL_DATA);
-                    this.allPlayers = expandedData.elements;
+                    console.log('Expanded data:', expandedData.elements ? expandedData.elements.length : 0, 'players');
+                    this.allPlayers = expandedData.elements || [];
                     this.teams = expandedData.teams || this.getFallbackTeams();
                     
                     // Create teams lookup
@@ -3909,6 +3947,37 @@
                 if (lastUpdate) {
                     lastUpdate.textContent = `${this.allPlayers.length} players loaded`;
                 }
+            }
+            
+            showNotification(message, type = 'info') {
+                console.log(`[${type.toUpperCase()}] ${message}`);
+                
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
+                    color: white;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease;
+                    max-width: 300px;
+                `;
+                notification.textContent = message;
+                
+                // Add to body
+                document.body.appendChild(notification);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
             }
 
             addToHistory(type, player) {
