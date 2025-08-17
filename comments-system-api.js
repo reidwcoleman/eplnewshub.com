@@ -5,7 +5,7 @@
     // Configuration
     const API_BASE_URL = window.location.hostname === 'localhost' 
         ? 'http://localhost:3001/api' 
-        : 'https://eplnewshub-comments.herokuapp.com/api'; // Update with your actual API URL
+        : 'https://eplnewshub-com.onrender.com/api'; // Connected to Render deployment
 
     class CommentsSystem {
         constructor() {
