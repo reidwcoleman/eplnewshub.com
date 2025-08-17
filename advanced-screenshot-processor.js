@@ -14,40 +14,63 @@ async function processScreenshotAdvanced(imageFile) {
             });
             
             try {
-                // Process strategies sequentially to avoid freezing
+                // Process strategies sequentially
                 const strategies = [];
                 
-                // Try high contrast first (usually best)
+                // Always try high contrast
                 try {
+                    console.log('Trying high contrast OCR...');
                     const result = await ocrWithHighContrast(img);
-                    strategies.push(result);
-                    
-                    // If we got good results, skip other heavy processing
-                    if (result.length >= 11) {
-                        console.log('Got enough players from high contrast, skipping other methods');
-                    } else {
-                        // Try inverted if needed
-                        const inverted = await ocrWithInversion(img);
-                        strategies.push(inverted);
+                    if (result && result.length > 0) {
+                        strategies.push(result);
+                        console.log(`High contrast found ${result.length} players`);
                     }
                 } catch (err) {
                     console.log('High contrast failed:', err);
                 }
                 
-                // Only try regions if we need more players
-                if (strategies.flat().length < 11) {
-                    try {
-                        const regions = await ocrWithRegions(img);
+                // Always try inverted (good for dark mode)
+                try {
+                    console.log('Trying inverted OCR...');
+                    const inverted = await ocrWithInversion(img);
+                    if (inverted && inverted.length > 0) {
+                        strategies.push(inverted);
+                        console.log(`Inverted found ${inverted.length} players`);
+                    }
+                } catch (err) {
+                    console.log('Inverted failed:', err);
+                }
+                
+                // Try regions for focused detection
+                try {
+                    console.log('Trying region-based OCR...');
+                    const regions = await ocrWithRegions(img);
+                    if (regions && regions.length > 0) {
                         strategies.push(regions);
+                        console.log(`Regions found ${regions.length} players`);
+                    }
+                } catch (err) {
+                    console.log('Region OCR failed:', err);
+                }
+                
+                // If still no results, try raw image as fallback
+                if (strategies.flat().length === 0) {
+                    try {
+                        console.log('Trying raw image OCR as fallback...');
+                        const rawResult = await performOCR(img.src, 'raw-image');
+                        if (rawResult && rawResult.length > 0) {
+                            strategies.push(rawResult);
+                            console.log(`Raw image found ${rawResult.length} players`);
+                        }
                     } catch (err) {
-                        console.log('Region OCR failed:', err);
+                        console.log('Raw image OCR failed:', err);
                     }
                 }
                 
                 // Combine and deduplicate results
                 const allPlayers = combineOCRResults(strategies);
                 
-                console.log(`Advanced OCR found ${allPlayers.length} unique players`);
+                console.log(`Advanced OCR found ${allPlayers.length} unique players total`);
                 resolve(allPlayers);
                 
             } catch (error) {
@@ -167,20 +190,27 @@ async function performOCR(imageSrc, strategy) {
         // Create worker with timeout
         worker = await Promise.race([
             Tesseract.createWorker('eng'),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Worker creation timeout')), 10000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Worker creation timeout')), 15000))
         ]);
         
-        // Simple settings for speed
+        // Better OCR settings for FPL screenshots
         await worker.setParameters({
-            tessedit_pageseg_mode: '6',
-            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -\''
+            tessedit_pageseg_mode: '6', // Uniform block of text
+            preserve_interword_spaces: '1',
+            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -\'.,',
+            tessedit_create_hocr: '0',
+            tessedit_create_tsv: '0',
+            tessedit_create_pdf: '0'
         });
         
         // Recognize with timeout
         const { data } = await Promise.race([
             worker.recognize(imageSrc),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('OCR timeout')), 15000))
+            new Promise((_, reject) => setTimeout(() => reject(new Error('OCR timeout')), 20000))
         ]);
+        
+        console.log(`OCR Strategy ${strategy} extracted text (${data.text.length} chars)`);
+        console.log('Sample text:', data.text.substring(0, 200));
         
         const results = extractPlayersFromText(data.text, strategy);
         
