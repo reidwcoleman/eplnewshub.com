@@ -63,13 +63,23 @@ function updateDarkModeIcon(isDark) {
 function initLoadingScreen() {
     const loadingScreen = document.getElementById('loadingScreen');
     
+    // Check if loading screen exists
+    if (!loadingScreen) {
+        console.log('Loading screen element not found');
+        return;
+    }
+    
     // Hide loading screen after page load
     window.addEventListener('load', function() {
         setTimeout(() => {
-            loadingScreen.style.opacity = '0';
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 500);
+            if (loadingScreen) {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    if (loadingScreen) {
+                        loadingScreen.style.display = 'none';
+                    }
+                }, 500);
+            }
         }, 1500);
     });
 }
@@ -79,6 +89,13 @@ function initLoadingScreen() {
 function initFloatingActionButton() {
     const fabMain = document.getElementById('fabMain');
     const fabOptions = document.getElementById('fabOptions');
+    
+    // Check if elements exist before adding listeners
+    if (!fabMain || !fabOptions) {
+        console.log('FAB elements not found, skipping initialization');
+        return;
+    }
+    
     let isOpen = false;
     
     fabMain.addEventListener('click', function() {
@@ -125,20 +142,30 @@ function initEnhancedSearch() {
     const filtersBtn = document.getElementById('searchFiltersBtn');
     const filtersPanel = document.getElementById('searchFiltersPanel');
     
+    // Check if elements exist
+    if (!searchInput) {
+        console.log('Enhanced search elements not found');
+        return;
+    }
+    
     let searchTimeout;
     
     // Real-time search suggestions
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            performSearch(this.value);
-        }, 300);
-    });
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch(this.value);
+            }, 300);
+        });
+    }
     
     // Toggle filters panel
-    filtersBtn.addEventListener('click', function() {
-        filtersPanel.classList.toggle('active');
-    });
+    if (filtersBtn && filtersPanel) {
+        filtersBtn.addEventListener('click', function() {
+            filtersPanel.classList.toggle('active');
+        });
+    }
     
     // Filter buttons functionality
     const filterButtons = document.querySelectorAll('.filter-btn');

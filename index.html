@@ -3934,9 +3934,15 @@
             }
             
             function checkPremiumBannerVisibility() {
+                const premiumBanner = document.querySelector('.premium-banner');
+                if (!premiumBanner) {
+                    console.log('Premium banner element not found');
+                    return;
+                }
+                
                 // Check if user closed banner this session
                 if (sessionStorage.getItem('premiumBannerClosed') === 'true') {
-                    document.querySelector('.premium-banner').style.display = 'none';
+                    premiumBanner.style.display = 'none';
                     return;
                 }
                 
@@ -3946,13 +3952,13 @@
                     const membership = JSON.parse(membershipInfo);
                     if (membership.status === 'active') {
                         // User has active membership, hide banner
-                        document.querySelector('.premium-banner').style.display = 'none';
+                        premiumBanner.style.display = 'none';
                         return;
                     }
                 }
                 
                 // Show banner for non-premium users
-                document.querySelector('.premium-banner').style.display = 'block';
+                premiumBanner.style.display = 'block';
             }
             
             // Periodically check for and remove unwanted ads
