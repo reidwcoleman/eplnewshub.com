@@ -14,13 +14,35 @@ async function processScreenshotAdvanced(imageFile) {
             });
             
             try {
-                // Try multiple OCR strategies in parallel
-                const strategies = await Promise.all([
-                    ocrWithHighContrast(img),
-                    ocrWithInversion(img),
-                    ocrWithRegions(img),
-                    ocrWithDifferentModes(img)
-                ]);
+                // Process strategies sequentially to avoid freezing
+                const strategies = [];
+                
+                // Try high contrast first (usually best)
+                try {
+                    const result = await ocrWithHighContrast(img);
+                    strategies.push(result);
+                    
+                    // If we got good results, skip other heavy processing
+                    if (result.length >= 11) {
+                        console.log('Got enough players from high contrast, skipping other methods');
+                    } else {
+                        // Try inverted if needed
+                        const inverted = await ocrWithInversion(img);
+                        strategies.push(inverted);
+                    }
+                } catch (err) {
+                    console.log('High contrast failed:', err);
+                }
+                
+                // Only try regions if we need more players
+                if (strategies.flat().length < 11) {
+                    try {
+                        const regions = await ocrWithRegions(img);
+                        strategies.push(regions);
+                    } catch (err) {
+                        console.log('Region OCR failed:', err);
+                    }
+                }
                 
                 // Combine and deduplicate results
                 const allPlayers = combineOCRResults(strategies);
@@ -38,78 +60,35 @@ async function processScreenshotAdvanced(imageFile) {
     });
 }
 
-// Strategy 1: High contrast preprocessing with edge enhancement
+// Strategy 1: High contrast preprocessing - OPTIMIZED
 async function ocrWithHighContrast(img) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
-    // Scale up for better OCR
-    const scale = 2;
-    canvas.width = img.width * scale;
-    canvas.height = img.height * scale;
+    // Moderate scale for balance between quality and performance
+    const scale = 1.5;
+    canvas.width = Math.min(img.width * scale, 2000); // Cap at 2000px width
+    canvas.height = Math.min(img.height * scale, 2000); // Cap at 2000px height
     
-    // Use better image scaling
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     
-    // Apply sharpening filter first
+    // Simple contrast enhancement without heavy loops
+    ctx.filter = 'contrast(200%) brightness(110%)';
+    ctx.drawImage(canvas, 0, 0);
+    
+    // Get image data for simple thresholding
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
-    const output = new Uint8ClampedArray(data);
     
-    // Sharpen the image
-    const sharpenKernel = [
-        0, -1, 0,
-        -1, 5, -1,
-        0, -1, 0
-    ];
-    
-    for (let y = 1; y < canvas.height - 1; y++) {
-        for (let x = 1; x < canvas.width - 1; x++) {
-            for (let c = 0; c < 3; c++) {
-                let value = 0;
-                for (let ky = -1; ky <= 1; ky++) {
-                    for (let kx = -1; kx <= 1; kx++) {
-                        const idx = ((y + ky) * canvas.width + (x + kx)) * 4 + c;
-                        value += data[idx] * sharpenKernel[(ky + 1) * 3 + (kx + 1)];
-                    }
-                }
-                output[(y * canvas.width + x) * 4 + c] = Math.min(255, Math.max(0, value));
-            }
-        }
+    // Simple fixed threshold - much faster than adaptive
+    for (let i = 0; i < data.length; i += 4) {
+        const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        const value = gray > 160 ? 255 : 0;
+        data[i] = data[i + 1] = data[i + 2] = value;
     }
     
-    // Apply adaptive thresholding
-    for (let i = 0; i < output.length; i += 4) {
-        const gray = 0.299 * output[i] + 0.587 * output[i + 1] + 0.114 * output[i + 2];
-        
-        // Adaptive threshold based on local brightness
-        let localBrightness = 0;
-        let count = 0;
-        const radius = 20;
-        const idx = i / 4;
-        const x = idx % canvas.width;
-        const y = Math.floor(idx / canvas.width);
-        
-        for (let dy = -radius; dy <= radius; dy += 5) {
-            for (let dx = -radius; dx <= radius; dx += 5) {
-                const nx = x + dx;
-                const ny = y + dy;
-                if (nx >= 0 && nx < canvas.width && ny >= 0 && ny < canvas.height) {
-                    const nidx = (ny * canvas.width + nx) * 4;
-                    localBrightness += 0.299 * data[nidx] + 0.587 * data[nidx + 1] + 0.114 * data[nidx + 2];
-                    count++;
-                }
-            }
-        }
-        
-        const threshold = count > 0 ? localBrightness / count : 128;
-        const value = gray > threshold * 0.9 ? 255 : 0;
-        output[i] = output[i + 1] = output[i + 2] = value;
-    }
-    
-    const finalData = new ImageData(output, canvas.width, canvas.height);
-    ctx.putImageData(finalData, 0, 0);
+    ctx.putImageData(imageData, 0, 0);
     
     return performOCR(canvas.toDataURL(), 'high-contrast');
 }
@@ -138,105 +117,77 @@ async function ocrWithInversion(img) {
     return performOCR(canvas.toDataURL(), 'inverted');
 }
 
-// Strategy 3: Focus on specific regions where player names typically appear
+// Strategy 3: Focus on specific regions where player names typically appear - OPTIMIZED
 async function ocrWithRegions(img) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
-    // FPL screenshots typically have player names in specific regions
-    // Try extracting just the middle section where squad is displayed
-    const regions = [
-        { x: 0.1, y: 0.2, width: 0.8, height: 0.6 }, // Main squad area
-        { x: 0.2, y: 0.3, width: 0.6, height: 0.5 }, // Center focus
-        { x: 0, y: 0.25, width: 1, height: 0.5 }     // Middle half
-    ];
+    // Just focus on the main squad area
+    const region = { x: 0.1, y: 0.2, width: 0.8, height: 0.6 };
     
-    const allResults = [];
+    const regionWidth = Math.min(img.width * region.width, 1500);
+    const regionHeight = Math.min(img.height * region.height, 1500);
+    const startX = img.width * region.x;
+    const startY = img.height * region.y;
     
-    for (const region of regions) {
-        const regionWidth = img.width * region.width;
-        const regionHeight = img.height * region.height;
-        const startX = img.width * region.x;
-        const startY = img.height * region.y;
-        
-        canvas.width = regionWidth;
-        canvas.height = regionHeight;
-        
-        ctx.drawImage(img, startX, startY, regionWidth, regionHeight, 0, 0, regionWidth, regionHeight);
-        
-        // Also apply contrast to the region
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        
-        for (let i = 0; i < data.length; i += 4) {
-            const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-            const value = gray > 150 ? 255 : gray < 100 ? 0 : gray;
-            data[i] = data[i + 1] = data[i + 2] = value;
-        }
-        
-        ctx.putImageData(imageData, 0, 0);
-        
-        const result = await performOCR(canvas.toDataURL(), `region-${regions.indexOf(region)}`);
-        allResults.push(...result);
-    }
+    canvas.width = regionWidth;
+    canvas.height = regionHeight;
     
-    return allResults;
+    ctx.drawImage(img, startX, startY, img.width * region.width, img.height * region.height, 0, 0, regionWidth, regionHeight);
+    
+    // Simple contrast filter
+    ctx.filter = 'contrast(150%)';
+    ctx.drawImage(canvas, 0, 0);
+    
+    return performOCR(canvas.toDataURL(), 'main-region');
 }
 
-// Strategy 4: Different OCR modes and configurations
-async function ocrWithDifferentModes(img) {
-    const results = [];
-    
-    // Try different page segmentation modes
-    const modes = [
-        { mode: '3', description: 'Fully automatic page segmentation' },
-        { mode: '6', description: 'Uniform block of text' },
-        { mode: '11', description: 'Sparse text' },
-        { mode: '12', description: 'Sparse text with OSD' }
-    ];
-    
-    for (const config of modes) {
-        try {
-            const worker = await Tesseract.createWorker('eng');
-            
-            await worker.setParameters({
-                tessedit_pageseg_mode: config.mode,
-                tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -\'',
-            });
-            
-            const { data } = await worker.recognize(img.src);
-            
-            const players = extractPlayersFromText(data.text, `mode-${config.mode}`);
-            results.push(...players);
-            
-            await worker.terminate();
-        } catch (error) {
-            console.log(`Mode ${config.mode} failed:`, error);
-        }
-    }
-    
-    return results;
-}
+// Removed heavy ocrWithDifferentModes function to prevent freezing
 
-// Perform OCR on processed image
+// Perform OCR on processed image with timeout
 async function performOCR(imageSrc, strategy) {
+    let worker = null;
+    
     try {
-        const worker = await Tesseract.createWorker('eng');
+        // Create worker with timeout
+        worker = await Promise.race([
+            Tesseract.createWorker('eng'),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Worker creation timeout')), 10000))
+        ]);
         
-        // Use optimal settings for player names
+        // Simple settings for speed
         await worker.setParameters({
             tessedit_pageseg_mode: '6',
-            preserve_interword_spaces: '0',
-            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -\'ñüöäéíóú'
+            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz -\''
         });
         
-        const { data } = await worker.recognize(imageSrc);
-        await worker.terminate();
+        // Recognize with timeout
+        const { data } = await Promise.race([
+            worker.recognize(imageSrc),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('OCR timeout')), 15000))
+        ]);
         
-        return extractPlayersFromText(data.text, strategy);
+        const results = extractPlayersFromText(data.text, strategy);
+        
+        // Terminate worker
+        if (worker) {
+            await worker.terminate();
+        }
+        
+        return results;
         
     } catch (error) {
         console.error(`OCR failed for strategy ${strategy}:`, error);
+        
+        // Make sure to terminate worker on error
+        if (worker) {
+            try {
+                await worker.terminate();
+            } catch (e) {
+                console.log('Failed to terminate worker:', e);
+            }
+        }
+        
         return [];
     }
 }
