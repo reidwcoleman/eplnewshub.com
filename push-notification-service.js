@@ -161,11 +161,14 @@ class PushNotificationService {
 
     // Send registration token to your server
     async sendTokenToServer(token) {
+        // Only send to server in development environment
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            console.log('Push notification token registration skipped (production mode)');
+            return;
+        }
+        
         try {
-            // Use localhost for development, otherwise use current domain
-            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-                ? 'http://localhost:3001' 
-                : '';
+            const baseUrl = 'http://localhost:3001';
             const response = await fetch(`${baseUrl}/api/push-notification/register`, {
                 method: 'POST',
                 headers: {
@@ -190,11 +193,14 @@ class PushNotificationService {
 
     // Send web push subscription to your server
     async sendSubscriptionToServer(subscription) {
+        // Only send to server in development environment
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            console.log('Push notification subscription skipped (production mode)');
+            return;
+        }
+        
         try {
-            // Use localhost for development, otherwise use current domain
-            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-                ? 'http://localhost:3001' 
-                : '';
+            const baseUrl = 'http://localhost:3001';
             const response = await fetch(`${baseUrl}/api/push-notification/subscribe`, {
                 method: 'POST',
                 headers: {
