@@ -2935,9 +2935,9 @@
             }
             
             async loadPlayerData() {
-                console.log('Loading player data...');
+                console.log('Loading player data from player-data-2.html...');
                 
-                // Check if data was already loaded immediately
+                // Check if data was already loaded
                 if (this.dataLoaded && this.allPlayers && this.allPlayers.length > 0) {
                     console.log(`Data already loaded: ${this.allPlayers.length} players available`);
                     this.displayPlayers(1);
@@ -2945,48 +2945,96 @@
                     return;
                 }
                 
-                // Otherwise try to load embedded data
-                if (typeof EMBEDDED_FPL_DATA !== 'undefined' && EMBEDDED_FPL_DATA.elements && EMBEDDED_FPL_DATA.elements.length > 0) {
-                    console.log(`Found ${EMBEDDED_FPL_DATA.elements.length} players in embedded data`);
-                    this.allPlayers = EMBEDDED_FPL_DATA.elements;
-                    this.teams = EMBEDDED_FPL_DATA.teams || this.getFallbackTeams();
+                try {
+                    // Fetch data from player-data-2.html (which is actually JSON)
+                    const response = await fetch('./player-data-2.html');
                     
-                    // Create teams lookup
-                    this.teamsLookup = {};
-                    if (this.teams) {
-                        this.teams.forEach(team => {
-                            this.teamsLookup[team.id] = {
-                                name: team.name,
-                                short_name: team.short_name
-                            };
-                        });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     
-                    // Process player data
-                    this.allPlayers = this.allPlayers.map(player => ({
-                        ...player,
-                        team_name: this.teamsLookup[player.team]?.name || 'Unknown',
-                        team_short: this.teamsLookup[player.team]?.short_name || 'UNK',
-                        display_name: `${player.first_name} ${player.second_name}`,
-                        position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
-                    }));
+                    // Parse directly as JSON since player-data-2.html contains raw JSON
+                    const data = await response.json();
                     
-                    console.log(`Loaded ${this.allPlayers.length} players from embedded data`);
-                    const lastUpdate = document.getElementById('lastUpdate');
-                    if (lastUpdate) {
-                        lastUpdate.textContent = `${this.allPlayers.length} players loaded`;
+                    if (data && data.elements && data.elements.length > 0) {
+                        console.log(`Found ${data.elements.length} players in player-data-2.html`);
+                        this.allPlayers = data.elements;
+                        this.teams = data.teams || this.getFallbackTeams();
+                        
+                        // Create teams lookup
+                        this.teamsLookup = {};
+                        if (this.teams) {
+                            this.teams.forEach(team => {
+                                this.teamsLookup[team.id] = {
+                                    name: team.name,
+                                    short_name: team.short_name
+                                };
+                            });
+                        }
+                        
+                        // Process player data
+                        this.allPlayers = this.allPlayers.map(player => ({
+                            ...player,
+                            team_name: this.teamsLookup[player.team]?.name || 'Unknown',
+                            team_short: this.teamsLookup[player.team]?.short_name || 'UNK',
+                            display_name: `${player.first_name} ${player.second_name}`,
+                            position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
+                        }));
+                        
+                        console.log(`Successfully loaded ${this.allPlayers.length} players`);
+                        const lastUpdate = document.getElementById('lastUpdate');
+                        if (lastUpdate) {
+                            lastUpdate.textContent = `${this.allPlayers.length} players loaded`;
+                        }
+                        
+                        this.showNotification(`✅ Loaded ${this.allPlayers.length} players!`, 'success');
+                        this.displayPlayers(1);
+                        this.updateSquadDisplay();
+                        this.dataLoaded = true;
+                    } else {
+                        throw new Error('No player data found in response');
                     }
+                } catch (error) {
+                    console.error('Error loading player data:', error);
                     
-                    this.showNotification(`✅ Loaded ${this.allPlayers.length} players!`, 'success');
-                    this.displayPlayers(1);
-                    this.updateSquadDisplay();
-                    this.dataLoaded = true;
-                } else {
-                    console.error('EMBEDDED_FPL_DATA not found or empty!');
-                    this.allPlayers = [];
-                    this.teams = this.getFallbackTeams();
-                    this.showNotification('⚠️ No player data available', 'error');
+                    // Try fallback to embedded data if it exists
+                    if (typeof EMBEDDED_FPL_DATA !== 'undefined' && EMBEDDED_FPL_DATA.elements) {
+                        console.log('Falling back to embedded data...');
+                        this.allPlayers = EMBEDDED_FPL_DATA.elements;
+                        this.teams = EMBEDDED_FPL_DATA.teams || this.getFallbackTeams();
+                        this.processPlayerData();
+                    } else {
+                        this.allPlayers = [];
+                        this.teams = this.getFallbackTeams();
+                        this.showNotification('⚠️ Could not load player data. Please refresh the page.', 'error');
+                    }
                 }
+            }
+            
+            processPlayerData() {
+                // Create teams lookup
+                this.teamsLookup = {};
+                if (this.teams) {
+                    this.teams.forEach(team => {
+                        this.teamsLookup[team.id] = {
+                            name: team.name,
+                            short_name: team.short_name
+                        };
+                    });
+                }
+                
+                // Process player data
+                this.allPlayers = this.allPlayers.map(player => ({
+                    ...player,
+                    team_name: this.teamsLookup[player.team]?.name || 'Unknown',
+                    team_short: this.teamsLookup[player.team]?.short_name || 'UNK',
+                    display_name: `${player.first_name} ${player.second_name}`,
+                    position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
+                }));
+                
+                this.displayPlayers(1);
+                this.updateSquadDisplay();
+                this.dataLoaded = true;
             }
                     3: { id: 'mid-slots', count: 5 },
                     4: { id: 'fwd-slots', count: 3 }
@@ -7954,118 +8002,28 @@ Mbeumo"></textarea>
         // Initialize with immediate data load
         window.transferSimPro = new TransferSimulatorPro();
         
-        // Immediately load player data without waiting
-        (function loadDataImmediately() {
-            try {
-                console.log('Starting immediate data load...');
-                console.log('EMBEDDED_FPL_DATA exists:', typeof EMBEDDED_FPL_DATA !== 'undefined');
-                
-                if (typeof EMBEDDED_FPL_DATA !== 'undefined') {
-                    console.log('EMBEDDED_FPL_DATA.elements exists:', !!EMBEDDED_FPL_DATA.elements);
-                    console.log('EMBEDDED_FPL_DATA.elements length:', EMBEDDED_FPL_DATA.elements ? EMBEDDED_FPL_DATA.elements.length : 0);
-                    console.log('EMBEDDED_FPL_DATA.teams exists:', !!EMBEDDED_FPL_DATA.teams);
-                    console.log('EMBEDDED_FPL_DATA.teams length:', EMBEDDED_FPL_DATA.teams ? EMBEDDED_FPL_DATA.teams.length : 0);
-                    
-                    if (EMBEDDED_FPL_DATA.elements && EMBEDDED_FPL_DATA.elements.length > 0) {
-                        const expandedData = expandPlayerData(EMBEDDED_FPL_DATA);
-                        window.transferSimPro.allPlayers = expandedData.elements;
-                        window.transferSimPro.teams = expandedData.teams || window.transferSimPro.getFallbackTeams();
-                        
-                        // Create teams lookup
-                        window.transferSimPro.teamsLookup = {};
-                        if (expandedData.teams && expandedData.teams.length > 0) {
-                            expandedData.teams.forEach(team => {
-                                window.transferSimPro.teamsLookup[team.id] = {
-                                    name: team.name,
-                                    short_name: team.short_name
-                                };
-                            });
-                            console.log('Teams lookup created with', Object.keys(window.transferSimPro.teamsLookup).length, 'teams');
-                        } else {
-                            console.warn('No teams data, using fallback teams');
-                            window.transferSimPro.teams = window.transferSimPro.getFallbackTeams();
-                            window.transferSimPro.teams.forEach(team => {
-                                window.transferSimPro.teamsLookup[team.id] = {
-                                    name: team.name,
-                                    short_name: team.short_name
-                                };
-                            });
-                        }
-                        
-                        // Process and add team names to players
-                        window.transferSimPro.allPlayers = window.transferSimPro.allPlayers.map(player => ({
-                            ...player,
-                            team_name: window.transferSimPro.teamsLookup[player.team]?.name || 'Unknown',
-                            team_short: window.transferSimPro.teamsLookup[player.team]?.short_name || 'UNK',
-                            display_name: `${player.first_name} ${player.second_name}`,
-                            position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
-                        }));
-                        
-                        console.log(`✅ Successfully loaded ${window.transferSimPro.allPlayers.length} players`);
-                        console.log('Sample player:', window.transferSimPro.allPlayers[0]);
-                        
-                        // Set data loaded flag
-                        window.transferSimPro.dataLoaded = true;
-                    } else {
-                        console.error('EMBEDDED_FPL_DATA.elements is empty or missing');
-                    }
-                } else {
-                    console.error('EMBEDDED_FPL_DATA is undefined!');
-                }
-            } catch (error) {
-                console.error('Error loading data immediately:', error);
-            }
-        })();
+        // Don't try to load embedded data immediately - let the async init handle it
+        console.log('Transfer Simulator Pro initialized, will load data from player-data-2.html');
         
         // Global function to force load players
-        window.forceLoadPlayers = function() {
-            console.log('Force loading players from embedded data...');
+        window.forceLoadPlayers = async function() {
+            console.log('Force loading players from player-data-2.html...');
             
-            // Use embedded data directly
-            if (typeof EMBEDDED_FPL_DATA !== 'undefined' && EMBEDDED_FPL_DATA.elements && EMBEDDED_FPL_DATA.elements.length > 0) {
-                window.transferSimPro.allPlayers = EMBEDDED_FPL_DATA.elements;
-                window.transferSimPro.teams = EMBEDDED_FPL_DATA.teams || window.transferSimPro.getFallbackTeams();
+            try {
+                // Call the loadPlayerData method which fetches from player-data-2.html
+                await window.transferSimPro.loadPlayerData();
                 
-                // Create teams lookup
-                window.transferSimPro.teamsLookup = {};
-                if (window.transferSimPro.teams) {
-                    window.transferSimPro.teams.forEach(team => {
-                        window.transferSimPro.teamsLookup[team.id] = {
-                            name: team.name,
-                            short_name: team.short_name
-                        };
-                    });
+                if (window.transferSimPro.allPlayers && window.transferSimPro.allPlayers.length > 0) {
+                    console.log(`Successfully loaded ${window.transferSimPro.allPlayers.length} players`);
+                    return true;
+                } else {
+                    console.error('No players loaded after force load attempt');
+                    alert('Could not load player data. Please check your connection and refresh the page.');
+                    return false;
                 }
-                
-                // Process player data
-                window.transferSimPro.allPlayers = window.transferSimPro.allPlayers.map(player => ({
-                    ...player,
-                    team_name: window.transferSimPro.teamsLookup[player.team]?.name || 'Unknown',
-                    team_short: window.transferSimPro.teamsLookup[player.team]?.short_name || 'UNK',
-                    display_name: `${player.first_name} ${player.second_name}`,
-                    position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
-                }));
-                
-                console.log(`Force loaded ${window.transferSimPro.allPlayers.length} players from embedded data`);
-                window.transferSimPro.displayPlayers(1);
-                window.transferSimPro.updateDisplay();
-                
-                // Update status message
-                const lastUpdate = document.getElementById('lastUpdate');
-                if (lastUpdate) {
-                    lastUpdate.textContent = `${window.transferSimPro.allPlayers.length} players loaded`;
-                }
-                
-                window.transferSimPro.showNotification(`✅ Loaded ${window.transferSimPro.allPlayers.length} players!`, 'success');
-                
-                if (typeof window.transferSimPro.updateSquadDisplay === 'function') {
-                    window.transferSimPro.updateSquadDisplay();
-                }
-                
-                return true;
-            } else {
-                console.error('No data available!');
-                alert('Player data not available. Please refresh the page.');
+            } catch (error) {
+                console.error('Error during force load:', error);
+                alert('Error loading player data. Please refresh the page.');
                 return false;
             }
         };
