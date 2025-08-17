@@ -75,7 +75,16 @@
       "Bash(if grep -q \"ai-assistant-sidebar.js\" \"/home/reidwcoleman/eplnewshub.com/$file\")",
       "Bash(else)",
       "Bash(if grep -q \"ai-assistant-sidebar.js\" \"/home/reidwcoleman/eplnewshub.com/fpl-ai-assistant.html\")",
-      "Bash(./add-comments-to-articles.sh:*)"
+      "Bash(./add-comments-to-articles.sh:*)",
+      "Bash(do if ! grep -q 'meta name=\"\"\"\"description\"\"\"\"' \"$file\")",
+      "Bash(then echo \"$file\")",
+      "Bash(do grep -l 'meta name=\"\"\"\"description\"\"\"\"' \"$file\")",
+      "Bash([ -f package.json ])",
+      "Bash(do grep -q 'meta name=\"\"description\"\"' \"$file\")",
+      "Bash(do echo -n \"$file: \")",
+      "Bash(./update-to-disqus.sh)",
+      "Bash(./fix-disqus-placement.sh:*)",
+      "Bash(./add-htmlcommentbox.sh:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"
