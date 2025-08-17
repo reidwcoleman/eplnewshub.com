@@ -2973,53 +2973,20 @@
             }
             
             async loadPlayerData() {
-                console.log('Loading player data...');
-                console.log('EMBEDDED_FPL_DATA exists?', typeof EMBEDDED_FPL_DATA !== 'undefined');
-                console.log('expandPlayerData exists?', typeof expandPlayerData === 'function');
+                console.log('Loading player data from player-data-2.html...');
                 
-                // Check if embedded data is available first
-                if (typeof EMBEDDED_FPL_DATA !== 'undefined' && EMBEDDED_FPL_DATA.p && EMBEDDED_FPL_DATA.p.length > 0) {
-                    console.log('Using embedded player data...', EMBEDDED_FPL_DATA.p.length, 'players found');
-                    const expandedData = expandPlayerData(EMBEDDED_FPL_DATA);
-                    console.log('Expanded data:', expandedData.elements ? expandedData.elements.length : 0, 'players');
-                    this.allPlayers = expandedData.elements || [];
-                    this.teams = expandedData.teams || this.getFallbackTeams();
-                    
-                    // Create teams lookup
-                    this.teamsLookup = {};
-                    if (this.teams) {
-                        this.teams.forEach(team => {
-                            this.teamsLookup[team.id] = {
-                                name: team.name,
-                                short_name: team.short_name
-                            };
-                        });
-                    }
-                    
-                    // Add team names to players
-                    this.allPlayers.forEach(player => {
-                        if (this.teamsLookup[player.team]) {
-                            player.team_name = this.teamsLookup[player.team].name;
-                            player.team_short = this.teamsLookup[player.team].short_name;
-                        }
-                    });
-                    
-                    console.log(`Loaded ${this.allPlayers.length} players from embedded data`);
-                    this.showNotification(`✅ Loaded ${this.allPlayers.length} players!`, 'success');
-                    this.displayPlayers();
-                    this.updateSquadDisplay();
-                    return;
-                }
-                
-                // Try to load from player-data-2.html as fallback
+                // Try to load from player-data-2.html first (primary source)
                 try {
                     const response = await fetch('player-data-2.html');
+                    console.log('Fetch response status:', response.status);
+                    
                     if (response.ok) {
                         const text = await response.text();
                         const data = JSON.parse(text);
+                        console.log('Parsed data:', data ? 'Success' : 'Failed');
                         
                         if (data && data.elements && data.elements.length > 0) {
-                            console.log('Successfully loaded data from player-data-2.html');
+                            console.log(`Successfully loaded ${data.elements.length} players from player-data-2.html`);
                             this.allPlayers = data.elements;
                             this.teams = data.teams || this.getFallbackTeams();
                             
@@ -3044,11 +3011,14 @@
                             }));
                             
                             console.log(`Loaded ${this.allPlayers.length} players from player-data-2.html`);
-                            document.getElementById('lastUpdate').textContent = `${this.allPlayers.length} players loaded`;
-                            
-                            if (this.showNotification) {
-                                this.showNotification(`✅ Loaded ${this.allPlayers.length} players!`, 'success');
+                            const lastUpdate = document.getElementById('lastUpdate');
+                            if (lastUpdate) {
+                                lastUpdate.textContent = `${this.allPlayers.length} players loaded`;
                             }
+                            
+                            this.showNotification(`✅ Loaded ${this.allPlayers.length} players!`, 'success');
+                            this.displayPlayers();
+                            this.updateSquadDisplay();
                             return;
                         }
                     }
@@ -8450,9 +8420,66 @@ Mbeumo"></textarea>
         }, 1000);
         
         // Global function to force load players
-        window.forceLoadPlayers = function() {
-            console.log('Force loading players...');
+        window.forceLoadPlayers = async function() {
+            console.log('Force loading players from player-data-2.html...');
+            
+            // Try to load from player-data-2.html first
+            try {
+                const response = await fetch('player-data-2.html');
+                if (response.ok) {
+                    const text = await response.text();
+                    const data = JSON.parse(text);
+                    
+                    if (data && data.elements && data.elements.length > 0) {
+                        window.transferSimPro.allPlayers = data.elements;
+                        window.transferSimPro.teams = data.teams || window.transferSimPro.getFallbackTeams();
+                        
+                        // Create teams lookup
+                        window.transferSimPro.teamsLookup = {};
+                        if (data.teams) {
+                            data.teams.forEach(team => {
+                                window.transferSimPro.teamsLookup[team.id] = {
+                                    name: team.name,
+                                    short_name: team.short_name
+                                };
+                            });
+                        }
+                        
+                        // Process player data
+                        window.transferSimPro.allPlayers = window.transferSimPro.allPlayers.map(player => ({
+                            ...player,
+                            team_name: window.transferSimPro.teamsLookup[player.team]?.name || 'Unknown',
+                            team_short: window.transferSimPro.teamsLookup[player.team]?.short_name || 'UNK',
+                            display_name: `${player.first_name} ${player.second_name}`,
+                            position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
+                        }));
+                        
+                        console.log(`Force loaded ${window.transferSimPro.allPlayers.length} players from player-data-2.html`);
+                        window.transferSimPro.displayPlayers();
+                        window.transferSimPro.updateDisplay();
+                        
+                        // Update status message
+                        const lastUpdate = document.getElementById('lastUpdate');
+                        if (lastUpdate) {
+                            lastUpdate.textContent = `${window.transferSimPro.allPlayers.length} players loaded`;
+                        }
+                        
+                        window.transferSimPro.showNotification(`✅ Loaded ${window.transferSimPro.allPlayers.length} players!`, 'success');
+                        
+                        if (typeof window.transferSimPro.updateSquadDisplay === 'function') {
+                            window.transferSimPro.updateSquadDisplay();
+                        }
+                        
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load from player-data-2.html:', error);
+            }
+            
+            // Fallback to embedded data
             if (typeof EMBEDDED_FPL_DATA !== 'undefined') {
+                console.log('Falling back to embedded data...');
                 const expandedData = expandPlayerData(EMBEDDED_FPL_DATA);
                 window.transferSimPro.allPlayers = expandedData.elements;
                 window.transferSimPro.teams = expandedData.teams;
@@ -8476,31 +8503,24 @@ Mbeumo"></textarea>
                     }
                 });
                 
-                console.log(`Force loaded ${window.transferSimPro.allPlayers.length} players`);
+                console.log(`Force loaded ${window.transferSimPro.allPlayers.length} players from embedded data`);
                 window.transferSimPro.displayPlayers();
                 window.transferSimPro.updateDisplay();
                 
-                // Update status message
                 const lastUpdate = document.getElementById('lastUpdate');
                 if (lastUpdate) {
                     lastUpdate.textContent = `${window.transferSimPro.allPlayers.length} players loaded`;
                 }
                 
-                // Show success notification if method exists
-                if (typeof window.transferSimPro.showNotification === 'function') {
-                    window.transferSimPro.showNotification(`✅ Loaded ${window.transferSimPro.allPlayers.length} players!`, 'success');
-                } else {
-                    console.log(`✅ Successfully loaded ${window.transferSimPro.allPlayers.length} players!`);
-                }
+                window.transferSimPro.showNotification(`✅ Loaded ${window.transferSimPro.allPlayers.length} players!`, 'success');
                 
-                // Update squad display if method exists
                 if (typeof window.transferSimPro.updateSquadDisplay === 'function') {
                     window.transferSimPro.updateSquadDisplay();
                 }
                 
                 return true;
             } else {
-                console.error('EMBEDDED_FPL_DATA not found!');
+                console.error('No data available!');
                 alert('Player data not available. Please refresh the page.');
                 return false;
             }
