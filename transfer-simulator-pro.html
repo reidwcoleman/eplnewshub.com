@@ -2939,7 +2939,40 @@
             async loadPlayerData() {
                 console.log('Loading player data...');
                 
-                // Try to load from player-data-2.html first
+                // Check if embedded data is available first
+                if (typeof EMBEDDED_FPL_DATA !== 'undefined' && EMBEDDED_FPL_DATA.p && EMBEDDED_FPL_DATA.p.length > 0) {
+                    console.log('Using embedded player data...');
+                    const expandedData = expandPlayerData(EMBEDDED_FPL_DATA);
+                    this.allPlayers = expandedData.elements;
+                    this.teams = expandedData.teams || this.getFallbackTeams();
+                    
+                    // Create teams lookup
+                    this.teamsLookup = {};
+                    if (this.teams) {
+                        this.teams.forEach(team => {
+                            this.teamsLookup[team.id] = {
+                                name: team.name,
+                                short_name: team.short_name
+                            };
+                        });
+                    }
+                    
+                    // Add team names to players
+                    this.allPlayers.forEach(player => {
+                        if (this.teamsLookup[player.team]) {
+                            player.team_name = this.teamsLookup[player.team].name;
+                            player.team_short = this.teamsLookup[player.team].short_name;
+                        }
+                    });
+                    
+                    console.log(`Loaded ${this.allPlayers.length} players from embedded data`);
+                    this.showNotification(`✅ Loaded ${this.allPlayers.length} players!`, 'success');
+                    this.displayPlayers();
+                    this.updateSquadDisplay();
+                    return;
+                }
+                
+                // Try to load from player-data-2.html as fallback
                 try {
                     const response = await fetch('player-data-2.html');
                     if (response.ok) {
@@ -3155,17 +3188,49 @@
                 } catch (error) {
                     console.error('Failed to load live data:', error);
                     
-                    // Try CORS proxy as fallback
+                    // Use embedded data immediately as fallback
+                    console.log('Using embedded player data...');
+                    if (typeof EMBEDDED_FPL_DATA !== 'undefined' && EMBEDDED_FPL_DATA.p && EMBEDDED_FPL_DATA.p.length > 0) {
+                        const expandedData = expandPlayerData(EMBEDDED_FPL_DATA);
+                        this.allPlayers = expandedData.elements;
+                        this.teams = expandedData.teams;
+                        
+                        // Create teams lookup
+                        this.teamsLookup = {};
+                        if (expandedData.teams) {
+                            expandedData.teams.forEach(team => {
+                                this.teamsLookup[team.id] = {
+                                    name: team.name,
+                                    short_name: team.short_name
+                                };
+                            });
+                        }
+                        
+                        // Add team names to players
+                        this.allPlayers.forEach(player => {
+                            if (this.teamsLookup[player.team]) {
+                                player.team_name = this.teamsLookup[player.team].name;
+                                player.team_short = this.teamsLookup[player.team].short_name;
+                            }
+                        });
+                        
+                        console.log(`Loaded ${this.allPlayers.length} players from embedded data`);
+                        this.showNotification(`✅ Loaded ${this.allPlayers.length} players!`, 'success');
+                        return;
+                    }
+                    
+                    // Only try proxy if embedded data fails
                     try {
                         console.log('Attempting to load via CORS proxy...');
                         const timestamp = Date.now();
                         const apiUrl = `https://fantasy.premierleague.com/api/bootstrap-static/`;
-                        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl + '?t=' + timestamp)}`;
+                        const proxyUrl = `https://cors-anywhere.herokuapp.com/${apiUrl}?t=${timestamp}`;
                         
                         const proxyResponse = await fetch(proxyUrl, {
                             method: 'GET',
                             headers: {
-                                'Accept': 'application/json'
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
                             },
                             cache: 'no-store'
                         });
@@ -3194,6 +3259,33 @@
                         }
                     } catch (proxyError) {
                         console.error('CORS proxy failed:', proxyError);
+                    }
+                    
+                    // Final fallback - use embedded data even if something seems wrong
+                    console.log('Final fallback - forcing embedded data load...');
+                    try {
+                        const expandedData = expandPlayerData(EMBEDDED_FPL_DATA);
+                        if (expandedData && expandedData.elements && expandedData.elements.length > 0) {
+                            this.allPlayers = expandedData.elements;
+                            this.teams = expandedData.teams || [];
+                            
+                            // Create teams lookup
+                            this.teamsLookup = {};
+                            if (expandedData.teams) {
+                                expandedData.teams.forEach(team => {
+                                    this.teamsLookup[team.id] = {
+                                        name: team.name,
+                                        short_name: team.short_name
+                                    };
+                                });
+                            }
+                            
+                            console.log(`Final fallback: Loaded ${this.allPlayers.length} players from embedded data`);
+                            this.showNotification(`✅ Loaded ${this.allPlayers.length} players (offline mode)`, 'info');
+                            return;
+                        }
+                    } catch (fallbackError) {
+                        console.error('Final fallback failed:', fallbackError);
                     }
                     
                     // Try alternative approach using FPLDataService without cache
