@@ -2078,6 +2078,7 @@
                 <span class="live-dot"></span>
                 <span>LIVE FPL DATA</span>
                 <span style="margin-left: 20px;">Last Update: <span id="lastUpdate">Loading...</span></span>
+                <button onclick="window.forceLoadPlayers()" style="margin-left: 15px; padding: 5px 10px; background: #f39c12; color: white; border: none; border-radius: 4px; cursor: pointer;">🔄 Reload Players</button>
                 <button onclick="refreshPlayerData()" style="margin-left: 20px; padding: 5px 15px; background: linear-gradient(135deg, #00ff88, #00c851); color: #333; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
                     🔄 Refresh Data
                 </button>
@@ -3885,6 +3886,29 @@
                 // Update budget
                 document.getElementById('remainingBudget').textContent = `£${(this.budget / 10).toFixed(1)}m`;
                 document.getElementById('budgetFill').style.width = `${(this.budget / 1000) * 100}%`;
+            }
+            
+            displayPlayers() {
+                // Display players in the player list
+                const playerList = document.querySelector('.player-list');
+                if (!playerList) {
+                    console.warn('Player list element not found');
+                    return;
+                }
+                
+                if (!this.allPlayers || this.allPlayers.length === 0) {
+                    playerList.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No players loaded. Click "Reload Players" above.</div>';
+                    return;
+                }
+                
+                // Show a message that players are loaded
+                console.log(`Displaying ${this.allPlayers.length} players`);
+                
+                // Update the last update text
+                const lastUpdate = document.getElementById('lastUpdate');
+                if (lastUpdate) {
+                    lastUpdate.textContent = `${this.allPlayers.length} players loaded`;
+                }
             }
 
             addToHistory(type, player) {
@@ -8317,8 +8341,101 @@ Mbeumo"></textarea>
             return { working, failed, total: features.length };
         }
 
-        // Initialize
+        // Initialize with immediate data load
         window.transferSimPro = new TransferSimulatorPro();
+        
+        // Force immediate data load if not already loaded
+        setTimeout(() => {
+            if (!window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
+                console.log('Force loading embedded data...');
+                if (typeof EMBEDDED_FPL_DATA !== 'undefined') {
+                    const expandedData = expandPlayerData(EMBEDDED_FPL_DATA);
+                    window.transferSimPro.allPlayers = expandedData.elements;
+                    window.transferSimPro.teams = expandedData.teams;
+                    
+                    // Create teams lookup
+                    window.transferSimPro.teamsLookup = {};
+                    if (expandedData.teams) {
+                        expandedData.teams.forEach(team => {
+                            window.transferSimPro.teamsLookup[team.id] = {
+                                name: team.name,
+                                short_name: team.short_name
+                            };
+                        });
+                    }
+                    
+                    // Add team names to players
+                    window.transferSimPro.allPlayers.forEach(player => {
+                        if (window.transferSimPro.teamsLookup[player.team]) {
+                            player.team_name = window.transferSimPro.teamsLookup[player.team].name;
+                            player.team_short = window.transferSimPro.teamsLookup[player.team].short_name;
+                        }
+                    });
+                    
+                    console.log(`Force loaded ${window.transferSimPro.allPlayers.length} players`);
+                    window.transferSimPro.displayPlayers();
+                    window.transferSimPro.updateSquadDisplay();
+                    window.transferSimPro.showNotification('✅ Players loaded!', 'success');
+                }
+            }
+        }, 1000);
+        
+        // Global function to force load players
+        window.forceLoadPlayers = function() {
+            console.log('Force loading players...');
+            if (typeof EMBEDDED_FPL_DATA !== 'undefined') {
+                const expandedData = expandPlayerData(EMBEDDED_FPL_DATA);
+                window.transferSimPro.allPlayers = expandedData.elements;
+                window.transferSimPro.teams = expandedData.teams;
+                
+                // Create teams lookup
+                window.transferSimPro.teamsLookup = {};
+                if (expandedData.teams) {
+                    expandedData.teams.forEach(team => {
+                        window.transferSimPro.teamsLookup[team.id] = {
+                            name: team.name,
+                            short_name: team.short_name
+                        };
+                    });
+                }
+                
+                // Add team names to players
+                window.transferSimPro.allPlayers.forEach(player => {
+                    if (window.transferSimPro.teamsLookup[player.team]) {
+                        player.team_name = window.transferSimPro.teamsLookup[player.team].name;
+                        player.team_short = window.transferSimPro.teamsLookup[player.team].short_name;
+                    }
+                });
+                
+                console.log(`Force loaded ${window.transferSimPro.allPlayers.length} players`);
+                window.transferSimPro.displayPlayers();
+                window.transferSimPro.updateDisplay();
+                
+                // Update status message
+                const lastUpdate = document.getElementById('lastUpdate');
+                if (lastUpdate) {
+                    lastUpdate.textContent = `${window.transferSimPro.allPlayers.length} players loaded`;
+                }
+                
+                // Show success notification if method exists
+                if (typeof window.transferSimPro.showNotification === 'function') {
+                    window.transferSimPro.showNotification(`✅ Loaded ${window.transferSimPro.allPlayers.length} players!`, 'success');
+                } else {
+                    console.log(`✅ Successfully loaded ${window.transferSimPro.allPlayers.length} players!`);
+                }
+                
+                // Update squad display if method exists
+                if (typeof window.transferSimPro.updateSquadDisplay === 'function') {
+                    window.transferSimPro.updateSquadDisplay();
+                }
+                
+                return true;
+            } else {
+                console.error('EMBEDDED_FPL_DATA not found!');
+                alert('Player data not available. Please refresh the page.');
+                return false;
+            }
+        };
         
         // Ensure FPLDataService is available globally
         if (typeof FPLDataService === 'undefined') {
@@ -8334,25 +8451,26 @@ Mbeumo"></textarea>
             };
         }
         
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             console.log('DOM Content Loaded - Initializing Transfer Simulator Pro...');
             
             try {
-                // Initialize immediately with embedded data
-                window.transferSimPro.init();
+                // Initialize immediately with embedded data - await the async init
+                await window.transferSimPro.init();
                 
                 // Check if data loaded successfully
                 if (!window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
-                    console.warn('No player data available yet, using fallback data');
-                    // Don't show alert - let the app continue with fallback data
+                    console.warn('No player data available yet, trying force load');
+                    // Try force loading
+                    window.forceLoadPlayers();
                 }
                 
                 console.log(`Transfer Simulator Pro initialized with ${window.transferSimPro.allPlayers.length} players`);
                 
             } catch (error) {
                 console.error('Failed to initialize Transfer Simulator Pro:', error);
-                // Don't show alert - silently log the error
-                console.log('Will continue with limited functionality');
+                // Try force load as fallback
+                window.forceLoadPlayers();
             }
             
             // Test features in development mode
