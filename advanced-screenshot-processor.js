@@ -60,31 +60,41 @@ async function processScreenshotAdvanced(imageFile) {
     });
 }
 
-// Strategy 1: High contrast preprocessing - OPTIMIZED
+// Strategy 1: High contrast preprocessing - BALANCED
 async function ocrWithHighContrast(img) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
-    // Moderate scale for balance between quality and performance
-    const scale = 1.5;
-    canvas.width = Math.min(img.width * scale, 2000); // Cap at 2000px width
-    canvas.height = Math.min(img.height * scale, 2000); // Cap at 2000px height
+    // Good scale for OCR accuracy
+    const scale = 2;
+    canvas.width = Math.min(img.width * scale, 3000); // Cap at 3000px width
+    canvas.height = Math.min(img.height * scale, 3000); // Cap at 3000px height
     
+    // Draw scaled image
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     
-    // Simple contrast enhancement without heavy loops
-    ctx.filter = 'contrast(200%) brightness(110%)';
-    ctx.drawImage(canvas, 0, 0);
+    // Apply filters for better contrast
+    ctx.filter = 'contrast(150%) brightness(120%) saturate(0%)';
+    ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
     
-    // Get image data for simple thresholding
+    // Get image data and apply threshold
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
     
-    // Simple fixed threshold - much faster than adaptive
+    // Better thresholding
     for (let i = 0; i < data.length; i += 4) {
         const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-        const value = gray > 160 ? 255 : 0;
+        // More nuanced threshold
+        let value;
+        if (gray > 200) {
+            value = 255; // White background
+        } else if (gray < 100) {
+            value = 0; // Black text
+        } else {
+            // Keep mid-tones for better OCR
+            value = gray > 150 ? 255 : 0;
+        }
         data[i] = data[i + 1] = data[i + 2] = value;
     }
     
@@ -93,23 +103,28 @@ async function ocrWithHighContrast(img) {
     return performOCR(canvas.toDataURL(), 'high-contrast');
 }
 
-// Strategy 2: Inverted colors
+// Strategy 2: Inverted colors for dark mode screenshots
 async function ocrWithInversion(img) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
-    canvas.width = img.width;
-    canvas.height = img.height;
-    ctx.drawImage(img, 0, 0);
+    // Scale up for better OCR
+    const scale = 1.8;
+    canvas.width = Math.min(img.width * scale, 2500);
+    canvas.height = Math.min(img.height * scale, 2500);
     
-    // Invert colors
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    
+    // Get and invert colors
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
     
     for (let i = 0; i < data.length; i += 4) {
-        data[i] = 255 - data[i];       // Red
-        data[i + 1] = 255 - data[i + 1]; // Green
-        data[i + 2] = 255 - data[i + 2]; // Blue
+        // Invert and apply threshold
+        const gray = 0.299 * (255 - data[i]) + 0.587 * (255 - data[i + 1]) + 0.114 * (255 - data[i + 2]);
+        const value = gray > 128 ? 255 : 0;
+        data[i] = data[i + 1] = data[i + 2] = value;
     }
     
     ctx.putImageData(imageData, 0, 0);
