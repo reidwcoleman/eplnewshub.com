@@ -20,7 +20,7 @@ for file in articles/*.html; do
     fi
     
     # Add comments system script before </body> tag
-    sed -i 's|</body>|    <script src="../comments-system.js"></script>\n</body>|' "$file"
+    sed -i 's|</body>|    <script src="../comments-system-api.js"></script>\n</body>|' "$file"
     
     echo "Added comments system to $file"
     ((count++))
