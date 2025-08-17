@@ -44,7 +44,7 @@
             description: 'Get all premium tools for the price of one',
             cta: 'Unlock Everything',
             link: '/fpl-premium-hub.html',
-            color: 'linear-gradient(135deg, #2563eb, #1e40af)',
+            color: 'linear-gradient(135deg, #10b981, #0891b2, #0ea5e9)',
             features: ['All Tools Included', 'Priority Support', 'Season Pass'],
             priority: 1,
             special: true
@@ -299,7 +299,7 @@
                     position: absolute;
                     top: 10px;
                     right: -35px;
-                    background: linear-gradient(135deg, #2563eb, #1e40af);
+                    background: linear-gradient(135deg, #10b981, #0891b2);
                     color: white;
                     padding: 5px 40px;
                     transform: rotate(45deg);
@@ -460,7 +460,7 @@
 
                 .banner-cta-primary {
                     background: rgba(255, 255, 255, 0.95);
-                    color: #1e40af;
+                    color: #0891b2;
                     padding: 10px 20px;
                     border-radius: 25px;
                     text-decoration: none;
