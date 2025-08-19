@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="fpl-mobile-optimize.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Load FPL Data Service from player-data.html -->
+    <!-- Load FPL Data Service from player-data-2.html -->
     <script src="fpl-api.js"></script>
     
     <!-- Alternative data loading: load JSON as script -->
@@ -3096,6 +3096,52 @@
         } else {
             animateTransferStats();
         }
+        
+        // Player data loading functions
+        window.forceLoadPlayers = async function() {
+            console.log('Force loading players from player-data-2.html...');
+            try {
+                const response = await fetch('./player-data-2.html');
+                const text = await response.text();
+                const playerData = JSON.parse(text);
+                
+                if (window.transferSimPro && playerData.elements) {
+                    window.transferSimPro.allPlayers = playerData.elements.map(player => ({
+                        ...player,
+                        name: `${player.first_name} ${player.second_name}`,
+                        position: player.element_type,
+                        team: player.team,
+                        price: player.now_cost / 10
+                    }));
+                    
+                    console.log(`Successfully loaded ${window.transferSimPro.allPlayers.length} players`);
+                    
+                    // Update last update timestamp
+                    const lastUpdateEl = document.getElementById('lastUpdate');
+                    if (lastUpdateEl) {
+                        lastUpdateEl.textContent = new Date().toLocaleTimeString();
+                    }
+                    
+                    // Trigger a refresh of the player search if it's active
+                    if (typeof searchPlayers === 'function') {
+                        searchPlayers('');
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to force load players:', error);
+                alert('Failed to load player data. Please try again.');
+            }
+        };
+        
+        window.refreshPlayerData = function() {
+            console.log('Refreshing player data...');
+            window.forceLoadPlayers();
+        };
+        
+        window.forceLoadPlayerData = function() {
+            console.log('Force loading player data...');
+            window.forceLoadPlayers();
+        };
     </script>
     <script src="./auth-service.js"></script>
     <script src="./premium-access-control.js"></script>
