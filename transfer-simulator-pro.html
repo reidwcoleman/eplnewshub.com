@@ -186,28 +186,149 @@
             border-bottom: 2px solid #f0f0f0;
         }
 
-        .player-slot {
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 10px;
+        /* Football Pitch Styles for Transfer Simulator Pro */
+        .football-pitch {
+            background: linear-gradient(180deg, #2d7a2d 0%, #3a8f3a 50%, #2d7a2d 100%);
+            background-size: 100% 20px;
+            border: 3px solid white;
+            border-radius: 15px;
+            padding: 30px 20px;
+            position: relative;
+            min-height: 600px;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.5);
+            margin: 20px 0;
+        }
+
+        .football-pitch::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border: 2px solid rgba(255,255,255,0.6);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .football-pitch::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 50%;
+        }
+
+        .pitch-line {
+            position: absolute;
+            background: rgba(255,255,255,0.6);
+        }
+
+        .center-line {
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            transform: translateX(-50%);
+        }
+
+        .penalty-area {
+            position: absolute;
+            border: 2px solid rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .top-penalty-area {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40%;
+            height: 18%;
+        }
+
+        .bottom-penalty-area {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40%;
+            height: 18%;
+        }
+
+        .formation-line {
+            position: absolute;
+            width: 100%;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            transition: all 0.3s ease;
+            gap: 15px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .goalkeeper-line {
+            bottom: 5%;
+        }
+
+        .defender-line {
+            bottom: 25%;
+        }
+
+        .midfielder-line {
+            bottom: 50%;
+        }
+
+        .forward-line {
+            bottom: 75%;
+        }
+
+        .player-slot {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: 3px solid white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.75rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
         }
 
         .player-slot:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-color: #6f42c1;
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            border-color: #00ff88;
         }
 
         .player-slot.selected {
             background: linear-gradient(135deg, #00ff88, #00d4ff);
             border-color: #00ff88;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .player-slot.empty {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            border: 3px dashed rgba(255,255,255,0.5);
+            color: rgba(255,255,255,0.7);
+        }
+
+        .player-slot.empty:hover {
+            background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.2));
+            border-color: rgba(255,255,255,0.8);
             color: white;
         }
 
@@ -2169,24 +2290,38 @@
                     </div>
                 </div>
 
-                <div class="squad-section">
-                    <h3>Goalkeepers (2)</h3>
-                    <div id="gkp-slots"></div>
+                <!-- Football Pitch Layout -->
+                <div class="football-pitch" id="pitch-container">
+                    <!-- Formation Lines -->
+                    <div class="formation-line goalkeeper-line">
+                        <div id="gkp-slots" class="position-slots"></div>
+                    </div>
+                    
+                    <div class="formation-line defender-line">
+                        <div id="def-slots" class="position-slots"></div>
+                    </div>
+                    
+                    <div class="formation-line midfielder-line">
+                        <div id="mid-slots" class="position-slots"></div>
+                    </div>
+                    
+                    <div class="formation-line forward-line">
+                        <div id="fwd-slots" class="position-slots"></div>
+                    </div>
+                    
+                    <!-- Pitch Markings -->
+                    <div class="center-circle"></div>
+                    <div class="halfway-line"></div>
+                    <div class="penalty-area penalty-area-top"></div>
+                    <div class="penalty-area penalty-area-bottom"></div>
                 </div>
-
-                <div class="squad-section">
-                    <h3>Defenders (5)</h3>
-                    <div id="def-slots"></div>
-                </div>
-
-                <div class="squad-section">
-                    <h3>Midfielders (5)</h3>
-                    <div id="mid-slots"></div>
-                </div>
-
-                <div class="squad-section">
-                    <h3>Forwards (3)</h3>
-                    <div id="fwd-slots"></div>
+                
+                <!-- Position Labels -->
+                <div class="position-labels">
+                    <div class="position-label">GKP (2)</div>
+                    <div class="position-label">DEF (5)</div>
+                    <div class="position-label">MID (5)</div>
+                    <div class="position-label">FWD (3)</div>
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">

@@ -4750,15 +4750,83 @@
         // Load player data
         async function loadPlayerData() {
             try {
-                const service = new FPLDataService();
-                const players = await service.getAllPlayers();
-                playerDatabase = players;
-                console.log('Loaded', playerDatabase.length, 'players');
+                // Load data directly from player-data-2.html
+                const response = await fetch('/player-data-2.html');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch player data');
+                }
+                
+                const data = await response.json();
+                
+                // Extract players from the elements array
+                if (data && data.elements && Array.isArray(data.elements)) {
+                    playerDatabase = data.elements.map(player => ({
+                        id: player.id,
+                        web_name: player.web_name,
+                        name: player.first_name + ' ' + player.second_name,
+                        team_name: getTeamName(player.team),
+                        element_type: player.element_type,
+                        position: getPositionName(player.element_type),
+                        now_cost: player.now_cost,
+                        total_points: player.total_points,
+                        form: player.form,
+                        selected_by_percent: player.selected_by_percent,
+                        minutes: player.minutes,
+                        goals_scored: player.goals_scored,
+                        assists: player.assists,
+                        clean_sheets: player.clean_sheets,
+                        goals_conceded: player.goals_conceded,
+                        own_goals: player.own_goals,
+                        penalties_saved: player.penalties_saved,
+                        penalties_missed: player.penalties_missed,
+                        yellow_cards: player.yellow_cards,
+                        red_cards: player.red_cards,
+                        saves: player.saves,
+                        bonus: player.bonus,
+                        bps: player.bps,
+                        influence: player.influence,
+                        creativity: player.creativity,
+                        threat: player.threat,
+                        ict_index: player.ict_index,
+                        team: player.team
+                    }));
+                    
+                    // Also store teams data if available
+                    if (data.teams) {
+                        window.teamsData = data.teams;
+                    }
+                    
+                    console.log('Loaded', playerDatabase.length, 'players from player-data-2.html');
+                } else {
+                    throw new Error('Invalid data structure in player-data-2.html');
+                }
             } catch (error) {
                 console.error('Error loading player data:', error);
                 // Fallback to sample data
                 playerDatabase = generateSamplePlayers();
             }
+        }
+        
+        // Helper function to get team name
+        function getTeamName(teamId) {
+            if (window.teamsData && window.teamsData[teamId - 1]) {
+                return window.teamsData[teamId - 1].name;
+            }
+            // Fallback team names
+            const teams = {
+                1: 'Arsenal', 2: 'Aston Villa', 3: 'Bournemouth', 4: 'Brentford',
+                5: 'Brighton', 6: 'Chelsea', 7: 'Crystal Palace', 8: 'Everton',
+                9: 'Fulham', 10: 'Ipswich', 11: 'Leicester', 12: 'Liverpool',
+                13: 'Man City', 14: 'Man Utd', 15: 'Newcastle', 16: 'Nottm Forest',
+                17: 'Southampton', 18: 'Spurs', 19: 'West Ham', 20: 'Wolves'
+            };
+            return teams[teamId] || 'Unknown';
+        }
+        
+        // Helper function to get position name
+        function getPositionName(elementType) {
+            const positions = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+            return positions[elementType] || 'Unknown';
         }
         
         // Generate sample players if data loading fails
