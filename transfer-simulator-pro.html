@@ -24,6 +24,44 @@
     <!-- Load FPL Data Service from player-data.html -->
     <script src="fpl-api.js"></script>
     
+    <!-- Alternative data loading: load JSON as script -->
+    <script>
+        // Try to load player data as script to avoid CORS issues
+        function loadPlayerDataAsScript() {
+            return new Promise((resolve, reject) => {
+                // First try to load as text via script tag injection
+                const script = document.createElement('script');
+                script.textContent = `
+                    fetch('./player-data-2.html')
+                        .then(response => response.text())
+                        .then(text => {
+                            try {
+                                window.PLAYER_DATA_FROM_SCRIPT = JSON.parse(text);
+                                console.log('Successfully loaded player data via script approach');
+                                window.dispatchEvent(new CustomEvent('playerDataLoaded'));
+                            } catch (e) {
+                                console.error('Failed to parse player data:', e);
+                            }
+                        })
+                        .catch(e => {
+                            console.error('Failed to fetch player data via script:', e);
+                        });
+                `;
+                document.head.appendChild(script);
+                
+                // Listen for the custom event
+                window.addEventListener('playerDataLoaded', () => {
+                    resolve(window.PLAYER_DATA_FROM_SCRIPT);
+                }, { once: true });
+                
+                // Timeout after 5 seconds
+                setTimeout(() => {
+                    reject(new Error('Script loading timeout'));
+                }, 5000);
+            });
+        }
+    </script>
+    
     <style>
         * {
             margin: 0;
@@ -2893,13 +2931,14 @@
             async loadFullPlayerData() {
                 // Try to load complete data from player-data-2.html in the background
                 try {
-                    const response = await fetch('player-data-2.html', {
+                    const response = await fetch('./player-data-2.html', {
                         method: 'GET',
-                        headers: { 'Accept': 'application/json' }
+                        headers: { 'Accept': 'application/json, text/plain, */*' }
                     });
                     
                     if (response.ok) {
-                        const data = await response.json();
+                        const text = await response.text();
+                        const data = JSON.parse(text);
                         if (data && data.elements && data.elements.length > this.allPlayers.length) {
                             this.allPlayers = data.elements;
                             this.teams = data.teams;
@@ -2947,17 +2986,23 @@
                 
                 try {
                     // Fetch data from player-data-2.html (which is actually JSON)
-                    const response = await fetch('./player-data-2.html');
+                    // Try multiple approaches to ensure it loads
+                    const response = await fetch('./player-data-2.html', {
+                        headers: {
+                            'Accept': 'application/json, text/plain, */*'
+                        }
+                    });
                     
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     
-                    // Parse directly as JSON since player-data-2.html contains raw JSON
-                    const data = await response.json();
+                    // Get the response as text first, then parse as JSON
+                    const text = await response.text();
+                    const data = JSON.parse(text);
                     
                     if (data && data.elements && data.elements.length > 0) {
-                        console.log(`Found ${data.elements.length} players in player-data-2.html`);
+                        console.log(`Successfully loaded ${data.elements.length} players from player-data-2.html`);
                         this.allPlayers = data.elements;
                         this.teams = data.teams || this.getFallbackTeams();
                         
@@ -2995,7 +3040,58 @@
                         throw new Error('No player data found in response');
                     }
                 } catch (error) {
-                    console.error('Error loading player data:', error);
+                    console.error('Error loading player data from player-data-2.html:', error);
+                    console.log('Error details:', {
+                        message: error.message,
+                        stack: error.stack,
+                        url: window.location.href,
+                        fetchUrl: './player-data-2.html'
+                    });
+                    
+                    console.log('Trying alternative script-based loading approach...');
+                    
+                    // Try alternative script-based loading
+                    try {
+                        if (typeof loadPlayerDataAsScript !== 'undefined') {
+                            const scriptData = await loadPlayerDataAsScript();
+                            if (scriptData && scriptData.elements && scriptData.elements.length > 0) {
+                                console.log(`Successfully loaded ${scriptData.elements.length} players via script approach`);
+                                this.allPlayers = scriptData.elements;
+                                this.teams = scriptData.teams || this.getFallbackTeams();
+                                
+                                // Create teams lookup
+                                this.teamsLookup = {};
+                                if (this.teams) {
+                                    this.teams.forEach(team => {
+                                        this.teamsLookup[team.id] = {
+                                            name: team.name,
+                                            short_name: team.short_name
+                                        };
+                                    });
+                                }
+                                
+                                // Process player data
+                                this.allPlayers = this.allPlayers.map(player => ({
+                                    ...player,
+                                    team_name: this.teamsLookup[player.team]?.name || 'Unknown',
+                                    team_short: this.teamsLookup[player.team]?.short_name || 'UNK',
+                                    display_name: `${player.first_name} ${player.second_name}`,
+                                    position_name: ['GKP', 'DEF', 'MID', 'FWD'][player.element_type - 1] || 'Unknown'
+                                }));
+                                
+                                this.showNotification(`✅ Loaded ${this.allPlayers.length} players via alternative method!`, 'success');
+                                this.displayPlayers(1);
+                                this.updateSquadDisplay();
+                                this.dataLoaded = true;
+                                return; // Exit successfully
+                            }
+                        }
+                    } catch (scriptError) {
+                        console.error('Script-based loading also failed:', scriptError);
+                    }
+                    
+                    // Show detailed error to user with retry option
+                    this.showNotification(`⚠️ Failed to load player data: ${error.message}. Click "Load Data" to retry.`, 'error', 15000);
                     
                     // Try fallback to embedded data if it exists
                     if (typeof EMBEDDED_FPL_DATA !== 'undefined' && EMBEDDED_FPL_DATA.elements) {
@@ -3004,9 +3100,10 @@
                         this.teams = EMBEDDED_FPL_DATA.teams || this.getFallbackTeams();
                         this.processPlayerData();
                     } else {
+                        console.log('No embedded data available, using empty data set');
                         this.allPlayers = [];
                         this.teams = this.getFallbackTeams();
-                        this.showNotification('⚠️ Could not load player data. Please refresh the page.', 'error');
+                        this.dataLoaded = false; // Mark as not loaded so retry can work
                     }
                 }
             }
@@ -5263,15 +5360,16 @@
             try {
                 // First try to load from player-data-2.html
                 try {
-                    const response = await fetch('player-data-2.html', {
+                    const response = await fetch('./player-data-2.html', {
                         method: 'GET',
                         headers: {
-                            'Accept': 'application/json'
+                            'Accept': 'application/json, text/plain, */*'
                         }
                     });
                     
                     if (response.ok) {
-                        const data = await response.json();
+                        const text = await response.text();
+                        const data = JSON.parse(text);
                         
                         if (data && data.elements && data.elements.length > 0) {
                             window.transferSimPro.allPlayers = data.elements;
