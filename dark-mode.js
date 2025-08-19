@@ -50,7 +50,7 @@
         // Update meta theme-color for mobile browsers
         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
         if (metaThemeColor) {
-            metaThemeColor.content = theme === DARK_THEME ? '#1a1a1b' : '#38003c';
+            metaThemeColor.content = theme === DARK_THEME ? '#1a1a1a' : '#38003c';
         }
         
         // Dispatch custom event for other scripts to listen to
