@@ -3115,10 +3115,33 @@
                     loadDataMessage.style.display = 'none';
                 }
                 
+                // Update last update timestamp to show data is loaded
+                const lastUpdateEl = document.getElementById('lastUpdate');
+                if (lastUpdateEl && window.transferSimPro.allPlayers.length > 0) {
+                    lastUpdateEl.textContent = new Date().toLocaleTimeString();
+                }
+                
+                // Auto-populate the player search with all players or empty search to show initial state
+                if (window.transferSimPro.allPlayers.length > 0 && typeof searchPlayers === 'function') {
+                    // Show initial search prompt or popular players
+                    searchPlayers('');
+                }
+                
             } catch (error) {
                 console.error('Failed to initialize Transfer Simulator Pro:', error);
                 // Try force load as fallback
                 await window.forceLoadPlayers();
+                
+                // Update UI after fallback load
+                if (window.transferSimPro.allPlayers.length > 0) {
+                    const lastUpdateEl = document.getElementById('lastUpdate');
+                    if (lastUpdateEl) {
+                        lastUpdateEl.textContent = new Date().toLocaleTimeString();
+                    }
+                    if (typeof searchPlayers === 'function') {
+                        searchPlayers('');
+                    }
+                }
             }
             
             // Test features in development mode
