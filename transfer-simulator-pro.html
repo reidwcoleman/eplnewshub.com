@@ -2402,6 +2402,7 @@
                             <button onclick="searchAllPlayers()" style="margin-top: 5px; padding: 8px 15px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; width: 100%;">
                                 🔍 Search All Players
                             </button>
+                            <div id="playerSearchResults" style="margin-top: 15px; max-height: 400px; overflow-y: auto;"></div>
                         </div>
                     </div>
 
@@ -2993,6 +2994,92 @@
             teams: []
         };
         
+        // Initialize Transfer Simulator Pro object
+        window.transferSimPro = {
+            allPlayers: [],
+            teams: [],
+            
+            // Initialize function to load player data
+            async init() {
+                console.log('Initializing Transfer Simulator Pro...');
+                
+                try {
+                    // Try to load player data from player-data-2.html
+                    const response = await fetch('./player-data-2.html');
+                    if (response.ok) {
+                        const text = await response.text();
+                        const playerData = JSON.parse(text);
+                        
+                        if (playerData.elements && playerData.elements.length > 0) {
+                            this.allPlayers = playerData.elements.map(player => ({
+                                ...player,
+                                name: `${player.first_name} ${player.second_name}`,
+                                position: player.element_type,
+                                team: player.team,
+                                price: player.now_cost / 10
+                            }));
+                            
+                            if (playerData.teams) {
+                                this.teams = playerData.teams;
+                            }
+                            
+                            console.log(`Loaded ${this.allPlayers.length} players from player-data-2.html`);
+                            return true;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to load player data from player-data-2.html:', error);
+                }
+                
+                // Fallback to FPL API service if available
+                if (typeof FPLDataService !== 'undefined') {
+                    try {
+                        const fplService = new FPLDataService();
+                        const data = await fplService.getBootstrapData();
+                        
+                        if (data && data.elements && data.elements.length > 0) {
+                            this.allPlayers = data.elements.map(player => ({
+                                ...player,
+                                name: `${player.first_name} ${player.second_name}`,
+                                position: player.element_type,
+                                team: player.team,
+                                price: player.now_cost / 10
+                            }));
+                            
+                            if (data.teams) {
+                                this.teams = data.teams;
+                            }
+                            
+                            console.log(`Loaded ${this.allPlayers.length} players from FPL API`);
+                            return true;
+                        }
+                    } catch (error) {
+                        console.error('Failed to load from FPL API:', error);
+                    }
+                }
+                
+                // If all else fails, use mock data
+                if (this.allPlayers.length === 0) {
+                    console.warn('Using mock data as fallback');
+                    if (typeof FPLDataService !== 'undefined') {
+                        const fplService = new FPLDataService();
+                        const mockData = fplService.getMockBootstrapData();
+                        if (mockData && mockData.elements) {
+                            this.allPlayers = mockData.elements.map(player => ({
+                                ...player,
+                                name: `${player.first_name} ${player.second_name}`,
+                                position: player.element_type,
+                                team: player.team,
+                                price: player.now_cost / 10
+                            }));
+                        }
+                    }
+                }
+                
+                return this.allPlayers.length > 0;
+            }
+        };
+        
         // Ensure FPLDataService is available globally
         if (typeof FPLDataService === 'undefined') {
             console.error('FPLDataService not found! Loading fallback...');
@@ -3012,28 +3099,35 @@
             
             try {
                 // Initialize immediately with embedded data - await the async init
-                await window.transferSimPro.init();
+                const success = await window.transferSimPro.init();
                 
-                // Check if data loaded successfully
-                if (!window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
+                if (!success || !window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
                     console.warn('No player data available yet, trying force load');
                     // Try force loading
-                    window.forceLoadPlayers();
+                    await window.forceLoadPlayers();
                 }
                 
                 console.log(`Transfer Simulator Pro initialized with ${window.transferSimPro.allPlayers.length} players`);
                 
+                // Update UI to show data is loaded
+                const loadDataMessage = document.getElementById('loadDataMessage');
+                if (loadDataMessage && window.transferSimPro.allPlayers.length > 0) {
+                    loadDataMessage.style.display = 'none';
+                }
+                
             } catch (error) {
                 console.error('Failed to initialize Transfer Simulator Pro:', error);
                 // Try force load as fallback
-                window.forceLoadPlayers();
+                await window.forceLoadPlayers();
             }
             
             // Test features in development mode
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 setTimeout(() => {
                     console.log('Running feature test in development mode...');
-                    testAllFeatures();
+                    if (typeof testAllFeatures === 'function') {
+                        testAllFeatures();
+                    }
                 }, 2000);
             }
         });
@@ -3142,6 +3236,200 @@
             console.log('Force loading player data...');
             window.forceLoadPlayers();
         };
+        
+        // Player search and display functions
+        window.searchPlayers = function(query) {
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
+                console.warn('Player data not loaded yet');
+                return;
+            }
+            
+            const searchQuery = query.toLowerCase();
+            const results = window.transferSimPro.allPlayers.filter(player => 
+                player.name.toLowerCase().includes(searchQuery)
+            );
+            
+            displayPlayerResults(results);
+        };
+        
+        window.showPositionPlayers = function(positionId) {
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
+                console.warn('Player data not loaded yet');
+                const loadDataMessage = document.getElementById('loadDataMessage');
+                if (loadDataMessage) {
+                    loadDataMessage.style.display = 'block';
+                }
+                return;
+            }
+            
+            const positionNames = {
+                1: 'Goalkeepers',
+                2: 'Defenders', 
+                3: 'Midfielders',
+                4: 'Forwards'
+            };
+            
+            const players = window.transferSimPro.allPlayers.filter(player => 
+                player.position === positionId
+            );
+            
+            // Sort by price descending
+            players.sort((a, b) => b.price - a.price);
+            
+            displayPlayerResults(players, positionNames[positionId]);
+        };
+        
+        function displayPlayerResults(players, title) {
+            const resultsContainer = document.getElementById('playerSearchResults');
+            if (!resultsContainer) {
+                console.warn('Player results container not found');
+                return;
+            }
+            
+            if (players.length === 0) {
+                resultsContainer.innerHTML = '<p>No players found</p>';
+                return;
+            }
+            
+            let html = title ? `<h4>${title}</h4>` : '';
+            html += '<div class="player-grid">';
+            
+            players.slice(0, 50).forEach(player => {
+                const positionLabels = {
+                    1: 'GK',
+                    2: 'DEF',
+                    3: 'MID',
+                    4: 'FWD'
+                };
+                
+                html += `
+                    <div class="player-card">
+                        <div class="player-info">
+                            <span class="player-name">${player.name}</span>
+                            <span class="player-position">${positionLabels[player.position]}</span>
+                            <span class="player-price">£${player.price.toFixed(1)}m</span>
+                        </div>
+                        <button onclick="addPlayerToSquad(${player.id})" class="add-player-btn">
+                            + Add
+                        </button>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            resultsContainer.innerHTML = html;
+        }
+        
+        // Squad management function
+        window.addPlayerToSquad = function(playerId) {
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
+                console.warn('Player data not loaded');
+                return;
+            }
+            
+            const player = window.transferSimPro.allPlayers.find(p => p.id === playerId);
+            if (!player) {
+                console.warn('Player not found:', playerId);
+                return;
+            }
+            
+            console.log('Adding player to squad:', player.name);
+            // TODO: Implement actual squad management logic
+            alert(`Added ${player.name} to your squad!`);
+        };
+        
+        // Search functions connected to UI
+        window.filterPlayers = function() {
+            const searchInput = document.getElementById('searchPlayer');
+            if (!searchInput) return;
+            
+            const query = searchInput.value;
+            if (query.length < 2) {
+                // Clear results if query is too short
+                const resultsContainer = document.getElementById('playerSearchResults');
+                if (resultsContainer) {
+                    resultsContainer.innerHTML = '';
+                }
+                return;
+            }
+            
+            window.searchPlayers(query);
+        };
+        
+        window.searchAllPlayers = function() {
+            const searchInput = document.getElementById('searchPlayer');
+            if (!searchInput) return;
+            
+            const query = searchInput.value || '';
+            window.searchPlayers(query);
+        };
+        
+        // Add CSS for player cards
+        const style = document.createElement('style');
+        style.textContent = `
+            .player-grid {
+                display: grid;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            
+            .player-card {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px;
+                background: white;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                transition: box-shadow 0.2s;
+            }
+            
+            .player-card:hover {
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            
+            .player-info {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                flex: 1;
+            }
+            
+            .player-name {
+                font-weight: 600;
+                flex: 1;
+            }
+            
+            .player-position {
+                padding: 2px 8px;
+                background: #667eea;
+                color: white;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: bold;
+            }
+            
+            .player-price {
+                font-weight: 600;
+                color: #667eea;
+            }
+            
+            .add-player-btn {
+                padding: 5px 12px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: transform 0.2s;
+            }
+            
+            .add-player-btn:hover {
+                transform: scale(1.05);
+            }
+        `;
+        document.head.appendChild(style);
     </script>
     <script src="./auth-service.js"></script>
     <script src="./premium-access-control.js"></script>
