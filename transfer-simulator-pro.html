@@ -2402,6 +2402,21 @@
                             <button onclick="searchAllPlayers()" style="margin-top: 5px; padding: 8px 15px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; width: 100%;">
                                 🔍 Search All Players
                             </button>
+                            
+                            <!-- Quick Tips Section -->
+                            <div style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #f0ebff, #e8daff); border-radius: 8px; border: 1px solid #6f42c1;">
+                                <h4 style="color: #37003c; margin-bottom: 8px; font-size: 0.9rem;">⚡ Quick Add Tips:</h4>
+                                <ul style="font-size: 0.85rem; color: #666; margin: 0; padding-left: 20px;">
+                                    <li><strong>Click card</strong> - Add player to squad</li>
+                                    <li><strong>⚡ Button</strong> - Instant add with animation</li>
+                                    <li><strong>Drag & Drop</strong> - Drag player to squad zone</li>
+                                    <li><strong>↑↓ Keys</strong> - Navigate players</li>
+                                    <li><strong>Enter/Space</strong> - Add selected player</li>
+                                    <li><strong>A key</strong> - Quick add selected player</li>
+                                    <li><strong>Shift+Enter</strong> - Super quick add</li>
+                                </ul>
+                            </div>
+                            
                             <div id="playerSearchResults" style="margin-top: 15px; max-height: 400px; overflow-y: auto;"></div>
                         </div>
                     </div>
@@ -3317,7 +3332,7 @@
             let html = title ? `<h4>${title}</h4>` : '';
             html += '<div class="player-grid">';
             
-            players.slice(0, 50).forEach(player => {
+            players.slice(0, 50).forEach((player, index) => {
                 const positionLabels = {
                     1: 'GK',
                     2: 'DEF',
@@ -3325,22 +3340,43 @@
                     4: 'FWD'
                 };
                 
+                const teamInfo = window.transferSimPro?.teams?.find(t => t.id === player.team);
+                const teamName = teamInfo ? teamInfo.name : 'Unknown';
+                
                 html += `
-                    <div class="player-card">
-                        <div class="player-info">
-                            <span class="player-name">${player.name}</span>
-                            <span class="player-position">${positionLabels[player.position]}</span>
-                            <span class="player-price">£${player.price.toFixed(1)}m</span>
+                    <div class="player-card enhanced-card" data-player-id="${player.id}" tabindex="${index}">
+                        <div class="player-main-section" onclick="addPlayerToSquad(${player.id})">
+                            <div class="player-info">
+                                <div class="player-primary">
+                                    <span class="player-name">${player.name}</span>
+                                    <span class="player-team">${teamName}</span>
+                                </div>
+                                <div class="player-stats">
+                                    <span class="player-position position-${positionLabels[player.position]}">${positionLabels[player.position]}</span>
+                                    <span class="player-price">£${player.price.toFixed(1)}m</span>
+                                    <span class="player-points">${player.total_points || 0} pts</span>
+                                </div>
+                            </div>
+                            <div class="quick-add-section">
+                                <button class="quick-add-btn pulse-effect" onclick="event.stopPropagation(); quickAddPlayer(${player.id})" title="Quick Add">
+                                    <span class="add-icon">⚡</span>
+                                    <span class="add-text">Add</span>
+                                </button>
+                            </div>
                         </div>
-                        <button onclick="addPlayerToSquad(${player.id})" class="add-player-btn">
-                            + Add
-                        </button>
+                        <div class="player-hover-info">
+                            <span>Form: ${player.form || 'N/A'}</span>
+                            <span>Selected: ${player.selected_by_percent || 0}%</span>
+                        </div>
                     </div>
                 `;
             });
             
             html += '</div>';
             resultsContainer.innerHTML = html;
+            
+            // Add keyboard navigation
+            setupKeyboardNavigation();
         }
         
         // Squad management function
@@ -3357,8 +3393,194 @@
             }
             
             console.log('Adding player to squad:', player.name);
-            // TODO: Implement actual squad management logic
-            alert(`Added ${player.name} to your squad!`);
+            
+            // Add visual feedback
+            const playerCard = document.querySelector(`[data-player-id="${playerId}"]`);
+            if (playerCard) {
+                playerCard.classList.add('adding-player');
+                setTimeout(() => {
+                    playerCard.classList.remove('adding-player');
+                    playerCard.classList.add('player-added');
+                }, 300);
+            }
+            
+            // Show success notification
+            showNotification(`✅ ${player.name} added to squad!`, 'success');
+            
+            // Update squad display (if exists)
+            updateSquadDisplay();
+        };
+        
+        // Quick add function with enhanced feedback
+        window.quickAddPlayer = function(playerId) {
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
+                showNotification('⚠️ Player data not loaded', 'warning');
+                return;
+            }
+            
+            const player = window.transferSimPro.allPlayers.find(p => p.id === playerId);
+            if (!player) {
+                showNotification('❌ Player not found', 'error');
+                return;
+            }
+            
+            // Instant visual feedback
+            const button = event.target.closest('.quick-add-btn');
+            if (button) {
+                button.classList.add('added');
+                button.innerHTML = '<span class="add-icon">✓</span><span class="add-text">Added!</span>';
+                setTimeout(() => {
+                    button.classList.remove('added');
+                    button.innerHTML = '<span class="add-icon">⚡</span><span class="add-text">Add</span>';
+                }, 1500);
+            }
+            
+            console.log('Quick adding player:', player.name);
+            showNotification(`⚡ ${player.name} added instantly!`, 'success');
+            updateSquadDisplay();
+        };
+        
+        // Notification system
+        window.showNotification = function(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${type === 'success' ? 'linear-gradient(135deg, #28a745, #20c997)' : 
+                             type === 'warning' ? 'linear-gradient(135deg, #ffc107, #ff9800)' :
+                             type === 'error' ? 'linear-gradient(135deg, #dc3545, #c82333)' :
+                             'linear-gradient(135deg, #17a2b8, #138496)'};
+                color: white;
+                border-radius: 10px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease, slideOutRight 0.3s ease 2s forwards;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2500);
+        };
+        
+        // Keyboard navigation
+        window.setupKeyboardNavigation = function() {
+            const cards = document.querySelectorAll('.player-card');
+            let currentIndex = -1;
+            
+            document.addEventListener('keydown', (e) => {
+                if (!cards.length) return;
+                
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        currentIndex = Math.min(currentIndex + 1, cards.length - 1);
+                        cards[currentIndex]?.focus();
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        currentIndex = Math.max(currentIndex - 1, 0);
+                        cards[currentIndex]?.focus();
+                        break;
+                    case 'Enter':
+                    case ' ':
+                        if (document.activeElement?.classList.contains('player-card')) {
+                            e.preventDefault();
+                            const playerId = document.activeElement.dataset.playerId;
+                            if (playerId) {
+                                if (e.shiftKey) {
+                                    quickAddPlayer(parseInt(playerId));
+                                } else {
+                                    addPlayerToSquad(parseInt(playerId));
+                                }
+                            }
+                        }
+                        break;
+                    case 'a':
+                    case 'A':
+                        if (document.activeElement?.classList.contains('player-card')) {
+                            e.preventDefault();
+                            const playerId = document.activeElement.dataset.playerId;
+                            if (playerId) {
+                                quickAddPlayer(parseInt(playerId));
+                            }
+                        }
+                        break;
+                }
+            });
+        };
+        
+        // Update squad display (placeholder)
+        window.updateSquadDisplay = function() {
+            // This will be implemented based on your squad display logic
+            console.log('Squad display updated');
+        };
+        
+        // Drag and Drop functionality
+        window.setupDragAndDrop = function() {
+            // Make player cards draggable
+            document.addEventListener('dragstart', (e) => {
+                if (e.target.closest('.player-card')) {
+                    const card = e.target.closest('.player-card');
+                    card.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'copy';
+                    e.dataTransfer.setData('playerId', card.dataset.playerId);
+                }
+            });
+            
+            document.addEventListener('dragend', (e) => {
+                if (e.target.closest('.player-card')) {
+                    e.target.closest('.player-card').classList.remove('dragging');
+                }
+            });
+            
+            // Create drop zones for squad positions
+            const squadSection = document.querySelector('.squad-section');
+            if (squadSection && !document.querySelector('.drop-zone')) {
+                const dropZone = document.createElement('div');
+                dropZone.className = 'drop-zone';
+                dropZone.innerHTML = '<span style="color: #6f42c1; font-weight: 600;">🎯 Drag players here to add to squad</span>';
+                squadSection.appendChild(dropZone);
+                
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('drag-over');
+                });
+                
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('drag-over');
+                });
+                
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('drag-over');
+                    const playerId = e.dataTransfer.getData('playerId');
+                    if (playerId) {
+                        quickAddPlayer(parseInt(playerId));
+                        dropZone.innerHTML = '<span style="color: #4caf50; font-weight: 600;">✅ Player added!</span>';
+                        setTimeout(() => {
+                            dropZone.innerHTML = '<span style="color: #6f42c1; font-weight: 600;">🎯 Drag players here to add to squad</span>';
+                        }, 2000);
+                    }
+                });
+            }
+        };
+        
+        // Initialize drag and drop when players are displayed
+        const originalDisplayPlayerResults = window.displayPlayerResults;
+        window.displayPlayerResults = function(players, title) {
+            originalDisplayPlayerResults.call(this, players, title);
+            
+            // Make cards draggable
+            setTimeout(() => {
+                document.querySelectorAll('.player-card').forEach(card => {
+                    card.draggable = true;
+                });
+                setupDragAndDrop();
+            }, 100);
         };
         
         // Search functions connected to UI
@@ -3390,32 +3612,274 @@
         // Add CSS for player cards
         const style = document.createElement('style');
         style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            
+            @keyframes pulseAdd {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+            
+            @keyframes addSuccess {
+                0% { transform: scale(1) rotate(0deg); }
+                50% { transform: scale(1.2) rotate(180deg); }
+                100% { transform: scale(1) rotate(360deg); }
+            }
+            
             .player-grid {
                 display: grid;
-                gap: 10px;
-                margin-top: 10px;
+                gap: 15px;
+                margin-top: 20px;
             }
             
             .player-card {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px;
-                background: white;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                transition: box-shadow 0.2s;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+                border: 2px solid transparent;
+                border-radius: 12px;
+                transition: all 0.3s ease;
+                cursor: pointer;
+                position: relative;
+                overflow: hidden;
+                outline: none;
+            }
+            
+            .player-card.enhanced-card {
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             }
             
             .player-card:hover {
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(111, 66, 193, 0.15);
+                border-color: #6f42c1;
+                background: linear-gradient(135deg, #ffffff 0%, #f0ebff 100%);
+            }
+            
+            .player-card:focus {
+                border-color: #37003c;
+                box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.2);
+            }
+            
+            .player-card.adding-player {
+                animation: pulseAdd 0.3s ease;
+                background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            }
+            
+            .player-card.player-added {
+                background: linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%);
+                border-color: #4caf50;
+            }
+            
+            .player-main-section {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px;
+                position: relative;
+                z-index: 2;
             }
             
             .player-info {
-                display: flex;
-                gap: 10px;
-                align-items: center;
                 flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .player-primary {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .player-name {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: #37003c;
+                transition: color 0.2s;
+            }
+            
+            .player-card:hover .player-name {
+                color: #6f42c1;
+            }
+            
+            .player-team {
+                font-size: 0.85rem;
+                color: #666;
+                font-weight: 500;
+            }
+            
+            .player-stats {
+                display: flex;
+                gap: 12px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            
+            .player-position {
+                padding: 3px 8px;
+                border-radius: 15px;
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+            }
+            
+            .position-GK {
+                background: linear-gradient(135deg, #ffd700, #ffed4e);
+                color: #333;
+            }
+            
+            .position-DEF {
+                background: linear-gradient(135deg, #4caf50, #66bb6a);
+                color: white;
+            }
+            
+            .position-MID {
+                background: linear-gradient(135deg, #2196f3, #42a5f5);
+                color: white;
+            }
+            
+            .position-FWD {
+                background: linear-gradient(135deg, #f44336, #ef5350);
+                color: white;
+            }
+            
+            .player-price {
+                font-weight: 700;
+                color: #37003c;
+                font-size: 0.95rem;
+            }
+            
+            .player-points {
+                font-size: 0.85rem;
+                color: #666;
+                font-weight: 600;
+            }
+            
+            .quick-add-section {
+                display: flex;
+                gap: 8px;
+            }
+            
+            .quick-add-btn {
+                background: linear-gradient(135deg, #6f42c1, #37003c);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .quick-add-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 5px 15px rgba(111, 66, 193, 0.3);
+            }
+            
+            .quick-add-btn.pulse-effect {
+                animation: pulseAdd 2s infinite;
+            }
+            
+            .quick-add-btn.added {
+                background: linear-gradient(135deg, #4caf50, #66bb6a);
+                animation: addSuccess 0.5s ease;
+            }
+            
+            .add-icon {
+                font-size: 1.2rem;
+            }
+            
+            .add-text {
+                font-size: 0.9rem;
+            }
+            
+            .player-hover-info {
+                display: flex;
+                justify-content: space-around;
+                padding: 10px 15px;
+                background: rgba(111, 66, 193, 0.05);
+                border-top: 1px solid rgba(111, 66, 193, 0.1);
+                font-size: 0.85rem;
+                color: #666;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            
+            .player-card:hover .player-hover-info {
+                opacity: 1;
+            }
+            
+            .add-player-btn {
+                background: linear-gradient(135deg, #37003c, #6f42c1);
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: transform 0.2s;
+            }
+            
+            .add-player-btn:hover {
+                transform: scale(1.05);
+            }
+            
+            /* Drag and drop styles */
+            .player-card.dragging {
+                opacity: 0.5;
+                transform: rotate(2deg);
+                cursor: grabbing;
+            }
+            
+            .drop-zone {
+                border: 2px dashed #6f42c1;
+                background: rgba(111, 66, 193, 0.05);
+                border-radius: 12px;
+                min-height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+            }
+            
+            .drop-zone.drag-over {
+                background: rgba(111, 66, 193, 0.15);
+                border-color: #37003c;
+                transform: scale(1.02);
+            }
+            
+            /* Mobile responsive */
+            @media (max-width: 768px) {
+                .player-main-section {
+                    flex-direction: column;
+                    gap: 10px;
+                }
+                
+                .quick-add-section {
+                    width: 100%;
+                }
+                
+                .quick-add-btn {
+                    width: 100%;
+                    justify-content: center;
+                }
+                
+                .player-stats {
+                    justify-content: space-between;
+                    width: 100%;
+                }
             }
             
             .player-name {
