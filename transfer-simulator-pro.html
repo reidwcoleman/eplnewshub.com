@@ -3454,6 +3454,19 @@
                 console.log('🎯 IMMEDIATE: Setting up position circles for clicking...');
                 setupPositionCircleClicks();
                 
+                // IMMEDIATE TEST: Try opening modal directly
+                setTimeout(() => {
+                    console.log('🧪 TESTING: Trying to open modal directly...');
+                    if (typeof window.showPlayerModal === 'function') {
+                        const testPlayers = window.transferSimPro.allPlayers.filter(p => p.position === 1).slice(0, 5);
+                        console.log(`Testing with ${testPlayers.length} GK players`);
+                        if (testPlayers.length > 0) {
+                            console.log('🎭 Opening test modal...');
+                            window.showPlayerModal(testPlayers, 'Test GK');
+                        }
+                    }
+                }, 1000);
+                
                 // Immediate verification that everything is ready for clicking
                 console.log('🔍 IMMEDIATE VERIFICATION - Checking click system readiness...');
                 
@@ -3853,6 +3866,7 @@
         // Use existing modal system for player selection
         function openPlayerModalForPosition(position, positionId, circle) {
             console.log(`🎭 Opening modal for ${position} (ID: ${positionId})`);
+            alert(`openPlayerModalForPosition called for ${position}!`);
             
             if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
                 alert('Player data not loaded yet. Please wait and try again.');
@@ -3862,6 +3876,7 @@
             // Get players for this position
             const players = window.transferSimPro.allPlayers.filter(player => player.position === positionId);
             console.log(`Found ${players.length} ${position} players`);
+            alert(`Found ${players.length} ${position} players in database`);
             
             if (players.length === 0) {
                 alert(`No ${position} players found in database.`);
@@ -3875,8 +3890,15 @@
             window.currentSelectedCircle = circle;
             window.currentSelectedPosition = position;
             
-            // Use the existing showPlayerModal function with the same interface as Build Team Manually
-            window.showPlayerModal(players, position);
+            // Check if showPlayerModal function exists
+            if (typeof window.showPlayerModal === 'function') {
+                console.log(`✅ showPlayerModal function exists, calling it now...`);
+                alert(`About to call showPlayerModal with ${players.length} players...`);
+                window.showPlayerModal(players, position);
+            } else {
+                alert('❌ showPlayerModal function not found!');
+                console.error('❌ showPlayerModal function not found!');
+            }
         }
         
         // Simple function to set up position circle clicks
@@ -3906,6 +3928,9 @@
                     e.stopPropagation();
                     
                     console.log(`✅ CLICK DETECTED: ${position} circle clicked!`);
+                    
+                    // IMMEDIATE ALERT TEST - to confirm clicks work
+                    alert(`CLICK WORKS! You clicked the ${position} circle. Modal should open next...`);
                     
                     let positionId;
                     switch(position) {
