@@ -2386,7 +2386,7 @@
                 <div class="football-pitch" id="pitch-container">
                     <!-- Goalkeeper -->
                     <div class="pitch-row goalkeeper-row">
-                        <div class="position-circle" data-position="GK" onclick="openPlayerSelector('GK', 0)">
+                        <div class="position-circle" data-position="GK">
                             <span class="position-label">GK</span>
                             <span class="player-name-display" id="player-GK-0">+</span>
                         </div>
@@ -2394,23 +2394,23 @@
                     
                     <!-- Defenders -->
                     <div class="pitch-row defenders-row">
-                        <div class="position-circle" data-position="DEF" onclick="openPlayerSelector('DEF', 0)">
+                        <div class="position-circle" data-position="DEF">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-0">+</span>
                         </div>
-                        <div class="position-circle" data-position="DEF" onclick="openPlayerSelector('DEF', 1)">
+                        <div class="position-circle" data-position="DEF">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-1">+</span>
                         </div>
-                        <div class="position-circle" data-position="DEF" onclick="openPlayerSelector('DEF', 2)">
+                        <div class="position-circle" data-position="DEF">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-2">+</span>
                         </div>
-                        <div class="position-circle" data-position="DEF" onclick="openPlayerSelector('DEF', 3)">
+                        <div class="position-circle" data-position="DEF">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-3">+</span>
                         </div>
-                        <div class="position-circle" data-position="DEF" onclick="openPlayerSelector('DEF', 4)">
+                        <div class="position-circle" data-position="DEF">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-4">+</span>
                         </div>
@@ -2418,23 +2418,23 @@
                     
                     <!-- Midfielders -->
                     <div class="pitch-row midfielders-row">
-                        <div class="position-circle" data-position="MID" onclick="openPlayerSelector('MID', 0)">
+                        <div class="position-circle" data-position="MID">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-0">+</span>
                         </div>
-                        <div class="position-circle" data-position="MID" onclick="openPlayerSelector('MID', 1)">
+                        <div class="position-circle" data-position="MID">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-1">+</span>
                         </div>
-                        <div class="position-circle" data-position="MID" onclick="openPlayerSelector('MID', 2)">
+                        <div class="position-circle" data-position="MID">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-2">+</span>
                         </div>
-                        <div class="position-circle" data-position="MID" onclick="openPlayerSelector('MID', 3)">
+                        <div class="position-circle" data-position="MID">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-3">+</span>
                         </div>
-                        <div class="position-circle" data-position="MID" onclick="openPlayerSelector('MID', 4)">
+                        <div class="position-circle" data-position="MID">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-4">+</span>
                         </div>
@@ -2442,15 +2442,15 @@
                     
                     <!-- Forwards -->
                     <div class="pitch-row forwards-row">
-                        <div class="position-circle" data-position="FWD" onclick="openPlayerSelector('FWD', 0)">
+                        <div class="position-circle" data-position="FWD">
                             <span class="position-label">FWD</span>
                             <span class="player-name-display" id="player-FWD-0">+</span>
                         </div>
-                        <div class="position-circle" data-position="FWD" onclick="openPlayerSelector('FWD', 1)">
+                        <div class="position-circle" data-position="FWD">
                             <span class="position-label">FWD</span>
                             <span class="player-name-display" id="player-FWD-1">+</span>
                         </div>
-                        <div class="position-circle" data-position="FWD" onclick="openPlayerSelector('FWD', 2)">
+                        <div class="position-circle" data-position="FWD">
                             <span class="position-label">FWD</span>
                             <span class="player-name-display" id="player-FWD-2">+</span>
                         </div>
@@ -4092,216 +4092,10 @@
         document.head.appendChild(style);
     </script>
     <script src="./auth-service.js"></script>
-    <script src="./premium-access-control.js"></script>
-    <script src="./membership-popup.js"></script>
     
-    <!-- Player Selection Modal -->
-    <div id="playerSelectionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000;">
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 15px; padding: 30px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 id="modalTitle" style="color: #37003c; margin: 0;">Select Player</h2>
-                <button onclick="closePlayerSelector()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">✕</button>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <div style="position: relative;">
-                    <input type="text" id="modalSearchInput" placeholder="Search players by name, team, or price..." onkeyup="searchModalPlayers()" style="width: 100%; padding: 12px 40px 12px 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; transition: border-color 0.2s;" onfocus="this.style.borderColor='#37003c'" onblur="this.style.borderColor='#e0e0e0'">
-                    <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1.1rem;">🔍</span>
-                </div>
-                <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button onclick="quickFilter('cheap')" style="padding: 4px 8px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 12px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#37003c'; this.style.color='white'" onmouseout="this.style.background='#f0f0f0'; this.style.color='black'">Under £5m</button>
-                    <button onclick="quickFilter('mid')" style="padding: 4px 8px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 12px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#37003c'; this.style.color='white'" onmouseout="this.style.background='#f0f0f0'; this.style.color='black'">£5-8m</button>
-                    <button onclick="quickFilter('premium')" style="padding: 4px 8px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 12px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#37003c'; this.style.color='white'" onmouseout="this.style.background='#f0f0f0'; this.style.color='black'">£8m+</button>
-                    <button onclick="quickFilter('top')" style="padding: 4px 8px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 12px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#37003c'; this.style.color='white'" onmouseout="this.style.background='#f0f0f0'; this.style.color='black'">Top Picks</button>
-                    <button onclick="quickFilter('clear')" style="padding: 4px 8px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; font-size: 0.8rem; cursor: pointer; color: #666;" onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">Clear</button>
-                </div>
-            </div>
-            
-            <div id="modalPlayerList" style="max-height: 400px; overflow-y: auto;">
-                <!-- Players will be loaded here -->
-            </div>
-        </div>
-    </div>
     
     <script>
-        // Player Selection Functions
-        let currentPosition = '';
-        let currentSlot = 0;
-        
-        window.openPlayerSelector = function(position, slot) {
-            currentPosition = position;
-            currentSlot = slot;
-            
-            const modal = document.getElementById('playerSelectionModal');
-            const title = document.getElementById('modalTitle');
-            title.textContent = `Select ${position} Player`;
-            
-            modal.style.display = 'block';
-            loadPositionPlayers(position);
-        };
-        
-        window.closePlayerSelector = function() {
-            document.getElementById('playerSelectionModal').style.display = 'none';
-            document.getElementById('modalSearchInput').value = '';
-        };
-        
-        window.loadPositionPlayers = function(position) {
-            if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
-                document.getElementById('modalPlayerList').innerHTML = '<p style="text-align: center; color: #666;">Loading players...</p>';
-                window.forceLoadPlayers();
-                setTimeout(() => loadPositionPlayers(position), 1000);
-                return;
-            }
-            
-            const positionMap = { 'GK': 1, 'DEF': 2, 'MID': 3, 'FWD': 4 };
-            const players = window.transferSimPro.allPlayers.filter(p => p.position === positionMap[position]);
-            
-            displayModalPlayers(players);
-        };
-        
-        window.displayModalPlayers = function(players) {
-            const container = document.getElementById('modalPlayerList');
-            
-            if (players.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666;">No players found</p>';
-                return;
-            }
-            
-            let html = '<div style="display: grid; gap: 10px;">';
-            players.slice(0, 50).forEach(player => {
-                const teamInfo = window.transferSimPro?.teams?.find(t => t.id === player.team);
-                const teamName = teamInfo ? teamInfo.name : 'Unknown';
-                
-                const selectedPercent = player.selected_by_percent || 0;
-                const form = player.form || 0;
-                const price = player.price || (player.now_cost / 10);
-                const ppm = price > 0 ? (player.total_points / price).toFixed(1) : '0.0';
-                
-                html += `
-                    <div onclick="selectPlayer(${player.id}, '${player.name}')" style="padding: 15px; background: #f8f9fa; border-radius: 8px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent;" onmouseover="this.style.background='#e3f2fd'; this.style.borderColor='#37003c'" onmouseout="this.style.background='#f8f9fa'; this.style.borderColor='transparent'">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="flex: 1;">
-                                <div style="font-weight: 700; color: #37003c; font-size: 1.1rem; margin-bottom: 2px;">${player.name}</div>
-                                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px;">
-                                    <span style="color: #666; font-size: 0.9rem;">${teamName}</span>
-                                    <span style="background: ${selectedPercent > 20 ? '#ff6b35' : selectedPercent > 10 ? '#ffa726' : '#66bb6a'}; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.75rem; font-weight: 600;">${selectedPercent}%</span>
-                                </div>
-                                <div style="display: flex; gap: 12px; font-size: 0.85rem; color: #666;">
-                                    <span>Form: ${form}</span>
-                                    <span>PPM: ${ppm}</span>
-                                </div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-weight: 700; color: #37003c; font-size: 1.2rem; margin-bottom: 2px;">£${price.toFixed(1)}m</div>
-                                <div style="color: #666; font-size: 0.9rem; margin-bottom: 2px;">Pts: ${player.total_points || 0}</div>
-                                <div style="background: #e8f5e8; color: #2e7d32; padding: 2px 6px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;">Select</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            
-            container.innerHTML = html;
-        };
-        
-        window.selectPlayer = function(playerId, playerName) {
-            const displayElement = document.getElementById(`player-${currentPosition}-${currentSlot}`);
-            const circle = displayElement.closest('.position-circle');
-            
-            if (displayElement) {
-                displayElement.textContent = playerName.split(' ').pop(); // Show last name
-                circle.classList.add('filled');
-                circle.setAttribute('data-player-id', playerId);
-                
-                // Add visual feedback for successful selection
-                setTimeout(() => {
-                    circle.style.transform = 'scale(1.3)';
-                    setTimeout(() => {
-                        circle.style.transform = '';
-                    }, 200);
-                }, 100);
-            }
-            
-            closePlayerSelector();
-            
-            // Refresh simulation if this feature exists
-            if (typeof runSimulation === 'function') {
-                setTimeout(runSimulation, 500);
-            }
-        };
-        
-        window.searchModalPlayers = function() {
-            const query = document.getElementById('modalSearchInput').value.toLowerCase();
-            
-            if (!window.transferSimPro || !window.transferSimPro.allPlayers) return;
-            
-            if (query.length < 1) {
-                loadPositionPlayers(currentPosition);
-                return;
-            }
-            
-            const positionMap = { 'GK': 1, 'DEF': 2, 'MID': 3, 'FWD': 4 };
-            const players = window.transferSimPro.allPlayers.filter(p => {
-                if (p.position !== positionMap[currentPosition]) return false;
-                
-                const teamInfo = window.transferSimPro?.teams?.find(t => t.id === p.team);
-                const teamName = teamInfo ? teamInfo.name.toLowerCase() : '';
-                const price = (p.price || (p.now_cost / 10)).toFixed(1);
-                
-                return p.name.toLowerCase().includes(query) || 
-                       teamName.includes(query) || 
-                       price.includes(query);
-            });
-            
-            // Sort by relevance (name match first, then by total points)
-            players.sort((a, b) => {
-                const aNameMatch = a.name.toLowerCase().includes(query);
-                const bNameMatch = b.name.toLowerCase().includes(query);
-                
-                if (aNameMatch && !bNameMatch) return -1;
-                if (!aNameMatch && bNameMatch) return 1;
-                
-                return (b.total_points || 0) - (a.total_points || 0);
-            });
-            
-            displayModalPlayers(players);
-        };
-        
-        window.quickFilter = function(type) {
-            if (!window.transferSimPro || !window.transferSimPro.allPlayers) return;
-            
-            const positionMap = { 'GK': 1, 'DEF': 2, 'MID': 3, 'FWD': 4 };
-            let players = window.transferSimPro.allPlayers.filter(p => p.position === positionMap[currentPosition]);
-            
-            switch(type) {
-                case 'cheap':
-                    players = players.filter(p => (p.now_cost || p.price * 10) <= 50); // Under £5m
-                    break;
-                case 'mid':
-                    players = players.filter(p => {
-                        const cost = p.now_cost || p.price * 10;
-                        return cost > 50 && cost <= 80; // £5-8m
-                    });
-                    break;
-                case 'premium':
-                    players = players.filter(p => (p.now_cost || p.price * 10) > 80); // £8m+
-                    break;
-                case 'top':
-                    players = players.sort((a, b) => (b.total_points || 0) - (a.total_points || 0)).slice(0, 20);
-                    break;
-                case 'clear':
-                    document.getElementById('modalSearchInput').value = '';
-                    loadPositionPlayers(currentPosition);
-                    return;
-            }
-            
-            if (type !== 'top') {
-                players.sort((a, b) => (b.total_points || 0) - (a.total_points || 0));
-            }
-            
-            displayModalPlayers(players);
-        };
+        // Position circles are now display-only - no player selection popup
     </script>
 </body>
 </html>
