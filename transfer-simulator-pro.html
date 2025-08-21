@@ -2307,6 +2307,196 @@
                 height: 50px;
             }
         }
+
+        /* Player Selection Modal Styles */
+        .player-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .player-modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.7) translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .player-modal-header {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .player-modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .player-modal-close {
+            cursor: pointer;
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 5px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .player-modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .player-modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .player-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .modal-player-card {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-player-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(111, 66, 193, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .modal-player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(111, 66, 193, 0.2);
+            border-color: #6f42c1;
+        }
+
+        .modal-player-card:hover::before {
+            left: 100%;
+        }
+
+        .modal-player-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .modal-player-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .modal-player-team {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .modal-player-price {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .modal-player-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .modal-stat-box {
+            background: rgba(111, 66, 193, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .modal-stat-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #37003c;
+            display: block;
+        }
+
+        .modal-stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .player-modal-content {
+                width: 95%;
+                max-height: 85vh;
+            }
+            
+            .player-selection-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .modal-player-card {
+                padding: 15px;
+            }
+            
+            .modal-player-name {
+                font-size: 1.1rem;
+            }
+        }
     </style>
     <!-- Tesseract.js for OCR -->
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
@@ -3136,6 +3326,21 @@
         </button>
     </div>
 
+    <!-- Player Selection Modal -->
+    <div id="playerSelectionModal" class="player-modal" style="display: none;" onclick="closePlayerModal()">
+        <div class="player-modal-content" onclick="event.stopPropagation()">
+            <div class="player-modal-header">
+                <h3 id="modalTitle">Select a Player</h3>
+                <span class="player-modal-close" onclick="closePlayerModal()">&times;</span>
+            </div>
+            <div class="player-modal-body">
+                <div id="playerSelectionGrid" class="player-selection-grid">
+                    <!-- Player cards will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="./index.js"></script>
     <script>
         // Embedded FPL Data - Simple fallback
@@ -3472,27 +3677,77 @@
             // Sort by price descending for better selection
             players.sort((a, b) => b.price - a.price);
             
-            // Create a simple selection dialog
-            const playerNames = players.slice(0, 20).map((player, index) => 
-                `${index + 1}. ${player.name} (£${player.price.toFixed(1)}m) - ${player.total_points || 0} pts`
-            ).join('\n');
-            
-            const selection = prompt(
-                `Select a ${positionLabel} player by entering the number (1-${Math.min(20, players.length)}):\n\n${playerNames}`,
-                '1'
-            );
-            
-            if (selection === null) return; // User cancelled
-            
-            const playerIndex = parseInt(selection) - 1;
-            if (isNaN(playerIndex) || playerIndex < 0 || playerIndex >= Math.min(20, players.length)) {
-                alert('Invalid selection. Please enter a number between 1 and ' + Math.min(20, players.length));
-                return;
-            }
-            
-            const selectedPlayer = players[playerIndex];
-            addPlayerToSquad(selectedPlayer.id);
+            // Show player selection modal
+            showPlayerModal(players, positionLabel);
         };
+        
+        // Modal control functions
+        window.showPlayerModal = function(players, positionLabel) {
+            const modal = document.getElementById('playerSelectionModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const playerGrid = document.getElementById('playerSelectionGrid');
+            
+            modalTitle.textContent = `Select a ${positionLabel} Player`;
+            
+            // Get team data for displaying team names
+            const teams = window.transferSimPro?.teams || [];
+            
+            // Create player cards HTML
+            const playerCardsHtml = players.slice(0, 20).map(player => {
+                const teamInfo = teams.find(team => team.id === player.team);
+                const teamName = teamInfo ? teamInfo.name : 'Unknown';
+                
+                return `
+                    <div class="modal-player-card" onclick="selectPlayerFromModal(${player.id})">
+                        <div class="modal-player-info">
+                            <div>
+                                <div class="modal-player-name">${player.name}</div>
+                                <div class="modal-player-team">${teamName}</div>
+                            </div>
+                            <div class="modal-player-price">£${player.price.toFixed(1)}m</div>
+                        </div>
+                        <div class="modal-player-stats">
+                            <div class="modal-stat-box">
+                                <span class="modal-stat-value">${player.total_points || 0}</span>
+                                <span class="modal-stat-label">Points</span>
+                            </div>
+                            <div class="modal-stat-box">
+                                <span class="modal-stat-value">${player.form || '0.0'}</span>
+                                <span class="modal-stat-label">Form</span>
+                            </div>
+                            <div class="modal-stat-box">
+                                <span class="modal-stat-value">${player.selected_by_percent || '0.0'}%</span>
+                                <span class="modal-stat-label">Selected</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            playerGrid.innerHTML = playerCardsHtml;
+            modal.style.display = 'flex';
+            
+            // Add escape key handler
+            document.addEventListener('keydown', modalEscapeHandler);
+        };
+        
+        window.closePlayerModal = function() {
+            const modal = document.getElementById('playerSelectionModal');
+            modal.style.display = 'none';
+            document.removeEventListener('keydown', modalEscapeHandler);
+        };
+        
+        window.selectPlayerFromModal = function(playerId) {
+            addPlayerToSquad(playerId);
+            closePlayerModal();
+        };
+        
+        // Helper function for escape key
+        function modalEscapeHandler(event) {
+            if (event.key === 'Escape') {
+                closePlayerModal();
+            }
+        }
         
         function displayPlayerResults(players, title) {
             const resultsContainer = document.getElementById('playerSearchResults');
