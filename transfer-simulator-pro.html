@@ -241,11 +241,33 @@
             background: linear-gradient(145deg, #ffffff, #f8f9fa);
             border-color: #6f42c1;
             border-width: 4px;
+            cursor: pointer; /* Ensure cursor shows pointer */
         }
         
         .position-circle:active {
             transform: scale(1.05);
             transition: all 0.1s ease;
+            background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
+        }
+        
+        /* Click animation */
+        .position-circle.clicked {
+            animation: clickPulse 0.3s ease-out;
+        }
+        
+        @keyframes clickPulse {
+            0% { 
+                transform: scale(1.15) translateY(-2px);
+                background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
+            }
+            50% { 
+                transform: scale(1.25) translateY(-4px);
+                background: linear-gradient(145deg, #81c784, #4caf50);
+            }
+            100% { 
+                transform: scale(1.15) translateY(-2px);
+                background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            }
         }
         
         .position-circle.filled {
@@ -268,6 +290,7 @@
             margin-bottom: 1px;
             text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
             letter-spacing: 0.5px;
+            pointer-events: none; /* Allow clicks to pass through to parent */
         }
         
         .position-circle.filled .position-label {
@@ -284,6 +307,7 @@
             text-overflow: ellipsis;
             max-width: 60px;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            pointer-events: none; /* Allow clicks to pass through to parent */
         }
         
         .position-circle:not(.filled) .player-name-display {
@@ -3468,6 +3492,58 @@
                 } else {
                     console.error('❌ showPlayerModal function NOT available!');
                 }
+                
+                // Add programmatic event listeners as backup
+                console.log('🔧 Adding programmatic event listeners to position circles...');
+                const positionCircles = document.querySelectorAll('.position-circle');
+                console.log(`Found ${positionCircles.length} position circles`);
+                
+                positionCircles.forEach((circle, index) => {
+                    const position = circle.getAttribute('data-position');
+                    let positionId;
+                    let positionLabel;
+                    
+                    switch(position) {
+                        case 'GK':
+                            positionId = 1;
+                            positionLabel = 'GK';
+                            break;
+                        case 'DEF':
+                            positionId = 2;
+                            positionLabel = 'DEF';
+                            break;
+                        case 'MID':
+                            positionId = 3;
+                            positionLabel = 'MID';
+                            break;
+                        case 'FWD':
+                            positionId = 4;
+                            positionLabel = 'FWD';
+                            break;
+                        default:
+                            return;
+                    }
+                    
+                    // Remove any existing onclick to avoid duplicate calls
+                    circle.removeAttribute('onclick');
+                    
+                    // Add event listener
+                    circle.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        console.log(`🎯 Programmatic click detected on ${positionLabel} circle`);
+                        
+                        // Add visual feedback
+                        circle.classList.add('clicked');
+                        setTimeout(() => {
+                            circle.classList.remove('clicked');
+                        }, 300);
+                        
+                        window.selectPlayerForPosition(positionLabel, positionId);
+                    });
+                    
+                    console.log(`✅ Added event listener to ${positionLabel} circle`);
+                });
                 
                 // Player data loaded successfully
                 
