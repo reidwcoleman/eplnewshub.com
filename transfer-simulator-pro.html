@@ -4012,6 +4012,35 @@
             }
         };
         
+        // Missing functions that were causing JavaScript errors
+        window.optimizeTeam = function() {
+            console.log('🤖 AI Optimize Squad clicked');
+            alert('AI Squad Optimization feature coming soon! For now, use the position circles to manually select players.');
+        };
+        
+        window.resetTeam = function() {
+            console.log('🔄 Reset Team clicked');
+            if (confirm('Are you sure you want to reset your entire team?')) {
+                // Clear all squad positions
+                const squadDisplay = document.getElementById('squad-display');
+                if (squadDisplay) {
+                    squadDisplay.innerHTML = '<p>Your squad is empty. Click position circles to add players!</p>';
+                }
+                
+                // Reset position circles to empty state
+                const positionCircles = document.querySelectorAll('.position-circle');
+                positionCircles.forEach(circle => {
+                    circle.classList.remove('filled');
+                    const playerDisplay = circle.querySelector('.player-name-display');
+                    if (playerDisplay) {
+                        playerDisplay.textContent = '+';
+                    }
+                });
+                
+                console.log('✅ Team reset completed');
+            }
+        };
+        
         function displayPlayerResults(players, title) {
             const resultsContainer = document.getElementById('playerSearchResults');
             if (!resultsContainer) {
