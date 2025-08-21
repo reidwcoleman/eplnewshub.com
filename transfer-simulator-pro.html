@@ -2556,6 +2556,9 @@
                 <button onclick="window.testPositionClick('GK')" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
                     🥅 Test GK Click
                 </button>
+                <button onclick="window.forceSetupClicks()" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #27ae60, #229954); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                    🔧 Force Setup
+                </button>
             </div>
             
             <!-- NEW: Quick Access Advanced Features Hero -->
@@ -3631,6 +3634,60 @@
                     }
                 }, 1000); // 1 second delay to ensure everything is ready
                 
+                // ULTIMATE FALLBACK - Add click listeners using multiple methods
+                setTimeout(() => {
+                    console.log('🚀 ULTIMATE FALLBACK: Adding click detection multiple ways...');
+                    
+                    // Method 1: Direct onclick assignment
+                    const allCircles = document.querySelectorAll('.position-circle');
+                    console.log(`Setting onclick for ${allCircles.length} circles`);
+                    
+                    allCircles.forEach((circle, index) => {
+                        const position = circle.getAttribute('data-position');
+                        
+                        // Clear any existing handlers
+                        circle.onclick = null;
+                        circle.removeAttribute('onclick');
+                        
+                        // Add simple onclick
+                        circle.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log(`🎯 ONCLICK detected on ${position} circle`);
+                            
+                            let positionId;
+                            switch(position) {
+                                case 'GK': positionId = 1; break;
+                                case 'DEF': positionId = 2; break;
+                                case 'MID': positionId = 3; break;
+                                case 'FWD': positionId = 4; break;
+                                default: return;
+                            }
+                            
+                            alert(`You clicked the ${position} circle! Modal should open now...`);
+                            window.selectPlayerForPosition(position, positionId);
+                        };
+                        
+                        // Add visual indicator that circle is ready
+                        circle.style.border = '3px solid #00ff00';
+                        circle.title = `Click to select ${position} player`;
+                        
+                        console.log(`✅ Added onclick to ${position} circle #${index + 1}`);
+                    });
+                    
+                    // Method 2: Global click detector
+                    document.addEventListener('click', function(e) {
+                        const circle = e.target.closest('.position-circle');
+                        if (circle) {
+                            console.log('🌍 GLOBAL click detector triggered on position circle');
+                            const position = circle.getAttribute('data-position');
+                            console.log(`Global detected: ${position}`);
+                        }
+                    });
+                    
+                    console.log('🚀 ULTIMATE FALLBACK setup completed!');
+                }, 2000); // 2 second delay
+                
                 // Player data loaded successfully
                 
             } catch (error) {
@@ -4039,6 +4096,43 @@
                 
                 console.log('✅ Team reset completed');
             }
+        };
+        
+        // Force setup function for manual debugging
+        window.forceSetupClicks = function() {
+            console.log('🔧 FORCE SETUP: Manually setting up click handlers...');
+            
+            const circles = document.querySelectorAll('.position-circle');
+            console.log(`Found ${circles.length} circles to setup`);
+            
+            circles.forEach((circle, index) => {
+                const position = circle.getAttribute('data-position');
+                
+                // Visual feedback
+                circle.style.border = '3px solid #ff0000'; // Red border for manual setup
+                circle.style.cursor = 'pointer';
+                
+                // Clear and add onclick
+                circle.onclick = function(e) {
+                    e.preventDefault();
+                    console.log(`🎯 MANUAL SETUP: ${position} clicked!`);
+                    alert(`Manual setup worked! ${position} circle clicked.`);
+                    
+                    let positionId;
+                    switch(position) {
+                        case 'GK': positionId = 1; break;
+                        case 'DEF': positionId = 2; break;
+                        case 'MID': positionId = 3; break;
+                        case 'FWD': positionId = 4; break;
+                    }
+                    
+                    window.selectPlayerForPosition(position, positionId);
+                };
+                
+                console.log(`✅ Manual setup for ${position} circle #${index + 1}`);
+            });
+            
+            alert(`Force setup completed for ${circles.length} circles! They now have red borders and should be clickable.`);
         };
         
         function displayPlayerResults(players, title) {
