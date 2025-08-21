@@ -3850,9 +3850,9 @@
             displayPlayerResults(players, positionNames[positionId]);
         };
         
-        // Simple direct player selection function
-        function selectPlayerDirectly(position, positionId, circle) {
-            console.log(`🎯 Direct selection for ${position} (ID: ${positionId})`);
+        // Use existing modal system for player selection
+        function openPlayerModalForPosition(position, positionId, circle) {
+            console.log(`🎭 Opening modal for ${position} (ID: ${positionId})`);
             
             if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
                 alert('Player data not loaded yet. Please wait and try again.');
@@ -3868,39 +3868,15 @@
                 return;
             }
             
-            // Sort by price (highest first) and take top 20
+            // Sort by price (highest first) 
             players.sort((a, b) => b.price - a.price);
-            const topPlayers = players.slice(0, 20);
             
-            // Create simple selection list
-            let playerList = `SELECT A ${position} PLAYER:\n\n`;
-            topPlayers.forEach((player, index) => {
-                playerList += `${index + 1}. ${player.name} - £${player.price}m (${player.total_points || 0} pts)\n`;
-            });
+            // Store the clicked circle for later use
+            window.currentSelectedCircle = circle;
+            window.currentSelectedPosition = position;
             
-            const choice = prompt(playerList + '\nEnter player number (1-' + topPlayers.length + '):');
-            
-            if (choice === null) return; // User cancelled
-            
-            const playerIndex = parseInt(choice) - 1;
-            if (isNaN(playerIndex) || playerIndex < 0 || playerIndex >= topPlayers.length) {
-                alert('Invalid selection. Please enter a number between 1 and ' + topPlayers.length);
-                return;
-            }
-            
-            const selectedPlayer = topPlayers[playerIndex];
-            
-            // Update the circle to show selected player
-            const playerDisplay = circle.querySelector('.player-name-display');
-            if (playerDisplay) {
-                playerDisplay.textContent = selectedPlayer.name.split(' ')[0]; // First name only
-                circle.classList.add('filled');
-                circle.style.backgroundColor = '#4CAF50';
-                circle.title = `${selectedPlayer.name} - £${selectedPlayer.price}m`;
-            }
-            
-            console.log(`✅ Selected: ${selectedPlayer.name} for ${position} position`);
-            alert(`Selected: ${selectedPlayer.name} (£${selectedPlayer.price}m) for ${position} position!`);
+            // Use the existing showPlayerModal function with the same interface as Build Team Manually
+            window.showPlayerModal(players, position);
         }
         
         // Simple function to set up position circle clicks
@@ -3948,11 +3924,11 @@
                         circle.style.backgroundColor = '';
                     }, 500);
                     
-                    // DIRECT SIMPLE PLAYER SELECTION - No complex modal
-                    console.log(`Calling selectPlayerForPosition('${position}', ${positionId})`);
+                    // USE EXISTING MODAL SYSTEM - Same as Build Team Manually
+                    console.log(`Opening player modal for ${position} position`);
                     
-                    // Simple immediate player selection
-                    selectPlayerDirectly(position, positionId, circle);
+                    // Use the same beautiful modal that Build Team Manually uses
+                    openPlayerModalForPosition(position, positionId, circle);
                 });
                 
                 console.log(`✅ Setup complete for ${position} circle #${index + 1}`);
@@ -4068,7 +4044,44 @@
         };
         
         window.selectPlayerFromModal = function(playerId) {
-            addPlayerToSquad(playerId);
+            console.log(`🎯 Player selected from modal: ${playerId}`);
+            
+            // Find the selected player
+            const selectedPlayer = window.transferSimPro.allPlayers.find(player => player.id === playerId);
+            
+            if (!selectedPlayer) {
+                console.error('❌ Selected player not found');
+                closePlayerModal();
+                return;
+            }
+            
+            console.log(`✅ Found player: ${selectedPlayer.name}`);
+            
+            // Update the position circle if we have it stored
+            if (window.currentSelectedCircle) {
+                const circle = window.currentSelectedCircle;
+                const position = window.currentSelectedPosition;
+                
+                // Update the circle to show selected player
+                const playerDisplay = circle.querySelector('.player-name-display');
+                if (playerDisplay) {
+                    playerDisplay.textContent = selectedPlayer.name.split(' ')[0]; // First name only
+                    circle.classList.add('filled');
+                    circle.style.backgroundColor = '#4CAF50';
+                    circle.style.border = '2px solid #2E7D32';
+                    circle.title = `${selectedPlayer.name} - £${selectedPlayer.price}m`;
+                }
+                
+                console.log(`✅ Updated ${position} circle with ${selectedPlayer.name}`);
+                
+                // Clear the stored references
+                window.currentSelectedCircle = null;
+                window.currentSelectedPosition = null;
+            } else {
+                // Fallback to original behavior if no circle stored
+                addPlayerToSquad(playerId);
+            }
+            
             closePlayerModal();
         };
         
@@ -4218,6 +4231,12 @@
             console.log('🔧 FORCE SETUP: Manually setting up click handlers...');
             setupPositionCircleClicks();
             alert('Force setup completed! Look for green borders around the position circles.');
+        };
+        
+        // Create Manual Team Builder function for the Build Team Manually button
+        window.createManualTeamBuilder = function() {
+            console.log('🏗️ Build Team Manually clicked');
+            alert('Click on the green-bordered position circles on the soccer field to build your team manually! Each circle will open a player selection modal.');
         };
         
         function displayPlayerResults(players, title) {
