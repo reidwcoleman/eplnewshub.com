@@ -3450,6 +3450,10 @@
                 
                 console.log(`Transfer Simulator Pro initialized with ${window.transferSimPro.allPlayers.length} players`);
                 
+                // IMMEDIATE SIMPLE CLICK SETUP - No delays, no complexity
+                console.log('🎯 IMMEDIATE: Setting up position circles for clicking...');
+                setupPositionCircleClicks();
+                
                 // Immediate verification that everything is ready for clicking
                 console.log('🔍 IMMEDIATE VERIFICATION - Checking click system readiness...');
                 
@@ -3846,6 +3850,62 @@
             displayPlayerResults(players, positionNames[positionId]);
         };
         
+        // Simple function to set up position circle clicks
+        function setupPositionCircleClicks() {
+            console.log('🔧 Setting up position circle clicks...');
+            
+            // Find all position circles
+            const circles = document.querySelectorAll('.position-circle');
+            console.log(`Found ${circles.length} position circles`);
+            
+            if (circles.length === 0) {
+                console.error('❌ No position circles found!');
+                return;
+            }
+            
+            circles.forEach((circle, index) => {
+                const position = circle.getAttribute('data-position');
+                
+                // Add visual indicator
+                circle.style.border = '2px solid #00ff00';
+                circle.style.cursor = 'pointer';
+                circle.title = `Click to select ${position} player`;
+                
+                // Simple click handler
+                circle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log(`✅ CLICK DETECTED: ${position} circle clicked!`);
+                    
+                    let positionId;
+                    switch(position) {
+                        case 'GK': positionId = 1; break;
+                        case 'DEF': positionId = 2; break;
+                        case 'MID': positionId = 3; break;
+                        case 'FWD': positionId = 4; break;
+                        default: 
+                            console.error('Unknown position:', position);
+                            return;
+                    }
+                    
+                    // Show immediate feedback
+                    circle.style.backgroundColor = '#90EE90';
+                    setTimeout(() => {
+                        circle.style.backgroundColor = '';
+                    }, 500);
+                    
+                    // Call the player selection function
+                    console.log(`Calling selectPlayerForPosition('${position}', ${positionId})`);
+                    window.selectPlayerForPosition(position, positionId);
+                });
+                
+                console.log(`✅ Setup complete for ${position} circle #${index + 1}`);
+            });
+            
+            console.log('🎯 All position circles are now clickable with green borders!');
+        }
+        
         // Function to handle position circle clicks
         window.selectPlayerForPosition = function(positionLabel, positionId) {
             console.log(`🔘 Position circle clicked: ${positionLabel} (ID: ${positionId})`);
@@ -4101,38 +4161,8 @@
         // Force setup function for manual debugging
         window.forceSetupClicks = function() {
             console.log('🔧 FORCE SETUP: Manually setting up click handlers...');
-            
-            const circles = document.querySelectorAll('.position-circle');
-            console.log(`Found ${circles.length} circles to setup`);
-            
-            circles.forEach((circle, index) => {
-                const position = circle.getAttribute('data-position');
-                
-                // Visual feedback
-                circle.style.border = '3px solid #ff0000'; // Red border for manual setup
-                circle.style.cursor = 'pointer';
-                
-                // Clear and add onclick
-                circle.onclick = function(e) {
-                    e.preventDefault();
-                    console.log(`🎯 MANUAL SETUP: ${position} clicked!`);
-                    alert(`Manual setup worked! ${position} circle clicked.`);
-                    
-                    let positionId;
-                    switch(position) {
-                        case 'GK': positionId = 1; break;
-                        case 'DEF': positionId = 2; break;
-                        case 'MID': positionId = 3; break;
-                        case 'FWD': positionId = 4; break;
-                    }
-                    
-                    window.selectPlayerForPosition(position, positionId);
-                };
-                
-                console.log(`✅ Manual setup for ${position} circle #${index + 1}`);
-            });
-            
-            alert(`Force setup completed for ${circles.length} circles! They now have red borders and should be clickable.`);
+            setupPositionCircleClicks();
+            alert('Force setup completed! Look for green borders around the position circles.');
         };
         
         function displayPlayerResults(players, title) {
