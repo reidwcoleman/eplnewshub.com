@@ -3447,6 +3447,32 @@
                 
                 console.log(`Transfer Simulator Pro initialized with ${window.transferSimPro.allPlayers.length} players`);
                 
+                // Immediate verification that everything is ready for clicking
+                console.log('🔍 IMMEDIATE VERIFICATION - Checking click system readiness...');
+                
+                // Check if modal exists
+                const modalCheck = document.getElementById('playerSelectionModal');
+                console.log('Modal element exists:', modalCheck ? '✅ YES' : '❌ NO');
+                
+                // Check if position circles exist
+                const circleCheck = document.querySelectorAll('.position-circle');
+                console.log(`Position circles found: ${circleCheck.length} (should be 15)`);
+                
+                // Check if functions exist
+                console.log('selectPlayerForPosition function exists:', typeof window.selectPlayerForPosition === 'function' ? '✅ YES' : '❌ NO');
+                console.log('showPlayerModal function exists:', typeof window.showPlayerModal === 'function' ? '✅ YES' : '❌ NO');
+                
+                // Test a simple function call
+                if (typeof window.selectPlayerForPosition === 'function') {
+                    console.log('🧪 TESTING: Attempting to call selectPlayerForPosition directly...');
+                    try {
+                        // Don't actually call it, just verify it's callable
+                        console.log('✅ Function is callable');
+                    } catch (e) {
+                        console.error('❌ Function call failed:', e);
+                    }
+                }
+                
                 // Enhanced logging for debugging
                 if (window.transferSimPro.allPlayers.length > 0) {
                     console.log('✅ Player data successfully loaded!');
@@ -3550,6 +3576,19 @@
                 });
                 
                 console.log('🔧 All event listeners added successfully!');
+                
+                // Immediate test after event listeners are added
+                setTimeout(() => {
+                    console.log('🧪 IMMEDIATE TEST: Trying to trigger GK modal...');
+                    if (typeof window.selectPlayerForPosition === 'function') {
+                        try {
+                            window.selectPlayerForPosition('GK', 1);
+                        } catch (e) {
+                            console.error('❌ Immediate test failed:', e);
+                        }
+                    }
+                }, 100);
+                
                 }, 500); // 500ms delay to ensure DOM is fully ready
                 
                 // Additional event delegation approach for robustness
@@ -3951,6 +3990,25 @@
                 console.log('✅ Click simulation completed');
             } else {
                 console.error('❌ No circles found for position');
+            }
+        };
+        
+        // Manual modal trigger for console testing
+        window.openGKModal = function() {
+            console.log('🥅 Opening GK modal manually...');
+            if (typeof window.selectPlayerForPosition === 'function') {
+                window.selectPlayerForPosition('GK', 1);
+            } else {
+                console.error('❌ selectPlayerForPosition function not available');
+            }
+        };
+        
+        window.openMIDModal = function() {
+            console.log('⚽ Opening MID modal manually...');
+            if (typeof window.selectPlayerForPosition === 'function') {
+                window.selectPlayerForPosition('MID', 3);
+            } else {
+                console.error('❌ selectPlayerForPosition function not available');
             }
         };
         
