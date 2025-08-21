@@ -2553,6 +2553,9 @@
                 <button onclick="window.testModalDirectly()" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
                     🎭 Direct Modal
                 </button>
+                <button onclick="window.testPositionClick('GK')" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                    🥅 Test GK Click
+                </button>
             </div>
             
             <!-- NEW: Quick Access Advanced Features Hero -->
@@ -3493,10 +3496,11 @@
                     console.error('❌ showPlayerModal function NOT available!');
                 }
                 
-                // Add programmatic event listeners as backup
-                console.log('🔧 Adding programmatic event listeners to position circles...');
-                const positionCircles = document.querySelectorAll('.position-circle');
-                console.log(`Found ${positionCircles.length} position circles`);
+                // Add programmatic event listeners as backup - with slight delay to ensure DOM is ready
+                setTimeout(() => {
+                    console.log('🔧 Adding programmatic event listeners to position circles...');
+                    const positionCircles = document.querySelectorAll('.position-circle');
+                    console.log(`Found ${positionCircles.length} position circles`);
                 
                 positionCircles.forEach((circle, index) => {
                     const position = circle.getAttribute('data-position');
@@ -3544,6 +3548,49 @@
                     
                     console.log(`✅ Added event listener to ${positionLabel} circle`);
                 });
+                
+                console.log('🔧 All event listeners added successfully!');
+                }, 500); // 500ms delay to ensure DOM is fully ready
+                
+                // Additional event delegation approach for robustness
+                setTimeout(() => {
+                    console.log('🔧 Adding event delegation to football pitch...');
+                    const pitchContainer = document.getElementById('pitch-container');
+                    if (pitchContainer) {
+                        pitchContainer.addEventListener('click', function(event) {
+                            const target = event.target;
+                            const circle = target.closest('.position-circle');
+                            
+                            if (circle) {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                
+                                const position = circle.getAttribute('data-position');
+                                console.log(`🎯 Event delegation click detected on ${position} circle`);
+                                
+                                let positionId, positionLabel;
+                                switch(position) {
+                                    case 'GK': positionId = 1; positionLabel = 'GK'; break;
+                                    case 'DEF': positionId = 2; positionLabel = 'DEF'; break;
+                                    case 'MID': positionId = 3; positionLabel = 'MID'; break;
+                                    case 'FWD': positionId = 4; positionLabel = 'FWD'; break;
+                                    default: return;
+                                }
+                                
+                                // Add visual feedback
+                                circle.classList.add('clicked');
+                                setTimeout(() => {
+                                    circle.classList.remove('clicked');
+                                }, 300);
+                                
+                                window.selectPlayerForPosition(positionLabel, positionId);
+                            }
+                        });
+                        console.log('✅ Event delegation added to football pitch container');
+                    } else {
+                        console.error('❌ Football pitch container not found for event delegation');
+                    }
+                }, 1000); // 1 second delay to ensure everything is ready
                 
                 // Player data loaded successfully
                 
@@ -3888,6 +3935,22 @@
                 console.log('✅ Direct modal test completed');
             } else {
                 console.error('❌ No midfielders found for test');
+            }
+        };
+        
+        // Simple click test function
+        window.testPositionClick = function(position) {
+            console.log(`🧪 Testing position click for: ${position}`);
+            const circles = document.querySelectorAll(`[data-position="${position}"]`);
+            console.log(`Found ${circles.length} circles for position ${position}`);
+            
+            if (circles.length > 0) {
+                const circle = circles[0]; // Test first circle
+                console.log('🎯 Simulating click on first circle...');
+                circle.click();
+                console.log('✅ Click simulation completed');
+            } else {
+                console.error('❌ No circles found for position');
             }
         };
         
