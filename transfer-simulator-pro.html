@@ -3850,6 +3850,59 @@
             displayPlayerResults(players, positionNames[positionId]);
         };
         
+        // Simple direct player selection function
+        function selectPlayerDirectly(position, positionId, circle) {
+            console.log(`🎯 Direct selection for ${position} (ID: ${positionId})`);
+            
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
+                alert('Player data not loaded yet. Please wait and try again.');
+                return;
+            }
+            
+            // Get players for this position
+            const players = window.transferSimPro.allPlayers.filter(player => player.position === positionId);
+            console.log(`Found ${players.length} ${position} players`);
+            
+            if (players.length === 0) {
+                alert(`No ${position} players found in database.`);
+                return;
+            }
+            
+            // Sort by price (highest first) and take top 20
+            players.sort((a, b) => b.price - a.price);
+            const topPlayers = players.slice(0, 20);
+            
+            // Create simple selection list
+            let playerList = `SELECT A ${position} PLAYER:\n\n`;
+            topPlayers.forEach((player, index) => {
+                playerList += `${index + 1}. ${player.name} - £${player.price}m (${player.total_points || 0} pts)\n`;
+            });
+            
+            const choice = prompt(playerList + '\nEnter player number (1-' + topPlayers.length + '):');
+            
+            if (choice === null) return; // User cancelled
+            
+            const playerIndex = parseInt(choice) - 1;
+            if (isNaN(playerIndex) || playerIndex < 0 || playerIndex >= topPlayers.length) {
+                alert('Invalid selection. Please enter a number between 1 and ' + topPlayers.length);
+                return;
+            }
+            
+            const selectedPlayer = topPlayers[playerIndex];
+            
+            // Update the circle to show selected player
+            const playerDisplay = circle.querySelector('.player-name-display');
+            if (playerDisplay) {
+                playerDisplay.textContent = selectedPlayer.name.split(' ')[0]; // First name only
+                circle.classList.add('filled');
+                circle.style.backgroundColor = '#4CAF50';
+                circle.title = `${selectedPlayer.name} - £${selectedPlayer.price}m`;
+            }
+            
+            console.log(`✅ Selected: ${selectedPlayer.name} for ${position} position`);
+            alert(`Selected: ${selectedPlayer.name} (£${selectedPlayer.price}m) for ${position} position!`);
+        }
+        
         // Simple function to set up position circle clicks
         function setupPositionCircleClicks() {
             console.log('🔧 Setting up position circle clicks...');
@@ -3895,9 +3948,11 @@
                         circle.style.backgroundColor = '';
                     }, 500);
                     
-                    // Call the player selection function
+                    // DIRECT SIMPLE PLAYER SELECTION - No complex modal
                     console.log(`Calling selectPlayerForPosition('${position}', ${positionId})`);
-                    window.selectPlayerForPosition(position, positionId);
+                    
+                    // Simple immediate player selection
+                    selectPlayerDirectly(position, positionId, circle);
                 });
                 
                 console.log(`✅ Setup complete for ${position} circle #${index + 1}`);
