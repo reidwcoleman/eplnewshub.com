@@ -3469,11 +3469,7 @@
                     console.error('❌ showPlayerModal function NOT available!');
                 }
                 
-                // Auto-populate the player search with all players or empty search to show initial state
-                if (window.transferSimPro.allPlayers.length > 0 && typeof searchPlayers === 'function') {
-                    // Show initial search prompt or popular players
-                    searchPlayers('');
-                }
+                // Player data loaded successfully
                 
             } catch (error) {
                 console.error('Failed to initialize Transfer Simulator Pro:', error);
@@ -3485,9 +3481,6 @@
                     const lastUpdateEl = document.getElementById('lastUpdate');
                     if (lastUpdateEl) {
                         lastUpdateEl.textContent = new Date().toLocaleTimeString();
-                    }
-                    if (typeof searchPlayers === 'function') {
-                        searchPlayers('');
                     }
                 }
             }
@@ -3588,9 +3581,6 @@
                     }
                     
                     // Trigger a refresh of the player search if it's active
-                    if (typeof searchPlayers === 'function') {
-                        searchPlayers('');
-                    }
                 }
             } catch (error) {
                 console.error('Failed to force load players:', error);
@@ -4089,6 +4079,13 @@
                 });
                 setupDragAndDrop();
             }, 100);
+        };
+        
+        // Filter functions for remaining filters (position, price, form)
+        window.filterPlayers = function() {
+            // This function can be used for position/price/form filtering if needed
+            // For now it's a placeholder since we removed search functionality
+            console.log('Filter triggered - search functionality removed');
         };
         
         
