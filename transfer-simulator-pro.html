@@ -2384,7 +2384,7 @@
                 <div class="football-pitch" id="pitch-container">
                     <!-- Goalkeeper -->
                     <div class="pitch-row goalkeeper-row">
-                        <div class="position-circle" data-position="GK">
+                        <div class="position-circle" data-position="GK" onclick="selectPlayerForPosition('GK', 1)" style="cursor: pointer;">
                             <span class="position-label">GK</span>
                             <span class="player-name-display" id="player-GK-0">+</span>
                         </div>
@@ -2392,23 +2392,23 @@
                     
                     <!-- Defenders -->
                     <div class="pitch-row defenders-row">
-                        <div class="position-circle" data-position="DEF">
+                        <div class="position-circle" data-position="DEF" onclick="selectPlayerForPosition('DEF', 2)" style="cursor: pointer;">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-0">+</span>
                         </div>
-                        <div class="position-circle" data-position="DEF">
+                        <div class="position-circle" data-position="DEF" onclick="selectPlayerForPosition('DEF', 2)" style="cursor: pointer;">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-1">+</span>
                         </div>
-                        <div class="position-circle" data-position="DEF">
+                        <div class="position-circle" data-position="DEF" onclick="selectPlayerForPosition('DEF', 2)" style="cursor: pointer;">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-2">+</span>
                         </div>
-                        <div class="position-circle" data-position="DEF">
+                        <div class="position-circle" data-position="DEF" onclick="selectPlayerForPosition('DEF', 2)" style="cursor: pointer;">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-3">+</span>
                         </div>
-                        <div class="position-circle" data-position="DEF">
+                        <div class="position-circle" data-position="DEF" onclick="selectPlayerForPosition('DEF', 2)" style="cursor: pointer;">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-4">+</span>
                         </div>
@@ -2416,23 +2416,23 @@
                     
                     <!-- Midfielders -->
                     <div class="pitch-row midfielders-row">
-                        <div class="position-circle" data-position="MID">
+                        <div class="position-circle" data-position="MID" onclick="selectPlayerForPosition('MID', 3)" style="cursor: pointer;">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-0">+</span>
                         </div>
-                        <div class="position-circle" data-position="MID">
+                        <div class="position-circle" data-position="MID" onclick="selectPlayerForPosition('MID', 3)" style="cursor: pointer;">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-1">+</span>
                         </div>
-                        <div class="position-circle" data-position="MID">
+                        <div class="position-circle" data-position="MID" onclick="selectPlayerForPosition('MID', 3)" style="cursor: pointer;">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-2">+</span>
                         </div>
-                        <div class="position-circle" data-position="MID">
+                        <div class="position-circle" data-position="MID" onclick="selectPlayerForPosition('MID', 3)" style="cursor: pointer;">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-3">+</span>
                         </div>
-                        <div class="position-circle" data-position="MID">
+                        <div class="position-circle" data-position="MID" onclick="selectPlayerForPosition('MID', 3)" style="cursor: pointer;">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-4">+</span>
                         </div>
@@ -2440,15 +2440,15 @@
                     
                     <!-- Forwards -->
                     <div class="pitch-row forwards-row">
-                        <div class="position-circle" data-position="FWD">
+                        <div class="position-circle" data-position="FWD" onclick="selectPlayerForPosition('FWD', 4)" style="cursor: pointer;">
                             <span class="position-label">FWD</span>
                             <span class="player-name-display" id="player-FWD-0">+</span>
                         </div>
-                        <div class="position-circle" data-position="FWD">
+                        <div class="position-circle" data-position="FWD" onclick="selectPlayerForPosition('FWD', 4)" style="cursor: pointer;">
                             <span class="position-label">FWD</span>
                             <span class="player-name-display" id="player-FWD-1">+</span>
                         </div>
-                        <div class="position-circle" data-position="FWD">
+                        <div class="position-circle" data-position="FWD" onclick="selectPlayerForPosition('FWD', 4)" style="cursor: pointer;">
                             <span class="position-label">FWD</span>
                             <span class="player-name-display" id="player-FWD-2">+</span>
                         </div>
@@ -3452,6 +3452,48 @@
             displayPlayerResults(players, positionNames[positionId]);
         };
         
+        // Function to handle position circle clicks
+        window.selectPlayerForPosition = function(positionLabel, positionId) {
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
+                console.warn('Player data not loaded yet');
+                alert('Player data is still loading. Please wait a moment and try again.');
+                return;
+            }
+            
+            const players = window.transferSimPro.allPlayers.filter(player => 
+                player.position === positionId
+            );
+            
+            if (players.length === 0) {
+                alert(`No ${positionLabel} players found.`);
+                return;
+            }
+            
+            // Sort by price descending for better selection
+            players.sort((a, b) => b.price - a.price);
+            
+            // Create a simple selection dialog
+            const playerNames = players.slice(0, 20).map((player, index) => 
+                `${index + 1}. ${player.name} (£${player.price.toFixed(1)}m) - ${player.total_points || 0} pts`
+            ).join('\n');
+            
+            const selection = prompt(
+                `Select a ${positionLabel} player by entering the number (1-${Math.min(20, players.length)}):\n\n${playerNames}`,
+                '1'
+            );
+            
+            if (selection === null) return; // User cancelled
+            
+            const playerIndex = parseInt(selection) - 1;
+            if (isNaN(playerIndex) || playerIndex < 0 || playerIndex >= Math.min(20, players.length)) {
+                alert('Invalid selection. Please enter a number between 1 and ' + Math.min(20, players.length));
+                return;
+            }
+            
+            const selectedPlayer = players[playerIndex];
+            addPlayerToSquad(selectedPlayer.id);
+        };
+        
         function displayPlayerResults(players, title) {
             const resultsContainer = document.getElementById('playerSearchResults');
             if (!resultsContainer) {
@@ -4093,7 +4135,7 @@
     
     
     <script>
-        // Position circles are now display-only - no player selection popup
+        // Position circles are now interactive - clicking opens player selection
     </script>
 </body>
 </html>
