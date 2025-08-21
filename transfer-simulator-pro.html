@@ -2523,6 +2523,12 @@
                 <button onclick="forceLoadPlayerData()" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
                     ⚠️ Force Load
                 </button>
+                <button onclick="window.testPlayerDataAndModal()" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                    🧪 Test Modal
+                </button>
+                <button onclick="window.testModalDirectly()" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                    🎭 Direct Modal
+                </button>
             </div>
             
             <!-- NEW: Quick Access Advanced Features Hero -->
@@ -2725,58 +2731,8 @@
                             <span id="formValue">0.0</span>
                         </div>
                         
-                        <div class="filter-group">
-                            <label>Search Player</label>
-                            <input type="text" id="searchPlayer" placeholder="Type player name..." onkeyup="filterPlayers()" style="padding: 8px; border: 2px solid #667eea; border-radius: 5px;">
-                            <button onclick="searchAllPlayers()" style="margin-top: 5px; padding: 8px 15px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; width: 100%;">
-                                🔍 Search All Players
-                            </button>
-                            
-                            <!-- Quick Tips Section -->
-                            <div style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #f0ebff, #e8daff); border-radius: 8px; border: 1px solid #6f42c1;">
-                                <h4 style="color: #37003c; margin-bottom: 8px; font-size: 0.9rem;">⚡ Quick Add Tips:</h4>
-                                <ul style="font-size: 0.85rem; color: #666; margin: 0; padding-left: 20px;">
-                                    <li><strong>Click card</strong> - Add player to squad</li>
-                                    <li><strong>⚡ Button</strong> - Instant add with animation</li>
-                                    <li><strong>Drag & Drop</strong> - Drag player to squad zone</li>
-                                    <li><strong>↑↓ Keys</strong> - Navigate players</li>
-                                    <li><strong>Enter/Space</strong> - Add selected player</li>
-                                    <li><strong>A key</strong> - Quick add selected player</li>
-                                    <li><strong>Shift+Enter</strong> - Super quick add</li>
-                                </ul>
-                            </div>
-                            
-                        </div>
                     </div>
 
-                    <div class="search-instructions" id="searchInstructions" style="width: 100%; padding: 20px 0;">
-                        <div class="search-prompt">
-                            <div class="search-icon">🔍</div>
-                            <h3>Search for Players to Add to Your Squad</h3>
-                            <p>Use the search box above to find specific players, or click a position button below to browse by position:</p>
-                            <div id="loadDataMessage" style="display: none; margin: 10px 0; padding: 10px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px;">
-                                <p style="margin: 0;">Player data not loaded yet. <button onclick="window.forceLoadPlayers()" style="padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">Load Players Now</button></p>
-                            </div>
-                            <div class="position-buttons">
-                                <button class="position-btn" onclick="showPositionPlayers(1)">
-                                    <span class="position-emoji">🥅</span>
-                                    <span>Goalkeepers</span>
-                                </button>
-                                <button class="position-btn" onclick="showPositionPlayers(2)">
-                                    <span class="position-emoji">🛡️</span>
-                                    <span>Defenders</span>
-                                </button>
-                                <button class="position-btn" onclick="showPositionPlayers(3)">
-                                    <span class="position-emoji">⚽</span>
-                                    <span>Midfielders</span>
-                                </button>
-                                <button class="position-btn" onclick="showPositionPlayers(4)">
-                                    <span class="position-emoji">⚡</span>
-                                    <span>Forwards</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                     
                 </div>
 
@@ -3464,6 +3420,22 @@
                 
                 console.log(`Transfer Simulator Pro initialized with ${window.transferSimPro.allPlayers.length} players`);
                 
+                // Enhanced logging for debugging
+                if (window.transferSimPro.allPlayers.length > 0) {
+                    console.log('✅ Player data successfully loaded!');
+                    console.log('Sample players:', window.transferSimPro.allPlayers.slice(0, 3).map(p => p.name));
+                    console.log('Teams available:', window.transferSimPro.teams.length);
+                    
+                    // Test position distribution
+                    const positionCounts = {};
+                    window.transferSimPro.allPlayers.forEach(player => {
+                        positionCounts[player.position] = (positionCounts[player.position] || 0) + 1;
+                    });
+                    console.log('Players by position:', positionCounts);
+                } else {
+                    console.warn('❌ No player data loaded - modal will not work properly');
+                }
+                
                 // Update UI to show data is loaded
                 const loadDataMessage = document.getElementById('loadDataMessage');
                 if (loadDataMessage && window.transferSimPro.allPlayers.length > 0) {
@@ -3474,6 +3446,27 @@
                 const lastUpdateEl = document.getElementById('lastUpdate');
                 if (lastUpdateEl && window.transferSimPro.allPlayers.length > 0) {
                     lastUpdateEl.textContent = new Date().toLocaleTimeString();
+                }
+                
+                // Verify modal functionality is ready
+                console.log('🔧 Verifying modal functionality...');
+                const modalTest = document.getElementById('playerSelectionModal');
+                if (modalTest) {
+                    console.log('✅ Modal element found in DOM');
+                } else {
+                    console.error('❌ Modal element NOT found in DOM!');
+                }
+                
+                if (typeof window.selectPlayerForPosition === 'function') {
+                    console.log('✅ selectPlayerForPosition function is available');
+                } else {
+                    console.error('❌ selectPlayerForPosition function NOT available!');
+                }
+                
+                if (typeof window.showPlayerModal === 'function') {
+                    console.log('✅ showPlayerModal function is available');
+                } else {
+                    console.error('❌ showPlayerModal function NOT available!');
                 }
                 
                 // Auto-populate the player search with all players or empty search to show initial state
@@ -3615,20 +3608,7 @@
             window.forceLoadPlayers();
         };
         
-        // Player search and display functions
-        window.searchPlayers = function(query) {
-            if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
-                console.warn('Player data not loaded yet');
-                return;
-            }
-            
-            const searchQuery = query.toLowerCase();
-            const results = window.transferSimPro.allPlayers.filter(player => 
-                player.name.toLowerCase().includes(searchQuery)
-            );
-            
-            displayPlayerResults(results);
-        };
+        // Player display functions
         
         window.showPositionPlayers = function(positionId) {
             if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
@@ -3659,11 +3639,15 @@
         
         // Function to handle position circle clicks
         window.selectPlayerForPosition = function(positionLabel, positionId) {
+            console.log(`🔘 Position circle clicked: ${positionLabel} (ID: ${positionId})`);
+            
             if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
                 console.warn('Player data not loaded yet');
                 alert('Player data is still loading. Please wait a moment and try again.');
                 return;
             }
+            
+            console.log(`📊 Found ${window.transferSimPro.allPlayers.length} total players`);
             
             const players = window.transferSimPro.allPlayers.filter(player => 
                 player.position === positionId
@@ -3683,11 +3667,29 @@
         
         // Modal control functions
         window.showPlayerModal = function(players, positionLabel) {
+            console.log(`🎭 Opening modal for ${positionLabel} with ${players.length} players`);
+            
             const modal = document.getElementById('playerSelectionModal');
             const modalTitle = document.getElementById('modalTitle');
             const playerGrid = document.getElementById('playerSelectionGrid');
             
+            if (!modal) {
+                console.error('❌ Modal element not found!');
+                return;
+            }
+            
+            if (!modalTitle) {
+                console.error('❌ Modal title element not found!');
+                return;
+            }
+            
+            if (!playerGrid) {
+                console.error('❌ Player grid element not found!');
+                return;
+            }
+            
             modalTitle.textContent = `Select a ${positionLabel} Player`;
+            console.log(`📝 Modal title set to: ${modalTitle.textContent}`);
             
             // Get team data for displaying team names
             const teams = window.transferSimPro?.teams || [];
@@ -3725,10 +3727,14 @@
             }).join('');
             
             playerGrid.innerHTML = playerCardsHtml;
+            console.log(`🎨 Generated HTML for ${players.slice(0, 20).length} player cards`);
+            
             modal.style.display = 'flex';
+            console.log(`✅ Modal display set to 'flex' - should now be visible!`);
             
             // Add escape key handler
             document.addEventListener('keydown', modalEscapeHandler);
+            console.log(`⌨️ Escape key handler added`);
         };
         
         window.closePlayerModal = function() {
@@ -3748,6 +3754,76 @@
                 closePlayerModal();
             }
         }
+        
+        // Test function to verify player data and modal functionality
+        window.testPlayerDataAndModal = function() {
+            console.log('🧪 Testing player data and modal functionality...');
+            
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
+                console.error('❌ transferSimPro not initialized');
+                return false;
+            }
+            
+            if (window.transferSimPro.allPlayers.length === 0) {
+                console.error('❌ No players loaded');
+                return false;
+            }
+            
+            console.log(`✅ ${window.transferSimPro.allPlayers.length} players loaded`);
+            
+            // Test each position
+            const positions = [
+                {id: 1, label: 'GK', name: 'Goalkeepers'},
+                {id: 2, label: 'DEF', name: 'Defenders'},
+                {id: 3, label: 'MID', name: 'Midfielders'},
+                {id: 4, label: 'FWD', name: 'Forwards'}
+            ];
+            
+            positions.forEach(pos => {
+                const posPlayers = window.transferSimPro.allPlayers.filter(p => p.position === pos.id);
+                console.log(`✅ ${pos.name}: ${posPlayers.length} players available`);
+                if (posPlayers.length > 0) {
+                    console.log(`   Sample: ${posPlayers[0].name} (£${posPlayers[0].price}m)`);
+                }
+            });
+            
+            // Test modal opening for midfielders
+            console.log('🧪 Testing modal for midfielders...');
+            try {
+                selectPlayerForPosition('MID', 3);
+                console.log('✅ Modal should now be visible');
+                
+                // Close modal after test
+                setTimeout(() => {
+                    closePlayerModal();
+                    console.log('✅ Test completed - modal closed');
+                }, 2000);
+            } catch (error) {
+                console.error('❌ Modal test failed:', error);
+            }
+            
+            return true;
+        };
+        
+        // Alternative test function that directly calls the modal
+        window.testModalDirectly = function() {
+            console.log('🧪 Testing modal directly...');
+            
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
+                console.error('❌ No player data available for test');
+                return;
+            }
+            
+            const midfielders = window.transferSimPro.allPlayers.filter(player => player.position === 3);
+            console.log(`Found ${midfielders.length} midfielders for test`);
+            
+            if (midfielders.length > 0) {
+                window.showPlayerModal(midfielders, 'MID');
+                console.log('✅ Direct modal test completed');
+            } else {
+                console.error('❌ No midfielders found for test');
+            }
+        };
         
         function displayPlayerResults(players, title) {
             const resultsContainer = document.getElementById('playerSearchResults');
@@ -4015,31 +4091,6 @@
             }, 100);
         };
         
-        // Search functions connected to UI
-        window.filterPlayers = function() {
-            const searchInput = document.getElementById('searchPlayer');
-            if (!searchInput) return;
-            
-            const query = searchInput.value;
-            if (query.length < 2) {
-                // Clear results if query is too short
-                const resultsContainer = document.getElementById('playerSearchResults');
-                if (resultsContainer) {
-                    resultsContainer.innerHTML = '';
-                }
-                return;
-            }
-            
-            window.searchPlayers(query);
-        };
-        
-        window.searchAllPlayers = function() {
-            const searchInput = document.getElementById('searchPlayer');
-            if (!searchInput) return;
-            
-            const query = searchInput.value || '';
-            window.searchPlayers(query);
-        };
         
         // Add CSS for player cards
         const style = document.createElement('style');
