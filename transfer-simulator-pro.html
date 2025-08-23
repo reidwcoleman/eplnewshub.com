@@ -802,13 +802,29 @@
         }
 
         .chart-container {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            height: 300px; /* Fixed height to prevent stretching */
+            background: linear-gradient(145deg, #ffffff, #f8f9fb);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(55, 0, 60, 0.12), 
+                        0 4px 16px rgba(111, 66, 193, 0.08);
+            height: 320px; /* Slightly taller for better proportions */
             display: flex;
             flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #37003c, #6f42c1, #ff6b6b, #4ecdc4);
+            opacity: 0.8;
         }
         
         .chart-container canvas {
@@ -819,8 +835,16 @@
         }
 
         .chart-container h3 {
-            color: #37003c;
-            margin-bottom: 15px;
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
         }
 
         .ai-recommendations {
@@ -5992,13 +6016,25 @@ Son Heung-min
                         datasets: [{
                             data: [0, 0, 0, 0],
                             backgroundColor: [
-                                '#FF6B6B',
-                                '#4ECDC4', 
-                                '#45B7D1',
-                                '#FFA07A'
+                                'rgba(255, 107, 107, 0.8)',
+                                'rgba(78, 205, 196, 0.8)', 
+                                'rgba(69, 183, 209, 0.8)',
+                                'rgba(255, 160, 122, 0.8)'
                             ],
-                            borderColor: '#fff',
-                            borderWidth: 2
+                            borderColor: [
+                                'rgba(255, 107, 107, 1)',
+                                'rgba(78, 205, 196, 1)', 
+                                'rgba(69, 183, 209, 1)',
+                                'rgba(255, 160, 122, 1)'
+                            ],
+                            borderWidth: 3,
+                            hoverBackgroundColor: [
+                                'rgba(255, 107, 107, 1)',
+                                'rgba(78, 205, 196, 1)', 
+                                'rgba(69, 183, 209, 1)',
+                                'rgba(255, 160, 122, 1)'
+                            ],
+                            hoverBorderWidth: 4
                         }]
                     },
                     options: {
@@ -6011,17 +6047,36 @@ Son Heung-min
                                 labels: {
                                     color: '#37003c',
                                     font: {
-                                        size: 11
-                                    }
+                                        size: 12,
+                                        weight: '600'
+                                    },
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle'
                                 }
                             },
                             tooltip: {
+                                backgroundColor: 'rgba(37, 0, 60, 0.9)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                borderColor: 'rgba(111, 66, 193, 0.5)',
+                                borderWidth: 1,
+                                cornerRadius: 8,
+                                displayColors: true,
                                 callbacks: {
                                     label: function(context) {
-                                        return context.label + ': £' + context.parsed.toFixed(1) + 'm';
+                                        const percentage = ((context.parsed / context.dataset.data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                                        return context.label + ': £' + context.parsed.toFixed(1) + 'm (' + percentage + '%)';
                                     }
                                 }
                             }
+                        },
+                        cutout: '60%', // Modern donut with larger center
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true,
+                            duration: 1000,
+                            easing: 'easeInOutQuart'
                         }
                     }
                 });
@@ -6035,18 +6090,27 @@ Son Heung-min
                             label: 'Expected Points',
                             data: [0, 0, 0, 0],
                             backgroundColor: [
-                                '#FF6B6B',
-                                '#4ECDC4',
-                                '#45B7D1',
-                                '#FFA07A'
+                                'linear-gradient(135deg, rgba(255, 107, 107, 0.8), rgba(255, 82, 82, 0.9))',
+                                'linear-gradient(135deg, rgba(78, 205, 196, 0.8), rgba(63, 189, 180, 0.9))',
+                                'linear-gradient(135deg, rgba(69, 183, 209, 0.8), rgba(58, 167, 193, 0.9))',
+                                'linear-gradient(135deg, rgba(255, 160, 122, 0.8), rgba(255, 144, 106, 0.9))'
                             ],
                             borderColor: [
-                                '#FF5252',
-                                '#3FBDB4',
-                                '#3AA7C1',
-                                '#FF906A'
+                                'rgba(255, 82, 82, 1)',
+                                'rgba(63, 189, 180, 1)',
+                                'rgba(58, 167, 193, 1)',
+                                'rgba(255, 144, 106, 1)'
                             ],
-                            borderWidth: 2
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                            hoverBackgroundColor: [
+                                'rgba(255, 82, 82, 1)',
+                                'rgba(63, 189, 180, 1)',
+                                'rgba(58, 167, 193, 1)',
+                                'rgba(255, 144, 106, 1)'
+                            ],
+                            hoverBorderWidth: 3
                         }]
                     },
                     options: {
@@ -6057,10 +6121,19 @@ Son Heung-min
                             y: {
                                 beginAtZero: true,
                                 grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
+                                    color: 'rgba(111, 66, 193, 0.08)',
+                                    lineWidth: 1
                                 },
                                 ticks: {
-                                    color: '#37003c'
+                                    color: '#37003c',
+                                    font: {
+                                        size: 11,
+                                        weight: '500'
+                                    },
+                                    padding: 8
+                                },
+                                border: {
+                                    display: false
                                 }
                             },
                             x: {
@@ -6068,7 +6141,16 @@ Son Heung-min
                                     display: false
                                 },
                                 ticks: {
-                                    color: '#37003c'
+                                    color: '#37003c',
+                                    font: {
+                                        size: 12,
+                                        weight: '600'
+                                    },
+                                    padding: 10
+                                },
+                                border: {
+                                    color: 'rgba(111, 66, 193, 0.15)',
+                                    width: 1
                                 }
                             }
                         },
@@ -6077,9 +6159,25 @@ Son Heung-min
                                 display: false
                             },
                             tooltip: {
+                                backgroundColor: 'rgba(37, 0, 60, 0.95)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                borderColor: 'rgba(111, 66, 193, 0.6)',
+                                borderWidth: 2,
+                                cornerRadius: 12,
+                                displayColors: true,
+                                titleFont: {
+                                    size: 13,
+                                    weight: '600'
+                                },
+                                bodyFont: {
+                                    size: 12,
+                                    weight: '500'
+                                },
+                                padding: 12,
                                 callbacks: {
                                     label: function(context) {
-                                        return 'Points: ' + context.parsed.y.toFixed(0);
+                                        return 'Expected Points: ' + context.parsed.y.toFixed(1);
                                     }
                                 }
                             }
