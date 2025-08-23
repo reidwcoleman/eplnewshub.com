@@ -806,6 +806,16 @@
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            height: 300px; /* Fixed height to prevent stretching */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chart-container canvas {
+            flex: 1;
+            max-height: 240px; /* Leave room for title */
+            width: 100% !important;
+            height: auto !important;
         }
 
         .chart-container h3 {
@@ -2906,9 +2916,6 @@
                 <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 10px;">
                     <h3 style="color: white; margin-bottom: 10px; font-size: 1rem;">📸 Import Your Team</h3>
                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <button onclick="createManualTeamBuilder()" style="flex: 1; padding: 10px; background: white; color: #667eea; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                            🏗️ Build Team Manually
-                        </button>
                         <input type="file" id="teamImageUpload" accept="image/*" style="display: none;" onchange="processTeamImage(event)">
                         <button onclick="document.getElementById('teamImageUpload').click()" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.9); color: #667eea; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
                             📷 Upload Screenshot
@@ -4693,68 +4700,219 @@
             }
         };
         
+        // Upload FPL Screenshot functionality
+        window.processTeamImage = function(event) {
+            console.log('📷 Processing team image upload');
+            const file = event.target.files[0];
+            
+            if (!file) {
+                showNotification('❌ No file selected', 'error');
+                return;
+            }
+            
+            if (!file.type.startsWith('image/')) {
+                showNotification('❌ Please select an image file', 'error');
+                return;
+            }
+            
+            // Show processing status
+            const statusDiv = document.getElementById('imageProcessingStatus');
+            if (statusDiv) {
+                statusDiv.style.display = 'block';
+                statusDiv.innerHTML = `
+                    <div class="spinner" style="width: 20px; height: 20px; margin: 0 auto; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid white; animation: spin 1s linear infinite;"></div>
+                    <p style="margin-top: 5px;">Processing your FPL screenshot...</p>
+                `;
+            }
+            
+            // Create image element to display the uploaded image
+            const img = new Image();
+            img.onload = function() {
+                // Process with Tesseract OCR
+                processImageWithOCR(img, file);
+            };
+            
+            // Read the file as data URL
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
         
-        // Create Manual Team Builder function for the Build Team Manually button
-        window.createManualTeamBuilder = function() {
-            console.log('🏗️ Build Team Manually clicked');
+        // Process image with OCR
+        function processImageWithOCR(img, file) {
+            console.log('🔍 Starting OCR processing...');
             
-            // Clear any existing team first
-            resetTeam();
+            if (typeof Tesseract === 'undefined') {
+                showNotification('❌ OCR library not loaded. Please refresh the page and try again.', 'error');
+                hideProcessingStatus();
+                return;
+            }
             
-            // Enable manual building mode
-            window.manualBuildingMode = true;
+            // Use Tesseract.js to extract text
+            Tesseract.recognize(file, 'eng', {
+                logger: m => {
+                    if (m.status === 'recognizing text') {
+                        const progress = Math.round(m.progress * 100);
+                        updateProcessingStatus(`Processing image... ${progress}%`);
+                    }
+                }
+            }).then(({ data: { text } }) => {
+                console.log('📝 OCR Text extracted:', text);
+                processExtractedText(text);
+            }).catch(err => {
+                console.error('❌ OCR Error:', err);
+                showNotification('❌ Failed to process image. Please try a clearer screenshot.', 'error');
+                hideProcessingStatus();
+            });
+        }
+        
+        // Process extracted text to find player names
+        function processExtractedText(text) {
+            console.log('🔍 Processing extracted text for player names...');
             
-            // Make position circles more visually interactive
-            const circles = document.querySelectorAll('.position-circle');
-            circles.forEach(circle => {
-                circle.style.border = '3px solid #28a745';
-                circle.style.boxShadow = '0 0 15px rgba(40, 167, 69, 0.5)';
-                circle.style.animation = 'pulse 2s infinite';
+            // Common FPL player name patterns and team names
+            const playerPatterns = [
+                // Look for common player name formats
+                /([A-Z][a-z]+\s+[A-Z][a-z]+)/g,
+                /([A-Z]\.\s*[A-Z][a-z]+)/g,
+                // Single names (like Salah, Haaland)
+                /\b([A-Z][a-z]{3,})\b/g
+            ];
+            
+            let detectedPlayers = [];
+            
+            // Extract potential player names
+            playerPatterns.forEach(pattern => {
+                const matches = text.match(pattern);
+                if (matches) {
+                    matches.forEach(match => {
+                        const cleanName = match.trim();
+                        if (cleanName.length > 2 && !detectedPlayers.includes(cleanName)) {
+                            detectedPlayers.push(cleanName);
+                        }
+                    });
+                }
             });
             
-            // Add pulse animation style if it doesn't exist
-            if (!document.getElementById('pulse-style')) {
-                const style = document.createElement('style');
-                style.id = 'pulse-style';
-                style.textContent = `
-                    @keyframes pulse {
-                        0% { transform: scale(1); }
-                        50% { transform: scale(1.05); }
-                        100% { transform: scale(1); }
+            console.log('🎯 Detected potential players:', detectedPlayers);
+            
+            if (detectedPlayers.length === 0) {
+                showNotification('❌ No player names detected. Please try a clearer screenshot or enter players manually.', 'error');
+                hideProcessingStatus();
+                return;
+            }
+            
+            // Try to match detected names with actual FPL players
+            matchPlayersFromOCR(detectedPlayers);
+        }
+        
+        // Match OCR results with actual FPL player data
+        function matchPlayersFromOCR(detectedNames) {
+            console.log('🔍 Matching detected names with FPL database...');
+            
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
+                showNotification('❌ Player database not loaded. Please wait and try again.', 'error');
+                hideProcessingStatus();
+                return;
+            }
+            
+            const matchedPlayers = [];
+            const allPlayers = window.transferSimPro.allPlayers;
+            
+            detectedNames.forEach(detectedName => {
+                // Try exact match first
+                let match = allPlayers.find(player => 
+                    player.name.toLowerCase() === detectedName.toLowerCase() ||
+                    player.web_name.toLowerCase() === detectedName.toLowerCase()
+                );
+                
+                // If no exact match, try partial matching
+                if (!match) {
+                    match = allPlayers.find(player => 
+                        player.name.toLowerCase().includes(detectedName.toLowerCase()) ||
+                        detectedName.toLowerCase().includes(player.web_name.toLowerCase())
+                    );
+                }
+                
+                if (match && !matchedPlayers.find(p => p.id === match.id)) {
+                    matchedPlayers.push(match);
+                }
+            });
+            
+            console.log(`✅ Matched ${matchedPlayers.length} players:`, matchedPlayers.map(p => p.name));
+            
+            if (matchedPlayers.length === 0) {
+                showNotification('❌ Could not match detected names with FPL players. Try entering players manually.', 'error');
+                hideProcessingStatus();
+                return;
+            }
+            
+            // Add matched players to the team
+            addPlayersToTeam(matchedPlayers);
+        }
+        
+        // Add matched players to the team
+        function addPlayersToTeam(players) {
+            console.log('➕ Adding players to team...');
+            
+            // Clear existing team first
+            resetTeam();
+            
+            let addedCount = 0;
+            players.forEach(player => {
+                try {
+                    // Add to squad data structure
+                    if (!window.transferSimPro.currentSquad) {
+                        window.transferSimPro.currentSquad = [];
                     }
+                    
+                    // Check if player already exists
+                    if (!window.transferSimPro.currentSquad.find(p => p.id === player.id)) {
+                        window.transferSimPro.currentSquad.push(player);
+                        
+                        // Place on field visually
+                        const positionMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+                        const position = positionMap[player.position] || 'MID';
+                        
+                        if (placePlayerInPosition(player, position)) {
+                            addedCount++;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Failed to add player:', player.name, error);
+                }
+            });
+            
+            // Update display
+            updateSquadDisplay();
+            
+            hideProcessingStatus();
+            showNotification(`✅ Successfully imported ${addedCount} players from your screenshot!`, 'success');
+            
+            if (addedCount < 11) {
+                showNotification(`💡 Only ${addedCount} players detected. You may need to add more players to complete your team.`, 'info');
+            }
+        }
+        
+        // Helper functions
+        function updateProcessingStatus(message) {
+            const statusDiv = document.getElementById('imageProcessingStatus');
+            if (statusDiv) {
+                statusDiv.innerHTML = `
+                    <div class="spinner" style="width: 20px; height: 20px; margin: 0 auto; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid white; animation: spin 1s linear infinite;"></div>
+                    <p style="margin-top: 5px;">${message}</p>
                 `;
-                document.head.appendChild(style);
             }
-            
-            // Show instructions
-            showNotification('🏗️ Manual Team Builder Activated! Click on any position circle to select a player.', 'success');
-            
-            // Display team requirements
-            const teamRequirements = `
-                <div style="background: rgba(40, 167, 69, 0.1); border: 2px solid #28a745; border-radius: 10px; padding: 15px; margin: 10px 0; color: #155724;">
-                    <h4>🏗️ Build Your Team:</h4>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>2 Goalkeepers (GK)</li>
-                        <li>5 Defenders (DEF)</li>
-                        <li>5 Midfielders (MID)</li>
-                        <li>3 Forwards (FWD)</li>
-                    </ul>
-                    <p><strong>Total Budget:</strong> £100.0m</p>
-                    <p><em>Click on the green circles above to select players for each position!</em></p>
-                </div>
-            `;
-            
-            // Find or create instructions container
-            let instructionsContainer = document.getElementById('manual-instructions');
-            if (!instructionsContainer) {
-                instructionsContainer = document.createElement('div');
-                instructionsContainer.id = 'manual-instructions';
-                const pitchContainer = document.getElementById('pitch-container');
-                pitchContainer.parentNode.insertBefore(instructionsContainer, pitchContainer);
+        }
+        
+        function hideProcessingStatus() {
+            const statusDiv = document.getElementById('imageProcessingStatus');
+            if (statusDiv) {
+                statusDiv.style.display = 'none';
             }
-            
-            instructionsContainer.innerHTML = teamRequirements;
-        };
+        }
         
         function displayPlayerResults(players, title) {
             const resultsContainer = document.getElementById('playerSearchResults');
