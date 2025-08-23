@@ -319,6 +319,23 @@
         
         .position-circle.filled .player-name-display {
             color: white;
+            font-size: 0.6rem;
+            line-height: 1;
+        }
+
+        .player-price-display {
+            font-size: 0.5rem;
+            font-weight: 600;
+            color: white;
+            margin-top: 1px;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            display: none; /* Hidden by default, shown when filled */
+        }
+        
+        .position-circle.filled .player-price-display {
+            display: block;
         }
 
         .football-pitch::before {
@@ -2720,6 +2737,7 @@
                         <div class="position-circle" data-position="GK" onclick="selectPlayerForPosition('GK', 1)" style="cursor: pointer;">
                             <span class="position-label">GK</span>
                             <span class="player-name-display" id="player-GK-0">+</span>
+                            <span class="player-price-display" id="price-GK-0">£0.0m</span>
                         </div>
                     </div>
                     
@@ -2728,22 +2746,27 @@
                         <div class="position-circle" data-position="DEF" onclick="selectPlayerForPosition('DEF', 2)" style="cursor: pointer;">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-0">+</span>
+                            <span class="player-price-display" id="price-DEF-0">£0.0m</span>
                         </div>
                         <div class="position-circle" data-position="DEF" onclick="selectPlayerForPosition('DEF', 2)" style="cursor: pointer;">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-1">+</span>
+                            <span class="player-price-display" id="price-DEF-1">£0.0m</span>
                         </div>
                         <div class="position-circle" data-position="DEF" onclick="selectPlayerForPosition('DEF', 2)" style="cursor: pointer;">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-2">+</span>
+                            <span class="player-price-display" id="price-DEF-2">£0.0m</span>
                         </div>
                         <div class="position-circle" data-position="DEF" onclick="selectPlayerForPosition('DEF', 2)" style="cursor: pointer;">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-3">+</span>
+                            <span class="player-price-display" id="price-DEF-3">£0.0m</span>
                         </div>
                         <div class="position-circle" data-position="DEF" onclick="selectPlayerForPosition('DEF', 2)" style="cursor: pointer;">
                             <span class="position-label">DEF</span>
                             <span class="player-name-display" id="player-DEF-4">+</span>
+                            <span class="player-price-display" id="price-DEF-4">£0.0m</span>
                         </div>
                     </div>
                     
@@ -2752,22 +2775,27 @@
                         <div class="position-circle" data-position="MID" onclick="selectPlayerForPosition('MID', 3)" style="cursor: pointer;">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-0">+</span>
+                            <span class="player-price-display" id="price-MID-0">£0.0m</span>
                         </div>
                         <div class="position-circle" data-position="MID" onclick="selectPlayerForPosition('MID', 3)" style="cursor: pointer;">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-1">+</span>
+                            <span class="player-price-display" id="price-MID-1">£0.0m</span>
                         </div>
                         <div class="position-circle" data-position="MID" onclick="selectPlayerForPosition('MID', 3)" style="cursor: pointer;">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-2">+</span>
+                            <span class="player-price-display" id="price-MID-2">£0.0m</span>
                         </div>
                         <div class="position-circle" data-position="MID" onclick="selectPlayerForPosition('MID', 3)" style="cursor: pointer;">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-3">+</span>
+                            <span class="player-price-display" id="price-MID-3">£0.0m</span>
                         </div>
                         <div class="position-circle" data-position="MID" onclick="selectPlayerForPosition('MID', 3)" style="cursor: pointer;">
                             <span class="position-label">MID</span>
                             <span class="player-name-display" id="player-MID-4">+</span>
+                            <span class="player-price-display" id="price-MID-4">£0.0m</span>
                         </div>
                     </div>
                     
@@ -2776,14 +2804,17 @@
                         <div class="position-circle" data-position="FWD" onclick="selectPlayerForPosition('FWD', 4)" style="cursor: pointer;">
                             <span class="position-label">FWD</span>
                             <span class="player-name-display" id="player-FWD-0">+</span>
+                            <span class="player-price-display" id="price-FWD-0">£0.0m</span>
                         </div>
                         <div class="position-circle" data-position="FWD" onclick="selectPlayerForPosition('FWD', 4)" style="cursor: pointer;">
                             <span class="position-label">FWD</span>
                             <span class="player-name-display" id="player-FWD-1">+</span>
+                            <span class="player-price-display" id="price-FWD-1">£0.0m</span>
                         </div>
                         <div class="position-circle" data-position="FWD" onclick="selectPlayerForPosition('FWD', 4)" style="cursor: pointer;">
                             <span class="position-label">FWD</span>
                             <span class="player-name-display" id="player-FWD-2">+</span>
+                            <span class="player-price-display" id="price-FWD-2">£0.0m</span>
                         </div>
                     </div>
                 </div>
@@ -4164,6 +4195,56 @@
             document.removeEventListener('keydown', modalEscapeHandler);
         };
         
+        // Function to place player in position circle on the field
+        window.placePlayerInPosition = function(player, position) {
+            // Find the first available position circle for this position
+            const positionCircles = document.querySelectorAll(`[data-position="${position}"]`);
+            let targetCircle = null;
+            
+            // Find first empty circle or use the stored current circle
+            if (window.currentSelectedCircle) {
+                targetCircle = window.currentSelectedCircle;
+            } else {
+                for (let circle of positionCircles) {
+                    if (!circle.classList.contains('filled')) {
+                        targetCircle = circle;
+                        break;
+                    }
+                }
+            }
+            
+            if (!targetCircle) {
+                console.warn(`No available ${position} circle found`);
+                return false;
+            }
+            
+            // Update the circle to show selected player
+            const playerDisplay = targetCircle.querySelector('.player-name-display');
+            const priceDisplay = targetCircle.querySelector('.player-price-display');
+            
+            if (playerDisplay) {
+                // Show player's last name (more space efficient)
+                const nameParts = player.name.split(' ');
+                const displayName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : player.name;
+                playerDisplay.textContent = displayName.substring(0, 8); // Max 8 characters
+            }
+            
+            if (priceDisplay) {
+                priceDisplay.textContent = `£${(player.price || 0).toFixed(1)}m`;
+            }
+            
+            // Style the filled circle
+            targetCircle.classList.add('filled');
+            targetCircle.title = `${player.name} - £${(player.price || 0).toFixed(1)}m`;
+            
+            // Store player data on the circle for future reference
+            targetCircle.setAttribute('data-player-id', player.id);
+            targetCircle.setAttribute('data-player-name', player.name);
+            
+            console.log(`✅ Placed ${player.name} in ${position} position on field`);
+            return true;
+        };
+
         window.selectPlayerFromModal = function(playerId) {
             console.log(`🎯 Player selected from modal: ${playerId}`);
             
@@ -4181,27 +4262,15 @@
             // Add player to squad data structure
             addPlayerToSquad(playerId);
             
-            // Update the position circle if we have it stored
-            if (window.currentSelectedCircle) {
-                const circle = window.currentSelectedCircle;
-                const position = window.currentSelectedPosition;
-                
-                // Update the circle to show selected player
-                const playerDisplay = circle.querySelector('.player-name-display');
-                if (playerDisplay) {
-                    playerDisplay.textContent = selectedPlayer.name.split(' ')[0]; // First name only
-                    circle.classList.add('filled');
-                    circle.style.backgroundColor = '#4CAF50';
-                    circle.style.border = '2px solid #2E7D32';
-                    circle.title = `${selectedPlayer.name} - £${selectedPlayer.price}m`;
-                }
-                
-                console.log(`✅ Updated ${position} circle with ${selectedPlayer.name}`);
-                
-                // Clear the stored references
-                window.currentSelectedCircle = null;
-                window.currentSelectedPosition = null;
-            }
+            // Place player on the field visually
+            const positionMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+            const position = positionMap[selectedPlayer.position] || 'MID';
+            
+            placePlayerInPosition(selectedPlayer, position);
+            
+            // Clear the stored references
+            window.currentSelectedCircle = null;
+            window.currentSelectedPosition = null;
             
             closePlayerModal();
         };
@@ -4338,12 +4407,24 @@
                     circle.classList.remove('filled');
                     circle.style.backgroundColor = '';
                     circle.style.border = '';
+                    
+                    // Reset player display
                     const playerDisplay = circle.querySelector('.player-name-display');
                     if (playerDisplay) {
                         playerDisplay.textContent = '+';
                     }
+                    
+                    // Reset price display
+                    const priceDisplay = circle.querySelector('.player-price-display');
+                    if (priceDisplay) {
+                        priceDisplay.textContent = '£0.0m';
+                    }
+                    
+                    // Reset title and clear player data
                     const position = circle.getAttribute('data-position');
                     circle.title = `Click to select ${position} player`;
+                    circle.removeAttribute('data-player-id');
+                    circle.removeAttribute('data-player-name');
                 });
                 
                 // Update squad display
@@ -4670,13 +4751,23 @@
                 // Reset position circle if it was filled with this player
                 const circles = document.querySelectorAll('.position-circle');
                 circles.forEach(circle => {
-                    const playerDisplay = circle.querySelector('.player-name-display');
-                    if (playerDisplay && playerDisplay.textContent === player.name.split(' ')[0]) {
-                        playerDisplay.textContent = '+';
+                    if (circle.getAttribute('data-player-id') == playerId) {
+                        // Clear player data
+                        const playerDisplay = circle.querySelector('.player-name-display');
+                        const priceDisplay = circle.querySelector('.player-price-display');
+                        
+                        if (playerDisplay) playerDisplay.textContent = '+';
+                        if (priceDisplay) priceDisplay.textContent = '£0.0m';
+                        
+                        // Reset styling
                         circle.classList.remove('filled');
                         circle.style.backgroundColor = '';
                         circle.style.border = '';
                         circle.title = `Click to select ${circle.getAttribute('data-position')} player`;
+                        
+                        // Clear stored attributes
+                        circle.removeAttribute('data-player-id');
+                        circle.removeAttribute('data-player-name');
                     }
                 });
             }
