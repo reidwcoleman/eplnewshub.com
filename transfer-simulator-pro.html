@@ -2645,6 +2645,85 @@
             background: #c0392b;
             transform: scale(1.1);
         }
+
+        /* Saved Teams Modal Styles */
+        .saved-team-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.95));
+            border: 2px solid rgba(111, 66, 193, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .saved-team-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(111, 66, 193, 0.3);
+            border-color: rgba(111, 66, 193, 0.4);
+        }
+
+        .saved-team-info {
+            flex: 1;
+        }
+
+        .saved-team-info h4 {
+            margin: 0 0 8px 0;
+            color: #37003c;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .saved-team-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #6f42c1;
+            font-weight: 500;
+        }
+
+        .saved-team-date {
+            font-size: 0.8rem;
+            color: #666;
+            opacity: 0.8;
+        }
+
+        .saved-team-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .load-btn, .delete-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .load-btn {
+            background: linear-gradient(135deg, #28a745, #218838);
+            color: white;
+        }
+
+        .load-btn:hover {
+            background: linear-gradient(135deg, #218838, #1e7e34);
+            transform: translateY(-1px);
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: linear-gradient(135deg, #c82333, #bd2130);
+            transform: translateY(-1px);
+        }
     </style>
     <!-- Tesseract.js for OCR -->
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
@@ -2670,15 +2749,6 @@
                 </button>
                 <button onclick="forceLoadPlayerData()" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
                     ⚠️ Force Load
-                </button>
-                <button onclick="window.testPlayerDataAndModal()" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
-                    🧪 Test Modal
-                </button>
-                <button onclick="window.testModalDirectly()" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
-                    🎭 Direct Modal
-                </button>
-                <button onclick="window.testPositionClick('GK')" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
-                    🥅 Test GK Click
                 </button>
                 <button onclick="window.forceSetupClicks()" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #27ae60, #229954); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
                     🔧 Force Setup
@@ -4390,8 +4460,132 @@
         // Missing functions that were causing JavaScript errors
         window.optimizeTeam = function() {
             console.log('🤖 AI Optimize Squad clicked');
-            console.log('AI Squad Optimization feature coming soon! Use position circles to manually select players.');
+            
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
+                showNotification('❌ Player data not loaded yet. Please wait.', 'error');
+                return;
+            }
+            
+            if (!confirm('AI will build an optimized team based on player value, form, and points. This will replace your current team. Continue?')) {
+                return;
+            }
+            
+            showNotification('🤖 AI is optimizing your squad...', 'info');
+            
+            // Clear current team first
+            resetTeam();
+            
+            setTimeout(() => {
+                try {
+                    const optimizedSquad = buildOptimizedTeam();
+                    
+                    if (optimizedSquad && optimizedSquad.length > 0) {
+                        // Set the optimized squad
+                        if (!window.transferSimPro) window.transferSimPro = {};
+                        window.transferSimPro.currentSquad = optimizedSquad;
+                        
+                        // Place players on the field
+                        optimizedSquad.forEach(player => {
+                            const positionMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+                            const position = positionMap[player.position] || 'MID';
+                            placePlayerInPosition(player, position);
+                        });
+                        
+                        // Update squad display
+                        updateSquadDisplay();
+                        
+                        const totalValue = optimizedSquad.reduce((sum, p) => sum + (p.price || 0), 0);
+                        showNotification(`✅ AI optimized squad complete! ${optimizedSquad.length} players, £${totalValue.toFixed(1)}m total`, 'success');
+                        console.log(`AI built squad with ${optimizedSquad.length} players`);
+                    } else {
+                        showNotification('❌ AI failed to build optimized squad. Try manually selecting players.', 'error');
+                    }
+                } catch (error) {
+                    console.error('AI optimization error:', error);
+                    showNotification('❌ AI optimization failed. Try manually building your team.', 'error');
+                }
+            }, 1000);
         };
+        
+        // AI Team Building Algorithm
+        function buildOptimizedTeam() {
+            const players = window.transferSimPro.allPlayers;
+            const budget = 100.0; // £100m budget
+            const formation = {GK: 1, DEF: 5, MID: 5, FWD: 3}; // 1-5-5-3 formation
+            
+            // Create player scoring system
+            const scoredPlayers = players.map(player => {
+                let score = 0;
+                
+                // Points contribution (40% weight)
+                score += (player.total_points || 0) * 0.4;
+                
+                // Form contribution (30% weight)  
+                score += parseFloat(player.form || 0) * 30 * 0.3;
+                
+                // Value efficiency (20% weight) - points per price
+                const efficiency = player.price > 0 ? (player.total_points || 0) / player.price : 0;
+                score += efficiency * 0.2;
+                
+                // Selection popularity (10% weight) - but inverse (less popular = better value)
+                const popularity = parseFloat(player.selected_by_percent || 0);
+                score += (50 - Math.min(popularity, 50)) * 0.1;
+                
+                return {
+                    ...player,
+                    aiScore: score,
+                    valueEfficiency: efficiency
+                };
+            });
+            
+            // Sort players by position and score
+            const playersByPosition = {
+                GK: scoredPlayers.filter(p => p.position === 1).sort((a, b) => b.aiScore - a.aiScore),
+                DEF: scoredPlayers.filter(p => p.position === 2).sort((a, b) => b.aiScore - a.aiScore),
+                MID: scoredPlayers.filter(p => p.position === 3).sort((a, b) => b.aiScore - a.aiScore),
+                FWD: scoredPlayers.filter(p => p.position === 4).sort((a, b) => b.aiScore - a.aiScore)
+            };
+            
+            // Build optimal squad within budget
+            let squad = [];
+            let remainingBudget = budget;
+            
+            // Greedy algorithm with budget constraints
+            for (const [position, count] of Object.entries(formation)) {
+                const positionPlayers = playersByPosition[position] || [];
+                let added = 0;
+                
+                for (const player of positionPlayers) {
+                    if (added >= count) break;
+                    if ((player.price || 0) <= remainingBudget) {
+                        squad.push(player);
+                        remainingBudget -= (player.price || 0);
+                        added++;
+                        console.log(`AI selected ${player.name} (${position}) - £${player.price}m - Score: ${player.aiScore.toFixed(1)}`);
+                    }
+                }
+                
+                // If we couldn't fill the position, try cheaper players
+                if (added < count) {
+                    const cheaperPlayers = positionPlayers
+                        .filter(p => !squad.includes(p))
+                        .sort((a, b) => (a.price || 0) - (b.price || 0));
+                    
+                    for (const player of cheaperPlayers) {
+                        if (added >= count) break;
+                        if ((player.price || 0) <= remainingBudget) {
+                            squad.push(player);
+                            remainingBudget -= (player.price || 0);
+                            added++;
+                            console.log(`AI selected (budget) ${player.name} (${position}) - £${player.price}m`);
+                        }
+                    }
+                }
+            }
+            
+            console.log(`AI optimization complete. Squad: ${squad.length} players, Budget remaining: £${remainingBudget.toFixed(1)}m`);
+            return squad;
+        }
         
         window.resetTeam = function() {
             console.log('🔄 Reset Team clicked');
@@ -4432,6 +4626,216 @@
                 
                 showNotification('✅ Team reset completed', 'success');
                 console.log('✅ Team reset completed');
+            }
+        };
+        
+        // Save Team functionality
+        window.saveCurrentTeam = function() {
+            console.log('💾 Save Team clicked');
+            
+            if (!window.transferSimPro || !window.transferSimPro.currentSquad || window.transferSimPro.currentSquad.length === 0) {
+                showNotification('❌ No team to save! Add some players first.', 'error');
+                return;
+            }
+            
+            const teamName = prompt('Enter a name for your team:', `My Team ${new Date().toLocaleDateString()}`);
+            if (!teamName) return;
+            
+            // Prepare team data
+            const teamData = {
+                name: teamName,
+                squad: window.transferSimPro.currentSquad,
+                totalValue: window.transferSimPro.currentSquad.reduce((sum, player) => sum + (player.price || 0), 0),
+                playerCount: window.transferSimPro.currentSquad.length,
+                savedAt: new Date().toISOString(),
+                formations: getTeamFormation()
+            };
+            
+            // Get existing saved teams
+            let savedTeams = JSON.parse(localStorage.getItem('transferSimulatorTeams')) || [];
+            
+            // Check if team name already exists
+            const existingIndex = savedTeams.findIndex(team => team.name === teamName);
+            if (existingIndex !== -1) {
+                if (!confirm(`A team named "${teamName}" already exists. Overwrite it?`)) {
+                    return;
+                }
+                savedTeams[existingIndex] = teamData;
+            } else {
+                savedTeams.push(teamData);
+            }
+            
+            // Save to localStorage
+            try {
+                localStorage.setItem('transferSimulatorTeams', JSON.stringify(savedTeams));
+                showNotification(`✅ Team "${teamName}" saved successfully!`, 'success');
+                console.log(`Team saved: ${teamName} with ${teamData.playerCount} players`);
+            } catch (error) {
+                showNotification('❌ Failed to save team. Storage may be full.', 'error');
+                console.error('Save team error:', error);
+            }
+        };
+        
+        // Get current team formation
+        function getTeamFormation() {
+            const positionCounts = {GK: 0, DEF: 0, MID: 0, FWD: 0};
+            
+            if (window.transferSimPro && window.transferSimPro.currentSquad) {
+                window.transferSimPro.currentSquad.forEach(player => {
+                    const positionMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+                    const position = positionMap[player.position] || 'MID';
+                    positionCounts[position]++;
+                });
+            }
+            
+            return `${positionCounts.GK}-${positionCounts.DEF}-${positionCounts.MID}-${positionCounts.FWD}`;
+        }
+        
+        // Show saved teams for loading
+        window.showSavedTeams = function() {
+            console.log('📂 Load Team clicked');
+            
+            const savedTeams = JSON.parse(localStorage.getItem('transferSimulatorTeams')) || [];
+            
+            if (savedTeams.length === 0) {
+                showNotification('❌ No saved teams found. Save a team first!', 'warning');
+                return;
+            }
+            
+            // Create and show saved teams modal
+            createSavedTeamsModal(savedTeams);
+        };
+        
+        // Create modal to display saved teams
+        function createSavedTeamsModal(savedTeams) {
+            // Remove existing modal if present
+            const existingModal = document.getElementById('savedTeamsModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            const modal = document.createElement('div');
+            modal.id = 'savedTeamsModal';
+            modal.className = 'player-modal';
+            modal.style.display = 'block';
+            
+            let html = `
+                <div class="player-modal-content" style="max-width: 800px;">
+                    <div class="player-modal-header">
+                        <h3>📂 Load Saved Team</h3>
+                        <span class="player-modal-close" onclick="closeSavedTeamsModal()">&times;</span>
+                    </div>
+                    <div class="player-modal-body">
+                        <div style="display: grid; gap: 15px; max-height: 400px; overflow-y: auto;">
+            `;
+            
+            savedTeams.forEach((team, index) => {
+                const savedDate = new Date(team.savedAt).toLocaleString();
+                html += `
+                    <div class="saved-team-card">
+                        <div class="saved-team-info">
+                            <h4>${team.name}</h4>
+                            <div class="saved-team-stats">
+                                <span>👥 ${team.playerCount}/15 players</span>
+                                <span>💰 £${team.totalValue.toFixed(1)}m</span>
+                                <span>📐 ${team.formations}</span>
+                            </div>
+                            <div class="saved-team-date">📅 ${savedDate}</div>
+                        </div>
+                        <div class="saved-team-actions">
+                            <button onclick="loadSavedTeam(${index})" class="load-btn">📥 Load</button>
+                            <button onclick="deleteSavedTeam(${index})" class="delete-btn">🗑️ Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div></div></div>';
+            modal.innerHTML = html;
+            
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeSavedTeamsModal();
+                }
+            });
+        }
+        
+        // Close saved teams modal
+        window.closeSavedTeamsModal = function() {
+            const modal = document.getElementById('savedTeamsModal');
+            if (modal) {
+                modal.remove();
+            }
+        };
+        
+        // Load a saved team
+        window.loadSavedTeam = function(teamIndex) {
+            const savedTeams = JSON.parse(localStorage.getItem('transferSimulatorTeams')) || [];
+            const team = savedTeams[teamIndex];
+            
+            if (!team) {
+                showNotification('❌ Team not found!', 'error');
+                return;
+            }
+            
+            if (window.transferSimPro && window.transferSimPro.currentSquad && window.transferSimPro.currentSquad.length > 0) {
+                if (!confirm(`Loading "${team.name}" will replace your current team. Continue?`)) {
+                    return;
+                }
+            }
+            
+            // Clear current team
+            resetTeam();
+            
+            setTimeout(() => {
+                // Load the saved team
+                if (!window.transferSimPro) {
+                    window.transferSimPro = {};
+                }
+                window.transferSimPro.currentSquad = [...team.squad];
+                
+                // Place players on the field
+                team.squad.forEach(player => {
+                    const positionMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+                    const position = positionMap[player.position] || 'MID';
+                    placePlayerInPosition(player, position);
+                });
+                
+                // Update squad display
+                updateSquadDisplay();
+                
+                closeSavedTeamsModal();
+                showNotification(`✅ Team "${team.name}" loaded successfully!`, 'success');
+                console.log(`Loaded team: ${team.name} with ${team.squad.length} players`);
+            }, 500);
+        };
+        
+        // Delete a saved team
+        window.deleteSavedTeam = function(teamIndex) {
+            const savedTeams = JSON.parse(localStorage.getItem('transferSimulatorTeams')) || [];
+            const team = savedTeams[teamIndex];
+            
+            if (!team) {
+                showNotification('❌ Team not found!', 'error');
+                return;
+            }
+            
+            if (confirm(`Delete team "${team.name}"? This cannot be undone.`)) {
+                savedTeams.splice(teamIndex, 1);
+                localStorage.setItem('transferSimulatorTeams', JSON.stringify(savedTeams));
+                
+                // Refresh the modal
+                if (savedTeams.length > 0) {
+                    createSavedTeamsModal(savedTeams);
+                } else {
+                    closeSavedTeamsModal();
+                    showNotification('All teams deleted!', 'info');
+                }
+                
+                showNotification(`✅ Team "${team.name}" deleted successfully!`, 'success');
             }
         };
         
