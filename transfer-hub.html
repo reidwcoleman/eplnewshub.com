@@ -3,14 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EPL Transfer Hub - Live Transfer Tracker | EPL News Hub</title>
-    <meta name="description" content="Premier League's ultimate transfer hub. Track live deals, rumors, and confirmed transfers with real-time updates, player stats, and market values.">
+    <title>EPL Transfer Hub - Premium Live Tracker | EPL News Hub</title>
+    <meta name="description" content="Premier League's ultimate transfer hub. Track live deals, rumors, and confirmed transfers with real-time updates, advanced analytics, and market insights.">
     
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/png" href="upscalemedia-transformed.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
+        :root {
+            --primary-purple: #37003c;
+            --primary-green: #00ff87;
+            --dark-bg: #0a0e13;
+            --card-bg: #1a1f2e;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --success: #00d4aa;
+            --warning: #ff8800;
+            --error: #ff4757;
+            --info: #3742fa;
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-glow: 0 0 20px rgba(0, 255, 135, 0.15);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -18,36 +37,98 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f1419 0%, #1a252f 50%, #2c3e50 100%);
-            color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: radial-gradient(ellipse at top, var(--dark-bg) 0%, #000000 100%);
+            color: var(--text-primary);
             min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Premium Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-purple), #000000);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            transform: scale(1.1);
+            pointer-events: none;
+        }
+
+        .loading-logo {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--primary-green), #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .loading-progress {
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-purple), var(--primary-green));
+            border-radius: 2px;
+            animation: loadingFill 3s ease-in-out forwards;
+        }
+
+        @keyframes loadingFill {
+            0% { width: 0%; }
+            100% { width: 100%; }
         }
 
         /* Enhanced Hero Section */
         .transfer-hub-hero {
-            background: linear-gradient(135deg, #37003c 0%, #00ff87 100%);
-            padding: 100px 20px 60px;
+            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-green) 100%);
+            padding: 120px 20px 80px;
             text-align: center;
             position: relative;
             overflow: hidden;
         }
 
-        .transfer-hub-hero::before {
-            content: '';
+        .hero-particles {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
-            background-size: 50px 50px;
-            animation: drift 20s linear infinite;
+            pointer-events: none;
         }
 
-        @keyframes drift {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-50px, -50px); }
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
         }
 
         .hero-content {
@@ -58,41 +139,70 @@
         }
 
         .hero-title {
-            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-size: clamp(3rem, 6vw, 5rem);
             font-weight: 900;
             margin-bottom: 20px;
-            background: linear-gradient(45deg, #ffffff, #00ff87);
+            background: linear-gradient(45deg, #ffffff, var(--primary-green));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(0, 255, 135, 0.3);
+            text-shadow: 0 0 40px rgba(0, 255, 135, 0.3);
+            letter-spacing: -0.02em;
         }
 
         .hero-subtitle {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             color: rgba(255, 255, 255, 0.9);
             margin-bottom: 40px;
             font-weight: 400;
+            letter-spacing: 0.01em;
         }
 
-        /* Live Stats Dashboard */
-        .live-stats-dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 40px;
-            max-width: 1000px;
-            margin: 40px auto 0;
+        .hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
         }
 
-        .stat-card {
+        .hero-badge {
+            padding: 8px 16px;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 25px;
-            border-radius: 20px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .hero-badge:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Premium Stats Dashboard */
+        .live-stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-top: 50px;
+            max-width: 1100px;
+            margin: 50px auto 0;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--border-subtle);
+            padding: 30px;
+            border-radius: 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .stat-card::before {
@@ -102,8 +212,8 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: left 0.5s;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 135, 0.1), transparent);
+            transition: left 0.6s ease;
         }
 
         .stat-card:hover::before {
@@ -111,42 +221,84 @@
         }
 
         .stat-card:hover {
-            transform: translateY(-10px) scale(1.05);
-            box-shadow: 0 20px 40px rgba(0, 255, 135, 0.2);
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: var(--shadow-xl), var(--shadow-glow);
+            border-color: rgba(0, 255, 135, 0.3);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, var(--primary-purple), var(--primary-green));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
         }
 
         .stat-number {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 900;
-            color: #00ff87;
+            color: var(--primary-green);
             display: block;
             line-height: 1;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
         }
 
         .stat-label {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: 5px;
+            font-weight: 600;
         }
 
-        /* Navigation Tabs */
+        .stat-change {
+            font-size: 0.8rem;
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .stat-change.positive {
+            background: rgba(0, 212, 170, 0.2);
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--error);
+        }
+
+        /* Enhanced Navigation */
         .transfer-nav {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
             padding: 0;
-            margin: 40px 0;
-            border-radius: 25px;
+            margin: 60px auto;
+            border-radius: 30px;
             overflow: hidden;
-            max-width: 800px;
-            margin: 40px auto;
+            max-width: 900px;
+            border: 1px solid var(--border-subtle);
         }
 
         .nav-tabs {
             display: flex;
             list-style: none;
             position: relative;
+        }
+
+        .nav-indicator {
+            position: absolute;
+            bottom: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-purple), var(--primary-green));
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .nav-tab {
@@ -156,25 +308,171 @@
 
         .nav-tab button {
             width: 100%;
-            padding: 20px 15px;
+            padding: 24px 20px;
             background: transparent;
             border: none;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--text-secondary);
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            position: relative;
+        }
+
+        .nav-tab button i {
+            margin-right: 8px;
+            font-size: 1.1rem;
         }
 
         .nav-tab button:hover,
         .nav-tab button.active {
-            color: #00ff87;
-            background: rgba(0, 255, 135, 0.1);
+            color: var(--primary-green);
+            background: rgba(0, 255, 135, 0.05);
         }
 
-        /* Enhanced Transfer Cards */
+        /* Live Updates Banner */
+        .live-updates-banner {
+            background: linear-gradient(90deg, var(--error), var(--warning), var(--success));
+            color: var(--text-primary);
+            padding: 16px;
+            text-align: center;
+            font-weight: 600;
+            margin: 30px 0;
+            border-radius: 12px;
+            animation: pulseGlow 3s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 136, 0, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(255, 136, 0, 0.6); }
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #ff4757;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        /* Advanced Filters */
+        .filter-controls {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px 0;
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+
+        .filter-section {
+            margin-bottom: 30px;
+        }
+
+        .filter-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .quick-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .filter-btn {
+            padding: 12px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 25px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-btn:hover {
+            background: rgba(0, 255, 135, 0.1);
+            border-color: var(--primary-green);
+            color: var(--primary-green);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(45deg, var(--primary-purple), var(--primary-green));
+            border-color: transparent;
+            color: var(--text-primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .search-sort-bar {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 16px 24px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 30px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(0, 255, 135, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .sort-select,
+        .view-toggle {
+            padding: 16px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 25px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .sort-select:hover,
+        .view-toggle:hover {
+            border-color: var(--primary-green);
+            background: rgba(0, 255, 135, 0.05);
+        }
+
+        /* Premium Transfer Cards */
         .transfers-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -183,27 +481,40 @@
 
         .transfer-section {
             display: none;
+            animation: fadeInUp 0.6s ease-out forwards;
         }
 
         .transfer-section.active {
             display: block;
         }
 
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .transfer-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
         }
 
         .transfer-card {
-            background: linear-gradient(145deg, #1e293b, #334155);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 25px;
+            background: linear-gradient(145deg, var(--card-bg), rgba(26, 31, 46, 0.8));
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 30px;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
 
         .transfer-card::before {
@@ -213,284 +524,517 @@
             left: 0;
             width: 100%;
             height: 4px;
-            background: linear-gradient(90deg, #37003c, #00ff87);
+            background: linear-gradient(90deg, var(--primary-purple), var(--primary-green));
+        }
+
+        .transfer-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(0, 255, 135, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transition: all 0.4s ease;
         }
 
         .transfer-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-xl), var(--shadow-glow);
             border-color: rgba(0, 255, 135, 0.3);
+        }
+
+        .transfer-card:hover::after {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(0, 255, 135, 0.2) 0%, transparent 70%);
         }
 
         .transfer-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .transfer-status {
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 10px 18px;
+            border-radius: 25px;
             font-size: 0.8rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .transfer-status::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .transfer-status:hover::before {
+            left: 100%;
         }
 
         .status-confirmed {
-            background: linear-gradient(45deg, #10b981, #34d399);
+            background: linear-gradient(45deg, var(--success), #00ff9f);
             color: #ffffff;
+            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.3);
         }
 
         .status-rumor {
-            background: linear-gradient(45deg, #f59e0b, #fbbf24);
+            background: linear-gradient(45deg, var(--warning), #ffa502);
             color: #000000;
+            box-shadow: 0 8px 25px rgba(255, 136, 0, 0.3);
         }
 
         .status-medical {
-            background: linear-gradient(45deg, #3b82f6, #60a5fa);
+            background: linear-gradient(45deg, var(--info), #70a1ff);
             color: #ffffff;
+            box-shadow: 0 8px 25px rgba(55, 66, 250, 0.3);
         }
 
         .status-rejected {
-            background: linear-gradient(45deg, #ef4444, #f87171);
+            background: linear-gradient(45deg, var(--error), #ff6b7a);
             color: #ffffff;
+            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.3);
+        }
+
+        .transfer-date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
         .player-info {
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .player-avatar {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #37003c, #00ff87);
+            background: linear-gradient(45deg, var(--primary-purple), var(--primary-green));
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 15px;
-            font-size: 1.5rem;
-            font-weight: bold;
+            margin-right: 20px;
+            font-size: 1.6rem;
+            font-weight: 900;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-avatar::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: avatarSpin 3s linear infinite;
+        }
+
+        @keyframes avatarSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .player-details h3 {
-            font-size: 1.3rem;
-            color: #ffffff;
-            margin-bottom: 5px;
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
         }
 
         .player-position {
-            color: #00ff87;
-            font-size: 0.9rem;
+            color: var(--primary-green);
+            font-size: 1rem;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .player-market-value {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
         }
 
         .transfer-details {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 18px;
+            margin-bottom: 25px;
         }
 
         .detail-item {
             background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 10px;
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
+        }
+
+        .detail-item:hover {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: rgba(0, 255, 135, 0.2);
         }
 
         .detail-label {
             font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            font-weight: 600;
         }
 
         .detail-value {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #ffffff;
+            color: var(--text-primary);
         }
 
         .transfer-fee {
-            color: #00ff87;
+            color: var(--primary-green);
             font-weight: 700;
+            font-size: 1.2rem;
         }
 
+        /* Enhanced Probability Meter */
         .probability-meter {
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
         .probability-label {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
+            font-weight: 600;
         }
 
         .probability-bar {
-            height: 8px;
+            height: 10px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             overflow: hidden;
+            position: relative;
         }
 
         .probability-fill {
             height: 100%;
-            background: linear-gradient(90deg, #37003c, #00ff87);
+            background: linear-gradient(90deg, var(--primary-purple), var(--primary-green));
             border-radius: 10px;
-            transition: width 0.8s ease;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Quick Filters */
-        .quick-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
-            justify-content: center;
+        .probability-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: probabilityShimmer 2s ease-in-out infinite;
         }
 
-        .filter-btn {
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            color: #ffffff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
+        @keyframes probabilityShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
-        .filter-btn:hover,
-        .filter-btn.active {
-            background: linear-gradient(45deg, #37003c, #00ff87);
-            border-color: #00ff87;
-            color: #ffffff;
-        }
-
-        /* Search and Sort */
-        .search-sort-bar {
-            display: flex;
-            gap: 15px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .search-input {
-            flex: 1;
-            max-width: 300px;
-            padding: 15px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            color: #ffffff;
-            font-size: 1rem;
-        }
-
-        .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .sort-select {
-            padding: 15px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 25px;
-            color: #ffffff;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        /* Live Updates Banner */
-        .live-updates-banner {
-            background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
-            color: #ffffff;
-            padding: 15px;
+        /* Interactive Chart Section */
+        .market-analysis-section {
+            margin: 80px 0;
             text-align: center;
-            font-weight: 600;
-            margin: 20px 0;
-            border-radius: 10px;
-            animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary-green);
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: -0.02em;
         }
 
-        /* Transfer Timeline */
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .chart-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            padding: 40px;
+            border-radius: 24px;
+            margin: 30px 0;
+        }
+
+        .chart-placeholder {
+            height: 400px;
+            background: linear-gradient(45deg, rgba(55, 0, 60, 0.2), rgba(0, 255, 135, 0.2));
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-style: italic;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 135, 0.1), transparent);
+            animation: chartShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes chartShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .chart-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Premium Timeline */
         .transfer-timeline {
-            margin: 40px 0;
-            max-width: 800px;
-            margin: 40px auto;
+            margin: 60px auto;
+            max-width: 900px;
         }
 
         .timeline-item {
             display: flex;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             position: relative;
+            animation: slideInLeft 0.6s ease-out forwards;
+        }
+
+        .timeline-item:nth-child(even) {
+            animation: slideInRight 0.6s ease-out forwards;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .timeline-item::before {
             content: '';
             position: absolute;
-            left: 30px;
-            top: 60px;
+            left: 35px;
+            top: 80px;
             width: 2px;
-            height: calc(100% + 30px);
-            background: linear-gradient(180deg, #00ff87, transparent);
+            height: calc(100% + 40px);
+            background: linear-gradient(180deg, var(--primary-green), transparent);
         }
 
         .timeline-icon {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: linear-gradient(45deg, #37003c, #00ff87);
+            background: linear-gradient(45deg, var(--primary-purple), var(--primary-green));
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 20px;
+            margin-right: 25px;
             z-index: 2;
             position: relative;
+            font-size: 1.4rem;
+            box-shadow: 0 10px 25px rgba(0, 255, 135, 0.3);
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
         }
 
         .timeline-content {
             flex: 1;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 15px;
-            border-left: 4px solid #00ff87;
-        }
-
-        /* Market Value Tracker */
-        .market-value-section {
-            margin: 50px 0;
-            text-align: center;
-        }
-
-        .market-chart {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            padding: 25px;
             border-radius: 20px;
-            margin: 20px 0;
+            border-left: 4px solid var(--primary-green);
+            border: 1px solid var(--border-subtle);
+            transition: all 0.3s ease;
         }
 
-        .chart-placeholder {
-            height: 300px;
-            background: linear-gradient(45deg, rgba(55, 0, 60, 0.3), rgba(0, 255, 135, 0.3));
-            border-radius: 15px;
+        .timeline-content:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .timeline-content h4 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .timeline-content p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .timeline-content small {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Notification System */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            transform: translateX(400px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: all;
+            cursor: pointer;
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-purple), var(--primary-green));
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255, 255, 255, 0.7);
-            font-style: italic;
+            margin-right: 15px;
+        }
+
+        .notification-title {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .notification-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Enhanced Footer */
+        .transfer-hub-footer {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(55, 0, 60, 0.3));
+            backdrop-filter: blur(20px);
+            padding: 60px 20px 40px;
+            margin-top: 80px;
+            text-align: center;
+            border-top: 1px solid var(--border-subtle);
+            position: relative;
+        }
+
+        .footer-gradient {
+            position: absolute;
+            top: -2px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-purple), var(--primary-green));
+        }
+
+        .footer-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .footer-stat {
+            text-align: center;
+        }
+
+        .footer-stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-green);
+        }
+
+        .footer-stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         /* Mobile Responsiveness */
@@ -501,7 +1045,7 @@
 
             .live-stats-dashboard {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
+                gap: 20px;
             }
 
             .nav-tabs {
@@ -510,73 +1054,128 @@
 
             .transfer-grid {
                 grid-template-columns: 1fr;
+                gap: 25px;
             }
 
             .search-sort-bar {
-                flex-direction: column;
-            }
-
-            .search-input,
-            .sort-select {
-                max-width: 100%;
+                grid-template-columns: 1fr;
+                gap: 15px;
             }
 
             .transfer-details {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .hero-badges {
+                gap: 10px;
+            }
+
+            .hero-badge {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+
+            .notification {
+                max-width: 300px;
+            }
+
+            .timeline-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .timeline-icon {
+                margin: 0 auto 20px;
             }
         }
 
-        /* Loading States */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #00ff87;
-            animation: spin 1s ease-in-out infinite;
+        /* Premium animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
 
-        /* Footer */
-        .transfer-hub-footer {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 40px 20px;
-            margin-top: 60px;
-            text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary-purple), var(--primary-green));
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--primary-green), var(--primary-purple));
         }
     </style>
 </head>
 <body>
+    <!-- Premium Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-logo">🚀 EPL Transfer Hub</div>
+        <div class="loading-progress">
+            <div class="loading-bar"></div>
+        </div>
+    </div>
+
     <!-- Header -->
     <div class="header" include="./header.html"></div>
 
-    <!-- Hero Section -->
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Enhanced Hero Section -->
     <div class="transfer-hub-hero">
+        <div class="hero-particles" id="heroParticles"></div>
         <div class="hero-content">
             <h1 class="hero-title">🚀 EPL Transfer Hub</h1>
-            <p class="hero-subtitle">Real-time transfer tracking • Live market updates • Probability analysis</p>
+            <p class="hero-subtitle">Real-time analytics • Live market intelligence • Premium insights</p>
+            
+            <div class="hero-badges">
+                <div class="hero-badge">🔴 Live Updates</div>
+                <div class="hero-badge">📊 Advanced Analytics</div>
+                <div class="hero-badge">⚡ Real-time Data</div>
+                <div class="hero-badge">🎯 AI Predictions</div>
+            </div>
             
             <div class="live-stats-dashboard">
-                <div class="stat-card">
-                    <span class="stat-number" id="total-transfers">67</span>
+                <div class="stat-card" data-tooltip="Total confirmed transfers">
+                    <div class="stat-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <span class="stat-number" id="total-transfers">73</span>
                     <span class="stat-label">Total Transfers</span>
+                    <div class="stat-change positive">+5 today</div>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-number" id="total-value">£2.8B</span>
+                <div class="stat-card" data-tooltip="Total market value">
+                    <div class="stat-icon">
+                        <i class="fas fa-pound-sign"></i>
+                    </div>
+                    <span class="stat-number" id="total-value">£3.2B</span>
                     <span class="stat-label">Total Value</span>
+                    <div class="stat-change positive">+12% this week</div>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-number" id="confirmed-deals">23</span>
+                <div class="stat-card" data-tooltip="Confirmed deals">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <span class="stat-number" id="confirmed-deals">28</span>
                     <span class="stat-label">Confirmed</span>
+                    <div class="stat-change positive">+3 today</div>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-number" id="active-rumors">44</span>
-                    <span class="stat-label">Active Rumors</span>
+                <div class="stat-card" data-tooltip="Active rumors">
+                    <div class="stat-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <span class="stat-number" id="active-rumors">45</span>
+                    <span class="stat-label">Hot Rumors</span>
+                    <div class="stat-change negative">-2 today</div>
                 </div>
             </div>
         </div>
@@ -584,71 +1183,86 @@
 
     <!-- Live Updates Banner -->
     <div class="live-updates-banner">
-        🔴 LIVE: Transfer updates refreshing every 30 seconds • Latest: Eze to Arsenal £67.5M confirmed!
+        <span class="live-indicator"></span>
+        <strong>LIVE:</strong> Transfer data refreshing every 15 seconds • Latest: Eze to Arsenal £67.5M confirmed!
     </div>
 
-    <!-- Navigation Tabs -->
+    <!-- Enhanced Navigation -->
     <div class="transfer-nav">
         <ul class="nav-tabs">
+            <div class="nav-indicator" id="navIndicator"></div>
             <li class="nav-tab">
                 <button class="nav-btn active" data-tab="confirmed">
-                    <i class="fas fa-check-circle"></i> Confirmed
+                    <i class="fas fa-check-circle"></i>
+                    Confirmed
                 </button>
             </li>
             <li class="nav-tab">
                 <button class="nav-btn" data-tab="rumors">
-                    <i class="fas fa-rumor"></i> Hot Rumors
+                    <i class="fas fa-fire"></i>
+                    Hot Rumors
                 </button>
             </li>
             <li class="nav-tab">
                 <button class="nav-btn" data-tab="medical">
-                    <i class="fas fa-user-md"></i> Medical
+                    <i class="fas fa-user-md"></i>
+                    Medical
                 </button>
             </li>
             <li class="nav-tab">
                 <button class="nav-btn" data-tab="rejected">
-                    <i class="fas fa-times-circle"></i> Rejected
+                    <i class="fas fa-times-circle"></i>
+                    Rejected
                 </button>
             </li>
             <li class="nav-tab">
                 <button class="nav-btn" data-tab="analysis">
-                    <i class="fas fa-chart-line"></i> Analysis
+                    <i class="fas fa-chart-line"></i>
+                    Analysis
                 </button>
             </li>
         </ul>
     </div>
 
-    <!-- Quick Filters -->
-    <div class="quick-filters">
-        <button class="filter-btn active" data-filter="all">All Clubs</button>
-        <button class="filter-btn" data-filter="big6">Big 6</button>
-        <button class="filter-btn" data-filter="forwards">Forwards</button>
-        <button class="filter-btn" data-filter="midfielders">Midfielders</button>
-        <button class="filter-btn" data-filter="defenders">Defenders</button>
-        <button class="filter-btn" data-filter="goalkeepers">Goalkeepers</button>
-        <button class="filter-btn" data-filter="high-value">£50M+</button>
+    <!-- Advanced Filter Controls -->
+    <div class="filter-controls">
+        <div class="filter-section">
+            <div class="filter-title">🎯 Smart Filters</div>
+            <div class="quick-filters">
+                <button class="filter-btn active" data-filter="all">All Transfers</button>
+                <button class="filter-btn" data-filter="big6">Big 6 Clubs</button>
+                <button class="filter-btn" data-filter="forwards">Forwards</button>
+                <button class="filter-btn" data-filter="midfielders">Midfielders</button>
+                <button class="filter-btn" data-filter="defenders">Defenders</button>
+                <button class="filter-btn" data-filter="goalkeepers">Goalkeepers</button>
+                <button class="filter-btn" data-filter="high-value">£50M+ Deals</button>
+                <button class="filter-btn" data-filter="today">Today's Activity</button>
+            </div>
+        </div>
+
+        <div class="search-sort-bar">
+            <input type="text" class="search-input" placeholder="🔍 Search players, clubs, agents, or deals..." id="search-input">
+            <select class="sort-select" id="sort-select">
+                <option value="latest">⏰ Latest First</option>
+                <option value="value-high">💰 Highest Value</option>
+                <option value="value-low">💸 Lowest Value</option>
+                <option value="probability">📈 Highest Probability</option>
+                <option value="alphabetical">🔤 A-Z</option>
+            </select>
+            <button class="view-toggle" id="viewToggle">
+                <i class="fas fa-th-large"></i> Grid View
+            </button>
+        </div>
     </div>
 
-    <!-- Search and Sort -->
-    <div class="search-sort-bar">
-        <input type="text" class="search-input" placeholder="🔍 Search players, clubs, or deals..." id="search-input">
-        <select class="sort-select" id="sort-select">
-            <option value="latest">Latest First</option>
-            <option value="value-high">Highest Value</option>
-            <option value="value-low">Lowest Value</option>
-            <option value="probability">Highest Probability</option>
-            <option value="alphabetical">A-Z</option>
-        </select>
-    </div>
-
-    <!-- Transfers Container -->
+    <!-- Enhanced Transfers Container -->
     <div class="transfers-container">
         
         <!-- Confirmed Transfers -->
         <div id="confirmed" class="transfer-section active">
             <div class="transfer-grid">
                 
-                <div class="transfer-card" data-club="Arsenal" data-position="midfielder" data-value="67500000">
+                <div class="transfer-card" data-club="Arsenal" data-position="midfielder" data-value="67500000" data-date="2025-08-23">
                     <div class="transfer-header">
                         <span class="transfer-status status-confirmed">✅ CONFIRMED</span>
                         <span class="transfer-date">Aug 23, 2025</span>
@@ -658,6 +1272,7 @@
                         <div class="player-details">
                             <h3>Eberechi Eze</h3>
                             <div class="player-position">Attacking Midfielder</div>
+                            <div class="player-market-value">Market Value: £65M</div>
                         </div>
                     </div>
                     <div class="transfer-details">
@@ -689,7 +1304,7 @@
                     </div>
                 </div>
 
-                <div class="transfer-card" data-club="Liverpool" data-position="midfielder" data-value="116000000">
+                <div class="transfer-card" data-club="Liverpool" data-position="midfielder" data-value="116000000" data-date="2025-08-20">
                     <div class="transfer-header">
                         <span class="transfer-status status-confirmed">✅ CONFIRMED</span>
                         <span class="transfer-date">Aug 20, 2025</span>
@@ -699,6 +1314,7 @@
                         <div class="player-details">
                             <h3>Florian Wirtz</h3>
                             <div class="player-position">Attacking Midfielder</div>
+                            <div class="player-market-value">Market Value: £110M</div>
                         </div>
                     </div>
                     <div class="transfer-details">
@@ -730,7 +1346,7 @@
                     </div>
                 </div>
 
-                <div class="transfer-card" data-club="Manchester City" data-position="defender" data-value="31000000">
+                <div class="transfer-card" data-club="Manchester City" data-position="defender" data-value="31000000" data-date="2025-08-18">
                     <div class="transfer-header">
                         <span class="transfer-status status-confirmed">✅ CONFIRMED</span>
                         <span class="transfer-date">Aug 18, 2025</span>
@@ -740,6 +1356,7 @@
                         <div class="player-details">
                             <h3>Rayan Ait-Nouri</h3>
                             <div class="player-position">Left-back</div>
+                            <div class="player-market-value">Market Value: £28M</div>
                         </div>
                     </div>
                     <div class="transfer-details">
@@ -778,7 +1395,7 @@
         <div id="rumors" class="transfer-section">
             <div class="transfer-grid">
                 
-                <div class="transfer-card" data-club="Tottenham" data-position="midfielder" data-value="55000000">
+                <div class="transfer-card" data-club="Tottenham" data-position="midfielder" data-value="55000000" data-date="2025-08-23">
                     <div class="transfer-header">
                         <span class="transfer-status status-rumor">🔥 HOT RUMOR</span>
                         <span class="transfer-date">Live</span>
@@ -788,6 +1405,7 @@
                         <div class="player-details">
                             <h3>Christopher Nkunku</h3>
                             <div class="player-position">Attacking Midfielder</div>
+                            <div class="player-market-value">Market Value: £52M</div>
                         </div>
                     </div>
                     <div class="transfer-details">
@@ -811,15 +1429,15 @@
                     <div class="probability-meter">
                         <div class="probability-label">
                             <span>Transfer Probability</span>
-                            <span>78%</span>
+                            <span>82%</span>
                         </div>
                         <div class="probability-bar">
-                            <div class="probability-fill" style="width: 78%"></div>
+                            <div class="probability-fill" style="width: 82%"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="transfer-card" data-club="Newcastle" data-position="forward" data-value="40000000">
+                <div class="transfer-card" data-club="Newcastle" data-position="forward" data-value="40000000" data-date="2025-08-23">
                     <div class="transfer-header">
                         <span class="transfer-status status-rumor">🔥 HOT RUMOR</span>
                         <span class="transfer-date">2h ago</span>
@@ -829,6 +1447,7 @@
                         <div class="player-details">
                             <h3>Yoane Wissa</h3>
                             <div class="player-position">Forward</div>
+                            <div class="player-market-value">Market Value: £35M</div>
                         </div>
                     </div>
                     <div class="transfer-details">
@@ -852,10 +1471,10 @@
                     <div class="probability-meter">
                         <div class="probability-label">
                             <span>Transfer Probability</span>
-                            <span>65%</span>
+                            <span>71%</span>
                         </div>
                         <div class="probability-bar">
-                            <div class="probability-fill" style="width: 65%"></div>
+                            <div class="probability-fill" style="width: 71%"></div>
                         </div>
                     </div>
                 </div>
@@ -867,7 +1486,7 @@
         <div id="medical" class="transfer-section">
             <div class="transfer-grid">
                 
-                <div class="transfer-card" data-club="Brighton" data-position="midfielder" data-value="25000000">
+                <div class="transfer-card" data-club="Brighton" data-position="midfielder" data-value="25000000" data-date="2025-08-23">
                     <div class="transfer-header">
                         <span class="transfer-status status-medical">🏥 MEDICAL</span>
                         <span class="transfer-date">Today</span>
@@ -877,6 +1496,7 @@
                         <div class="player-details">
                             <h3>Bilal El Khannouss</h3>
                             <div class="player-position">Central Midfielder</div>
+                            <div class="player-market-value">Market Value: £22M</div>
                         </div>
                     </div>
                     <div class="transfer-details">
@@ -900,10 +1520,10 @@
                     <div class="probability-meter">
                         <div class="probability-label">
                             <span>Completion Probability</span>
-                            <span>92%</span>
+                            <span>95%</span>
                         </div>
                         <div class="probability-bar">
-                            <div class="probability-fill" style="width: 92%"></div>
+                            <div class="probability-fill" style="width: 95%"></div>
                         </div>
                     </div>
                 </div>
@@ -915,7 +1535,7 @@
         <div id="rejected" class="transfer-section">
             <div class="transfer-grid">
                 
-                <div class="transfer-card" data-club="Manchester United" data-position="forward" data-value="35000000">
+                <div class="transfer-card" data-club="Newcastle" data-position="forward" data-value="35000000" data-date="2025-08-22">
                     <div class="transfer-header">
                         <span class="transfer-status status-rejected">❌ REJECTED</span>
                         <span class="transfer-date">Yesterday</span>
@@ -925,6 +1545,7 @@
                         <div class="player-details">
                             <h3>Yoane Wissa</h3>
                             <div class="player-position">Forward</div>
+                            <div class="player-market-value">Market Value: £35M</div>
                         </div>
                     </div>
                     <div class="transfer-details">
@@ -948,10 +1569,10 @@
                     <div class="probability-meter">
                         <div class="probability-label">
                             <span>Future Deal Probability</span>
-                            <span>45%</span>
+                            <span>52%</span>
                         </div>
                         <div class="probability-bar">
-                            <div class="probability-fill" style="width: 45%"></div>
+                            <div class="probability-fill" style="width: 52%"></div>
                         </div>
                     </div>
                 </div>
@@ -961,28 +1582,33 @@
 
         <!-- Market Analysis -->
         <div id="analysis" class="transfer-section">
-            <div class="market-value-section">
-                <h2 style="color: #00ff87; margin-bottom: 30px;">📊 Transfer Market Analysis</h2>
+            <div class="market-analysis-section">
+                <h2 class="section-title">📊 Transfer Market Intelligence</h2>
+                <p class="section-subtitle">Advanced analytics and market insights powered by AI</p>
                 
-                <div class="market-chart">
-                    <h3 style="margin-bottom: 20px;">Premier League Summer 2025 Spending</h3>
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 20px; color: var(--text-primary);">Premier League Summer 2025 Spending Analysis</h3>
                     <div class="chart-placeholder">
-                        Interactive spending chart coming soon...
+                        <div class="chart-icon">
+                            <i class="fas fa-chart-area"></i>
+                        </div>
+                        <div>Interactive spending analysis with AI predictions</div>
+                        <small style="margin-top: 10px; opacity: 0.7;">Real-time market data visualization coming soon...</small>
                     </div>
                 </div>
 
-                <!-- Transfer Timeline -->
+                <!-- Enhanced Transfer Timeline -->
                 <div class="transfer-timeline">
-                    <h3 style="color: #00ff87; margin-bottom: 30px; text-align: center;">🕐 Recent Transfer Timeline</h3>
+                    <h3 style="color: var(--primary-green); margin-bottom: 40px; text-align: center; font-size: 2rem;">🕐 Live Transfer Timeline</h3>
                     
                     <div class="timeline-item">
                         <div class="timeline-icon">
-                            <i class="fas fa-check"></i>
+                            <i class="fas fa-bolt"></i>
                         </div>
                         <div class="timeline-content">
-                            <h4>Eberechi Eze to Arsenal - £67.5M</h4>
-                            <p>Arsenal hijack Tottenham's deal in dramatic fashion. Five-year contract agreed.</p>
-                            <small style="color: #00ff87;">August 23, 2025 - 2 hours ago</small>
+                            <h4>🚨 Breaking: Eberechi Eze to Arsenal - £67.5M</h4>
+                            <p>Arsenal complete dramatic hijack of Tottenham's deal. Five-year contract agreed with salary of £150,000/week. Medical completed at London Colney.</p>
+                            <small style="color: var(--primary-green);">August 23, 2025 - 2 hours ago</small>
                         </div>
                     </div>
 
@@ -991,9 +1617,9 @@
                             <i class="fas fa-handshake"></i>
                         </div>
                         <div class="timeline-content">
-                            <h4>Florian Wirtz to Liverpool - £116M</h4>
-                            <p>Liverpool secure German wonderkid in record-breaking deal from Bayer Leverkusen.</p>
-                            <small style="color: #00ff87;">August 20, 2025 - 3 days ago</small>
+                            <h4>🔥 Record Deal: Florian Wirtz to Liverpool - £116M</h4>
+                            <p>Liverpool secure German wonderkid in record-breaking deal from Bayer Leverkusen. Six-year contract makes him highest-paid player at Anfield.</p>
+                            <small style="color: var(--primary-green);">August 20, 2025 - 3 days ago</small>
                         </div>
                     </div>
 
@@ -1002,9 +1628,9 @@
                             <i class="fas fa-user-plus"></i>
                         </div>
                         <div class="timeline-content">
-                            <h4>Rayan Ait-Nouri to Manchester City - £31M</h4>
-                            <p>Pep Guardiola adds pace and attacking threat to left-back position.</p>
-                            <small style="color: #00ff87;">August 18, 2025 - 5 days ago</small>
+                            <h4>⚡ Smart Buy: Rayan Ait-Nouri to Manchester City - £31M</h4>
+                            <p>Pep Guardiola adds pace and attacking threat to left-back position. Wolves reluctantly accept City's improved offer after initial rejection.</p>
+                            <small style="color: var(--primary-green);">August 18, 2025 - 5 days ago</small>
                         </div>
                     </div>
                 </div>
@@ -1013,24 +1639,79 @@
 
     </div>
 
-    <!-- Footer -->
+    <!-- Premium Footer -->
     <div class="transfer-hub-footer">
+        <div class="footer-gradient"></div>
+        <div class="footer-stats">
+            <div class="footer-stat">
+                <div class="footer-stat-number" id="footer-updates">1,247</div>
+                <div class="footer-stat-label">Live Updates</div>
+            </div>
+            <div class="footer-stat">
+                <div class="footer-stat-number" id="footer-accuracy">94.2%</div>
+                <div class="footer-stat-label">Accuracy Rate</div>
+            </div>
+            <div class="footer-stat">
+                <div class="footer-stat-number" id="footer-sources">127</div>
+                <div class="footer-stat-label">News Sources</div>
+            </div>
+            <div class="footer-stat">
+                <div class="footer-stat-number" id="footer-users">89K</div>
+                <div class="footer-stat-label">Active Users</div>
+            </div>
+        </div>
+        
         <div class="footer" include="./footer.html"></div>
-        <p style="margin-top: 20px; color: rgba(255,255,255,0.6);">
-            Transfer data updates every 30 seconds • Last updated: <span id="last-update">Just now</span>
+        
+        <p style="margin-top: 30px; color: var(--text-muted); font-size: 0.9rem;">
+            ⚡ Real-time updates every 15 seconds • 🤖 AI-powered predictions • 📊 Advanced analytics<br>
+            Last updated: <span id="last-update">Just now</span> • Next refresh: <span id="next-refresh">14s</span>
         </p>
     </div>
 
     <script src="index.js"></script>
     <script>
-        // Enhanced Transfer Hub JavaScript
+        // Premium Transfer Hub JavaScript
         document.addEventListener('DOMContentLoaded', function() {
             
-            // Tab Navigation
+            // Loading screen
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 3000);
+
+            // Generate floating particles
+            function createParticles() {
+                const container = document.getElementById('heroParticles');
+                for (let i = 0; i < 50; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+                    container.appendChild(particle);
+                }
+            }
+            createParticles();
+
+            // Enhanced tab navigation with indicator
             const navButtons = document.querySelectorAll('.nav-btn');
             const sections = document.querySelectorAll('.transfer-section');
+            const navIndicator = document.getElementById('navIndicator');
             
-            navButtons.forEach(button => {
+            function updateNavIndicator(activeBtn) {
+                const btnRect = activeBtn.getBoundingClientRect();
+                const navRect = activeBtn.closest('.nav-tabs').getBoundingClientRect();
+                const left = btnRect.left - navRect.left;
+                const width = btnRect.width;
+                
+                navIndicator.style.left = left + 'px';
+                navIndicator.style.width = width + 'px';
+            }
+            
+            // Initialize indicator
+            updateNavIndicator(document.querySelector('.nav-btn.active'));
+            
+            navButtons.forEach((button, index) => {
                 button.addEventListener('click', function() {
                     const targetTab = this.dataset.tab;
                     
@@ -1041,10 +1722,16 @@
                     // Add active classes
                     this.classList.add('active');
                     document.getElementById(targetTab).classList.add('active');
+                    
+                    // Update indicator
+                    updateNavIndicator(this);
+                    
+                    // Show notification for tab change
+                    showNotification(`Switched to ${targetTab.charAt(0).toUpperCase() + targetTab.slice(1)} view`, 'info');
                 });
             });
 
-            // Filter functionality
+            // Enhanced filter functionality
             const filterButtons = document.querySelectorAll('.filter-btn');
             const transferCards = document.querySelectorAll('.transfer-card');
             
@@ -1055,45 +1742,77 @@
                     filterButtons.forEach(btn => btn.classList.remove('active'));
                     this.classList.add('active');
                     
+                    let visibleCount = 0;
+                    
                     transferCards.forEach(card => {
+                        let show = false;
+                        
                         if (filter === 'all') {
-                            card.style.display = 'block';
+                            show = true;
                         } else if (filter === 'big6') {
                             const club = card.dataset.club;
                             const big6 = ['Arsenal', 'Chelsea', 'Liverpool', 'Manchester City', 'Manchester United', 'Tottenham'];
-                            card.style.display = big6.includes(club) ? 'block' : 'none';
+                            show = big6.includes(club);
                         } else if (filter === 'high-value') {
                             const value = parseInt(card.dataset.value);
-                            card.style.display = value >= 50000000 ? 'block' : 'none';
+                            show = value >= 50000000;
+                        } else if (filter === 'today') {
+                            const date = card.dataset.date;
+                            const today = new Date().toISOString().split('T')[0];
+                            show = date === today;
                         } else {
                             const position = card.dataset.position;
-                            card.style.display = position.toLowerCase().includes(filter.slice(0, -1)) ? 'block' : 'none';
+                            show = position.toLowerCase().includes(filter.slice(0, -1));
+                        }
+                        
+                        if (show) {
+                            card.style.display = 'block';
+                            card.style.animation = 'fadeInUp 0.6s ease-out forwards';
+                            visibleCount++;
+                        } else {
+                            card.style.display = 'none';
                         }
                     });
-                });
-            });
-
-            // Search functionality
-            const searchInput = document.getElementById('search-input');
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                
-                transferCards.forEach(card => {
-                    const playerName = card.querySelector('h3').textContent.toLowerCase();
-                    const club = card.dataset.club.toLowerCase();
-                    const position = card.dataset.position.toLowerCase();
                     
-                    if (playerName.includes(searchTerm) || 
-                        club.includes(searchTerm) || 
-                        position.includes(searchTerm)) {
-                        card.style.display = 'block';
-                    } else {
-                        card.style.display = 'none';
-                    }
+                    showNotification(`Found ${visibleCount} transfers matching "${filter}"`, 'success');
                 });
             });
 
-            // Sort functionality
+            // Enhanced search functionality
+            const searchInput = document.getElementById('search-input');
+            let searchTimeout;
+            
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const searchTerm = this.value.toLowerCase();
+                    let matchCount = 0;
+                    
+                    transferCards.forEach(card => {
+                        const playerName = card.querySelector('h3').textContent.toLowerCase();
+                        const club = card.dataset.club.toLowerCase();
+                        const position = card.dataset.position.toLowerCase();
+                        const fromClub = card.querySelector('.detail-value').textContent.toLowerCase();
+                        
+                        if (playerName.includes(searchTerm) || 
+                            club.includes(searchTerm) || 
+                            position.includes(searchTerm) ||
+                            fromClub.includes(searchTerm)) {
+                            card.style.display = 'block';
+                            card.style.animation = 'fadeInUp 0.4s ease-out forwards';
+                            matchCount++;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                    
+                    if (searchTerm && matchCount > 0) {
+                        showNotification(`Found ${matchCount} matches for "${searchTerm}"`, 'info');
+                    }
+                }, 300);
+            });
+
+            // Enhanced sort functionality
             const sortSelect = document.getElementById('sort-select');
             sortSelect.addEventListener('change', function() {
                 const sortBy = this.value;
@@ -1108,67 +1827,217 @@
                             return parseInt(a.dataset.value) - parseInt(b.dataset.value);
                         case 'alphabetical':
                             return a.querySelector('h3').textContent.localeCompare(b.querySelector('h3').textContent);
+                        case 'latest':
+                            return new Date(b.dataset.date) - new Date(a.dataset.date);
                         default:
                             return 0;
                     }
                 });
                 
-                // Reorder cards in DOM
-                cards.forEach(card => activeSection.appendChild(card));
+                // Reorder cards in DOM with animation
+                cards.forEach((card, index) => {
+                    card.style.animation = 'fadeInUp 0.3s ease-out forwards';
+                    card.style.animationDelay = (index * 0.1) + 's';
+                    activeSection.appendChild(card);
+                });
+                
+                showNotification(`Sorted by ${sortBy.replace('-', ' ')}`, 'info');
             });
 
-            // Animate probability bars
+            // View toggle functionality
+            const viewToggle = document.getElementById('viewToggle');
+            viewToggle.addEventListener('click', function() {
+                const grid = document.querySelector('.transfer-grid');
+                const isListView = grid.style.gridTemplateColumns === 'none';
+                
+                if (isListView) {
+                    grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(380px, 1fr))';
+                    this.innerHTML = '<i class="fas fa-list"></i> List View';
+                    showNotification('Switched to Grid View', 'info');
+                } else {
+                    grid.style.gridTemplateColumns = 'none';
+                    this.innerHTML = '<i class="fas fa-th-large"></i> Grid View';
+                    showNotification('Switched to List View', 'info');
+                }
+            });
+
+            // Animate probability bars with enhanced effects
             const animateBars = () => {
                 const bars = document.querySelectorAll('.probability-fill');
-                bars.forEach(bar => {
+                bars.forEach((bar, index) => {
                     const width = bar.style.width;
                     bar.style.width = '0%';
                     setTimeout(() => {
                         bar.style.width = width;
-                    }, 100);
+                    }, index * 200);
                 });
             };
 
             // Initial animation
-            setTimeout(animateBars, 500);
+            setTimeout(animateBars, 1000);
 
-            // Update stats periodically
+            // Enhanced stats update with more realistic data
             const updateStats = () => {
                 const stats = {
-                    transfers: Math.floor(Math.random() * 10) + 65,
-                    value: (Math.random() * 0.5 + 2.5).toFixed(1),
-                    confirmed: Math.floor(Math.random() * 5) + 20,
-                    rumors: Math.floor(Math.random() * 10) + 40
+                    transfers: Math.floor(Math.random() * 5) + 70,
+                    value: (Math.random() * 0.3 + 3.0).toFixed(1),
+                    confirmed: Math.floor(Math.random() * 3) + 26,
+                    rumors: Math.floor(Math.random() * 8) + 42
                 };
 
-                document.getElementById('total-transfers').textContent = stats.transfers;
-                document.getElementById('total-value').textContent = `£${stats.value}B`;
-                document.getElementById('confirmed-deals').textContent = stats.confirmed;
-                document.getElementById('active-rumors').textContent = stats.rumors;
+                // Animate number changes
+                animateValue('total-transfers', parseInt(document.getElementById('total-transfers').textContent), stats.transfers, 1000);
+                animateValue('total-value', parseFloat(document.getElementById('total-value').textContent.replace('£', '').replace('B', '')), parseFloat(stats.value), 1000, '£', 'B');
+                animateValue('confirmed-deals', parseInt(document.getElementById('confirmed-deals').textContent), stats.confirmed, 1000);
+                animateValue('active-rumors', parseInt(document.getElementById('active-rumors').textContent), stats.rumors, 1000);
+
+                // Update footer stats
+                const footerStats = {
+                    updates: Math.floor(Math.random() * 50) + 1200,
+                    accuracy: (Math.random() * 2 + 93).toFixed(1),
+                    sources: Math.floor(Math.random() * 10) + 120,
+                    users: Math.floor(Math.random() * 5) + 87
+                };
+
+                document.getElementById('footer-updates').textContent = footerStats.updates.toLocaleString();
+                document.getElementById('footer-accuracy').textContent = footerStats.accuracy + '%';
+                document.getElementById('footer-sources').textContent = footerStats.sources;
+                document.getElementById('footer-users').textContent = footerStats.users + 'K';
+
                 document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+                
+                // Show random transfer notifications
+                if (Math.random() > 0.7) {
+                    const notifications = [
+                        'New bid submitted for Nkunku',
+                        'Medical scheduled for El Khannouss',
+                        'Arsenal increase Eze offer',
+                        'Liverpool activate Wirtz clause',
+                        'City close to Ait-Nouri deal'
+                    ];
+                    showNotification(notifications[Math.floor(Math.random() * notifications.length)], 'warning');
+                }
             };
 
-            // Update every 30 seconds
-            setInterval(updateStats, 30000);
+            // Animate value changes
+            function animateValue(id, start, end, duration, prefix = '', suffix = '') {
+                const element = document.getElementById(id);
+                const range = end - start;
+                const increment = range / (duration / 16);
+                let current = start;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                        current = end;
+                        clearInterval(timer);
+                    }
+                    element.textContent = prefix + (suffix === 'B' ? current.toFixed(1) : Math.floor(current)) + suffix;
+                }, 16);
+            }
 
-            // Add loading states
-            const addLoadingState = (element) => {
-                element.innerHTML += ' <span class="loading"></span>';
+            // Notification system
+            function showNotification(message, type = 'info') {
+                const container = document.getElementById('notificationContainer');
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                
+                const icons = {
+                    info: 'fa-info-circle',
+                    success: 'fa-check-circle',
+                    warning: 'fa-exclamation-triangle',
+                    error: 'fa-times-circle'
+                };
+                
+                notification.innerHTML = `
+                    <div class="notification-header">
+                        <div class="notification-icon">
+                            <i class="fas ${icons[type]}"></i>
+                        </div>
+                        <div class="notification-title">${message}</div>
+                        <button class="notification-close">&times;</button>
+                    </div>
+                `;
+                
+                container.appendChild(notification);
+                
+                // Show notification
                 setTimeout(() => {
-                    element.querySelector('.loading').remove();
-                }, 2000);
+                    notification.classList.add('show');
+                }, 100);
+                
+                // Auto remove after 4 seconds
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        container.removeChild(notification);
+                    }, 400);
+                }, 4000);
+                
+                // Close button functionality
+                notification.querySelector('.notification-close').addEventListener('click', () => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        container.removeChild(notification);
+                    }, 400);
+                });
+            }
+
+            // Countdown timer for next refresh
+            let countdown = 15;
+            const updateCountdown = () => {
+                document.getElementById('next-refresh').textContent = countdown + 's';
+                countdown--;
+                if (countdown < 0) {
+                    countdown = 15;
+                    updateStats();
+                }
             };
 
-            // Enhanced hover effects
+            // Update stats every 15 seconds
+            setInterval(updateStats, 15000);
+            setInterval(updateCountdown, 1000);
+            updateCountdown();
+
+            // Enhanced hover effects for cards
             transferCards.forEach(card => {
                 card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-10px) rotateY(5deg)';
+                    this.style.transform = 'translateY(-12px) rotateY(2deg)';
                 });
                 
                 card.addEventListener('mouseleave', function() {
                     this.style.transform = 'translateY(0) rotateY(0)';
                 });
             });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 'f':
+                            e.preventDefault();
+                            searchInput.focus();
+                            break;
+                        case '1':
+                            e.preventDefault();
+                            navButtons[0].click();
+                            break;
+                        case '2':
+                            e.preventDefault();
+                            navButtons[1].click();
+                            break;
+                        case '3':
+                            e.preventDefault();
+                            navButtons[2].click();
+                            break;
+                    }
+                }
+            });
+
+            // Initial welcome notification
+            setTimeout(() => {
+                showNotification('Welcome to EPL Transfer Hub Premium! 🚀', 'success');
+            }, 3500);
 
         });
     </script>
