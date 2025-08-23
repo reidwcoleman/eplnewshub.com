@@ -5576,6 +5576,220 @@
             }
         `;
         document.head.appendChild(style);
+        
+        // Chart.js configuration and update functions for real squad data
+        let valueChart = null;
+        let pointsChart = null;
+        
+        // Initialize charts when page loads
+        function initializeCharts() {
+            const valueCtx = document.getElementById('valueChart');
+            const pointsCtx = document.getElementById('pointsChart');
+            
+            if (valueCtx && pointsCtx) {
+                // Squad Value Distribution Chart
+                valueChart = new Chart(valueCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Goalkeepers', 'Defenders', 'Midfielders', 'Forwards'],
+                        datasets: [{
+                            data: [0, 0, 0, 0],
+                            backgroundColor: [
+                                '#FF6B6B',
+                                '#4ECDC4', 
+                                '#45B7D1',
+                                '#FFA07A'
+                            ],
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#37003c',
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.label + ': £' + context.parsed.toFixed(1) + 'm';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Expected Points by Position Chart
+                pointsChart = new Chart(pointsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['GK', 'DEF', 'MID', 'FWD'],
+                        datasets: [{
+                            label: 'Expected Points',
+                            data: [0, 0, 0, 0],
+                            backgroundColor: [
+                                '#FF6B6B',
+                                '#4ECDC4',
+                                '#45B7D1',
+                                '#FFA07A'
+                            ],
+                            borderColor: [
+                                '#FF5252',
+                                '#3FBDB4',
+                                '#3AA7C1',
+                                '#FF906A'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    color: '#37003c'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: '#37003c'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'Points: ' + context.parsed.y.toFixed(0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                console.log('📊 Analytics charts initialized successfully');
+            }
+        }
+        
+        // Update charts with real squad data
+        function updateCharts() {
+            if (!window.transferSimPro || !window.transferSimPro.currentSquad) {
+                // Show empty charts when no squad
+                if (valueChart) {
+                    valueChart.data.datasets[0].data = [0, 0, 0, 0];
+                    valueChart.update('none');
+                }
+                if (pointsChart) {
+                    pointsChart.data.datasets[0].data = [0, 0, 0, 0];
+                    pointsChart.update('none');
+                }
+                return;
+            }
+            
+            const squad = window.transferSimPro.currentSquad;
+            
+            // Calculate value distribution by position
+            const valueByPosition = {
+                GK: 0,
+                DEF: 0,
+                MID: 0,
+                FWD: 0
+            };
+            
+            // Calculate expected points by position
+            const pointsByPosition = {
+                GK: 0,
+                DEF: 0,
+                MID: 0,
+                FWD: 0
+            };
+            
+            squad.forEach(player => {
+                const positionMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+                const position = positionMap[player.position] || 'MID';
+                
+                // Add to value
+                valueByPosition[position] += (player.price || 0);
+                
+                // Add to points (use total_points for expected points)
+                pointsByPosition[position] += (player.total_points || 0);
+            });
+            
+            // Update Squad Value Distribution Chart
+            if (valueChart) {
+                valueChart.data.datasets[0].data = [
+                    valueByPosition.GK,
+                    valueByPosition.DEF,
+                    valueByPosition.MID,
+                    valueByPosition.FWD
+                ];
+                valueChart.update('none'); // No animation for smoother updates
+            }
+            
+            // Update Expected Points Chart
+            if (pointsChart) {
+                pointsChart.data.datasets[0].data = [
+                    pointsByPosition.GK,
+                    pointsByPosition.DEF,
+                    pointsByPosition.MID,
+                    pointsByPosition.FWD
+                ];
+                pointsChart.update('none'); // No animation for smoother updates
+            }
+            
+            console.log('📊 Charts updated with real squad data:', {
+                value: valueByPosition,
+                points: pointsByPosition
+            });
+        }
+        
+        // Hook into updateSquadDisplay to also update charts
+        const originalUpdateSquadDisplay = window.updateSquadDisplay;
+        window.updateSquadDisplay = function() {
+            if (originalUpdateSquadDisplay) {
+                originalUpdateSquadDisplay.apply(this, arguments);
+            }
+            updateCharts();
+        };
+        
+        // Initialize charts when everything is ready
+        setTimeout(() => {
+            try {
+                initializeCharts();
+                updateCharts(); // Initial update
+            } catch (error) {
+                console.log('Chart initialization delayed, will retry...');
+                setTimeout(() => {
+                    try {
+                        initializeCharts();
+                        updateCharts();
+                    } catch (e) {
+                        console.warn('Chart initialization failed:', e);
+                    }
+                }, 2000);
+            }
+        }, 1500);
     </script>
     <script src="./auth-service.js"></script>
     
