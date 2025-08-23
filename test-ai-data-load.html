@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant Data Load Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        h1 {
+            color: #333;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Assistant Data Loading Test</h1>
+    <div id="results"></div>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+
+        function addStatus(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+        }
+
+        async function testDataLoading() {
+            addStatus('Starting test...', 'info');
+            
+            try {
+                // Test 1: Check if player-data-2.html exists
+                addStatus('Testing player-data-2.html accessibility...', 'info');
+                const response = await fetch('player-data-2.html');
+                
+                if (!response.ok) {
+                    addStatus(`❌ Failed to fetch player-data-2.html: HTTP ${response.status}`, 'error');
+                    return;
+                }
+                
+                addStatus('✅ Successfully fetched player-data-2.html', 'success');
+                
+                // Test 2: Parse JSON
+                addStatus('Parsing JSON data...', 'info');
+                const data = await response.json();
+                
+                if (!data) {
+                    addStatus('❌ Failed to parse JSON', 'error');
+                    return;
+                }
+                
+                addStatus('✅ Successfully parsed JSON', 'success');
+                
+                // Test 3: Check data structure
+                addStatus('Checking data structure...', 'info');
+                
+                if (!data.elements) {
+                    addStatus('❌ Missing "elements" array in data', 'error');
+                    return;
+                }
+                
+                if (!Array.isArray(data.elements)) {
+                    addStatus('❌ "elements" is not an array', 'error');
+                    return;
+                }
+                
+                addStatus(`✅ Found "elements" array with ${data.elements.length} players`, 'success');
+                
+                // Test 4: Check teams data
+                if (data.teams) {
+                    addStatus(`✅ Found "teams" array with ${data.teams.length} teams`, 'success');
+                } else {
+                    addStatus('⚠️ No "teams" array found (optional)', 'info');
+                }
+                
+                // Test 5: Validate sample player
+                if (data.elements.length > 0) {
+                    const samplePlayer = data.elements[0];
+                    const requiredFields = ['id', 'web_name', 'first_name', 'second_name', 'team', 
+                                           'element_type', 'now_cost', 'total_points', 'form'];
+                    const missingFields = requiredFields.filter(field => !(field in samplePlayer));
+                    
+                    if (missingFields.length > 0) {
+                        addStatus(`⚠️ Sample player missing fields: ${missingFields.join(', ')}`, 'info');
+                    } else {
+                        addStatus('✅ Sample player has all required fields', 'success');
+                    }
+                    
+                    // Show sample player
+                    addStatus(`<strong>Sample Player:</strong><pre>${JSON.stringify({
+                        id: samplePlayer.id,
+                        name: samplePlayer.web_name,
+                        team: samplePlayer.team,
+                        position: samplePlayer.element_type,
+                        cost: samplePlayer.now_cost,
+                        points: samplePlayer.total_points
+                    }, null, 2)}</pre>`, 'info');
+                }
+                
+                // Test 6: Simulate AI Assistant loading logic
+                addStatus('<strong>Simulating AI Assistant data processing...</strong>', 'info');
+                
+                const playerDatabase = data.elements.map(player => ({
+                    id: player.id,
+                    web_name: player.web_name,
+                    name: player.first_name + ' ' + player.second_name,
+                    element_type: player.element_type,
+                    now_cost: player.now_cost,
+                    total_points: player.total_points,
+                    form: player.form,
+                    team: player.team
+                }));
+                
+                addStatus(`✅ Successfully processed ${playerDatabase.length} players for AI Assistant`, 'success');
+                
+                // Show top 5 players by points
+                const topPlayers = playerDatabase
+                    .sort((a, b) => b.total_points - a.total_points)
+                    .slice(0, 5);
+                
+                addStatus(`<strong>Top 5 Players by Points:</strong><pre>${JSON.stringify(
+                    topPlayers.map(p => ({
+                        name: p.web_name,
+                        points: p.total_points,
+                        cost: (p.now_cost / 10).toFixed(1) + 'm'
+                    })), null, 2)}</pre>`, 'info');
+                
+                addStatus('<strong>✅ All tests passed! AI Assistant should load data correctly.</strong>', 'success');
+                
+            } catch (error) {
+                addStatus(`❌ Error: ${error.message}`, 'error');
+                console.error('Full error:', error);
+            }
+        }
+
+        // Run test on page load
+        testDataLoading();
+    </script>
+</body>
+</html>

@@ -3575,27 +3575,6 @@ Please try rephrasing your question or ask about specific players!`;
                 
                 return result;
             }
-                if (lowerQuery.includes('injur') || lowerQuery.includes('rotation') || lowerQuery.includes('benched')) {
-                    const response = this.getInjuryRotationAdvice();
-                    return spellCheckMessage + response;
-                }
-                
-                // Points and scoring
-                if (lowerQuery.includes('points') || lowerQuery.includes('score') || lowerQuery.includes('blank')) {
-                    const response = this.getPointsAnalysis(processedQuery);
-                    return spellCheckMessage + response;
-                }
-                
-                // Strategy questions
-                if (lowerQuery.includes('strategy') || lowerQuery.includes('approach') || lowerQuery.includes('plan')) {
-                    const response = this.getStrategyAdvice();
-                    return spellCheckMessage + response;
-                }
-                
-                // Default: Use AI to understand intent
-                const response = this.getIntelligentResponse(processedQuery);
-                return spellCheckMessage + response;
-            }
             
             analyzeQueryContext(query) {
                 const context = {
@@ -5890,7 +5869,7 @@ Please try rephrasing your question or ask about specific players!`;
                     </div>
                     <div class="player-price">£${(player.now_cost / 10 || 0).toFixed(1)}m</div>
                 `;
-                item.onclick = () => selectPlayer(player);
+                item.onclick = () => selectPlayerForTeam(player);
                 playerList.appendChild(item);
             });
         }
@@ -5911,8 +5890,27 @@ Please try rephrasing your question or ask about specific players!`;
             });
         }
         
-        // Select Player
-        function selectPlayer(player) {
+        // Handle click on pitch position element
+        window.selectPlayer = function(element) {
+            // This function handles clicks on the pitch positions
+            // It should open a player selector for that position
+            const position = element.dataset.position;
+            const slot = element.dataset.slot;
+            
+            // Store the current position element
+            currentPitchSlot = element;
+            
+            // Open player selector for this position
+            if (typeof openPlayerSelectorPitch === 'function') {
+                openPlayerSelectorPitch(position);
+            } else {
+                console.log('Position clicked:', position, 'Slot:', slot);
+                // You can implement the player selection UI here
+            }
+        }
+        
+        // Select Player for team builder
+        function selectPlayerForTeam(player) {
             if (currentSlot) {
                 currentSlot.value = player.web_name || player.name;
                 currentSlot.dataset.playerId = player.id;
