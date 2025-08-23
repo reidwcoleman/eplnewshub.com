@@ -3,75 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Data Loading</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dark-mode.css">
+    <title>Data Loading Test - FPL AI Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .test-container {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .success { background: rgba(76, 175, 80, 0.3); }
+        .error { background: rgba(244, 67, 54, 0.3); }
+        .loading { background: rgba(255, 193, 7, 0.3); }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background: #45a049; }
+        button:disabled { 
+            background: #666; 
+            cursor: not-allowed; 
+        }
+        .data-info {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .player-sample {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .player-card {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+    </style>
 </head>
 <body>
-    <h1>Test Data Loading</h1>
-    <div id="status">Testing...</div>
-    <div id="results"></div>
+    <h1>🔍 Data Loading Test - FPL AI Assistant</h1>
+    
+    <div class="test-container">
+        <h3>📊 Data Source Testing</h3>
+        <p>Testing if player data loads correctly from <code>player-data-2.html</code></p>
+        
+        <button onclick="testDirectDataLoad()" id="directBtn">Test Direct JSON Load</button>
+        <button onclick="testDataService()" id="serviceBtn">Test FPL Data Service</button>
+        
+        <div id="test-results"></div>
+    </div>
 
+    <div class="test-container">
+        <h3>📈 Data Structure Check</h3>
+        <div class="data-info">
+            Expected JSON structure:<br>
+            {<br>
+            &nbsp;&nbsp;"elements": [ /* player array */ ],<br>
+            &nbsp;&nbsp;"teams": [ /* team array */ ],<br>
+            &nbsp;&nbsp;"events": [ /* gameweek array */ ]<br>
+            }
+        </div>
+    </div>
+
+    <div id="data-display"></div>
+
+    <script src="./fpl-html-data-service.js"></script>
     <script>
-        async function testDataLoading() {
-            const statusEl = document.getElementById('status');
-            const resultsEl = document.getElementById('results');
-            let results = [];
+        let testResults = [];
 
-            // Test 1: player-data-2.html
-            try {
-                statusEl.textContent = 'Testing player-data-2.html...';
-                const response1 = await fetch('player-data-2.html');
-                if (response1.ok) {
-                    const text = await response1.text();
-                    const data = JSON.parse(text);
-                    results.push(`✅ player-data-2.html: ${data.elements ? data.elements.length : 0} players, ${data.teams ? data.teams.length : 0} teams`);
-                } else {
-                    results.push(`❌ player-data-2.html: HTTP ${response1.status}`);
-                }
-            } catch (error) {
-                results.push(`❌ player-data-2.html: ${error.message}`);
+        function addResult(test, status, message, data = null) {
+            const container = document.getElementById('test-results');
+            const result = document.createElement('div');
+            result.className = `test-container ${status}`;
+            
+            let html = `<h4>${status === 'success' ? '✅' : status === 'error' ? '❌' : '⏳'} ${test}</h4>`;
+            html += `<p>${message}</p>`;
+            
+            if (data) {
+                html += `<div class="data-info">${JSON.stringify(data, null, 2).substring(0, 400)}...</div>`;
             }
-
-            // Test 2: fpl-premium-hub-stats-data.json
-            try {
-                statusEl.textContent = 'Testing fpl-premium-hub-stats-data.json...';
-                const response2 = await fetch('fpl-premium-hub-stats-data.json');
-                if (response2.ok) {
-                    const data = await response2.json();
-                    results.push(`✅ fpl-premium-hub-stats-data.json: ${data.elements ? data.elements.length : 0} players, ${data.teams ? data.teams.length : 0} teams`);
-                } else {
-                    results.push(`❌ fpl-premium-hub-stats-data.json: HTTP ${response2.status}`);
-                }
-            } catch (error) {
-                results.push(`❌ fpl-premium-hub-stats-data.json: ${error.message}`);
-            }
-
-            // Test 3: FPL API (with CORS)
-            try {
-                statusEl.textContent = 'Testing FPL API...';
-                const response3 = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
-                if (response3.ok) {
-                    const data = await response3.json();
-                    results.push(`✅ FPL API: ${data.elements ? data.elements.length : 0} players, ${data.teams ? data.teams.length : 0} teams`);
-                } else {
-                    results.push(`❌ FPL API: HTTP ${response3.status}`);
-                }
-            } catch (error) {
-                results.push(`❌ FPL API: ${error.message} (likely CORS issue)`);
-            }
-
-            // Display results
-            statusEl.textContent = 'Test Complete!';
-            resultsEl.innerHTML = '<h2>Results:</h2><ul>' + 
-                results.map(r => `<li>${r}</li>`).join('') + 
-                '</ul>';
+            
+            result.innerHTML = html;
+            container.appendChild(result);
+            testResults.push({ test, status, message, data });
         }
 
-        // Run test on load
-        testDataLoading();
+        async function testDirectDataLoad() {
+            const btn = document.getElementById('directBtn');
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            
+            try {
+                addResult('Direct JSON Load', 'loading', 'Fetching player-data-2.html directly...');
+                
+                const response = await fetch('player-data-2.html');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data || !data.elements) {
+                    throw new Error('Invalid data structure - missing elements array');
+                }
+                
+                const playerCount = data.elements.length;
+                const teamCount = data.teams ? data.teams.length : 0;
+                
+                addResult(
+                    'Direct JSON Load', 
+                    'success', 
+                    `✅ Loaded ${playerCount} players and ${teamCount} teams successfully!`,
+                    {
+                        playersLoaded: playerCount,
+                        teamsLoaded: teamCount,
+                        firstPlayer: data.elements[0]
+                    }
+                );
+                
+                displayPlayerSample(data.elements.slice(0, 5));
+                
+            } catch (error) {
+                addResult('Direct JSON Load', 'error', `❌ Failed: ${error.message}`);
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Test Direct JSON Load';
+        }
+
+        async function testDataService() {
+            const btn = document.getElementById('serviceBtn');
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            
+            try {
+                addResult('FPL Data Service', 'loading', 'Testing FPLHtmlDataService...');
+                
+                if (typeof FPLHtmlDataService === 'undefined') {
+                    throw new Error('FPLHtmlDataService class not found');
+                }
+                
+                const service = new FPLHtmlDataService();
+                console.log('Created FPLHtmlDataService instance');
+                
+                const bootstrapData = await service.getBootstrapData();
+                console.log('Retrieved bootstrap data:', bootstrapData);
+                
+                if (!bootstrapData || !bootstrapData.elements) {
+                    throw new Error('No valid bootstrap data with elements array');
+                }
+                
+                const playerCount = bootstrapData.elements.length;
+                const teamCount = bootstrapData.teams ? bootstrapData.teams.length : 0;
+                
+                addResult(
+                    'FPL Data Service', 
+                    'success', 
+                    `✅ Service loaded ${playerCount} players and ${teamCount} teams!`,
+                    {
+                        playersLoaded: playerCount,
+                        teamsLoaded: teamCount,
+                        dataSource: 'via FPLHtmlDataService'
+                    }
+                );
+                
+            } catch (error) {
+                console.error('Data service error:', error);
+                addResult('FPL Data Service', 'error', `❌ Service failed: ${error.message}`);
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Test FPL Data Service';
+        }
+
+        function displayPlayerSample(players) {
+            const container = document.getElementById('data-display');
+            
+            let html = `<div class="test-container success">
+                <h3>📋 Sample Player Data (First 5 Players)</h3>
+                <div class="player-sample">`;
+            
+            players.forEach((player, index) => {
+                html += `
+                    <div class="player-card">
+                        <strong>${player.first_name || 'Unknown'} ${player.second_name || 'Player'}</strong><br>
+                        <small>ID: ${player.id || 'N/A'}</small><br>
+                        <small>Team: ${player.team || player.team_code || 'N/A'}</small><br>
+                        <small>Position: ${player.element_type || 'N/A'}</small><br>
+                        <small>Price: £${player.now_cost ? (player.now_cost / 10).toFixed(1) : 'N/A'}m</small><br>
+                        <small>Points: ${player.total_points || 0}</small>
+                    </div>`;
+            });
+            
+            html += `</div></div>`;
+            container.innerHTML = html;
+        }
+
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                console.log('Starting data loading tests...');
+                testDirectDataLoad();
+            }, 500);
+        });
     </script>
-    <script src="dark-mode.js"></script>
-    <script src="index.js"></script>
 </body>
 </html>

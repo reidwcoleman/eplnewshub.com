@@ -3645,18 +3645,6 @@
                 // Position circles are ready - they have onclick attributes in HTML
                 console.log('🎯 Position circles ready for clicking - using HTML onclick attributes');
                 
-                // IMMEDIATE TEST: Try opening modal directly
-                setTimeout(() => {
-                    console.log('🧪 TESTING: Trying to open modal directly...');
-                    if (typeof window.showPlayerModal === 'function') {
-                        const testPlayers = window.transferSimPro.allPlayers.filter(p => p.position === 1).slice(0, 5);
-                        console.log(`Testing with ${testPlayers.length} GK players`);
-                        if (testPlayers.length > 0) {
-                            console.log('🎭 Opening test modal...');
-                            window.showPlayerModal(testPlayers, 'Test GK');
-                        }
-                    }
-                }, 1000);
                 
                 // Immediate verification that everything is ready for clicking
                 console.log('🔍 IMMEDIATE VERIFICATION - Checking click system readiness...');
@@ -3673,16 +3661,6 @@
                 console.log('selectPlayerForPosition function exists:', typeof window.selectPlayerForPosition === 'function' ? '✅ YES' : '❌ NO');
                 console.log('showPlayerModal function exists:', typeof window.showPlayerModal === 'function' ? '✅ YES' : '❌ NO');
                 
-                // Test a simple function call
-                if (typeof window.selectPlayerForPosition === 'function') {
-                    console.log('🧪 TESTING: Attempting to call selectPlayerForPosition directly...');
-                    try {
-                        // Don't actually call it, just verify it's callable
-                        console.log('✅ Function is callable');
-                    } catch (e) {
-                        console.error('❌ Function call failed:', e);
-                    }
-                }
                 
                 // Enhanced logging for debugging
                 if (window.transferSimPro.allPlayers.length > 0) {
@@ -3788,17 +3766,6 @@
                 
                 console.log('🔧 All event listeners added successfully!');
                 
-                // Immediate test after event listeners are added
-                setTimeout(() => {
-                    console.log('🧪 IMMEDIATE TEST: Trying to trigger GK modal...');
-                    if (typeof window.selectPlayerForPosition === 'function') {
-                        try {
-                            window.selectPlayerForPosition('GK', 1);
-                        } catch (e) {
-                            console.error('❌ Immediate test failed:', e);
-                        }
-                    }
-                }, 100);
                 
                 }, 500); // 500ms delay to ensure DOM is fully ready
                 
@@ -3910,15 +3877,6 @@
                 }
             }
             
-            // Test features in development mode
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                setTimeout(() => {
-                    console.log('Running feature test in development mode...');
-                    if (typeof testAllFeatures === 'function') {
-                        testAllFeatures();
-                    }
-                }, 2000);
-            }
         });
         // Animate transfer statistics on scroll
         function animateTransferStats() {
@@ -4331,24 +4289,7 @@
         
         
         
-        // Manual modal trigger for console testing
-        window.openGKModal = function() {
-            console.log('🥅 Opening GK modal manually...');
-            if (typeof window.selectPlayerForPosition === 'function') {
-                window.selectPlayerForPosition('GK', 1);
-            } else {
-                console.error('❌ selectPlayerForPosition function not available');
-            }
-        };
         
-        window.openMIDModal = function() {
-            console.log('⚽ Opening MID modal manually...');
-            if (typeof window.selectPlayerForPosition === 'function') {
-                window.selectPlayerForPosition('MID', 3);
-            } else {
-                console.error('❌ selectPlayerForPosition function not available');
-            }
-        };
         
         // Missing functions that were causing JavaScript errors
         window.optimizeTeam = function() {
@@ -4732,10 +4673,6 @@
             }
         };
         
-        // Force setup function for manual debugging
-        window.forceSetupClicks = function() {
-            console.log('🔧 Position circles already have HTML onclick attributes and should work automatically.');
-        };
         
         // Create Manual Team Builder function for the Build Team Manually button
         window.createManualTeamBuilder = function() {

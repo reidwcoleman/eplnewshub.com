@@ -50,11 +50,21 @@ class FPLHtmlDataService {
             if (this.bootstrapData) {
                 return this.bootstrapData;
             }
+            
+            // Fallback: try player-data-2.html
+            console.log('Primary data source failed, trying player-data-2.html...');
+            this.bootstrapData = await this.fetchJsonFromFile('player-data-2.html');
+            
+            if (this.bootstrapData) {
+                console.log('Successfully loaded data from player-data-2.html');
+                return this.bootstrapData;
+            }
         } catch (error) {
             console.error('Error getting bootstrap data:', error);
         }
         
-        // Return embedded fallback data if fetch fails
+        // Return embedded fallback data if all fetches fail
+        console.log('All data sources failed, using embedded fallback data');
         return {
             elements: this.getEmbeddedPlayerData(),
             teams: this.getTeamsData(),
