@@ -2521,6 +2521,113 @@
                 font-size: 1.1rem;
             }
         }
+
+        /* Squad Display Styles */
+        .squad-empty {
+            text-align: center;
+            padding: 2rem;
+            color: #6f42c1;
+        }
+
+        .squad-header {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .squad-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .squad-value {
+            margin: 0.5rem 0 0 0;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .squad-positions {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .squad-position-group {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid rgba(111, 66, 193, 0.2);
+        }
+
+        .squad-position-group h4 {
+            margin: 0 0 1rem 0;
+            color: #6f42c1;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .squad-players {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .squad-player-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(111, 66, 193, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .squad-player-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(111, 66, 193, 0.2);
+        }
+
+        .squad-player-info {
+            flex: 1;
+        }
+
+        .squad-player-name {
+            font-weight: 600;
+            color: #37003c;
+            display: block;
+        }
+
+        .squad-player-team {
+            font-size: 0.85rem;
+            color: #6f42c1;
+            opacity: 0.8;
+        }
+
+        .squad-player-price {
+            font-weight: 600;
+            color: #37003c;
+            margin-right: 1rem;
+        }
+
+        .squad-remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+            transition: background 0.2s ease;
+        }
+
+        .squad-remove-btn:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
     </style>
     <!-- Tesseract.js for OCR -->
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
@@ -4071,6 +4178,9 @@
             
             console.log(`✅ Found player: ${selectedPlayer.name}`);
             
+            // Add player to squad data structure
+            addPlayerToSquad(playerId);
+            
             // Update the position circle if we have it stored
             if (window.currentSelectedCircle) {
                 const circle = window.currentSelectedCircle;
@@ -4091,9 +4201,6 @@
                 // Clear the stored references
                 window.currentSelectedCircle = null;
                 window.currentSelectedPosition = null;
-            } else {
-                // Fallback to original behavior if no circle stored
-                addPlayerToSquad(playerId);
             }
             
             closePlayerModal();
@@ -4220,22 +4327,29 @@
         window.resetTeam = function() {
             console.log('🔄 Reset Team clicked');
             if (confirm('Are you sure you want to reset your entire team?')) {
-                // Clear all squad positions
-                const squadDisplay = document.getElementById('squad-display');
-                if (squadDisplay) {
-                    squadDisplay.innerHTML = '<p>Your squad is empty. Click position circles to add players!</p>';
+                // Clear squad data structure
+                if (window.transferSimPro) {
+                    window.transferSimPro.currentSquad = [];
                 }
                 
                 // Reset position circles to empty state
                 const positionCircles = document.querySelectorAll('.position-circle');
                 positionCircles.forEach(circle => {
                     circle.classList.remove('filled');
+                    circle.style.backgroundColor = '';
+                    circle.style.border = '';
                     const playerDisplay = circle.querySelector('.player-name-display');
                     if (playerDisplay) {
                         playerDisplay.textContent = '+';
                     }
+                    const position = circle.getAttribute('data-position');
+                    circle.title = `Click to select ${position} player`;
                 });
                 
+                // Update squad display
+                updateSquadDisplay();
+                
+                showNotification('✅ Team reset completed', 'success');
                 console.log('✅ Team reset completed');
             }
         };
@@ -4326,7 +4440,22 @@
                 return;
             }
             
+            // Initialize squad if it doesn't exist
+            if (!window.transferSimPro.currentSquad) {
+                window.transferSimPro.currentSquad = [];
+            }
+            
+            // Check if player is already in squad
+            const existingPlayerIndex = window.transferSimPro.currentSquad.findIndex(p => p.id === playerId);
+            if (existingPlayerIndex !== -1) {
+                showNotification(`${player.name} is already in your squad!`, 'warning');
+                return;
+            }
+            
+            // Add player to squad
+            window.transferSimPro.currentSquad.push(player);
             console.log('Adding player to squad:', player.name);
+            console.log('Current squad size:', window.transferSimPro.currentSquad.length);
             
             // Add visual feedback
             const playerCard = document.querySelector(`[data-player-id="${playerId}"]`);
@@ -4339,9 +4468,9 @@
             }
             
             // Show success notification
-            showNotification(`✅ ${player.name} added to squad!`, 'success');
+            showNotification(`✅ ${player.name} added to squad! (${window.transferSimPro.currentSquad.length}/15)`, 'success');
             
-            // Update squad display (if exists)
+            // Update squad display
             updateSquadDisplay();
         };
         
@@ -4447,10 +4576,110 @@
             });
         };
         
-        // Update squad display (placeholder)
+        // Update squad display with current squad
         window.updateSquadDisplay = function() {
-            // This will be implemented based on your squad display logic
             console.log('Squad display updated');
+            
+            // Find or create squad display element
+            let squadDisplay = document.getElementById('squad-display');
+            if (!squadDisplay) {
+                squadDisplay = document.getElementById('playerSearchResults');
+                if (!squadDisplay) {
+                    console.warn('No squad display element found');
+                    return;
+                }
+            }
+            
+            // Initialize squad if it doesn't exist
+            if (!window.transferSimPro.currentSquad) {
+                window.transferSimPro.currentSquad = [];
+            }
+            
+            const squad = window.transferSimPro.currentSquad;
+            
+            if (squad.length === 0) {
+                squadDisplay.innerHTML = '<div class="squad-empty"><h3>Your Squad</h3><p>Click position circles to add players to your squad!</p></div>';
+                return;
+            }
+            
+            // Group players by position
+            const positionNames = {1: 'Goalkeeper', 2: 'Defender', 3: 'Midfielder', 4: 'Forward'};
+            const squadByPosition = {};
+            
+            squad.forEach(player => {
+                const posName = positionNames[player.position] || 'Unknown';
+                if (!squadByPosition[posName]) {
+                    squadByPosition[posName] = [];
+                }
+                squadByPosition[posName].push(player);
+            });
+            
+            // Calculate total value
+            const totalValue = squad.reduce((sum, player) => sum + (player.price || 0), 0);
+            
+            // Generate HTML
+            let html = `
+                <div class="squad-header">
+                    <h3>Your Squad (${squad.length}/15)</h3>
+                    <p class="squad-value">Total Value: £${totalValue.toFixed(1)}m</p>
+                </div>
+                <div class="squad-positions">
+            `;
+            
+            Object.keys(squadByPosition).forEach(position => {
+                html += `<div class="squad-position-group">
+                    <h4>${position}s (${squadByPosition[position].length})</h4>
+                    <div class="squad-players">`;
+                
+                squadByPosition[position].forEach(player => {
+                    const teamName = window.transferSimPro.teams[player.team] || 'Unknown';
+                    html += `
+                        <div class="squad-player-card">
+                            <div class="squad-player-info">
+                                <span class="squad-player-name">${player.name}</span>
+                                <span class="squad-player-team">${teamName}</span>
+                            </div>
+                            <div class="squad-player-price">£${(player.price || 0).toFixed(1)}m</div>
+                            <button class="squad-remove-btn" onclick="removePlayerFromSquad(${player.id})">×</button>
+                        </div>
+                    `;
+                });
+                
+                html += `</div></div>`;
+            });
+            
+            html += '</div>';
+            
+            squadDisplay.innerHTML = html;
+        };
+        
+        // Remove player from squad
+        window.removePlayerFromSquad = function(playerId) {
+            if (!window.transferSimPro.currentSquad) {
+                return;
+            }
+            
+            const playerIndex = window.transferSimPro.currentSquad.findIndex(p => p.id === playerId);
+            if (playerIndex !== -1) {
+                const player = window.transferSimPro.currentSquad[playerIndex];
+                window.transferSimPro.currentSquad.splice(playerIndex, 1);
+                
+                showNotification(`${player.name} removed from squad`, 'info');
+                updateSquadDisplay();
+                
+                // Reset position circle if it was filled with this player
+                const circles = document.querySelectorAll('.position-circle');
+                circles.forEach(circle => {
+                    const playerDisplay = circle.querySelector('.player-name-display');
+                    if (playerDisplay && playerDisplay.textContent === player.name.split(' ')[0]) {
+                        playerDisplay.textContent = '+';
+                        circle.classList.remove('filled');
+                        circle.style.backgroundColor = '';
+                        circle.style.border = '';
+                        circle.title = `Click to select ${circle.getAttribute('data-position')} player`;
+                    }
+                });
+            }
         };
         
         // Drag and Drop functionality
