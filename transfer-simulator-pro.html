@@ -2725,6 +2725,8 @@
             transform: translateY(-1px);
         }
     </style>
+    <!-- Chart.js for analytics charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Tesseract.js for OCR -->
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
     <!-- OCR Processing Scripts -->
@@ -4236,6 +4238,39 @@
             
             console.log(`✅ Found player: ${selectedPlayer.name}`);
             
+            // Check budget and position constraints in manual mode
+            if (window.manualBuildingMode) {
+                const currentSquad = window.transferSimPro.currentSquad || [];
+                const currentSpent = currentSquad.reduce((sum, p) => sum + (p.price || 0), 0);
+                const maxBudget = 100.0;
+                
+                // Check budget constraint
+                if (currentSpent + selectedPlayer.price > maxBudget) {
+                    const remaining = maxBudget - currentSpent;
+                    showNotification(`❌ Budget exceeded! You have £${remaining.toFixed(1)}m remaining, but ${selectedPlayer.name} costs £${selectedPlayer.price.toFixed(1)}m`, 'error');
+                    closePlayerModal();
+                    return;
+                }
+                
+                // Check position limits (FPL limits: 2 GK, 5 DEF, 5 MID, 3 FWD)
+                const positionLimits = {1: 2, 2: 5, 3: 5, 4: 3}; // GK, DEF, MID, FWD
+                const positionCounts = currentSquad.reduce((counts, player) => {
+                    counts[player.position] = (counts[player.position] || 0) + 1;
+                    return counts;
+                }, {});
+                
+                const currentCount = positionCounts[selectedPlayer.position] || 0;
+                const maxAllowed = positionLimits[selectedPlayer.position] || 0;
+                
+                if (currentCount >= maxAllowed) {
+                    const positionNames = {1: 'Goalkeeper', 2: 'Defender', 3: 'Midfielder', 4: 'Forward'};
+                    const positionName = positionNames[selectedPlayer.position] || 'Player';
+                    showNotification(`❌ Position limit reached! You can only have ${maxAllowed} ${positionName}${maxAllowed > 1 ? 's' : ''} in your squad.`, 'error');
+                    closePlayerModal();
+                    return;
+                }
+            }
+            
             // Add player to squad data structure
             addPlayerToSquad(playerId);
             
@@ -4408,6 +4443,8 @@
                     circle.classList.remove('filled');
                     circle.style.backgroundColor = '';
                     circle.style.border = '';
+                    circle.style.boxShadow = '';
+                    circle.style.animation = '';
                     
                     // Reset player display
                     const playerDisplay = circle.querySelector('.player-name-display');
@@ -4428,8 +4465,18 @@
                     circle.removeAttribute('data-player-name');
                 });
                 
-                // Update squad display
+                // Clear manual building mode
+                window.manualBuildingMode = false;
+                
+                // Remove manual instructions if they exist
+                const instructionsContainer = document.getElementById('manual-instructions');
+                if (instructionsContainer) {
+                    instructionsContainer.remove();
+                }
+                
+                // Update squad display and reset budget
                 updateSquadDisplay();
+                updateBudgetTracker(0); // Reset budget to full
                 
                 showNotification('✅ Team reset completed', 'success');
                 console.log('✅ Team reset completed');
@@ -4650,7 +4697,63 @@
         // Create Manual Team Builder function for the Build Team Manually button
         window.createManualTeamBuilder = function() {
             console.log('🏗️ Build Team Manually clicked');
-            console.log('Click on the position circles on the soccer field to build your team manually! Each circle will open a player selection modal.');
+            
+            // Clear any existing team first
+            resetTeam();
+            
+            // Enable manual building mode
+            window.manualBuildingMode = true;
+            
+            // Make position circles more visually interactive
+            const circles = document.querySelectorAll('.position-circle');
+            circles.forEach(circle => {
+                circle.style.border = '3px solid #28a745';
+                circle.style.boxShadow = '0 0 15px rgba(40, 167, 69, 0.5)';
+                circle.style.animation = 'pulse 2s infinite';
+            });
+            
+            // Add pulse animation style if it doesn't exist
+            if (!document.getElementById('pulse-style')) {
+                const style = document.createElement('style');
+                style.id = 'pulse-style';
+                style.textContent = `
+                    @keyframes pulse {
+                        0% { transform: scale(1); }
+                        50% { transform: scale(1.05); }
+                        100% { transform: scale(1); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Show instructions
+            showNotification('🏗️ Manual Team Builder Activated! Click on any position circle to select a player.', 'success');
+            
+            // Display team requirements
+            const teamRequirements = `
+                <div style="background: rgba(40, 167, 69, 0.1); border: 2px solid #28a745; border-radius: 10px; padding: 15px; margin: 10px 0; color: #155724;">
+                    <h4>🏗️ Build Your Team:</h4>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>2 Goalkeepers (GK)</li>
+                        <li>5 Defenders (DEF)</li>
+                        <li>5 Midfielders (MID)</li>
+                        <li>3 Forwards (FWD)</li>
+                    </ul>
+                    <p><strong>Total Budget:</strong> £100.0m</p>
+                    <p><em>Click on the green circles above to select players for each position!</em></p>
+                </div>
+            `;
+            
+            // Find or create instructions container
+            let instructionsContainer = document.getElementById('manual-instructions');
+            if (!instructionsContainer) {
+                instructionsContainer = document.createElement('div');
+                instructionsContainer.id = 'manual-instructions';
+                const pitchContainer = document.getElementById('pitch-container');
+                pitchContainer.parentNode.insertBefore(instructionsContainer, pitchContainer);
+            }
+            
+            instructionsContainer.innerHTML = teamRequirements;
         };
         
         function displayPlayerResults(players, title) {
@@ -4939,6 +5042,83 @@
             html += '</div>';
             
             squadDisplay.innerHTML = html;
+            
+            // Update budget tracker
+            updateBudgetTracker(totalValue);
+            
+            // Check if team is complete in manual mode
+            if (window.manualBuildingMode && squad.length === 15) {
+                showNotification('🎉 Team Complete! You have built a full 15-player squad within budget!', 'success');
+                
+                // Remove visual emphasis from position circles
+                const circles = document.querySelectorAll('.position-circle');
+                circles.forEach(circle => {
+                    circle.style.border = '';
+                    circle.style.boxShadow = '';
+                    circle.style.animation = '';
+                });
+                
+                window.manualBuildingMode = false;
+                
+                // Update instructions to show completion
+                const instructionsContainer = document.getElementById('manual-instructions');
+                if (instructionsContainer) {
+                    instructionsContainer.innerHTML = `
+                        <div style="background: rgba(40, 167, 69, 0.1); border: 2px solid #28a745; border-radius: 10px; padding: 15px; margin: 10px 0; color: #155724;">
+                            <h4>✅ Team Complete!</h4>
+                            <p>You've successfully built a full 15-player squad:</p>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li>2 Goalkeepers ✅</li>
+                                <li>5 Defenders ✅</li>
+                                <li>5 Midfielders ✅</li>
+                                <li>3 Forwards ✅</li>
+                            </ul>
+                            <p><strong>Total Value:</strong> £${totalValue.toFixed(1)}m of £100.0m</p>
+                            <p><em>Great job! Your team is ready to compete!</em></p>
+                        </div>
+                    `;
+                }
+            }
+        };
+        
+        // Update budget tracker display
+        window.updateBudgetTracker = function(totalSpent) {
+            const maxBudget = 100.0; // FPL budget is £100m
+            const remaining = maxBudget - totalSpent;
+            const percentUsed = (totalSpent / maxBudget) * 100;
+            
+            // Update remaining budget display
+            const budgetElement = document.getElementById('remainingBudget');
+            if (budgetElement) {
+                budgetElement.textContent = `£${remaining.toFixed(1)}m`;
+                
+                // Color coding based on budget status
+                if (remaining < 0) {
+                    budgetElement.style.color = '#dc3545'; // Red for over budget
+                } else if (remaining < 5) {
+                    budgetElement.style.color = '#ffc107'; // Yellow for low budget
+                } else {
+                    budgetElement.style.color = '#28a745'; // Green for good budget
+                }
+            }
+            
+            // Update budget bar
+            const budgetFill = document.getElementById('budgetFill');
+            if (budgetFill) {
+                const fillWidth = Math.min(percentUsed, 100);
+                budgetFill.style.width = `${fillWidth}%`;
+                
+                // Color gradient based on usage
+                if (percentUsed >= 100) {
+                    budgetFill.style.background = 'linear-gradient(90deg, #dc3545, #c82333)'; // Red
+                } else if (percentUsed >= 85) {
+                    budgetFill.style.background = 'linear-gradient(90deg, #ffc107, #ff9800)'; // Orange/Yellow
+                } else {
+                    budgetFill.style.background = 'linear-gradient(90deg, #28a745, #20c997)'; // Green
+                }
+            }
+            
+            console.log(`Budget updated: £${totalSpent.toFixed(1)}m spent, £${remaining.toFixed(1)}m remaining`);
         };
         
         // Remove player from squad
