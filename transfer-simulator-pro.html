@@ -3450,9 +3450,8 @@
                 
                 console.log(`Transfer Simulator Pro initialized with ${window.transferSimPro.allPlayers.length} players`);
                 
-                // IMMEDIATE SIMPLE CLICK SETUP - No delays, no complexity
-                console.log('🎯 IMMEDIATE: Setting up position circles for clicking...');
-                setupPositionCircleClicks();
+                // Position circles are ready - they have onclick attributes in HTML
+                console.log('🎯 Position circles ready for clicking - using HTML onclick attributes');
                 
                 // IMMEDIATE TEST: Try opening modal directly
                 setTimeout(() => {
@@ -3574,8 +3573,8 @@
                             return;
                     }
                     
-                    // Remove any existing onclick to avoid duplicate calls
-                    circle.removeAttribute('onclick');
+                    // Keep original onclick attributes - they work fine
+                    // circle.removeAttribute('onclick'); // Commented out to preserve HTML onclick
                     
                     // Add event listener
                     circle.addEventListener('click', function(event) {
@@ -3681,12 +3680,10 @@
                                 default: return;
                             }
                             
-                            alert(`You clicked the ${position} circle! Modal should open now...`);
                             window.selectPlayerForPosition(position, positionId);
                         };
                         
-                        // Add visual indicator that circle is ready
-                        circle.style.border = '3px solid #00ff00';
+                        // Add hover title for better UX
                         circle.title = `Click to select ${position} player`;
                         
                         console.log(`✅ Added onclick to ${position} circle #${index + 1}`);
@@ -3866,20 +3863,16 @@
         // Use existing modal system for player selection
         function openPlayerModalForPosition(position, positionId, circle) {
             console.log(`🎭 Opening modal for ${position} (ID: ${positionId})`);
-            alert(`openPlayerModalForPosition called for ${position}!`);
-            
             if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
-                alert('Player data not loaded yet. Please wait and try again.');
+                console.warn('Player data not loaded yet. Please wait and try again.');
                 return;
             }
             
             // Get players for this position
             const players = window.transferSimPro.allPlayers.filter(player => player.position === positionId);
             console.log(`Found ${players.length} ${position} players`);
-            alert(`Found ${players.length} ${position} players in database`);
-            
             if (players.length === 0) {
-                alert(`No ${position} players found in database.`);
+                console.warn(`No ${position} players found in database.`);
                 return;
             }
             
@@ -3893,10 +3886,8 @@
             // Check if showPlayerModal function exists
             if (typeof window.showPlayerModal === 'function') {
                 console.log(`✅ showPlayerModal function exists, calling it now...`);
-                alert(`About to call showPlayerModal with ${players.length} players...`);
                 window.showPlayerModal(players, position);
             } else {
-                alert('❌ showPlayerModal function not found!');
                 console.error('❌ showPlayerModal function not found!');
             }
         }
@@ -3917,8 +3908,7 @@
             circles.forEach((circle, index) => {
                 const position = circle.getAttribute('data-position');
                 
-                // Add visual indicator
-                circle.style.border = '2px solid #00ff00';
+                // Ensure proper cursor
                 circle.style.cursor = 'pointer';
                 circle.title = `Click to select ${position} player`;
                 
@@ -3929,8 +3919,7 @@
                     
                     console.log(`✅ CLICK DETECTED: ${position} circle clicked!`);
                     
-                    // IMMEDIATE ALERT TEST - to confirm clicks work
-                    alert(`✅ CLICK WORKS! You clicked the ${position} circle. Modal should open next...`);
+                    // Provide visual feedback that click was detected
                     
                     let positionId;
                     switch(position) {
@@ -3968,7 +3957,7 @@
             
             if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
                 console.warn('Player data not loaded yet');
-                alert('Player data is still loading. Please wait a moment and try again.');
+                console.warn('Player data is still loading. Please wait a moment and try again.');
                 return;
             }
             
@@ -3979,7 +3968,7 @@
             );
             
             if (players.length === 0) {
-                alert(`No ${positionLabel} players found.`);
+                console.warn(`No ${positionLabel} players found.`);
                 return;
             }
             
@@ -4225,7 +4214,7 @@
         // Missing functions that were causing JavaScript errors
         window.optimizeTeam = function() {
             console.log('🤖 AI Optimize Squad clicked');
-            alert('AI Squad Optimization feature coming soon! For now, use the position circles to manually select players.');
+            console.log('AI Squad Optimization feature coming soon! Use position circles to manually select players.');
         };
         
         window.resetTeam = function() {
@@ -4253,15 +4242,13 @@
         
         // Force setup function for manual debugging
         window.forceSetupClicks = function() {
-            console.log('🔧 FORCE SETUP: Manually setting up click handlers...');
-            setupPositionCircleClicks();
-            alert('Force setup completed! Look for green borders around the position circles.');
+            console.log('🔧 Position circles already have HTML onclick attributes and should work automatically.');
         };
         
         // Create Manual Team Builder function for the Build Team Manually button
         window.createManualTeamBuilder = function() {
             console.log('🏗️ Build Team Manually clicked');
-            alert('Click on the green-bordered position circles on the soccer field to build your team manually! Each circle will open a player selection modal.');
+            console.log('Click on the position circles on the soccer field to build your team manually! Each circle will open a player selection modal.');
         };
         
         function displayPlayerResults(players, title) {
