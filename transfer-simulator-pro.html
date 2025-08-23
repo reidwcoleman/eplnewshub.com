@@ -2743,24 +2743,11 @@
                 <span class="live-dot"></span>
                 <span>LIVE FPL DATA</span>
                 <span style="margin-left: 20px;">Last Update: <span id="lastUpdate">Loading...</span></span>
-                <button onclick="window.forceLoadPlayers()" style="margin-left: 15px; padding: 5px 10px; background: #f39c12; color: white; border: none; border-radius: 4px; cursor: pointer;">🔄 Reload Players</button>
-                <button onclick="refreshPlayerData()" style="margin-left: 20px; padding: 5px 15px; background: linear-gradient(135deg, #00ff88, #00c851); color: #333; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
-                    🔄 Refresh Data
-                </button>
-                <button onclick="forceLoadPlayerData()" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
-                    ⚠️ Force Load
-                </button>
-                <button onclick="window.forceSetupClicks()" style="margin-left: 10px; padding: 5px 15px; background: linear-gradient(135deg, #27ae60, #229954); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
-                    🔧 Force Setup
-                </button>
             </div>
             
             <!-- NEW: Quick Access Advanced Features Hero -->
             <div class="advanced-features-hero" style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px; backdrop-filter: blur(10px);">
                 <h2 style="color: #00ff88; margin-bottom: 15px; font-size: 1.5rem;">🚀 Advanced AI Tools - Quick Access</h2>
-                <button onclick="testAllFeatures(); alert('Check browser console for feature status')" style="position: absolute; top: 20px; right: 20px; padding: 5px 10px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 5px; cursor: pointer; font-size: 0.8rem;">
-                    🧪 Test Features
-                </button>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
                     <button onclick="showPriceTracker()" class="quick-feature-btn" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
                         💹 Price Alerts
@@ -2802,12 +2789,17 @@
 
                 <!-- Interactive Football Pitch Layout -->
                 <div class="football-pitch" id="pitch-container">
-                    <!-- Goalkeeper -->
+                    <!-- Goalkeepers -->
                     <div class="pitch-row goalkeeper-row">
                         <div class="position-circle" data-position="GK" onclick="selectPlayerForPosition('GK', 1)" style="cursor: pointer;">
                             <span class="position-label">GK</span>
                             <span class="player-name-display" id="player-GK-0">+</span>
                             <span class="player-price-display" id="price-GK-0">£0.0m</span>
+                        </div>
+                        <div class="position-circle" data-position="GK" onclick="selectPlayerForPosition('GK', 1)" style="cursor: pointer;">
+                            <span class="position-label">GK</span>
+                            <span class="player-name-display" id="player-GK-1">+</span>
+                            <span class="player-price-display" id="price-GK-1">£0.0m</span>
                         </div>
                     </div>
                     
@@ -2889,14 +2881,6 @@
                     </div>
                 </div>
                 
-                <!-- Position Labels -->
-                <div class="position-labels">
-                    <div class="position-label">GKP (2)</div>
-                    <div class="position-label">DEF (5)</div>
-                    <div class="position-label">MID (5)</div>
-                    <div class="position-label">FWD (3)</div>
-                </div>
-
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button class="btn btn-primary" onclick="optimizeTeam()" style="flex: 1;">
                         🤖 AI Optimize Squad
@@ -4029,15 +4013,7 @@
             }
         };
         
-        window.refreshPlayerData = function() {
-            console.log('Refreshing player data...');
-            window.forceLoadPlayers();
-        };
         
-        window.forceLoadPlayerData = function() {
-            console.log('Force loading player data...');
-            window.forceLoadPlayers();
-        };
         
         // Player display functions
         
@@ -4428,7 +4404,7 @@
         function buildOptimizedTeam() {
             const players = window.transferSimPro.allPlayers;
             const budget = 100.0; // £100m budget
-            const formation = {GK: 1, DEF: 5, MID: 5, FWD: 3}; // 1-5-5-3 formation
+            const formation = {GK: 2, DEF: 5, MID: 5, FWD: 3}; // 2-5-5-3 formation
             
             // Create player scoring system
             const scoredPlayers = players.map(player => {
