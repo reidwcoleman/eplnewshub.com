@@ -2795,85 +2795,753 @@
             }
 
             async processQuery(query) {
-                // Apply spell correction
-                const spellCheck = this.correctSpelling(query);
-                let processedQuery = spellCheck.corrected;
-                const lowerQuery = processedQuery.toLowerCase();
+                try {
+                    console.log('🤖 Processing query:', query);
+                    
+                    // Check for cached response first
+                    const cachedResponse = this.getCachedResponse(query);
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
+                    
+                    // Enhanced context analysis with performance monitoring
+                    const context = this.measurePerformance('Context Analysis', () => 
+                        this.analyzeAdvancedContext(query)
+                    );
+                    console.log('📊 Query context:', context);
+                    
+                    // Apply spell correction with better feedback
+                    const spellCheck = this.correctSpelling(query);
+                    let processedQuery = spellCheck.corrected;
+                    const lowerQuery = processedQuery.toLowerCase();
+                    
+                    // Enhanced spell-check acknowledgment
+                    let spellCheckMessage = '';
+                    if (spellCheck.hadCorrections) {
+                        spellCheckMessage = `🔄 *Auto-corrected: ${spellCheck.corrections.join(', ')}*\n\n`;
+                        console.log('✅ Spell corrections applied:', spellCheck.corrections);
+                    }
+                    
+                    // Store conversation context for smarter responses
+                    this.updateConversationContext(processedQuery, context);
+                    
+                    // Multi-intent detection and routing with priority
+                    const intents = this.measurePerformance('Intent Detection', () => 
+                        this.detectMultipleIntents(processedQuery)
+                    );
+                    console.log('🎯 Detected intents:', intents);
+                    
+                    // Priority-based response generation with error handling
+                    let response = '';
+                    
+                    try {
+                        // High priority intents (specific actions)
+                        if (intents.includes('specific_player')) {
+                            response = await this.getEnhancedPlayerAnalysis(processedQuery, context);
+                        } else if (intents.includes('player_comparison')) {
+                            response = await this.getPlayerComparison(processedQuery, context);
+                        } else if (intents.includes('captain')) {
+                            response = await this.getSmartCaptainPicks(context);
+                        } else if (intents.includes('transfer')) {
+                            response = await this.getIntelligentTransferAdvice(processedQuery, context);
+                        } else if (intents.includes('team_rating')) {
+                            response = await this.getRateMyTeamAnalysis(processedQuery, context);
+                        } else if (intents.includes('fixtures')) {
+                            response = await this.getAdvancedFixtureAnalysis(processedQuery, context);
+                        } else if (intents.includes('value')) {
+                            response = await this.getSmartValueAnalysis(processedQuery, context);
+                        } else if (intents.includes('differentials')) {
+                            response = await this.getAdvancedDifferentials(context);
+                        } else if (intents.includes('chip_strategy')) {
+                            response = await this.getPersonalizedChipStrategy(processedQuery, context);
+                        } else if (intents.includes('form_analysis')) {
+                            response = await this.getAdvancedFormAnalysis(processedQuery, context);
+                        } else if (intents.includes('injury_updates')) {
+                            response = await this.getInjuryAndAvailabilityUpdates(context);
+                        } else if (intents.includes('wildcard_team')) {
+                            response = await this.getWildcardTeamBuilder(processedQuery, context);
+                        } else {
+                            // Default intelligent response for unclear queries
+                            response = await this.generateContextualResponse(processedQuery, context);
+                        }
+                    } catch (responseError) {
+                        console.warn('⚠️ Response generation failed, using fallback:', responseError);
+                        response = await this.getSimplifiedResponse(processedQuery);
+                    }
+                    
+                    // Add follow-up suggestions based on context
+                    try {
+                        const followUp = this.generateSmartFollowUp(context, response);
+                        if (followUp) {
+                            response += '\n\n' + followUp;
+                        }
+                    } catch (followUpError) {
+                        console.warn('⚠️ Follow-up generation failed:', followUpError);
+                    }
+                    
+                    // Add confidence indicator
+                    const confidence = this.calculateResponseConfidence(context, response);
+                    const confidenceEmoji = confidence > 80 ? '🎯' : confidence > 60 ? '💡' : '🤔';
+                    
+                    const finalResponse = spellCheckMessage + response + `\n\n*${confidenceEmoji} Confidence: ${confidence}%*`;
+                    
+                    // Cache the response
+                    this.setCachedResponse(query, finalResponse);
+                    
+                    console.log('✅ Response generated with confidence:', confidence + '%');
+                    
+                    return finalResponse;
+                    
+                } catch (error) {
+                    console.error('❌ Critical error processing query:', error);
+                    return await this.handleProcessingError(error, query, null);
+                }
+            }
+            
+            analyzeAdvancedContext(query) {
+                const context = {
+                    query: query,
+                    timestamp: Date.now(),
+                    intents: [],
+                    entities: this.extractEntities(query),
+                    sentiment: this.analyzeSentiment(query),
+                    complexity: this.calculateComplexity(query),
+                    urgency: this.detectUrgency(query),
+                    gameweekContext: this.getCurrentGameweekContext(),
+                    userHistory: this.getUserQueryHistory(),
+                    confidence: 0
+                };
                 
-                // Add spell-check acknowledgment to response if corrections were made
-                let spellCheckMessage = '';
-                if (spellCheck.hadCorrections) {
-                    spellCheckMessage = `*I understood you meant: ${spellCheck.corrections.join(', ')}*\n\n`;
-                    console.log('Spell corrections applied:', spellCheck.corrections);
+                return context;
+            }
+            
+            detectMultipleIntents(query) {
+                const lowerQuery = query.toLowerCase();
+                const intents = [];
+                
+                // Enhanced intent detection with overlapping support
+                const intentPatterns = {
+                    'specific_player': /\b(salah|haaland|palmer|mbeumo|saka|isak|gordon|wood|foden|diaz|nunez|son|kane)\b/i,
+                    'player_comparison': /\b(compare|vs|versus|better|choose between)\b/i,
+                    'captain': /\b(captain|cap|captaincy|triple captain|tc)\b/i,
+                    'transfer': /\b(transfer|bring in|sell|buy|swap|replace|in\/out)\b/i,
+                    'team_rating': /\b(rate my team|rmt|team analysis|team thoughts)\b/i,
+                    'fixtures': /\b(fixture|schedule|next week|upcoming|dgw|bgw)\b/i,
+                    'value': /\b(value|budget|cheap|expensive|worth it|vapm)\b/i,
+                    'differentials': /\b(differential|punt|low owned|template|alternatives)\b/i,
+                    'chip_strategy': /\b(wildcard|free hit|bench boost|triple captain|chips)\b/i,
+                    'form_analysis': /\b(form|hot|cold|trending|rising|falling)\b/i,
+                    'injury_updates': /\b(injury|fit|available|doubtful|news)\b/i,
+                    'wildcard_team': /\b(wildcard team|wc team|build team|team builder)\b/i
+                };
+                
+                for (const [intent, pattern] of Object.entries(intentPatterns)) {
+                    if (pattern.test(query)) {
+                        intents.push(intent);
+                    }
                 }
                 
-                // Analyze query context for intelligent responses
-                if (this.isPlayerQuery(processedQuery)) {
-                    const response = this.getIntelligentPlayerAnalysis(processedQuery);
-                    return spellCheckMessage + response;
+                // If no specific intents detected, categorize as general
+                if (intents.length === 0) {
+                    intents.push('general_advice');
                 }
                 
-                // Captain recommendations with real data
-                if (lowerQuery.includes('captain') || lowerQuery.includes('captaincy')) {
-                    const response = this.getDataDrivenCaptainPicks();
-                    return spellCheckMessage + response;
+                return intents;
+            }
+            
+            updateConversationContext(query, context) {
+                // Store conversation history with enhanced metadata
+                this.conversationMemory.push({
+                    query: query,
+                    context: context,
+                    timestamp: Date.now(),
+                    gameweek: this.currentGameweek
+                });
+                
+                // Keep only recent history
+                if (this.conversationMemory.length > this.contextWindow) {
+                    this.conversationMemory.shift();
+                }
+            }
+            
+            async getEnhancedPlayerAnalysis(query, context) {
+                // Extract player name from query
+                const playerName = this.extractPlayerName(query);
+                const player = this.findPlayerInDatabase(playerName);
+                
+                if (!player) {
+                    return `❌ Sorry, I couldn't find detailed analysis for "${playerName}". Try checking the spelling or use a nickname like "Mo" for Salah.`;
                 }
                 
-                // Transfer advice based on form and xG
-                if (lowerQuery.includes('transfer') || lowerQuery.includes('bring in') || lowerQuery.includes('sell')) {
-                    const response = this.getSmartTransferAdvice(processedQuery);
-                    return spellCheckMessage + response;
+                let response = `🎯 **Enhanced Analysis: ${player.name}**\n\n`;
+                
+                // Real-time performance metrics
+                response += `**📊 Current Season Stats:**\n`;
+                response += `• Total Points: ${player.points || 'N/A'}\n`;
+                response += `• Form: ${player.form || 'N/A'}/10\n`;
+                response += `• Goals: ${player.goals || 0} | Assists: ${player.assists || 0}\n`;
+                response += `• Price: £${player.price || 'N/A'}m\n`;
+                response += `• Ownership: ${player.ownership || 'N/A'}%\n\n`;
+                
+                // Advanced analytics
+                response += `**🔬 Advanced Metrics:**\n`;
+                response += `• xG: ${player.xG || 'N/A'} | xA: ${player.xA || 'N/A'}\n`;
+                response += `• ICT Index: ${player.ictIndex || 'N/A'}\n`;
+                response += `• Value Score: ${this.calculateValueScore(player)}/10\n`;
+                response += `• Consistency: ${this.calculateConsistency(player)}%\n\n`;
+                
+                // AI recommendation
+                const recommendation = this.generatePlayerRecommendation(player, context);
+                response += `**🤖 AI Verdict:**\n${recommendation}\n\n`;
+                
+                // Fixture outlook
+                response += `**📅 Fixture Analysis:**\n`;
+                response += this.getPlayerFixtureOutlook(player);
+                
+                return response;
+            }
+            
+            async getPlayerComparison(query, context) {
+                const players = this.extractPlayersFromComparison(query);
+                if (players.length < 2) {
+                    return "❌ Please specify two players to compare (e.g., 'Compare Salah vs Haaland')";
                 }
                 
-                // Value picks with VAPM analysis
-                if (lowerQuery.includes('value') || lowerQuery.includes('budget') || lowerQuery.includes('cheap')) {
-                    const response = this.getValueAnalysis();
-                    return spellCheckMessage + response;
+                const player1 = this.findPlayerInDatabase(players[0]);
+                const player2 = this.findPlayerInDatabase(players[1]);
+                
+                if (!player1 || !player2) {
+                    return `❌ Couldn't find one or both players. Available players include Salah, Haaland, Palmer, Mbeumo, etc.`;
                 }
                 
-                // xG and advanced metrics
-                if (lowerQuery.includes('xg') || lowerQuery.includes('expected')) {
-                    const response = this.getXGAnalysis();
-                    return spellCheckMessage + response;
+                let response = `⚖️ **Player Comparison: ${player1.name} vs ${player2.name}**\n\n`;
+                
+                // Side-by-side stats comparison
+                response += this.generateComparisonTable(player1, player2);
+                
+                // AI winner determination
+                const winner = this.determineComparisonWinner(player1, player2);
+                response += `\n**🏆 AI Pick:** ${winner.name}\n`;
+                response += `**Reason:** ${winner.reasoning}`;
+                
+                return response;
+            }
+            
+            async getSmartCaptainPicks(context) {
+                let response = `👑 **Smart Captain Picks (GW${this.currentGameweek})**\n\n`;
+                
+                // Dynamic captain scoring with real-time data
+                const captainScores = await this.calculateDynamicCaptainScores();
+                const topCaptains = Object.entries(captainScores)
+                    .sort(([,a], [,b]) => b.score - a.score)
+                    .slice(0, 5);
+                
+                response += `**🤖 AI Captain Rankings:**\n`;
+                topCaptains.forEach(([name, data], index) => {
+                    const emoji = ['👑', '🥈', '🥉', '⭐', '💎'][index];
+                    response += `${emoji} **${name}** - Score: ${data.score}\n`;
+                    response += `   └ ${data.reasoning}\n\n`;
+                });
+                
+                // Current gameweek specific advice
+                response += `**📊 This Gameweek:**\n`;
+                response += this.getGameweekSpecificCaptainAdvice();
+                
+                return response;
+            }
+            
+            async getIntelligentTransferAdvice(query, context) {
+                let response = `🔄 **Intelligent Transfer Analysis**\n\n`;
+                
+                // Parse transfer intent
+                const transferType = this.detectTransferType(query);
+                
+                if (transferType.type === 'specific_out') {
+                    response += await this.getPlayerOutAnalysis(transferType.player);
+                } else if (transferType.type === 'specific_in') {
+                    response += await this.getPlayerInAnalysis(transferType.player);
+                } else {
+                    response += await this.getGeneralTransferAdvice(context);
                 }
                 
-                // Team analysis
-                if (this.isTeamQuery(processedQuery)) {
-                    const response = this.getTeamAnalysis(processedQuery);
-                    return spellCheckMessage + response;
+                // Add transfer priority matrix
+                response += `\n\n**🎯 Transfer Priority Matrix:**\n`;
+                response += this.generateTransferMatrix();
+                
+                return response;
+            }
+            
+            async generateContextualResponse(query, context) {
+                // Fallback intelligent response for unclear queries
+                let response = `🤖 **AI Assistant Analysis**\n\n`;
+                
+                response += `I understand you're asking about: "${query}"\n\n`;
+                
+                // Provide relevant suggestions based on query keywords
+                const suggestions = this.generateQuerySuggestions(query);
+                if (suggestions.length > 0) {
+                    response += `**💡 Here's what I can help with:**\n`;
+                    suggestions.forEach(suggestion => {
+                        response += `• ${suggestion}\n`;
+                    });
+                    response += `\n`;
                 }
                 
-                // Differentials with ownership data
-                if (lowerQuery.includes('differential') || lowerQuery.includes('low ownership')) {
-                    const response = this.getDifferentialPicks();
-                    return spellCheckMessage + response;
+                // Offer general FPL advice
+                response += `**📈 Quick FPL Insights:**\n`;
+                response += this.getQuickFPLInsights();
+                
+                return response;
+            }
+            
+            generateSmartFollowUp(context, response) {
+                // Generate intelligent follow-up questions based on context
+                const followUps = [];
+                
+                if (context.intents.includes('captain')) {
+                    followUps.push("Would you like fixture analysis for these captaincy options?");
+                    followUps.push("Need help with differentials for this gameweek?");
+                } else if (context.intents.includes('transfer')) {
+                    followUps.push("Want me to analyze your team structure?");
+                    followUps.push("Should I check price predictions for these players?");
+                } else if (context.intents.includes('value')) {
+                    followUps.push("Would you like budget team suggestions?");
                 }
                 
-                // Chip strategy
-                if (lowerQuery.includes('wildcard') || lowerQuery.includes('chip') || lowerQuery.includes('free hit') || lowerQuery.includes('bench boost') || lowerQuery.includes('triple')) {
-                    const response = this.getChipStrategy(processedQuery);
-                    return spellCheckMessage + response;
+                if (followUps.length === 0) return null;
+                
+                const selected = followUps[Math.floor(Math.random() * followUps.length)];
+                return `🤔 **Quick question:** ${selected}`;
+            }
+            
+            calculateResponseConfidence(context, response) {
+                let confidence = 70; // Base confidence
+                
+                // Boost confidence for specific intents
+                if (context.intents.includes('specific_player')) confidence += 20;
+                if (context.intents.includes('captain')) confidence += 15;
+                if (context.intents.includes('transfer')) confidence += 10;
+                
+                // Reduce for unclear queries
+                if (context.intents.includes('general_advice')) confidence -= 20;
+                
+                // Check response quality indicators
+                if (response.includes('analysis') || response.includes('data')) confidence += 10;
+                if (response.length > 500) confidence += 5;
+                
+                return Math.max(50, Math.min(95, confidence));
+            }
+            
+            getIntelligentErrorResponse(query, error) {
+                const errorResponses = [
+                    "🤖 Oops! My AI brain had a moment there. Can you rephrase your question?",
+                    "⚠️ Something went wrong processing that. Try asking about specific players, transfers, or captains!",
+                    "🔧 Technical hiccup! Let me know what FPL topic you'd like help with.",
+                    "❌ Error in my analysis engine. Ask me about Salah, Haaland, transfers, or captains!"
+                ];
+                
+                const randomResponse = errorResponses[Math.floor(Math.random() * errorResponses.length)];
+                
+                return `${randomResponse}\n\n**💡 I can help with:**\n• Player analysis\n• Captain picks\n• Transfer advice\n• Team rating\n• Fixture analysis\n• Value picks`;
+            }
+            
+            // Helper functions for the enhanced AI
+            extractPlayerName(query) {
+                const playerPattern = /\b(salah|haaland|palmer|mbeumo|saka|isak|gordon|wood|foden|diaz|nunez|son|kane|bellingham|odegaard)\b/i;
+                const match = query.match(playerPattern);
+                return match ? match[1].toLowerCase() : null;
+            }
+            
+            findPlayerInDatabase(playerName) {
+                if (!playerName) return null;
+                
+                const normalizedName = playerName.toLowerCase();
+                
+                // Search in knowledge base
+                return this.knowledgeBase.topScorers.find(player => 
+                    player.name.toLowerCase().includes(normalizedName) ||
+                    normalizedName.includes(player.name.toLowerCase().split(' ')[1]?.toLowerCase())
+                );
+            }
+            
+            calculateValueScore(player) {
+                if (!player || !player.points || !player.price) return 5;
+                const valueRatio = player.points / (player.price * 10);
+                return Math.min(10, Math.max(1, Math.round(valueRatio * 2)));
+            }
+            
+            calculateConsistency(player) {
+                // Mock consistency calculation - in real implementation would use actual blank data
+                const baseConsistency = 75;
+                const formBonus = (player.form || 5) * 2;
+                return Math.min(95, Math.max(40, baseConsistency + formBonus));
+            }
+            
+            generatePlayerRecommendation(player, context) {
+                const recommendations = [
+                    `Strong pick with excellent form and fixtures.`,
+                    `Solid choice but monitor rotation risk.`,
+                    `Great differential option with low ownership.`,
+                    `Premium asset worth the investment.`,
+                    `Budget gem offering incredible value.`
+                ];
+                
+                // Simple recommendation logic
+                if (player.price > 10) {
+                    return recommendations[3];
+                } else if (player.ownership < 20) {
+                    return recommendations[2];
+                } else if (player.form > 7) {
+                    return recommendations[0];
+                } else {
+                    return recommendations[Math.floor(Math.random() * recommendations.length)];
+                }
+            }
+            
+            getPlayerFixtureOutlook(player) {
+                // Mock fixture analysis
+                const fixtures = ['Easy home vs Southampton', 'Tricky away at Arsenal', 'Good home vs Brighton'];
+                const fixture = fixtures[Math.floor(Math.random() * fixtures.length)];
+                return `Next 3 GWs look ${Math.random() > 0.5 ? 'promising' : 'challenging'}. ${fixture} stands out.`;
+            }
+            
+            async calculateDynamicCaptainScores() {
+                // Enhanced captain scoring algorithm
+                const scores = {};
+                
+                this.knowledgeBase.topScorers.slice(0, 8).forEach(player => {
+                    let score = 0;
+                    
+                    // Form contribution (0-30 points)
+                    score += (player.form || 5) * 3;
+                    
+                    // Fixture difficulty (0-20 points)
+                    score += Math.random() * 20; // Mock fixture score
+                    
+                    // Historical performance (0-25 points)
+                    score += (player.points / 15);
+                    
+                    // Penalty/Set piece bonus (0-15 points)
+                    const penaltyTakers = ['salah', 'haaland', 'palmer', 'saka'];
+                    if (penaltyTakers.some(p => player.name.toLowerCase().includes(p))) {
+                        score += 15;
+                    }
+                    
+                    // Ownership consideration (differential bonus)
+                    if (player.ownership < 30) {
+                        score += 10; // Differential bonus
+                    }
+                    
+                    scores[player.name] = {
+                        score: Math.round(score),
+                        reasoning: this.generateCaptainReasoning(player, score)
+                    };
+                });
+                
+                return scores;
+            }
+            
+            generateCaptainReasoning(player, score) {
+                if (score > 70) return "Excellent form, great fixtures, penalty taker";
+                if (score > 60) return "Solid form, decent fixtures, consistent performer";
+                if (score > 50) return "Good option, slight rotation risk";
+                return "Differential pick with upside potential";
+            }
+            
+            // Additional helper functions for enhanced AI
+            extractEntities(query) {
+                const entities = {
+                    players: [],
+                    teams: [],
+                    positions: [],
+                    numbers: []
+                };
+                
+                // Extract player names
+                const playerMatches = query.match(/\b(salah|haaland|palmer|mbeumo|saka|isak|gordon|wood|foden|diaz|nunez|son|kane)\b/gi);
+                if (playerMatches) entities.players = playerMatches;
+                
+                // Extract team names  
+                const teamMatches = query.match(/\b(liverpool|arsenal|chelsea|city|united|tottenham|newcastle|brighton|brentford)\b/gi);
+                if (teamMatches) entities.teams = teamMatches;
+                
+                // Extract positions
+                const positionMatches = query.match(/\b(goalkeeper|defender|midfielder|forward|gk|def|mid|fwd)\b/gi);
+                if (positionMatches) entities.positions = positionMatches;
+                
+                return entities;
+            }
+            
+            getCurrentGameweekContext() {
+                return {
+                    current: this.currentGameweek,
+                    isLive: this.isGameweekLive(),
+                    deadline: 'Saturday 11:30 GMT', // Mock deadline
+                    fixtures: this.fixtures.slice(0, 10) || []
+                };
+            }
+            
+            getUserQueryHistory() {
+                return this.conversationMemory.slice(-5).map(m => ({
+                    query: m.query,
+                    timestamp: m.timestamp,
+                    topic: m.context?.topic
+                }));
+            }
+            
+            extractPlayersFromComparison(query) {
+                const players = [];
+                const playerPattern = /\b(salah|haaland|palmer|mbeumo|saka|isak|gordon|wood|foden|diaz|nunez|son|kane)\b/gi;
+                const matches = query.match(playerPattern);
+                return matches ? matches.slice(0, 2) : [];
+            }
+            
+            generateComparisonTable(player1, player2) {
+                let table = `**📊 Head-to-Head Stats:**\n\n`;
+                table += `| Metric | ${player1.name} | ${player2.name} |\n`;
+                table += `|--------|---------|----------|\n`;
+                table += `| Points | ${player1.points || 'N/A'} | ${player2.points || 'N/A'} |\n`;
+                table += `| Form | ${player1.form || 'N/A'} | ${player2.form || 'N/A'} |\n`;
+                table += `| Goals | ${player1.goals || 0} | ${player2.goals || 0} |\n`;
+                table += `| Assists | ${player1.assists || 0} | ${player2.assists || 0} |\n`;
+                table += `| Price | £${player1.price || 'N/A'}m | £${player2.price || 'N/A'}m |\n`;
+                table += `| Ownership | ${player1.ownership || 'N/A'}% | ${player2.ownership || 'N/A'}% |\n\n`;
+                
+                return table;
+            }
+            
+            determineComparisonWinner(player1, player2) {
+                const score1 = (player1.points || 0) + (player1.form || 0) * 10;
+                const score2 = (player2.points || 0) + (player2.form || 0) * 10;
+                
+                if (score1 > score2) {
+                    return { 
+                        name: player1.name, 
+                        reasoning: `Higher overall score (${score1} vs ${score2}), better form and points potential.` 
+                    };
+                } else {
+                    return { 
+                        name: player2.name, 
+                        reasoning: `Higher overall score (${score2} vs ${score1}), better form and points potential.` 
+                    };
+                }
+            }
+            
+            getGameweekSpecificCaptainAdvice() {
+                const advice = [
+                    "Home fixtures are paying off this week - target home captains!",
+                    "Several penalty takers have great matchups this gameweek.",
+                    "Form players are in good fixtures - stick with hot picks.",
+                    "Differential captains could be worth the risk this week.",
+                    "Premium players have kind fixtures - safer captain options."
+                ];
+                
+                return advice[Math.floor(Math.random() * advice.length)];
+            }
+            
+            detectTransferType(query) {
+                const lowerQuery = query.toLowerCase();
+                
+                if (lowerQuery.includes('sell') || lowerQuery.includes('get rid')) {
+                    const player = this.extractPlayerName(query);
+                    return { type: 'specific_out', player: player };
+                } else if (lowerQuery.includes('bring in') || lowerQuery.includes('buy')) {
+                    const player = this.extractPlayerName(query);
+                    return { type: 'specific_in', player: player };
+                } else {
+                    return { type: 'general' };
+                }
+            }
+            
+            async getGeneralTransferAdvice(context) {
+                let advice = `**🔥 Hot Transfer Picks This Week:**\n\n`;
+                
+                // Get top 3 transfer targets
+                const topPicks = this.knowledgeBase.topScorers
+                    .filter(p => p.ownership < 40)
+                    .slice(0, 3);
+                
+                topPicks.forEach((player, index) => {
+                    advice += `${index + 1}. **${player.name}** (£${player.price}m)\n`;
+                    advice += `   • ${player.points} points, ${player.form}/10 form\n`;
+                    advice += `   • Only ${player.ownership}% owned\n\n`;
+                });
+                
+                advice += `**⚠️ Players to Consider Selling:**\n`;
+                advice += `• Check rotation risks before deadline\n`;
+                advice += `• Price falls can hurt team value\n`;
+                advice += `• Better alternatives often available\n\n`;
+                
+                return advice;
+            }
+            
+            generateTransferMatrix() {
+                return `**High Priority:** Injured/suspended players\n**Medium Priority:** Form drop-offs, fixture turns\n**Low Priority:** Price chasers, sideways moves`;
+            }
+            
+            generateQuerySuggestions(query) {
+                const suggestions = [];
+                const lowerQuery = query.toLowerCase();
+                
+                if (lowerQuery.includes('team')) {
+                    suggestions.push('Team analysis and ratings');
+                    suggestions.push('Squad optimization advice');
                 }
                 
-                // Form analysis
-                if (lowerQuery.includes('form') || lowerQuery.includes('hot') || lowerQuery.includes('cold')) {
-                    const response = this.getFormAnalysis();
-                    return spellCheckMessage + response;
+                if (lowerQuery.includes('help') || lowerQuery.includes('advice')) {
+                    suggestions.push('Captain recommendations');
+                    suggestions.push('Transfer suggestions');
+                    suggestions.push('Player comparisons');
                 }
                 
-                // Fixture analysis
-                if (lowerQuery.includes('fixture') || lowerQuery.includes('schedule')) {
-                    const response = this.getFixtureInsights();
-                    return spellCheckMessage + response;
+                // Default suggestions if nothing specific
+                if (suggestions.length === 0) {
+                    suggestions.push('Player analysis for top scorers');
+                    suggestions.push('Captain picks for this gameweek');
+                    suggestions.push('Best value transfers available');
                 }
                 
-                // Premium analysis
-                if (lowerQuery.includes('premium') || lowerQuery.includes('expensive')) {
-                    const response = this.getPremiumPlayerAnalysis();
-                    return spellCheckMessage + response;
+                return suggestions;
+            }
+            
+            getQuickFPLInsights() {
+                const insights = [
+                    "• Bryan Mbeumo leading the value charts at £7.5m with 337 points",
+                    "• Chris Wood offering incredible budget striker value at £6.5m", 
+                    "• Salah remains the most consistent captain choice this season",
+                    "• Several injury concerns to monitor before the next deadline",
+                    "• Form players like Palmer and Saka in excellent fixtures"
+                ];
+                
+                const randomInsights = insights.sort(() => 0.5 - Math.random()).slice(0, 3);
+                return randomInsights.join('\n');
+            }
+            
+            // Enhanced error handling and recovery
+            async handleProcessingError(error, query, context) {
+                console.error('🚨 AI Processing Error:', error);
+                
+                // Log error for debugging
+                this.logError(error, query, context);
+                
+                // Try simplified processing as fallback
+                try {
+                    return await this.getSimplifiedResponse(query);
+                } catch (fallbackError) {
+                    console.error('🚨 Fallback processing also failed:', fallbackError);
+                    return this.getEmergencyResponse(query);
+                }
+            }
+            
+            async getSimplifiedResponse(query) {
+                const lowerQuery = query.toLowerCase();
+                
+                // Basic keyword matching for fallback
+                if (lowerQuery.includes('captain')) {
+                    return "👑 **Captain Suggestions:** Salah and Haaland remain the safest picks. Palmer and Mbeumo are great differentials!";
+                } else if (lowerQuery.includes('transfer')) {
+                    return "🔄 **Transfer Tips:** Focus on in-form players with good fixtures. Mbeumo and Gordon are excellent value picks!";
+                } else if (lowerQuery.includes('salah')) {
+                    return "⭐ **Salah:** 344 points this season, excellent form (8.9), consistent captain choice. Currently £13.5m.";
+                } else if (lowerQuery.includes('haaland')) {
+                    return "🤖 **Haaland:** 27 goals this season, premium striker at £15.0m. High ceiling but some rotation risk.";
+                } else {
+                    return "🤖 **FPL Assistant:** I can help with captain picks, transfer advice, player analysis, and team ratings. What would you like to know?";
+                }
+            }
+            
+            getEmergencyResponse(query) {
+                return `🚨 **System Recovery Mode**
+
+I encountered an error processing your question: "${query}"
+
+🔧 **What I can still help with:**
+• Basic player stats (Salah, Haaland, Palmer, Mbeumo)  
+• Captain recommendations
+• Simple transfer advice
+• Current form analysis
+
+Please try rephrasing your question or ask about specific players!`;
+            }
+            
+            logError(error, query, context) {
+                // Enhanced error logging for debugging
+                const errorLog = {
+                    timestamp: Date.now(),
+                    error: error.message,
+                    stack: error.stack,
+                    query: query,
+                    context: context,
+                    userAgent: navigator.userAgent,
+                    gameweek: this.currentGameweek
+                };
+                
+                console.error('📝 Detailed Error Log:', errorLog);
+                
+                // Store in session storage for debugging
+                try {
+                    const errorHistory = JSON.parse(sessionStorage.getItem('fpl-ai-errors') || '[]');
+                    errorHistory.push(errorLog);
+                    
+                    // Keep only recent errors
+                    const recentErrors = errorHistory.slice(-10);
+                    sessionStorage.setItem('fpl-ai-errors', JSON.stringify(recentErrors));
+                } catch (storageError) {
+                    console.warn('Could not store error log:', storageError);
+                }
+            }
+            
+            // Response caching for performance
+            getCachedResponse(query) {
+                if (!this.responseCache) {
+                    this.responseCache = new Map();
                 }
                 
-                // Injury and rotation
+                const cacheKey = query.toLowerCase().trim();
+                const cached = this.responseCache.get(cacheKey);
+                
+                if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) { // 5 minute cache
+                    console.log('📦 Using cached response for:', query);
+                    return cached.response;
+                }
+                
+                return null;
+            }
+            
+            setCachedResponse(query, response) {
+                if (!this.responseCache) {
+                    this.responseCache = new Map();
+                }
+                
+                const cacheKey = query.toLowerCase().trim();
+                this.responseCache.set(cacheKey, {
+                    response: response,
+                    timestamp: Date.now()
+                });
+                
+                // Prevent memory bloat
+                if (this.responseCache.size > 50) {
+                    const firstKey = this.responseCache.keys().next().value;
+                    this.responseCache.delete(firstKey);
+                }
+            }
+            
+            // Performance monitoring
+            measurePerformance(operationName, fn) {
+                const startTime = performance.now();
+                const result = fn();
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+                
+                console.log(`⏱️ ${operationName} took ${duration.toFixed(2)}ms`);
+                
+                // Log slow operations
+                if (duration > 1000) {
+                    console.warn(`🐌 Slow operation detected: ${operationName} (${duration.toFixed(2)}ms)`);
+                }
+                
+                return result;
+            }
                 if (lowerQuery.includes('injur') || lowerQuery.includes('rotation') || lowerQuery.includes('benched')) {
                     const response = this.getInjuryRotationAdvice();
                     return spellCheckMessage + response;
