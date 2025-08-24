@@ -3024,9 +3024,48 @@
                 </div>
             </div>
 
-            <!-- Right Panel - Analytics -->
-            <div class="panel">
-                <div class="analytics-section">
+            <!-- Right Panel - What-If Scenarios & Analytics -->
+            <div>
+                <div class="scenario-panel panel">
+                    <h2>🎯 What-If Scenarios</h2>
+                    
+                    <div class="scenario-item" onclick="runScenario('wildcard')" style="cursor: pointer; padding: 15px; background: white; border-radius: 8px; margin-bottom: 10px; transition: all 0.3s;">
+                        <div class="scenario-title" style="font-weight: 700; color: #37003c;">🃏 Wildcard Optimization</div>
+                        <div class="scenario-description" style="color: #666; font-size: 0.9rem;">Build the best possible team within budget</div>
+                        <div class="scenario-result" id="wildcard-result" style="margin-top: 10px; color: #28a745; font-size: 0.9rem;"></div>
+                    </div>
+                    
+                    <div class="scenario-item" onclick="runScenario('differential')" style="cursor: pointer; padding: 15px; background: white; border-radius: 8px; margin-bottom: 10px; transition: all 0.3s;">
+                        <div class="scenario-title" style="font-weight: 700; color: #37003c;">🎲 Differential Team</div>
+                        <div class="scenario-description" style="color: #666; font-size: 0.9rem;">Low ownership, high potential players</div>
+                        <div class="scenario-result" id="differential-result" style="margin-top: 10px; color: #28a745; font-size: 0.9rem;"></div>
+                    </div>
+                    
+                    <div class="scenario-item" onclick="runScenario('budget')" style="cursor: pointer; padding: 15px; background: white; border-radius: 8px; margin-bottom: 10px; transition: all 0.3s;">
+                        <div class="scenario-title" style="font-weight: 700; color: #37003c;">💰 Budget Team</div>
+                        <div class="scenario-description" style="color: #666; font-size: 0.9rem;">Maximum value for money</div>
+                        <div class="scenario-result" id="budget-result" style="margin-top: 10px; color: #28a745; font-size: 0.9rem;"></div>
+                    </div>
+                </div>
+                
+                <!-- Transfer History -->
+                <div class="transfer-history panel" style="margin-top: 20px;">
+                    <h2>📜 Transfer History</h2>
+                    <div id="transferHistory" style="max-height: 200px; overflow-y: auto;">
+                        <div class="history-item" style="padding: 10px; background: #f8f9fa; border-radius: 8px; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center;">
+                                <div class="history-icon history-in" style="width: 30px; height: 30px; background: #d4edda; color: #155724; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">➕</div>
+                                <div>
+                                    <div style="font-weight: 700;">No transfers yet</div>
+                                    <div style="color: #666; font-size: 0.9rem;">Start building your team</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Charts -->
+                <div class="analytics-section panel" style="margin-top: 20px;">
                     <h2>📊 Squad Analytics</h2>
                     
                     <div class="chart-container">
@@ -3034,19 +3073,69 @@
                         <canvas id="valueChart" width="300" height="200"></canvas>
                     </div>
                     
-                    <div class="chart-container">
+                    <div class="chart-container" style="margin-top: 20px;">
                         <h3>Expected Points by Position</h3>
                         <canvas id="pointsChart" width="300" height="160"></canvas>
                     </div>
                 </div>
             </div>
         </div>
-
-
-
-
-
-
+        
+        <!-- Fixture Difficulty Analysis -->
+        <div class="fixture-analysis-section" style="background: rgba(255,255,255,0.95); border-radius: 20px; padding: 40px; margin: 30px 0;">
+            <h2 style="font-size: 2rem; color: #37003c; margin-bottom: 30px; text-align: center;">📅 Fixture Difficulty Analysis (Next 5 GWs)</h2>
+            <div class="fixture-filter" style="display: flex; justify-content: center; gap: 15px; margin-bottom: 30px;">
+                <button class="fixture-btn active" onclick="showFixtures('all')" style="padding: 12px 24px; border: 2px solid #6f42c1; background: #6f42c1; color: white; border-radius: 25px; font-weight: 600; cursor: pointer;">All Teams</button>
+                <button class="fixture-btn" onclick="showFixtures('easy')" style="padding: 12px 24px; border: 2px solid #6f42c1; background: transparent; color: #6f42c1; border-radius: 25px; font-weight: 600; cursor: pointer;">Easy Fixtures</button>
+                <button class="fixture-btn" onclick="showFixtures('hard')" style="padding: 12px 24px; border: 2px solid #6f42c1; background: transparent; color: #6f42c1; border-radius: 25px; font-weight: 600; cursor: pointer;">Hard Fixtures</button>
+            </div>
+            <div class="fixture-grid" id="fixtureGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <!-- Fixtures will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Captain Prediction Algorithm -->
+        <div class="captain-section" style="background: rgba(255,255,255,0.95); border-radius: 20px; padding: 40px; margin: 30px 0;">
+            <h2 style="font-size: 2rem; color: #37003c; margin-bottom: 30px; text-align: center;">👑 Captain Prediction Algorithm</h2>
+            <div class="captain-analysis" id="captainAnalysis">
+                <!-- Captain predictions will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Price Change Predictions -->
+        <div class="price-change-section" style="background: rgba(255,255,255,0.95); border-radius: 20px; padding: 40px; margin: 30px 0;">
+            <h2 style="font-size: 2rem; color: #37003c; margin-bottom: 30px; text-align: center;">📈 Price Change Predictions</h2>
+            <div class="price-change-tabs" style="display: flex; justify-content: center; gap: 15px; margin-bottom: 30px;">
+                <button class="price-tab active" onclick="showPriceChanges('risers')" style="padding: 12px 24px; border: 2px solid #6f42c1; background: #6f42c1; color: white; border-radius: 25px; font-weight: 600; cursor: pointer;">🔥 Likely Risers</button>
+                <button class="price-tab" onclick="showPriceChanges('fallers')" style="padding: 12px 24px; border: 2px solid #6f42c1; background: transparent; color: #6f42c1; border-radius: 25px; font-weight: 600; cursor: pointer;">📉 Likely Fallers</button>
+            </div>
+            <div class="price-change-grid" id="priceChangeGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                <!-- Price predictions will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Player Comparison Matrix -->
+        <div class="comparison-section" style="background: rgba(255,255,255,0.95); border-radius: 20px; padding: 40px; margin: 30px 0;">
+            <h2 style="font-size: 2rem; color: #37003c; margin-bottom: 30px; text-align: center;">⚖️ Player Comparison Matrix</h2>
+            <div class="comparison-controls" style="display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; flex-wrap: wrap;">
+                <select id="comparePosition" onchange="updateComparisonPlayers()" style="padding: 12px 20px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem;">
+                    <option value="">Select Position</option>
+                    <option value="1">Goalkeepers</option>
+                    <option value="2">Defenders</option>
+                    <option value="3">Midfielders</option>
+                    <option value="4">Forwards</option>
+                </select>
+                <select id="comparePlayer1" onchange="updateComparison()" style="padding: 12px 20px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem;">
+                    <option value="">Player 1</option>
+                </select>
+                <select id="comparePlayer2" onchange="updateComparison()" style="padding: 12px 20px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem;">
+                    <option value="">Player 2</option>
+                </select>
+            </div>
+            <div class="comparison-table" id="comparisonTable" style="background: white; border-radius: 15px; padding: 25px;">
+                <div style="text-align: center; color: #666; font-size: 1.1rem; padding: 40px;">Select position and players to compare</div>
+            </div>
+        </div>
     </div>
 
     <!-- Player Selection Modal -->
@@ -3265,6 +3354,320 @@
             updateCharts();
             
             showNotification(`✅ ${player.name} added to squad!`, 'success');
+        };
+        
+        // What-If Scenarios functionality
+        window.runScenario = function(scenario) {
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
+                showNotification('❌ Player data not loaded', 'error');
+                return;
+            }
+            
+            const resultDiv = document.getElementById(scenario + '-result');
+            if (resultDiv) {
+                resultDiv.textContent = 'Analyzing...';
+            }
+            
+            setTimeout(() => {
+                let result = '';
+                let recommendedPlayers = [];
+                
+                switch(scenario) {
+                    case 'wildcard':
+                        // Build optimal wildcard team
+                        recommendedPlayers = buildWildcardTeam();
+                        result = `Optimal squad: £${recommendedPlayers.totalValue.toFixed(1)}m, ${recommendedPlayers.expectedPoints.toFixed(0)} pts`;
+                        break;
+                        
+                    case 'differential':
+                        // Find low ownership high value players
+                        recommendedPlayers = findDifferentials();
+                        result = `Found ${recommendedPlayers.length} differentials with avg ${recommendedPlayers.avgOwnership}% ownership`;
+                        break;
+                        
+                    case 'budget':
+                        // Build budget team
+                        recommendedPlayers = buildBudgetTeam();
+                        result = `Budget squad: £${recommendedPlayers.totalValue.toFixed(1)}m with ${recommendedPlayers.expectedPoints.toFixed(0)} pts`;
+                        break;
+                }
+                
+                if (resultDiv) {
+                    resultDiv.textContent = result;
+                }
+            }, 500);
+        };
+        
+        // Build optimal wildcard team
+        function buildWildcardTeam() {
+            const players = window.transferSimPro.allPlayers;
+            const sorted = [...players].sort((a, b) => {
+                const aScore = (a.total_points || 0) + parseFloat(a.form || 0) * 10;
+                const bScore = (b.total_points || 0) + parseFloat(b.form || 0) * 10;
+                return bScore - aScore;
+            });
+            
+            const team = {
+                GK: sorted.filter(p => p.position === 1).slice(0, 2),
+                DEF: sorted.filter(p => p.position === 2).slice(0, 5),
+                MID: sorted.filter(p => p.position === 3).slice(0, 5),
+                FWD: sorted.filter(p => p.position === 4).slice(0, 3)
+            };
+            
+            const allPlayers = [...team.GK, ...team.DEF, ...team.MID, ...team.FWD];
+            const totalValue = allPlayers.reduce((sum, p) => sum + (p.price || 0), 0);
+            const expectedPoints = allPlayers.reduce((sum, p) => sum + (p.total_points || 0), 0);
+            
+            return { players: allPlayers, totalValue, expectedPoints };
+        }
+        
+        // Find differential players
+        function findDifferentials() {
+            const players = window.transferSimPro.allPlayers;
+            const differentials = players.filter(p => {
+                const ownership = parseFloat(p.selected_by_percent || 0);
+                const form = parseFloat(p.form || 0);
+                return ownership < 10 && form > 5 && p.total_points > 50;
+            }).slice(0, 10);
+            
+            const avgOwnership = differentials.reduce((sum, p) => sum + parseFloat(p.selected_by_percent || 0), 0) / differentials.length;
+            
+            return { length: differentials.length, avgOwnership: avgOwnership.toFixed(1) };
+        }
+        
+        // Build budget team
+        function buildBudgetTeam() {
+            const players = window.transferSimPro.allPlayers;
+            const budget = players.filter(p => p.price < 6).sort((a, b) => {
+                const aValue = p.price > 0 ? (p.total_points || 0) / p.price : 0;
+                const bValue = b.price > 0 ? (b.total_points || 0) / b.price : 0;
+                return bValue - aValue;
+            });
+            
+            const team = {
+                GK: budget.filter(p => p.position === 1).slice(0, 2),
+                DEF: budget.filter(p => p.position === 2).slice(0, 5),
+                MID: budget.filter(p => p.position === 3).slice(0, 5),
+                FWD: budget.filter(p => p.position === 4).slice(0, 3)
+            };
+            
+            const allPlayers = [...team.GK, ...team.DEF, ...team.MID, ...team.FWD];
+            const totalValue = allPlayers.reduce((sum, p) => sum + (p.price || 0), 0);
+            const expectedPoints = allPlayers.reduce((sum, p) => sum + (p.total_points || 0), 0);
+            
+            return { totalValue, expectedPoints };
+        }
+        
+        // Show fixtures function
+        window.showFixtures = function(filter) {
+            const buttons = document.querySelectorAll('.fixture-btn');
+            buttons.forEach(btn => {
+                btn.style.background = 'transparent';
+                btn.style.color = '#6f42c1';
+            });
+            event.target.style.background = '#6f42c1';
+            event.target.style.color = 'white';
+            
+            const grid = document.getElementById('fixtureGrid');
+            if (!grid) return;
+            
+            // Simulated fixture data
+            const fixtures = [
+                { team: 'Arsenal', next5: ['EVE(H)', 'BHA(A)', 'TOT(H)', 'BOU(A)', 'MUN(H)'], difficulty: 3.2 },
+                { team: 'Liverpool', next5: ['FUL(A)', 'TOT(H)', 'LEI(A)', 'WHU(H)', 'BOU(A)'], difficulty: 2.8 },
+                { team: 'Man City', next5: ['BRE(H)', 'EVE(A)', 'CHE(H)', 'ARS(A)', 'AST(H)'], difficulty: 3.5 },
+                { team: 'Chelsea', next5: ['BOU(A)', 'AST(H)', 'CRY(A)', 'MCI(A)', 'NEW(H)'], difficulty: 3.3 }
+            ];
+            
+            let filtered = fixtures;
+            if (filter === 'easy') {
+                filtered = fixtures.filter(f => f.difficulty < 3);
+            } else if (filter === 'hard') {
+                filtered = fixtures.filter(f => f.difficulty >= 3.3);
+            }
+            
+            grid.innerHTML = filtered.map(team => `
+                <div style="background: white; border-radius: 12px; padding: 20px; border: 2px solid #f0f0f0;">
+                    <h3 style="color: #37003c; margin-bottom: 15px;">${team.team}</h3>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        ${team.next5.map(fix => `
+                            <span style="padding: 5px 10px; background: ${getDifficultyColor(fix)}; color: white; border-radius: 5px; font-size: 0.9rem;">${fix}</span>
+                        `).join('')}
+                    </div>
+                    <div style="margin-top: 10px; color: #666;">
+                        Difficulty: ${team.difficulty.toFixed(1)}/5
+                    </div>
+                </div>
+            `).join('');
+        };
+        
+        function getDifficultyColor(fixture) {
+            if (fixture.includes('(H)')) {
+                return fixture.includes('MCI') || fixture.includes('LIV') || fixture.includes('ARS') ? '#dc3545' : '#28a745';
+            }
+            return '#ffc107';
+        }
+        
+        // Captain predictions
+        window.updateCaptainPredictions = function() {
+            const captainDiv = document.getElementById('captainAnalysis');
+            if (!captainDiv || !window.transferSimPro || !window.transferSimPro.allPlayers) return;
+            
+            const topPlayers = [...window.transferSimPro.allPlayers]
+                .sort((a, b) => {
+                    const aScore = (a.total_points || 0) + parseFloat(a.form || 0) * 20;
+                    const bScore = (b.total_points || 0) + parseFloat(b.form || 0) * 20;
+                    return bScore - aScore;
+                })
+                .slice(0, 5);
+            
+            captainDiv.innerHTML = topPlayers.map((player, index) => `
+                <div style="display: flex; align-items: center; padding: 20px; background: ${index === 0 ? 'linear-gradient(135deg, #ffd700, #ffed4e)' : 'white'}; border-radius: 12px; margin-bottom: 15px; border: 2px solid ${index === 0 ? '#ffd700' : '#f0f0f0'};">
+                    <div style="font-size: 2rem; font-weight: 700; color: ${index === 0 ? '#37003c' : '#666'}; margin-right: 20px;">#${index + 1}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; color: #37003c; font-size: 1.2rem;">${player.name}</div>
+                        <div style="color: #666; margin-top: 5px;">Form: ${player.form || '0.0'} • Points: ${player.total_points || 0} • £${player.price}m</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: ${index === 0 ? '#37003c' : '#6f42c1'};">${(85 - index * 10)}%</div>
+                        <div style="color: #666; font-size: 0.9rem;">confidence</div>
+                    </div>
+                </div>
+            `).join('');
+        };
+        
+        // Price change predictions
+        window.showPriceChanges = function(type) {
+            const buttons = document.querySelectorAll('.price-tab');
+            buttons.forEach(btn => {
+                btn.style.background = 'transparent';
+                btn.style.color = '#6f42c1';
+            });
+            event.target.style.background = '#6f42c1';
+            event.target.style.color = 'white';
+            
+            const grid = document.getElementById('priceChangeGrid');
+            if (!grid || !window.transferSimPro || !window.transferSimPro.allPlayers) return;
+            
+            let players = [];
+            if (type === 'risers') {
+                players = window.transferSimPro.allPlayers
+                    .filter(p => parseFloat(p.form || 0) > 6 && parseFloat(p.selected_by_percent || 0) < 30)
+                    .sort((a, b) => parseFloat(b.form || 0) - parseFloat(a.form || 0))
+                    .slice(0, 6);
+            } else {
+                players = window.transferSimPro.allPlayers
+                    .filter(p => parseFloat(p.form || 0) < 3 && parseFloat(p.selected_by_percent || 0) > 20)
+                    .sort((a, b) => parseFloat(a.form || 0) - parseFloat(b.form || 0))
+                    .slice(0, 6);
+            }
+            
+            grid.innerHTML = players.map(player => `
+                <div style="background: white; border-radius: 12px; padding: 20px; border-top: 4px solid ${type === 'risers' ? '#28a745' : '#dc3545'};">
+                    <div style="font-weight: 700; color: #37003c; margin-bottom: 10px;">${player.name}</div>
+                    <div style="color: #666; font-size: 0.9rem;">Current: £${player.price}m</div>
+                    <div style="color: ${type === 'risers' ? '#28a745' : '#dc3545'}; font-weight: 700; margin-top: 10px;">
+                        ${type === 'risers' ? '↑' : '↓'} £${type === 'risers' ? (player.price + 0.1).toFixed(1) : (player.price - 0.1).toFixed(1)}m
+                    </div>
+                    <div style="margin-top: 10px; font-size: 0.85rem; color: #666;">
+                        Form: ${player.form || '0.0'} • Owned: ${player.selected_by_percent || '0.0'}%
+                    </div>
+                </div>
+            `).join('');
+        };
+        
+        // Player comparison
+        window.updateComparisonPlayers = function() {
+            const position = document.getElementById('comparePosition').value;
+            if (!position || !window.transferSimPro || !window.transferSimPro.allPlayers) return;
+            
+            const players = window.transferSimPro.allPlayers.filter(p => p.position == position);
+            const player1Select = document.getElementById('comparePlayer1');
+            const player2Select = document.getElementById('comparePlayer2');
+            
+            const options = '<option value="">Select Player</option>' + 
+                players.map(p => `<option value="${p.id}">${p.name} - £${p.price}m</option>`).join('');
+            
+            player1Select.innerHTML = options;
+            player2Select.innerHTML = options;
+        };
+        
+        window.updateComparison = function() {
+            const player1Id = document.getElementById('comparePlayer1').value;
+            const player2Id = document.getElementById('comparePlayer2').value;
+            
+            if (!player1Id || !player2Id || !window.transferSimPro) return;
+            
+            const player1 = window.transferSimPro.allPlayers.find(p => p.id == player1Id);
+            const player2 = window.transferSimPro.allPlayers.find(p => p.id == player2Id);
+            
+            if (!player1 || !player2) return;
+            
+            const table = document.getElementById('comparisonTable');
+            table.innerHTML = `
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #6f42c1, #37003c); color: white;">
+                            <th style="padding: 15px; text-align: left;">Metric</th>
+                            <th style="padding: 15px; text-align: center;">${player1.name}</th>
+                            <th style="padding: 15px; text-align: center;">${player2.name}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 12px; font-weight: 600;">Price</td>
+                            <td style="padding: 12px; text-align: center; ${player1.price < player2.price ? 'color: #28a745; font-weight: 700;' : ''}">£${player1.price}m</td>
+                            <td style="padding: 12px; text-align: center; ${player2.price < player1.price ? 'color: #28a745; font-weight: 700;' : ''}">£${player2.price}m</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 12px; font-weight: 600;">Total Points</td>
+                            <td style="padding: 12px; text-align: center; ${(player1.total_points || 0) > (player2.total_points || 0) ? 'color: #28a745; font-weight: 700;' : ''}">${player1.total_points || 0}</td>
+                            <td style="padding: 12px; text-align: center; ${(player2.total_points || 0) > (player1.total_points || 0) ? 'color: #28a745; font-weight: 700;' : ''}">${player2.total_points || 0}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 12px; font-weight: 600;">Form</td>
+                            <td style="padding: 12px; text-align: center; ${parseFloat(player1.form || 0) > parseFloat(player2.form || 0) ? 'color: #28a745; font-weight: 700;' : ''}">${player1.form || '0.0'}</td>
+                            <td style="padding: 12px; text-align: center; ${parseFloat(player2.form || 0) > parseFloat(player1.form || 0) ? 'color: #28a745; font-weight: 700;' : ''}">${player2.form || '0.0'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 12px; font-weight: 600;">Ownership</td>
+                            <td style="padding: 12px; text-align: center;">${player1.selected_by_percent || '0.0'}%</td>
+                            <td style="padding: 12px; text-align: center;">${player2.selected_by_percent || '0.0'}%</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; font-weight: 600;">Value (pts/£)</td>
+                            <td style="padding: 12px; text-align: center; ${(player1.total_points/player1.price) > (player2.total_points/player2.price) ? 'color: #28a745; font-weight: 700;' : ''}">${(player1.total_points/player1.price).toFixed(1)}</td>
+                            <td style="padding: 12px; text-align: center; ${(player2.total_points/player2.price) > (player1.total_points/player1.price) ? 'color: #28a745; font-weight: 700;' : ''}">${(player2.total_points/player2.price).toFixed(1)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        };
+        
+        // Add transfer to history
+        window.addTransferToHistory = function(playerIn, playerOut) {
+            const historyDiv = document.getElementById('transferHistory');
+            if (!historyDiv) return;
+            
+            const historyHTML = `
+                <div class="history-item" style="padding: 10px; background: #f8f9fa; border-radius: 8px; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 30px; height: 30px; background: #d4edda; color: #155724; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">➕</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700;">${playerIn ? playerIn.name : 'Player Added'}</div>
+                            ${playerOut ? `<div style="color: #dc3545; font-size: 0.9rem;">Out: ${playerOut.name}</div>` : ''}
+                            <div style="color: #666; font-size: 0.85rem;">${new Date().toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove "No transfers yet" message if it exists
+            if (historyDiv.innerHTML.includes('No transfers yet')) {
+                historyDiv.innerHTML = '';
+            }
+            
+            historyDiv.innerHTML = historyHTML + historyDiv.innerHTML;
         };
         
         document.addEventListener('DOMContentLoaded', async () => {

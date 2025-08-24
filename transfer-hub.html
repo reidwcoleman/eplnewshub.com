@@ -49,6 +49,75 @@
             line-height: 1.6;
         }
 
+        /* Live Transfer Ticker */
+        .transfer-ticker {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, var(--primary-purple), var(--dark-bg));
+            border-bottom: 2px solid var(--primary-green);
+            z-index: 1000;
+            overflow: hidden;
+            height: 40px;
+        }
+
+        .ticker-wrapper {
+            display: flex;
+            animation: ticker 30s linear infinite;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            padding: 0 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .ticker-badge {
+            background: var(--primary-green);
+            color: var(--primary-purple);
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 10px;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        /* Transfer Deadline Countdown */
+        .deadline-countdown {
+            position: fixed;
+            top: 110px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--error), var(--warning));
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-xl);
+            z-index: 999;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .countdown-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .countdown-timer {
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: 'Monaco', monospace;
+        }
+
         /* Enhanced Loading Screen */
         .loading-screen {
             position: fixed;
@@ -1090,6 +1159,42 @@
 
     <!-- Header -->
     <div class="header" include="./header.html"></div>
+
+    <!-- Live Transfer Ticker -->
+    <div class="transfer-ticker">
+        <div class="ticker-wrapper">
+            <div class="ticker-item">
+                <span class="ticker-badge">BREAKING</span>
+                🔴 Arsenal complete £67.5M Eze deal from Crystal Palace
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-badge">CONFIRMED</span>
+                🔵 Liverpool sign Florian Wirtz for club record £116M
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-badge">MEDICAL</span>
+                ⚪ Tottenham closing in on £45M Maddison replacement
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-badge">UPDATE</span>
+                🔵 Chelsea exodus continues - £250M in sales confirmed
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-badge">HOT</span>
+                🔴 Man United reject £60M bid for Mainoo from Real Madrid
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-badge">LIVE</span>
+                ⚫ Newcastle submit improved £45M bid for Yoane Wissa
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Deadline Countdown -->
+    <div class="deadline-countdown">
+        <div class="countdown-label">Transfer Deadline</div>
+        <div class="countdown-timer" id="deadlineTimer">8D 14H 32M</div>
+    </div>
 
     <!-- Notification Container -->
     <div class="notification-container" id="notificationContainer"></div>
@@ -2590,7 +2695,241 @@
                 showNotification('Real Premier League 2025 transfer data loaded! 🎯', 'success');
             }, 3500);
 
+            // Countdown timer
+            function updateCountdown() {
+                const deadline = new Date('2025-09-01T23:00:00');
+                const now = new Date();
+                const diff = deadline - now;
+                
+                if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    
+                    const timer = document.getElementById('deadlineTimer');
+                    if (timer) {
+                        timer.textContent = `${days}D ${hours}H ${minutes}M`;
+                    }
+                }
+            }
+            
+            updateCountdown();
+            setInterval(updateCountdown, 60000);
+
+            // Enhanced ticker animation
+            const tickerWrapper = document.querySelector('.ticker-wrapper');
+            if (tickerWrapper) {
+                const tickerContent = tickerWrapper.innerHTML;
+                tickerWrapper.innerHTML = tickerContent + tickerContent; // Duplicate for seamless loop
+            }
+
+            // Random comparison function
+            window.randomComparison = function() {
+                const players = [
+                    { name: 'Eberechi Eze', fee: '£67.5M', age: 27, goals: 12, assists: 8, club: 'Arsenal', initials: 'EZ' },
+                    { name: 'Florian Wirtz', fee: '£116M', age: 22, goals: 18, assists: 15, club: 'Liverpool', initials: 'FW' },
+                    { name: 'Rayan Cherki', fee: '£34M', age: 21, goals: 8, assists: 10, club: 'Man City', initials: 'RC' },
+                    { name: 'Kobbie Mainoo', fee: '£70M', age: 19, goals: 5, assists: 7, club: 'Man United', initials: 'KM' },
+                    { name: 'Pedro Neto', fee: '£55M', age: 24, goals: 10, assists: 9, club: 'Chelsea', initials: 'PN' }
+                ];
+                
+                const player1 = players[Math.floor(Math.random() * players.length)];
+                let player2 = players[Math.floor(Math.random() * players.length)];
+                while (player2 === player1) {
+                    player2 = players[Math.floor(Math.random() * players.length)];
+                }
+                
+                showNotification(`Comparing ${player1.name} vs ${player2.name}`, 'info');
+            };
+
         });
     </script>
+
+    <!-- Transfer Comparison Tool -->
+    <div class="comparison-tool">
+        <div class="comparison-header">
+            <h2 class="comparison-title">⚖️ Transfer Comparison Tool</h2>
+            <button class="compare-btn" onclick="randomComparison()" style="padding: 10px 20px; background: linear-gradient(45deg, var(--primary-purple), var(--primary-green)); border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;">🔄 Random Compare</button>
+        </div>
+        <div class="comparison-grid">
+            <div class="player-comparison-card">
+                <div class="player-avatar" style="background: linear-gradient(135deg, var(--arsenal-red), #ffffff);">EZ</div>
+                <h3>Eberechi Eze</h3>
+                <div class="comparison-stats">
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: var(--text-secondary);">Transfer Fee</span>
+                        <strong>£67.5M</strong>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: var(--text-secondary);">Age</span>
+                        <strong>27</strong>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: var(--text-secondary);">Goals 24/25</span>
+                        <strong>12</strong>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: var(--text-secondary);">Assists 24/25</span>
+                        <strong>8</strong>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0;">
+                        <span style="color: var(--text-secondary);">Club</span>
+                        <strong>Arsenal</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="player-comparison-card">
+                <div class="player-avatar" style="background: linear-gradient(135deg, var(--liverpool-red), #ffffff);">FW</div>
+                <h3>Florian Wirtz</h3>
+                <div class="comparison-stats">
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: var(--text-secondary);">Transfer Fee</span>
+                        <strong>£116M</strong>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: var(--text-secondary);">Age</span>
+                        <strong>22</strong>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: var(--text-secondary);">Goals 24/25</span>
+                        <strong>18</strong>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: var(--text-secondary);">Assists 24/25</span>
+                        <strong>15</strong>
+                    </div>
+                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0;">
+                        <span style="color: var(--text-secondary);">Club</span>
+                        <strong>Liverpool</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Club Spending Visualization -->
+    <div class="spending-viz">
+        <h2 class="section-title" style="font-size: 1.8rem; margin-bottom: 20px;">💰 Club Transfer Spending 2025</h2>
+        <div class="spending-chart">
+            <div class="spending-bar">
+                <div class="club-logo-small" style="background: var(--liverpool-red);">LFC</div>
+                <div class="spending-progress">
+                    <div class="spending-fill" style="width: 95%; background: linear-gradient(90deg, var(--liverpool-red), #ff6b6b);">
+                        <span>Liverpool - £240M</span>
+                    </div>
+                </div>
+            </div>
+            <div class="spending-bar">
+                <div class="club-logo-small" style="background: var(--arsenal-red);">ARS</div>
+                <div class="spending-progress">
+                    <div class="spending-fill" style="width: 85%; background: linear-gradient(90deg, var(--arsenal-red), #ff4757);">
+                        <span>Arsenal - £215M</span>
+                    </div>
+                </div>
+            </div>
+            <div class="spending-bar">
+                <div class="club-logo-small" style="background: var(--chelsea-blue);">CHE</div>
+                <div class="spending-progress">
+                    <div class="spending-fill" style="width: 70%; background: linear-gradient(90deg, var(--chelsea-blue), #3742fa);">
+                        <span>Chelsea - £180M</span>
+                    </div>
+                </div>
+            </div>
+            <div class="spending-bar">
+                <div class="club-logo-small" style="background: var(--city-blue);">MCI</div>
+                <div class="spending-progress">
+                    <div class="spending-fill" style="width: 65%; background: linear-gradient(90deg, var(--city-blue), #74b9ff);">
+                        <span>Man City - £165M</span>
+                    </div>
+                </div>
+            </div>
+            <div class="spending-bar">
+                <div class="club-logo-small" style="background: #da020e;">MUN</div>
+                <div class="spending-progress">
+                    <div class="spending-fill" style="width: 55%; background: linear-gradient(90deg, #da020e, #ff6b6b);">
+                        <span>Man United - £140M</span>
+                    </div>
+                </div>
+            </div>
+            <div class="spending-bar">
+                <div class="club-logo-small" style="background: #132257;">TOT</div>
+                <div class="spending-progress">
+                    <div class="spending-fill" style="width: 45%; background: linear-gradient(90deg, #132257, #5f7cff);">
+                        <span>Tottenham - £115M</span>
+                    </div>
+                </div>
+            </div>
+            <div class="spending-bar">
+                <div class="club-logo-small" style="background: #241f20;">NEW</div>
+                <div class="spending-progress">
+                    <div class="spending-fill" style="width: 35%; background: linear-gradient(90deg, #241f20, #636e72);">
+                        <span>Newcastle - £90M</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Social Sentiment Tracker -->
+    <div class="sentiment-tracker">
+        <h2 class="section-title" style="font-size: 1.8rem; margin-bottom: 20px;">📊 Transfer Sentiment Analysis</h2>
+        <div class="sentiment-grid">
+            <div class="sentiment-card">
+                <div class="sentiment-emoji">🔥</div>
+                <div class="sentiment-label">Fan Excitement</div>
+                <div class="sentiment-percentage">92%</div>
+                <div class="sentiment-transfer" style="color: var(--text-secondary); font-size: 0.9rem;">Eze to Arsenal</div>
+            </div>
+            <div class="sentiment-card">
+                <div class="sentiment-emoji">😍</div>
+                <div class="sentiment-label">Approval Rating</div>
+                <div class="sentiment-percentage">88%</div>
+                <div class="sentiment-transfer" style="color: var(--text-secondary); font-size: 0.9rem;">Wirtz to Liverpool</div>
+            </div>
+            <div class="sentiment-card">
+                <div class="sentiment-emoji">😤</div>
+                <div class="sentiment-label">Controversy</div>
+                <div class="sentiment-percentage">76%</div>
+                <div class="sentiment-transfer" style="color: var(--text-secondary); font-size: 0.9rem;">Chelsea Sales</div>
+            </div>
+            <div class="sentiment-card">
+                <div class="sentiment-emoji">🤔</div>
+                <div class="sentiment-label">Skepticism</div>
+                <div class="sentiment-percentage">65%</div>
+                <div class="sentiment-transfer" style="color: var(--text-secondary); font-size: 0.9rem;">United Spending</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Success Analytics -->
+    <div class="success-analytics">
+        <h2 class="section-title" style="font-size: 1.8rem; margin-bottom: 20px;">📈 Transfer Success Predictions</h2>
+        <div class="success-metrics">
+            <div class="success-metric">
+                <span class="metric-label">🎯 Eze at Arsenal - Impact Score</span>
+                <span class="metric-value">9.2/10</span>
+            </div>
+            <div class="success-metric">
+                <span class="metric-label">⚡ Wirtz at Liverpool - Performance Projection</span>
+                <span class="metric-value">95%</span>
+            </div>
+            <div class="success-metric">
+                <span class="metric-label">💰 Best Value Transfer</span>
+                <span class="metric-value">Cherki to City (£34M)</span>
+            </div>
+            <div class="success-metric">
+                <span class="metric-label">🏆 Title Impact Transfer</span>
+                <span class="metric-value">Wirtz to Liverpool</span>
+            </div>
+            <div class="success-metric">
+                <span class="metric-label">📊 Market Efficiency Rating</span>
+                <span class="metric-value">78%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer" include="./footer.html"></div>
 </body>
 </html>
