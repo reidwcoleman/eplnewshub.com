@@ -4763,7 +4763,7 @@
             
             if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
                 console.warn('Player data not loaded yet');
-                console.warn('Player data is still loading. Please wait a moment and try again.');
+                showNotification('❌ Player data is still loading. Please wait a moment and try again.', 'warning');
                 return;
             }
             
@@ -4775,14 +4775,45 @@
             
             if (players.length === 0) {
                 console.warn(`No ${positionLabel} players found.`);
+                showNotification(`❌ No ${positionLabel} players found.`, 'error');
                 return;
             }
             
-            // Sort by price descending for better selection
-            players.sort((a, b) => b.price - a.price);
+            // Sort by total points and form for best player selection
+            players.sort((a, b) => {
+                const aScore = (b.total_points || 0) + (b.form || 0) * 2;
+                const bScore = (a.total_points || 0) + (a.form || 0) * 2;
+                return aScore - bScore;
+            });
             
-            // Show player selection modal
-            showPlayerModal(players, positionLabel);
+            // Get the best available player not already in squad
+            const currentSquad = window.transferSimPro.currentSquad || [];
+            const availablePlayer = players.find(player => 
+                !currentSquad.find(squadPlayer => squadPlayer.id === player.id)
+            );
+            
+            if (!availablePlayer) {
+                showNotification(`❌ All ${positionLabel} players are already in your squad!`, 'warning');
+                return;
+            }
+            
+            console.log(`🎯 Auto-selecting best ${positionLabel}: ${availablePlayer.name}`);
+            
+            // Store the clicked circle for positioning
+            window.currentSelectedCircle = event.target.closest('.position-circle');
+            window.currentSelectedPosition = positionLabel;
+            
+            // Add player directly without modal
+            addPlayerToSquad(availablePlayer.id);
+            
+            // Place player visually
+            const positionMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+            const position = positionMap[availablePlayer.position] || 'MID';
+            placePlayerInPosition(availablePlayer, position);
+            
+            // Clear references
+            window.currentSelectedCircle = null;
+            window.currentSelectedPosition = null;
         };
         
         // Modal control functions
