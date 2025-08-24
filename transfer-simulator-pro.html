@@ -3698,6 +3698,35 @@
         // Update Team Stats
         window.updateTeamStats = function() {
             if (!window.transferSimPro || !window.transferSimPro.currentSquad) {
+                // Initialize empty stats if no squad exists
+                document.getElementById('totalValue').textContent = '£0.0m';
+                document.getElementById('expectedPoints').textContent = '0';
+                document.getElementById('avgForm').textContent = '0.0';
+                document.getElementById('squadFilled').textContent = '0/15';
+                
+                // Reset position stats
+                document.getElementById('gkStats').textContent = '0/2 - £0.0m - 0 pts';
+                document.getElementById('defStats').textContent = '0/5 - £0.0m - 0 pts';
+                document.getElementById('midStats').textContent = '0/5 - £0.0m - 0 pts';
+                document.getElementById('fwdStats').textContent = '0/3 - £0.0m - 0 pts';
+                
+                // Reset progress bars
+                document.getElementById('gkBar').style.width = '0%';
+                document.getElementById('defBar').style.width = '0%';
+                document.getElementById('midBar').style.width = '0%';
+                document.getElementById('fwdBar').style.width = '0%';
+                
+                // Reset top performers
+                document.getElementById('topPerformers').innerHTML = `
+                    <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; text-align: center; color: #666;">
+                        <p>Select players to see top performers</p>
+                    </div>`;
+                
+                // Reset insights
+                document.getElementById('budgetStatus').textContent = '£100.0m remaining';
+                document.getElementById('teamBalance').textContent = 'No players selected';
+                document.getElementById('starPlayer').textContent = 'None selected';
+                document.getElementById('valuePick').textContent = 'None selected';
                 return;
             }
             
@@ -5138,6 +5167,7 @@
                 // Update squad display and reset budget
                 updateSquadDisplay();
                 updateBudgetTracker(0); // Reset budget to full
+                updateTeamStats();
                 
                 showNotification('✅ Team reset completed', 'success');
                 console.log('✅ Team reset completed');
@@ -5321,6 +5351,7 @@
                 
                 // Update squad display
                 updateSquadDisplay();
+                updateTeamStats();
                 
                 closeSavedTeamsModal();
                 showNotification(`✅ Team "${team.name}" loaded successfully!`, 'success');
@@ -5541,6 +5572,7 @@
             
             // Update display
             updateSquadDisplay();
+            updateTeamStats();
             
             hideProcessingStatus();
             showNotification(`✅ Successfully imported ${addedCount} players from your screenshot!`, 'success');
@@ -5914,6 +5946,7 @@ Son Heung-min
             
             // Update squad display
             updateSquadDisplay();
+            updateTeamStats();
         };
         
         // Quick add function with enhanced feedback
@@ -5943,6 +5976,7 @@ Son Heung-min
             console.log('Quick adding player:', player.name);
             showNotification(`⚡ ${player.name} added instantly!`, 'success');
             updateSquadDisplay();
+            updateTeamStats();
         };
         
         // Notification system
@@ -6185,6 +6219,7 @@ Son Heung-min
                 
                 showNotification(`${player.name} removed from squad`, 'info');
                 updateSquadDisplay();
+                updateTeamStats();
                 
                 // Reset position circle if it was filled with this player
                 const circles = document.querySelectorAll('.position-circle');
