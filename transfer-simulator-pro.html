@@ -2978,188 +2978,56 @@
                 </div>
             </div>
 
-            <!-- Right Panel - What-If Scenarios -->
-            <div>
-                <div class="scenario-panel">
-                    <h2>🎯 What-If Scenarios</h2>
+            <!-- Right Panel - Analytics -->
+            <div class="panel">
+                <div class="analytics-section">
+                    <h2>📊 Squad Analytics</h2>
                     
-                    <div class="scenario-item" onclick="runScenario('wildcard')">
-                        <div class="scenario-title">🃏 Wildcard Optimization</div>
-                        <div class="scenario-description">Build the best possible team within budget</div>
-                        <div class="scenario-result" id="wildcard-result"></div>
-                    </div>
-                    
-                    <div class="scenario-item" onclick="runScenario('differential')">
-                        <div class="scenario-title">🎲 Differential Team</div>
-                        <div class="scenario-description">Low ownership, high potential players</div>
-                        <div class="scenario-result" id="differential-result"></div>
+                    <div class="chart-container">
+                        <h3>Squad Value Distribution</h3>
+                        <canvas id="valueChart" width="300" height="200"></canvas>
                     </div>
                     
-                    <div class="scenario-item" onclick="runScenario('budget')">
-                        <div class="scenario-title">💰 Budget Team</div>
-                        <div class="scenario-description">Maximum value for money</div>
-                        <div class="scenario-result" id="budget-result"></div>
-                    </div>
-                    
-                    <div class="scenario-item" onclick="runScenario('premium')">
-                        <div class="scenario-title">⭐ Premium Heavy</div>
-                        <div class="scenario-description">Focus on expensive star players</div>
-                        <div class="scenario-result" id="premium-result"></div>
-                    </div>
-                    
-                    <div class="scenario-item" onclick="runScenario('rotation')">
-                        <div class="scenario-title">🔄 Rotation Strategy</div>
-                        <div class="scenario-description">Optimize for fixture rotation</div>
-                        <div class="scenario-result" id="rotation-result"></div>
-                    </div>
-                </div>
-
-                <!-- Transfer History -->
-                <div class="transfer-history panel">
-                    <h2>📜 Transfer History</h2>
-                    <div id="transferHistory">
-                        <div class="history-item">
-                            <div class="history-icon history-in">➕</div>
-                            <div>
-                                <div style="font-weight: 700;">No transfers yet</div>
-                                <div style="color: #666; font-size: 0.9rem;">Start building your team</div>
-                            </div>
-                        </div>
+                    <div class="chart-container">
+                        <h3>Expected Points by Position</h3>
+                        <canvas id="pointsChart" width="300" height="160"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Fixture Difficulty Analysis -->
-        <div class="fixture-analysis-section">
-            <h2>📅 Fixture Difficulty Analysis (Next 5 GWs)</h2>
-            <div class="fixture-filter">
-                <button class="fixture-btn active" onclick="showFixtures('all')">All Teams</button>
-                <button class="fixture-btn" onclick="showFixtures('easy')">Easy Fixtures</button>
-                <button class="fixture-btn" onclick="showFixtures('hard')">Hard Fixtures</button>
-            </div>
-            <div class="fixture-grid" id="fixtureGrid">
-                <!-- Fixture difficulty will be loaded here -->
-            </div>
-        </div>
 
-        <!-- Player Comparison Matrix -->
-        <div class="comparison-section">
-            <h2>⚖️ Player Comparison Matrix</h2>
-            <div class="comparison-controls">
-                <select id="comparePosition" onchange="updateComparisonPlayers()">
-                    <option value="">Select Position</option>
-                    <option value="1">Goalkeepers</option>
-                    <option value="2">Defenders</option>
-                    <option value="3">Midfielders</option>
-                    <option value="4">Forwards</option>
-                </select>
-                <select id="comparePlayer1" onchange="updateComparison()">
-                    <option value="">Player 1</option>
-                </select>
-                <select id="comparePlayer2" onchange="updateComparison()">
-                    <option value="">Player 2</option>
-                </select>
-                <select id="comparePlayer3" onchange="updateComparison()">
-                    <option value="">Player 3</option>
-                </select>
-            </div>
-            <div class="comparison-table" id="comparisonTable">
-                <div class="comparison-placeholder">Select position and players to compare</div>
-            </div>
-        </div>
 
-        <!-- Price Change Predictions -->
-        <div class="price-change-section">
-            <h2>📈 Price Change Predictions</h2>
-            <div class="price-change-tabs">
-                <button class="price-tab active" onclick="showPriceChanges('risers')">🔥 Likely Risers</button>
-                <button class="price-tab" onclick="showPriceChanges('fallers')">📉 Likely Fallers</button>
-            </div>
-            <div class="price-change-grid" id="priceChangeGrid">
-                <!-- Price predictions will be loaded here -->
-            </div>
-        </div>
 
-        <!-- Captain Prediction -->
-        <div class="captain-section">
-            <h2>👑 Captain Prediction Algorithm</h2>
-            <div class="captain-analysis">
-                <div class="captain-card top-captain">
-                    <div class="captain-rank">#1</div>
-                    <div class="captain-info">
-                        <div class="captain-name">Erling Haaland</div>
-                        <div class="captain-details">vs Southampton (H) • 89% confidence</div>
-                        <div class="captain-stats">
-                            <span>xPts: 12.4</span>
-                            <span>Form: 9.2</span>
-                            <span>Fixture: 2/5</span>
-                        </div>
-                    </div>
-                    <div class="captain-confidence">89%</div>
-                </div>
-                <div class="captain-alternatives">
-                    <div class="captain-card">
-                        <div class="captain-rank">#2</div>
-                        <div class="captain-info">
-                            <div class="captain-name">Mohamed Salah</div>
-                            <div class="captain-details">vs Brighton (A) • 76% confidence</div>
-                        </div>
-                        <div class="captain-confidence">76%</div>
-                    </div>
-                    <div class="captain-card">
-                        <div class="captain-rank">#3</div>
-                        <div class="captain-info">
-                            <div class="captain-name">Cole Palmer</div>
-                            <div class="captain-details">vs Wolves (H) • 68% confidence</div>
-                        </div>
-                        <div class="captain-confidence">68%</div>
-                    </div>
+
+
+    </div>
+
+    <!-- Player Selection Modal -->
+    <div id="playerSelectionModal" class="player-modal" style="display: none;" onclick="closePlayerModal()">
+        <div class="player-modal-content" onclick="event.stopPropagation()">
+            <div class="player-modal-header">
+                <h3 id="modalTitle">Select a Player</h3>
+                <span class="player-modal-close" onclick="closePlayerModal()">&times;</span>
+            </div>
+            <div class="player-modal-body">
+                <div id="playerSelectionGrid" class="player-selection-grid">
+                    <!-- Player cards will be populated here -->
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- AI Recommendations -->
-        <div class="ai-recommendations">
-            <h2>🤖 AI Transfer Recommendations</h2>
-            <div id="aiRecommendations">
-                <div class="recommendation-card">
-                    <div class="recommendation-icon">💡</div>
-                    <div class="recommendation-content">
-                        <div class="recommendation-title">Loading AI insights...</div>
-                        <div class="recommendation-details">Analyzing player data and fixtures</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 🚀 ADVANCED FEATURES PANEL -->
-        <div class="advanced-features-panel">
-            <h2>🚀 Advanced Analytics Suite</h2>
-            <div class="feature-grid">
-                <div class="feature-card" onclick="showChemistryAnalysis()">
-                    <div class="feature-icon">🧪</div>
-                    <div class="feature-title">Squad Chemistry</div>
-                    <div class="feature-description">Analyze team synergy and nationality bonuses</div>
-                </div>
-                
-                <div class="feature-card" onclick="showMarketSentiment()">
-                    <div class="feature-icon">📊</div>
-                    <div class="feature-title">Market Sentiment</div>
-                    <div class="feature-description">Real-time social buzz and trending players</div>
-                </div>
-                
-                <div class="feature-card" onclick="showWildcardPlanner()">
-                    <div class="feature-icon">🎯</div>
-                    <div class="feature-title">Wildcard Planner</div>
-                    <div class="feature-description">Optimal timing and template strategies</div>
-                </div>
-                
-                <div class="feature-card" onclick="showInjuryRisk()">
-                    <div class="feature-icon">🏥</div>
-                    <div class="feature-title">Injury Risk</div>
-                    <div class="feature-description">Assess player fitness and return dates</div>
-                </div>
+    <script src="./index.js"></script>
+    <script>
+        // Embedded FPL Data - Simple fallback
+        const EMBEDDED_FPL_DATA = {
+            elements: [],
+            teams: []
+        };
+        
+        // Initialize Transfer Simulator Pro object
+        window.transferSimPro = {
                 
                 <div class="feature-card" onclick="showHistoricalTrends()">
                     <div class="feature-icon">📈</div>
