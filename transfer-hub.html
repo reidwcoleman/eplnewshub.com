@@ -167,35 +167,71 @@
 
         .loading-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary-purple), var(--primary-green));
-            border-radius: 2px;
-            animation: loadingFill 3s ease-in-out forwards;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary-green), #00ff87);
+            animation: loadingBar 3s ease-out forwards;
         }
 
-        @keyframes loadingFill {
+        @keyframes loadingBar {
             0% { width: 0%; }
             100% { width: 100%; }
         }
 
-        /* Market Overview Banner */
+        /* Floating particles */
+        .hero-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: floatUp 6s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.4;
+            }
+            90% {
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Market Overview Section */
         .market-overview {
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(55, 0, 60, 0.6));
+            background: linear-gradient(135deg, rgba(55, 0, 60, 0.2), rgba(0, 255, 135, 0.05));
             backdrop-filter: blur(20px);
-            padding: 25px;
-            margin: 20px auto;
-            max-width: 1200px;
-            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
             border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            box-shadow: var(--shadow-xl);
         }
 
         .market-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--primary-green);
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            color: var(--text-primary);
         }
 
         .market-highlights {
@@ -205,19 +241,27 @@
         }
 
         .market-item {
-            text-align: center;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--glass-bg);
+            padding: 20px;
             border-radius: 12px;
             border: 1px solid var(--border-subtle);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .market-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 135, 0.1);
         }
 
         .market-value {
             font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--primary-green);
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary-green), #00d4aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
         .market-label {
@@ -227,293 +271,221 @@
             letter-spacing: 1px;
         }
 
-        /* Enhanced Hero Section */
+        /* Hero Section */
         .transfer-hub-hero {
-            background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-green) 100%);
-            padding: 120px 20px 80px;
+            background: linear-gradient(135deg, var(--primary-purple), var(--dark-bg));
+            padding: 60px 20px;
             text-align: center;
             position: relative;
             overflow: hidden;
-        }
-
-        .hero-particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .particle {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+            margin-top: 100px;
         }
 
         .hero-content {
             position: relative;
             z-index: 2;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
         .hero-title {
-            font-size: clamp(3rem, 6vw, 5rem);
+            font-size: 3.5rem;
             font-weight: 900;
             margin-bottom: 20px;
-            background: linear-gradient(45deg, #ffffff, var(--primary-green));
+            background: linear-gradient(45deg, var(--primary-green), #ffffff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 40px rgba(0, 255, 135, 0.3);
-            letter-spacing: -0.02em;
+            text-shadow: 0 0 60px rgba(0, 255, 135, 0.3);
         }
 
         .hero-subtitle {
-            font-size: 1.5rem;
-            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            color: var(--text-secondary);
             margin-bottom: 40px;
-            font-weight: 400;
-            letter-spacing: 0.01em;
+            letter-spacing: 1px;
         }
 
         .hero-badges {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
+            gap: 20px;
             flex-wrap: wrap;
+            margin-bottom: 40px;
         }
 
         .hero-badge {
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 255, 135, 0.1);
+            border: 1px solid var(--primary-green);
+            padding: 12px 24px;
             border-radius: 25px;
-            font-size: 0.85rem;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
         .hero-badge:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
+            background: var(--primary-green);
+            color: var(--primary-purple);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 135, 0.3);
         }
 
-        /* Premium Stats Dashboard */
+        /* Live Stats Dashboard */
         .live-stats-dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 25px;
-            margin-top: 50px;
-            max-width: 1100px;
-            margin: 50px auto 0;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         .stat-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(30px);
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 16px;
             border: 1px solid var(--border-subtle);
-            padding: 30px;
-            border-radius: 24px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            cursor: pointer;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 135, 0.1), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .stat-card:hover::before {
-            left: 100%;
+            transition: all 0.3s ease;
         }
 
         .stat-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: var(--shadow-xl), var(--shadow-glow);
-            border-color: rgba(0, 255, 135, 0.3);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
         }
 
         .stat-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(45deg, var(--primary-purple), var(--primary-green));
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary-green);
             margin-bottom: 15px;
-            font-size: 1.4rem;
         }
 
         .stat-number {
-            font-size: 2.8rem;
-            font-weight: 900;
-            color: var(--primary-green);
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
             display: block;
-            line-height: 1;
             margin-bottom: 8px;
-            letter-spacing: -0.02em;
         }
 
         .stat-label {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-weight: 600;
         }
 
         .stat-change {
-            font-size: 0.8rem;
-            margin-top: 8px;
-            padding: 4px 8px;
-            border-radius: 12px;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 255, 135, 0.1);
+            color: var(--primary-green);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
             font-weight: 600;
         }
 
         .stat-change.positive {
-            background: rgba(0, 212, 170, 0.2);
+            background: rgba(0, 255, 135, 0.1);
             color: var(--success);
         }
 
-        .stat-change.negative {
-            background: rgba(255, 71, 87, 0.2);
-            color: var(--error);
+        /* Live Updates Banner */
+        .live-updates-banner {
+            background: linear-gradient(90deg, var(--error), var(--warning));
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Enhanced Navigation */
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #ffffff;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Navigation Tabs */
         .transfer-nav {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
-            padding: 0;
-            margin: 60px auto;
-            border-radius: 30px;
-            overflow: hidden;
-            max-width: 1000px;
-            border: 1px solid var(--border-subtle);
+            padding: 20px;
+            border-radius: 16px;
+            margin: 30px auto;
+            max-width: 1400px;
+            position: relative;
         }
 
         .nav-tabs {
             display: flex;
-            list-style: none;
+            gap: 10px;
+            overflow-x: auto;
             position: relative;
+            padding-bottom: 5px;
         }
 
         .nav-indicator {
             position: absolute;
             bottom: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-purple), var(--primary-green));
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--success));
+            transition: all 0.3s ease;
             border-radius: 2px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .nav-tab {
-            flex: 1;
-            text-align: center;
+            flex-shrink: 0;
         }
 
-        .nav-tab button {
-            width: 100%;
-            padding: 24px 15px;
+        .nav-btn {
             background: transparent;
             border: none;
             color: var(--text-secondary);
+            padding: 12px 24px;
             font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
         }
 
-        .nav-tab button i {
-            margin-right: 6px;
-            font-size: 1rem;
-        }
-
-        .nav-tab button:hover,
-        .nav-tab button.active {
+        .nav-btn:hover {
             color: var(--primary-green);
-            background: rgba(0, 255, 135, 0.05);
         }
 
-        /* Live Updates Banner */
-        .live-updates-banner {
-            background: linear-gradient(90deg, var(--error), var(--warning), var(--success));
-            color: var(--text-primary);
-            padding: 16px;
-            text-align: center;
-            font-weight: 600;
-            margin: 30px 0;
-            border-radius: 12px;
-            animation: pulseGlow 3s ease-in-out infinite;
-            position: relative;
-            overflow: hidden;
+        .nav-btn.active {
+            color: var(--primary-green);
         }
 
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 20px rgba(255, 136, 0, 0.3); }
-            50% { box-shadow: 0 0 40px rgba(255, 136, 0, 0.6); }
-        }
-
-        .live-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #ff4757;
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
-        }
-
-        /* Advanced Filters */
-        .filter-controls {
+        /* Filter Section */
+        .filter-section {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 16px;
+            margin: 30px auto;
+            max-width: 1400px;
             border: 1px solid var(--border-subtle);
-            border-radius: 20px;
-            padding: 30px;
-            margin: 40px 0;
-            max-width: 1200px;
-            margin: 40px auto;
-        }
-
-        .filter-section {
-            margin-bottom: 30px;
         }
 
         .filter-title {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 15px;
@@ -567,203 +539,137 @@
             padding: 16px 24px;
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border-subtle);
-            border-radius: 30px;
+            border-radius: 12px;
             color: var(--text-primary);
             font-size: 1rem;
             transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary-green);
-            box-shadow: 0 0 0 3px rgba(0, 255, 135, 0.1);
         }
 
         .search-input::placeholder {
             color: var(--text-muted);
         }
 
-        .sort-select,
-        .view-toggle {
-            padding: 16px 20px;
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 20px rgba(0, 255, 135, 0.1);
+        }
+
+        .sort-select, .view-toggle {
+            padding: 16px 24px;
             background: var(--glass-bg);
             border: 1px solid var(--border-subtle);
-            border-radius: 25px;
+            border-radius: 12px;
             color: var(--text-primary);
-            font-size: 1rem;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s ease;
         }
 
-        .sort-select:hover,
-        .view-toggle:hover {
+        .sort-select:hover, .view-toggle:hover {
             border-color: var(--primary-green);
-            background: rgba(0, 255, 135, 0.05);
         }
 
-        /* Premium Transfer Cards */
-        .transfers-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+        /* Tab Content */
+        .tab-content {
+            margin: 30px auto;
+            max-width: 1400px;
         }
 
-        .transfer-section {
+        .tab-pane {
             display: none;
-            animation: fadeInUp 0.6s ease-out forwards;
+            animation: fadeIn 0.5s ease;
         }
 
-        .transfer-section.active {
+        .tab-pane.active {
             display: block;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Transfer Cards Grid */
         .transfer-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
+            gap: 25px;
+            margin-top: 30px;
         }
 
+        /* Transfer Card */
         .transfer-card {
-            background: linear-gradient(145deg, var(--card-bg), rgba(26, 31, 46, 0.8));
+            background: var(--card-bg);
             border: 1px solid var(--border-subtle);
-            border-radius: 24px;
-            padding: 30px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 16px;
+            padding: 25px;
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            cursor: pointer;
+        }
+
+        .transfer-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 255, 135, 0.15);
+            border-color: var(--primary-green);
         }
 
         .transfer-card::before {
             content: '';
             position: absolute;
             top: 0;
-            left: 0;
+            left: -100%;
             width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-purple), var(--primary-green));
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-green), transparent);
+            transition: left 0.5s ease;
         }
 
-        .transfer-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(circle, rgba(0, 255, 135, 0.1) 0%, transparent 70%);
-            border-radius: 50%;
-            transition: all 0.4s ease;
-        }
-
-        .transfer-card:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-xl), var(--shadow-glow);
-            border-color: rgba(0, 255, 135, 0.3);
-        }
-
-        .transfer-card:hover::after {
-            width: 120px;
-            height: 120px;
-            background: radial-gradient(circle, rgba(0, 255, 135, 0.2) 0%, transparent 70%);
-        }
-
-        /* Club-specific styling */
-        .transfer-card[data-club="Chelsea"]::before {
-            background: linear-gradient(90deg, var(--chelsea-blue), #6cabdd);
-        }
-
-        .transfer-card[data-club="Liverpool"]::before {
-            background: linear-gradient(90deg, var(--liverpool-red), #ff6b7a);
-        }
-
-        .transfer-card[data-club="Arsenal"]::before {
-            background: linear-gradient(90deg, var(--arsenal-red), #ff6b7a);
-        }
-
-        .transfer-card[data-club="Manchester City"]::before {
-            background: linear-gradient(90deg, var(--city-blue), #70a1ff);
+        .transfer-card:hover::before {
+            left: 100%;
         }
 
         .transfer-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .transfer-status {
-            padding: 10px 18px;
-            border-radius: 25px;
+            padding: 6px 14px;
+            border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .transfer-status::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .transfer-status:hover::before {
-            left: 100%;
         }
 
         .status-confirmed {
-            background: linear-gradient(45deg, var(--success), #00ff9f);
-            color: #ffffff;
-            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.3);
+            background: rgba(0, 255, 135, 0.2);
+            color: var(--success);
         }
 
-        .status-loan {
-            background: linear-gradient(45deg, var(--info), #70a1ff);
-            color: #ffffff;
-            box-shadow: 0 8px 25px rgba(55, 66, 250, 0.3);
+        .status-pending {
+            background: rgba(255, 136, 0, 0.2);
+            color: var(--warning);
         }
 
         .status-rumor {
-            background: linear-gradient(45deg, var(--warning), #ffa502);
-            color: #000000;
-            box-shadow: 0 8px 25px rgba(255, 136, 0, 0.3);
-        }
-
-        .status-rejected {
-            background: linear-gradient(45deg, var(--error), #ff6b7a);
-            color: #ffffff;
-            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.3);
+            background: rgba(55, 66, 250, 0.2);
+            color: var(--info);
         }
 
         .transfer-date {
             color: var(--text-muted);
-            font-size: 0.9rem;
-            font-weight: 500;
+            font-size: 0.85rem;
         }
 
         .player-info {
             display: flex;
             align-items: center;
+            gap: 20px;
             margin-bottom: 25px;
         }
 
@@ -771,73 +677,45 @@
             width: 70px;
             height: 70px;
             border-radius: 50%;
-            background: linear-gradient(45deg, var(--primary-purple), var(--primary-green));
+            background: linear-gradient(135deg, var(--primary-purple), var(--primary-green));
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 20px;
-            font-size: 1.4rem;
-            font-weight: 900;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .player-avatar::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: avatarSpin 3s linear infinite;
-        }
-
-        @keyframes avatarSpin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
         }
 
         .player-details h3 {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
             color: var(--text-primary);
-            margin-bottom: 6px;
-            font-weight: 700;
-            letter-spacing: -0.01em;
         }
 
         .player-position {
             color: var(--primary-green);
-            font-size: 1rem;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 3px;
         }
 
         .player-market-value {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 4px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
         .transfer-details {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-            margin-bottom: 25px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .detail-item {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 18px;
-            border-radius: 16px;
+            background: var(--glass-bg);
+            padding: 12px;
+            border-radius: 10px;
             border: 1px solid var(--border-subtle);
-            transition: all 0.3s ease;
-        }
-
-        .detail-item:hover {
-            background: rgba(0, 0, 0, 0.4);
-            border-color: rgba(0, 255, 135, 0.2);
         }
 
         .detail-label {
@@ -845,201 +723,123 @@
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 8px;
-            font-weight: 600;
+            margin-bottom: 5px;
         }
 
         .detail-value {
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
             color: var(--text-primary);
         }
 
         .transfer-fee {
             color: var(--primary-green);
-            font-weight: 700;
             font-size: 1.2rem;
         }
 
-        /* Enhanced Probability Meter */
         .probability-meter {
-            margin-top: 25px;
+            margin-top: 20px;
         }
 
         .probability-label {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
-            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
         }
 
         .probability-bar {
-            height: 10px;
+            height: 8px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             overflow: hidden;
-            position: relative;
         }
 
         .probability-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary-purple), var(--primary-green));
+            background: linear-gradient(90deg, var(--primary-green), var(--success));
             border-radius: 10px;
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            transition: width 1s ease;
         }
 
-        .probability-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            animation: probabilityShimmer 2s ease-in-out infinite;
-        }
-
-        @keyframes probabilityShimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        /* Section Headers */
-        .section-header {
-            text-align: center;
-            margin: 50px 0 30px;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--primary-green);
-            margin-bottom: 15px;
-            letter-spacing: -0.02em;
-        }
-
-        .section-subtitle {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Chelsea Exodus Section */
-        .chelsea-exodus {
-            background: linear-gradient(135deg, rgba(3, 70, 148, 0.1), rgba(0, 0, 0, 0.3));
-            border: 1px solid rgba(3, 70, 148, 0.3);
-            border-radius: 20px;
+        /* Analysis Card */
+        .analysis-card {
+            background: linear-gradient(135deg, rgba(55, 0, 60, 0.3), rgba(0, 255, 135, 0.1));
+            border: 1px solid var(--primary-green);
+            border-radius: 16px;
             padding: 30px;
-            margin: 40px 0;
+            margin-top: 30px;
         }
 
-        .exodus-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .exodus-title {
-            font-size: 2rem;
-            font-weight: 900;
-            color: var(--chelsea-blue);
-            margin-bottom: 10px;
+        .analysis-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 12px;
+        }
+
+        .insight-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .insight-item {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: flex-start;
             gap: 15px;
         }
 
-        .exodus-stats {
+        .insight-item:last-child {
+            border-bottom: none;
+        }
+
+        .insight-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-green);
+            border-radius: 50%;
             display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
+            flex-shrink: 0;
         }
 
-        .exodus-stat {
-            text-align: center;
+        .insight-content h4 {
+            color: var(--text-primary);
+            margin-bottom: 5px;
         }
 
-        .exodus-stat-number {
-            font-size: 2rem;
-            font-weight: 900;
-            color: var(--chelsea-blue);
-        }
-
-        .exodus-stat-label {
-            font-size: 0.9rem;
+        .insight-content p {
             color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem;
-            }
-
-            .live-stats-dashboard {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-            }
-
-            .nav-tabs {
-                flex-direction: column;
-            }
-
-            .transfer-grid {
-                grid-template-columns: 1fr;
-                gap: 25px;
-            }
-
-            .search-sort-bar {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            .transfer-details {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            .market-highlights {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-            }
-
-            .exodus-stats {
-                flex-direction: column;
-                gap: 15px;
-            }
+            font-size: 0.95rem;
+            line-height: 1.6;
         }
 
         /* Notification System */
         .notification-container {
             position: fixed;
-            top: 20px;
+            top: 180px;
             right: 20px;
-            z-index: 1000;
-            pointer-events: none;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         .notification {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border-subtle);
+            background: var(--card-bg);
+            border: 1px solid var(--primary-green);
+            border-radius: 12px;
             padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 15px;
-            transform: translateX(400px);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: all;
-            cursor: pointer;
-            max-width: 350px;
+            min-width: 300px;
+            max-width: 400px;
+            transform: translateX(500px);
+            transition: transform 0.4s ease;
+            box-shadow: var(--shadow-xl);
         }
 
         .notification.show {
@@ -1528,71 +1328,66 @@
             <li class="nav-tab">
                 <button class="nav-btn" data-tab="rumors">
                     <i class="fas fa-fire"></i>
-                    Rumors
+                    Hot Rumors
                 </button>
             </li>
             <li class="nav-tab">
                 <button class="nav-btn" data-tab="analysis">
-                    <i class="fas fa-chart-area"></i>
+                    <i class="fas fa-chart-bar"></i>
                     Analysis
                 </button>
             </li>
         </ul>
     </div>
 
-    <!-- Advanced Filter Controls -->
-    <div class="filter-controls">
-        <div class="filter-section">
-            <div class="filter-title">🎯 Smart Filters</div>
-            <div class="quick-filters">
-                <button class="filter-btn active" data-filter="all">All Transfers</button>
-                <button class="filter-btn" data-filter="big6">Big 6 Clubs</button>
-                <button class="filter-btn" data-filter="permanent">Permanent Only</button>
-                <button class="filter-btn" data-filter="loans">Loans Only</button>
-                <button class="filter-btn" data-filter="high-value">£25M+ Deals</button>
-                <button class="filter-btn" data-filter="today">August 2025</button>
-                <button class="filter-btn" data-filter="youth">Youth Players</button>
-            </div>
+    <!-- Smart Filter Section -->
+    <div class="filter-section">
+        <div class="filter-title">🎯 Smart Filters</div>
+        
+        <div class="quick-filters">
+            <button class="filter-btn active" data-filter="all">All Transfers</button>
+            <button class="filter-btn" data-filter="big-money">£50M+ Deals</button>
+            <button class="filter-btn" data-filter="premier-league">EPL Only</button>
+            <button class="filter-btn" data-filter="chelsea">Chelsea Deals</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+            <button class="filter-btn" data-filter="pending">Pending</button>
         </div>
-
+        
         <div class="search-sort-bar">
-            <input type="text" class="search-input" placeholder="🔍 Search players, clubs, or deals..." id="search-input">
-            <select class="sort-select" id="sort-select">
-                <option value="latest">⏰ Latest First</option>
-                <option value="value-high">💰 Highest Value</option>
-                <option value="value-low">💸 Lowest Value</option>
-                <option value="alphabetical">🔤 A-Z</option>
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search player, club, or position...">
+            <select class="sort-select" id="sortSelect">
+                <option value="latest">Sort: Latest First</option>
+                <option value="value-high">Sort: Highest Value</option>
+                <option value="value-low">Sort: Lowest Value</option>
+                <option value="alphabetical">Sort: A-Z</option>
             </select>
             <button class="view-toggle" id="viewToggle">
-                <i class="fas fa-th-large"></i> Grid View
+                <i class="fas fa-list"></i> List View
             </button>
         </div>
     </div>
 
-    <!-- Enhanced Transfers Container -->
-    <div class="transfers-container">
+    <!-- Tab Content Container -->
+    <div class="tab-content">
         
-        <!-- Confirmed Transfers -->
-        <div id="confirmed" class="transfer-section active">
-            <div class="section-header">
-                <h2 class="section-title">✅ Confirmed Transfers</h2>
-                <p class="section-subtitle">All confirmed Premier League incoming and outgoing transfers for Summer 2025</p>
-            </div>
+        <!-- Confirmed Transfers Tab -->
+        <div class="tab-pane active" id="confirmed">
+            <h2 style="color: var(--primary-green); margin-bottom: 30px; text-align: center; font-size: 2rem;">✅ Confirmed Summer 2025 Transfers</h2>
             
             <div class="transfer-grid">
                 
                 <!-- Florian Wirtz to Liverpool -->
-                <div class="transfer-card" data-club="Liverpool" data-position="midfielder" data-value="116000000" data-date="2025-08-20">
+                <div class="transfer-card" data-club="Liverpool" data-position="midfielder" data-value="116000000" data-date="2025-08-22">
                     <div class="transfer-header">
                         <span class="transfer-status status-confirmed">✅ CONFIRMED</span>
-                        <span class="transfer-date">Aug 20, 2025</span>
+                        <span class="transfer-date">Aug 22, 2025</span>
                     </div>
                     <div class="player-info">
                         <div class="player-avatar">FW</div>
                         <div class="player-details">
                             <h3>Florian Wirtz</h3>
                             <div class="player-position">Attacking Midfielder</div>
-                            <div class="player-market-value">Market Value: £110M</div>
+                            <div class="player-market-value">Market Value: £95M</div>
                         </div>
                     </div>
                     <div class="transfer-details">
@@ -1624,61 +1419,18 @@
                     </div>
                 </div>
 
-                <!-- Hugo Ekitike to Liverpool -->
-                <div class="transfer-card" data-club="Liverpool" data-position="forward" data-value="69000000" data-date="2025-08-22">
-                    <div class="transfer-header">
-                        <span class="transfer-status status-confirmed">✅ CONFIRMED</span>
-                        <span class="transfer-date">Aug 22, 2025</span>
-                    </div>
-                    <div class="player-info">
-                        <div class="player-avatar">HE</div>
-                        <div class="player-details">
-                            <h3>Hugo Ekitike</h3>
-                            <div class="player-position">Forward</div>
-                            <div class="player-market-value">Market Value: £65M</div>
-                        </div>
-                    </div>
-                    <div class="transfer-details">
-                        <div class="detail-item">
-                            <div class="detail-label">From Club</div>
-                            <div class="detail-value">Eintracht Frankfurt</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">To Club</div>
-                            <div class="detail-value">Liverpool</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Transfer Fee</div>
-                            <div class="detail-value transfer-fee">£69M+</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Contract</div>
-                            <div class="detail-value">5 years</div>
-                        </div>
-                    </div>
-                    <div class="probability-meter">
-                        <div class="probability-label">
-                            <span>Deal Complete</span>
-                            <span>100%</span>
-                        </div>
-                        <div class="probability-bar">
-                            <div class="probability-fill" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Eberechi Eze to Arsenal -->
                 <div class="transfer-card" data-club="Arsenal" data-position="midfielder" data-value="67500000" data-date="2025-08-23">
                     <div class="transfer-header">
-                        <span class="transfer-status status-confirmed">✅ CONFIRMED</span>
+                        <span class="transfer-status status-confirmed">✅ HIJACKED</span>
                         <span class="transfer-date">Aug 23, 2025</span>
                     </div>
                     <div class="player-info">
-                        <div class="player-avatar">EZ</div>
+                        <div class="player-avatar">EE</div>
                         <div class="player-details">
                             <h3>Eberechi Eze</h3>
-                            <div class="player-position">Attacking Midfielder</div>
-                            <div class="player-market-value">Market Value: £65M</div>
+                            <div class="player-position">Attacking Midfielder / Winger</div>
+                            <div class="player-market-value">From Crystal Palace</div>
                         </div>
                     </div>
                     <div class="transfer-details">
@@ -1692,16 +1444,16 @@
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Transfer Fee</div>
-                            <div class="detail-value transfer-fee">£60M</div>
+                            <div class="detail-value transfer-fee">£67.5M</div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">Contract</div>
-                            <div class="detail-value">5 years</div>
+                            <div class="detail-label">Status</div>
+                            <div class="detail-value">Hijacked from Spurs</div>
                         </div>
                     </div>
                     <div class="probability-meter">
                         <div class="probability-label">
-                            <span>Deal Complete</span>
+                            <span>Medical Complete</span>
                             <span>100%</span>
                         </div>
                         <div class="probability-bar">
@@ -1710,565 +1462,36 @@
                     </div>
                 </div>
 
-                <!-- Benjamin Šeško to Manchester United -->
-                <div class="transfer-card" data-club="Manchester United" data-position="forward" data-value="75000000" data-date="2025-08-21">
+                <!-- Hugo Ekitike to Liverpool -->
+                <div class="transfer-card" data-club="Liverpool" data-position="forward" data-value="69000000" data-date="2025-08-20">
                     <div class="transfer-header">
                         <span class="transfer-status status-confirmed">✅ CONFIRMED</span>
-                        <span class="transfer-date">Aug 21, 2025</span>
-                    </div>
-                    <div class="player-info">
-                        <div class="player-avatar">BS</div>
-                        <div class="player-details">
-                            <h3>Benjamin Šeško</h3>
-                            <div class="player-position">Forward</div>
-                            <div class="player-market-value">Market Value: £70M</div>
-                        </div>
-                    </div>
-                    <div class="transfer-details">
-                        <div class="detail-item">
-                            <div class="detail-label">From Club</div>
-                            <div class="detail-value">RB Leipzig</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">To Club</div>
-                            <div class="detail-value">Manchester United</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Transfer Fee</div>
-                            <div class="detail-value transfer-fee">Undisclosed</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Contract</div>
-                            <div class="detail-value">5 years</div>
-                        </div>
-                    </div>
-                    <div class="probability-meter">
-                        <div class="probability-label">
-                            <span>Deal Complete</span>
-                            <span>100%</span>
-                        </div>
-                        <div class="probability-bar">
-                            <div class="probability-fill" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Victor Ozhianvuna to Arsenal -->
-                <div class="transfer-card" data-club="Arsenal" data-position="midfielder" data-value="4000000" data-date="2025-08-23">
-                    <div class="transfer-header">
-                        <span class="transfer-status status-confirmed">✅ CONFIRMED</span>
-                        <span class="transfer-date">Aug 23, 2025</span>
-                    </div>
-                    <div class="player-info">
-                        <div class="player-avatar">VO</div>
-                        <div class="player-details">
-                            <h3>Victor Ozhianvuna</h3>
-                            <div class="player-position">Central Midfielder</div>
-                            <div class="player-market-value">Market Value: €3M</div>
-                        </div>
-                    </div>
-                    <div class="transfer-details">
-                        <div class="detail-item">
-                            <div class="detail-label">From Club</div>
-                            <div class="detail-value">Shamrock Rovers</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">To Club</div>
-                            <div class="detail-value">Arsenal</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Transfer Fee</div>
-                            <div class="detail-value transfer-fee">€2M-€4M</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Joins</div>
-                            <div class="detail-value">January 2027</div>
-                        </div>
-                    </div>
-                    <div class="probability-meter">
-                        <div class="probability-label">
-                            <span>Deal Complete</span>
-                            <span>100%</span>
-                        </div>
-                        <div class="probability-bar">
-                            <div class="probability-fill" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Jacob Ramsey to Tottenham -->
-                <div class="transfer-card" data-club="Tottenham" data-position="midfielder" data-value="45000000" data-date="2025-08-17">
-                    <div class="transfer-header">
-                        <span class="transfer-status status-confirmed">✅ CONFIRMED</span>
-                        <span class="transfer-date">Aug 17, 2025</span>
-                    </div>
-                    <div class="player-info">
-                        <div class="player-avatar">JR</div>
-                        <div class="player-details">
-                            <h3>Jacob Ramsey</h3>
-                            <div class="player-position">Central Midfielder</div>
-                            <div class="player-market-value">Market Value: £40M</div>
-                        </div>
-                    </div>
-                    <div class="transfer-details">
-                        <div class="detail-item">
-                            <div class="detail-label">From Club</div>
-                            <div class="detail-value">Aston Villa</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">To Club</div>
-                            <div class="detail-value">Tottenham</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Transfer Fee</div>
-                            <div class="detail-value transfer-fee">Undisclosed</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Contract</div>
-                            <div class="detail-value">5 years</div>
-                        </div>
-                    </div>
-                    <div class="probability-meter">
-                        <div class="probability-label">
-                            <span>Deal Complete</span>
-                            <span>100%</span>
-                        </div>
-                        <div class="probability-bar">
-                            <div class="probability-fill" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Loan Transfers -->
-        <div id="loans" class="transfer-section">
-            <div class="section-header">
-                <h2 class="section-title">🤝 Loan Deals</h2>
-                <p class="section-subtitle">Temporary transfers and loan moves for the 2025/26 season</p>
-            </div>
-            
-            <div class="transfer-grid">
-                
-                <!-- Francis Okoronkwo to Blackpool -->
-                <div class="transfer-card" data-club="Blackpool" data-position="goalkeeper" data-value="0" data-date="2025-08-18">
-                    <div class="transfer-header">
-                        <span class="transfer-status status-loan">🤝 LOAN</span>
-                        <span class="transfer-date">Aug 18, 2025</span>
-                    </div>
-                    <div class="player-info">
-                        <div class="player-avatar">FO</div>
-                        <div class="player-details">
-                            <h3>Francis Okoronkwo</h3>
-                            <div class="player-position">Goalkeeper</div>
-                            <div class="player-market-value">Youth Development</div>
-                        </div>
-                    </div>
-                    <div class="transfer-details">
-                        <div class="detail-item">
-                            <div class="detail-label">From Club</div>
-                            <div class="detail-value">Everton</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">To Club</div>
-                            <div class="detail-value">Blackpool</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Loan Duration</div>
-                            <div class="detail-value">Season Long</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Type</div>
-                            <div class="detail-value">Development</div>
-                        </div>
-                    </div>
-                    <div class="probability-meter">
-                        <div class="probability-label">
-                            <span>Loan Complete</span>
-                            <span>100%</span>
-                        </div>
-                        <div class="probability-bar">
-                            <div class="probability-fill" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Martin Sheriff to Rotherham -->
-                <div class="transfer-card" data-club="Rotherham" data-position="midfielder" data-value="0" data-date="2025-08-18">
-                    <div class="transfer-header">
-                        <span class="transfer-status status-loan">🤝 LOAN</span>
-                        <span class="transfer-date">Aug 18, 2025</span>
-                    </div>
-                    <div class="player-info">
-                        <div class="player-avatar">MS</div>
-                        <div class="player-details">
-                            <h3>Martin Sheriff</h3>
-                            <div class="player-position">Midfielder</div>
-                            <div class="player-market-value">Development Loan</div>
-                        </div>
-                    </div>
-                    <div class="transfer-details">
-                        <div class="detail-item">
-                            <div class="detail-label">From Club</div>
-                            <div class="detail-value">Everton</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">To Club</div>
-                            <div class="detail-value">Rotherham</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Loan Duration</div>
-                            <div class="detail-value">Season Long</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">League</div>
-                            <div class="detail-value">League One</div>
-                        </div>
-                    </div>
-                    <div class="probability-meter">
-                        <div class="probability-label">
-                            <span>Loan Complete</span>
-                            <span>100%</span>
-                        </div>
-                        <div class="probability-bar">
-                            <div class="probability-fill" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Lewis Dobbin to Preston -->
-                <div class="transfer-card" data-club="Preston" data-position="forward" data-value="0" data-date="2025-08-15">
-                    <div class="transfer-header">
-                        <span class="transfer-status status-loan">🤝 LOAN</span>
-                        <span class="transfer-date">Aug 15, 2025</span>
-                    </div>
-                    <div class="player-info">
-                        <div class="player-avatar">LD</div>
-                        <div class="player-details">
-                            <h3>Lewis Dobbin</h3>
-                            <div class="player-position">Forward</div>
-                            <div class="player-market-value">Championship Experience</div>
-                        </div>
-                    </div>
-                    <div class="transfer-details">
-                        <div class="detail-item">
-                            <div class="detail-label">From Club</div>
-                            <div class="detail-value">Aston Villa</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">To Club</div>
-                            <div class="detail-value">Preston North End</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Loan Duration</div>
-                            <div class="detail-value">Season Long</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">League</div>
-                            <div class="detail-value">Championship</div>
-                        </div>
-                    </div>
-                    <div class="probability-meter">
-                        <div class="probability-label">
-                            <span>Loan Complete</span>
-                            <span>100%</span>
-                        </div>
-                        <div class="probability-bar">
-                            <div class="probability-fill" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Chelsea Exodus -->
-        <div id="chelsea" class="transfer-section">
-            <div class="chelsea-exodus">
-                <div class="exodus-header">
-                    <h2 class="exodus-title">
-                        <i class="fas fa-door-open"></i>
-                        Chelsea Exodus 2025
-                        <i class="fas fa-coins"></i>
-                    </h2>
-                    <p class="section-subtitle">Chelsea's record-breaking £250M player sales in Summer 2025</p>
-                    <div class="exodus-stats">
-                        <div class="exodus-stat">
-                            <div class="exodus-stat-number">15</div>
-                            <div class="exodus-stat-label">Players Sold</div>
-                        </div>
-                        <div class="exodus-stat">
-                            <div class="exodus-stat-number">£250M</div>
-                            <div class="exodus-stat-label">Total Revenue</div>
-                        </div>
-                        <div class="exodus-stat">
-                            <div class="exodus-stat-number">£48M</div>
-                            <div class="exodus-stat-label">Biggest Sale</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="transfer-grid">
-                    
-                    <!-- Noni Madueke to Arsenal -->
-                    <div class="transfer-card" data-club="Arsenal" data-position="winger" data-value="48000000" data-date="2025-08-20">
-                        <div class="transfer-header">
-                            <span class="transfer-status status-confirmed">💸 SOLD</span>
-                            <span class="transfer-date">Aug 20, 2025</span>
-                        </div>
-                        <div class="player-info">
-                            <div class="player-avatar">NM</div>
-                            <div class="player-details">
-                                <h3>Noni Madueke</h3>
-                                <div class="player-position">Right Winger</div>
-                                <div class="player-market-value">From Chelsea</div>
-                            </div>
-                        </div>
-                        <div class="transfer-details">
-                            <div class="detail-item">
-                                <div class="detail-label">From Club</div>
-                                <div class="detail-value">Chelsea</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">To Club</div>
-                                <div class="detail-value">Arsenal</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Transfer Fee</div>
-                                <div class="detail-value transfer-fee">£48M</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Contract</div>
-                                <div class="detail-value">4 years</div>
-                            </div>
-                        </div>
-                        <div class="probability-meter">
-                            <div class="probability-label">
-                                <span>Deal Complete</span>
-                                <span>100%</span>
-                            </div>
-                            <div class="probability-bar">
-                                <div class="probability-fill" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Joao Felix to Al Nassr -->
-                    <div class="transfer-card" data-club="Al Nassr" data-position="forward" data-value="48000000" data-date="2025-08-19">
-                        <div class="transfer-header">
-                            <span class="transfer-status status-confirmed">💸 SOLD</span>
-                            <span class="transfer-date">Aug 19, 2025</span>
-                        </div>
-                        <div class="player-info">
-                            <div class="player-avatar">JF</div>
-                            <div class="player-details">
-                                <h3>João Félix</h3>
-                                <div class="player-position">Forward</div>
-                                <div class="player-market-value">From Chelsea</div>
-                            </div>
-                        </div>
-                        <div class="transfer-details">
-                            <div class="detail-item">
-                                <div class="detail-label">From Club</div>
-                                <div class="detail-value">Chelsea</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">To Club</div>
-                                <div class="detail-value">Al Nassr</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Transfer Fee</div>
-                                <div class="detail-value transfer-fee">~£48M</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">League</div>
-                                <div class="detail-value">Saudi Pro League</div>
-                            </div>
-                        </div>
-                        <div class="probability-meter">
-                            <div class="probability-label">
-                                <span>Deal Complete</span>
-                                <span>100%</span>
-                            </div>
-                            <div class="probability-bar">
-                                <div class="probability-fill" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Djordje Petrovic to Bournemouth -->
-                    <div class="transfer-card" data-club="Bournemouth" data-position="goalkeeper" data-value="25000000" data-date="2025-08-18">
-                        <div class="transfer-header">
-                            <span class="transfer-status status-confirmed">💸 SOLD</span>
-                            <span class="transfer-date">Aug 18, 2025</span>
-                        </div>
-                        <div class="player-info">
-                            <div class="player-avatar">DP</div>
-                            <div class="player-details">
-                                <h3>Đorđe Petrović</h3>
-                                <div class="player-position">Goalkeeper</div>
-                                <div class="player-market-value">From Chelsea</div>
-                            </div>
-                        </div>
-                        <div class="transfer-details">
-                            <div class="detail-item">
-                                <div class="detail-label">From Club</div>
-                                <div class="detail-value">Chelsea</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">To Club</div>
-                                <div class="detail-value">Bournemouth</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Transfer Fee</div>
-                                <div class="detail-value transfer-fee">£25M</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Contract</div>
-                                <div class="detail-value">5 years</div>
-                            </div>
-                        </div>
-                        <div class="probability-meter">
-                            <div class="probability-label">
-                                <span>Deal Complete</span>
-                                <span>100%</span>
-                            </div>
-                            <div class="probability-bar">
-                                <div class="probability-fill" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Armando Broja to Burnley -->
-                    <div class="transfer-card" data-club="Burnley" data-position="forward" data-value="20000000" data-date="2025-08-16">
-                        <div class="transfer-header">
-                            <span class="transfer-status status-confirmed">💸 SOLD</span>
-                            <span class="transfer-date">Aug 16, 2025</span>
-                        </div>
-                        <div class="player-info">
-                            <div class="player-avatar">AB</div>
-                            <div class="player-details">
-                                <h3>Armando Broja</h3>
-                                <div class="player-position">Forward</div>
-                                <div class="player-market-value">From Chelsea</div>
-                            </div>
-                        </div>
-                        <div class="transfer-details">
-                            <div class="detail-item">
-                                <div class="detail-label">From Club</div>
-                                <div class="detail-value">Chelsea</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">To Club</div>
-                                <div class="detail-value">Burnley</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Transfer Fee</div>
-                                <div class="detail-value transfer-fee">Undisclosed</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Contract</div>
-                                <div class="detail-value">5 years</div>
-                            </div>
-                        </div>
-                        <div class="probability-meter">
-                            <div class="probability-label">
-                                <span>Deal Complete</span>
-                                <span>100%</span>
-                            </div>
-                            <div class="probability-bar">
-                                <div class="probability-fill" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- European Transfers -->
-        <div id="european" class="transfer-section">
-            <div class="section-header">
-                <h2 class="section-title">🌍 European Moves</h2>
-                <p class="section-subtitle">Major European transfers involving Premier League clubs</p>
-            </div>
-            
-            <div class="transfer-grid">
-                
-                <!-- Jorrel Hato to Chelsea -->
-                <div class="transfer-card" data-club="Chelsea" data-position="defender" data-value="43000000" data-date="2025-08-19">
-                    <div class="transfer-header">
-                        <span class="transfer-status status-confirmed">🌍 EUROPEAN</span>
-                        <span class="transfer-date">Aug 19, 2025</span>
-                    </div>
-                    <div class="player-info">
-                        <div class="player-avatar">JH</div>
-                        <div class="player-details">
-                            <h3>Jorrel Hato</h3>
-                            <div class="player-position">Centre-back</div>
-                            <div class="player-market-value">Market Value: €40M</div>
-                        </div>
-                    </div>
-                    <div class="transfer-details">
-                        <div class="detail-item">
-                            <div class="detail-label">From Club</div>
-                            <div class="detail-value">Ajax</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">To Club</div>
-                            <div class="detail-value">Chelsea</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Transfer Fee</div>
-                            <div class="detail-value transfer-fee">€43M</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Contract</div>
-                            <div class="detail-value">6 years</div>
-                        </div>
-                    </div>
-                    <div class="probability-meter">
-                        <div class="probability-label">
-                            <span>Deal Complete</span>
-                            <span>100%</span>
-                        </div>
-                        <div class="probability-bar">
-                            <div class="probability-fill" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Darwin Núñez to Al Hilal -->
-                <div class="transfer-card" data-club="Al Hilal" data-position="forward" data-value="80000000" data-date="2025-08-20">
-                    <div class="transfer-header">
-                        <span class="transfer-status status-confirmed">🌍 EUROPEAN</span>
                         <span class="transfer-date">Aug 20, 2025</span>
                     </div>
                     <div class="player-info">
-                        <div class="player-avatar">DN</div>
+                        <div class="player-avatar">HE</div>
                         <div class="player-details">
-                            <h3>Darwin Núñez</h3>
-                            <div class="player-position">Forward</div>
-                            <div class="player-market-value">From Liverpool</div>
+                            <h3>Hugo Ekitike</h3>
+                            <div class="player-position">Striker</div>
+                            <div class="player-market-value">Market Value: £55M</div>
                         </div>
                     </div>
                     <div class="transfer-details">
                         <div class="detail-item">
                             <div class="detail-label">From Club</div>
-                            <div class="detail-value">Liverpool</div>
+                            <div class="detail-value">Eintracht Frankfurt</div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">To Club</div>
-                            <div class="detail-value">Al Hilal</div>
+                            <div class="detail-value">Liverpool</div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Transfer Fee</div>
-                            <div class="detail-value transfer-fee">Undisclosed</div>
+                            <div class="detail-value transfer-fee">£69M</div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">League</div>
-                            <div class="detail-value">Saudi Pro League</div>
+                            <div class="detail-label">Contract</div>
+                            <div class="detail-value">5 years + option</div>
                         </div>
                     </div>
                     <div class="probability-meter">
@@ -2282,24 +1505,33 @@
                     </div>
                 </div>
 
-                <!-- Amine Adli to Bournemouth -->
-                <div class="transfer-card" data-club="Bournemouth" data-position="winger" data-value="25100000" data-date="2025-08-17">
+            </div>
+        </div>
+
+        <!-- Chelsea Exodus Tab -->
+        <div class="tab-pane" id="chelsea">
+            <h2 style="color: var(--chelsea-blue); margin-bottom: 30px; text-align: center; font-size: 2rem;">💸 Chelsea's £250M Exodus</h2>
+            
+            <div class="transfer-grid">
+                
+                <!-- Noni Madueke to Bournemouth -->
+                <div class="transfer-card" data-club="Bournemouth" data-position="winger" data-value="25000000" data-date="2025-08-18">
                     <div class="transfer-header">
-                        <span class="transfer-status status-confirmed">🌍 EUROPEAN</span>
-                        <span class="transfer-date">Aug 17, 2025</span>
+                        <span class="transfer-status status-confirmed">💸 SOLD</span>
+                        <span class="transfer-date">Aug 18, 2025</span>
                     </div>
                     <div class="player-info">
-                        <div class="player-avatar">AA</div>
+                        <div class="player-avatar">NM</div>
                         <div class="player-details">
-                            <h3>Amine Adli</h3>
+                            <h3>Noni Madueke</h3>
                             <div class="player-position">Right Winger</div>
-                            <div class="player-market-value">Market Value: €23M</div>
+                            <div class="player-market-value">From Chelsea</div>
                         </div>
                     </div>
                     <div class="transfer-details">
                         <div class="detail-item">
                             <div class="detail-label">From Club</div>
-                            <div class="detail-value">Bayer Leverkusen</div>
+                            <div class="detail-value">Chelsea</div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">To Club</div>
@@ -2307,11 +1539,11 @@
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Transfer Fee</div>
-                            <div class="detail-value transfer-fee">£25.1M</div>
+                            <div class="detail-value transfer-fee">£25M</div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Contract</div>
-                            <div class="detail-value">4 years</div>
+                            <div class="detail-value">5 years</div>
                         </div>
                     </div>
                     <div class="probability-meter">
@@ -2325,143 +1557,97 @@
                     </div>
                 </div>
 
+                <!-- Armando Broja to Burnley -->
+                <div class="transfer-card" data-club="Burnley" data-position="forward" data-value="20000000" data-date="2025-08-16">
+                    <div class="transfer-header">
+                        <span class="transfer-status status-confirmed">💸 SOLD</span>
+                        <span class="transfer-date">Aug 16, 2025</span>
+                    </div>
+                    <div class="player-info">
+                        <div class="player-avatar">AB</div>
+                        <div class="player-details">
+                            <h3>Armando Broja</h3>
+                            <div class="player-position">Forward</div>
+                            <div class="player-market-value">From Chelsea</div>
+                        </div>
+                    </div>
+                    <div class="transfer-details">
+                        <div class="detail-item">
+                            <div class="detail-label">From Club</div>
+                            <div class="detail-value">Chelsea</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">To Club</div>
+                            <div class="detail-value">Burnley</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Transfer Fee</div>
+                            <div class="detail-value transfer-fee">£20M</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Add-ons</div>
+                            <div class="detail-value">+£5M potential</div>
+                        </div>
+                    </div>
+                    <div class="probability-meter">
+                        <div class="probability-label">
+                            <span>Transfer Complete</span>
+                            <span>100%</span>
+                        </div>
+                        <div class="probability-bar">
+                            <div class="probability-fill" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <!-- Hot Rumors -->
-        <div id="rumors" class="transfer-section">
-            <div class="section-header">
-                <h2 class="section-title">🔥 Hot Rumors</h2>
-                <p class="section-subtitle">Latest transfer rumors and potential deals based on real reports</p>
-            </div>
+        <!-- Rumors Tab -->
+        <div class="tab-pane" id="rumors">
+            <h2 style="color: var(--warning); margin-bottom: 30px; text-align: center; font-size: 2rem;">🔥 Hottest Transfer Rumors</h2>
             
             <div class="transfer-grid">
                 
-                <!-- Christopher Nkunku to Aston Villa -->
-                <div class="transfer-card" data-club="Aston Villa" data-position="midfielder" data-value="60000000" data-date="2025-08-23">
+                <!-- Rodrygo to Liverpool -->
+                <div class="transfer-card" data-club="Liverpool" data-position="forward" data-value="120000000" data-date="2025-08-24">
                     <div class="transfer-header">
                         <span class="transfer-status status-rumor">🔥 HOT RUMOR</span>
-                        <span class="transfer-date">Live</span>
+                        <span class="transfer-date">Latest</span>
                     </div>
                     <div class="player-info">
-                        <div class="player-avatar">CN</div>
+                        <div class="player-avatar">RG</div>
                         <div class="player-details">
-                            <h3>Christopher Nkunku</h3>
-                            <div class="player-position">Attacking Midfielder</div>
-                            <div class="player-market-value">Market Value: £55M</div>
+                            <h3>Rodrygo Goes</h3>
+                            <div class="player-position">Forward / Winger</div>
+                            <div class="player-market-value">Real Madrid → Liverpool?</div>
                         </div>
                     </div>
                     <div class="transfer-details">
                         <div class="detail-item">
-                            <div class="detail-label">From Club</div>
-                            <div class="detail-value">Chelsea</div>
+                            <div class="detail-label">Current Club</div>
+                            <div class="detail-value">Real Madrid</div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">To Club</div>
-                            <div class="detail-value">Aston Villa</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Rumored Fee</div>
-                            <div class="detail-value transfer-fee">£60M</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Source</div>
-                            <div class="detail-value">Multiple Reports</div>
-                        </div>
-                    </div>
-                    <div class="probability-meter">
-                        <div class="probability-label">
-                            <span>Transfer Probability</span>
-                            <span>75%</span>
-                        </div>
-                        <div class="probability-bar">
-                            <div class="probability-fill" style="width: 75%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Harvey Elliott to RB Leipzig -->
-                <div class="transfer-card" data-club="RB Leipzig" data-position="midfielder" data-value="42000000" data-date="2025-08-23">
-                    <div class="transfer-header">
-                        <span class="transfer-status status-rumor">🔥 HOT RUMOR</span>
-                        <span class="transfer-date">4h ago</span>
-                    </div>
-                    <div class="player-info">
-                        <div class="player-avatar">HE</div>
-                        <div class="player-details">
-                            <h3>Harvey Elliott</h3>
-                            <div class="player-position">Attacking Midfielder</div>
-                            <div class="player-market-value">Market Value: £38M</div>
-                        </div>
-                    </div>
-                    <div class="transfer-details">
-                        <div class="detail-item">
-                            <div class="detail-label">From Club</div>
+                            <div class="detail-label">Interested Club</div>
                             <div class="detail-value">Liverpool</div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-label">To Club</div>
-                            <div class="detail-value">RB Leipzig</div>
-                        </div>
-                        <div class="detail-item">
                             <div class="detail-label">Rumored Fee</div>
-                            <div class="detail-value transfer-fee">£42M</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Source</div>
-                            <div class="detail-value">Sky Sports</div>
-                        </div>
-                    </div>
-                    <div class="probability-meter">
-                        <div class="probability-label">
-                            <span>Transfer Probability</span>
-                            <span>68%</span>
-                        </div>
-                        <div class="probability-bar">
-                            <div class="probability-fill" style="width: 68%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Raheem Sterling to Besiktas -->
-                <div class="transfer-card" data-club="Besiktas" data-position="winger" data-value="25000000" data-date="2025-08-23">
-                    <div class="transfer-header">
-                        <span class="transfer-status status-rumor">🔥 HOT RUMOR</span>
-                        <span class="transfer-date">6h ago</span>
-                    </div>
-                    <div class="player-info">
-                        <div class="player-avatar">RS</div>
-                        <div class="player-details">
-                            <h3>Raheem Sterling</h3>
-                            <div class="player-position">Winger</div>
-                            <div class="player-market-value">Market Value: £22M</div>
-                        </div>
-                    </div>
-                    <div class="transfer-details">
-                        <div class="detail-item">
-                            <div class="detail-label">From Club</div>
-                            <div class="detail-value">Chelsea</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">To Club</div>
-                            <div class="detail-value">Beşiktaş</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Type</div>
-                            <div class="detail-value">Loan + Option</div>
+                            <div class="detail-value transfer-fee">£120M</div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Status</div>
-                            <div class="detail-value">Delegation Sent</div>
+                            <div class="detail-value">Negotiations</div>
                         </div>
                     </div>
                     <div class="probability-meter">
                         <div class="probability-label">
-                            <span>Transfer Probability</span>
-                            <span>58%</span>
+                            <span>Deal Probability</span>
+                            <span>65%</span>
                         </div>
                         <div class="probability-bar">
-                            <div class="probability-fill" style="width: 58%"></div>
+                            <div class="probability-fill" style="width: 65%"></div>
                         </div>
                     </div>
                 </div>
@@ -2469,75 +1655,84 @@
             </div>
         </div>
 
-        <!-- Market Analysis -->
-        <div id="analysis" class="transfer-section">
-            <div class="section-header">
-                <h2 class="section-title">📊 Market Analysis</h2>
-                <p class="section-subtitle">Deep dive into Premier League transfer market trends and insights for Summer 2025</p>
-            </div>
-            
-            <div style="display: grid; gap: 30px; margin-top: 40px;">
+        <!-- Analysis Tab -->
+        <div class="tab-pane" id="analysis">
+            <div class="analysis-card">
+                <h2 class="analysis-title">
+                    <i class="fas fa-chart-line"></i>
+                    Transfer Market Analysis - Summer 2025
+                </h2>
                 
-                <!-- Market Insights -->
-                <div style="background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--border-subtle); padding: 40px; border-radius: 24px;">
-                    <h3 style="color: var(--primary-green); margin-bottom: 25px; font-size: 1.8rem;">🎯 Key Market Insights</h3>
+                <ul class="insight-list">
+                    <li class="insight-item">
+                        <div class="insight-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h4>Liverpool's Statement Window</h4>
+                            <p>With £240M spent on Wirtz (£116M) and Ekitike (£69M), Liverpool have made the biggest statement this window. The Reds are clearly targeting the title with world-class additions to their attack.</p>
+                        </div>
+                    </li>
                     
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-bottom: 30px;">
-                        <div style="background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 15px; border-left: 4px solid var(--liverpool-red);">
-                            <h4 style="color: var(--liverpool-red); margin-bottom: 10px;">🔴 Liverpool's Mega Summer</h4>
-                            <p style="color: var(--text-secondary); line-height: 1.6;">Liverpool leads spending with £185M+ on Wirtz and Ekitike, signaling serious title ambitions under new management.</p>
+                    <li class="insight-item">
+                        <div class="insight-icon">
+                            <i class="fas fa-coins"></i>
                         </div>
-                        
-                        <div style="background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 15px; border-left: 4px solid var(--chelsea-blue);">
-                            <h4 style="color: var(--chelsea-blue); margin-bottom: 10px;">💸 Chelsea's Fire Sale</h4>
-                            <p style="color: var(--text-secondary); line-height: 1.6;">Record £250M in sales shows Chelsea's commitment to PSR compliance while still investing in young talent like Hato.</p>
+                        <div class="insight-content">
+                            <h4>Chelsea's Financial Reset</h4>
+                            <p>The Blues have generated £250M+ from player sales including Madueke, Felix, and others. This massive clear-out represents a complete squad overhaul under new management.</p>
                         </div>
-                        
-                        <div style="background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 15px; border-left: 4px solid var(--arsenal-red);">
-                            <h4 style="color: var(--arsenal-red); margin-bottom: 10px;">🎯 Arsenal's Precision</h4>
-                            <p style="color: var(--text-secondary); line-height: 1.6;">Strategic signings of Eze and Madueke address specific squad needs while maintaining financial discipline.</p>
-                        </div>
-                    </div>
+                    </li>
                     
-                    <!-- Transfer Timeline -->
-                    <div style="margin-top: 40px;">
-                        <h3 style="color: var(--primary-green); margin-bottom: 30px; text-align: center; font-size: 1.8rem;">📅 August 2025 Timeline</h3>
+                    <li class="insight-item">
+                        <div class="insight-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h4>North London Drama</h4>
+                            <p>Arsenal's hijacking of Eze from Tottenham for £67.5M adds another chapter to the rivalry. Spurs' failure to secure their top target could define their season.</p>
+                        </div>
+                    </li>
+                </ul>
+                
+                <!-- Transfer Timeline -->
+                <div style="margin-top: 40px;">
+                    <h3 style="color: var(--primary-green); margin-bottom: 30px; text-align: center; font-size: 1.8rem;">📅 August 2025 Timeline</h3>
+                    
+                    <div style="display: grid; gap: 20px;">
+                        <div style="display: flex; align-items: center; gap: 20px; padding: 20px; background: rgba(0, 255, 135, 0.1); border-radius: 15px;">
+                            <div style="width: 60px; height: 60px; background: linear-gradient(45deg, var(--primary-purple), var(--primary-green)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-crown" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--text-primary); margin-bottom: 5px;">August 23: Record Day</h4>
+                                <p style="color: var(--text-secondary);">Eze to Arsenal confirmed, multiple high-profile moves including youth signings</p>
+                            </div>
+                        </div>
                         
-                        <div style="display: grid; gap: 20px;">
-                            <div style="display: flex; align-items: center; gap: 20px; padding: 20px; background: rgba(0, 255, 135, 0.1); border-radius: 15px;">
-                                <div style="width: 60px; height: 60px; background: linear-gradient(45deg, var(--primary-purple), var(--primary-green)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-crown" style="font-size: 1.5rem;"></i>
-                                </div>
-                                <div>
-                                    <h4 style="color: var(--text-primary); margin-bottom: 5px;">August 23: Record Day</h4>
-                                    <p style="color: var(--text-secondary);">Eze to Arsenal confirmed, multiple high-profile moves including youth signings</p>
-                                </div>
+                        <div style="display: flex; align-items: center; gap: 20px; padding: 20px; background: rgba(255, 71, 87, 0.1); border-radius: 15px;">
+                            <div style="width: 60px; height: 60px; background: linear-gradient(45deg, var(--liverpool-red), #ff6b7a); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-bolt" style="font-size: 1.5rem;"></i>
                             </div>
-                            
-                            <div style="display: flex; align-items: center; gap: 20px; padding: 20px; background: rgba(255, 71, 87, 0.1); border-radius: 15px;">
-                                <div style="width: 60px; height: 60px; background: linear-gradient(45deg, var(--liverpool-red), #ff6b7a); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-bolt" style="font-size: 1.5rem;"></i>
-                                </div>
-                                <div>
-                                    <h4 style="color: var(--text-primary); margin-bottom: 5px;">August 20-22: Liverpool Spree</h4>
-                                    <p style="color: var(--text-secondary);">Wirtz (£116M) and Ekitike (£69M) signings reshape Liverpool's attack</p>
-                                </div>
+                            <div>
+                                <h4 style="color: var(--text-primary); margin-bottom: 5px;">August 20-22: Liverpool Spree</h4>
+                                <p style="color: var(--text-secondary);">Wirtz (£116M) and Ekitike (£69M) signings reshape Liverpool's attack</p>
                             </div>
-                            
-                            <div style="display: flex; align-items: center; gap: 20px; padding: 20px; background: rgba(3, 70, 148, 0.1); border-radius: 15px;">
-                                <div style="width: 60px; height: 60px; background: linear-gradient(45deg, var(--chelsea-blue), #6cabdd); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-coins" style="font-size: 1.5rem;"></i>
-                                </div>
-                                <div>
-                                    <h4 style="color: var(--text-primary); margin-bottom: 5px;">August 15-20: Chelsea Clear-out</h4>
-                                    <p style="color: var(--text-secondary);">Major departures including Madueke, Felix, and Petrovic generate massive revenue</p>
-                                </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 20px; padding: 20px; background: rgba(3, 70, 148, 0.1); border-radius: 15px;">
+                            <div style="width: 60px; height: 60px; background: linear-gradient(45deg, var(--chelsea-blue), #6cabdd); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-coins" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <div>
+                                <h4 style="color: var(--text-primary); margin-bottom: 5px;">August 15-20: Chelsea Clear-out</h4>
+                                <p style="color: var(--text-secondary);">Major departures including Madueke, Felix, and Petrovic generate massive revenue</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                
             </div>
+            
         </div>
 
     </div>
@@ -2781,161 +1976,106 @@
             }
             createParticles();
 
-            // Enhanced tab navigation with indicator
+            // Tab Navigation
             const navButtons = document.querySelectorAll('.nav-btn');
-            const sections = document.querySelectorAll('.transfer-section');
+            const tabPanes = document.querySelectorAll('.tab-pane');
             const navIndicator = document.getElementById('navIndicator');
-            
-            function updateNavIndicator(activeBtn) {
-                const btnRect = activeBtn.getBoundingClientRect();
-                const navRect = activeBtn.closest('.nav-tabs').getBoundingClientRect();
-                const left = btnRect.left - navRect.left;
-                const width = btnRect.width;
-                
-                navIndicator.style.left = left + 'px';
-                navIndicator.style.width = width + 'px';
+
+            function updateNavIndicator(button) {
+                const buttonRect = button.getBoundingClientRect();
+                const navRect = button.closest('.nav-tabs').getBoundingClientRect();
+                navIndicator.style.width = buttonRect.width + 'px';
+                navIndicator.style.left = (buttonRect.left - navRect.left) + 'px';
             }
-            
-            // Initialize indicator
-            updateNavIndicator(document.querySelector('.nav-btn.active'));
-            
-            navButtons.forEach((button, index) => {
+
+            navButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    const targetTab = this.dataset.tab;
-                    
-                    // Remove active classes
+                    // Remove active class from all
                     navButtons.forEach(btn => btn.classList.remove('active'));
-                    sections.forEach(section => section.classList.remove('active'));
+                    tabPanes.forEach(pane => pane.classList.remove('active'));
                     
-                    // Add active classes
+                    // Add active class to clicked
                     this.classList.add('active');
-                    document.getElementById(targetTab).classList.add('active');
+                    const tabId = this.dataset.tab;
+                    document.getElementById(tabId).classList.add('active');
                     
                     // Update indicator
                     updateNavIndicator(this);
                     
-                    // Show notification for tab change
-                    const tabNames = {
+                    // Show notification
+                    const tabLabels = {
                         'confirmed': 'Confirmed Transfers',
                         'loans': 'Loan Deals',
                         'chelsea': 'Chelsea Exodus',
-                        'european': 'European Moves',
+                        'european': 'European Transfers',
                         'rumors': 'Hot Rumors',
                         'analysis': 'Market Analysis'
                     };
-                    showNotification(`Viewing ${tabNames[targetTab]}`, 'info');
+                    showNotification(`Viewing: ${tabLabels[tabId]}`, 'info');
                 });
             });
 
-            // Enhanced filter functionality with real data
+            // Initialize nav indicator
+            updateNavIndicator(document.querySelector('.nav-btn.active'));
+
+            // Filter functionality
             const filterButtons = document.querySelectorAll('.filter-btn');
             const transferCards = document.querySelectorAll('.transfer-card');
-            
+
             filterButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    const filter = this.dataset.filter;
-                    
+                    // Remove active class from all filters
                     filterButtons.forEach(btn => btn.classList.remove('active'));
                     this.classList.add('active');
                     
-                    let visibleCount = 0;
+                    const filter = this.dataset.filter;
                     
+                    // Filter logic
                     transferCards.forEach(card => {
-                        let show = false;
-                        
                         if (filter === 'all') {
-                            show = true;
-                        } else if (filter === 'big6') {
-                            const club = card.dataset.club;
-                            const big6 = ['Arsenal', 'Chelsea', 'Liverpool', 'Manchester City', 'Manchester United', 'Tottenham'];
-                            show = big6.includes(club);
-                        } else if (filter === 'permanent') {
-                            const statusElement = card.querySelector('.transfer-status');
-                            show = !statusElement.textContent.includes('LOAN');
-                        } else if (filter === 'loans') {
-                            const statusElement = card.querySelector('.transfer-status');
-                            show = statusElement.textContent.includes('LOAN');
-                        } else if (filter === 'high-value') {
-                            const value = parseInt(card.dataset.value);
-                            show = value >= 25000000;
-                        } else if (filter === 'today') {
-                            show = true; // All transfers are from August 2025
-                        } else if (filter === 'youth') {
-                            const playerName = card.querySelector('h3').textContent;
-                            const youthPlayers = ['Victor Ozhianvuna', 'Francis Okoronkwo', 'Martin Sheriff'];
-                            show = youthPlayers.some(name => playerName.includes(name));
-                        }
-                        
-                        if (show) {
                             card.style.display = 'block';
-                            card.style.animation = 'fadeInUp 0.6s ease-out forwards';
-                            visibleCount++;
+                        } else if (filter === 'big-money') {
+                            const value = parseInt(card.dataset.value);
+                            card.style.display = value >= 50000000 ? 'block' : 'none';
+                        } else if (filter === 'chelsea') {
+                            card.style.display = card.dataset.club.toLowerCase().includes('chelsea') || 
+                                               card.textContent.includes('Chelsea') ? 'block' : 'none';
                         } else {
-                            card.style.display = 'none';
+                            card.style.display = 'block';
                         }
                     });
                     
-                    const filterLabels = {
-                        'all': 'all transfers',
-                        'big6': 'Big 6 clubs',
-                        'permanent': 'permanent transfers',
-                        'loans': 'loan deals',
-                        'high-value': '£25M+ deals',
-                        'today': 'August 2025',
-                        'youth': 'youth players'
-                    };
-                    
-                    showNotification(`Found ${visibleCount} ${filterLabels[filter] || filter}`, 'success');
+                    showNotification(`Filter applied: ${this.textContent}`, 'success');
                 });
             });
 
-            // Enhanced search functionality
-            const searchInput = document.getElementById('search-input');
-            let searchTimeout;
-            
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    const searchTerm = this.value.toLowerCase();
-                    let matchCount = 0;
-                    
-                    transferCards.forEach(card => {
-                        const playerName = card.querySelector('h3').textContent.toLowerCase();
-                        const club = card.dataset.club.toLowerCase();
-                        const position = card.dataset.position.toLowerCase();
-                        const fromClub = card.querySelector('.detail-value').textContent.toLowerCase();
-                        
-                        if (playerName.includes(searchTerm) || 
-                            club.includes(searchTerm) || 
-                            position.includes(searchTerm) ||
-                            fromClub.includes(searchTerm)) {
-                            card.style.display = 'block';
-                            card.style.animation = 'fadeInUp 0.4s ease-out forwards';
-                            matchCount++;
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
-                    
-                    if (searchTerm && matchCount > 0) {
-                        showNotification(`Found ${matchCount} matches for "${searchTerm}"`, 'info');
-                    }
-                }, 300);
+                const searchTerm = this.value.toLowerCase();
+                const activeTab = document.querySelector('.tab-pane.active');
+                const cards = activeTab.querySelectorAll('.transfer-card');
+                
+                cards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    card.style.display = text.includes(searchTerm) ? 'block' : 'none';
+                });
             });
 
-            // Enhanced sort functionality
-            const sortSelect = document.getElementById('sort-select');
+            // Sort functionality
+            const sortSelect = document.getElementById('sortSelect');
             sortSelect.addEventListener('change', function() {
                 const sortBy = this.value;
-                const activeSection = document.querySelector('.transfer-section.active .transfer-grid');
-                const cards = Array.from(activeSection.querySelectorAll('.transfer-card'));
+                const activeTab = document.querySelector('.tab-pane.active');
+                const grid = activeTab.querySelector('.transfer-grid');
+                const cards = Array.from(activeTab.querySelectorAll('.transfer-card'));
                 
                 cards.sort((a, b) => {
                     switch(sortBy) {
                         case 'value-high':
-                            return parseInt(b.dataset.value || 0) - parseInt(a.dataset.value || 0);
+                            return parseInt(b.dataset.value) - parseInt(a.dataset.value);
                         case 'value-low':
-                            return parseInt(a.dataset.value || 0) - parseInt(b.dataset.value || 0);
+                            return parseInt(a.dataset.value) - parseInt(b.dataset.value);
                         case 'alphabetical':
                             return a.querySelector('h3').textContent.localeCompare(b.querySelector('h3').textContent);
                         case 'latest':
@@ -3143,190 +2283,5 @@
 
         });
     </script>
-</body>
-</html>
-            <h2 class="comparison-title">⚖️ Transfer Comparison Tool</h2>
-            <button class="compare-btn" onclick="randomComparison()" style="padding: 10px 20px; background: linear-gradient(45deg, var(--primary-purple), var(--primary-green)); border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;">🔄 Random Compare</button>
-        </div>
-        <div class="comparison-grid">
-            <div class="player-comparison-card">
-                <div class="player-avatar" style="background: linear-gradient(135deg, var(--arsenal-red), #ffffff);">EZ</div>
-                <h3>Eberechi Eze</h3>
-                <div class="comparison-stats">
-                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <span style="color: var(--text-secondary);">Transfer Fee</span>
-                        <strong>£67.5M</strong>
-                    </div>
-                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <span style="color: var(--text-secondary);">Age</span>
-                        <strong>27</strong>
-                    </div>
-                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <span style="color: var(--text-secondary);">Goals 24/25</span>
-                        <strong>12</strong>
-                    </div>
-                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <span style="color: var(--text-secondary);">Assists 24/25</span>
-                        <strong>8</strong>
-                    </div>
-                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0;">
-                        <span style="color: var(--text-secondary);">Club</span>
-                        <strong>Arsenal</strong>
-                    </div>
-                </div>
-            </div>
-            <div class="vs-divider">VS</div>
-            <div class="player-comparison-card">
-                <div class="player-avatar" style="background: linear-gradient(135deg, var(--liverpool-red), #ffffff);">FW</div>
-                <h3>Florian Wirtz</h3>
-                <div class="comparison-stats">
-                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <span style="color: var(--text-secondary);">Transfer Fee</span>
-                        <strong>£116M</strong>
-                    </div>
-                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <span style="color: var(--text-secondary);">Age</span>
-                        <strong>22</strong>
-                    </div>
-                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <span style="color: var(--text-secondary);">Goals 24/25</span>
-                        <strong>18</strong>
-                    </div>
-                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <span style="color: var(--text-secondary);">Assists 24/25</span>
-                        <strong>15</strong>
-                    </div>
-                    <div class="stat-row" style="display: flex; justify-content: space-between; padding: 8px 0;">
-                        <span style="color: var(--text-secondary);">Club</span>
-                        <strong>Liverpool</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Club Spending Visualization -->
-    <div class="spending-viz">
-        <h2 class="section-title" style="font-size: 1.8rem; margin-bottom: 20px;">💰 Club Transfer Spending 2025</h2>
-        <div class="spending-chart">
-            <div class="spending-bar">
-                <div class="club-logo-small" style="background: var(--liverpool-red);">LFC</div>
-                <div class="spending-progress">
-                    <div class="spending-fill" style="width: 95%; background: linear-gradient(90deg, var(--liverpool-red), #ff6b6b);">
-                        <span>Liverpool - £240M</span>
-                    </div>
-                </div>
-            </div>
-            <div class="spending-bar">
-                <div class="club-logo-small" style="background: var(--arsenal-red);">ARS</div>
-                <div class="spending-progress">
-                    <div class="spending-fill" style="width: 85%; background: linear-gradient(90deg, var(--arsenal-red), #ff4757);">
-                        <span>Arsenal - £215M</span>
-                    </div>
-                </div>
-            </div>
-            <div class="spending-bar">
-                <div class="club-logo-small" style="background: var(--chelsea-blue);">CHE</div>
-                <div class="spending-progress">
-                    <div class="spending-fill" style="width: 70%; background: linear-gradient(90deg, var(--chelsea-blue), #3742fa);">
-                        <span>Chelsea - £180M</span>
-                    </div>
-                </div>
-            </div>
-            <div class="spending-bar">
-                <div class="club-logo-small" style="background: var(--city-blue);">MCI</div>
-                <div class="spending-progress">
-                    <div class="spending-fill" style="width: 65%; background: linear-gradient(90deg, var(--city-blue), #74b9ff);">
-                        <span>Man City - £165M</span>
-                    </div>
-                </div>
-            </div>
-            <div class="spending-bar">
-                <div class="club-logo-small" style="background: #da020e;">MUN</div>
-                <div class="spending-progress">
-                    <div class="spending-fill" style="width: 55%; background: linear-gradient(90deg, #da020e, #ff6b6b);">
-                        <span>Man United - £140M</span>
-                    </div>
-                </div>
-            </div>
-            <div class="spending-bar">
-                <div class="club-logo-small" style="background: #132257;">TOT</div>
-                <div class="spending-progress">
-                    <div class="spending-fill" style="width: 45%; background: linear-gradient(90deg, #132257, #5f7cff);">
-                        <span>Tottenham - £115M</span>
-                    </div>
-                </div>
-            </div>
-            <div class="spending-bar">
-                <div class="club-logo-small" style="background: #241f20;">NEW</div>
-                <div class="spending-progress">
-                    <div class="spending-fill" style="width: 35%; background: linear-gradient(90deg, #241f20, #636e72);">
-                        <span>Newcastle - £90M</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Social Sentiment Tracker -->
-    <div class="sentiment-tracker">
-        <h2 class="section-title" style="font-size: 1.8rem; margin-bottom: 20px;">📊 Transfer Sentiment Analysis</h2>
-        <div class="sentiment-grid">
-            <div class="sentiment-card">
-                <div class="sentiment-emoji">🔥</div>
-                <div class="sentiment-label">Fan Excitement</div>
-                <div class="sentiment-percentage">92%</div>
-                <div class="sentiment-transfer" style="color: var(--text-secondary); font-size: 0.9rem;">Eze to Arsenal</div>
-            </div>
-            <div class="sentiment-card">
-                <div class="sentiment-emoji">😍</div>
-                <div class="sentiment-label">Approval Rating</div>
-                <div class="sentiment-percentage">88%</div>
-                <div class="sentiment-transfer" style="color: var(--text-secondary); font-size: 0.9rem;">Wirtz to Liverpool</div>
-            </div>
-            <div class="sentiment-card">
-                <div class="sentiment-emoji">😤</div>
-                <div class="sentiment-label">Controversy</div>
-                <div class="sentiment-percentage">76%</div>
-                <div class="sentiment-transfer" style="color: var(--text-secondary); font-size: 0.9rem;">Chelsea Sales</div>
-            </div>
-            <div class="sentiment-card">
-                <div class="sentiment-emoji">🤔</div>
-                <div class="sentiment-label">Skepticism</div>
-                <div class="sentiment-percentage">65%</div>
-                <div class="sentiment-transfer" style="color: var(--text-secondary); font-size: 0.9rem;">United Spending</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Transfer Success Analytics -->
-    <div class="success-analytics">
-        <h2 class="section-title" style="font-size: 1.8rem; margin-bottom: 20px;">📈 Transfer Success Predictions</h2>
-        <div class="success-metrics">
-            <div class="success-metric">
-                <span class="metric-label">🎯 Eze at Arsenal - Impact Score</span>
-                <span class="metric-value">9.2/10</span>
-            </div>
-            <div class="success-metric">
-                <span class="metric-label">⚡ Wirtz at Liverpool - Performance Projection</span>
-                <span class="metric-value">95%</span>
-            </div>
-            <div class="success-metric">
-                <span class="metric-label">💰 Best Value Transfer</span>
-                <span class="metric-value">Cherki to City (£34M)</span>
-            </div>
-            <div class="success-metric">
-                <span class="metric-label">🏆 Title Impact Transfer</span>
-                <span class="metric-value">Wirtz to Liverpool</span>
-            </div>
-            <div class="success-metric">
-                <span class="metric-label">📊 Market Efficiency Rating</span>
-                <span class="metric-value">78%</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="footer" include="./footer.html"></div>
 </body>
 </html>
