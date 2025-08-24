@@ -4927,12 +4927,14 @@
         window.selectPlayerFromModal = function(playerId) {
             console.log(`🎯 Player selected from modal: ${playerId}`);
             
+            // Close modal immediately for better UX (single click)
+            closePlayerModal();
+            
             // Find the selected player
             const selectedPlayer = window.transferSimPro.allPlayers.find(player => player.id === playerId);
             
             if (!selectedPlayer) {
                 console.error('❌ Selected player not found');
-                closePlayerModal();
                 return;
             }
             
@@ -4948,7 +4950,6 @@
                 if (currentSpent + selectedPlayer.price > maxBudget) {
                     const remaining = maxBudget - currentSpent;
                     showNotification(`❌ Budget exceeded! You have £${remaining.toFixed(1)}m remaining, but ${selectedPlayer.name} costs £${selectedPlayer.price.toFixed(1)}m`, 'error');
-                    closePlayerModal();
                     return;
                 }
                 
@@ -4966,7 +4967,6 @@
                     const positionNames = {1: 'Goalkeeper', 2: 'Defender', 3: 'Midfielder', 4: 'Forward'};
                     const positionName = positionNames[selectedPlayer.position] || 'Player';
                     showNotification(`❌ Position limit reached! You can only have ${maxAllowed} ${positionName}${maxAllowed > 1 ? 's' : ''} in your squad.`, 'error');
-                    closePlayerModal();
                     return;
                 }
             }
@@ -4985,8 +4985,6 @@
             // Clear the stored references
             window.currentSelectedCircle = null;
             window.currentSelectedPosition = null;
-            
-            closePlayerModal();
         };
         
         // Helper function for escape key
