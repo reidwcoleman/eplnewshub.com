@@ -272,7 +272,7 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-            margin-top: 100px;
+            margin-top: 20px;
         }
 
         .hero-content {
@@ -1950,10 +1950,9 @@
         // Ultimate Transfer Hub JavaScript with Real Data
         document.addEventListener('DOMContentLoaded', function() {
             
-            // Loading screen with real data message
+            // Loading screen
             setTimeout(() => {
                 document.getElementById('loadingScreen').classList.add('hidden');
-                showNotification('Loaded real Premier League 2025 transfer data! 🚀', 'success');
             }, 3000);
 
             // Generate floating particles
@@ -1996,16 +1995,7 @@
                     // Update indicator
                     updateNavIndicator(this);
                     
-                    // Show notification
-                    const tabLabels = {
-                        'confirmed': 'Confirmed Transfers',
-                        'loans': 'Loan Deals',
-                        'chelsea': 'Chelsea Exodus',
-                        'european': 'European Transfers',
-                        'rumors': 'Hot Rumors',
-                        'analysis': 'Market Analysis'
-                    };
-                    showNotification(`Viewing: ${tabLabels[tabId]}`, 'info');
+                    // Tab switched
                 });
             });
 
@@ -2038,8 +2028,6 @@
                             card.style.display = 'block';
                         }
                     });
-                    
-                    showNotification(`Filter applied: ${this.textContent}`, 'success');
                 });
             });
 
@@ -2086,14 +2074,6 @@
                     activeSection.appendChild(card);
                 });
                 
-                const sortLabels = {
-                    'latest': 'latest first',
-                    'value-high': 'highest value',
-                    'value-low': 'lowest value',
-                    'alphabetical': 'A-Z'
-                };
-                
-                showNotification(`Sorted by ${sortLabels[sortBy]}`, 'info');
             });
 
             // View toggle functionality
@@ -2105,11 +2085,9 @@
                 if (isListView) {
                     grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(380px, 1fr))';
                     this.innerHTML = '<i class="fas fa-list"></i> List View';
-                    showNotification('Switched to Grid View', 'info');
                 } else {
                     grid.style.gridTemplateColumns = 'none';
                     this.innerHTML = '<i class="fas fa-th-large"></i> Grid View';
-                    showNotification('Switched to List View', 'info');
                 }
             });
 
@@ -2132,19 +2110,6 @@
                 const currentTime = new Date().toLocaleTimeString();
                 document.getElementById('last-update').textContent = currentTime;
                 
-                // Random real transfer notifications
-                if (Math.random() > 0.8) {
-                    const notifications = [
-                        'New Chelsea departure confirmed',
-                        'Liverpool finalizing another signing',
-                        'Arsenal medical scheduled',
-                        'Transfer deadline approaching',
-                        'Breaking: Major bid submitted',
-                        'Player agrees personal terms'
-                    ];
-                    const randomNotification = notifications[Math.floor(Math.random() * notifications.length)];
-                    showNotification(randomNotification, 'warning');
-                }
             };
 
             // Update every 30 seconds
@@ -2223,10 +2188,6 @@
                 }
             });
 
-            // Welcome message
-            setTimeout(() => {
-                showNotification('Real Premier League 2025 transfer data loaded! 🎯', 'success');
-            }, 3500);
 
             // Countdown timer
             function updateCountdown() {
@@ -2249,12 +2210,6 @@
             updateCountdown();
             setInterval(updateCountdown, 60000);
 
-            // Enhanced ticker animation
-            const tickerWrapper = document.querySelector('.ticker-wrapper');
-            if (tickerWrapper) {
-                const tickerContent = tickerWrapper.innerHTML;
-                tickerWrapper.innerHTML = tickerContent + tickerContent; // Duplicate for seamless loop
-            }
 
             // Random comparison function
             window.randomComparison = function() {
@@ -2271,8 +2226,6 @@
                 while (player2 === player1) {
                     player2 = players[Math.floor(Math.random() * players.length)];
                 }
-                
-                showNotification(`Comparing ${player1.name} vs ${player2.name}`, 'info');
             };
 
         });
