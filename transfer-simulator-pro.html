@@ -4779,41 +4779,15 @@
                 return;
             }
             
-            // Sort by total points and form for best player selection
-            players.sort((a, b) => {
-                const aScore = (b.total_points || 0) + (b.form || 0) * 2;
-                const bScore = (a.total_points || 0) + (a.form || 0) * 2;
-                return aScore - bScore;
-            });
-            
-            // Get the best available player not already in squad
-            const currentSquad = window.transferSimPro.currentSquad || [];
-            const availablePlayer = players.find(player => 
-                !currentSquad.find(squadPlayer => squadPlayer.id === player.id)
-            );
-            
-            if (!availablePlayer) {
-                showNotification(`❌ All ${positionLabel} players are already in your squad!`, 'warning');
-                return;
-            }
-            
-            console.log(`🎯 Auto-selecting best ${positionLabel}: ${availablePlayer.name}`);
+            // Sort by total points descending for better selection
+            players.sort((a, b) => (b.total_points || 0) - (a.total_points || 0));
             
             // Store the clicked circle for positioning
             window.currentSelectedCircle = event.target.closest('.position-circle');
             window.currentSelectedPosition = positionLabel;
             
-            // Add player directly without modal
-            addPlayerToSquad(availablePlayer.id);
-            
-            // Place player visually
-            const positionMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
-            const position = positionMap[availablePlayer.position] || 'MID';
-            placePlayerInPosition(availablePlayer, position);
-            
-            // Clear references
-            window.currentSelectedCircle = null;
-            window.currentSelectedPosition = null;
+            // Show player selection modal
+            showPlayerModal(players, positionLabel);
         };
         
         // Modal control functions
@@ -4896,17 +4870,23 @@
         
         // Function to place player in position circle on the field
         window.placePlayerInPosition = function(player, position) {
+            console.log(`🏟️ placePlayerInPosition called for ${player.name} in ${position}`);
+            console.log(`🎯 currentSelectedCircle exists:`, !!window.currentSelectedCircle);
+            
             // Find the first available position circle for this position
             const positionCircles = document.querySelectorAll(`[data-position="${position}"]`);
+            console.log(`📍 Found ${positionCircles.length} circles for position ${position}`);
             let targetCircle = null;
             
             // Find first empty circle or use the stored current circle
             if (window.currentSelectedCircle) {
                 targetCircle = window.currentSelectedCircle;
+                console.log(`✅ Using stored circle for placement`);
             } else {
                 for (let circle of positionCircles) {
                     if (!circle.classList.contains('filled')) {
                         targetCircle = circle;
+                        console.log(`✅ Found empty circle for ${position}`);
                         break;
                     }
                 }
