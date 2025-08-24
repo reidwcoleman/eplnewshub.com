@@ -4961,12 +4961,14 @@
             }
             
             // Add player to squad data structure
+            console.log('📞 About to call addPlayerToSquad for:', selectedPlayer.name);
             addPlayerToSquad(playerId);
             
             // Place player on the field visually
             const positionMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
             const position = positionMap[selectedPlayer.position] || 'MID';
             
+            console.log('🏟️ About to place player in position:', position);
             placePlayerInPosition(selectedPlayer, position);
             
             // Clear the stored references
@@ -5903,10 +5905,21 @@ Son Heung-min
         
         // Squad management function
         window.addPlayerToSquad = function(playerId) {
+            console.log('🔥 addPlayerToSquad called with ID:', playerId);
+            
+            // Debug info
+            console.log('transferSimPro exists:', !!window.transferSimPro);
+            console.log('allPlayers exists:', !!window.transferSimPro?.allPlayers);
+            console.log('allPlayers length:', window.transferSimPro?.allPlayers?.length || 0);
+            console.log('manualBuildingMode:', window.manualBuildingMode);
+            
             if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
                 console.warn('Player data not loaded');
+                showNotification('❌ Player data not loaded yet', 'error');
                 return;
             }
+            
+            console.log('✅ transferSimPro exists, checking player...');
             
             const player = window.transferSimPro.allPlayers.find(p => p.id === playerId);
             if (!player) {
@@ -5962,6 +5975,23 @@ Son Heung-min
                 return;
             }
             
+            // Initialize squad if it doesn't exist
+            if (!window.transferSimPro.currentSquad) {
+                window.transferSimPro.currentSquad = [];
+            }
+            
+            // Check if player is already in squad
+            const existingPlayerIndex = window.transferSimPro.currentSquad.findIndex(p => p.id === playerId);
+            if (existingPlayerIndex !== -1) {
+                showNotification(`${player.name} is already in your squad!`, 'warning');
+                return;
+            }
+            
+            // Add player to squad
+            window.transferSimPro.currentSquad.push(player);
+            console.log('Quick adding player to squad:', player.name);
+            console.log('Current squad size:', window.transferSimPro.currentSquad.length);
+            
             // Instant visual feedback
             const button = event.target.closest('.quick-add-btn');
             if (button) {
@@ -5973,8 +6003,7 @@ Son Heung-min
                 }, 1500);
             }
             
-            console.log('Quick adding player:', player.name);
-            showNotification(`⚡ ${player.name} added instantly!`, 'success');
+            showNotification(`⚡ ${player.name} added to squad! (${window.transferSimPro.currentSquad.length}/15)`, 'success');
             updateSquadDisplay();
             updateTeamStats();
         };
