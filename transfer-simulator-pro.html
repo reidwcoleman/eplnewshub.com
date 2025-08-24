@@ -2960,8 +2960,54 @@
             <!-- Center Panel - Player Market -->
             <div>
                 <div class="player-market panel" style="width: 100%; max-width: 100%;">
-
+                    <h2>🏪 Player Market</h2>
                     
+                    <!-- Search and Filter Controls -->
+                    <div class="market-controls" style="margin-bottom: 20px;">
+                        <input type="text" 
+                               id="playerSearch" 
+                               placeholder="🔍 Search players..." 
+                               style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; margin-bottom: 10px;"
+                               onkeyup="filterPlayers()">
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <select id="positionFilter" onchange="filterPlayers()" 
+                                    style="flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                                <option value="">All Positions</option>
+                                <option value="1">Goalkeepers</option>
+                                <option value="2">Defenders</option>
+                                <option value="3">Midfielders</option>
+                                <option value="4">Forwards</option>
+                            </select>
+                            
+                            <select id="priceFilter" onchange="filterPlayers()"
+                                    style="flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                                <option value="">All Prices</option>
+                                <option value="0-5">Under £5.0m</option>
+                                <option value="5-7">£5.0m - £7.0m</option>
+                                <option value="7-10">£7.0m - £10.0m</option>
+                                <option value="10-15">£10.0m - £15.0m</option>
+                                <option value="15-99">Over £15.0m</option>
+                            </select>
+                            
+                            <select id="sortBy" onchange="filterPlayers()"
+                                    style="flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                                <option value="points">Total Points</option>
+                                <option value="form">Current Form</option>
+                                <option value="price">Price</option>
+                                <option value="value">Value (pts/£)</option>
+                                <option value="popularity">Ownership %</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Player List -->
+                    <div id="playerList" style="max-height: 600px; overflow-y: auto;">
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 1.2rem; margin-bottom: 10px;">Loading players...</div>
+                            <div style="font-size: 0.9rem;">Player data will appear here</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Analytics Section -->
@@ -3028,26 +3074,216 @@
         
         // Initialize Transfer Simulator Pro object
         window.transferSimPro = {
+            allPlayers: [],
+            teams: [],
+            currentSquad: [],
+            
+            // Initialize function to load player data
+            async init() {
+                console.log('Initializing Transfer Simulator Pro...');
                 
-                <div class="feature-card" onclick="showHistoricalTrends()">
-                    <div class="feature-icon">📈</div>
-                    <div class="feature-title">Historical Analysis</div>
-                    <div class="feature-description">Multi-season performance trends</div>
-                </div>
+                try {
+                    // Try to load player data from player-data-2.html
+                    const response = await fetch('./player-data-2.html');
+                    if (response.ok) {
+                        const text = await response.text();
+                        const playerData = JSON.parse(text);
+                        
+                        if (playerData.elements && playerData.elements.length > 0) {
+                            this.allPlayers = playerData.elements.map(player => ({
+                                ...player,
+                                name: player.web_name || `${player.first_name} ${player.second_name}`,
+                                position: player.element_type,
+                                team: player.team,
+                                price: player.now_cost / 10,
+                                id: player.id
+                            }));
+                            
+                            if (playerData.teams) {
+                                this.teams = playerData.teams;
+                            }
+                            
+                            console.log(`Loaded ${this.allPlayers.length} players`);
+                            displayPlayers(); // Display players in market
+                            return true;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to load player data:', error);
+                }
+                return false;
+            }
+        };
+        
+        // Filter and display players in the market
+        window.filterPlayers = function() {
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers) return;
+            
+            const searchTerm = (document.getElementById('playerSearch')?.value || '').toLowerCase();
+            const positionFilter = document.getElementById('positionFilter')?.value || '';
+            const priceFilter = document.getElementById('priceFilter')?.value || '';
+            const sortBy = document.getElementById('sortBy')?.value || 'points';
+            
+            let filteredPlayers = [...window.transferSimPro.allPlayers];
+            
+            // Apply search filter
+            if (searchTerm) {
+                filteredPlayers = filteredPlayers.filter(player => 
+                    player.name.toLowerCase().includes(searchTerm) ||
+                    player.web_name?.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Apply position filter
+            if (positionFilter) {
+                filteredPlayers = filteredPlayers.filter(player => 
+                    player.position == positionFilter
+                );
+            }
+            
+            // Apply price filter
+            if (priceFilter) {
+                const [min, max] = priceFilter.split('-').map(Number);
+                filteredPlayers = filteredPlayers.filter(player => 
+                    player.price >= min && player.price <= max
+                );
+            }
+            
+            // Sort players
+            filteredPlayers.sort((a, b) => {
+                switch(sortBy) {
+                    case 'points':
+                        return (b.total_points || 0) - (a.total_points || 0);
+                    case 'form':
+                        return parseFloat(b.form || 0) - parseFloat(a.form || 0);
+                    case 'price':
+                        return (b.price || 0) - (a.price || 0);
+                    case 'value':
+                        const aValue = a.price > 0 ? (a.total_points || 0) / a.price : 0;
+                        const bValue = b.price > 0 ? (b.total_points || 0) / b.price : 0;
+                        return bValue - aValue;
+                    case 'popularity':
+                        return parseFloat(b.selected_by_percent || 0) - parseFloat(a.selected_by_percent || 0);
+                    default:
+                        return 0;
+                }
+            });
+            
+            displayFilteredPlayers(filteredPlayers);
+        };
+        
+        // Display filtered players
+        function displayFilteredPlayers(players) {
+            const playerList = document.getElementById('playerList');
+            if (!playerList) return;
+            
+            if (players.length === 0) {
+                playerList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <div style="font-size: 1.2rem;">No players found</div>
+                        <div style="font-size: 0.9rem; margin-top: 10px;">Try adjusting your filters</div>
+                    </div>`;
+                return;
+            }
+            
+            const positionNames = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+            
+            playerList.innerHTML = players.slice(0, 50).map(player => {
+                const position = positionNames[player.position] || 'UNK';
+                const teamName = window.transferSimPro.teams?.find(t => t.id === player.team)?.short_name || 'UNK';
+                const value = player.price > 0 ? ((player.total_points || 0) / player.price).toFixed(1) : '0.0';
                 
-                <div class="feature-card" onclick="showAdvancedOptimizer()">
-                    <div class="feature-icon">🤖</div>
-                    <div class="feature-title">AI Optimizer Pro</div>
-                    <div class="feature-description">Next-gen team building with ML predictions</div>
-                </div>
+                return `
+                    <div class="player-card" style="padding: 15px; margin-bottom: 10px; background: white; border-radius: 8px; border: 1px solid #e0e0e0; cursor: pointer; transition: all 0.2s;"
+                         onclick="quickAddPlayer(${player.id})"
+                         onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'; this.style.transform='translateY(-2px)'"
+                         onmouseout="this.style.boxShadow=''; this.style.transform=''">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 700; color: #37003c;">${player.name}</div>
+                                <div style="font-size: 0.9rem; color: #666; margin-top: 4px;">
+                                    ${position} • ${teamName} • £${player.price}m
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 1.2rem; font-weight: 700; color: #37003c;">${player.total_points || 0}</div>
+                                <div style="font-size: 0.8rem; color: #666;">Form: ${player.form || '0.0'}</div>
+                                <div style="font-size: 0.8rem; color: #28a745;">Value: ${value}</div>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+        
+        // Display all players initially
+        function displayPlayers() {
+            filterPlayers();
+        }
+        
+        // Quick add player to squad
+        window.quickAddPlayer = function(playerId) {
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
+                showNotification('⚠️ Player data not loaded', 'warning');
+                return;
+            }
+            
+            const player = window.transferSimPro.allPlayers.find(p => p.id === playerId);
+            if (!player) {
+                showNotification('❌ Player not found', 'error');
+                return;
+            }
+            
+            // Check if squad is full
+            if (window.transferSimPro.currentSquad.length >= 15) {
+                showNotification('❌ Squad is full (15 players max)', 'error');
+                return;
+            }
+            
+            // Check if player already in squad
+            if (window.transferSimPro.currentSquad.find(p => p.id === playerId)) {
+                showNotification(`⚠️ ${player.name} is already in your squad`, 'warning');
+                return;
+            }
+            
+            // Check budget
+            const currentSpend = window.transferSimPro.currentSquad.reduce((sum, p) => sum + (p.price || 0), 0);
+            if (currentSpend + player.price > 100) {
+                showNotification(`❌ Not enough budget (£${(100 - currentSpend).toFixed(1)}m remaining)`, 'error');
+                return;
+            }
+            
+            // Add to squad
+            window.transferSimPro.currentSquad.push(player);
+            
+            // Try to place on field
+            const positionMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+            const position = positionMap[player.position];
+            placePlayerInPosition(player, position);
+            
+            // Update displays
+            updateSquadDisplay();
+            updateCharts();
+            
+            showNotification(`✅ ${player.name} added to squad!`, 'success');
+        };
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('DOM Content Loaded - Initializing Transfer Simulator Pro...');
+            
+            try {
+                // Initialize the transfer simulator
+                const success = await window.transferSimPro.init();
                 
-                <div class="feature-card" onclick="showPriceTracker()">
-                    <div class="feature-icon">💹</div>
-                    <div class="feature-title">Price Tracker</div>
-                    <div class="feature-description">Real-time price alerts & predictions</div>
-                </div>
-                
-                <div class="feature-card" onclick="showSquadComparison()">
+                if (success) {
+                    console.log('Transfer Simulator Pro initialized successfully');
+                    initializeCharts();
+                } else {
+                    console.warn('Failed to load player data');
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+            }
+        });
                     <div class="feature-icon">⚔️</div>
                     <div class="feature-title">Squad Comparison</div>
                     <div class="feature-description">Compare with top managers & find differentials</div>
