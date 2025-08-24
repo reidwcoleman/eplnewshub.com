@@ -49,20 +49,31 @@
             line-height: 1.6;
         }
 
-        /* Live Transfer Ticker - Static */
+        /* Live Transfer Ticker - Auto Scrolling */
         .transfer-ticker {
             position: relative;
             background: linear-gradient(90deg, var(--primary-purple), var(--dark-bg));
             border-bottom: 2px solid var(--primary-green);
             padding: 10px;
             margin-top: 60px;
-            overflow-x: auto;
+            overflow: hidden;
+            white-space: nowrap;
         }
 
         .ticker-wrapper {
             display: flex;
             gap: 30px;
             padding: 5px 0;
+            animation: scroll-left 30s linear infinite;
+        }
+        
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
         }
 
         .ticker-item {
@@ -2472,17 +2483,56 @@
             // Random comparison function
             window.randomComparison = function() {
                 const players = [
-                    { name: 'Eberechi Eze', fee: '£67.5M', age: 27, goals: 12, assists: 8, club: 'Arsenal', initials: 'EZ' },
-                    { name: 'Florian Wirtz', fee: '£116M', age: 22, goals: 18, assists: 15, club: 'Liverpool', initials: 'FW' },
-                    { name: 'Rayan Cherki', fee: '£34M', age: 21, goals: 8, assists: 10, club: 'Man City', initials: 'RC' },
-                    { name: 'Kobbie Mainoo', fee: '£70M', age: 19, goals: 5, assists: 7, club: 'Man United', initials: 'KM' },
-                    { name: 'Pedro Neto', fee: '£55M', age: 24, goals: 10, assists: 9, club: 'Chelsea', initials: 'PN' }
+                    { name: 'Eberechi Eze', fee: '£67.5M', age: 27, goals: 12, assists: 8, club: 'Arsenal', initials: 'EZ', color: 'var(--arsenal-red)' },
+                    { name: 'Florian Wirtz', fee: '£116M', age: 22, goals: 18, assists: 15, club: 'Liverpool', initials: 'FW', color: 'var(--liverpool-red)' },
+                    { name: 'Viktor Gyökeres', fee: '£63.5M', age: 26, goals: 23, assists: 9, club: 'Arsenal', initials: 'VG', color: 'var(--arsenal-red)' },
+                    { name: 'Noni Madueke', fee: '£52M', age: 22, goals: 8, assists: 12, club: 'Arsenal', initials: 'NM', color: 'var(--arsenal-red)' },
+                    { name: 'Pedro Neto', fee: '£54M', age: 24, goals: 11, assists: 13, club: 'Chelsea', initials: 'PN', color: 'var(--chelsea-blue)' },
+                    { name: 'Federico Chiesa', fee: '£13M', age: 27, goals: 6, assists: 4, club: 'Liverpool', initials: 'FC', color: 'var(--liverpool-red)' }
                 ];
                 
                 const player1 = players[Math.floor(Math.random() * players.length)];
                 let player2 = players[Math.floor(Math.random() * players.length)];
                 while (player2 === player1) {
                     player2 = players[Math.floor(Math.random() * players.length)];
+                }
+                
+                // Update the comparison display
+                const comparisonCards = document.querySelectorAll('.player-comparison-card');
+                if (comparisonCards.length >= 2) {
+                    // Update first player card
+                    const card1 = comparisonCards[0];
+                    const avatar1 = card1.querySelector('.player-avatar');
+                    const name1 = card1.querySelector('h3');
+                    const stats1 = card1.querySelectorAll('.stat-row strong');
+                    
+                    avatar1.style.background = `linear-gradient(135deg, ${player1.color}, #ffffff)`;
+                    avatar1.textContent = player1.initials;
+                    name1.textContent = player1.name;
+                    if (stats1.length >= 5) {
+                        stats1[0].textContent = player1.fee;
+                        stats1[1].textContent = player1.age;
+                        stats1[2].textContent = player1.goals;
+                        stats1[3].textContent = player1.assists;
+                        stats1[4].textContent = player1.club;
+                    }
+                    
+                    // Update second player card
+                    const card2 = comparisonCards[1];
+                    const avatar2 = card2.querySelector('.player-avatar');
+                    const name2 = card2.querySelector('h3');
+                    const stats2 = card2.querySelectorAll('.stat-row strong');
+                    
+                    avatar2.style.background = `linear-gradient(135deg, ${player2.color}, #ffffff)`;
+                    avatar2.textContent = player2.initials;
+                    name2.textContent = player2.name;
+                    if (stats2.length >= 5) {
+                        stats2[0].textContent = player2.fee;
+                        stats2[1].textContent = player2.age;
+                        stats2[2].textContent = player2.goals;
+                        stats2[3].textContent = player2.assists;
+                        stats2[4].textContent = player2.club;
+                    }
                 }
             };
 
