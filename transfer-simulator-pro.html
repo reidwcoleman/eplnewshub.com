@@ -3741,13 +3741,37 @@
             const totalPoints = squad.reduce((sum, p) => sum + (p.total_points || 0), 0);
             const avgForm = squad.length > 0 ? squad.reduce((sum, p) => sum + parseFloat(p.form || 0), 0) / squad.length : 0;
             
-            // Update overall stats display
-            document.getElementById('totalValue').textContent = `£${totalValue.toFixed(1)}m`;
-            document.getElementById('expectedPoints').textContent = totalPoints.toFixed(0);
-            document.getElementById('avgForm').textContent = avgForm.toFixed(1);
-            document.getElementById('squadFilled').textContent = `${squad.length}/15`;
+            // Update overall stats display with error checking
+            const totalValueEl = document.getElementById('totalValue');
+            const expectedPointsEl = document.getElementById('expectedPoints');
+            const avgFormEl = document.getElementById('avgForm');
+            const squadFilledEl = document.getElementById('squadFilled');
             
-            console.log(`✅ Stats updated: Value: £${totalValue.toFixed(1)}m, Points: ${totalPoints}, Form: ${avgForm.toFixed(1)}`);
+            if (!totalValueEl) {
+                console.error('❌ totalValue element not found!');
+            } else {
+                totalValueEl.textContent = `£${totalValue.toFixed(1)}m`;
+            }
+            
+            if (!expectedPointsEl) {
+                console.error('❌ expectedPoints element not found!');
+            } else {
+                expectedPointsEl.textContent = totalPoints.toFixed(0);
+            }
+            
+            if (!avgFormEl) {
+                console.error('❌ avgForm element not found!');
+            } else {
+                avgFormEl.textContent = avgForm.toFixed(1);
+            }
+            
+            if (!squadFilledEl) {
+                console.error('❌ squadFilled element not found!');
+            } else {
+                squadFilledEl.textContent = `${squad.length}/15`;
+            }
+            
+            console.log(`✅ Stats updated: Value: £${totalValue.toFixed(1)}m, Points: ${totalPoints}, Form: ${avgForm.toFixed(1)}, Squad: ${squad.length}/15`);
             
             // Calculate position stats
             const positions = {
@@ -3767,17 +3791,67 @@
                 }
             });
             
-            // Update position stats display
-            document.getElementById('gkStats').textContent = `${positions[1].count}/${positions[1].max} - £${positions[1].value.toFixed(1)}m - ${positions[1].points} pts`;
-            document.getElementById('defStats').textContent = `${positions[2].count}/${positions[2].max} - £${positions[2].value.toFixed(1)}m - ${positions[2].points} pts`;
-            document.getElementById('midStats').textContent = `${positions[3].count}/${positions[3].max} - £${positions[3].value.toFixed(1)}m - ${positions[3].points} pts`;
-            document.getElementById('fwdStats').textContent = `${positions[4].count}/${positions[4].max} - £${positions[4].value.toFixed(1)}m - ${positions[4].points} pts`;
+            // Update position stats display with error checking
+            const gkStatsEl = document.getElementById('gkStats');
+            const defStatsEl = document.getElementById('defStats');
+            const midStatsEl = document.getElementById('midStats');
+            const fwdStatsEl = document.getElementById('fwdStats');
             
-            // Update progress bars
-            document.getElementById('gkBar').style.width = `${(positions[1].count / positions[1].max) * 100}%`;
-            document.getElementById('defBar').style.width = `${(positions[2].count / positions[2].max) * 100}%`;
-            document.getElementById('midBar').style.width = `${(positions[3].count / positions[3].max) * 100}%`;
-            document.getElementById('fwdBar').style.width = `${(positions[4].count / positions[4].max) * 100}%`;
+            if (gkStatsEl) {
+                gkStatsEl.textContent = `${positions[1].count}/${positions[1].max} - £${positions[1].value.toFixed(1)}m - ${positions[1].points} pts`;
+            } else {
+                console.error('❌ gkStats element not found!');
+            }
+            
+            if (defStatsEl) {
+                defStatsEl.textContent = `${positions[2].count}/${positions[2].max} - £${positions[2].value.toFixed(1)}m - ${positions[2].points} pts`;
+            } else {
+                console.error('❌ defStats element not found!');
+            }
+            
+            if (midStatsEl) {
+                midStatsEl.textContent = `${positions[3].count}/${positions[3].max} - £${positions[3].value.toFixed(1)}m - ${positions[3].points} pts`;
+            } else {
+                console.error('❌ midStats element not found!');
+            }
+            
+            if (fwdStatsEl) {
+                fwdStatsEl.textContent = `${positions[4].count}/${positions[4].max} - £${positions[4].value.toFixed(1)}m - ${positions[4].points} pts`;
+            } else {
+                console.error('❌ fwdStats element not found!');
+            }
+            
+            console.log('📊 Position stats:', positions);
+            
+            // Update progress bars with error checking
+            const gkBar = document.getElementById('gkBar');
+            const defBar = document.getElementById('defBar');
+            const midBar = document.getElementById('midBar');
+            const fwdBar = document.getElementById('fwdBar');
+            
+            if (gkBar) {
+                gkBar.style.width = `${(positions[1].count / positions[1].max) * 100}%`;
+            } else {
+                console.error('❌ gkBar element not found!');
+            }
+            
+            if (defBar) {
+                defBar.style.width = `${(positions[2].count / positions[2].max) * 100}%`;
+            } else {
+                console.error('❌ defBar element not found!');
+            }
+            
+            if (midBar) {
+                midBar.style.width = `${(positions[3].count / positions[3].max) * 100}%`;
+            } else {
+                console.error('❌ midBar element not found!');
+            }
+            
+            if (fwdBar) {
+                fwdBar.style.width = `${(positions[4].count / positions[4].max) * 100}%`;
+            } else {
+                console.error('❌ fwdBar element not found!');
+            }
             
             // Update top performers
             if (squad.length > 0) {
