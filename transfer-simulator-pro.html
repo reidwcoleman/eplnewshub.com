@@ -4890,6 +4890,44 @@
             showPlayerModal(players, positionLabel);
         };
         
+        // Helper function to generate player cards (defined first so it can be used in showPlayerModal)
+        window.generatePlayerCards = function(players, teams) {
+            if (!teams) {
+                teams = window.transferSimPro?.teams || [];
+            }
+            
+            return players.map(player => {
+                const teamInfo = teams.find(team => team.id === player.team);
+                const teamName = teamInfo ? teamInfo.name : 'Unknown';
+                
+                return `
+                    <div class="modal-player-card" onclick="selectPlayerFromModal(${player.id})">
+                        <div class="modal-player-info">
+                            <div>
+                                <div class="modal-player-name">${player.name}</div>
+                                <div class="modal-player-team">${teamName}</div>
+                            </div>
+                            <div class="modal-player-price">£${player.price.toFixed(1)}m</div>
+                        </div>
+                        <div class="modal-player-stats">
+                            <div class="modal-stat-box">
+                                <span class="modal-stat-value">${player.total_points || 0}</span>
+                                <span class="modal-stat-label">Points</span>
+                            </div>
+                            <div class="modal-stat-box">
+                                <span class="modal-stat-value">${player.form || '0.0'}</span>
+                                <span class="modal-stat-label">Form</span>
+                            </div>
+                            <div class="modal-stat-box">
+                                <span class="modal-stat-value">${player.selected_by_percent || '0.0'}%</span>
+                                <span class="modal-stat-label">Selected</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+        
         // Modal control functions
         window.showPlayerModal = function(players, positionLabel) {
             console.log(`🎭 Opening modal for ${positionLabel} with ${players.length} players`);
@@ -4964,44 +5002,6 @@
             // Add escape key handler
             document.addEventListener('keydown', modalEscapeHandler);
             console.log(`⌨️ Escape key handler added`);
-        };
-        
-        // Helper function to generate player cards
-        window.generatePlayerCards = function(players, teams) {
-            if (!teams) {
-                teams = window.transferSimPro?.teams || [];
-            }
-            
-            return players.map(player => {
-                const teamInfo = teams.find(team => team.id === player.team);
-                const teamName = teamInfo ? teamInfo.name : 'Unknown';
-                
-                return `
-                    <div class="modal-player-card" onclick="selectPlayerFromModal(${player.id})">
-                        <div class="modal-player-info">
-                            <div>
-                                <div class="modal-player-name">${player.name}</div>
-                                <div class="modal-player-team">${teamName}</div>
-                            </div>
-                            <div class="modal-player-price">£${player.price.toFixed(1)}m</div>
-                        </div>
-                        <div class="modal-player-stats">
-                            <div class="modal-stat-box">
-                                <span class="modal-stat-value">${player.total_points || 0}</span>
-                                <span class="modal-stat-label">Points</span>
-                            </div>
-                            <div class="modal-stat-box">
-                                <span class="modal-stat-value">${player.form || '0.0'}</span>
-                                <span class="modal-stat-label">Form</span>
-                            </div>
-                            <div class="modal-stat-box">
-                                <span class="modal-stat-value">${player.selected_by_percent || '0.0'}%</span>
-                                <span class="modal-stat-label">Selected</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
         };
         
         // Filter players based on search input
