@@ -3697,7 +3697,10 @@
         
         // Update Team Stats
         window.updateTeamStats = function() {
+            console.log('📊 updateTeamStats called');
+            
             if (!window.transferSimPro || !window.transferSimPro.currentSquad) {
+                console.log('❌ No squad data available, resetting stats');
                 // Initialize empty stats if no squad exists
                 document.getElementById('totalValue').textContent = '£0.0m';
                 document.getElementById('expectedPoints').textContent = '0';
@@ -3731,6 +3734,7 @@
             }
             
             const squad = window.transferSimPro.currentSquad;
+            console.log(`📊 Updating stats for ${squad.length} players`);
             
             // Calculate overall stats
             const totalValue = squad.reduce((sum, p) => sum + (p.price || 0), 0);
@@ -3742,6 +3746,8 @@
             document.getElementById('expectedPoints').textContent = totalPoints.toFixed(0);
             document.getElementById('avgForm').textContent = avgForm.toFixed(1);
             document.getElementById('squadFilled').textContent = `${squad.length}/15`;
+            
+            console.log(`✅ Stats updated: Value: £${totalValue.toFixed(1)}m, Points: ${totalPoints}, Form: ${avgForm.toFixed(1)}`);
             
             // Calculate position stats
             const positions = {
