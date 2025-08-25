@@ -4875,54 +4875,113 @@
             console.log(`🏟️ placePlayerInPosition called for ${player.name} in ${position}`);
             console.log(`🎯 currentSelectedCircle exists:`, !!window.currentSelectedCircle);
             
+            if (window.currentSelectedCircle) {
+                console.log('📍 Current selected circle HTML:', window.currentSelectedCircle.outerHTML);
+            }
+            
             // Find the first available position circle for this position
             const positionCircles = document.querySelectorAll(`[data-position="${position}"]`);
             console.log(`📍 Found ${positionCircles.length} circles for position ${position}`);
             let targetCircle = null;
+            let circleIndex = -1;
             
             // Find first empty circle or use the stored current circle
             if (window.currentSelectedCircle) {
                 targetCircle = window.currentSelectedCircle;
-                console.log(`✅ Using stored circle for placement`);
+                // Find the index of this circle
+                positionCircles.forEach((circle, idx) => {
+                    if (circle === targetCircle) {
+                        circleIndex = idx;
+                    }
+                });
+                console.log(`✅ Using stored circle for placement at index ${circleIndex}`);
             } else {
-                for (let circle of positionCircles) {
-                    if (!circle.classList.contains('filled')) {
-                        targetCircle = circle;
-                        console.log(`✅ Found empty circle for ${position}`);
+                for (let i = 0; i < positionCircles.length; i++) {
+                    if (!positionCircles[i].classList.contains('filled')) {
+                        targetCircle = positionCircles[i];
+                        circleIndex = i;
+                        console.log(`✅ Found empty circle for ${position} at index ${i}`);
                         break;
                     }
                 }
             }
             
             if (!targetCircle) {
-                console.warn(`No available ${position} circle found`);
+                console.error(`❌ No available ${position} circle found`);
                 return false;
             }
             
-            // Update the circle to show selected player
-            const playerDisplay = targetCircle.querySelector('.player-name-display');
-            const priceDisplay = targetCircle.querySelector('.player-price-display');
+            console.log('🎯 Target circle before update:', targetCircle.innerHTML);
+            
+            // Try to update using both querySelector and getElementById
+            const playerDisplayId = `player-${position}-${circleIndex}`;
+            const priceDisplayId = `price-${position}-${circleIndex}`;
+            
+            console.log(`🔍 Looking for elements with IDs: ${playerDisplayId}, ${priceDisplayId}`);
+            
+            // First try getElementById
+            let playerDisplay = document.getElementById(playerDisplayId);
+            let priceDisplay = document.getElementById(priceDisplayId);
+            
+            // Fallback to querySelector if getElementById fails
+            if (!playerDisplay) {
+                playerDisplay = targetCircle.querySelector('.player-name-display');
+            }
+            if (!priceDisplay) {
+                priceDisplay = targetCircle.querySelector('.player-price-display');
+            }
+            
+            console.log('📝 Player display element found:', !!playerDisplay, playerDisplay);
+            console.log('📝 Price display element found:', !!priceDisplay, priceDisplay);
             
             if (playerDisplay) {
                 // Show player's last name (more space efficient)
                 const nameParts = player.name.split(' ');
                 const displayName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : player.name;
-                playerDisplay.textContent = displayName.substring(0, 8); // Max 8 characters
+                const truncatedName = displayName.substring(0, 8); // Max 8 characters
+                
+                // Force update the text content
+                playerDisplay.innerHTML = truncatedName;
+                playerDisplay.textContent = truncatedName;
+                playerDisplay.style.color = 'white';
+                playerDisplay.style.fontSize = '0.7rem';
+                
+                console.log(`✅ Updated player name display to: ${truncatedName}`);
+                console.log('📝 Player display after update:', playerDisplay.textContent);
+            } else {
+                console.error('❌ Player display element not found!');
             }
             
             if (priceDisplay) {
-                priceDisplay.textContent = `£${(player.price || 0).toFixed(1)}m`;
+                const priceText = `£${(player.price || 0).toFixed(1)}m`;
+                
+                // Force update the text content
+                priceDisplay.innerHTML = priceText;
+                priceDisplay.textContent = priceText;
+                priceDisplay.style.color = 'white';
+                priceDisplay.style.fontSize = '0.5rem';
+                priceDisplay.style.display = 'block';
+                
+                console.log(`✅ Updated price display to: ${priceText}`);
+                console.log('📝 Price display after update:', priceDisplay.textContent);
+            } else {
+                console.error('❌ Price display element not found!');
             }
             
-            // Style the filled circle
+            // Style the filled circle with explicit styling
             targetCircle.classList.add('filled');
+            targetCircle.style.background = 'linear-gradient(145deg, #37003c, #6f42c1, #ff6b35)';
+            targetCircle.style.color = 'white';
             targetCircle.title = `${player.name} - £${(player.price || 0).toFixed(1)}m`;
             
             // Store player data on the circle for future reference
             targetCircle.setAttribute('data-player-id', player.id);
             targetCircle.setAttribute('data-player-name', player.name);
             
+            console.log('🎯 Target circle after update:', targetCircle.innerHTML);
+            console.log('🎯 Circle classes:', targetCircle.className);
             console.log(`✅ Placed ${player.name} in ${position} position on field`);
+            
             return true;
         };
 
@@ -4982,9 +5041,13 @@
             const position = positionMap[selectedPlayer.position] || 'MID';
             
             console.log('🏟️ About to place player in position:', position);
-            placePlayerInPosition(selectedPlayer, position);
+            console.log('📊 Player object being passed:', selectedPlayer);
+            console.log('🎯 Current selected circle before placement:', window.currentSelectedCircle);
             
-            // Clear the stored references
+            const placementSuccess = placePlayerInPosition(selectedPlayer, position);
+            console.log('📍 Placement success:', placementSuccess);
+            
+            // Clear the stored references after placement
             window.currentSelectedCircle = null;
             window.currentSelectedPosition = null;
         };
