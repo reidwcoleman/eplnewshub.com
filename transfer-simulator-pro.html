@@ -2758,6 +2758,31 @@
             background: linear-gradient(135deg, #c82333, #bd2130);
             transform: translateY(-1px);
         }
+        
+        /* Search input styling */
+        #playerSearchInput:focus {
+            border-color: #37003c !important;
+            box-shadow: 0 0 0 3px rgba(55, 0, 60, 0.1);
+        }
+        
+        /* Custom scrollbar for player list */
+        #playerListContainer::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #playerListContainer::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        #playerListContainer::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            border-radius: 4px;
+        }
+        
+        #playerListContainer::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #4a0e4e, #8b5cbb);
+        }
     </style>
     <!-- Chart.js for analytics charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -4891,11 +4916,63 @@
             modalTitle.textContent = `Select a ${positionLabel} Player`;
             console.log(`📝 Modal title set to: ${modalTitle.textContent}`);
             
+            // Store the full player list for filtering
+            window.modalPlayers = players;
+            window.modalPositionLabel = positionLabel;
+            
             // Get team data for displaying team names
             const teams = window.transferSimPro?.teams || [];
             
-            // Create player cards HTML
-            const playerCardsHtml = players.slice(0, 20).map(player => {
+            // Add search bar and player count
+            const searchBarHtml = `
+                <div style="padding: 15px; background: #f5f5f5; border-radius: 10px; margin-bottom: 15px;">
+                    <input type="text" 
+                           id="playerSearchInput" 
+                           placeholder="🔍 Search players by name or team..." 
+                           style="width: 100%; padding: 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; outline: none;"
+                           oninput="filterModalPlayers(this.value)">
+                    <div style="margin-top: 10px; color: #666; font-size: 14px;">
+                        <span id="playerCount">${players.length}</span> players available
+                    </div>
+                </div>
+            `;
+            
+            // Create container with search and scrollable player list
+            const containerHtml = `
+                ${searchBarHtml}
+                <div id="playerListContainer" style="max-height: 500px; overflow-y: auto; padding-right: 10px;">
+                    <div id="playerList" class="player-selection-grid">
+                        ${generatePlayerCards(players, teams)}
+                    </div>
+                </div>
+            `;
+            
+            playerGrid.innerHTML = containerHtml;
+            console.log(`🎨 Generated HTML for ALL ${players.length} player cards with search`);
+            
+            modal.style.display = 'flex';
+            console.log(`✅ Modal display set to 'flex' - should now be visible!`);
+            
+            // Focus on search input
+            setTimeout(() => {
+                const searchInput = document.getElementById('playerSearchInput');
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            }, 100);
+            
+            // Add escape key handler
+            document.addEventListener('keydown', modalEscapeHandler);
+            console.log(`⌨️ Escape key handler added`);
+        };
+        
+        // Helper function to generate player cards
+        window.generatePlayerCards = function(players, teams) {
+            if (!teams) {
+                teams = window.transferSimPro?.teams || [];
+            }
+            
+            return players.map(player => {
                 const teamInfo = teams.find(team => team.id === player.team);
                 const teamName = teamInfo ? teamInfo.name : 'Unknown';
                 
@@ -4925,16 +5002,58 @@
                     </div>
                 `;
             }).join('');
+        };
+        
+        // Filter players based on search input
+        window.filterModalPlayers = function(searchTerm) {
+            const players = window.modalPlayers || [];
+            const teams = window.transferSimPro?.teams || [];
             
-            playerGrid.innerHTML = playerCardsHtml;
-            console.log(`🎨 Generated HTML for ${players.slice(0, 20).length} player cards`);
+            if (!searchTerm || searchTerm.trim() === '') {
+                // Show all players if no search term
+                const playerList = document.getElementById('playerList');
+                if (playerList) {
+                    playerList.innerHTML = generatePlayerCards(players, teams);
+                }
+                
+                const playerCount = document.getElementById('playerCount');
+                if (playerCount) {
+                    playerCount.textContent = players.length;
+                }
+                return;
+            }
             
-            modal.style.display = 'flex';
-            console.log(`✅ Modal display set to 'flex' - should now be visible!`);
+            // Filter players by name or team
+            const searchLower = searchTerm.toLowerCase();
+            const filteredPlayers = players.filter(player => {
+                const playerName = player.name.toLowerCase();
+                const teamInfo = teams.find(team => team.id === player.team);
+                const teamName = teamInfo ? teamInfo.name.toLowerCase() : '';
+                
+                return playerName.includes(searchLower) || teamName.includes(searchLower);
+            });
             
-            // Add escape key handler
-            document.addEventListener('keydown', modalEscapeHandler);
-            console.log(`⌨️ Escape key handler added`);
+            // Update the player list
+            const playerList = document.getElementById('playerList');
+            if (playerList) {
+                if (filteredPlayers.length > 0) {
+                    playerList.innerHTML = generatePlayerCards(filteredPlayers, teams);
+                } else {
+                    playerList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 48px; margin-bottom: 10px;">🔍</div>
+                            <div style="font-size: 18px;">No players found matching "${searchTerm}"</div>
+                            <div style="font-size: 14px; margin-top: 5px;">Try a different search term</div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Update player count
+            const playerCount = document.getElementById('playerCount');
+            if (playerCount) {
+                playerCount.textContent = `${filteredPlayers.length} of ${players.length}`;
+            }
         };
         
         window.closePlayerModal = function() {
