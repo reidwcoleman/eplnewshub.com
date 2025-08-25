@@ -6033,7 +6033,11 @@ Son Heung-min
             
             // Update squad display
             updateSquadDisplay();
-            updateTeamStats();
+            if (typeof window.updateTeamStats === 'function') {
+                window.updateTeamStats();
+            } else {
+                console.warn('updateTeamStats function not found');
+            }
         };
         
         // Quick add function with enhanced feedback
