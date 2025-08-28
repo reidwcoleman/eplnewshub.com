@@ -5266,6 +5266,17 @@
         window.showPlayerModal = function(players, positionLabel) {
             console.log(`🎭 Opening modal for ${positionLabel} with ${players.length} players`);
             
+            // Store players globally for filtering
+            window.currentModalPlayers = players;
+            
+            // Reset search filters
+            const searchInput = document.getElementById('modalPlayerSearch');
+            if (searchInput) searchInput.value = '';
+            const sortSelect = document.getElementById('modalSortBy');
+            if (sortSelect) sortSelect.value = 'points';
+            const priceSelect = document.getElementById('modalPriceFilter');
+            if (priceSelect) priceSelect.value = '';
+            
             const modal = document.getElementById('playerSelectionModal');
             const modalTitle = document.getElementById('modalTitle');
             const playerGrid = document.getElementById('playerSelectionGrid');
@@ -5394,6 +5405,55 @@
             const modal = document.getElementById('playerSelectionModal');
             modal.style.display = 'none';
             document.removeEventListener('keydown', modalEscapeHandler);
+        };
+        
+        // Filter players in the modal
+        window.filterModalPlayers = function() {
+            const searchTerm = document.getElementById('modalPlayerSearch')?.value.toLowerCase() || '';
+            const sortBy = document.getElementById('modalSortBy')?.value || 'points';
+            const priceFilter = document.getElementById('modalPriceFilter')?.value || '';
+            
+            if (!window.currentModalPlayers) return;
+            
+            let filteredPlayers = [...window.currentModalPlayers];
+            
+            // Apply search filter
+            if (searchTerm) {
+                filteredPlayers = filteredPlayers.filter(player => 
+                    player.name.toLowerCase().includes(searchTerm) ||
+                    (player.web_name && player.web_name.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // Apply price filter
+            if (priceFilter) {
+                const [min, max] = priceFilter.split('-').map(Number);
+                filteredPlayers = filteredPlayers.filter(player => 
+                    player.price >= min && player.price <= max
+                );
+            }
+            
+            // Apply sorting
+            filteredPlayers.sort((a, b) => {
+                switch(sortBy) {
+                    case 'points':
+                        return (b.total_points || 0) - (a.total_points || 0);
+                    case 'price':
+                        return b.price - a.price;
+                    case 'form':
+                        return (b.form || 0) - (a.form || 0);
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    default:
+                        return 0;
+                }
+            });
+            
+            // Update the grid
+            const playerGrid = document.getElementById('playerSelectionGrid');
+            if (playerGrid) {
+                playerGrid.innerHTML = window.generatePlayerCards(filteredPlayers, window.transferSimPro?.teams);
+            }
         };
         
         // Function to place player in position circle on the field
