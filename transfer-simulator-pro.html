@@ -34,7 +34,14 @@
                 // First try to load as text via script tag injection
                 const script = document.createElement('script');
                 script.textContent = `
-                    fetch('./player-data-2.html')
+                    fetch('/player-data-2.html')
+                        .then(response => {
+                            if (!response.ok) {
+                                // Try relative path as fallback
+                                return fetch('./player-data-2.html');
+                            }
+                            return response;
+                        })
                         .then(response => response.text())
                         .then(text => {
                             try {
@@ -2806,6 +2813,15 @@
                 <span style="margin-left: 20px;">Last Update: <span id="lastUpdate">Loading...</span></span>
             </div>
             
+            <!-- Data Load Status and Manual Load Button -->
+            <div id="dataLoadStatus" style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 10px; margin: 10px 0; display: none;">
+                <span style="color: #856404;">⚠️ Player data not loaded. </span>
+                <button onclick="handleDataLoad()" style="background: #ffc107; color: #000; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    Load Player Data
+                </button>
+                <span id="loadingIndicator" style="display: none; margin-left: 10px;">⏳ Loading...</span>
+            </div>
+            
             <!-- NEW: Quick Access Advanced Features Hero -->
             <div class="advanced-features-hero" style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px; backdrop-filter: blur(10px);">
                 <h2 style="color: #00ff88; margin-bottom: 15px; font-size: 1.5rem;">🚀 Advanced AI Tools - Quick Access</h2>
@@ -3222,34 +3238,58 @@
                 
                 try {
                     // Try to load player data from player-data-2.html
-                    const response = await fetch('./player-data-2.html');
-                    if (response.ok) {
-                        const text = await response.text();
-                        const playerData = JSON.parse(text);
+                    let response = await fetch('/player-data-2.html');
+                    
+                    // If absolute path fails, try relative
+                    if (!response.ok) {
+                        console.log('Init: Trying relative path...');
+                        response = await fetch('./player-data-2.html');
+                    }
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const text = await response.text();
+                    console.log('Init: Fetched data size:', text.length, 'characters');
+                    
+                    const playerData = JSON.parse(text);
+                    console.log('Init: Parsed data keys:', Object.keys(playerData));
+                    
+                    if (playerData.elements && playerData.elements.length > 0) {
+                        this.allPlayers = playerData.elements.map(player => ({
+                            ...player,
+                            name: player.web_name || `${player.first_name} ${player.second_name}`,
+                            position: player.element_type,
+                            team: player.team,
+                            price: player.now_cost / 10,
+                            id: player.id,
+                            points: player.total_points || 0,
+                            selected_by_percent: parseFloat(player.selected_by_percent) || 0,
+                            form: parseFloat(player.form) || 0
+                        }));
                         
-                        if (playerData.elements && playerData.elements.length > 0) {
-                            this.allPlayers = playerData.elements.map(player => ({
-                                ...player,
-                                name: player.web_name || `${player.first_name} ${player.second_name}`,
-                                position: player.element_type,
-                                team: player.team,
-                                price: player.now_cost / 10,
-                                id: player.id
-                            }));
-                            
-                            if (playerData.teams) {
-                                this.teams = playerData.teams;
-                            }
-                            
-                            console.log(`Loaded ${this.allPlayers.length} players`);
-                            displayPlayers(); // Display players in market
-                            return true;
+                        if (playerData.teams) {
+                            this.teams = playerData.teams;
                         }
+                        
+                        console.log(`✅ Init: Loaded ${this.allPlayers.length} players and ${this.teams.length} teams`);
+                        
+                        // Call displayPlayers if it exists
+                        if (typeof displayPlayers === 'function') {
+                            displayPlayers();
+                        }
+                        
+                        return true;
+                    } else {
+                        console.error('Init: No elements array found in player data');
+                        return false;
                     }
                 } catch (error) {
-                    console.error('Failed to load player data:', error);
+                    console.error('Init: Failed to load player data:', error);
+                    console.error('Init: Error details:', error.message);
+                    return false;
                 }
-                return false;
             }
         };
         
@@ -4296,31 +4336,49 @@
             
             // Initialize function to load player data
             async init() {
-                console.log('Initializing Transfer Simulator Pro...');
+                console.log('Initializing Transfer Simulator Pro (second instance)...');
                 
                 try {
                     // Try to load player data from player-data-2.html
-                    const response = await fetch('./player-data-2.html');
-                    if (response.ok) {
-                        const text = await response.text();
-                        const playerData = JSON.parse(text);
+                    let response = await fetch('/player-data-2.html');
+                    
+                    // If absolute path fails, try relative
+                    if (!response.ok) {
+                        console.log('Init2: Trying relative path...');
+                        response = await fetch('./player-data-2.html');
+                    }
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const text = await response.text();
+                    console.log('Init2: Fetched data size:', text.length, 'characters');
+                    
+                    const playerData = JSON.parse(text);
+                    console.log('Init2: Parsed data keys:', Object.keys(playerData));
+                    
+                    if (playerData.elements && playerData.elements.length > 0) {
+                        this.allPlayers = playerData.elements.map(player => ({
+                            ...player,
+                            name: player.web_name || `${player.first_name} ${player.second_name}`,
+                            position: player.element_type,
+                            team: player.team,
+                            price: player.now_cost / 10,
+                            points: player.total_points || 0,
+                            selected_by_percent: parseFloat(player.selected_by_percent) || 0,
+                            form: parseFloat(player.form) || 0
+                        }));
                         
-                        if (playerData.elements && playerData.elements.length > 0) {
-                            this.allPlayers = playerData.elements.map(player => ({
-                                ...player,
-                                name: `${player.first_name} ${player.second_name}`,
-                                position: player.element_type,
-                                team: player.team,
-                                price: player.now_cost / 10
-                            }));
-                            
-                            if (playerData.teams) {
-                                this.teams = playerData.teams;
-                            }
-                            
-                            console.log(`Loaded ${this.allPlayers.length} players from player-data-2.html`);
-                            return true;
+                        if (playerData.teams) {
+                            this.teams = playerData.teams;
                         }
+                        
+                        console.log(`✅ Init2: Loaded ${this.allPlayers.length} players and ${this.teams.length} teams from player-data-2.html`);
+                        return true;
+                    } else {
+                        console.error('Init2: No elements array found in player data');
+                        return false;
                     }
                 } catch (error) {
                     console.error('Failed to load player data from player-data-2.html:', error);
@@ -4399,7 +4457,15 @@
                 if (!success || !window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
                     console.warn('No player data available yet, trying force load');
                     // Try force loading
-                    await window.forceLoadPlayers();
+                    const forceSuccess = await window.forceLoadPlayers();
+                    
+                    // If still no data, show the warning bar
+                    if (!forceSuccess || window.transferSimPro.allPlayers.length === 0) {
+                        const statusDiv = document.getElementById('dataLoadStatus');
+                        if (statusDiv) {
+                            statusDiv.style.display = 'block';
+                        }
+                    }
                 }
                 
                 console.log(`Transfer Simulator Pro initialized with ${window.transferSimPro.allPlayers.length} players`);
@@ -4700,24 +4766,69 @@
             animateTransferStats();
         }
         
+        // Handle manual data load button click
+        window.handleDataLoad = async function() {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const loadButton = event.target;
+            
+            if (loadingIndicator) loadingIndicator.style.display = 'inline';
+            if (loadButton) loadButton.disabled = true;
+            
+            const success = await window.forceLoadPlayers();
+            
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            if (loadButton) loadButton.disabled = false;
+            
+            if (success) {
+                const statusDiv = document.getElementById('dataLoadStatus');
+                if (statusDiv) statusDiv.style.display = 'none';
+            }
+        };
+        
         // Player data loading functions
         window.forceLoadPlayers = async function() {
             console.log('Force loading players from player-data-2.html...');
             try {
-                const response = await fetch('./player-data-2.html');
-                const text = await response.text();
-                const playerData = JSON.parse(text);
+                // Try absolute path first for production
+                let response = await fetch('/player-data-2.html');
                 
-                if (window.transferSimPro && playerData.elements) {
+                // If that fails, try relative path as fallback
+                if (!response.ok) {
+                    console.log('Absolute path failed, trying relative path...');
+                    response = await fetch('./player-data-2.html');
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const text = await response.text();
+                console.log('Fetched data size:', text.length, 'characters');
+                
+                // Parse the JSON data
+                const playerData = JSON.parse(text);
+                console.log('Parsed data keys:', Object.keys(playerData));
+                
+                if (window.transferSimPro && playerData.elements && playerData.elements.length > 0) {
                     window.transferSimPro.allPlayers = playerData.elements.map(player => ({
                         ...player,
-                        name: `${player.first_name} ${player.second_name}`,
+                        name: player.web_name || `${player.first_name} ${player.second_name}`,
                         position: player.element_type,
                         team: player.team,
-                        price: player.now_cost / 10
+                        price: player.now_cost / 10,
+                        points: player.total_points || 0,
+                        selected_by_percent: parseFloat(player.selected_by_percent) || 0,
+                        form: parseFloat(player.form) || 0,
+                        goals_scored: player.goals_scored || 0,
+                        assists: player.assists || 0
                     }));
                     
-                    console.log(`Successfully loaded ${window.transferSimPro.allPlayers.length} players`);
+                    // Also store teams data if available
+                    if (playerData.teams && playerData.teams.length > 0) {
+                        window.transferSimPro.teams = playerData.teams;
+                    }
+                    
+                    console.log(`✅ Successfully loaded ${window.transferSimPro.allPlayers.length} players`);
+                    console.log(`✅ Successfully loaded ${window.transferSimPro.teams.length} teams`);
                     
                     // Update last update timestamp
                     const lastUpdateEl = document.getElementById('lastUpdate');
@@ -4725,11 +4836,21 @@
                         lastUpdateEl.textContent = new Date().toLocaleTimeString();
                     }
                     
-                    // Trigger a refresh of the player search if it's active
+                    // Refresh any active displays
+                    if (typeof window.filterPlayers === 'function') {
+                        window.filterPlayers();
+                    }
+                    
+                    return true;
+                } else {
+                    console.error('No elements array found in player data');
+                    return false;
                 }
             } catch (error) {
                 console.error('Failed to force load players:', error);
-                alert('Failed to load player data. Please try again.');
+                console.error('Error details:', error.message);
+                alert('Failed to load player data. Please check the console for details.');
+                return false;
             }
         };
         

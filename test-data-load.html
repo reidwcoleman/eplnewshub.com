@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Player Data Loading</title>
+</head>
+<body>
+    <h1>Testing Player Data Loading</h1>
+    <button onclick="testLoad()">Test Load player-data-2.html</button>
+    <div id="result"></div>
+    
+    <script>
+        async function testLoad() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Loading...';
+            
+            try {
+                const response = await fetch('./player-data-2.html');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const text = await response.text();
+                const data = JSON.parse(text);
+                
+                resultDiv.innerHTML = `
+                    <h2>✅ Success!</h2>
+                    <p>Data size: ${text.length} characters</p>
+                    <p>Keys found: ${Object.keys(data).join(', ')}</p>
+                    <p>Elements count: ${data.elements ? data.elements.length : 'N/A'}</p>
+                    <p>Teams count: ${data.teams ? data.teams.length : 'N/A'}</p>
+                    <p>First player: ${data.elements && data.elements[0] ? data.elements[0].web_name : 'N/A'}</p>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h2>❌ Error!</h2>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
