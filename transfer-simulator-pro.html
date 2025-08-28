@@ -4508,10 +4508,51 @@
         };
         */
         
+        // Update budget tracker display - define early so it's available
+        window.updateBudgetTracker = function(totalSpent) {
+            const maxBudget = 100.0; // FPL budget is £100m
+            const remaining = maxBudget - totalSpent;
+            const percentUsed = (totalSpent / maxBudget) * 100;
+            
+            // Update remaining budget display
+            const budgetElement = document.getElementById('remainingBudget');
+            if (budgetElement) {
+                budgetElement.textContent = `£${remaining.toFixed(1)}m`;
+                
+                // Color coding based on budget status
+                if (remaining < 0) {
+                    budgetElement.style.color = '#dc3545'; // Red for over budget
+                } else if (remaining < 5) {
+                    budgetElement.style.color = '#ffc107'; // Yellow for low budget
+                } else {
+                    budgetElement.style.color = '#28a745'; // Green for good budget
+                }
+            }
+            
+            // Update budget bar
+            const budgetFill = document.getElementById('budgetFill');
+            if (budgetFill) {
+                const fillWidth = Math.min(percentUsed, 100);
+                budgetFill.style.width = `${fillWidth}%`;
+                
+                // Color gradient based on usage
+                if (percentUsed >= 100) {
+                    budgetFill.style.background = 'linear-gradient(90deg, #dc3545, #c82333)'; // Red
+                } else if (percentUsed >= 85) {
+                    budgetFill.style.background = 'linear-gradient(90deg, #ffc107, #ff9800)'; // Orange/Yellow
+                } else {
+                    budgetFill.style.background = 'linear-gradient(90deg, #28a745, #20c997)'; // Green
+                }
+            }
+            
+            console.log(`Budget updated: £${totalSpent.toFixed(1)}m spent, £${remaining.toFixed(1)}m remaining`);
+        };
+        
         // Initialize Transfer Simulator Pro object (second definition - overwrites first)
         window.transferSimPro = {
             allPlayers: [],
             teams: [],
+            currentSquad: [], // Initialize currentSquad here
             
             // Initialize function to load player data
             async init() {
@@ -4648,6 +4689,11 @@
                 }
                 
                 console.log(`Transfer Simulator Pro initialized with ${window.transferSimPro.allPlayers.length} players`);
+                
+                // Initialize budget display to full £100.0m on page load
+                if (typeof window.updateBudgetTracker === 'function') {
+                    window.updateBudgetTracker(0); // Start with £0 spent = £100m remaining
+                }
                 
                 // Position circles are ready - they have onclick attributes in HTML
                 console.log('🎯 Position circles ready for clicking - using HTML onclick attributes');
@@ -5758,6 +5804,11 @@
                     window.transferSimPro.currentSquad = [];
                 }
                 
+                // Reset budget to full £100m
+                if (typeof window.updateBudgetTracker === 'function') {
+                    window.updateBudgetTracker(0); // £0 spent = £100m remaining
+                }
+                
                 // Reset position circles to empty state
                 const positionCircles = document.querySelectorAll('.position-circle');
                 positionCircles.forEach(circle => {
@@ -6737,6 +6788,8 @@ Son Heung-min
             
             if (squad.length === 0) {
                 squadDisplay.innerHTML = '<div class="squad-empty"><h3>Your Squad</h3><p>Click position circles to add players to your squad!</p></div>';
+                // Update budget to show full £100m when squad is empty
+                updateBudgetTracker(0);
                 return;
             }
             
@@ -6828,45 +6881,7 @@ Son Heung-min
             }
         };
         
-        // Update budget tracker display
-        window.updateBudgetTracker = function(totalSpent) {
-            const maxBudget = 100.0; // FPL budget is £100m
-            const remaining = maxBudget - totalSpent;
-            const percentUsed = (totalSpent / maxBudget) * 100;
-            
-            // Update remaining budget display
-            const budgetElement = document.getElementById('remainingBudget');
-            if (budgetElement) {
-                budgetElement.textContent = `£${remaining.toFixed(1)}m`;
-                
-                // Color coding based on budget status
-                if (remaining < 0) {
-                    budgetElement.style.color = '#dc3545'; // Red for over budget
-                } else if (remaining < 5) {
-                    budgetElement.style.color = '#ffc107'; // Yellow for low budget
-                } else {
-                    budgetElement.style.color = '#28a745'; // Green for good budget
-                }
-            }
-            
-            // Update budget bar
-            const budgetFill = document.getElementById('budgetFill');
-            if (budgetFill) {
-                const fillWidth = Math.min(percentUsed, 100);
-                budgetFill.style.width = `${fillWidth}%`;
-                
-                // Color gradient based on usage
-                if (percentUsed >= 100) {
-                    budgetFill.style.background = 'linear-gradient(90deg, #dc3545, #c82333)'; // Red
-                } else if (percentUsed >= 85) {
-                    budgetFill.style.background = 'linear-gradient(90deg, #ffc107, #ff9800)'; // Orange/Yellow
-                } else {
-                    budgetFill.style.background = 'linear-gradient(90deg, #28a745, #20c997)'; // Green
-                }
-            }
-            
-            console.log(`Budget updated: £${totalSpent.toFixed(1)}m spent, £${remaining.toFixed(1)}m remaining`);
-        };
+        // updateBudgetTracker function already defined earlier in the code
         
         // Remove player from squad
         window.removePlayerFromSquad = function(playerId) {
