@@ -28,6 +28,72 @@
     
     <!-- Alternative data loading: load JSON as script -->
     <script>
+        // Define selectPlayerForPosition IMMEDIATELY so it's available for onclick handlers
+        window.selectPlayerForPosition = function(positionLabel, positionId, circleElement) {
+            console.log(`🔘 Position circle clicked: ${positionLabel} (ID: ${positionId})`);
+            
+            if (!window.transferSimPro || !window.transferSimPro.allPlayers || window.transferSimPro.allPlayers.length === 0) {
+                console.warn('Player data not loaded yet');
+                // Try to load data if not loaded
+                if (window.forceLoadPlayers) {
+                    console.log('Attempting to load player data...');
+                    window.forceLoadPlayers().then(() => {
+                        // Retry after loading
+                        if (window.transferSimPro && window.transferSimPro.allPlayers && window.transferSimPro.allPlayers.length > 0) {
+                            window.selectPlayerForPosition(positionLabel, positionId, circleElement);
+                        }
+                    });
+                } else {
+                    alert('Player data is still loading. Please wait a moment and try again.');
+                }
+                return;
+            }
+            
+            console.log(`📊 Found ${window.transferSimPro.allPlayers.length} total players`);
+            
+            const players = window.transferSimPro.allPlayers.filter(player => 
+                player.position === positionId
+            );
+            
+            if (players.length === 0) {
+                console.warn(`No ${positionLabel} players found.`);
+                alert(`No ${positionLabel} players found in database.`);
+                return;
+            }
+            
+            // Sort by total points descending for better selection
+            players.sort((a, b) => (b.total_points || 0) - (a.total_points || 0));
+            
+            // Store the clicked circle for positioning
+            window.currentSelectedCircle = circleElement;
+            window.currentSelectedPosition = positionLabel;
+            
+            console.log('📍 Stored circle element for later placement:', circleElement);
+            
+            // Check if showPlayerModal function exists
+            if (typeof window.showPlayerModal === 'function') {
+                console.log(`✅ Calling showPlayerModal with ${players.length} ${positionLabel} players`);
+                window.showPlayerModal(players, positionLabel);
+            } else {
+                console.error('❌ showPlayerModal function not found!');
+                // Try to create a simple selection interface as fallback
+                const modal = document.getElementById('playerSelectionModal');
+                if (modal) {
+                    modal.style.display = 'block';
+                    const grid = document.getElementById('playerSelectionGrid');
+                    if (grid) {
+                        grid.innerHTML = players.slice(0, 50).map(player => `
+                            <div class="player-card" onclick="window.selectPlayer(${player.id}, '${player.name}', ${player.price})">
+                                <div>${player.name}</div>
+                                <div>£${player.price}m</div>
+                                <div>${player.total_points || 0} pts</div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            }
+        };
+        
         // Try to load player data as script to avoid CORS issues
         function loadPlayerDataAsScript() {
             return new Promise((resolve, reject) => {
@@ -3967,7 +4033,14 @@
                 
                 if (success) {
                     console.log('Transfer Simulator Pro initialized successfully');
-                    initializeCharts();
+                    // Check if initializeCharts function exists before calling
+                    if (typeof initializeCharts === 'function') {
+                        initializeCharts();
+                    } else if (typeof window.initializeCharts === 'function') {
+                        window.initializeCharts();
+                    } else {
+                        console.log('initializeCharts function not available, skipping chart initialization');
+                    }
                     
                     // Initialize new features
                     setTimeout(() => {
@@ -4323,13 +4396,16 @@
 
     <script src="./index.js"></script>
     <script>
-        // Embedded FPL Data - Simple fallback
+        // Second script block - EMBEDDED_FPL_DATA already defined above
+        // Commenting out duplicate to avoid "already declared" error
+        /*
         const EMBEDDED_FPL_DATA = {
             elements: [],
             teams: []
         };
+        */
         
-        // Initialize Transfer Simulator Pro object
+        // Initialize Transfer Simulator Pro object (second definition - overwrites first)
         window.transferSimPro = {
             allPlayers: [],
             teams: [],
@@ -4976,6 +5052,7 @@
             console.log('🎯 All position circles are now clickable with green borders!');
         }
         
+        // Move selectPlayerForPosition to be available immediately
         // Function to handle position circle clicks
         window.selectPlayerForPosition = function(positionLabel, positionId, circleElement) {
             console.log(`🔘 Position circle clicked: ${positionLabel} (ID: ${positionId})`);
