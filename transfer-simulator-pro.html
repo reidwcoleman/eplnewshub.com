@@ -3270,12 +3270,13 @@
             <!-- Enhanced search bar -->
             <div class="modal-search-bar" style="padding: 15px; background: white; border-bottom: 1px solid #e0e0e0;">
                 <div style="position: relative;">
-                    <input type="text" id="modalPlayerSearch" placeholder="Type to search players (e.g. Haaland, Salah)..." 
+                    <input type="text" id="modalPlayerSearch" placeholder="Type to search players (e.g. Haaland, Salah, KDB)..." 
                         style="width: 100%; padding: 10px 40px 10px 15px; border: 1px solid #ddd; border-radius: 8px; 
                         font-size: 0.95rem; outline: none; transition: border-color 0.2s;"
-                        oninput="filterModalPlayers()"
+                        oninput="debounceSearch()"
                         onfocus="this.style.borderColor='#37003c'"
-                        onblur="this.style.borderColor='#ddd'">
+                        onblur="this.style.borderColor='#ddd'"
+                        autocomplete="off">
                     <button id="clearSearchBtn" onclick="clearModalSearch()" 
                         style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
                         background: none; border: none; color: #999; cursor: pointer; font-size: 1.2rem; 
@@ -5186,7 +5187,11 @@
             
             // Reset search filter
             const searchInput = document.getElementById('modalPlayerSearch');
-            if (searchInput) searchInput.value = '';
+            if (searchInput) {
+                searchInput.value = '';
+                // Auto-focus search when modal opens
+                setTimeout(() => searchInput.focus(), 100);
+            }
             
             const modal = document.getElementById('playerSelectionModal');
             const modalTitle = document.getElementById('modalTitle');
@@ -5318,30 +5323,118 @@
             document.removeEventListener('keydown', modalEscapeHandler);
         };
         
-        // Filter players in the modal - simplified
+        // Enhanced filter function with better search
         window.filterModalPlayers = function() {
-            const searchTerm = document.getElementById('modalPlayerSearch')?.value.toLowerCase() || '';
+            const searchInput = document.getElementById('modalPlayerSearch');
+            const searchTerm = searchInput?.value.toLowerCase().trim() || '';
+            const clearBtn = document.getElementById('clearSearchBtn');
+            const resultCountDiv = document.getElementById('searchResultCount');
+            const resultCountSpan = document.getElementById('resultCount');
             
             if (!window.currentModalPlayers) return;
             
-            let filteredPlayers = [...window.currentModalPlayers];
-            
-            // Apply search filter
-            if (searchTerm) {
-                filteredPlayers = filteredPlayers.filter(player => 
-                    player.name.toLowerCase().includes(searchTerm) ||
-                    (player.web_name && player.web_name.toLowerCase().includes(searchTerm))
-                );
+            // Show/hide clear button
+            if (clearBtn) {
+                clearBtn.style.display = searchTerm ? 'block' : 'none';
             }
             
-            // Sort by points (best players first)
-            filteredPlayers.sort((a, b) => (b.total_points || 0) - (a.total_points || 0));
+            let filteredPlayers = [...window.currentModalPlayers];
+            
+            // Apply enhanced search filter
+            if (searchTerm) {
+                filteredPlayers = filteredPlayers.filter(player => {
+                    // Search in multiple fields for better matching
+                    const fullName = `${player.first_name} ${player.second_name}`.toLowerCase();
+                    const webName = (player.web_name || '').toLowerCase();
+                    const displayName = (player.name || '').toLowerCase();
+                    
+                    // Check if search term matches any part of the names
+                    return fullName.includes(searchTerm) ||
+                           webName.includes(searchTerm) ||
+                           displayName.includes(searchTerm) ||
+                           // Also check if initials match (e.g., "KDB" for Kevin De Bruyne)
+                           getInitials(fullName).toLowerCase().includes(searchTerm) ||
+                           // Check if search matches beginning of first or last name
+                           player.first_name.toLowerCase().startsWith(searchTerm) ||
+                           player.second_name.toLowerCase().startsWith(searchTerm);
+                });
+            }
+            
+            // Sort by relevance if searching, otherwise by points
+            if (searchTerm) {
+                filteredPlayers.sort((a, b) => {
+                    // Exact matches first
+                    const aExact = a.web_name?.toLowerCase() === searchTerm || a.name?.toLowerCase() === searchTerm;
+                    const bExact = b.web_name?.toLowerCase() === searchTerm || b.name?.toLowerCase() === searchTerm;
+                    if (aExact && !bExact) return -1;
+                    if (!aExact && bExact) return 1;
+                    
+                    // Then by points
+                    return (b.total_points || 0) - (a.total_points || 0);
+                });
+            } else {
+                // Default sort by points
+                filteredPlayers.sort((a, b) => (b.total_points || 0) - (a.total_points || 0));
+            }
+            
+            // Update result count
+            if (resultCountDiv && resultCountSpan) {
+                if (searchTerm || filteredPlayers.length < window.currentModalPlayers.length) {
+                    resultCountDiv.style.display = 'block';
+                    resultCountSpan.textContent = filteredPlayers.length;
+                    
+                    // Add message if no results
+                    if (filteredPlayers.length === 0) {
+                        resultCountDiv.innerHTML = `<span style="color: #e90052;">No players found for "${searchTerm}"</span>`;
+                    } else {
+                        resultCountDiv.innerHTML = `Showing <span id="resultCount" style="font-weight: 600;">${filteredPlayers.length}</span> of ${window.currentModalPlayers.length} players`;
+                    }
+                } else {
+                    resultCountDiv.style.display = 'none';
+                }
+            }
             
             // Update the grid
             const playerGrid = document.getElementById('playerSelectionGrid');
             if (playerGrid) {
-                playerGrid.innerHTML = window.generatePlayerCards(filteredPlayers, window.transferSimPro?.teams);
+                if (filteredPlayers.length === 0) {
+                    playerGrid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">🔍</div>
+                            <div style="font-size: 1.1rem; font-weight: 600;">No players found</div>
+                            <div style="margin-top: 5px;">Try a different search term</div>
+                        </div>
+                    `;
+                } else {
+                    playerGrid.innerHTML = window.generatePlayerCards(filteredPlayers, window.transferSimPro?.teams);
+                }
             }
+        };
+        
+        // Helper function to get initials
+        function getInitials(name) {
+            return name.split(' ')
+                .map(word => word[0])
+                .join('');
+        }
+        
+        // Clear search function
+        window.clearModalSearch = function() {
+            const searchInput = document.getElementById('modalPlayerSearch');
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.focus();
+                filterModalPlayers();
+            }
+        };
+        
+        // Debounce search for better performance
+        let searchTimeout;
+        window.debounceSearch = function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterModalPlayers();
+            }, 150); // 150ms delay for smooth typing
         };
         
         // Function to place player in position circle on the field
@@ -5526,10 +5619,22 @@
             window.currentSelectedPosition = null;
         };
         
-        // Helper function for escape key
+        // Enhanced keyboard handler for modal
         function modalEscapeHandler(event) {
             if (event.key === 'Escape') {
                 closePlayerModal();
+            } else if (event.key === 'Enter' && document.activeElement === document.getElementById('modalPlayerSearch')) {
+                // Select first player on Enter if searching
+                event.preventDefault();
+                const firstCard = document.querySelector('.modal-player-card');
+                if (firstCard) {
+                    firstCard.click();
+                }
+            } else if (event.key === '/' && document.activeElement !== document.getElementById('modalPlayerSearch')) {
+                // Focus search on "/" key
+                event.preventDefault();
+                const searchInput = document.getElementById('modalPlayerSearch');
+                if (searchInput) searchInput.focus();
             }
         }
         
