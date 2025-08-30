@@ -5418,7 +5418,11 @@
             // Update the grid
             const playerGrid = document.getElementById('playerSelectionGrid');
             if (playerGrid) {
+                // Clear the grid first to ensure clean state
+                playerGrid.innerHTML = '';
+                
                 if (filteredPlayers.length === 0) {
+                    // Show no results message
                     playerGrid.innerHTML = `
                         <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">
                             <div style="font-size: 3rem; margin-bottom: 10px;">🔍</div>
@@ -5427,6 +5431,7 @@
                         </div>
                     `;
                 } else {
+                    // Show player cards - this will replace any "no results" message
                     playerGrid.innerHTML = window.generatePlayerCards(filteredPlayers, window.transferSimPro?.teams);
                 }
             }
@@ -5442,11 +5447,21 @@
         // Clear search function
         window.clearModalSearch = function() {
             const searchInput = document.getElementById('modalPlayerSearch');
+            const resultCountDiv = document.getElementById('searchResultCount');
+            
             if (searchInput) {
                 searchInput.value = '';
                 searchInput.focus();
-                filterModalPlayers();
             }
+            
+            // Clear result count when clearing search
+            if (resultCountDiv) {
+                resultCountDiv.style.display = 'none';
+                resultCountDiv.innerHTML = '';
+            }
+            
+            // Re-filter to show all players
+            filterModalPlayers();
         };
         
         // Debounce search for better performance
