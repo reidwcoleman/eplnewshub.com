@@ -3676,6 +3676,11 @@
             
             updateCountdown();
             const countdownInterval = setInterval(updateCountdown, 1000);
+            
+            // Clear interval on page unload
+            window.addEventListener('beforeunload', () => {
+                clearInterval(countdownInterval);
+            });
         }
         
         // Start countdown on page load
@@ -3683,14 +3688,14 @@
         
         // FPL Promo Countdown Timer
         function updatePromoCountdown() {
-            // Set the end date - 7 days from now or use saved date
-            const promoEndDate = new Date();
-            promoEndDate.setDate(promoEndDate.getDate() + 7);
-            promoEndDate.setHours(23, 59, 59, 999);
-            
             // Check if there's a saved end date in localStorage
             let savedEndDate = localStorage.getItem('fplPromoEndDate');
-            if (!savedEndDate) {
+            
+            // If no saved date or it has expired, create a new one
+            if (!savedEndDate || new Date(parseInt(savedEndDate)) <= new Date()) {
+                const promoEndDate = new Date();
+                promoEndDate.setDate(promoEndDate.getDate() + 7);
+                promoEndDate.setHours(23, 59, 59, 999);
                 localStorage.setItem('fplPromoEndDate', promoEndDate.getTime());
                 savedEndDate = promoEndDate.getTime();
             }
@@ -3727,7 +3732,12 @@
             }
             
             updateTimer();
-            setInterval(updateTimer, 1000);
+            const promoTimerInterval = setInterval(updateTimer, 1000);
+            
+            // Clear interval on page unload
+            window.addEventListener('beforeunload', () => {
+                clearInterval(promoTimerInterval);
+            });
         }
         
         // Close FPL Promo Banner
