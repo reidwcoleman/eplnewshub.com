@@ -2823,28 +2823,22 @@
             transform: translateY(-1px);
         }
         
-        /* Search input styling */
-        #playerSearchInput:focus {
-            border-color: #37003c !important;
-            box-shadow: 0 0 0 3px rgba(55, 0, 60, 0.1);
-        }
-        
-        /* Custom scrollbar for player list */
-        #playerListContainer::-webkit-scrollbar {
+        /* Custom scrollbar for player list in market */
+        #playerList::-webkit-scrollbar {
             width: 8px;
         }
         
-        #playerListContainer::-webkit-scrollbar-track {
+        #playerList::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 4px;
         }
         
-        #playerListContainer::-webkit-scrollbar-thumb {
+        #playerList::-webkit-scrollbar-thumb {
             background: linear-gradient(135deg, #37003c, #6f42c1);
             border-radius: 4px;
         }
         
-        #playerListContainer::-webkit-scrollbar-thumb:hover {
+        #playerList::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(135deg, #4a0e4e, #8b5cbb);
         }
     </style>
@@ -5277,43 +5271,13 @@
             // Get team data for displaying team names
             const teams = window.transferSimPro?.teams || [];
             
-            // Add search bar and player count
-            const searchBarHtml = `
-                <div style="padding: 15px; background: #f5f5f5; border-radius: 10px; margin-bottom: 15px;">
-                    <input type="text" 
-                           id="playerSearchInput" 
-                           placeholder="🔍 Search players by name or team..." 
-                           style="width: 100%; padding: 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; outline: none;"
-                           oninput="filterModalPlayers(this.value)">
-                    <div style="margin-top: 10px; color: #666; font-size: 14px;">
-                        <span id="playerCount">${players.length}</span> players available
-                    </div>
-                </div>
-            `;
-            
-            // Create container with search and scrollable player list
-            const containerHtml = `
-                ${searchBarHtml}
-                <div id="playerListContainer" style="max-height: 500px; overflow-y: auto; padding-right: 10px;">
-                    <div id="playerList" class="player-selection-grid">
-                        ${generatePlayerCards(players, teams)}
-                    </div>
-                </div>
-            `;
-            
-            playerGrid.innerHTML = containerHtml;
+            // Don't add duplicate search bar - modal already has one in the header
+            // Just display the player cards directly
+            playerGrid.innerHTML = generatePlayerCards(players, teams);
             console.log(`🎨 Generated HTML for ALL ${players.length} player cards with search`);
             
             modal.style.display = 'flex';
             console.log(`✅ Modal display set to 'flex' - should now be visible!`);
-            
-            // Focus on search input
-            setTimeout(() => {
-                const searchInput = document.getElementById('playerSearchInput');
-                if (searchInput) {
-                    searchInput.focus();
-                }
-            }, 100);
             
             // Add escape key handler
             document.addEventListener('keydown', modalEscapeHandler);
