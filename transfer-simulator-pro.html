@@ -3516,53 +3516,7 @@
             filterPlayers();
         }
         
-        // Quick add player to squad
-        window.quickAddPlayer = function(playerId) {
-            if (!window.transferSimPro || !window.transferSimPro.allPlayers) {
-                showNotification('⚠️ Player data not loaded', 'warning');
-                return;
-            }
-            
-            const player = window.transferSimPro.allPlayers.find(p => p.id === playerId);
-            if (!player) {
-                showNotification('❌ Player not found', 'error');
-                return;
-            }
-            
-            // Check if squad is full
-            if (window.transferSimPro.currentSquad.length >= 15) {
-                showNotification('❌ Squad is full (15 players max)', 'error');
-                return;
-            }
-            
-            // Check if player already in squad
-            if (window.transferSimPro.currentSquad.find(p => p.id === playerId)) {
-                showNotification(`⚠️ ${player.name} is already in your squad`, 'warning');
-                return;
-            }
-            
-            // Check budget
-            const currentSpend = window.transferSimPro.currentSquad.reduce((sum, p) => sum + (p.price || 0), 0);
-            if (currentSpend + player.price > 100) {
-                showNotification(`❌ Not enough budget (£${(100 - currentSpend).toFixed(1)}m remaining)`, 'error');
-                return;
-            }
-            
-            // Add to squad
-            window.transferSimPro.currentSquad.push(player);
-            
-            // Try to place on field
-            const positionMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
-            const position = positionMap[player.position];
-            placePlayerInPosition(player, position);
-            
-            // Update displays
-            updateSquadDisplay();
-            updateCharts();
-            updateTeamStats();
-            
-            showNotification(`✅ ${player.name} added to squad!`, 'success');
-        };
+        // Quick add player function moved to avoid duplication
         
         // What-If Scenarios functionality
         window.runScenario = function(scenario) {
@@ -5001,10 +4955,24 @@
             document.addEventListener('DOMContentLoaded', function() {
                 animateTransferStats();
                 displayTransferHistory(); // Load transfer history on page load
+                
+                // Initialize player list after a short delay to ensure data is loaded
+                setTimeout(() => {
+                    if (window.transferSimPro && window.transferSimPro.allPlayers && window.transferSimPro.allPlayers.length > 0) {
+                        filterPlayers(); // Initialize the player list in sidebar
+                    }
+                }, 1000);
             });
         } else {
             animateTransferStats();
             displayTransferHistory(); // Load transfer history on page load
+            
+            // Initialize player list after a short delay to ensure data is loaded
+            setTimeout(() => {
+                if (window.transferSimPro && window.transferSimPro.allPlayers && window.transferSimPro.allPlayers.length > 0) {
+                    filterPlayers(); // Initialize the player list in sidebar
+                }
+            }, 1000);
         }
         
         // Handle manual data load button click
@@ -6752,10 +6720,40 @@ Son Heung-min
                 window.transferSimPro.currentSquad = [];
             }
             
+            // Check if squad is full
+            if (window.transferSimPro.currentSquad.length >= 15) {
+                showNotification('❌ Squad is full (15 players max)', 'error');
+                return;
+            }
+            
             // Check if player is already in squad
             const existingPlayerIndex = window.transferSimPro.currentSquad.findIndex(p => p.id === playerId);
             if (existingPlayerIndex !== -1) {
                 showNotification(`${player.name} is already in your squad!`, 'warning');
+                return;
+            }
+            
+            // Check budget
+            const currentSpend = window.transferSimPro.currentSquad.reduce((sum, p) => sum + (p.price || 0), 0);
+            if (currentSpend + player.price > 100) {
+                showNotification(`❌ Not enough budget (£${(100 - currentSpend).toFixed(1)}m remaining)`, 'error');
+                return;
+            }
+            
+            // Check position limits
+            const positionCounts = window.transferSimPro.currentSquad.reduce((counts, p) => {
+                counts[p.position] = (counts[p.position] || 0) + 1;
+                return counts;
+            }, {});
+            
+            const positionLimits = {1: 2, 2: 5, 3: 5, 4: 3}; // GK, DEF, MID, FWD
+            const currentCount = positionCounts[player.position] || 0;
+            const maxAllowed = positionLimits[player.position] || 0;
+            
+            if (currentCount >= maxAllowed) {
+                const positionNames = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+                const posName = positionNames[player.position];
+                showNotification(`❌ Already have ${maxAllowed} ${posName}s (max allowed)`, 'error');
                 return;
             }
             
@@ -6769,20 +6767,32 @@ Son Heung-min
                 window.addTransferToHistory(player, null);
             }
             
-            // Instant visual feedback
-            const button = event.target.closest('.quick-add-btn');
-            if (button) {
-                button.classList.add('added');
-                button.innerHTML = '<span class="add-icon">✓</span><span class="add-text">Added!</span>';
-                setTimeout(() => {
-                    button.classList.remove('added');
-                    button.innerHTML = '<span class="add-icon">⚡</span><span class="add-text">Add</span>';
-                }, 1500);
+            // Try to place player on the pitch
+            const positionMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
+            const position = positionMap[player.position];
+            if (typeof placePlayerInPosition === 'function') {
+                placePlayerInPosition(player, position);
             }
             
-            showNotification(`⚡ ${player.name} added to squad! (${window.transferSimPro.currentSquad.length}/15)`, 'success');
+            // Instant visual feedback for sidebar cards
+            const playerCard = event?.target?.closest('.player-card');
+            if (playerCard) {
+                playerCard.style.background = '#d4edda';
+                playerCard.style.borderColor = '#28a745';
+                setTimeout(() => {
+                    playerCard.style.background = 'white';
+                    playerCard.style.borderColor = '#e0e0e0';
+                }, 1000);
+            }
+            
+            showNotification(`✅ ${player.name} added to squad! (${window.transferSimPro.currentSquad.length}/15)`, 'success');
             updateSquadDisplay();
             updateTeamStats();
+            
+            // Update budget display if exists
+            if (typeof updateBudgetDisplay === 'function') {
+                updateBudgetDisplay();
+            }
         };
         
         // Notification system
@@ -7080,12 +7090,7 @@ Son Heung-min
             }, 100);
         };
         
-        // Filter functions for remaining filters (position, price, form)
-        window.filterPlayers = function() {
-            // This function can be used for position/price/form filtering if needed
-            // For now it's a placeholder since we removed search functionality
-            console.log('Filter triggered - search functionality removed');
-        };
+        // Filter function is already defined earlier - removing duplicate
         
         
         // Add CSS for player cards
