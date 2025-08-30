@@ -3230,17 +3230,12 @@
                 
                 <!-- Transfer History -->
                 <div class="transfer-history panel" style="margin-top: 20px;">
-                    <h2>📜 Transfer History</h2>
-                    <div id="transferHistory" style="max-height: 200px; overflow-y: auto;">
-                        <div class="history-item" style="padding: 10px; background: #f8f9fa; border-radius: 8px; margin-bottom: 8px;">
-                            <div style="display: flex; align-items: center;">
-                                <div class="history-icon history-in" style="width: 30px; height: 30px; background: #d4edda; color: #155724; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">➕</div>
-                                <div>
-                                    <div style="font-weight: 700;">No transfers yet</div>
-                                    <div style="color: #666; font-size: 0.9rem;">Start building your team</div>
-                                </div>
-                            </div>
-                        </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h2 style="margin: 0;">📜 Transfer History</h2>
+                        <button onclick="clearTransferHistory()" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: background 0.3s ease;" onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'">Clear History</button>
+                    </div>
+                    <div id="transferHistory" style="max-height: 300px; overflow-y: auto;">
+                        <div style="padding: 10px; color: #666; text-align: center;">Loading transfer history...</div>
                     </div>
                 </div>
             </div>
@@ -3857,30 +3852,100 @@
             `;
         };
         
-        // Add transfer to history
+        // Add transfer to history with localStorage persistence
         window.addTransferToHistory = function(playerIn, playerOut) {
             const historyDiv = document.getElementById('transferHistory');
             if (!historyDiv) return;
             
-            const historyHTML = `
-                <div class="history-item" style="padding: 10px; background: #f8f9fa; border-radius: 8px; margin-bottom: 8px;">
-                    <div style="display: flex; align-items: center;">
-                        <div style="width: 30px; height: 30px; background: #d4edda; color: #155724; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">➕</div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 700;">${playerIn ? playerIn.name : 'Player Added'}</div>
-                            ${playerOut ? `<div style="color: #dc3545; font-size: 0.9rem;">Out: ${playerOut.name}</div>` : ''}
-                            <div style="color: #666; font-size: 0.85rem;">${new Date().toLocaleDateString()}</div>
-                        </div>
-                    </div>
-                </div>
-            `;
+            // Create transfer record
+            const transfer = {
+                playerIn: playerIn ? { name: playerIn.name, id: playerIn.id, price: playerIn.price } : null,
+                playerOut: playerOut ? { name: playerOut.name, id: playerOut.id, price: playerOut.price } : null,
+                date: new Date().toISOString(),
+                timestamp: Date.now()
+            };
             
-            // Remove "No transfers yet" message if it exists
-            if (historyDiv.innerHTML.includes('No transfers yet')) {
-                historyDiv.innerHTML = '';
+            // Get existing history from localStorage
+            let transferHistory = [];
+            try {
+                const stored = localStorage.getItem('fplTransferHistory');
+                if (stored) {
+                    transferHistory = JSON.parse(stored);
+                }
+            } catch (e) {
+                console.error('Error loading transfer history:', e);
             }
             
-            historyDiv.innerHTML = historyHTML + historyDiv.innerHTML;
+            // Add new transfer to beginning of array
+            transferHistory.unshift(transfer);
+            
+            // Keep only last 50 transfers
+            if (transferHistory.length > 50) {
+                transferHistory = transferHistory.slice(0, 50);
+            }
+            
+            // Save to localStorage
+            try {
+                localStorage.setItem('fplTransferHistory', JSON.stringify(transferHistory));
+            } catch (e) {
+                console.error('Error saving transfer history:', e);
+            }
+            
+            // Display the transfer
+            displayTransferHistory();
+        };
+        
+        // Display transfer history from localStorage
+        window.displayTransferHistory = function() {
+            const historyDiv = document.getElementById('transferHistory');
+            if (!historyDiv) return;
+            
+            let transferHistory = [];
+            try {
+                const stored = localStorage.getItem('fplTransferHistory');
+                if (stored) {
+                    transferHistory = JSON.parse(stored);
+                }
+            } catch (e) {
+                console.error('Error loading transfer history:', e);
+            }
+            
+            if (transferHistory.length === 0) {
+                historyDiv.innerHTML = '<div style="padding: 10px; color: #666; text-align: center;">No transfers yet</div>';
+                return;
+            }
+            
+            // Display all transfers
+            historyDiv.innerHTML = transferHistory.map(transfer => {
+                const date = new Date(transfer.date);
+                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                return `
+                    <div class="history-item" style="padding: 10px; background: #f8f9fa; border-radius: 8px; margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 30px; height: 30px; background: ${transfer.playerOut ? '#fff3cd' : '#d4edda'}; color: ${transfer.playerOut ? '#856404' : '#155724'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 18px;">
+                                ${transfer.playerOut ? '🔄' : '➕'}
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 700; color: #28a745;">
+                                    ${transfer.playerIn ? `IN: ${transfer.playerIn.name} (£${transfer.playerIn.price}m)` : 'Player Added'}
+                                </div>
+                                ${transfer.playerOut ? `<div style="color: #dc3545; font-size: 0.9rem; margin-top: 2px;">OUT: ${transfer.playerOut.name} (£${transfer.playerOut.price}m)</div>` : ''}
+                                <div style="color: #666; font-size: 0.85rem; margin-top: 4px;">${dateStr}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+        
+        // Clear transfer history
+        window.clearTransferHistory = function() {
+            if (confirm('Are you sure you want to clear all transfer history?')) {
+                localStorage.removeItem('fplTransferHistory');
+                displayTransferHistory();
+                showNotification('Transfer history cleared', 'info');
+            }
         };
         
         // Update Team Stats
@@ -4933,9 +4998,13 @@
         
         // Initialize animations when DOM is ready
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', animateTransferStats);
+            document.addEventListener('DOMContentLoaded', function() {
+                animateTransferStats();
+                displayTransferHistory(); // Load transfer history on page load
+            });
         } else {
             animateTransferStats();
+            displayTransferHistory(); // Load transfer history on page load
         }
         
         // Handle manual data load button click
@@ -6638,6 +6707,11 @@ Son Heung-min
             console.log('Adding player to squad:', player.name);
             console.log('Current squad size:', window.transferSimPro.currentSquad.length);
             
+            // Add to transfer history
+            if (typeof window.addTransferToHistory === 'function') {
+                window.addTransferToHistory(player, null); // null for playerOut since it's just adding
+            }
+            
             // Add visual feedback
             const playerCard = document.querySelector(`[data-player-id="${playerId}"]`);
             if (playerCard) {
@@ -6689,6 +6763,11 @@ Son Heung-min
             window.transferSimPro.currentSquad.push(player);
             console.log('Quick adding player to squad:', player.name);
             console.log('Current squad size:', window.transferSimPro.currentSquad.length);
+            
+            // Add to transfer history
+            if (typeof window.addTransferToHistory === 'function') {
+                window.addTransferToHistory(player, null);
+            }
             
             // Instant visual feedback
             const button = event.target.closest('.quick-add-btn');
