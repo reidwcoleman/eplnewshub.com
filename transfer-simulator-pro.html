@@ -5397,19 +5397,21 @@
             }
             
             // Update result count
-            if (resultCountDiv && resultCountSpan) {
+            if (resultCountDiv) {
                 if (searchTerm || filteredPlayers.length < window.currentModalPlayers.length) {
                     resultCountDiv.style.display = 'block';
-                    resultCountSpan.textContent = filteredPlayers.length;
                     
-                    // Add message if no results
+                    // Clear and rebuild the content to ensure clean state
                     if (filteredPlayers.length === 0) {
                         resultCountDiv.innerHTML = `<span style="color: #e90052;">No players found for "${searchTerm}"</span>`;
                     } else {
+                        // Always rebuild the result count HTML to clear any previous "no results" message
                         resultCountDiv.innerHTML = `Showing <span id="resultCount" style="font-weight: 600;">${filteredPlayers.length}</span> of ${window.currentModalPlayers.length} players`;
                     }
                 } else {
+                    // No search term and showing all players - hide the count
                     resultCountDiv.style.display = 'none';
+                    resultCountDiv.innerHTML = ''; // Clear any previous content
                 }
             }
             
