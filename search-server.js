@@ -58,13 +58,13 @@ async function performGoogleSearch(query) {
         const searchResultUrls = await getGoogleSearchUrls(query);
         
         if (searchResultUrls.length > 0) {
-            console.log(`✅ Found ${searchResultUrls.length} search results, visiting first result...`);
+            console.log(`✅ Found ${searchResultUrls.length} search results, analyzing all results...`);
             
-            // Step 2: Visit the first search result and extract answer
-            const answer = await extractAnswerFromUrl(searchResultUrls[0], query);
+            // Step 2: Visit ALL search results and find the best answer
+            const allAnswers = await extractBestAnswerFromMultipleSites(searchResultUrls, query);
             
-            if (answer) {
-                return [answer];
+            if (allAnswers.length > 0) {
+                return allAnswers;
             }
         }
         
@@ -111,7 +111,7 @@ function parseSearchResultUrls(html) {
         const urls = [];
         let match;
         
-        while ((match = urlPattern.exec(html)) !== null && urls.length < 3) {
+        while ((match = urlPattern.exec(html)) !== null && urls.length < 8) {
             let url = match[1];
             // Clean up the URL
             if (url.startsWith('//duckduckgo.com/l/?uddg=')) {
@@ -129,6 +129,137 @@ function parseSearchResultUrls(html) {
         return urls;
     } catch (error) {
         console.error('URL parsing failed:', error);
+        return [];
+    }
+}
+
+async function extractBestAnswerFromMultipleSites(urls, query) {
+    console.log(`🔍 Analyzing ${urls.length} search results for best answer...`);
+    
+    const candidates = [];
+    
+    // Visit each URL and extract potential answers
+    for (let i = 0; i < urls.length; i++) {
+        const url = urls[i];
+        try {
+            console.log(`🌐 Visiting result ${i + 1}/${urls.length}: ${url}`);
+            
+            const response = await fetch(url, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    'Accept': 'text/html,application/xhtml+xml'
+                },
+                timeout: 8000
+            });
+            
+            if (response.ok) {
+                const html = await response.text();
+                const siteName = url.split('/')[2].replace('www.', '');
+                
+                console.log(`📄 Analyzing content from ${siteName}...`);
+                
+                // Find all relevant sentences from this site
+                const relevantSentences = findAllRelevantSentences(html, query);
+                
+                for (const sentence of relevantSentences) {
+                    if (sentence.score > 0) {
+                        candidates.push({
+                            content: sentence.text,
+                            score: sentence.score,
+                            source: siteName,
+                            url: url
+                        });
+                    }
+                }
+            }
+            
+        } catch (error) {
+            console.log(`❌ Failed to analyze ${url}: ${error.message}`);
+        }
+    }
+    
+    // Sort by relevance score and return top answers
+    candidates.sort((a, b) => b.score - a.score);
+    
+    const topAnswers = candidates.slice(0, 3).map(candidate => 
+        `${candidate.source.toUpperCase()}: ${candidate.content}`
+    );
+    
+    console.log(`✅ Found ${candidates.length} relevant answers, returning top ${topAnswers.length}`);
+    
+    return topAnswers.length > 0 ? topAnswers : [];
+}
+
+function findAllRelevantSentences(html, query) {
+    try {
+        const lowerQuery = query.toLowerCase();
+        const queryWords = lowerQuery.split(' ').filter(word => word.length > 2);
+        
+        // Clean HTML and extract text content
+        let text = html.replace(/<script[^>]*>.*?<\/script>/gis, '');
+        text = text.replace(/<style[^>]*>.*?<\/style>/gis, '');
+        text = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
+        
+        // Split into sentences
+        const sentences = text.split(/[.!?]+/);
+        const relevantSentences = [];
+        
+        for (const sentence of sentences) {
+            const lowerSentence = sentence.toLowerCase().trim();
+            
+            // Skip short or irrelevant sentences
+            if (sentence.length < 30 || sentence.length > 400) continue;
+            
+            let score = 0;
+            let queryWordsFound = 0;
+            
+            // Score based on query word matches
+            for (const word of queryWords) {
+                if (lowerSentence.includes(word)) {
+                    queryWordsFound++;
+                    score += 2;
+                }
+            }
+            
+            // Only consider sentences that contain multiple query words
+            if (queryWordsFound < 2) continue;
+            
+            // Bonus scoring for FPL-specific terms
+            const fplTerms = ['fantasy', 'fpl', 'gameweek', 'free hit', 'wildcard', 'chip', 'captain', 'transfer', 'points', 'price'];
+            for (const term of fplTerms) {
+                if (lowerSentence.includes(term)) {
+                    score += 3;
+                }
+            }
+            
+            // Bonus for strategy-related terms
+            const strategyTerms = ['when', 'should', 'best', 'optimal', 'recommend', 'strategy', 'advice', 'use'];
+            for (const term of strategyTerms) {
+                if (lowerSentence.includes(term)) {
+                    score += 1;
+                }
+            }
+            
+            // Penalty for common irrelevant phrases
+            const irrelevantPhrases = ['cookie', 'privacy', 'subscribe', 'newsletter', 'advertisement'];
+            for (const phrase of irrelevantPhrases) {
+                if (lowerSentence.includes(phrase)) {
+                    score -= 5;
+                }
+            }
+            
+            if (score > 5) {
+                relevantSentences.push({
+                    text: sentence.trim(),
+                    score: score
+                });
+            }
+        }
+        
+        return relevantSentences;
+        
+    } catch (error) {
+        console.error('Sentence analysis failed:', error);
         return [];
     }
 }
