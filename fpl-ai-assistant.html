@@ -1602,9 +1602,11 @@
             const results = [];
             const lowerQuery = query.toLowerCase();
             
-            // Get current information from official FPL API
+            // Get information from multiple reliable sources
+            
+            // 1. Official FPL API
             try {
-                console.log('📊 Fetching from FPL API...');
+                console.log('📊 Fetching from FPL Official API...');
                 const fplApiUrl = 'https://fantasy.premierleague.com/api/bootstrap-static/';
                 const response = await fetch(fplApiUrl);
                 
@@ -1616,22 +1618,22 @@
                     if (lowerQuery.includes('haaland')) {
                         const haaland = fplData.elements.find(p => p.web_name === 'Haaland');
                         if (haaland) {
-                            results.push(`FPL Official API: Haaland currently priced at £${(haaland.now_cost / 10).toFixed(1)}m, ${haaland.total_points} points this season, ${haaland.transfers_in_event} transfers in this week`);
+                            results.push(`FPL Official: Haaland £${(haaland.now_cost / 10).toFixed(1)}m, ${haaland.total_points} points, ${haaland.transfers_in_event} transfers in, ${haaland.form} recent form`);
                         }
                     } else if (lowerQuery.includes('palmer')) {
                         const palmer = fplData.elements.find(p => p.web_name === 'Palmer');
                         if (palmer) {
-                            results.push(`FPL Official API: Palmer currently priced at £${(palmer.now_cost / 10).toFixed(1)}m, ${palmer.total_points} points this season, availability: ${palmer.status === 'a' ? 'Available' : 'Injured'}`);
+                            results.push(`FPL Official: Palmer £${(palmer.now_cost / 10).toFixed(1)}m, ${palmer.total_points} points, status: ${palmer.status === 'a' ? 'Available' : 'Injured'}, ${palmer.form} form`);
                         }
                     } else if (lowerQuery.includes('salah')) {
                         const salah = fplData.elements.find(p => p.web_name === 'Salah');
                         if (salah) {
-                            results.push(`FPL Official API: Salah currently priced at £${(salah.now_cost / 10).toFixed(1)}m, ${salah.total_points} points this season, ${salah.transfers_in_event} transfers in this week`);
+                            results.push(`FPL Official: Salah £${(salah.now_cost / 10).toFixed(1)}m, ${salah.total_points} points, ${salah.transfers_in_event} transfers in, ${salah.form} form`);
                         }
                     } else if (lowerQuery.includes('free hit') || lowerQuery.includes('chip')) {
                         const currentGW = fplData.events.find(e => e.is_current);
                         if (currentGW) {
-                            results.push(`FPL Official API: Currently in Gameweek ${currentGW.id}. Free Hit chip optimal for double gameweeks or during heavy fixture rotation. Next deadline: ${currentGW.deadline_time}`);
+                            results.push(`FPL Official: Gameweek ${currentGW.id} active. Free Hit best used during blank/double gameweeks. Deadline: ${new Date(currentGW.deadline_time).toLocaleDateString()}`);
                         }
                     }
                 }
@@ -1640,7 +1642,69 @@
                 console.log('FPL API failed:', apiError.message);
             }
             
+            // 2. Try to fetch from reliable sports news sites
+            const newsUrls = getNewsUrlsForQuery(query);
+            for (const url of newsUrls.slice(0, 2)) {
+                try {
+                    console.log(`📰 Fetching news from: ${url}`);
+                    const newsContent = await fetchNewsContent(url, query);
+                    if (newsContent) {
+                        results.push(newsContent);
+                    }
+                } catch (newsError) {
+                    console.log(`❌ News fetch failed: ${newsError.message}`);
+                }
+            }
+            
             return results;
+        }
+        
+        function getNewsUrlsForQuery(query) {
+            const lowerQuery = query.toLowerCase();
+            
+            // Return reliable news sources based on query
+            if (lowerQuery.includes('haaland') || lowerQuery.includes('palmer') || lowerQuery.includes('salah')) {
+                return [
+                    'https://www.skysports.com/football/premier-league',
+                    'https://www.bbc.com/sport/football/premier-league'
+                ];
+            } else if (lowerQuery.includes('free hit') || lowerQuery.includes('chip') || lowerQuery.includes('wildcard')) {
+                return [
+                    'https://www.fantasyfootballscout.co.uk/',
+                    'https://www.skysports.com/football/news/11095/fantasy-football'
+                ];
+            }
+            
+            return [
+                'https://www.skysports.com/football/premier-league',
+                'https://www.bbc.com/sport/football/premier-league'
+            ];
+        }
+        
+        async function fetchNewsContent(url, query) {
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (compatible; FPL-Assistant/1.0)',
+                        'Accept': 'text/html'
+                    }
+                });
+                
+                if (response.ok) {
+                    const html = await response.text();
+                    const siteName = url.split('/')[2].replace('www.', '').replace('.com', '').replace('.co.uk', '').toUpperCase();
+                    
+                    // Extract title for context
+                    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+                    const title = titleMatch ? titleMatch[1].substring(0, 100) : 'Latest news';
+                    
+                    return `${siteName}: ${title} - Real content from ${siteName} website`;
+                }
+                
+            } catch (error) {
+                console.log(`News fetch error for ${url}:`, error.message);
+                return null;
+            }
         }
         
         function getRealtimeSearchResults(query) {

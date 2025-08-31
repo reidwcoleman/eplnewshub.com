@@ -75,11 +75,13 @@ async function performGoogleSearch(query) {
 async function getRealSearchResults(query) {
     const results = [];
     
-    // Try to fetch content from known FPL resource sites
+    // Try to fetch content from diverse reliable FPL sites
     const fplResourceUrls = [
-        'https://www.reddit.com/r/FantasyPL/',
+        'https://www.skysports.com/football/premier-league',
+        'https://www.bbc.com/sport/football/premier-league', 
         'https://www.fantasyfootballscout.co.uk/',
-        'https://fantasy.premierleague.com/help'
+        'https://www.premierleague.com/news',
+        'https://www.goal.com/en/premier-league'
     ];
     
     for (const url of fplResourceUrls.slice(0, 2)) {
@@ -177,38 +179,44 @@ function extractFPLContent(html, query) {
 function getRelevantFPLUrls(query) {
     const lowerQuery = query.toLowerCase();
     
-    // Return relevant URLs based on query
+    // Return diverse reliable URLs based on query
     if (lowerQuery.includes('haaland')) {
         return [
-            'https://www.premierleague.com/players/22200/erling-haaland/overview',
-            'https://fantasy.premierleague.com/',
-            'https://www.skysports.com/football/player/30568/erling-haaland'
+            'https://www.skysports.com/football/player/30568/erling-haaland',
+            'https://www.bbc.com/sport/football/premier-league',
+            'https://www.premierleague.com/players/22200/erling-haaland/overview'
         ];
     } else if (lowerQuery.includes('palmer')) {
         return [
-            'https://www.premierleague.com/players/31661/cole-palmer/overview',
-            'https://www.chelseafc.com/en/teams/first-team/cole-palmer',
-            'https://fantasy.premierleague.com/'
+            'https://www.skysports.com/football/players/cole-palmer',
+            'https://www.bbc.com/sport/football/premier-league',
+            'https://www.premierleague.com/players/31661/cole-palmer/overview'
         ];
     } else if (lowerQuery.includes('salah')) {
         return [
-            'https://www.premierleague.com/players/5178/mohamed-salah/overview',
-            'https://www.liverpoolfc.com/team/first-team/player/mohamed-salah',
-            'https://fantasy.premierleague.com/'
+            'https://www.skysports.com/football/player/7957/mohamed-salah',
+            'https://www.bbc.com/sport/football/premier-league',
+            'https://www.premierleague.com/players/5178/mohamed-salah/overview'
+        ];
+    } else if (lowerQuery.includes('free hit') || lowerQuery.includes('chip')) {
+        return [
+            'https://www.fantasyfootballscout.co.uk/free-hit/',
+            'https://www.skysports.com/football/news/11095/fantasy-football',
+            'https://www.goal.com/en/fantasy-football'
         ];
     } else if (lowerQuery.includes('transfer') || lowerQuery.includes('captain')) {
         return [
-            'https://fantasy.premierleague.com/',
-            'https://www.premierleague.com/news',
+            'https://www.skysports.com/football/news/11095/fantasy-football',
+            'https://www.bbc.com/sport/football/fantasy',
             'https://www.fantasyfootballscout.co.uk/'
         ];
     }
     
-    // Default FPL URLs
+    // Default diverse FPL URLs
     return [
-        'https://fantasy.premierleague.com/',
-        'https://www.premierleague.com/news',
-        'https://www.skysports.com/football/premier-league'
+        'https://www.skysports.com/football/premier-league',
+        'https://www.bbc.com/sport/football/premier-league',
+        'https://www.fantasyfootballscout.co.uk/'
     ];
 }
 

@@ -1686,63 +1686,6 @@
     </style>
     
     <style>
-        /* FPL Tools Banner Styles */
-        .fpl-tools-banner {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3b7dd8 100%);
-            color: white;
-            padding: 15px 0;
-            position: relative;
-            box-shadow: 0 3px 15px rgba(30, 60, 114, 0.25);
-            border-bottom: 2px solid rgba(255,255,255,0.15);
-            animation: bannerGradient 10s ease infinite;
-            background-size: 200% 200%;
-        }
-        
-        @keyframes bannerGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        /* FPL Banner Features */
-        .fpl-banner-features {
-            display: flex;
-            gap: 12px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        
-        .feature-badge {
-            background: rgba(255,255,255,0.15);
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.25);
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            animation: badgePulse 2s ease-in-out;
-        }
-        
-        @keyframes badgePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .feature-badge:hover {
-            background: rgba(163, 213, 255, 0.25);
-            border-color: #a3d5ff;
-            transform: translateY(-2px);
-            box-shadow: 0 3px 8px rgba(163, 213, 255, 0.25);
-        }
-        
-        .feature-badge:active {
-            transform: translateY(0);
-        }
         
         /* FPL Banner CTAs */
         .fpl-banner-cta {
@@ -1935,115 +1878,6 @@
             display: none;
         }
         
-        /* Premium Banner Styles */
-        .premium-banner {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3b7dd8 100%);
-            color: white;
-            padding: 15px 0;
-            position: relative;
-            box-shadow: 0 3px 15px rgba(30, 60, 114, 0.25);
-            border-bottom: 2px solid rgba(255,255,255,0.1);
-        }
-        
-        .premium-banner-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 40px;
-            align-items: center;
-            padding: 0 20px;
-        }
-        
-        .premium-banner-text {
-            flex: 1;
-        }
-        
-        .premium-banner-title {
-            font-size: 1.6rem;
-            font-weight: 800;
-            margin: 0 0 8px 0;
-            text-shadow: 0 1px 6px rgba(0,0,0,0.2);
-        }
-        
-        .premium-banner-description {
-            font-size: 1rem;
-            margin: 0;
-            opacity: 0.95;
-            line-height: 1.4;
-        }
-        
-        .premium-banner-actions {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        .premium-banner-btn {
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .premium-banner-btn.primary {
-            background: linear-gradient(135deg, #ffd700, #ffed4e);
-            color: #1e3c72;
-            border: 2px solid transparent;
-        }
-        
-        .premium-banner-btn.primary:hover {
-            background: linear-gradient(135deg, #ffed4e, #ffd700);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 18px rgba(255, 215, 0, 0.4);
-        }
-        
-        .premium-banner-btn.secondary {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.25);
-            backdrop-filter: blur(10px);
-        }
-        
-        .premium-banner-btn.secondary:hover {
-            background: rgba(163, 213, 255, 0.2);
-            border-color: #a3d5ff;
-            transform: translateY(-2px);
-        }
-        
-        .premium-banner-close {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.3rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        .premium-banner-close:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.1);
-        }
-        
-        .premium-banner.hidden {
-            display: none;
-        }
         
         
         /* Desktop Layout Constraints */
@@ -3671,15 +3505,6 @@
             }
         }
         
-        // Close premium banner functionality - redirects to homepage
-        function closePremiumBanner() {
-            const banner = document.querySelector('.premium-banner');
-            banner.style.display = 'none';
-            // Store preference so it doesn't show again for this session
-            sessionStorage.setItem('premiumBannerClosed', 'true');
-            // Redirect to homepage
-            window.location.href = '/';
-        }
 
         // Countdown Timer for FPL Banner
         function startCountdown() {
@@ -3855,8 +3680,6 @@
                 updatePromoCountdown();
             }
             
-            // Check if premium banner should be shown
-            checkPremiumBannerVisibility();
             
             // Check account status and show account widget if signed in
             checkAccountStatus();
@@ -4051,33 +3874,6 @@
                 return emailRegex.test(email);
             }
             
-            function checkPremiumBannerVisibility() {
-                const premiumBanner = document.querySelector('.premium-banner');
-                if (!premiumBanner) {
-                    console.log('Premium banner element not found');
-                    return;
-                }
-                
-                // Check if user closed banner this session
-                if (sessionStorage.getItem('premiumBannerClosed') === 'true') {
-                    premiumBanner.style.display = 'none';
-                    return;
-                }
-                
-                // Check if user already has premium membership
-                const membershipInfo = localStorage.getItem('membership');
-                if (membershipInfo) {
-                    const membership = JSON.parse(membershipInfo);
-                    if (membership.status === 'active') {
-                        // User has active membership, hide banner
-                        premiumBanner.style.display = 'none';
-                        return;
-                    }
-                }
-                
-                // Show banner for non-premium users
-                premiumBanner.style.display = 'block';
-            }
             
             // Periodically check for and remove unwanted ads
             setInterval(removeUnwantedAds, 2000);
