@@ -1030,43 +1030,20 @@
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
                 
                 try {
-                    // Force search for any query
-                    console.log('🔍 Starting search for:', message);
+                    // Direct search without any modifications or player analysis
+                    console.log('🔍 Starting direct Google search for exact query:', message);
                     
-                    // Try to find player intent first
-                    const playerIntent = analyzePlayerQuery(message, message.toLowerCase());
-                    let searchQuery, finalResponse;
+                    // Search for the exact user query without any additions
+                    const searchResults = await searchGoogle(message);
+                    console.log('📊 Search results:', searchResults);
                     
-                    if (playerIntent.player) {
-                        console.log('👤 Found player:', playerIntent.player.name, 'Intent:', playerIntent.intent);
-                        searchQuery = generateSearchQuery(playerIntent.player.name, playerIntent.intent, message);
-                        
-                        const searchResults = await searchGoogle(searchQuery);
-                        console.log('📊 Search results:', searchResults);
-                        
-                        const baseResponse = generateContextualPlayerResponseSync(playerIntent.player, playerIntent.intent, message);
-                        finalResponse = baseResponse;
-                        
-                        if (searchResults && searchResults.length > 0) {
-                            const enhancedInfo = extractRelevantInfo(searchResults, playerIntent.player.name, playerIntent.intent);
-                            if (enhancedInfo) {
-                                await storeSearchedData(playerIntent.player.name, enhancedInfo, playerIntent.intent);
-                                finalResponse = baseResponse + `<br><br>🔍 <strong>Latest from Google search:</strong> ${enhancedInfo}`;
-                            }
-                        }
+                    let finalResponse;
+                    
+                    if (searchResults && searchResults.length > 0) {
+                        finalResponse = `🔍 <strong>Google search results for "${message}":</strong><br><br>` + 
+                                      searchResults.map(result => `• ${result}`).join('<br>');
                     } else {
-                        console.log('🔍 General search for:', message);
-                        searchQuery = `${message} Fantasy Premier League FPL 2025`;
-                        
-                        const searchResults = await searchGoogle(searchQuery);
-                        console.log('📊 Search results:', searchResults);
-                        
-                        finalResponse = generateAIResponse(message);
-                        
-                        if (searchResults && searchResults.length > 0) {
-                            const enhancedInfo = searchResults[0];
-                            finalResponse += `<br><br>🔍 <strong>Latest from Google search:</strong> ${enhancedInfo}`;
-                        }
+                        finalResponse = `I searched Google for "${message}" but couldn't find relevant information. Please try rephrasing your question.`;
                     }
                     
                     // Remove thinking indicator
