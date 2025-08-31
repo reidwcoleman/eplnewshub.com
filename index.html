@@ -3730,16 +3730,16 @@
         
         // FPL Promo Countdown Timer
         function updatePromoCountdown() {
-            // Check if there's a saved end date in localStorage
+            // Set fixed end time: 7 days from August 31, 2025
+            const fixedEndTime = new Date('2025-09-07T23:59:59.999Z').getTime();
+            
+            // Always use the fixed end time, ignore any saved dates
             let savedEndDate = localStorage.getItem('fplPromoEndDate');
             
-            // If no saved date or it has expired, create a new one
-            if (!savedEndDate || new Date(parseInt(savedEndDate)) <= new Date()) {
-                const promoEndDate = new Date();
-                promoEndDate.setDate(promoEndDate.getDate() + 7);
-                promoEndDate.setHours(23, 59, 59, 999);
-                localStorage.setItem('fplPromoEndDate', promoEndDate.getTime());
-                savedEndDate = promoEndDate.getTime();
+            // If no saved date or current fixed time is different, update it
+            if (!savedEndDate || parseInt(savedEndDate) !== fixedEndTime) {
+                localStorage.setItem('fplPromoEndDate', fixedEndTime.toString());
+                savedEndDate = fixedEndTime.toString();
             }
             
             let endDate = new Date(parseInt(savedEndDate));
@@ -3749,14 +3749,14 @@
                 const timeLeft = endDate - now;
                 
                 if (timeLeft <= 0) {
-                    // Restart countdown with new 7-day period
-                    const promoEndDate = new Date();
-                    promoEndDate.setDate(promoEndDate.getDate() + 7);
-                    promoEndDate.setHours(23, 59, 59, 999);
-                    localStorage.setItem('fplPromoEndDate', promoEndDate.getTime());
+                    // Restart countdown with new 7-day period from now
+                    const newEndDate = new Date();
+                    newEndDate.setDate(newEndDate.getDate() + 7);
+                    newEndDate.setHours(23, 59, 59, 999);
+                    localStorage.setItem('fplPromoEndDate', newEndDate.getTime());
                     
                     // Update endDate for this timer instance
-                    endDate = promoEndDate;
+                    endDate = newEndDate;
                     return;
                 }
                 
