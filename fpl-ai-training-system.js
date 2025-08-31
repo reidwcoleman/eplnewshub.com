@@ -132,14 +132,44 @@ class FPLAITrainingSystem {
         
         document.body.appendChild(trainingPanel);
         
-        // Add training mode button to chat interface
+        // Add feed mode buttons to chat interface
         const chatHeader = document.querySelector('.ai-chat-header');
         if (chatHeader) {
-            const trainBtn = document.createElement('button');
-            trainBtn.className = 'training-mode-btn';
-            trainBtn.innerHTML = '🎓 Training Mode';
-            trainBtn.onclick = () => this.togglePanel();
-            chatHeader.appendChild(trainBtn);
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'mode-buttons';
+            buttonContainer.style.cssText = 'display: flex; gap: 8px; margin-left: auto;';
+            
+            const feedBtn = document.createElement('button');
+            feedBtn.id = 'feedModeMainBtn';
+            feedBtn.className = 'mode-btn';
+            feedBtn.innerHTML = '📝 Feed Data';
+            feedBtn.onclick = () => {
+                if (window.toggleFeedMode) {
+                    window.toggleFeedMode();
+                    // Update this button too
+                    const otherBtn = document.getElementById('feedModeBtn');
+                    if (otherBtn && feedBtn.textContent === '💬 Chat Mode') {
+                        otherBtn.textContent = '💬 Chat Mode';
+                        otherBtn.style.background = '#10b981';
+                    } else if (otherBtn) {
+                        otherBtn.textContent = '📝 Feed Data';
+                        otherBtn.style.background = '';
+                    }
+                }
+            };
+            
+            const dataBtn = document.createElement('button');
+            dataBtn.className = 'mode-btn';
+            dataBtn.innerHTML = '🔍 My Data';
+            dataBtn.onclick = () => {
+                if (window.showStoredData) {
+                    window.showStoredData();
+                }
+            };
+            
+            buttonContainer.appendChild(feedBtn);
+            buttonContainer.appendChild(dataBtn);
+            chatHeader.appendChild(buttonContainer);
         }
         
         // Add CSS for training panel
@@ -268,7 +298,7 @@ class FPLAITrainingSystem {
                 background: linear-gradient(135deg, #ef4444, #dc2626);
             }
             
-            .training-mode-btn {
+            .mode-btn {
                 background: rgba(255,255,255,0.2);
                 border: 1px solid rgba(255,255,255,0.3);
                 color: white;
@@ -278,12 +308,17 @@ class FPLAITrainingSystem {
                 font-size: 0.85rem;
                 font-weight: 600;
                 transition: all 0.3s;
-                margin-left: auto;
             }
             
-            .training-mode-btn:hover {
+            .mode-btn:hover {
                 background: rgba(255,255,255,0.3);
                 transform: scale(1.05);
+            }
+            
+            .mode-buttons {
+                display: flex;
+                gap: 8px;
+                margin-left: auto;
             }
             
             .data-stats {

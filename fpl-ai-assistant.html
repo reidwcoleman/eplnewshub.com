@@ -1011,20 +1011,43 @@
             feedMode = !feedMode;
             const input = document.getElementById('userInput');
             const button = document.getElementById('feedModeBtn');
+            const mainButton = document.getElementById('feedModeMainBtn');
             
             if (feedMode) {
                 input.placeholder = "Tell me: 'Haaland scored 2 goals and got 12 points'";
-                button.textContent = "💬 Chat Mode";
-                button.style.background = "#10b981";
                 input.style.borderColor = "#10b981";
+                
+                // Update both buttons
+                if (button) {
+                    button.textContent = "💬 Chat Mode";
+                    button.style.background = "#10b981";
+                }
+                if (mainButton) {
+                    mainButton.textContent = "💬 Chat Mode";
+                    mainButton.style.background = "rgba(16, 185, 129, 0.8)";
+                }
+                
                 showFeedModeHelp();
             } else {
                 input.placeholder = "Ask me anything about FPL...";
-                button.textContent = "📝 Feed Data";
-                button.style.background = "";
                 input.style.borderColor = "";
+                
+                // Update both buttons
+                if (button) {
+                    button.textContent = "📝 Feed Data";
+                    button.style.background = "";
+                }
+                if (mainButton) {
+                    mainButton.textContent = "📝 Feed Data";
+                    mainButton.style.background = "";
+                }
             }
         }
+
+        // Make functions global
+        window.toggleFeedMode = toggleFeedMode;
+        window.showStoredData = showStoredData;
+        window.loadPlayerData = loadPlayerData;
 
         function showFeedModeHelp() {
             const messagesDiv = document.getElementById('chatMessages');
