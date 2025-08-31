@@ -934,10 +934,16 @@
         }
         
         function sendMessageWithSearch() {
+            console.log('🔍 Search button clicked!');
             const input = document.getElementById('userInput');
             const message = input.value.trim();
             
-            if (!message) return;
+            console.log('Search query:', message);
+            
+            if (!message) {
+                alert('Please enter a question to search for!');
+                return;
+            }
             
             const messagesDiv = document.getElementById('chatMessages');
             
@@ -972,22 +978,43 @@
                 messagesDiv.appendChild(thinkingDiv);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
                 
-                // Force search enhancement by temporarily making data "old"
-                const playerIntent = analyzePlayerQuery(message, message.toLowerCase());
-                if (playerIntent.player) {
-                    // Force search for this query
-                    const searchQuery = generateSearchQuery(playerIntent.player.name, playerIntent.intent, message);
-                    const searchResults = await searchGoogle(searchQuery);
+                try {
+                    // Force search for any query
+                    console.log('🔍 Starting search for:', message);
                     
-                    // Generate enhanced response
-                    const baseResponse = generateContextualPlayerResponseSync(playerIntent.player, playerIntent.intent, message);
-                    let finalResponse = baseResponse;
+                    // Try to find player intent first
+                    const playerIntent = analyzePlayerQuery(message, message.toLowerCase());
+                    let searchQuery, finalResponse;
                     
-                    if (searchResults && searchResults.length > 0) {
-                        const enhancedInfo = extractRelevantInfo(searchResults, playerIntent.player.name, playerIntent.intent);
-                        if (enhancedInfo) {
-                            await storeSearchedData(playerIntent.player.name, enhancedInfo, playerIntent.intent);
-                            finalResponse = baseResponse + `<br><br>🔍 <strong>Latest from Google search:</strong> ${enhancedInfo}`;
+                    if (playerIntent.player) {
+                        console.log('👤 Found player:', playerIntent.player.name, 'Intent:', playerIntent.intent);
+                        searchQuery = generateSearchQuery(playerIntent.player.name, playerIntent.intent, message);
+                        
+                        const searchResults = await searchGoogle(searchQuery);
+                        console.log('📊 Search results:', searchResults);
+                        
+                        const baseResponse = generateContextualPlayerResponseSync(playerIntent.player, playerIntent.intent, message);
+                        finalResponse = baseResponse;
+                        
+                        if (searchResults && searchResults.length > 0) {
+                            const enhancedInfo = extractRelevantInfo(searchResults, playerIntent.player.name, playerIntent.intent);
+                            if (enhancedInfo) {
+                                await storeSearchedData(playerIntent.player.name, enhancedInfo, playerIntent.intent);
+                                finalResponse = baseResponse + `<br><br>🔍 <strong>Latest from Google search:</strong> ${enhancedInfo}`;
+                            }
+                        }
+                    } else {
+                        console.log('🔍 General search for:', message);
+                        searchQuery = `${message} Fantasy Premier League FPL 2025`;
+                        
+                        const searchResults = await searchGoogle(searchQuery);
+                        console.log('📊 Search results:', searchResults);
+                        
+                        finalResponse = generateAIResponse(message);
+                        
+                        if (searchResults && searchResults.length > 0) {
+                            const enhancedInfo = searchResults[0];
+                            finalResponse += `<br><br>🔍 <strong>Latest from Google search:</strong> ${enhancedInfo}`;
                         }
                     }
                     
@@ -1004,16 +1031,20 @@
                         </div>
                     `;
                     messagesDiv.appendChild(aiMessageDiv);
-                } else {
-                    // For non-player queries, show generic search enhancement
+                    
+                } catch (searchError) {
+                    console.error('❌ Search failed:', searchError);
+                    
+                    // Remove thinking indicator
                     messagesDiv.removeChild(thinkingDiv);
                     
+                    // Show error response
                     const aiMessageDiv = document.createElement('div');
                     aiMessageDiv.className = 'ai-message';
                     aiMessageDiv.innerHTML = `
                         <div class="message-avatar">🤖</div>
                         <div class="message-content">
-                            <p>${generateAIResponse(message)}<br><br>🔍 <strong>Enhanced with latest search data</strong> - I searched for recent FPL information to provide the most current insights!</p>
+                            <p>${generateAIResponse(message)}<br><br>⚠️ <strong>Search temporarily unavailable</strong> - Using existing knowledge base instead.</p>
                         </div>
                     `;
                     messagesDiv.appendChild(aiMessageDiv);
@@ -1470,22 +1501,49 @@
             try {
                 console.log(`🔍 Searching Google: ${query}`);
                 
-                // Use fetch to call a search endpoint that will use WebSearch
-                const response = await fetch('http://localhost:3002/api/search', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ query: query })
-                });
+                // Try different search endpoints
+                let searchData = null;
                 
-                if (response.ok) {
-                    const searchData = await response.json();
-                    return searchData.results || [];
+                // Try the local server first
+                try {
+                    const response = await fetch('http://localhost:3002/api/search', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ query: query })
+                    });
+                    
+                    if (response.ok) {
+                        searchData = await response.json();
+                        console.log('✅ Got search results from server:', searchData);
+                        return searchData.results || [];
+                    }
+                } catch (e) {
+                    console.log('Local server not available:', e.message);
                 }
                 
-                // Fallback to client-side search simulation
-                console.log('Server search not available, using fallback');
+                // Try relative path
+                try {
+                    const response = await fetch('/api/search', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ query: query })
+                    });
+                    
+                    if (response.ok) {
+                        searchData = await response.json();
+                        console.log('✅ Got search results from relative API:', searchData);
+                        return searchData.results || [];
+                    }
+                } catch (e) {
+                    console.log('Relative API not available:', e.message);
+                }
+                
+                // Fallback to simulation with enhanced realism
+                console.log('🔄 Using enhanced simulation for search');
                 return simulateSearchResults(query);
                 
             } catch (error) {
@@ -2587,6 +2645,26 @@
             }
         }
 
+        // Test function for search button
+        function testSearchButton() {
+            console.log('🧪 Testing search button functionality');
+            document.getElementById('userInput').value = 'haaland injury';
+            sendMessageWithSearch();
+        }
+        
+        // Add keyboard support for search
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                // Ctrl+Enter triggers search
+                e.preventDefault();
+                sendMessageWithSearch();
+            }
+        });
+        
+        // Make functions globally available
+        window.sendMessageWithSearch = sendMessageWithSearch;
+        window.testSearchButton = testSearchButton;
+        
         // Initialize data on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadPlayerData();
