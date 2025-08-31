@@ -693,12 +693,37 @@ class IntelligentFPLAssistant {
             });
         }
         
-        // Add specific recommendations
+        // Add specific recommendations with fed information
         if (analysis.players.length > 0) {
             response += `\n**Players you mentioned:**\n`;
             analysis.players.forEach(p => {
-                response += `• ${p.name}: ${this.getQuickPlayerSummary(p)}\n`;
+                response += `• **${p.name}**: ${this.getQuickPlayerSummary(p)}\n`;
+                
+                // Add fed information if available
+                if (window.aiTrainer) {
+                    const trainedData = window.aiTrainer.getPlayerData(p.name);
+                    if (trainedData && trainedData.notes) {
+                        response += `  📝 Latest info: ${trainedData.notes}\n`;
+                    }
+                    if (trainedData && trainedData.recentPoints) {
+                        response += `  🎯 Recent score: ${trainedData.recentPoints} points\n`;
+                    }
+                }
             });
+        }
+        
+        // Include general knowledge if relevant
+        if (window.aiTrainer && window.aiTrainer.trainingData.general) {
+            const recentInfo = window.aiTrainer.trainingData.general
+                .filter(item => item.timestamp > new Date(Date.now() - 7*24*60*60*1000).toISOString())
+                .slice(-3);
+            
+            if (recentInfo.length > 0) {
+                response += `\n**Recent Updates I've Learned:**\n`;
+                recentInfo.forEach(info => {
+                    response += `• ${info.info}\n`;
+                });
+            }
         }
         
         // Contextual ending
@@ -736,6 +761,14 @@ class IntelligentFPLAssistant {
     }
 
     getCaptainReasoning(player) {
+        // Check for fed information first
+        if (window.aiTrainer) {
+            const trainedData = window.aiTrainer.getPlayerData(player.name);
+            if (trainedData && trainedData.notes) {
+                return `Latest info: ${trainedData.notes}`;
+            }
+        }
+        
         const reasons = [
             `On penalties and in excellent form`,
             `Home advantage with weak opposition`,
@@ -747,18 +780,33 @@ class IntelligentFPLAssistant {
     }
 
     assessTransferVerdict(player) {
+        // Check for fed information about this player
+        let additionalInfo = "";
+        if (window.aiTrainer) {
+            const trainedData = window.aiTrainer.getPlayerData(player.name);
+            if (trainedData && trainedData.notes) {
+                additionalInfo = ` Recent info: ${trainedData.notes}`;
+            }
+            if (trainedData && trainedData.status === 'injured') {
+                return {
+                    action: "AVOID - INJURED",
+                    reason: `Currently injured.${additionalInfo}`
+                };
+            }
+        }
+        
         const verdicts = {
             high_form: {
                 action: "KEEP/BUY",
-                reason: `In excellent form (${player.form}/10) with good fixtures`
+                reason: `In excellent form (${player.form}/10) with good fixtures.${additionalInfo}`
             },
             low_form: {
                 action: "SELL/AVOID", 
-                reason: `Poor form (${player.form}/10) - better options available`
+                reason: `Poor form (${player.form}/10) - better options available.${additionalInfo}`
             },
             differential: {
                 action: "CONSIDER",
-                reason: `Low ownership (${player.own}%) could provide edge`
+                reason: `Low ownership (${player.own}%) could provide edge.${additionalInfo}`
             }
         };
         
@@ -1149,9 +1197,17 @@ class IntelligentFPLAssistant {
     }
 
     getPlayerInsight(player) {
+        // Check for fed information first
+        if (window.aiTrainer) {
+            const trainedData = window.aiTrainer.getPlayerData(player.name);
+            if (trainedData && trainedData.notes) {
+                return trainedData.notes;
+            }
+        }
+        
         const insights = [
             "Strong underlying stats and consistent performer",
-            "Fixture swing makes him attractive for next 5 GWs",
+            "Fixture swing makes him attractive for next 5 GWs", 
             "On penalties and set pieces - high ceiling",
             "Value pick with potential for price rises",
             "Form player who's hitting his stride"
