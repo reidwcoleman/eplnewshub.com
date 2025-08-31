@@ -74,11 +74,18 @@ class FPLDataManager {
     }
 
     mergeData(serverData) {
-        // Merge players (server data takes precedence for conflicts)
+        // Separate API data from community data
         if (serverData.players) {
             for (const [key, player] of Object.entries(serverData.players)) {
-                if (!this.data.players[key] || new Date(player.lastUpdated) > new Date(this.data.players[key].lastUpdated)) {
-                    this.data.players[key] = player;
+                if (player.source === 'fpl_api_import') {
+                    // API data becomes built-in knowledge, not community data
+                    if (!this.data.apiPlayers) this.data.apiPlayers = {};
+                    this.data.apiPlayers[key] = player;
+                } else {
+                    // Community contributed data
+                    if (!this.data.players[key] || new Date(player.lastUpdated) > new Date(this.data.players[key].lastUpdated)) {
+                        this.data.players[key] = player;
+                    }
                 }
             }
         }
@@ -112,7 +119,8 @@ class FPLDataManager {
         
         // Default data structure
         return {
-            players: {},
+            players: {},        // Community-contributed player data
+            apiPlayers: {},     // Built-in API player data
             general: [],
             teams: {},
             fixtures: {},
@@ -267,11 +275,22 @@ class FPLDataManager {
 
     getPlayerInfo(playerName) {
         const key = playerName.toLowerCase();
-        return this.data.players[key] || null;
+        // Check API players first, then community players
+        return this.data.apiPlayers[key] || this.data.players[key] || null;
     }
 
     getAllPlayers() {
+        // Combine API players and community players
+        const allPlayers = { ...this.data.apiPlayers, ...this.data.players };
+        return Object.values(allPlayers);
+    }
+
+    getCommunityPlayers() {
         return Object.values(this.data.players);
+    }
+
+    getAPIPlayers() {
+        return Object.values(this.data.apiPlayers || {});
     }
 
     // General info methods
@@ -297,15 +316,33 @@ class FPLDataManager {
     // Search methods
     findPlayerInText(text) {
         const lower = text.toLowerCase();
-        const playerNames = Object.keys(this.data.players);
         
+        // Search in API players first (built-in knowledge)
+        if (this.data.apiPlayers) {
+            const apiPlayerNames = Object.keys(this.data.apiPlayers);
+            for (const key of apiPlayerNames) {
+                if (lower.includes(key)) {
+                    return this.data.apiPlayers[key];
+                }
+            }
+            
+            // Also check full names in API players
+            for (const player of Object.values(this.data.apiPlayers)) {
+                if (lower.includes(player.name.toLowerCase())) {
+                    return player;
+                }
+            }
+        }
+        
+        // Then search in community players
+        const playerNames = Object.keys(this.data.players);
         for (const key of playerNames) {
             if (lower.includes(key)) {
                 return this.data.players[key];
             }
         }
         
-        // Also check full names
+        // Also check full names in community players
         for (const player of Object.values(this.data.players)) {
             if (lower.includes(player.name.toLowerCase())) {
                 return player;
@@ -359,7 +396,8 @@ class FPLDataManager {
     // Statistics
     getStats() {
         return {
-            totalPlayers: Object.keys(this.data.players).length,
+            totalPlayers: Object.keys(this.data.players).length,  // Community players only
+            totalAPIPlayers: Object.keys(this.data.apiPlayers || {}).length,  // Built-in API players
             totalGeneralInfo: this.data.general.length,
             lastUpdated: this.data.lastUpdated,
             created: this.data.created

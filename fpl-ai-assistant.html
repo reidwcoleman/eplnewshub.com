@@ -567,7 +567,7 @@
                         <div class="message-avatar">🤖</div>
                         <div class="message-content">
                             <p><strong>Welcome to FPL AI Assistant!</strong> I'm here to help you dominate your Fantasy Premier League.</p>
-                            <p>🌐 <strong>Global Database Active:</strong> I have comprehensive data on 50+ players from the official FPL API, plus community-contributed insights!</p>
+                            <p>🤖 <strong>Built-in Knowledge:</strong> I already know comprehensive data on 50+ players from the official FPL API!</p>
                             <p>✨ <strong>NEW:</strong> I can parse complex paragraphs and automatically extract information about multiple players at once!</p>
                             <p>I analyze real-time data from thousands of matches using advanced machine learning to provide you with:</p>
                             <ul style="margin: 10px 0; padding-left: 20px; color: #4b5563;">
@@ -1004,7 +1004,12 @@
                     });
                 }
                 
-                response += `<br>🌐 <strong>Using live FPL API data + community insights!</strong>`;
+                // Show data source appropriately
+                if (foundPlayer.source === 'fpl_api_import') {
+                    response += `<br>🤖 <strong>From my built-in FPL knowledge!</strong>`;
+                } else {
+                    response += `<br>🌐 <strong>Using community insights!</strong>`;
+                }
             } else {
                 response += `I don't have any specific information about ${foundPlayer.name} yet. Feed me some data about them!`;
             }
@@ -1790,14 +1795,17 @@
             
             let dataText = `<p><strong>🌐 Global Community FPL Data</strong></p>`;
             
-            dataText += `<p><strong>📊 Community Database Stats:</strong></p>`;
-            dataText += `<p>• Players: ${stats.totalPlayers} in global database</p>`;
-            dataText += `<p>• Community Info: ${stats.totalGeneralInfo} items shared</p>`;
+            dataText += `<p><strong>📊 FPL Knowledge Base:</strong></p>`;
+            dataText += `<p>• Built-in Players: ${stats.totalAPIPlayers} from official FPL API</p>`;
+            dataText += `<p>• Community Players: ${stats.totalPlayers} contributed by users</p>`;
+            dataText += `<p>• Community Insights: ${stats.totalGeneralInfo} items shared</p>`;
             dataText += `<p>• Last Updated: ${new Date(stats.lastUpdated).toLocaleString()}</p><br>`;
             
-            if (allPlayers.length > 0) {
-                dataText += `<p><strong>🏃‍♂️ Player Database:</strong></p>`;
-                allPlayers.forEach(player => {
+            // Show community players only (API players are built-in knowledge)
+            const communityPlayers = window.fplDataManager.getCommunityPlayers();
+            if (communityPlayers.length > 0) {
+                dataText += `<p><strong>🏃‍♂️ Community Player Database:</strong></p>`;
+                communityPlayers.forEach(player => {
                     dataText += `<p><strong>${player.name}:</strong></p><ul>`;
                     if (player.info && player.info.length > 0) {
                         player.info.slice(-3).forEach(item => {
@@ -1807,7 +1815,7 @@
                     }
                     dataText += `</ul>`;
                     
-                    // Add delete button
+                    // Add delete button (only for community data)
                     dataText += `<button onclick="deletePlayerData('${player.name}')" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 10px;">🗑️ Delete ${player.name}</button><br>`;
                 });
             }
@@ -1823,8 +1831,9 @@
             
             if (stats.totalPlayers === 0 && stats.totalGeneralInfo === 0) {
                 dataText += `<p style="color: #6b7280;">No community data yet. Use Feed Data mode to contribute information that everyone can use!</p>`;
+                dataText += `<p style="color: #10b981;">💡 I already know about ${stats.totalAPIPlayers} players from the official FPL API!</p>`;
             } else {
-                dataText += `<br><p style="font-style: italic; color: #6b7280; font-size: 0.9rem;">🌐 This data is shared across all users and enhances everyone's FPL experience!</p>`;
+                dataText += `<br><p style="font-style: italic; color: #6b7280; font-size: 0.9rem;">🌐 Community data is shared across all users. API data is built-in knowledge!</p>`;
                 dataText += `<br><button onclick="exportData()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 600;">📤 Export Community Data</button>`;
                 dataText += ` <button onclick="refreshGlobalData()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 600; margin-left: 8px;">🔄 Refresh Data</button>`;
             }
@@ -1920,18 +1929,17 @@
         function showDatabaseStats() {
             if (window.fplDataManager) {
                 const stats = window.fplDataManager.getStats();
-                const allPlayers = window.fplDataManager.getAllPlayers();
                 
                 // Find welcome message and add stats
                 const welcomeMessage = document.querySelector('.welcome-message .message-content');
-                if (welcomeMessage && stats.totalPlayers > 0) {
+                if (welcomeMessage && (stats.totalPlayers > 0 || stats.totalAPIPlayers > 0)) {
                     const statsDiv = document.createElement('div');
                     statsDiv.style.cssText = 'background: #f0f9ff; border-left: 4px solid #3b82f6; padding: 10px; margin: 10px 0; border-radius: 6px;';
                     statsDiv.innerHTML = `
-                        <p style="margin: 0; font-weight: 600; color: #1e40af;">📊 Current Database:</p>
-                        <p style="margin: 5px 0; color: #374151;">• ${stats.totalPlayers} players with detailed stats</p>
-                        <p style="margin: 5px 0; color: #374151;">• ${stats.totalGeneralInfo} community insights</p>
-                        <p style="margin: 5px 0; color: #374151;">• Updated: ${new Date(stats.lastUpdated).toLocaleDateString()}</p>
+                        <p style="margin: 0; font-weight: 600; color: #1e40af;">📊 Knowledge Base:</p>
+                        <p style="margin: 5px 0; color: #374151;">• ${stats.totalAPIPlayers} players (built-in FPL API data)</p>
+                        <p style="margin: 5px 0; color: #374151;">• ${stats.totalPlayers} players (community insights)</p>
+                        <p style="margin: 5px 0; color: #374151;">• ${stats.totalGeneralInfo} general insights</p>
                     `;
                     welcomeMessage.appendChild(statsDiv);
                 }
