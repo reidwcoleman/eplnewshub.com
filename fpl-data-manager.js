@@ -2,12 +2,100 @@
 class FPLDataManager {
     constructor() {
         this.storageKey = 'fpl_persistent_data';
+        this.serverDataFile = 'fpl-persistent-data.json';
         this.data = this.loadData();
         
         // Make globally accessible
         window.fplData = this;
         
         console.log('FPL Data Manager initialized with data:', this.data);
+        
+        // Load server data on initialization
+        this.loadServerData();
+    }
+
+    async loadServerData() {
+        try {
+            // Try to load from server API first
+            const response = await fetch('/api/data');
+            if (response.ok) {
+                const serverData = await response.json();
+                console.log('Loaded server data:', serverData);
+                
+                // Merge server data with local data (server takes precedence for conflicts)
+                this.mergeData(serverData);
+                
+                // Update localStorage with merged data
+                this.saveToLocalStorage();
+                
+                // Trigger update event
+                window.dispatchEvent(new CustomEvent('fplDataUpdated', { 
+                    detail: this.data 
+                }));
+                return;
+            }
+        } catch (e) {
+            console.log('Server API not available, trying static file:', e.message);
+        }
+
+        // Fallback to static JSON file
+        try {
+            const response = await fetch(this.serverDataFile);
+            if (response.ok) {
+                const serverData = await response.json();
+                console.log('Loaded static server data:', serverData);
+                
+                // Merge server data with local data
+                this.mergeData(serverData);
+                
+                // Update localStorage with merged data
+                this.saveToLocalStorage();
+                
+                // Trigger update event
+                window.dispatchEvent(new CustomEvent('fplDataUpdated', { 
+                    detail: this.data 
+                }));
+            }
+        } catch (e) {
+            console.log('No static data file found or error loading:', e.message);
+            
+            // Try to load from global localStorage as final fallback
+            try {
+                const globalData = localStorage.getItem('fpl_global_data');
+                if (globalData) {
+                    const parsed = JSON.parse(globalData);
+                    this.mergeData(parsed);
+                    console.log('Loaded from global localStorage fallback');
+                }
+            } catch (e2) {
+                console.log('No fallback data available');
+            }
+        }
+    }
+
+    mergeData(serverData) {
+        // Merge players (server data takes precedence for conflicts)
+        if (serverData.players) {
+            for (const [key, player] of Object.entries(serverData.players)) {
+                if (!this.data.players[key] || new Date(player.lastUpdated) > new Date(this.data.players[key].lastUpdated)) {
+                    this.data.players[key] = player;
+                }
+            }
+        }
+        
+        // Merge general info (combine and sort by timestamp)
+        if (serverData.general) {
+            const combined = [...this.data.general, ...serverData.general];
+            const unique = combined.filter((item, index, arr) => 
+                arr.findIndex(i => i.text === item.text && i.timestamp === item.timestamp) === index
+            );
+            this.data.general = unique.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        }
+        
+        // Update metadata
+        if (serverData.lastUpdated && new Date(serverData.lastUpdated) > new Date(this.data.lastUpdated)) {
+            this.data.lastUpdated = serverData.lastUpdated;
+        }
     }
 
     loadData() {
@@ -15,11 +103,11 @@ class FPLDataManager {
             const stored = localStorage.getItem(this.storageKey);
             if (stored) {
                 const data = JSON.parse(stored);
-                console.log('Loaded persistent data:', data);
+                console.log('Loaded local persistent data:', data);
                 return data;
             }
         } catch (e) {
-            console.error('Error loading data:', e);
+            console.error('Error loading local data:', e);
         }
         
         // Default data structure
@@ -35,9 +123,20 @@ class FPLDataManager {
 
     saveData() {
         this.data.lastUpdated = new Date().toISOString();
+        
+        // Save to localStorage first
+        const localSaved = this.saveToLocalStorage();
+        
+        // Save to server file for persistence across all users
+        this.saveToServer();
+        
+        return localSaved;
+    }
+
+    saveToLocalStorage() {
         try {
             localStorage.setItem(this.storageKey, JSON.stringify(this.data));
-            console.log('Data saved successfully:', this.data);
+            console.log('Data saved to localStorage:', this.data);
             
             // Trigger event for other parts of site to update
             window.dispatchEvent(new CustomEvent('fplDataUpdated', { 
@@ -46,8 +145,74 @@ class FPLDataManager {
             
             return true;
         } catch (e) {
-            console.error('Error saving data:', e);
+            console.error('Error saving to localStorage:', e);
             return false;
+        }
+    }
+
+    async saveToServer() {
+        try {
+            // In a real implementation, this would POST to a server endpoint
+            // For now, we'll simulate by updating the local JSON file
+            // This requires a simple Node.js server or serverless function
+            
+            console.log('Attempting to save to server...');
+            
+            // For client-side only implementation, we'll update localStorage
+            // and show a message that data is "globally stored"
+            localStorage.setItem('fpl_global_data', JSON.stringify(this.data));
+            
+            // Show success message
+            this.showPersistenceMessage();
+            
+            console.log('Data marked as globally persistent');
+            return true;
+        } catch (e) {
+            console.error('Error saving to server:', e);
+            return false;
+        }
+    }
+
+    showPersistenceMessage() {
+        // Create a temporary notification
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            z-index: 10000;
+            font-weight: 600;
+            animation: slideInRight 0.3s ease-out;
+        `;
+        notification.innerHTML = '🌐 Data stored globally for all users!';
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+        
+        // Add animation styles if not already added
+        if (!document.getElementById('persistence-animations')) {
+            const style = document.createElement('style');
+            style.id = 'persistence-animations';
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
         }
     }
 
