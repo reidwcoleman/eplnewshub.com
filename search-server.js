@@ -87,7 +87,7 @@ async function getGoogleSearchUrls(query) {
         
         // Method 1: Try Startpage (uses Google results)
         try {
-            const searchQuery = encodeURIComponent(`Fantasy Premier League ${query}`);
+            const searchQuery = encodeURIComponent(query); // Use exact user query
             const startpageUrl = `https://www.startpage.com/sp/search?query=${searchQuery}`;
             
             console.log(`🌐 Searching Startpage (Google proxy): ${startpageUrl}`);
@@ -112,7 +112,7 @@ async function getGoogleSearchUrls(query) {
         
         // Method 2: Try DuckDuckGo with better parsing
         try {
-            const searchQuery = encodeURIComponent(`Fantasy Premier League ${query}`);
+            const searchQuery = encodeURIComponent(query); // Use exact user query
             const duckUrl = `https://duckduckgo.com/html/?q=${searchQuery}`;
             
             console.log(`🌐 Searching DuckDuckGo: ${duckUrl}`);
@@ -230,13 +230,12 @@ function parseSearchResultUrls(html) {
                     }
                 }
                 
-                // Filter for valid, relevant URLs
+                // Filter for valid URLs (accept any legitimate website)
                 if (url && url.startsWith('http') && 
                     !url.includes('duckduckgo.com') && 
                     !url.includes('startpage.com') &&
-                    !url.includes('wikipedia.org') &&
-                    (url.includes('fantasy') || url.includes('fpl') || url.includes('premier') || 
-                     url.includes('skysports') || url.includes('bbc') || url.includes('goal'))) {
+                    !url.includes('google.com') &&
+                    !url.includes('bing.com')) {
                     
                     if (!urls.includes(url)) {
                         urls.push(url);
