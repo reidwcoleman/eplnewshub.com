@@ -525,6 +525,7 @@
     <script defer src="./fpl-html-data-service.js"></script>
     <script defer src="https://js.stripe.com/v3/"></script>
     <script defer src="/membership-popup.js"></script>
+    <script src="fpl-data-manager.js"></script>
     <script defer src="fpl-ai-assistant-intelligent.js"></script>
     <script defer src="fpl-ai-training-system.js"></script>
 </head>
@@ -894,47 +895,54 @@
         }
         
         function generateAIResponse(message) {
-            // Load fresh data from localStorage
-            loadPlayerData();
-            
             const lowerMessage = message.toLowerCase();
             
-            // Check if asking about a specific player first
-            for (const [playerKey, data] of Object.entries(playerData)) {
-                if (playerKey === '_general') continue;
+            // Check if asking about a specific player first using global data
+            const foundPlayer = window.fplDataManager.findPlayerInText(message);
+            if (foundPlayer) {
+                let response = `<strong>${foundPlayer.name}</strong><br><br>`;
                 
-                if (lowerMessage.includes(playerKey.toLowerCase())) {
-                    let response = `<strong>${data.name}</strong><br><br>`;
+                if (foundPlayer.info && foundPlayer.info.length > 0) {
+                    response += `📝 <strong>What I know about ${foundPlayer.name}:</strong><br>`;
+                    foundPlayer.info.slice(-3).forEach(item => {
+                        response += `• ${item.text}<br>`;
+                    });
                     
-                    if (data.info && data.info.length > 0) {
-                        response += `📝 <strong>What I know:</strong><br>`;
-                        data.info.slice(-3).forEach(item => {
-                            response += `• ${item.text}<br>`;
-                        });
-                        response += `<br>💡 This is based on what you've told me!`;
-                    } else {
-                        response += `I don't have any specific information about ${data.name} yet. Feed me some data about them!`;
+                    // Add stats if available
+                    if (foundPlayer.stats) {
+                        response += `<br><strong>📊 Latest Stats:</strong><br>`;
+                        if (foundPlayer.stats.lastPoints) response += `• Last score: ${foundPlayer.stats.lastPoints} points<br>`;
+                        if (foundPlayer.stats.lastGoals) response += `• Goals: ${foundPlayer.stats.lastGoals}<br>`;
+                        if (foundPlayer.stats.lastAssists) response += `• Assists: ${foundPlayer.stats.lastAssists}<br>`;
+                        if (foundPlayer.stats.price) response += `• Price: £${foundPlayer.stats.price}m<br>`;
                     }
                     
-                    return response;
+                    response += `<br>💡 This is permanent data you've fed me!`;
+                } else {
+                    response += `I don't have any specific information about ${foundPlayer.name} yet. Feed me some data about them!`;
                 }
+                
+                return response;
             }
             
-            // Enhanced responses with fed data
+            // Enhanced responses with global fed data
             if (lowerMessage.includes('captain')) {
                 let response = "Based on current form and fixtures, I recommend <strong>Erling Haaland (C)</strong> and <strong>Mohamed Salah (VC)</strong> for this gameweek.";
                 
-                // Add fed information
-                if (playerData['Haaland']) {
+                // Add fed information from global storage
+                const haalandInfo = window.fplDataManager.getPlayerInfo('haaland');
+                const salahInfo = window.fplDataManager.getPlayerInfo('salah');
+                
+                if (haalandInfo && haalandInfo.info.length > 0) {
                     response += `<br><br>📝 <strong>Latest on Haaland:</strong><br>`;
-                    playerData['Haaland'].info.slice(-2).forEach(item => {
+                    haalandInfo.info.slice(-2).forEach(item => {
                         response += `• ${item.text}<br>`;
                     });
                 }
                 
-                if (playerData['Salah']) {
+                if (salahInfo && salahInfo.info.length > 0) {
                     response += `<br><br>📝 <strong>Latest on Salah:</strong><br>`;
-                    playerData['Salah'].info.slice(-2).forEach(item => {
+                    salahInfo.info.slice(-2).forEach(item => {
                         response += `• ${item.text}<br>`;
                     });
                 }
@@ -944,9 +952,10 @@
             } else if (lowerMessage.includes('transfer')) {
                 let response = "Looking at your team value and upcoming fixtures, I suggest transferring out any injured players for <strong>Cole Palmer</strong>.";
                 
-                if (playerData['Palmer']) {
+                const palmerInfo = window.fplDataManager.getPlayerInfo('palmer');
+                if (palmerInfo && palmerInfo.info.length > 0) {
                     response += `<br><br>📝 <strong>Latest on Palmer:</strong><br>`;
-                    playerData['Palmer'].info.slice(-2).forEach(item => {
+                    palmerInfo.info.slice(-2).forEach(item => {
                         response += `• ${item.text}<br>`;
                     });
                 }
@@ -956,9 +965,10 @@
             } else if (lowerMessage.includes('differential')) {
                 let response = "For a differential pick, consider <strong>Anthony Gordon</strong> (8.5% ownership).";
                 
-                if (playerData['Gordon']) {
+                const gordonInfo = window.fplDataManager.getPlayerInfo('gordon');
+                if (gordonInfo && gordonInfo.info.length > 0) {
                     response += `<br><br>📝 <strong>Latest on Gordon:</strong><br>`;
-                    playerData['Gordon'].info.slice(-2).forEach(item => {
+                    gordonInfo.info.slice(-2).forEach(item => {
                         response += `• ${item.text}<br>`;
                     });
                 }
@@ -1073,62 +1083,55 @@
         }
 
         function processFeedInfo(info) {
-            // Simple parsing and storage
+            // Use global data manager
             const player = extractPlayerName(info);
             const data = extractPlayerData(info);
             
+            let success = false;
+            const messagesDiv = document.getElementById('chatMessages');
+            
             if (player) {
-                // Store in simple format
-                if (!playerData[player]) {
-                    playerData[player] = { name: player, info: [] };
-                }
+                // Store player info globally
+                success = window.fplDataManager.addPlayerInfo(player, info, data);
                 
-                playerData[player].info.push({
-                    text: info,
-                    data: data,
-                    timestamp: new Date().toISOString()
-                });
-                
-                // Save to localStorage
-                savePlayerData();
-                
-                console.log('Stored data for', player, ':', playerData[player]);
-                
-                // Show confirmation
-                const messagesDiv = document.getElementById('chatMessages');
                 const confirmDiv = document.createElement('div');
                 confirmDiv.className = 'ai-message';
                 confirmDiv.innerHTML = `
                     <div class="message-avatar">✅</div>
                     <div class="message-content">
-                        <p><strong>Data Stored!</strong> I learned about <strong>${player}</strong></p>
+                        <p><strong>Data Stored Forever!</strong> I learned about <strong>${player}</strong></p>
                         <p>📝 ${info}</p>
-                        <p style="color: #10b981; font-size: 0.9rem;">Switch to chat mode and ask about ${player} to see this info!</p>
+                        <p style="color: #10b981; font-size: 0.9rem;">This will now appear in ALL responses about ${player} across the site!</p>
                     </div>
                 `;
                 messagesDiv.appendChild(confirmDiv);
             } else {
-                // General information
-                if (!playerData._general) {
-                    playerData._general = [];
-                }
-                playerData._general.push({
-                    text: info,
-                    timestamp: new Date().toISOString()
-                });
-                savePlayerData();
+                // Store general information globally
+                success = window.fplDataManager.addGeneralInfo(info);
                 
-                const messagesDiv = document.getElementById('chatMessages');
                 const confirmDiv = document.createElement('div');
                 confirmDiv.className = 'ai-message';
                 confirmDiv.innerHTML = `
                     <div class="message-avatar">📚</div>
                     <div class="message-content">
-                        <p><strong>General Info Stored!</strong></p>
+                        <p><strong>General Info Stored Forever!</strong></p>
                         <p>📝 ${info}</p>
+                        <p style="color: #10b981; font-size: 0.9rem;">This information is now permanently saved!</p>
                     </div>
                 `;
                 messagesDiv.appendChild(confirmDiv);
+            }
+            
+            if (!success) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'ai-message';
+                errorDiv.innerHTML = `
+                    <div class="message-avatar">❌</div>
+                    <div class="message-content">
+                        <p><strong>Storage Error!</strong> Could not save data.</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(errorDiv);
             }
             
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -1227,42 +1230,49 @@
         }
 
         function showStoredData() {
-            loadPlayerData();
             const messagesDiv = document.getElementById('chatMessages');
+            const stats = window.fplDataManager.getStats();
+            const allPlayers = window.fplDataManager.getAllPlayers();
+            const recentGeneral = window.fplDataManager.getRecentGeneralInfo(5);
             
-            let dataText = `<p><strong>🔍 My Stored Data</strong></p>`;
+            let dataText = `<p><strong>🔍 My Permanent FPL Data</strong></p>`;
             
-            const playerCount = Object.keys(playerData).filter(k => k !== '_general').length;
-            const generalCount = (playerData._general || []).length;
+            dataText += `<p><strong>📊 Data Stats:</strong></p>`;
+            dataText += `<p>• Players: ${stats.totalPlayers} stored</p>`;
+            dataText += `<p>• General Info: ${stats.totalGeneralInfo} items</p>`;
+            dataText += `<p>• Last Updated: ${new Date(stats.lastUpdated).toLocaleString()}</p><br>`;
             
-            dataText += `<p><strong>Players:</strong> ${playerCount} stored</p>`;
-            dataText += `<p><strong>General Info:</strong> ${generalCount} items</p><br>`;
-            
-            if (playerCount > 0) {
-                dataText += `<p><strong>🏃‍♂️ Player Data:</strong></p>`;
-                Object.entries(playerData).forEach(([key, data]) => {
-                    if (key === '_general') return;
-                    
-                    dataText += `<p><strong>${data.name}:</strong></p><ul>`;
-                    if (data.info && data.info.length > 0) {
-                        data.info.slice(-3).forEach(item => {
-                            dataText += `<li>${item.text}</li>`;
+            if (allPlayers.length > 0) {
+                dataText += `<p><strong>🏃‍♂️ Player Database:</strong></p>`;
+                allPlayers.forEach(player => {
+                    dataText += `<p><strong>${player.name}:</strong></p><ul>`;
+                    if (player.info && player.info.length > 0) {
+                        player.info.slice(-3).forEach(item => {
+                            const date = new Date(item.timestamp).toLocaleDateString();
+                            dataText += `<li>[${date}] ${item.text}</li>`;
                         });
                     }
                     dataText += `</ul>`;
+                    
+                    // Add delete button
+                    dataText += `<button onclick="deletePlayerData('${player.name}')" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 10px;">🗑️ Delete ${player.name}</button><br>`;
                 });
             }
             
-            if (generalCount > 0) {
-                dataText += `<p><strong>📚 General Info:</strong></p><ul>`;
-                playerData._general.slice(-5).forEach(item => {
-                    dataText += `<li>${item.text}</li>`;
+            if (recentGeneral.length > 0) {
+                dataText += `<p><strong>📚 Recent General Info:</strong></p><ul>`;
+                recentGeneral.forEach(item => {
+                    const date = new Date(item.timestamp).toLocaleDateString();
+                    dataText += `<li>[${date}] ${item.text}</li>`;
                 });
                 dataText += `</ul>`;
             }
             
-            if (playerCount === 0 && generalCount === 0) {
+            if (stats.totalPlayers === 0 && stats.totalGeneralInfo === 0) {
                 dataText += `<p style="color: #6b7280;">No data stored yet. Use Feed Data mode to add information!</p>`;
+            } else {
+                dataText += `<br><button onclick="clearAllData()" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 600;">🗑️ Clear All Data</button>`;
+                dataText += ` <button onclick="exportData()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 600; margin-left: 8px;">📤 Export Data</button>`;
             }
             
             const dataDiv = document.createElement('div');
@@ -1276,6 +1286,36 @@
             messagesDiv.appendChild(dataDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
+
+        function deletePlayerData(playerName) {
+            if (confirm(`Delete all data for ${playerName}?`)) {
+                window.fplDataManager.deletePlayer(playerName);
+                showStoredData(); // Refresh display
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('Delete ALL stored data? This cannot be undone!')) {
+                window.fplDataManager.clearAllData();
+                showStoredData(); // Refresh display
+            }
+        }
+
+        function exportData() {
+            const data = window.fplDataManager.exportData();
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fpl-data-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Make all functions global
+        window.deletePlayerData = deletePlayerData;
+        window.clearAllData = clearAllData;
+        window.exportData = exportData;
 
         // Initialize data on page load
         document.addEventListener('DOMContentLoaded', function() {
