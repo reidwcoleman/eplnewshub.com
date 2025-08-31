@@ -859,24 +859,32 @@ class FPLAITrainingSystem {
 
     // Process information fed by user
     processInformation(analysis) {
+        console.log('Training system processing:', analysis);
+        
         switch (analysis.type) {
             case 'player_update':
+                console.log('Updating player info...');
                 this.updatePlayerInfo(analysis);
                 break;
             case 'price_update':
+                console.log('Updating price info...');
                 this.updatePlayerPrice(analysis);
                 break;
             case 'injury_update':
+                console.log('Updating injury info...');
                 this.updatePlayerInjury(analysis);
                 break;
             case 'fixture_update':
+                console.log('Updating fixture info...');
                 this.updateFixtureInfo(analysis);
                 break;
             default:
+                console.log('Adding general knowledge...');
                 this.addGeneralKnowledge(analysis);
         }
         
         this.saveTrainingData();
+        console.log('Training data saved. Current data:', this.trainingData);
     }
 
     updatePlayerInfo(analysis) {

@@ -570,6 +570,7 @@
                                 <button onclick="quickQuestion('differential')">💎 Differentials</button>
                                 <button onclick="quickQuestion('wildcard')">🎯 Wildcard Strategy</button>
                                 <button onclick="toggleFeedMode()" id="feedModeBtn">📝 Feed Info</button>
+                                <button onclick="showStoredData()" style="background: #fbbf24;">🔍 Show Data</button>
                             </div>
                             <p style="margin-top: 15px; font-style: italic; color: #6b7280;">Type your question or click a suggestion above to get started!</p>
                         </div>
@@ -991,21 +992,44 @@
             // Parse and store the information
             const analysis = parseInformation(info);
             
+            // Debug: Show what was parsed
+            console.log('Processing feed info:', info);
+            console.log('Parsed analysis:', analysis);
+            
             // Add to AI knowledge
             if (window.aiTrainer) {
+                console.log('aiTrainer found, processing...');
                 window.aiTrainer.processInformation(analysis);
+                console.log('Information processed by aiTrainer');
+            } else {
+                console.error('aiTrainer not found!');
             }
             
-            // Show confirmation
+            // Show detailed confirmation
             const messagesDiv = document.getElementById('chatMessages');
             const confirmDiv = document.createElement('div');
             confirmDiv.className = 'ai-message';
+            
+            let confirmText = `<p><strong>Information Learned!</strong> ✅</p>`;
+            
+            if (analysis.player) {
+                confirmText += `<p><strong>Player:</strong> ${analysis.player}</p>`;
+            }
+            
+            if (analysis.type !== 'general') {
+                confirmText += `<p><strong>Type:</strong> ${analysis.type}</p>`;
+            }
+            
+            if (Object.keys(analysis.data).length > 0) {
+                confirmText += `<p><strong>Data:</strong> ${JSON.stringify(analysis.data)}</p>`;
+            }
+            
+            confirmText += `<p style="color: #6b7280; font-size: 0.9rem;">Try asking about this player now to see the updated information!</p>`;
+            
             confirmDiv.innerHTML = `
                 <div class="message-avatar">🧠</div>
                 <div class="message-content">
-                    <p><strong>Information Learned!</strong> ✅</p>
-                    <p>I've updated my knowledge with: ${analysis.summary}</p>
-                    <p style="color: #6b7280; font-size: 0.9rem;">This information will now influence my future responses.</p>
+                    ${confirmText}
                 </div>
             `;
             messagesDiv.appendChild(confirmDiv);
@@ -1017,14 +1041,28 @@
             const analysis = {
                 type: 'general',
                 summary: info,
-                data: {}
+                data: {},
+                player: null
             };
 
-            // Detect player information
-            const playerMatch = info.match(/(\w+(?:\s+\w+)*?)(?:\s+(?:scored|got|has|is|was))/i);
-            if (playerMatch) {
-                analysis.player = playerMatch[1].trim();
-                analysis.type = 'player_update';
+            // Better player detection - look for common player names
+            const playerNames = ['haaland', 'salah', 'palmer', 'saka', 'son', 'watkins', 'isak', 'gordon', 'cunha', 'mbeumo', 'eze', 'foden', 'bruno', 'kane', 'rashford', 'nunez', 'maddison', 'luis diaz', 'martinelli', 'jesus', 'mudryk', 'havertz', 'odegaard', 'rice', 'white', 'gabriel', 'tomiyasu', 'zinchenko', 'ramsdale', 'pickford', 'pope', 'sa', 'mendy', 'alisson', 'ederson', 'lloris'];
+            
+            for (const playerName of playerNames) {
+                if (lower.includes(playerName)) {
+                    analysis.player = playerName.charAt(0).toUpperCase() + playerName.slice(1);
+                    analysis.type = 'player_update';
+                    break;
+                }
+            }
+
+            // If no known player found, try generic detection
+            if (!analysis.player) {
+                const playerMatch = info.match(/^(\w+(?:\s+\w+)?)/i);
+                if (playerMatch && !['the', 'a', 'an', 'this', 'that', 'he', 'she', 'it', 'they'].includes(playerMatch[1].toLowerCase())) {
+                    analysis.player = playerMatch[1].trim();
+                    analysis.type = 'player_update';
+                }
             }
 
             // Detect scores/points
@@ -1040,14 +1078,14 @@
             if (assistMatch) analysis.data.assists = parseInt(assistMatch[1]);
 
             // Detect price changes
-            const priceMatch = info.match(/price.*?(\d+\.\d+)m?/i);
+            const priceMatch = info.match(/(?:price|cost).*?(\d+\.\d+)m?/i);
             if (priceMatch) {
                 analysis.data.price = parseFloat(priceMatch[1]);
                 analysis.type = 'price_update';
             }
 
             // Detect injuries
-            if (lower.includes('injured') || lower.includes('out')) {
+            if (lower.includes('injured') || lower.includes('out') || lower.includes('hurt')) {
                 analysis.type = 'injury_update';
                 analysis.data.status = 'injured';
             }
@@ -1057,7 +1095,55 @@
                 analysis.type = 'fixture_update';
             }
 
+            // Debug logging
+            console.log('Parsed information:', analysis);
+
             return analysis;
+        }
+
+        function showStoredData() {
+            if (!window.aiTrainer) {
+                alert('Training system not loaded!');
+                return;
+            }
+            
+            const data = window.aiTrainer.trainingData;
+            const messagesDiv = document.getElementById('chatMessages');
+            
+            let dataText = `<p><strong>🔍 Stored Training Data</strong></p>`;
+            
+            const playerCount = Object.keys(data.players || {}).length;
+            const generalCount = (data.general || []).length;
+            
+            dataText += `<p><strong>Players:</strong> ${playerCount} stored</p>`;
+            dataText += `<p><strong>General Info:</strong> ${generalCount} items</p>`;
+            
+            if (playerCount > 0) {
+                dataText += `<p><strong>Player Data:</strong></p><ul>`;
+                Object.entries(data.players).forEach(([key, player]) => {
+                    dataText += `<li><strong>${player.name}</strong>: ${player.notes || 'No notes'}</li>`;
+                });
+                dataText += `</ul>`;
+            }
+            
+            if (generalCount > 0) {
+                dataText += `<p><strong>General Info:</strong></p><ul>`;
+                data.general.slice(-5).forEach(item => {
+                    dataText += `<li>${item.info}</li>`;
+                });
+                dataText += `</ul>`;
+            }
+            
+            const dataDiv = document.createElement('div');
+            dataDiv.className = 'ai-message';
+            dataDiv.innerHTML = `
+                <div class="message-avatar">📊</div>
+                <div class="message-content">
+                    ${dataText}
+                </div>
+            `;
+            messagesDiv.appendChild(dataDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
     </script>
     

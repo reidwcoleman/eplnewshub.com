@@ -1199,9 +1199,12 @@ class IntelligentFPLAssistant {
     getPlayerInsight(player) {
         // Check for fed information first
         if (window.aiTrainer) {
+            console.log('Checking trained data for:', player.name);
             const trainedData = window.aiTrainer.getPlayerData(player.name);
+            console.log('Found trained data:', trainedData);
             if (trainedData && trainedData.notes) {
-                return trainedData.notes;
+                console.log('Using trained notes:', trainedData.notes);
+                return `📝 ${trainedData.notes}`;
             }
         }
         
