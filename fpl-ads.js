@@ -889,7 +889,7 @@
         insertSidebarAds();
         insertBannerAd();
         // insertFloatingAd(); // Disabled - using AI sidebar instead
-        insertBigBanner(); // Full-width banner below header (homepage only)
+        // insertBigBanner(); // Full-width banner below header (homepage only) - DISABLED
         attachAdListeners();
         rotateAds();
     }
