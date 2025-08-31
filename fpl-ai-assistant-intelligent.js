@@ -774,13 +774,13 @@ class IntelligentFPLAssistant {
     }
 
     getCaptainReasoning(player) {
-        // Always check localStorage directly
-        const trainingData = this.getTrainingDataFromStorage();
-        const playerKey = player.name.toLowerCase();
-        const trainedData = trainingData.players[playerKey];
-        
-        if (trainedData && trainedData.notes) {
-            return `📝 Latest info: ${trainedData.notes}`;
+        // Always check global data manager first
+        if (window.fplDataManager) {
+            const playerData = window.fplDataManager.getPlayerInfo(player.name);
+            if (playerData && playerData.info && playerData.info.length > 0) {
+                const latestInfo = playerData.info.slice(-1)[0].text;
+                return `📝 Latest info: ${latestInfo}`;
+            }
         }
         
         const reasons = [
@@ -794,21 +794,22 @@ class IntelligentFPLAssistant {
     }
 
     assessTransferVerdict(player) {
-        // Always check localStorage directly
-        const trainingData = this.getTrainingDataFromStorage();
-        const playerKey = player.name.toLowerCase();
-        const trainedData = trainingData.players[playerKey];
-        
+        // Always check global data manager first
         let additionalInfo = "";
-        if (trainedData && trainedData.notes) {
-            additionalInfo = ` 📝 Recent info: ${trainedData.notes}`;
-        }
-        
-        if (trainedData && trainedData.status === 'injured') {
-            return {
-                action: "AVOID - INJURED",
-                reason: `Currently injured.${additionalInfo}`
-            };
+        if (window.fplDataManager) {
+            const playerData = window.fplDataManager.getPlayerInfo(player.name);
+            if (playerData && playerData.info && playerData.info.length > 0) {
+                const latestInfo = playerData.info.slice(-1)[0].text;
+                additionalInfo = ` 📝 Recent info: ${latestInfo}`;
+                
+                // Check if info mentions injury
+                if (latestInfo.toLowerCase().includes('injured') || latestInfo.toLowerCase().includes('out')) {
+                    return {
+                        action: "AVOID - INJURED",
+                        reason: `Currently injured.${additionalInfo}`
+                    };
+                }
+            }
         }
         
         const verdicts = {
@@ -1213,17 +1214,17 @@ class IntelligentFPLAssistant {
     }
 
     getPlayerInsight(player) {
-        // Always check localStorage directly
-        const trainingData = this.getTrainingDataFromStorage();
-        const playerKey = player.name.toLowerCase();
-        const trainedData = trainingData.players[playerKey];
-        
-        console.log('Checking localStorage for:', player.name, 'Key:', playerKey);
-        console.log('Found in localStorage:', trainedData);
-        
-        if (trainedData && trainedData.notes) {
-            console.log('Using trained notes from localStorage:', trainedData.notes);
-            return `📝 ${trainedData.notes}`;
+        // Always check global data manager first
+        if (window.fplDataManager) {
+            const playerData = window.fplDataManager.getPlayerInfo(player.name);
+            console.log('Checking global data for:', player.name);
+            console.log('Found data:', playerData);
+            
+            if (playerData && playerData.info && playerData.info.length > 0) {
+                const latestInfo = playerData.info.slice(-2).map(item => item.text).join(' | ');
+                console.log('Using fed data:', latestInfo);
+                return `📝 ${latestInfo}`;
+            }
         }
         
         const insights = [
