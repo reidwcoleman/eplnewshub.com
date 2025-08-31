@@ -470,6 +470,16 @@
             margin: 0;
         }
         
+        /* Fade in animations for complex parsing */
+        .fade-in-delayed {
+            animation: fadeInDelayed 0.5s ease-out;
+        }
+        
+        @keyframes fadeInDelayed {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .main-container {
@@ -1068,14 +1078,17 @@
                 <div class="message-avatar">📝</div>
                 <div class="message-content">
                     <p><strong>Information Feed Mode Active!</strong></p>
-                    <p>You can now feed me information to update my knowledge. Examples:</p>
+                    <p>You can now feed me information to update my knowledge. I can parse both single facts and complex paragraphs!</p>
+                    
+                    <p><strong>✨ NEW: Complex Paragraph Parsing!</strong></p>
+                    <p>I can now automatically split long paragraphs and extract information about different players:</p>
+                    
                     <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>"Haaland scored 2 goals vs Brighton and got 12 points"</li>
-                        <li>"Palmer is on penalties for Chelsea now"</li>
-                        <li>"Salah is injured and out for 2 weeks"</li>
-                        <li>"Newcastle have easy fixtures for next 5 gameweeks"</li>
-                        <li>"Gordon's price rose to 7.6m last night"</li>
+                        <li><strong>Single facts:</strong> "Haaland scored 2 goals vs Brighton and got 12 points"</li>
+                        <li><strong>Complex paragraph:</strong> "Haaland scored twice and got 12 points, while Palmer is now on penalties for Chelsea and scored a penalty. Meanwhile, Salah picked up an injury and is out for 2 weeks, but Gordon's price rose to 7.6m last night due to his great form."</li>
                     </ul>
+                    
+                    <p style="font-size: 0.9rem; color: #6b7280;">I'll automatically detect all players mentioned and store each piece of information separately!</p>
                     <p style="color: #10b981; font-weight: 600;">🌐 I'll automatically learn from everything you tell me and store it GLOBALLY for ALL users on the site!</p>
                 </div>
             `;
@@ -1084,15 +1097,44 @@
         }
 
         function processFeedInfo(info) {
-            // Use global data manager
+            const messagesDiv = document.getElementById('chatMessages');
+            
+            // Check if this is a long paragraph that needs parsing
+            if (info.length > 100 || info.includes('.') || info.includes(',')) {
+                const parsedData = parseComplexInformation(info);
+                
+                if (parsedData.length > 1) {
+                    // Multiple pieces of information found
+                    const summaryDiv = document.createElement('div');
+                    summaryDiv.className = 'ai-message';
+                    summaryDiv.innerHTML = `
+                        <div class="message-avatar">🧠</div>
+                        <div class="message-content">
+                            <p><strong>🔍 Parsing Complex Information...</strong></p>
+                            <p>Found ${parsedData.length} pieces of information about different players and topics!</p>
+                        </div>
+                    `;
+                    messagesDiv.appendChild(summaryDiv);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    
+                    // Process each piece separately
+                    parsedData.forEach((item, index) => {
+                        setTimeout(() => {
+                            processSingleItem(item, index + 1, parsedData.length);
+                        }, (index + 1) * 800);
+                    });
+                    
+                    return;
+                }
+            }
+            
+            // Single piece of information - use original logic
             const player = extractPlayerName(info);
             const data = extractPlayerData(info);
             
             let success = false;
-            const messagesDiv = document.getElementById('chatMessages');
             
             if (player) {
-                // Store player info globally
                 success = window.fplDataManager.addPlayerInfo(player, info, data);
                 
                 const confirmDiv = document.createElement('div');
@@ -1107,7 +1149,6 @@
                 `;
                 messagesDiv.appendChild(confirmDiv);
             } else {
-                // Store general information globally
                 success = window.fplDataManager.addGeneralInfo(info);
                 
                 const confirmDiv = document.createElement('div');
@@ -1138,6 +1179,238 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
+        function parseComplexInformation(text) {
+            const results = [];
+            
+            // Enhanced player database with more variations
+            const playerDatabase = {
+                'haaland': ['haaland', 'erling', 'norwegian', 'city striker', 'man city forward', 'erling haaland'],
+                'salah': ['salah', 'mo', 'mohamed', 'egyptian', 'liverpool winger', 'mohamed salah', 'mo salah'],
+                'palmer': ['palmer', 'cole', 'chelsea midfielder', 'cole palmer', 'blues midfielder'],
+                'saka': ['saka', 'bukayo', 'arsenal winger', 'bukayo saka', 'gunners winger'],
+                'son': ['son', 'heung-min', 'spurs forward', 'korean', 'son heung-min', 'tottenham forward'],
+                'watkins': ['watkins', 'ollie', 'villa striker', 'aston villa', 'ollie watkins', 'villa forward'],
+                'isak': ['isak', 'alexander', 'newcastle striker', 'swedish', 'alexander isak', 'toon striker'],
+                'gordon': ['gordon', 'anthony', 'newcastle winger', 'anthony gordon', 'toon winger'],
+                'cunha': ['cunha', 'matheus', 'wolves striker', 'matheus cunha', 'wolves forward'],
+                'mbeumo': ['mbeumo', 'bryan', 'brentford winger', 'bryan mbeumo', 'bees winger'],
+                'eze': ['eze', 'eberechi', 'palace midfielder', 'crystal palace', 'eberechi eze'],
+                'foden': ['foden', 'phil', 'city midfielder', 'phil foden', 'man city mid'],
+                'bruno': ['bruno', 'fernandes', 'united midfielder', 'man united', 'bruno fernandes'],
+                'kane': ['kane', 'harry', 'bayern striker', 'england', 'harry kane', 'bayern forward'],
+                'rashford': ['rashford', 'marcus', 'united forward', 'marcus rashford', 'man united forward'],
+                'nunez': ['nunez', 'darwin', 'liverpool striker', 'darwin nunez', 'reds striker'],
+                'maddison': ['maddison', 'james', 'spurs midfielder', 'james maddison', 'tottenham mid'],
+                'martinelli': ['martinelli', 'gabriel', 'arsenal winger', 'gabriel martinelli', 'gunners winger'],
+                'jesus': ['jesus', 'gabriel', 'arsenal striker', 'gabriel jesus', 'gunners striker'],
+                'mudryk': ['mudryk', 'mykhailo', 'chelsea winger', 'mykhailo mudryk', 'blues winger'],
+                'havertz': ['havertz', 'kai', 'arsenal striker', 'kai havertz', 'gunners striker'],
+                'odegaard': ['odegaard', 'martin', 'arsenal captain', 'martin odegaard', 'gunners captain'],
+                'rice': ['rice', 'declan', 'arsenal midfielder', 'declan rice', 'gunners midfielder'],
+                'white': ['white', 'ben', 'arsenal defender', 'ben white', 'gunners defender'],
+                'gabriel': ['gabriel', 'magalhaes', 'arsenal defender', 'gabriel magalhaes', 'gunners defender'],
+                'pickford': ['pickford', 'jordan', 'everton keeper', 'jordan pickford', 'everton goalkeeper'],
+                'pope': ['pope', 'nick', 'newcastle keeper', 'nick pope', 'toon keeper'],
+                'alisson': ['alisson', 'liverpool keeper', 'brazilian', 'alisson becker', 'reds keeper'],
+                'ederson': ['ederson', 'city keeper', 'brazilian', 'ederson moraes', 'city goalkeeper'],
+                'robertson': ['robertson', 'andy', 'liverpool defender', 'andrew robertson', 'reds defender'],
+                'alexander-arnold': ['trent', 'alexander-arnold', 'taa', 'liverpool defender', 'reds defender'],
+                'van dijk': ['van dijk', 'virgil', 'liverpool defender', 'virgil van dijk', 'reds defender'],
+                'kdb': ['de bruyne', 'kevin', 'kdb', 'city midfielder', 'kevin de bruyne', 'belgian'],
+                'grealish': ['grealish', 'jack', 'city winger', 'jack grealish', 'man city winger'],
+                'mahrez': ['mahrez', 'riyad', 'city winger', 'riyad mahrez', 'algerian'],
+                'sterling': ['sterling', 'raheem', 'chelsea winger', 'raheem sterling', 'blues winger'],
+                'mount': ['mount', 'mason', 'united midfielder', 'mason mount', 'man united mid']
+            };
+            
+            // Advanced text segmentation with player-aware splitting
+            function smartSplit(text) {
+                const segments = [];
+                
+                // Find player mentions first to guide splitting
+                const playerMentions = [];
+                for (const [key, variations] of Object.entries(playerDatabase)) {
+                    for (const variation of variations) {
+                        const regex = new RegExp(`\\b${variation}\\b`, 'gi');
+                        let match;
+                        while ((match = regex.exec(text)) !== null) {
+                            playerMentions.push({
+                                player: key,
+                                start: match.index,
+                                end: match.index + match[0].length,
+                                text: match[0]
+                            });
+                        }
+                    }
+                }
+                
+                // Sort by position
+                playerMentions.sort((a, b) => a.start - b.start);
+                console.log("🏃‍♂️ Found players at positions:", playerMentions);
+                
+                // Split by transition words and punctuation, then find segments with players
+                const possibleSplits = [
+                    ...text.split(/\s*(?:while|meanwhile|but|however|also|additionally)\s+/i),
+                    ...text.split(/,\s+/),
+                    ...text.split(/\.\s+/),
+                    ...text.split(/\s+and\s+(?=\w+(?:\s+\w+)?\s+(?:scored|got|is|was|will|has|have))/i)
+                ];
+                
+                // For each possible split, check if it contains a player and useful info
+                possibleSplits.forEach(split => {
+                    const trimmed = split.replace(/^[,;.\s]+|[,;.\s]+$/g, '').trim();
+                    if (trimmed.length > 15) {
+                        // Check if this segment has a player
+                        const hasPlayer = Object.entries(playerDatabase).some(([key, variations]) => 
+                            variations.some(v => trimmed.toLowerCase().includes(v))
+                        );
+                        
+                        const hasUsefulInfo = /\d+/.test(trimmed) || 
+                                            /(injured|out|fit|penalty|captain|goal|assist|point|price|rose|fell)/i.test(trimmed);
+                        
+                        if (hasPlayer || hasUsefulInfo) {
+                            segments.push(trimmed);
+                        }
+                    }
+                });
+                
+                return segments.filter((s, i, arr) => arr.indexOf(s) === i); // Remove duplicates
+            }
+
+            const cleanSegments = smartSplit(text);
+            
+            console.log('All text segments after smart splitting:', cleanSegments);
+            
+            // Analyze each segment for player information
+            const playerResults = new Map(); // Track best result per player
+            const generalResults = [];
+            
+            cleanSegments.forEach(segment => {
+                const analysis = analyzeTextSegment(segment, playerDatabase);
+                if (analysis.isValid) {
+                    if (analysis.player) {
+                        // For player-specific info, keep the most detailed one per player
+                        const existing = playerResults.get(analysis.player);
+                        if (!existing || analysis.confidence > existing.confidence || 
+                            Object.keys(analysis.data).length > Object.keys(existing.data).length) {
+                            playerResults.set(analysis.player, analysis);
+                        }
+                    } else {
+                        // For general info, keep all unique pieces
+                        if (!generalResults.some(r => r.text === analysis.text)) {
+                            generalResults.push(analysis);
+                        }
+                    }
+                }
+            });
+            
+            // Combine player and general results
+            results.push(...playerResults.values());
+            results.push(...generalResults);
+            
+            // If no specific info found, treat entire text as general
+            if (results.length === 0) {
+                results.push({
+                    type: 'general',
+                    text: text,
+                    player: null,
+                    data: {},
+                    isValid: true,
+                    confidence: 0.5
+                });
+            }
+            
+            console.log('Parsed information results:', results);
+            return results;
+        }
+
+        function analyzeTextSegment(segment, playerDatabase) {
+            const lower = segment.toLowerCase();
+            let foundPlayer = null;
+            let playerKey = null;
+            
+            // Find player in segment
+            for (const [key, variations] of Object.entries(playerDatabase)) {
+                for (const variation of variations) {
+                    if (lower.includes(variation)) {
+                        foundPlayer = key.charAt(0).toUpperCase() + key.slice(1);
+                        playerKey = key;
+                        break;
+                    }
+                }
+                if (foundPlayer) break;
+            }
+            
+            // Extract numerical data
+            const data = extractPlayerData(segment);
+            
+            // Determine if this segment contains useful information
+            const hasUsefulInfo = foundPlayer || 
+                                segment.length > 15 || 
+                                /\d+/.test(segment) ||
+                                /(injured|out|fit|available|penalty|captain|goal|assist|point)/i.test(segment);
+            
+            return {
+                type: foundPlayer ? 'player' : 'general',
+                text: segment.trim(),
+                player: foundPlayer,
+                playerKey: playerKey,
+                data: data,
+                isValid: hasUsefulInfo,
+                confidence: calculateConfidence(segment, foundPlayer)
+            };
+        }
+
+        function calculateConfidence(segment, foundPlayer) {
+            let confidence = 0.3; // Base confidence
+            
+            if (foundPlayer) confidence += 0.4;
+            if (/\d+/.test(segment)) confidence += 0.2; // Contains numbers
+            if (/(goal|assist|point|price|injured)/i.test(segment)) confidence += 0.3;
+            if (segment.length > 20) confidence += 0.1;
+            
+            return Math.min(confidence, 1.0);
+        }
+
+        function processSingleItem(item, index, total) {
+            const messagesDiv = document.getElementById('chatMessages');
+            let success = false;
+            
+            if (item.type === 'player' && item.player) {
+                success = window.fplDataManager.addPlayerInfo(item.player, item.text, item.data);
+                
+                const confirmDiv = document.createElement('div');
+                confirmDiv.className = 'ai-message fade-in-delayed';
+                confirmDiv.innerHTML = `
+                    <div class="message-avatar">${index}</div>
+                    <div class="message-content">
+                        <p><strong>✅ ${item.player} Data Stored!</strong></p>
+                        <p>📝 ${item.text}</p>
+                        <p style="color: #10b981; font-size: 0.9rem;">🌐 Confidence: ${Math.round(item.confidence * 100)}% | Now global for all users!</p>
+                        ${index === total ? '<p style="color: #667eea; font-weight: 600;">🎉 All information processed and stored globally!</p>' : ''}
+                    </div>
+                `;
+                messagesDiv.appendChild(confirmDiv);
+            } else {
+                success = window.fplDataManager.addGeneralInfo(item.text);
+                
+                const confirmDiv = document.createElement('div');
+                confirmDiv.className = 'ai-message fade-in-delayed';
+                confirmDiv.innerHTML = `
+                    <div class="message-avatar">📚</div>
+                    <div class="message-content">
+                        <p><strong>🌐 General Info Added!</strong></p>
+                        <p>📝 ${item.text}</p>
+                        <p style="color: #10b981; font-size: 0.9rem;">✨ Now available globally for community benefit!</p>
+                        ${index === total ? '<p style="color: #667eea; font-weight: 600;">🎉 All information processed and stored globally!</p>' : ''}
+                    </div>
+                `;
+                messagesDiv.appendChild(confirmDiv);
+            }
+            
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
         function extractPlayerName(info) {
             const playerNames = ['haaland', 'salah', 'palmer', 'saka', 'son', 'watkins', 'isak', 'gordon', 'cunha', 'mbeumo', 'eze', 'foden', 'bruno', 'kane', 'rashford', 'nunez', 'maddison', 'martinelli', 'jesus', 'mudryk', 'havertz', 'odegaard', 'rice', 'white', 'gabriel', 'pickford', 'pope', 'alisson', 'ederson'];
             
@@ -1153,15 +1426,103 @@
         function extractPlayerData(info) {
             const data = {};
             
-            const pointsMatch = info.match(/(\d+)\s*points?/i);
-            if (pointsMatch) data.points = parseInt(pointsMatch[1]);
+            // Points patterns
+            const pointsPatterns = [
+                /(\d+)\s*points?/i,
+                /scored\s*(\d+)\s*points?/i,
+                /got\s*(\d+)\s*points?/i,
+                /earned\s*(\d+)\s*points?/i
+            ];
             
-            const goalMatch = info.match(/(\d+)\s*goals?/i);
-            if (goalMatch) data.goals = parseInt(goalMatch[1]);
+            for (const pattern of pointsPatterns) {
+                const match = info.match(pattern);
+                if (match) {
+                    data.points = parseInt(match[1]);
+                    break;
+                }
+            }
             
-            const assistMatch = info.match(/(\d+)\s*assists?/i);
-            if (assistMatch) data.assists = parseInt(assistMatch[1]);
+            // Goals patterns  
+            const goalPatterns = [
+                /(\d+)\s*goals?/i,
+                /scored\s*(\d+)\s*(?:goals?)?/i,
+                /netted\s*(\d+)/i,
+                /(\d+)\s*(?:goal|strike)s?/i,
+                /scored\s*twice/i, // Special case for "twice"
+                /scored\s*once/i   // Special case for "once"
+            ];
             
+            for (const pattern of goalPatterns) {
+                const match = info.match(pattern);
+                if (match) {
+                    if (info.toLowerCase().includes('twice')) {
+                        data.goals = 2;
+                    } else if (info.toLowerCase().includes('once')) {
+                        data.goals = 1;
+                    } else if (!info.toLowerCase().includes('point')) { // Avoid confusing "scored 12 points" with goals
+                        data.goals = parseInt(match[1]);
+                    }
+                    break;
+                }
+            }
+            
+            // Assists patterns
+            const assistPatterns = [
+                /(\d+)\s*assists?/i,
+                /provided\s*(\d+)\s*assists?/i,
+                /set up\s*(\d+)/i,
+                /(\d+)\s*(?:assist|setup)s?/i
+            ];
+            
+            for (const pattern of assistPatterns) {
+                const match = info.match(pattern);
+                if (match) {
+                    data.assists = parseInt(match[1]);
+                    break;
+                }
+            }
+            
+            // Price patterns
+            const pricePatterns = [
+                /(?:price|cost|value).*?£?(\d+\.\d+)m?/i,
+                /£(\d+\.\d+)m/i,
+                /(\d+\.\d+)m.*?(?:price|cost)/i,
+                /rose to\s*£?(\d+\.\d+)m?/i,
+                /fell to\s*£?(\d+\.\d+)m?/i
+            ];
+            
+            for (const pattern of pricePatterns) {
+                const match = info.match(pattern);
+                if (match) {
+                    data.price = parseFloat(match[1]);
+                    break;
+                }
+            }
+            
+            // Status patterns (injury, fitness, etc.)
+            if (/(?:injured|hurt|out|unavailable|doubt)/i.test(info)) {
+                data.status = 'injured';
+            } else if (/(?:fit|available|ready|back)/i.test(info)) {
+                data.status = 'fit';
+            }
+            
+            // Special roles (penalties, captain, etc.)
+            if (/(?:penalty|penalties|pen)/i.test(info)) {
+                data.penalties = true;
+            }
+            
+            if (/(?:captain|captaincy)/i.test(info)) {
+                data.captain = true;
+            }
+            
+            // Clean room patterns (bench, starting, rotation)
+            if (/(?:benched|bench|substitute)/i.test(info)) {
+                data.starting = false;
+            } else if (/(?:starting|first team|xi)/i.test(info)) {
+                data.starting = true;
+            }
+            
+            console.log('Extracted data from "' + info + '":', data);
             return data;
         }
 
