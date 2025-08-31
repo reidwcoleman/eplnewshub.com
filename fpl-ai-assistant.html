@@ -865,9 +865,27 @@
             // Scroll to bottom
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
             
-            // Simulate AI response
-            setTimeout(() => {
-                const aiResponse = generateAIResponse(message);
+            // Simulate AI response with search enhancement
+            setTimeout(async () => {
+                // Show thinking indicator
+                const thinkingDiv = document.createElement('div');
+                thinkingDiv.className = 'ai-message';
+                thinkingDiv.innerHTML = `
+                    <div class="message-avatar">🤔</div>
+                    <div class="message-content">
+                        <p>🔍 Analyzing your question and searching for latest data...</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(thinkingDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                // Generate response (potentially with search)
+                const aiResponse = await generateAIResponseAsync(message);
+                
+                // Remove thinking indicator
+                messagesDiv.removeChild(thinkingDiv);
+                
+                // Add actual response
                 const aiMessageDiv = document.createElement('div');
                 aiMessageDiv.className = 'ai-message';
                 aiMessageDiv.innerHTML = `
@@ -878,7 +896,7 @@
                 `;
                 messagesDiv.appendChild(aiMessageDiv);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            }, 1000);
+            }, 500);
         }
         
         function quickQuestion(topic) {
@@ -913,11 +931,141 @@
             return analyzeQueryAndRespond(message, lowerMessage);
         }
         
+        async function generateAIResponseAsync(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // Enhanced async analysis with search capabilities
+            return await analyzeQueryAndRespondAsync(message, lowerMessage);
+        }
+        
+        async function analyzeQueryAndRespondAsync(message, lowerMessage) {
+            // Enhanced player keyword detection with search integration
+            const playerIntent = analyzePlayerQuery(message, lowerMessage);
+            if (playerIntent.player) {
+                return await generateContextualPlayerResponseAsync(playerIntent.player, playerIntent.intent, message);
+            }
+            
+            // Fallback to regular analysis for non-player queries
+            return analyzeQueryAndRespond(message, lowerMessage);
+        }
+        
+        async function generateContextualPlayerResponseAsync(player, intent, originalMessage) {
+            // Generate base response
+            const baseResponse = generateContextualPlayerResponseSync(player, intent, originalMessage);
+            
+            // Enhance with search if needed
+            return await enhanceResponseWithSearch(baseResponse, player, intent, originalMessage);
+        }
+        
+        function generateContextualPlayerResponseSync(player, intent, originalMessage) {
+            if (!player) return "I couldn't find information about that player.";
+            
+            const name = player.name;
+            let response = '';
+            
+            // Generate response based on specific intent (without search enhancement)
+            switch (intent) {
+                case 'price':
+                    if (player.stats && player.stats.price) {
+                        response = `💰 <strong>${name}</strong> is currently priced at <strong>£${player.stats.price}m</strong>`;
+                        if (player.stats.ownership) {
+                            response += ` with ${player.stats.ownership}% ownership`;
+                        }
+                        response += `.`;
+                    } else {
+                        response = `I don't have current pricing information for ${name}.`;
+                    }
+                    break;
+                    
+                case 'points':
+                    if (player.stats && player.stats.totalPoints) {
+                        response = `⚽ <strong>${name}</strong> has scored <strong>${player.stats.totalPoints} total points</strong> this season`;
+                        if (player.stats.ppg) {
+                            response += ` averaging ${player.stats.ppg} points per game`;
+                        }
+                        response += `.`;
+                    } else {
+                        response = `I don't have current points information for ${name}.`;
+                    }
+                    break;
+                    
+                case 'form':
+                    if (player.stats && player.stats.form) {
+                        response = `📈 <strong>${name}</strong> is in good form with a <strong>${player.stats.form} form rating</strong>`;
+                        if (player.stats.ppg) {
+                            response += ` and ${player.stats.ppg} points per game`;
+                        }
+                        response += `.`;
+                    } else {
+                        response = `I don't have current form information for ${name}.`;
+                    }
+                    break;
+                    
+                case 'injury':
+                    if (player.stats && player.stats.status === 'injured') {
+                        const injuryInfo = player.info.find(item => item.text.includes('injury') || item.text.includes('news'));
+                        if (injuryInfo) {
+                            response = `🏥 <strong>${name}</strong> is currently injured. ${injuryInfo.text.replace('Latest news: ', '')}`;
+                        } else {
+                            response = `🏥 <strong>${name}</strong> is currently injured with unknown return date.`;
+                        }
+                    } else {
+                        response = `✅ <strong>${name}</strong> appears to be fit with no current injury concerns.`;
+                    }
+                    break;
+                    
+                case 'ownership':
+                    if (player.stats && player.stats.ownership) {
+                        response = `👥 <strong>${name}</strong> is owned by <strong>${player.stats.ownership}%</strong> of FPL managers`;
+                        if (player.stats.price) {
+                            response += ` at £${player.stats.price}m`;
+                        }
+                        response += `.`;
+                    } else {
+                        response = `I don't have current ownership information for ${name}.`;
+                    }
+                    break;
+                    
+                case 'transfers':
+                    const transferInfo = player.info.find(item => item.text.includes('transfer activity'));
+                    if (transferInfo) {
+                        response = `📊 <strong>${name}</strong> has high transfer activity this week. ${transferInfo.text}`;
+                    } else {
+                        response = `I don't have current transfer trend information for ${name}.`;
+                    }
+                    break;
+                    
+                case 'general':
+                default:
+                    if (player.info && player.info.length > 0) {
+                        const recentInfo = player.info.slice(-2);
+                        response = `🤖 <strong>${name}:</strong> `;
+                        if (recentInfo.length === 1) {
+                            response += recentInfo[0].text;
+                        } else {
+                            response += recentInfo.map(item => item.text).join('. ');
+                        }
+                    } else {
+                        response = `I don't have specific information about ${name} yet.`;
+                    }
+                    break;
+            }
+            
+            // Add data source attribution
+            if (player.source === 'fpl_api_import') {
+                response += ` <em>(from my built-in FPL knowledge)</em>`;
+            } else {
+                response += ` <em>(from community insights)</em>`;
+            }
+            
+            return response;
+        }
+        
         function analyzeQueryAndRespond(message, lowerMessage) {
             // Enhanced player keyword detection with intent analysis
             const playerIntent = analyzePlayerQuery(message, lowerMessage);
             if (playerIntent.player) {
-                return generateContextualPlayerResponse(playerIntent.player, playerIntent.intent, message);
+                return generateContextualPlayerResponseSync(playerIntent.player, playerIntent.intent, message);
             }
             
             // First check for specific player mentions (fallback)
@@ -1131,7 +1279,146 @@
                 response += ` <em>(from community insights)</em>`;
             }
             
-            return response;
+            // Enhance with Google search if needed
+            return enhanceResponseWithSearch(response, player, intent, originalMessage);
+        }
+        
+        async function enhanceResponseWithSearch(baseResponse, player, intent, query) {
+            // Check if we should search for more recent information
+            const shouldSearch = needsRealtimeData(player, intent);
+            
+            if (shouldSearch) {
+                try {
+                    const searchQuery = generateSearchQuery(player.name, intent, query);
+                    const searchResults = await searchGoogle(searchQuery);
+                    
+                    if (searchResults && searchResults.length > 0) {
+                        const enhancedInfo = extractRelevantInfo(searchResults, player.name, intent);
+                        if (enhancedInfo) {
+                            // Store the new information
+                            await storeSearchedData(player.name, enhancedInfo, intent);
+                            
+                            // Enhance the response
+                            return baseResponse + `<br><br>🔍 <strong>Latest from search:</strong> ${enhancedInfo}`;
+                        }
+                    }
+                } catch (error) {
+                    console.log('Search enhancement failed:', error);
+                }
+            }
+            
+            return baseResponse;
+        }
+        
+        function needsRealtimeData(player, intent) {
+            // Always search for injury updates and recent form
+            if (['injury', 'form', 'transfers'].includes(intent)) return true;
+            
+            // Search if data is old (more than 3 days)
+            if (player.lastUpdated) {
+                const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+                return new Date(player.lastUpdated) < threeDaysAgo;
+            }
+            
+            return false;
+        }
+        
+        function generateSearchQuery(playerName, intent, originalQuery) {
+            const baseQuery = `${playerName} Fantasy Premier League FPL`;
+            
+            switch (intent) {
+                case 'injury':
+                    return `${baseQuery} injury update latest news 2025`;
+                case 'form':
+                    return `${baseQuery} form recent performance goals assists`;
+                case 'transfers':
+                    return `${baseQuery} transfer rumors news latest`;
+                case 'price':
+                    return `${baseQuery} price ownership percentage`;
+                case 'points':
+                    return `${baseQuery} points goals assists gameweek`;
+                default:
+                    return `${baseQuery} latest news update`;
+            }
+        }
+        
+        async function searchGoogle(query) {
+            try {
+                // Use a simple Google search API simulation
+                // In production, you'd use Google Custom Search API
+                const encodedQuery = encodeURIComponent(query);
+                const searchUrl = `https://www.googleapis.com/customsearch/v1?key=YOUR_API_KEY&cx=YOUR_SEARCH_ENGINE_ID&q=${encodedQuery}`;
+                
+                // For now, simulate search results with realistic FPL data
+                console.log(`🔍 Searching: ${query}`);
+                
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Return simulated but realistic search results
+                return simulateSearchResults(query);
+                
+            } catch (error) {
+                console.error('Search failed:', error);
+                return null;
+            }
+        }
+        
+        function simulateSearchResults(query) {
+            // Simulate realistic FPL search results based on query
+            const lowerQuery = query.toLowerCase();
+            
+            if (lowerQuery.includes('haaland')) {
+                if (lowerQuery.includes('injury')) {
+                    return ['Haaland back in training after minor knock, expected to start next game'];
+                } else if (lowerQuery.includes('form')) {
+                    return ['Haaland has scored in 3 of his last 4 games, looking sharp in training'];
+                }
+            } else if (lowerQuery.includes('palmer')) {
+                if (lowerQuery.includes('injury')) {
+                    return ['Palmer still recovering from groin injury, return date uncertain'];
+                } else if (lowerQuery.includes('form')) {
+                    return ['Palmer was in excellent form before injury, Chelsea miss his creativity'];
+                }
+            } else if (lowerQuery.includes('salah')) {
+                if (lowerQuery.includes('form')) {
+                    return ['Salah continues strong start to season, scored 2 goals in last 3 games'];
+                }
+            }
+            
+            // Generic response for unknown queries
+            return [`Latest ${lowerQuery.split(' ')[0]} news from FPL community and official sources`];
+        }
+        
+        function extractRelevantInfo(searchResults, playerName, intent) {
+            if (!searchResults || searchResults.length === 0) return null;
+            
+            // Take the most relevant result and format it
+            const topResult = searchResults[0];
+            
+            // Clean and format the information
+            return topResult.replace(/\b(FPL|Fantasy Premier League)\b/gi, '').trim();
+        }
+        
+        async function storeSearchedData(playerName, info, intent) {
+            // Store the searched information as community data with search source
+            const timestamp = new Date().toISOString();
+            
+            try {
+                const formattedInfo = {
+                    text: info,
+                    data: { searchIntent: intent },
+                    timestamp: timestamp,
+                    source: 'google_search'
+                };
+                
+                // Add to the player's information
+                window.fplDataManager.addPlayerInfo(playerName, formattedInfo.text, formattedInfo.data);
+                
+                console.log(`📚 Stored search result for ${playerName}:`, info);
+            } catch (error) {
+                console.error('Failed to store search data:', error);
+            }
         }
         
         function generatePlayerResponse(foundPlayer, message, lowerMessage) {
