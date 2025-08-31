@@ -372,9 +372,9 @@
         }
         
         .search-button {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            border: none;
+            background: white;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -382,6 +382,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
             font-size: 20px;
             margin-left: 10px;
             transition: all 0.3s;
@@ -389,6 +390,18 @@
         }
         
         .search-button:hover {
+            transform: scale(1.05);
+            border-color: #d1d5db;
+        }
+        
+        .search-button.search-active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: 2px solid #10b981;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .search-button.search-active:hover {
             transform: scale(1.1);
             box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
         }
@@ -621,7 +634,7 @@
                 </div>
                 <div class="chat-input-container">
                     <input type="text" id="userInput" placeholder="Ask me anything about FPL..." class="chat-input" autocomplete="off">
-                    <button id="searchButton" onclick="sendMessageWithSearch()" class="search-button" aria-label="Search and Answer" title="Search Google for latest info">
+                    <button id="searchButton" onclick="toggleSearchMode()" class="search-button" aria-label="Activate Search Mode" title="Click to activate search mode">
                         🔍
                     </button>
                     <button id="sendButton" onclick="sendMessage()" class="send-button" aria-label="Send Message">
@@ -933,6 +946,39 @@
             }, 500);
         }
         
+        let searchModeActive = false;
+        
+        function toggleSearchMode() {
+            const searchButton = document.getElementById('searchButton');
+            const userInput = document.getElementById('userInput');
+            const sendButton = document.getElementById('sendButton');
+            
+            if (!searchModeActive) {
+                // Activate search mode
+                searchModeActive = true;
+                searchButton.classList.add('search-active');
+                searchButton.title = 'Search mode active - type your question and press Enter';
+                userInput.placeholder = 'Type your search question and press Enter...';
+                userInput.focus();
+                
+                // Update send button to use search
+                sendButton.onclick = sendMessageWithSearch;
+                
+                console.log('🔍 Search mode activated');
+            } else {
+                // Deactivate search mode
+                searchModeActive = false;
+                searchButton.classList.remove('search-active');
+                searchButton.title = 'Click to activate search mode';
+                userInput.placeholder = 'Ask me anything about FPL...';
+                
+                // Reset send button to normal message
+                sendButton.onclick = sendMessage;
+                
+                console.log('📝 Normal mode activated');
+            }
+        }
+        
         function sendMessageWithSearch() {
             console.log('🔍 Search button clicked!');
             const input = document.getElementById('userInput');
@@ -957,8 +1003,13 @@
             `;
             messagesDiv.appendChild(userMessageDiv);
             
-            // Clear input
+            // Clear input and reset search mode
             input.value = '';
+            
+            // Reset search mode after sending message
+            if (searchModeActive) {
+                toggleSearchMode();
+            }
             
             // Scroll to bottom
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -1501,12 +1552,48 @@
             try {
                 console.log(`🔍 Searching Google: ${query}`);
                 
-                // Try different search endpoints
-                let searchData = null;
-                
-                // Try the local server first
+                // Try DuckDuckGo Instant Answer API (free, no API key required)
                 try {
-                    const response = await fetch('http://localhost:3002/api/search', {
+                    const fplQuery = encodeURIComponent(`Fantasy Premier League ${query}`);
+                    const duckduckgoUrl = `https://api.duckduckgo.com/?q=${fplQuery}&format=json&no_html=1&skip_disambig=1`;
+                    
+                    const response = await fetch(duckduckgoUrl);
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('✅ Got search results from DuckDuckGo:', data);
+                        
+                        let results = [];
+                        
+                        // Extract abstract/summary
+                        if (data.Abstract) {
+                            results.push(data.Abstract);
+                        }
+                        
+                        // Extract related topics
+                        if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+                            data.RelatedTopics.slice(0, 2).forEach(topic => {
+                                if (topic.Text) {
+                                    results.push(topic.Text);
+                                }
+                            });
+                        }
+                        
+                        // Extract definition if available
+                        if (data.Definition) {
+                            results.push(data.Definition);
+                        }
+                        
+                        if (results.length > 0) {
+                            return results;
+                        }
+                    }
+                } catch (e) {
+                    console.log('DuckDuckGo API not available:', e.message);
+                }
+                
+                // Try local server as backup
+                try {
+                    const response = await fetch('http://localhost:3001/api/search', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1515,7 +1602,7 @@
                     });
                     
                     if (response.ok) {
-                        searchData = await response.json();
+                        const searchData = await response.json();
                         console.log('✅ Got search results from server:', searchData);
                         return searchData.results || [];
                     }
@@ -1523,32 +1610,12 @@
                     console.log('Local server not available:', e.message);
                 }
                 
-                // Try relative path
-                try {
-                    const response = await fetch('/api/search', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ query: query })
-                    });
-                    
-                    if (response.ok) {
-                        searchData = await response.json();
-                        console.log('✅ Got search results from relative API:', searchData);
-                        return searchData.results || [];
-                    }
-                } catch (e) {
-                    console.log('Relative API not available:', e.message);
-                }
-                
-                // Fallback to simulation with enhanced realism
+                // Enhanced simulation fallback
                 console.log('🔄 Using enhanced simulation for search');
                 return simulateSearchResults(query);
                 
             } catch (error) {
                 console.error('Search failed:', error);
-                // Fallback to simulation
                 return simulateSearchResults(query);
             }
         }
@@ -2654,15 +2721,26 @@
         
         // Add keyboard support for search
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                // Ctrl+Enter triggers search
+            if (e.key === 'Enter' && e.target.id === 'userInput') {
                 e.preventDefault();
-                sendMessageWithSearch();
+                if (searchModeActive) {
+                    // If search mode is active, send with search
+                    sendMessageWithSearch();
+                } else {
+                    // Otherwise send normal message
+                    sendMessage();
+                }
+            }
+            if (e.key === 'Enter' && e.ctrlKey) {
+                // Ctrl+Enter always triggers search mode toggle
+                e.preventDefault();
+                toggleSearchMode();
             }
         });
         
         // Make functions globally available
         window.sendMessageWithSearch = sendMessageWithSearch;
+        window.toggleSearchMode = toggleSearchMode;
         window.testSearchButton = testSearchButton;
         
         // Initialize data on page load

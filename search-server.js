@@ -47,7 +47,21 @@ app.post('/api/search', async (req, res) => {
 });
 
 async function performGoogleSearch(query) {
-    // Simulate realistic Google search results for FPL queries
+    try {
+        console.log(`🔍 Performing search: ${query}`);
+        
+        // Use server-side Google search implementation
+        // For now, return enhanced simulation with current FPL data
+        return simulateSearchResults(query);
+        
+    } catch (error) {
+        console.error('Google search failed:', error);
+        return simulateSearchResults(query);
+    }
+}
+
+function simulateSearchResults(query) {
+    // Enhanced simulation with more realistic FPL data
     const lowerQuery = query.toLowerCase();
     
     // Player-specific search results
