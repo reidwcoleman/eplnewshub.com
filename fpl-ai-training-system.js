@@ -771,7 +771,9 @@ class FPLAITrainingSystem {
     }
 
     recordFeedback(type, button) {
-        const message = button.closest('.ai-message').querySelector('.message-text').textContent;
+        const messageElement = button.closest('.ai-message').querySelector('.message-text') || 
+                             button.closest('.ai-message').querySelector('.message-content');
+        const message = messageElement ? messageElement.textContent : '';
         
         this.feedbackHistory.push({
             type: type,
@@ -787,7 +789,9 @@ class FPLAITrainingSystem {
     }
 
     correctResponse(button) {
-        const message = button.closest('.ai-message').querySelector('.message-text').textContent;
+        const messageElement = button.closest('.ai-message').querySelector('.message-text') || 
+                             button.closest('.ai-message').querySelector('.message-content');
+        const message = messageElement ? messageElement.textContent : '';
         const correction = prompt('Please provide the correct response:');
         
         if (correction) {
@@ -858,36 +862,56 @@ class FPLAITrainingSystem {
 const aiTrainer = new FPLAITrainingSystem();
 
 // Extend the main AI assistant to use training data
-if (window.fplIntelligent) {
-    const originalGenerateResponse = window.fplIntelligent.generateIntelligentResponse;
-    
-    window.fplIntelligent.generateIntelligentResponse = function(analysis, originalQuery) {
-        // Check for trained responses first
-        const trainedResponse = aiTrainer.getTrainedResponse(originalQuery);
+function extendAIWithTraining() {
+    if (window.fplIntelligent && window.fplIntelligent.generateIntelligentResponse) {
+        const originalGenerateResponse = window.fplIntelligent.generateIntelligentResponse.bind(window.fplIntelligent);
         
-        if (trainedResponse.confidence > 0.7) {
-            // Use trained response if confidence is high
-            return trainedResponse.text;
+        window.fplIntelligent.generateIntelligentResponse = function(analysis, originalQuery) {
+            // Check for trained responses first
+            const trainedResponse = aiTrainer.getTrainedResponse(originalQuery);
+            
+            if (trainedResponse.confidence > 0.7) {
+                // Use trained response if confidence is high
+                return trainedResponse.text;
+            }
+            
+            // Otherwise use original logic
+            return originalGenerateResponse(analysis, originalQuery);
+        };
+        
+        // Extend player database with trained data
+        if (window.fplIntelligent.loadKnowledgeBase) {
+            const originalLoadKnowledgeBase = window.fplIntelligent.loadKnowledgeBase.bind(window.fplIntelligent);
+            
+            window.fplIntelligent.loadKnowledgeBase = function() {
+                const baseKnowledge = originalLoadKnowledgeBase();
+                
+                // Add trained players to knowledge base
+                const trainedPlayers = aiTrainer.getAllTrainedPlayers();
+                if (trainedPlayers.length > 0) {
+                    baseKnowledge.playerDatabase.trained = trainedPlayers;
+                }
+                
+                return baseKnowledge;
+            };
         }
         
-        // Otherwise use original logic
-        return originalGenerateResponse.call(this, analysis, originalQuery);
-    };
-    
-    // Extend player database with trained data
-    const originalLoadKnowledgeBase = window.fplIntelligent.loadKnowledgeBase;
-    
-    window.fplIntelligent.loadKnowledgeBase = function() {
-        const baseKnowledge = originalLoadKnowledgeBase.call(this);
-        
-        // Add trained players to knowledge base
-        const trainedPlayers = aiTrainer.getAllTrainedPlayers();
-        if (trainedPlayers.length > 0) {
-            baseKnowledge.playerDatabase.trained = trainedPlayers;
+        console.log('AI Training System integrated successfully!');
+        return true;
+    }
+    return false;
+}
+
+// Try to extend immediately, and set up polling if not ready
+if (!extendAIWithTraining()) {
+    const checkInterval = setInterval(() => {
+        if (extendAIWithTraining()) {
+            clearInterval(checkInterval);
         }
-        
-        return baseKnowledge;
-    };
+    }, 100);
+    
+    // Stop checking after 10 seconds
+    setTimeout(() => clearInterval(checkInterval), 10000);
 }
 
 // Add notification animations

@@ -796,6 +796,13 @@
     <script>
         // AI Assistant Functionality
         function sendMessage() {
+            // Use intelligent assistant if available
+            if (window.fplIntelligent && window.fplIntelligent.processIntelligentQuery) {
+                window.fplIntelligent.processIntelligentQuery();
+                return;
+            }
+            
+            // Fallback to basic functionality
             const input = document.getElementById('userInput');
             const message = input.value.trim();
             
@@ -836,6 +843,19 @@
         }
         
         function quickQuestion(topic) {
+            // Use intelligent assistant if available
+            if (window.fplIntelligent && window.fplIntelligent.quickAction) {
+                const questions = {
+                    'captain': 'Captain advice',
+                    'transfer': 'Transfer targets', 
+                    'differential': 'Differentials',
+                    'wildcard': 'When should I use my wildcard?'
+                };
+                window.fplIntelligent.quickAction(questions[topic]);
+                return;
+            }
+            
+            // Fallback to basic functionality
             const input = document.getElementById('userInput');
             const questions = {
                 'captain': 'Who should I captain this gameweek?',
@@ -848,6 +868,25 @@
         }
         
         function generateAIResponse(message) {
+            // Check if intelligent assistant is available
+            if (window.fplIntelligent && window.fplIntelligent.performDeepAnalysis) {
+                try {
+                    const analysis = window.fplIntelligent.performDeepAnalysis(message);
+                    return window.fplIntelligent.generateIntelligentResponse(analysis, message);
+                } catch (e) {
+                    console.warn('Intelligent AI failed, falling back to basic responses:', e);
+                }
+            }
+            
+            // Check for trained responses first
+            if (window.aiTrainer) {
+                const trainedResponse = window.aiTrainer.getTrainedResponse(message);
+                if (trainedResponse.confidence > 0.5) {
+                    return trainedResponse.text;
+                }
+            }
+            
+            // Fallback to basic responses
             const lowerMessage = message.toLowerCase();
             
             if (lowerMessage.includes('captain')) {

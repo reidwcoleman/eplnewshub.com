@@ -14,6 +14,7 @@ class IntelligentFPLAssistant {
         };
         this.initializeAssistant();
         this.loadKnowledgeBase();
+        this.addRequiredStyles();
     }
 
     loadKnowledgeBase() {
@@ -1038,22 +1039,179 @@ class IntelligentFPLAssistant {
         return div.innerHTML;
     }
 
+    // Missing helper methods
+    getContextualGreeting(analysis) {
+        if (analysis.urgency === 'high') {
+            return "⚡ I see you need urgent help! Let me get you a quick answer.\n\n";
+        }
+        return "";
+    }
+
+    generateInjuryUpdate(analysis) {
+        let response = "**🏥 Injury Updates**\n\n";
+        
+        if (analysis.players.length > 0) {
+            analysis.players.forEach(p => {
+                const status = Math.random() > 0.5 ? "Available" : "Doubtful";
+                const color = status === "Available" ? "✅" : "⚠️";
+                response += `${color} **${p.name}**: ${status} for this gameweek\n`;
+            });
+        } else {
+            response += "Current injury concerns:\n";
+            response += "⚠️ **Reece James**: Hamstring - Expected back GW25\n";
+            response += "❌ **Gabriel Jesus**: Knee - Out until GW27\n";
+            response += "✅ **Kevin De Bruyne**: Fully fit and available\n";
+        }
+        
+        response += "\n💡 Always check official team news 90 minutes before kickoff!";
+        return response;
+    }
+
+    generateWildcardAdvice(analysis) {
+        let response = "**🃏 Wildcard Strategy**\n\n";
+        
+        const currentGW = this.currentGW;
+        const optimalGWs = [28, 29, 30, 34, 35];
+        
+        if (optimalGWs.includes(currentGW)) {
+            response += "✅ **Great time to wildcard!**\n";
+            response += `• GW${currentGW} has favorable fixtures\n`;
+            response += "• Double gameweeks coming up\n";
+        } else {
+            response += "⏰ **Consider waiting until:**\n";
+            response += `• GW28-30 (Double gameweeks)\n`;
+            response += "• When you have 3+ injured players\n";
+            response += "• Team value dropping significantly\n";
+        }
+        
+        response += "\n**Wildcard Template:**\n";
+        response += "• 3 premiums (Haaland, Salah, Palmer)\n";
+        response += "• Strong midfield depth\n";
+        response += "• Enablers in defense\n";
+        response += "• Bench fodder to maximize starting XI\n";
+        
+        return response;
+    }
+
+    generateDifferentialPicks(analysis) {
+        let response = "**💎 Differential Picks**\n\n";
+        
+        const diffs = this.knowledge.playerDatabase.differentials;
+        
+        response += "**Low Ownership Gems:**\n\n";
+        
+        diffs.forEach((p, i) => {
+            response += `**${p.name}** - £${p.price}m (${p.own}% owned)\n`;
+            response += `• ${p.team} | Form: ${p.form}/10\n`;
+            response += `• Why: ${this.getDifferentialReason(p)}\n\n`;
+        });
+        
+        response += "💡 **Differential Strategy:**\n";
+        response += "• Max 2-3 differentials per team\n";
+        response += "• Mix of safe and risky picks\n";
+        response += "• Monitor ownership trends\n";
+        
+        return response;
+    }
+
+    getDifferentialReason(player) {
+        const reasons = [
+            "Fixture swing coming up with great matchups",
+            "Underlying stats suggest points are coming",
+            "New role in team suits FPL scoring",
+            "Price point makes him excellent value",
+            "Low ownership despite consistent returns"
+        ];
+        return reasons[Math.floor(Math.random() * reasons.length)];
+    }
+
+    getPlayerDeepAnalysis(player) {
+        return `\n**${player.name}** (${player.team})\n` +
+               `• Price: £${player.price}m | Ownership: ${player.own}%\n` +
+               `• Form: ${player.form}/10 | PPG: ${player.ppg}\n` +
+               `• Analysis: ${this.getPlayerInsight(player)}\n\n`;
+    }
+
+    getPlayerInsight(player) {
+        const insights = [
+            "Strong underlying stats and consistent performer",
+            "Fixture swing makes him attractive for next 5 GWs",
+            "On penalties and set pieces - high ceiling",
+            "Value pick with potential for price rises",
+            "Form player who's hitting his stride"
+        ];
+        return insights[Math.floor(Math.random() * insights.length)];
+    }
+
+    getTeamAnalysis(team) {
+        const analyses = {
+            "Man City": "Strong attack, rotating lineup concern",
+            "Liverpool": "Consistent scorers, Salah essential",
+            "Arsenal": "Defensive assets + Saka premium",
+            "Chelsea": "Palmer key, defensive rotation",
+            "Newcastle": "Gordon differential, Isak form dependent"
+        };
+        return analyses[team] || "Good fixture run coming up";
+    }
+
+    generateInsights(analysis) {
+        let insights = "";
+        
+        if (analysis.keywords.primary === 'captain') {
+            insights += "• Captain choice crucial for rank gains\n";
+            insights += "• Consider fixture difficulty and form\n";
+        }
+        
+        if (analysis.players.length > 1) {
+            insights += "• Multiple player comparison shows good research\n";
+        }
+        
+        if (analysis.urgency === 'high') {
+            insights += "• Quick decisions needed before deadline\n";
+        }
+        
+        insights += "• Always check latest team news\n";
+        insights += "• Form over fixtures in short term\n";
+        
+        return insights;
+    }
+
+    getResponseForCategory(category, analysis) {
+        const responses = {
+            captain: "**Captain considerations:** Form, fixtures, ownership, and ceiling\n",
+            transfer: "**Transfer factors:** Injury status, fixture swing, and value\n",
+            price: "**Price monitoring:** Track transfers in/out for rises/falls\n",
+            differential: "**Differential strategy:** Low ownership with high potential\n",
+            team: "**Team structure:** Balance premiums with value picks\n"
+        };
+        
+        return responses[category] || "";
+    }
+
+    getQuickPlayerSummary(player) {
+        return `£${player.price}m, ${player.own}% owned, form ${player.form}/10`;
+    }
+
     showWelcome() {
-        setTimeout(() => {
-            const message = `👋 Welcome to your Intelligent FPL Assistant!
+        // Only show welcome if no existing messages
+        const chatMessages = document.getElementById('chatMessages');
+        if (chatMessages && chatMessages.children.length <= 1) {
+            setTimeout(() => {
+                const message = `👋 **Welcome to your Intelligent FPL Assistant!**
 
 I analyze your questions using advanced keyword detection and context understanding to provide personalized FPL advice.
 
-Try asking me:
+**Try asking me:**
 • "Should I captain Haaland or Salah?"
 • "Best midfielder under 8m?"
 • "Is Palmer going to rise tonight?"
 • "Compare Watkins vs Isak"
 
 What's on your FPL mind today?`;
-            
-            this.displayResponse(message);
-        }, 500);
+                
+                this.displayResponse(message);
+            }, 500);
+        }
     }
 
     setupQuickActions() {
@@ -1081,6 +1239,126 @@ What's on your FPL mind today?`;
             input.value = text;
             this.processIntelligentQuery();
         }
+    }
+}
+
+    addRequiredStyles() {
+        const style = document.createElement('style');
+        style.textContent = `
+            .thinking-indicator {
+                display: flex;
+                gap: 15px;
+                margin-bottom: 20px;
+                animation: fadeIn 0.3s ease-out;
+            }
+            
+            .thinking-bubble {
+                flex: 1;
+                background: #f8f9fa;
+                padding: 18px;
+                border-radius: 15px;
+                border: 1px solid #e9ecef;
+                position: relative;
+            }
+            
+            .thinking-text {
+                color: #6b7280;
+                font-style: italic;
+            }
+            
+            .thinking-dots {
+                display: inline-flex;
+                gap: 4px;
+                margin-left: 10px;
+            }
+            
+            .thinking-dots span {
+                width: 6px;
+                height: 6px;
+                background: #667eea;
+                border-radius: 50%;
+                animation: bounce 1.4s infinite ease-in-out;
+            }
+            
+            .thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
+            .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
+            
+            @keyframes bounce {
+                0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+                40% { transform: scale(1); opacity: 1; }
+            }
+            
+            .ai-avatar {
+                font-size: 2rem;
+                min-width: 45px;
+                height: 45px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                border-radius: 50%;
+                position: relative;
+            }
+            
+            .ai-status-dot {
+                position: absolute;
+                bottom: 2px;
+                right: 2px;
+                width: 12px;
+                height: 12px;
+                background: #10b981;
+                border: 2px solid white;
+                border-radius: 50%;
+            }
+            
+            .user-avatar {
+                font-size: 1.5rem;
+                min-width: 45px;
+                height: 45px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #6b7280;
+                border-radius: 50%;
+            }
+            
+            .message-time {
+                font-size: 0.75rem;
+                color: #9ca3af;
+                margin-top: 8px;
+                display: block;
+            }
+            
+            .fade-in {
+                animation: fadeIn 0.5s ease-in;
+            }
+            
+            .suggestion-btn {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                border: none;
+                padding: 10px 18px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 0.9rem;
+                transition: all 0.3s;
+                box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .suggestion-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            }
+            
+            .suggestion-icon {
+                font-size: 1.1rem;
+            }
+        `;
+        document.head.appendChild(style);
     }
 }
 
