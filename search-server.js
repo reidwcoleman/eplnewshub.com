@@ -52,23 +52,166 @@ app.post('/api/search', async (req, res) => {
 
 async function performGoogleSearch(query) {
     try {
-        console.log(`🔍 Performing real web search and content extraction: ${query}`);
+        console.log(`🔍 Performing Google search and clicking into first result: ${query}`);
         
-        // First, try to get real search results and then fetch content
-        const searchResults = await getRealSearchResults(query);
+        // Step 1: Perform actual Google search to get result URLs
+        const searchResultUrls = await getGoogleSearchUrls(query);
         
-        if (searchResults.length > 0) {
-            console.log('✅ Got real search results, now fetching content...');
-            return searchResults;
+        if (searchResultUrls.length > 0) {
+            console.log(`✅ Found ${searchResultUrls.length} search results, visiting first result...`);
+            
+            // Step 2: Visit the first search result and extract answer
+            const answer = await extractAnswerFromUrl(searchResultUrls[0], query);
+            
+            if (answer) {
+                return [answer];
+            }
         }
         
-        // Enhanced simulation fallback
-        console.log('🔄 Using enhanced search simulation with realistic sources');
+        // Fallback to enhanced search
+        console.log('🔄 Using enhanced search simulation');
         return getEnhancedSearchResults(query);
         
     } catch (error) {
         console.error('Google search failed:', error);
         return getEnhancedSearchResults(query);
+    }
+}
+
+async function getGoogleSearchUrls(query) {
+    try {
+        // Use DuckDuckGo as Google alternative (easier to parse)
+        const searchQuery = encodeURIComponent(`Fantasy Premier League ${query}`);
+        const searchUrl = `https://duckduckgo.com/html/?q=${searchQuery}`;
+        
+        console.log(`🌐 Searching DuckDuckGo: ${searchUrl}`);
+        
+        const response = await fetch(searchUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        });
+        
+        if (response.ok) {
+            const html = await response.text();
+            return parseSearchResultUrls(html);
+        }
+        
+    } catch (error) {
+        console.log('Search URL extraction failed:', error.message);
+    }
+    
+    return [];
+}
+
+function parseSearchResultUrls(html) {
+    try {
+        // Extract URLs from search results
+        const urlPattern = /<a[^>]*class="result__a"[^>]*href="([^"]+)"/g;
+        const urls = [];
+        let match;
+        
+        while ((match = urlPattern.exec(html)) !== null && urls.length < 3) {
+            let url = match[1];
+            // Clean up the URL
+            if (url.startsWith('//duckduckgo.com/l/?uddg=')) {
+                // Extract the actual URL from DuckDuckGo redirect
+                const urlParams = new URLSearchParams(url.split('?')[1]);
+                url = decodeURIComponent(urlParams.get('uddg') || '');
+            }
+            
+            if (url && url.startsWith('http') && !url.includes('duckduckgo.com')) {
+                urls.push(url);
+                console.log(`📎 Found search result: ${url}`);
+            }
+        }
+        
+        return urls;
+    } catch (error) {
+        console.error('URL parsing failed:', error);
+        return [];
+    }
+}
+
+async function extractAnswerFromUrl(url, query) {
+    try {
+        console.log(`🌐 Visiting search result: ${url}`);
+        
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'text/html,application/xhtml+xml'
+            },
+            timeout: 10000
+        });
+        
+        if (response.ok) {
+            const html = await response.text();
+            const siteName = url.split('/')[2].replace('www.', '');
+            
+            console.log(`📄 Extracting answer from ${siteName}...`);
+            
+            // Extract relevant content that answers the query
+            const answer = findAnswerInContent(html, query);
+            
+            if (answer) {
+                return `${siteName.toUpperCase()}: ${answer}`;
+            }
+        }
+        
+    } catch (error) {
+        console.log(`❌ Failed to extract from ${url}:`, error.message);
+    }
+    
+    return null;
+}
+
+function findAnswerInContent(html, query) {
+    try {
+        const lowerQuery = query.toLowerCase();
+        
+        // Clean HTML and extract text content
+        let text = html.replace(/<script[^>]*>.*?<\/script>/gis, '');
+        text = text.replace(/<style[^>]*>.*?<\/style>/gis, '');
+        text = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
+        
+        // Split into sentences and find the most relevant one
+        const sentences = text.split(/[.!?]+/);
+        
+        // Look for sentences that contain query keywords
+        const queryWords = lowerQuery.split(' ');
+        let bestMatch = '';
+        let bestScore = 0;
+        
+        for (const sentence of sentences) {
+            const lowerSentence = sentence.toLowerCase();
+            let score = 0;
+            
+            // Score based on how many query words are present
+            for (const word of queryWords) {
+                if (word.length > 2 && lowerSentence.includes(word)) {
+                    score++;
+                }
+            }
+            
+            // Bonus for FPL-specific terms
+            if (lowerSentence.includes('fantasy') || lowerSentence.includes('fpl') || 
+                lowerSentence.includes('gameweek') || lowerSentence.includes('free hit')) {
+                score += 2;
+            }
+            
+            // Prefer sentences of reasonable length
+            if (sentence.length > 50 && sentence.length < 300 && score > bestScore) {
+                bestScore = score;
+                bestMatch = sentence.trim();
+            }
+        }
+        
+        return bestMatch || null;
+        
+    } catch (error) {
+        console.error('Content parsing failed:', error);
+        return null;
     }
 }
 
