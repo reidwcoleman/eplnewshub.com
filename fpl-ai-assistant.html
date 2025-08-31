@@ -568,9 +568,8 @@
                                 <button onclick="quickQuestion('captain')">⚡ Captain Picks</button>
                                 <button onclick="quickQuestion('transfer')">🔄 Transfer Advice</button>
                                 <button onclick="quickQuestion('differential')">💎 Differentials</button>
-                                <button onclick="quickQuestion('wildcard')">🎯 Wildcard Strategy</button>
-                                <button onclick="toggleFeedMode()" id="feedModeBtn">📝 Feed Info</button>
-                                <button onclick="showStoredData()" style="background: #fbbf24;">🔍 Show Data</button>
+                                <button onclick="toggleFeedMode()" id="feedModeBtn">📝 Feed Data</button>
+                                <button onclick="showStoredData()" id="showDataBtn">🔍 My Data</button>
                             </div>
                             <p style="margin-top: 15px; font-style: italic; color: #6b7280;">Type your question or click a suggestion above to get started!</p>
                         </div>
@@ -895,111 +894,86 @@
         }
         
         function generateAIResponse(message) {
-            // Always check localStorage for fed data first
-            const trainingData = getTrainingDataFromStorage();
-            console.log('Training data from localStorage:', trainingData);
+            // Load fresh data from localStorage
+            loadPlayerData();
             
-            // Check if intelligent assistant is available
-            if (window.fplIntelligent && window.fplIntelligent.performDeepAnalysis) {
-                try {
-                    const analysis = window.fplIntelligent.performDeepAnalysis(message);
-                    return window.fplIntelligent.generateIntelligentResponse(analysis, message);
-                } catch (e) {
-                    console.warn('Intelligent AI failed, falling back to basic responses:', e);
-                }
-            }
-            
-            // Check for trained responses first
-            if (window.aiTrainer) {
-                const trainedResponse = window.aiTrainer.getTrainedResponse(message);
-                if (trainedResponse.confidence > 0.5) {
-                    return trainedResponse.text;
-                }
-            }
-            
-            // Enhanced fallback responses with localStorage data
             const lowerMessage = message.toLowerCase();
-            let response = "";
             
-            if (lowerMessage.includes('captain')) {
-                response = "Based on current form and fixtures, I recommend <strong>Erling Haaland (C)</strong> and <strong>Mohamed Salah (VC)</strong> for this gameweek.";
+            // Check if asking about a specific player first
+            for (const [playerKey, data] of Object.entries(playerData)) {
+                if (playerKey === '_general') continue;
                 
-                // Add fed information if available
-                const haalandInfo = getPlayerInfoFromStorage('haaland');
-                const salahInfo = getPlayerInfoFromStorage('salah');
-                
-                if (haalandInfo) {
-                    response += `<br><br>📝 <strong>Latest on Haaland:</strong> ${haalandInfo}`;
+                if (lowerMessage.includes(playerKey.toLowerCase())) {
+                    let response = `<strong>${data.name}</strong><br><br>`;
+                    
+                    if (data.info && data.info.length > 0) {
+                        response += `📝 <strong>What I know:</strong><br>`;
+                        data.info.slice(-3).forEach(item => {
+                            response += `• ${item.text}<br>`;
+                        });
+                        response += `<br>💡 This is based on what you've told me!`;
+                    } else {
+                        response += `I don't have any specific information about ${data.name} yet. Feed me some data about them!`;
+                    }
+                    
+                    return response;
                 }
-                if (salahInfo) {
-                    response += `<br><br>📝 <strong>Latest on Salah:</strong> ${salahInfo}`;
+            }
+            
+            // Enhanced responses with fed data
+            if (lowerMessage.includes('captain')) {
+                let response = "Based on current form and fixtures, I recommend <strong>Erling Haaland (C)</strong> and <strong>Mohamed Salah (VC)</strong> for this gameweek.";
+                
+                // Add fed information
+                if (playerData['Haaland']) {
+                    response += `<br><br>📝 <strong>Latest on Haaland:</strong><br>`;
+                    playerData['Haaland'].info.slice(-2).forEach(item => {
+                        response += `• ${item.text}<br>`;
+                    });
+                }
+                
+                if (playerData['Salah']) {
+                    response += `<br><br>📝 <strong>Latest on Salah:</strong><br>`;
+                    playerData['Salah'].info.slice(-2).forEach(item => {
+                        response += `• ${item.text}<br>`;
+                    });
                 }
                 
                 return response;
                 
             } else if (lowerMessage.includes('transfer')) {
-                response = "Looking at your team value and upcoming fixtures, I suggest transferring out any injured players for <strong>Cole Palmer</strong>.";
+                let response = "Looking at your team value and upcoming fixtures, I suggest transferring out any injured players for <strong>Cole Palmer</strong>.";
                 
-                const palmerInfo = getPlayerInfoFromStorage('palmer');
-                if (palmerInfo) {
-                    response += `<br><br>📝 <strong>Latest on Palmer:</strong> ${palmerInfo}`;
+                if (playerData['Palmer']) {
+                    response += `<br><br>📝 <strong>Latest on Palmer:</strong><br>`;
+                    playerData['Palmer'].info.slice(-2).forEach(item => {
+                        response += `• ${item.text}<br>`;
+                    });
                 }
                 
                 return response;
                 
             } else if (lowerMessage.includes('differential')) {
-                response = "For a differential pick, consider <strong>Anthony Gordon</strong> (8.5% ownership).";
+                let response = "For a differential pick, consider <strong>Anthony Gordon</strong> (8.5% ownership).";
                 
-                const gordonInfo = getPlayerInfoFromStorage('gordon');
-                if (gordonInfo) {
-                    response += `<br><br>📝 <strong>Latest on Gordon:</strong> ${gordonInfo}`;
+                if (playerData['Gordon']) {
+                    response += `<br><br>📝 <strong>Latest on Gordon:</strong><br>`;
+                    playerData['Gordon'].info.slice(-2).forEach(item => {
+                        response += `• ${item.text}<br>`;
+                    });
                 }
                 
                 return response;
                 
             } else if (lowerMessage.includes('wildcard')) {
-                return "The optimal time for your wildcard would be <strong>GW28-30</strong> when there are multiple double gameweeks. Build a team targeting those fixtures. Also consider using it if your team value is dropping or you have 3+ long-term injuries.";
+                return "The optimal time for your wildcard would be <strong>GW28-30</strong> when there are multiple double gameweeks. Build a team targeting those fixtures.";
             } else if (lowerMessage.includes('team')) {
-                return "I'd be happy to analyze your team! Please share your current squad or Team ID, and I'll provide personalized recommendations for transfers, captaincy, and formation changes.";
+                return "I'd be happy to analyze your team! Please share your current squad or Team ID, and I'll provide personalized recommendations.";
             } else if (lowerMessage.includes('chip')) {
-                return "For chip strategy: <strong>Triple Captain</strong> - Use in a double gameweek on premium assets. <strong>Bench Boost</strong> - GW37 typically best. <strong>Free Hit</strong> - Save for blank gameweeks or emergencies.";
+                return "For chip strategy: <strong>Triple Captain</strong> - Use in a double gameweek on premium assets. <strong>Bench Boost</strong> - GW37 typically best.";
             } else {
-                // Check if asking about a specific player
-                const playerInfo = findPlayerInMessage(message, trainingData);
-                if (playerInfo) {
-                    return `<strong>${playerInfo.name}</strong><br><br>📝 <strong>What I know:</strong> ${playerInfo.notes}<br><br>💡 Ask me for specific advice about this player!`;
-                }
-                
-                return "I can help you with transfer advice, captain picks, differentials, wildcard timing, and team strategy. What specific aspect of your FPL team would you like to improve? Feel free to ask about any player or tactical decision!";
+                return "I can help you with transfer advice, captain picks, differentials, wildcard timing, and team strategy. What would you like to know?";
             }
-        }
-
-        function getTrainingDataFromStorage() {
-            try {
-                const data = localStorage.getItem('fpl_ai_training_data');
-                return data ? JSON.parse(data) : { players: {}, general: [] };
-            } catch (e) {
-                console.error('Error loading training data:', e);
-                return { players: {}, general: [] };
-            }
-        }
-
-        function getPlayerInfoFromStorage(playerName) {
-            const trainingData = getTrainingDataFromStorage();
-            const player = trainingData.players[playerName.toLowerCase()];
-            return player ? player.notes : null;
-        }
-
-        function findPlayerInMessage(message, trainingData) {
-            const lower = message.toLowerCase();
-            
-            for (const [key, player] of Object.entries(trainingData.players || {})) {
-                if (lower.includes(key) || lower.includes(player.name.toLowerCase())) {
-                    return player;
-                }
-            }
-            
-            return null;
         }
         
         // Enter key to send
@@ -1014,8 +988,24 @@
             document.getElementById('ai-assistant').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Information feeding system
+        // Simple data storage
+        let playerData = {};
         let feedMode = false;
+
+        // Load data on page load
+        function loadPlayerData() {
+            const stored = localStorage.getItem('fpl_player_data');
+            if (stored) {
+                playerData = JSON.parse(stored);
+                console.log('Loaded player data:', playerData);
+            }
+        }
+
+        // Save data to localStorage
+        function savePlayerData() {
+            localStorage.setItem('fpl_player_data', JSON.stringify(playerData));
+            console.log('Saved player data:', playerData);
+        }
 
         function toggleFeedMode() {
             feedMode = !feedMode;
@@ -1023,14 +1013,16 @@
             const button = document.getElementById('feedModeBtn');
             
             if (feedMode) {
-                input.placeholder = "Feed me information (e.g., 'Haaland scored 2 goals and got 12 points vs Brighton')";
+                input.placeholder = "Tell me: 'Haaland scored 2 goals and got 12 points'";
                 button.textContent = "💬 Chat Mode";
                 button.style.background = "#10b981";
+                input.style.borderColor = "#10b981";
                 showFeedModeHelp();
             } else {
                 input.placeholder = "Ask me anything about FPL...";
-                button.textContent = "📝 Feed Info";
+                button.textContent = "📝 Feed Data";
                 button.style.background = "";
+                input.style.borderColor = "";
             }
         }
 
@@ -1058,51 +1050,92 @@
         }
 
         function processFeedInfo(info) {
-            // Parse and store the information
-            const analysis = parseInformation(info);
+            // Simple parsing and storage
+            const player = extractPlayerName(info);
+            const data = extractPlayerData(info);
             
-            // Debug: Show what was parsed
-            console.log('Processing feed info:', info);
-            console.log('Parsed analysis:', analysis);
-            
-            // Add to AI knowledge
-            if (window.aiTrainer) {
-                console.log('aiTrainer found, processing...');
-                window.aiTrainer.processInformation(analysis);
-                console.log('Information processed by aiTrainer');
+            if (player) {
+                // Store in simple format
+                if (!playerData[player]) {
+                    playerData[player] = { name: player, info: [] };
+                }
+                
+                playerData[player].info.push({
+                    text: info,
+                    data: data,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Save to localStorage
+                savePlayerData();
+                
+                console.log('Stored data for', player, ':', playerData[player]);
+                
+                // Show confirmation
+                const messagesDiv = document.getElementById('chatMessages');
+                const confirmDiv = document.createElement('div');
+                confirmDiv.className = 'ai-message';
+                confirmDiv.innerHTML = `
+                    <div class="message-avatar">✅</div>
+                    <div class="message-content">
+                        <p><strong>Data Stored!</strong> I learned about <strong>${player}</strong></p>
+                        <p>📝 ${info}</p>
+                        <p style="color: #10b981; font-size: 0.9rem;">Switch to chat mode and ask about ${player} to see this info!</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(confirmDiv);
             } else {
-                console.error('aiTrainer not found!');
+                // General information
+                if (!playerData._general) {
+                    playerData._general = [];
+                }
+                playerData._general.push({
+                    text: info,
+                    timestamp: new Date().toISOString()
+                });
+                savePlayerData();
+                
+                const messagesDiv = document.getElementById('chatMessages');
+                const confirmDiv = document.createElement('div');
+                confirmDiv.className = 'ai-message';
+                confirmDiv.innerHTML = `
+                    <div class="message-avatar">📚</div>
+                    <div class="message-content">
+                        <p><strong>General Info Stored!</strong></p>
+                        <p>📝 ${info}</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(confirmDiv);
             }
             
-            // Show detailed confirmation
-            const messagesDiv = document.getElementById('chatMessages');
-            const confirmDiv = document.createElement('div');
-            confirmDiv.className = 'ai-message';
-            
-            let confirmText = `<p><strong>Information Learned!</strong> ✅</p>`;
-            
-            if (analysis.player) {
-                confirmText += `<p><strong>Player:</strong> ${analysis.player}</p>`;
-            }
-            
-            if (analysis.type !== 'general') {
-                confirmText += `<p><strong>Type:</strong> ${analysis.type}</p>`;
-            }
-            
-            if (Object.keys(analysis.data).length > 0) {
-                confirmText += `<p><strong>Data:</strong> ${JSON.stringify(analysis.data)}</p>`;
-            }
-            
-            confirmText += `<p style="color: #6b7280; font-size: 0.9rem;">Try asking about this player now to see the updated information!</p>`;
-            
-            confirmDiv.innerHTML = `
-                <div class="message-avatar">🧠</div>
-                <div class="message-content">
-                    ${confirmText}
-                </div>
-            `;
-            messagesDiv.appendChild(confirmDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function extractPlayerName(info) {
+            const playerNames = ['haaland', 'salah', 'palmer', 'saka', 'son', 'watkins', 'isak', 'gordon', 'cunha', 'mbeumo', 'eze', 'foden', 'bruno', 'kane', 'rashford', 'nunez', 'maddison', 'martinelli', 'jesus', 'mudryk', 'havertz', 'odegaard', 'rice', 'white', 'gabriel', 'pickford', 'pope', 'alisson', 'ederson'];
+            
+            const lower = info.toLowerCase();
+            for (const name of playerNames) {
+                if (lower.includes(name)) {
+                    return name.charAt(0).toUpperCase() + name.slice(1);
+                }
+            }
+            return null;
+        }
+
+        function extractPlayerData(info) {
+            const data = {};
+            
+            const pointsMatch = info.match(/(\d+)\s*points?/i);
+            if (pointsMatch) data.points = parseInt(pointsMatch[1]);
+            
+            const goalMatch = info.match(/(\d+)\s*goals?/i);
+            if (goalMatch) data.goals = parseInt(goalMatch[1]);
+            
+            const assistMatch = info.match(/(\d+)\s*assists?/i);
+            if (assistMatch) data.assists = parseInt(assistMatch[1]);
+            
+            return data;
         }
 
         function parseInformation(info) {
@@ -1171,36 +1204,42 @@
         }
 
         function showStoredData() {
-            if (!window.aiTrainer) {
-                alert('Training system not loaded!');
-                return;
-            }
-            
-            const data = window.aiTrainer.trainingData;
+            loadPlayerData();
             const messagesDiv = document.getElementById('chatMessages');
             
-            let dataText = `<p><strong>🔍 Stored Training Data</strong></p>`;
+            let dataText = `<p><strong>🔍 My Stored Data</strong></p>`;
             
-            const playerCount = Object.keys(data.players || {}).length;
-            const generalCount = (data.general || []).length;
+            const playerCount = Object.keys(playerData).filter(k => k !== '_general').length;
+            const generalCount = (playerData._general || []).length;
             
             dataText += `<p><strong>Players:</strong> ${playerCount} stored</p>`;
-            dataText += `<p><strong>General Info:</strong> ${generalCount} items</p>`;
+            dataText += `<p><strong>General Info:</strong> ${generalCount} items</p><br>`;
             
             if (playerCount > 0) {
-                dataText += `<p><strong>Player Data:</strong></p><ul>`;
-                Object.entries(data.players).forEach(([key, player]) => {
-                    dataText += `<li><strong>${player.name}</strong>: ${player.notes || 'No notes'}</li>`;
+                dataText += `<p><strong>🏃‍♂️ Player Data:</strong></p>`;
+                Object.entries(playerData).forEach(([key, data]) => {
+                    if (key === '_general') return;
+                    
+                    dataText += `<p><strong>${data.name}:</strong></p><ul>`;
+                    if (data.info && data.info.length > 0) {
+                        data.info.slice(-3).forEach(item => {
+                            dataText += `<li>${item.text}</li>`;
+                        });
+                    }
+                    dataText += `</ul>`;
                 });
-                dataText += `</ul>`;
             }
             
             if (generalCount > 0) {
-                dataText += `<p><strong>General Info:</strong></p><ul>`;
-                data.general.slice(-5).forEach(item => {
-                    dataText += `<li>${item.info}</li>`;
+                dataText += `<p><strong>📚 General Info:</strong></p><ul>`;
+                playerData._general.slice(-5).forEach(item => {
+                    dataText += `<li>${item.text}</li>`;
                 });
                 dataText += `</ul>`;
+            }
+            
+            if (playerCount === 0 && generalCount === 0) {
+                dataText += `<p style="color: #6b7280;">No data stored yet. Use Feed Data mode to add information!</p>`;
             }
             
             const dataDiv = document.createElement('div');
@@ -1214,6 +1253,11 @@
             messagesDiv.appendChild(dataDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
+
+        // Initialize data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPlayerData();
+        });
     </script>
     
     <!-- Include Script for HTML injection -->
