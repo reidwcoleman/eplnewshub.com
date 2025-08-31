@@ -369,23 +369,25 @@ class IntelligentFPLAssistant {
             ...this.knowledge.playerDatabase.budget
         ];
         
+        // Always reload training data from localStorage
+        const trainingData = this.getTrainingDataFromStorage();
+        
         // Add trained players if available
-        if (window.aiTrainer) {
-            const trainedPlayers = window.aiTrainer.getAllTrainedPlayers();
+        if (trainingData.players) {
+            const trainedPlayers = Object.values(trainingData.players);
             allPlayers.push(...trainedPlayers);
         }
         
         allPlayers.forEach(player => {
             const lastName = player.name.split(' ').pop().toLowerCase();
             if (query.toLowerCase().includes(lastName)) {
-                // Check for updated info from training data
-                if (window.aiTrainer) {
-                    const updatedInfo = window.aiTrainer.getPlayerData(player.name);
-                    if (updatedInfo) {
-                        players.push({...player, ...updatedInfo});
-                    } else {
-                        players.push(player);
-                    }
+                // Always check localStorage for latest info
+                const playerKey = player.name.toLowerCase();
+                const updatedInfo = trainingData.players[playerKey];
+                
+                if (updatedInfo) {
+                    console.log('Using updated info for', player.name, ':', updatedInfo);
+                    players.push({...player, ...updatedInfo});
                 } else {
                     players.push(player);
                 }
@@ -394,6 +396,16 @@ class IntelligentFPLAssistant {
         });
         
         return players;
+    }
+
+    getTrainingDataFromStorage() {
+        try {
+            const data = localStorage.getItem('fpl_ai_training_data');
+            return data ? JSON.parse(data) : { players: {}, general: [] };
+        } catch (e) {
+            console.error('Error loading training data from localStorage:', e);
+            return { players: {}, general: [] };
+        }
     }
 
     determineResponseType(analysis) {
@@ -712,14 +724,15 @@ class IntelligentFPLAssistant {
             });
         }
         
-        // Include general knowledge if relevant
-        if (window.aiTrainer && window.aiTrainer.trainingData.general) {
-            const recentInfo = window.aiTrainer.trainingData.general
+        // Include general knowledge if relevant from localStorage
+        const trainingData = this.getTrainingDataFromStorage();
+        if (trainingData.general && trainingData.general.length > 0) {
+            const recentInfo = trainingData.general
                 .filter(item => item.timestamp > new Date(Date.now() - 7*24*60*60*1000).toISOString())
                 .slice(-3);
             
             if (recentInfo.length > 0) {
-                response += `\n**Recent Updates I've Learned:**\n`;
+                response += `\n**📝 Recent Updates I've Learned:**\n`;
                 recentInfo.forEach(info => {
                     response += `• ${info.info}\n`;
                 });
@@ -761,12 +774,13 @@ class IntelligentFPLAssistant {
     }
 
     getCaptainReasoning(player) {
-        // Check for fed information first
-        if (window.aiTrainer) {
-            const trainedData = window.aiTrainer.getPlayerData(player.name);
-            if (trainedData && trainedData.notes) {
-                return `Latest info: ${trainedData.notes}`;
-            }
+        // Always check localStorage directly
+        const trainingData = this.getTrainingDataFromStorage();
+        const playerKey = player.name.toLowerCase();
+        const trainedData = trainingData.players[playerKey];
+        
+        if (trainedData && trainedData.notes) {
+            return `📝 Latest info: ${trainedData.notes}`;
         }
         
         const reasons = [
@@ -780,19 +794,21 @@ class IntelligentFPLAssistant {
     }
 
     assessTransferVerdict(player) {
-        // Check for fed information about this player
+        // Always check localStorage directly
+        const trainingData = this.getTrainingDataFromStorage();
+        const playerKey = player.name.toLowerCase();
+        const trainedData = trainingData.players[playerKey];
+        
         let additionalInfo = "";
-        if (window.aiTrainer) {
-            const trainedData = window.aiTrainer.getPlayerData(player.name);
-            if (trainedData && trainedData.notes) {
-                additionalInfo = ` Recent info: ${trainedData.notes}`;
-            }
-            if (trainedData && trainedData.status === 'injured') {
-                return {
-                    action: "AVOID - INJURED",
-                    reason: `Currently injured.${additionalInfo}`
-                };
-            }
+        if (trainedData && trainedData.notes) {
+            additionalInfo = ` 📝 Recent info: ${trainedData.notes}`;
+        }
+        
+        if (trainedData && trainedData.status === 'injured') {
+            return {
+                action: "AVOID - INJURED",
+                reason: `Currently injured.${additionalInfo}`
+            };
         }
         
         const verdicts = {
@@ -1197,15 +1213,17 @@ class IntelligentFPLAssistant {
     }
 
     getPlayerInsight(player) {
-        // Check for fed information first
-        if (window.aiTrainer) {
-            console.log('Checking trained data for:', player.name);
-            const trainedData = window.aiTrainer.getPlayerData(player.name);
-            console.log('Found trained data:', trainedData);
-            if (trainedData && trainedData.notes) {
-                console.log('Using trained notes:', trainedData.notes);
-                return `📝 ${trainedData.notes}`;
-            }
+        // Always check localStorage directly
+        const trainingData = this.getTrainingDataFromStorage();
+        const playerKey = player.name.toLowerCase();
+        const trainedData = trainingData.players[playerKey];
+        
+        console.log('Checking localStorage for:', player.name, 'Key:', playerKey);
+        console.log('Found in localStorage:', trainedData);
+        
+        if (trainedData && trainedData.notes) {
+            console.log('Using trained notes from localStorage:', trainedData.notes);
+            return `📝 ${trainedData.notes}`;
         }
         
         const insights = [

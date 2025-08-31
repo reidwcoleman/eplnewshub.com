@@ -895,6 +895,10 @@
         }
         
         function generateAIResponse(message) {
+            // Always check localStorage for fed data first
+            const trainingData = getTrainingDataFromStorage();
+            console.log('Training data from localStorage:', trainingData);
+            
             // Check if intelligent assistant is available
             if (window.fplIntelligent && window.fplIntelligent.performDeepAnalysis) {
                 try {
@@ -913,15 +917,46 @@
                 }
             }
             
-            // Fallback to basic responses
+            // Enhanced fallback responses with localStorage data
             const lowerMessage = message.toLowerCase();
+            let response = "";
             
             if (lowerMessage.includes('captain')) {
-                return "Based on current form and fixtures, I recommend <strong>Erling Haaland (C)</strong> and <strong>Mohamed Salah (VC)</strong> for this gameweek. Haaland faces a weak defense and has scored in 7 of his last 8 home games. His xG is 8.2 over the last 4 matches.";
+                response = "Based on current form and fixtures, I recommend <strong>Erling Haaland (C)</strong> and <strong>Mohamed Salah (VC)</strong> for this gameweek.";
+                
+                // Add fed information if available
+                const haalandInfo = getPlayerInfoFromStorage('haaland');
+                const salahInfo = getPlayerInfoFromStorage('salah');
+                
+                if (haalandInfo) {
+                    response += `<br><br>📝 <strong>Latest on Haaland:</strong> ${haalandInfo}`;
+                }
+                if (salahInfo) {
+                    response += `<br><br>📝 <strong>Latest on Salah:</strong> ${salahInfo}`;
+                }
+                
+                return response;
+                
             } else if (lowerMessage.includes('transfer')) {
-                return "Looking at your team value and upcoming fixtures, I suggest transferring out any injured players for <strong>Cole Palmer</strong>. He has excellent fixtures (3 green in next 5) and is in great form with 5 goals and 3 assists in the last 4 gameweeks.";
+                response = "Looking at your team value and upcoming fixtures, I suggest transferring out any injured players for <strong>Cole Palmer</strong>.";
+                
+                const palmerInfo = getPlayerInfoFromStorage('palmer');
+                if (palmerInfo) {
+                    response += `<br><br>📝 <strong>Latest on Palmer:</strong> ${palmerInfo}`;
+                }
+                
+                return response;
+                
             } else if (lowerMessage.includes('differential')) {
-                return "For a differential pick, consider <strong>Anthony Gordon</strong> (8.5% ownership). He has 3 goals and 2 assists in the last 5 games, faces favorable fixtures, and Newcastle's attack is clicking. Also look at <strong>Matheus Cunha</strong> who has great underlying stats.";
+                response = "For a differential pick, consider <strong>Anthony Gordon</strong> (8.5% ownership).";
+                
+                const gordonInfo = getPlayerInfoFromStorage('gordon');
+                if (gordonInfo) {
+                    response += `<br><br>📝 <strong>Latest on Gordon:</strong> ${gordonInfo}`;
+                }
+                
+                return response;
+                
             } else if (lowerMessage.includes('wildcard')) {
                 return "The optimal time for your wildcard would be <strong>GW28-30</strong> when there are multiple double gameweeks. Build a team targeting those fixtures. Also consider using it if your team value is dropping or you have 3+ long-term injuries.";
             } else if (lowerMessage.includes('team')) {
@@ -929,8 +964,42 @@
             } else if (lowerMessage.includes('chip')) {
                 return "For chip strategy: <strong>Triple Captain</strong> - Use in a double gameweek on premium assets. <strong>Bench Boost</strong> - GW37 typically best. <strong>Free Hit</strong> - Save for blank gameweeks or emergencies.";
             } else {
+                // Check if asking about a specific player
+                const playerInfo = findPlayerInMessage(message, trainingData);
+                if (playerInfo) {
+                    return `<strong>${playerInfo.name}</strong><br><br>📝 <strong>What I know:</strong> ${playerInfo.notes}<br><br>💡 Ask me for specific advice about this player!`;
+                }
+                
                 return "I can help you with transfer advice, captain picks, differentials, wildcard timing, and team strategy. What specific aspect of your FPL team would you like to improve? Feel free to ask about any player or tactical decision!";
             }
+        }
+
+        function getTrainingDataFromStorage() {
+            try {
+                const data = localStorage.getItem('fpl_ai_training_data');
+                return data ? JSON.parse(data) : { players: {}, general: [] };
+            } catch (e) {
+                console.error('Error loading training data:', e);
+                return { players: {}, general: [] };
+            }
+        }
+
+        function getPlayerInfoFromStorage(playerName) {
+            const trainingData = getTrainingDataFromStorage();
+            const player = trainingData.players[playerName.toLowerCase()];
+            return player ? player.notes : null;
+        }
+
+        function findPlayerInMessage(message, trainingData) {
+            const lower = message.toLowerCase();
+            
+            for (const [key, player] of Object.entries(trainingData.players || {})) {
+                if (lower.includes(key) || lower.includes(player.name.toLowerCase())) {
+                    return player;
+                }
+            }
+            
+            return null;
         }
         
         // Enter key to send
