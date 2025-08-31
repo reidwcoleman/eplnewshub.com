@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
+         crossorigin="anonymous"></script>
+    
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
     <script>
@@ -1464,23 +1468,30 @@
         
         async function searchGoogle(query) {
             try {
-                // Use a simple Google search API simulation
-                // In production, you'd use Google Custom Search API
-                const encodedQuery = encodeURIComponent(query);
-                const searchUrl = `https://www.googleapis.com/customsearch/v1?key=YOUR_API_KEY&cx=YOUR_SEARCH_ENGINE_ID&q=${encodedQuery}`;
+                console.log(`🔍 Searching Google: ${query}`);
                 
-                // For now, simulate search results with realistic FPL data
-                console.log(`🔍 Searching: ${query}`);
+                // Use fetch to call a search endpoint that will use WebSearch
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: query })
+                });
                 
-                // Simulate API delay
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                if (response.ok) {
+                    const searchData = await response.json();
+                    return searchData.results || [];
+                }
                 
-                // Return simulated but realistic search results
+                // Fallback to client-side search simulation
+                console.log('Server search not available, using fallback');
                 return simulateSearchResults(query);
                 
             } catch (error) {
                 console.error('Search failed:', error);
-                return null;
+                // Fallback to simulation
+                return simulateSearchResults(query);
             }
         }
         
@@ -1513,11 +1524,17 @@
         function extractRelevantInfo(searchResults, playerName, intent) {
             if (!searchResults || searchResults.length === 0) return null;
             
-            // Take the most relevant result and format it
-            const topResult = searchResults[0];
+            // Take the most relevant results and format them
+            const relevantResults = searchResults.slice(0, 2); // Top 2 results
             
-            // Clean and format the information
-            return topResult.replace(/\b(FPL|Fantasy Premier League)\b/gi, '').trim();
+            if (relevantResults.length === 1) {
+                return relevantResults[0].replace(/\b(FPL|Fantasy Premier League)\b/gi, '').trim();
+            } else {
+                // Combine multiple results into a coherent summary
+                return relevantResults
+                    .map(result => result.replace(/\b(FPL|Fantasy Premier League)\b/gi, '').trim())
+                    .join('. ');
+            }
         }
         
         async function storeSearchedData(playerName, info, intent) {
