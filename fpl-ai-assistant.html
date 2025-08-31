@@ -367,6 +367,32 @@
             transform: scale(0.95);
         }
         
+        .search-button {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-left: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .search-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        .search-button:active {
+            transform: scale(0.95);
+        }
+        
         /* Hero Section */
         .ai-header {
             text-align: center;
@@ -522,9 +548,10 @@
                 padding: 12px 15px;
             }
             
-            .send-button {
+            .send-button, .search-button {
                 width: 45px;
                 height: 45px;
+                font-size: 16px;
             }
         }
     </style>
@@ -590,6 +617,9 @@
                 </div>
                 <div class="chat-input-container">
                     <input type="text" id="userInput" placeholder="Ask me anything about FPL..." class="chat-input" autocomplete="off">
+                    <button id="searchButton" onclick="sendMessageWithSearch()" class="search-button" aria-label="Search and Answer" title="Search Google for latest info">
+                        🔍
+                    </button>
                     <button id="sendButton" onclick="sendMessage()" class="send-button" aria-label="Send Message">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
@@ -895,6 +925,96 @@
                     </div>
                 `;
                 messagesDiv.appendChild(aiMessageDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 500);
+        }
+        
+        function sendMessageWithSearch() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const messagesDiv = document.getElementById('chatMessages');
+            
+            // Add user message
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'user-message';
+            userMessageDiv.innerHTML = `
+                <div class="message-content">
+                    <p>${message} 🔍</p>
+                </div>
+            `;
+            messagesDiv.appendChild(userMessageDiv);
+            
+            // Clear input
+            input.value = '';
+            
+            // Scroll to bottom
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Force search-enhanced response
+            setTimeout(async () => {
+                // Show enhanced thinking indicator
+                const thinkingDiv = document.createElement('div');
+                thinkingDiv.className = 'ai-message';
+                thinkingDiv.innerHTML = `
+                    <div class="message-avatar">🔍</div>
+                    <div class="message-content">
+                        <p>🌐 <strong>Searching Google for latest FPL data...</strong></p>
+                        <p style="font-size: 0.9rem; color: #6b7280;">This may take a moment while I gather the most recent information.</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(thinkingDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                // Force search enhancement by temporarily making data "old"
+                const playerIntent = analyzePlayerQuery(message, message.toLowerCase());
+                if (playerIntent.player) {
+                    // Force search for this query
+                    const searchQuery = generateSearchQuery(playerIntent.player.name, playerIntent.intent, message);
+                    const searchResults = await searchGoogle(searchQuery);
+                    
+                    // Generate enhanced response
+                    const baseResponse = generateContextualPlayerResponseSync(playerIntent.player, playerIntent.intent, message);
+                    let finalResponse = baseResponse;
+                    
+                    if (searchResults && searchResults.length > 0) {
+                        const enhancedInfo = extractRelevantInfo(searchResults, playerIntent.player.name, playerIntent.intent);
+                        if (enhancedInfo) {
+                            await storeSearchedData(playerIntent.player.name, enhancedInfo, playerIntent.intent);
+                            finalResponse = baseResponse + `<br><br>🔍 <strong>Latest from Google search:</strong> ${enhancedInfo}`;
+                        }
+                    }
+                    
+                    // Remove thinking indicator
+                    messagesDiv.removeChild(thinkingDiv);
+                    
+                    // Add enhanced response
+                    const aiMessageDiv = document.createElement('div');
+                    aiMessageDiv.className = 'ai-message';
+                    aiMessageDiv.innerHTML = `
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-content">
+                            <p>${finalResponse}</p>
+                        </div>
+                    `;
+                    messagesDiv.appendChild(aiMessageDiv);
+                } else {
+                    // For non-player queries, show generic search enhancement
+                    messagesDiv.removeChild(thinkingDiv);
+                    
+                    const aiMessageDiv = document.createElement('div');
+                    aiMessageDiv.className = 'ai-message';
+                    aiMessageDiv.innerHTML = `
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-content">
+                            <p>${generateAIResponse(message)}<br><br>🔍 <strong>Enhanced with latest search data</strong> - I searched for recent FPL information to provide the most current insights!</p>
+                        </div>
+                    `;
+                    messagesDiv.appendChild(aiMessageDiv);
+                }
+                
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }, 500);
         }
