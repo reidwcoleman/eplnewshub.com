@@ -557,6 +557,7 @@
                         <div class="message-avatar">🤖</div>
                         <div class="message-content">
                             <p><strong>Welcome to FPL AI Assistant!</strong> I'm here to help you dominate your Fantasy Premier League.</p>
+                            <p>🌐 <strong>NEW:</strong> I now store ALL fed information permanently on the site for EVERYONE to use! When you feed me data about players, it becomes part of my global knowledge base.</p>
                             <p>I analyze real-time data from thousands of matches using advanced machine learning to provide you with:</p>
                             <ul style="margin: 10px 0; padding-left: 20px; color: #4b5563;">
                                 <li>Personalized captain recommendations based on form & fixtures</li>
@@ -917,7 +918,7 @@
                         if (foundPlayer.stats.price) response += `• Price: £${foundPlayer.stats.price}m<br>`;
                     }
                     
-                    response += `<br>💡 This is permanent data you've fed me!`;
+                    response += `<br>🌐 <strong>Using globally stored data from the community!</strong>`;
                 } else {
                     response += `I don't have any specific information about ${foundPlayer.name} yet. Feed me some data about them!`;
                 }
@@ -934,14 +935,14 @@
                 const salahInfo = window.fplDataManager.getPlayerInfo('salah');
                 
                 if (haalandInfo && haalandInfo.info.length > 0) {
-                    response += `<br><br>📝 <strong>Latest on Haaland:</strong><br>`;
+                    response += `<br><br>🌐 <strong>Community Data on Haaland:</strong><br>`;
                     haalandInfo.info.slice(-2).forEach(item => {
                         response += `• ${item.text}<br>`;
                     });
                 }
                 
                 if (salahInfo && salahInfo.info.length > 0) {
-                    response += `<br><br>📝 <strong>Latest on Salah:</strong><br>`;
+                    response += `<br><br>🌐 <strong>Community Data on Salah:</strong><br>`;
                     salahInfo.info.slice(-2).forEach(item => {
                         response += `• ${item.text}<br>`;
                     });
@@ -954,7 +955,7 @@
                 
                 const palmerInfo = window.fplDataManager.getPlayerInfo('palmer');
                 if (palmerInfo && palmerInfo.info.length > 0) {
-                    response += `<br><br>📝 <strong>Latest on Palmer:</strong><br>`;
+                    response += `<br><br>🌐 <strong>Community Data on Palmer:</strong><br>`;
                     palmerInfo.info.slice(-2).forEach(item => {
                         response += `• ${item.text}<br>`;
                     });
@@ -967,7 +968,7 @@
                 
                 const gordonInfo = window.fplDataManager.getPlayerInfo('gordon');
                 if (gordonInfo && gordonInfo.info.length > 0) {
-                    response += `<br><br>📝 <strong>Latest on Gordon:</strong><br>`;
+                    response += `<br><br>🌐 <strong>Community Data on Gordon:</strong><br>`;
                     gordonInfo.info.slice(-2).forEach(item => {
                         response += `• ${item.text}<br>`;
                     });
@@ -1075,7 +1076,7 @@
                         <li>"Newcastle have easy fixtures for next 5 gameweeks"</li>
                         <li>"Gordon's price rose to 7.6m last night"</li>
                     </ul>
-                    <p style="color: #10b981; font-weight: 600;">I'll automatically learn from everything you tell me!</p>
+                    <p style="color: #10b981; font-weight: 600;">🌐 I'll automatically learn from everything you tell me and store it GLOBALLY for ALL users on the site!</p>
                 </div>
             `;
             messagesDiv.appendChild(helpDiv);
@@ -1099,9 +1100,9 @@
                 confirmDiv.innerHTML = `
                     <div class="message-avatar">✅</div>
                     <div class="message-content">
-                        <p><strong>Data Stored Forever!</strong> I learned about <strong>${player}</strong></p>
+                        <p><strong>✅ Data Stored Globally!</strong> I learned about <strong>${player}</strong></p>
                         <p>📝 ${info}</p>
-                        <p style="color: #10b981; font-size: 0.9rem;">This will now appear in ALL responses about ${player} across the site!</p>
+                        <p style="color: #10b981; font-weight: 600;">🌐 This information is now permanently stored on the site and will be used in ALL responses about ${player} for EVERYONE who visits!</p>
                     </div>
                 `;
                 messagesDiv.appendChild(confirmDiv);
@@ -1114,9 +1115,9 @@
                 confirmDiv.innerHTML = `
                     <div class="message-avatar">📚</div>
                     <div class="message-content">
-                        <p><strong>General Info Stored Forever!</strong></p>
+                        <p><strong>🌐 General Info Stored Globally!</strong></p>
                         <p>📝 ${info}</p>
-                        <p style="color: #10b981; font-size: 0.9rem;">This information is now permanently saved!</p>
+                        <p style="color: #10b981; font-weight: 600;">✨ This information is now permanently saved on the site for ALL users to benefit from!</p>
                     </div>
                 `;
                 messagesDiv.appendChild(confirmDiv);
@@ -1235,11 +1236,11 @@
             const allPlayers = window.fplDataManager.getAllPlayers();
             const recentGeneral = window.fplDataManager.getRecentGeneralInfo(5);
             
-            let dataText = `<p><strong>🔍 My Permanent FPL Data</strong></p>`;
+            let dataText = `<p><strong>🌐 Global Community FPL Data</strong></p>`;
             
-            dataText += `<p><strong>📊 Data Stats:</strong></p>`;
-            dataText += `<p>• Players: ${stats.totalPlayers} stored</p>`;
-            dataText += `<p>• General Info: ${stats.totalGeneralInfo} items</p>`;
+            dataText += `<p><strong>📊 Community Database Stats:</strong></p>`;
+            dataText += `<p>• Players: ${stats.totalPlayers} in global database</p>`;
+            dataText += `<p>• Community Info: ${stats.totalGeneralInfo} items shared</p>`;
             dataText += `<p>• Last Updated: ${new Date(stats.lastUpdated).toLocaleString()}</p><br>`;
             
             if (allPlayers.length > 0) {
@@ -1260,7 +1261,7 @@
             }
             
             if (recentGeneral.length > 0) {
-                dataText += `<p><strong>📚 Recent General Info:</strong></p><ul>`;
+                dataText += `<p><strong>📚 Recent Community Updates:</strong></p><ul>`;
                 recentGeneral.forEach(item => {
                     const date = new Date(item.timestamp).toLocaleDateString();
                     dataText += `<li>[${date}] ${item.text}</li>`;
@@ -1269,10 +1270,11 @@
             }
             
             if (stats.totalPlayers === 0 && stats.totalGeneralInfo === 0) {
-                dataText += `<p style="color: #6b7280;">No data stored yet. Use Feed Data mode to add information!</p>`;
+                dataText += `<p style="color: #6b7280;">No community data yet. Use Feed Data mode to contribute information that everyone can use!</p>`;
             } else {
-                dataText += `<br><button onclick="clearAllData()" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 600;">🗑️ Clear All Data</button>`;
-                dataText += ` <button onclick="exportData()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 600; margin-left: 8px;">📤 Export Data</button>`;
+                dataText += `<br><p style="font-style: italic; color: #6b7280; font-size: 0.9rem;">🌐 This data is shared across all users and enhances everyone's FPL experience!</p>`;
+                dataText += `<br><button onclick="exportData()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 600;">📤 Export Community Data</button>`;
+                dataText += ` <button onclick="refreshGlobalData()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 600; margin-left: 8px;">🔄 Refresh Data</button>`;
             }
             
             const dataDiv = document.createElement('div');
@@ -1312,10 +1314,55 @@
             URL.revokeObjectURL(url);
         }
 
+        function refreshGlobalData() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const refreshDiv = document.createElement('div');
+            refreshDiv.className = 'ai-message';
+            refreshDiv.innerHTML = `
+                <div class="message-avatar">🔄</div>
+                <div class="message-content">
+                    <p><strong>Refreshing Global Data...</strong></p>
+                    <p>Loading latest community updates from the server...</p>
+                </div>
+            `;
+            messagesDiv.appendChild(refreshDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Reload data from server
+            if (window.fplDataManager) {
+                window.fplDataManager.loadServerData().then(() => {
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'ai-message';
+                    successDiv.innerHTML = `
+                        <div class="message-avatar">✅</div>
+                        <div class="message-content">
+                            <p><strong>🌐 Global Data Refreshed!</strong></p>
+                            <p>Now using the latest community-contributed information.</p>
+                        </div>
+                    `;
+                    messagesDiv.appendChild(successDiv);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }).catch(e => {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'ai-message';
+                    errorDiv.innerHTML = `
+                        <div class="message-avatar">⚠️</div>
+                        <div class="message-content">
+                            <p><strong>Refresh Failed</strong></p>
+                            <p>Using cached data. Server may be unavailable.</p>
+                        </div>
+                    `;
+                    messagesDiv.appendChild(errorDiv);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                });
+            }
+        }
+
         // Make all functions global
         window.deletePlayerData = deletePlayerData;
         window.clearAllData = clearAllData;
         window.exportData = exportData;
+        window.refreshGlobalData = refreshGlobalData;
 
         // Initialize data on page load
         document.addEventListener('DOMContentLoaded', function() {

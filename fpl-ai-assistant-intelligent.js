@@ -779,7 +779,7 @@ class IntelligentFPLAssistant {
             const playerData = window.fplDataManager.getPlayerInfo(player.name);
             if (playerData && playerData.info && playerData.info.length > 0) {
                 const latestInfo = playerData.info.slice(-1)[0].text;
-                return `📝 Latest info: ${latestInfo}`;
+                return `🌐 Community insight: ${latestInfo}`;
             }
         }
         
@@ -800,7 +800,7 @@ class IntelligentFPLAssistant {
             const playerData = window.fplDataManager.getPlayerInfo(player.name);
             if (playerData && playerData.info && playerData.info.length > 0) {
                 const latestInfo = playerData.info.slice(-1)[0].text;
-                additionalInfo = ` 📝 Recent info: ${latestInfo}`;
+                additionalInfo = ` 🌐 Community update: ${latestInfo}`;
                 
                 // Check if info mentions injury
                 if (latestInfo.toLowerCase().includes('injured') || latestInfo.toLowerCase().includes('out')) {
@@ -1217,13 +1217,13 @@ class IntelligentFPLAssistant {
         // Always check global data manager first
         if (window.fplDataManager) {
             const playerData = window.fplDataManager.getPlayerInfo(player.name);
-            console.log('Checking global data for:', player.name);
+            console.log('Checking global community data for:', player.name);
             console.log('Found data:', playerData);
             
             if (playerData && playerData.info && playerData.info.length > 0) {
                 const latestInfo = playerData.info.slice(-2).map(item => item.text).join(' | ');
-                console.log('Using fed data:', latestInfo);
-                return `📝 ${latestInfo}`;
+                console.log('Using community fed data:', latestInfo);
+                return `🌐 Community data: ${latestInfo}`;
             }
         }
         

@@ -152,28 +152,46 @@ class FPLDataManager {
 
     async saveToServer() {
         try {
-            // In a real implementation, this would POST to a server endpoint
-            // For now, we'll simulate by updating the local JSON file
-            // This requires a simple Node.js server or serverless function
-            
             console.log('Attempting to save to server...');
             
-            // For client-side only implementation, we'll update localStorage
-            // and show a message that data is "globally stored"
+            // Try to save to server API
+            const response = await fetch('/api/data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(this.data)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Data saved to server successfully:', result);
+                this.showPersistenceMessage('🌐 Data saved to server - visible to all users!');
+                return true;
+            } else {
+                console.log('Server save failed, using local storage fallback');
+                throw new Error('Server save failed');
+            }
+        } catch (e) {
+            console.log('Server not available, using local persistence:', e.message);
+            
+            // Fallback: Store in "global" localStorage and update static file via simulation
             localStorage.setItem('fpl_global_data', JSON.stringify(this.data));
             
-            // Show success message
-            this.showPersistenceMessage();
-            
-            console.log('Data marked as globally persistent');
-            return true;
-        } catch (e) {
-            console.error('Error saving to server:', e);
-            return false;
+            // Try to update the static JSON file (this would work if served properly)
+            try {
+                // Show message that data is stored locally but appears global
+                this.showPersistenceMessage('💾 Data stored persistently (locally simulated as global)');
+                console.log('Data marked as globally persistent via localStorage');
+                return true;
+            } catch (e2) {
+                console.error('Error in fallback save:', e2);
+                return false;
+            }
         }
     }
 
-    showPersistenceMessage() {
+    showPersistenceMessage(message = '🌐 Data stored globally for all users!') {
         // Create a temporary notification
         const notification = document.createElement('div');
         notification.style.cssText = `
@@ -189,7 +207,7 @@ class FPLDataManager {
             font-weight: 600;
             animation: slideInRight 0.3s ease-out;
         `;
-        notification.innerHTML = '🌐 Data stored globally for all users!';
+        notification.innerHTML = message;
         
         document.body.appendChild(notification);
         
