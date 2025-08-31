@@ -317,6 +317,8 @@ function findAllRelevantSentences(html, query) {
         const lowerQuery = query.toLowerCase();
         const queryWords = lowerQuery.split(' ').filter(word => word.length > 2);
         
+        console.log(`🔍 Looking for sentences containing: ${queryWords.join(', ')}`);
+        
         // Clean HTML and extract text content
         let text = html.replace(/<script[^>]*>.*?<\/script>/gis, '');
         text = text.replace(/<style[^>]*>.*?<\/style>/gis, '');
@@ -327,57 +329,61 @@ function findAllRelevantSentences(html, query) {
         const relevantSentences = [];
         
         for (const sentence of sentences) {
-            const lowerSentence = sentence.toLowerCase().trim();
+            const cleanSentence = sentence.trim();
+            const lowerSentence = cleanSentence.toLowerCase();
             
-            // Skip short or irrelevant sentences
-            if (sentence.length < 30 || sentence.length > 400) continue;
+            // Skip short, long, or clearly irrelevant sentences
+            if (cleanSentence.length < 40 || cleanSentence.length > 300) continue;
             
             let score = 0;
-            let queryWordsFound = 0;
+            let exactQueryMatches = 0;
             
-            // Score based on query word matches
+            // STRICT scoring - must contain actual query words
             for (const word of queryWords) {
                 if (lowerSentence.includes(word)) {
-                    queryWordsFound++;
-                    score += 2;
+                    exactQueryMatches++;
+                    score += 5; // Higher weight for exact matches
                 }
             }
             
-            // Only consider sentences that contain multiple query words
-            if (queryWordsFound < 2) continue;
+            // Must have at least 2 query words to be considered
+            if (exactQueryMatches < 2) continue;
             
-            // Bonus scoring for FPL-specific terms
-            const fplTerms = ['fantasy', 'fpl', 'gameweek', 'free hit', 'wildcard', 'chip', 'captain', 'transfer', 'points', 'price'];
-            for (const term of fplTerms) {
-                if (lowerSentence.includes(term)) {
-                    score += 3;
-                }
+            // Extra bonus for answering specific questions
+            if (lowerQuery.includes('when') && lowerSentence.includes('when')) score += 10;
+            if (lowerQuery.includes('should') && lowerSentence.includes('should')) score += 10;
+            if (lowerQuery.includes('free hit') && lowerSentence.includes('free hit')) score += 15;
+            if (lowerQuery.includes('wildcard') && lowerSentence.includes('wildcard')) score += 15;
+            if (lowerQuery.includes('captain') && lowerSentence.includes('captain')) score += 10;
+            if (lowerQuery.includes('transfer') && lowerSentence.includes('transfer')) score += 10;
+            if (lowerQuery.includes('table') && lowerSentence.includes('table')) score += 10;
+            if (lowerQuery.includes('standings') && lowerSentence.includes('standing')) score += 10;
+            
+            // Bonus for actionable content
+            const actionWords = ['use', 'activate', 'play', 'choose', 'select', 'pick', 'avoid'];
+            for (const word of actionWords) {
+                if (lowerSentence.includes(word)) score += 3;
             }
             
-            // Bonus for strategy-related terms
-            const strategyTerms = ['when', 'should', 'best', 'optimal', 'recommend', 'strategy', 'advice', 'use'];
-            for (const term of strategyTerms) {
-                if (lowerSentence.includes(term)) {
-                    score += 1;
-                }
-            }
-            
-            // Penalty for common irrelevant phrases
-            const irrelevantPhrases = ['cookie', 'privacy', 'subscribe', 'newsletter', 'advertisement'];
+            // Heavy penalty for irrelevant content
+            const irrelevantPhrases = ['cookie', 'privacy', 'subscribe', 'newsletter', 'advertisement', 'menu', 'navigation', 'footer', 'header'];
             for (const phrase of irrelevantPhrases) {
                 if (lowerSentence.includes(phrase)) {
-                    score -= 5;
+                    score -= 20; // Heavy penalty
                 }
             }
             
-            if (score > 5) {
+            // Only include high-scoring, relevant sentences
+            if (score >= 15) {
                 relevantSentences.push({
-                    text: sentence.trim(),
+                    text: cleanSentence,
                     score: score
                 });
+                console.log(`📝 Found relevant sentence (score: ${score}): ${cleanSentence.substring(0, 100)}...`);
             }
         }
         
+        console.log(`📊 Found ${relevantSentences.length} relevant sentences from this site`);
         return relevantSentences;
         
     } catch (error) {
