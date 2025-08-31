@@ -3009,6 +3009,14 @@
                     </div>
                 </div>
                 
+                <!-- Squad List Display -->
+                <div id="squad-display" class="squad-section" style="margin-top: 20px;">
+                    <div class="squad-empty">
+                        <h3 style="color: #37003c; margin-bottom: 10px;">Your Squad</h3>
+                        <p style="color: #666;">Click position circles to add players to your squad!</p>
+                    </div>
+                </div>
+                
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button class="btn btn-primary" onclick="optimizeTeam()" style="flex: 1;">
                         🤖 AI Optimize Squad
@@ -7707,7 +7715,9 @@ Son Heung-min
             if (originalUpdateSquadDisplay) {
                 originalUpdateSquadDisplay.apply(this, arguments);
             }
-            updateCharts();
+            if (typeof updateCharts === 'function') {
+                updateCharts();
+            }
         };
         
         // Initialize charts when everything is ready
