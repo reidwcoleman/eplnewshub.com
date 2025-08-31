@@ -704,8 +704,7 @@
     <!-- Include Header -->
     <div class="header" include="./header.html"></div>
 
-    <!-- FPL Tools Promotional Banner - DISABLED (Only one FPL banner allowed) -->
-    <!-- 
+    <!-- FPL Tools Promotional Banner -->
     <div class="fpl-promo-banner" id="fpl-promo-banner">
         <div class="promo-container">
             <div class="promo-content">
@@ -767,7 +766,6 @@
             </button>
         </div>
     </div>
-    -->
 
     <!-- Main Content Area -->
     <main class="main-content">
@@ -3744,18 +3742,21 @@
                 savedEndDate = promoEndDate.getTime();
             }
             
-            const endDate = new Date(parseInt(savedEndDate));
+            let endDate = new Date(parseInt(savedEndDate));
             
             function updateTimer() {
                 const now = new Date().getTime();
                 const timeLeft = endDate - now;
                 
                 if (timeLeft <= 0) {
-                    const elements = ['promo-days', 'promo-hours', 'promo-minutes', 'promo-seconds'];
-                    elements.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) el.textContent = '00';
-                    });
+                    // Restart countdown with new 7-day period
+                    const promoEndDate = new Date();
+                    promoEndDate.setDate(promoEndDate.getDate() + 7);
+                    promoEndDate.setHours(23, 59, 59, 999);
+                    localStorage.setItem('fplPromoEndDate', promoEndDate.getTime());
+                    
+                    // Update endDate for this timer instance
+                    endDate = promoEndDate;
                     return;
                 }
                 
