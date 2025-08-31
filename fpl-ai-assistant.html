@@ -1553,21 +1553,10 @@
                 console.log(`🔍 Performing real Google search: ${query}`);
                 
                 // Construct Google search URL and perform actual search
-                const searchQuery = encodeURIComponent(`Fantasy Premier League ${query}`);
+                const searchQuery = encodeURIComponent(query); // Use exact user query
                 const googleSearchUrl = `https://www.google.com/search?q=${searchQuery}`;
                 
-                try {
-                    // Simulate getting search results and then fetching from top sites
-                    console.log('🌐 Fetching real FPL content...');
-                    
-                    const realResults = await fetchRealFPLContent(query);
-                    if (realResults.length > 0) {
-                        console.log('✅ Got real content from FPL sites');
-                        return realResults;
-                    }
-                } catch (searchError) {
-                    console.log('Real search failed:', searchError.message);
-                }
+                // Skip FPL-specific content fetching and go straight to Google search
                 
                 // Try local server as backup
                 try {
