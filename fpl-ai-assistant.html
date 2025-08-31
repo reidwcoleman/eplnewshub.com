@@ -909,84 +909,47 @@
         function generateAIResponse(message) {
             const lowerMessage = message.toLowerCase();
             
-            // Check if asking about a specific player first using global data
+            // Smart analysis to understand what user wants and provide relevant data
+            return analyzeQueryAndRespond(message, lowerMessage);
+        }
+        
+        function analyzeQueryAndRespond(message, lowerMessage) {
+            // First check for specific player mentions
             const foundPlayer = window.fplDataManager.findPlayerInText(message);
             if (foundPlayer) {
-                let response = `<strong>${foundPlayer.name}</strong><br><br>`;
-                
-                if (foundPlayer.info && foundPlayer.info.length > 0) {
-                    response += `📝 <strong>What I know about ${foundPlayer.name}:</strong><br>`;
-                    foundPlayer.info.slice(-3).forEach(item => {
-                        response += `• ${item.text}<br>`;
-                    });
-                    
-                    // Add stats if available
-                    if (foundPlayer.stats) {
-                        response += `<br><strong>📊 Latest Stats:</strong><br>`;
-                        if (foundPlayer.stats.lastPoints) response += `• Last score: ${foundPlayer.stats.lastPoints} points<br>`;
-                        if (foundPlayer.stats.lastGoals) response += `• Goals: ${foundPlayer.stats.lastGoals}<br>`;
-                        if (foundPlayer.stats.lastAssists) response += `• Assists: ${foundPlayer.stats.lastAssists}<br>`;
-                        if (foundPlayer.stats.price) response += `• Price: £${foundPlayer.stats.price}m<br>`;
-                    }
-                    
-                    response += `<br>🌐 <strong>Using live FPL API data + community insights!</strong>`;
-                } else {
-                    response += `I don't have any specific information about ${foundPlayer.name} yet. Feed me some data about them!`;
-                }
-                
-                return response;
+                return generatePlayerResponse(foundPlayer, message, lowerMessage);
             }
             
-            // Enhanced responses with global fed data
+            // Analyze question type and intent
+            if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('expensive')) {
+                return generatePriceAnalysis(message);
+            }
+            
+            if (lowerMessage.includes('form') || lowerMessage.includes('playing well') || lowerMessage.includes('hot')) {
+                return generateFormAnalysis(message);
+            }
+            
+            if (lowerMessage.includes('injured') || lowerMessage.includes('injury') || lowerMessage.includes('fit')) {
+                return generateInjuryAnalysis(message);
+            }
+            
+            if (lowerMessage.includes('transfer') && (lowerMessage.includes('popular') || lowerMessage.includes('trending'))) {
+                return generateTransferTrendsAnalysis(message);
+            }
+            
+            if (lowerMessage.includes('ownership') || lowerMessage.includes('owned') || lowerMessage.includes('popular')) {
+                return generateOwnershipAnalysis(message);
+            }
+            
+            if (lowerMessage.includes('differential') || lowerMessage.includes('unique') || lowerMessage.includes('low owned')) {
+                return generateDifferentialAnalysis(message);
+            }
+            
+            // General topic responses with data integration
             if (lowerMessage.includes('captain')) {
-                let response = "Based on current form and fixtures, I recommend <strong>Erling Haaland (C)</strong> and <strong>Mohamed Salah (VC)</strong> for this gameweek.";
-                
-                // Add fed information from global storage
-                const haalandInfo = window.fplDataManager.getPlayerInfo('haaland');
-                const salahInfo = window.fplDataManager.getPlayerInfo('salah');
-                
-                if (haalandInfo && haalandInfo.info.length > 0) {
-                    response += `<br><br>🌐 <strong>Community Data on Haaland:</strong><br>`;
-                    haalandInfo.info.slice(-2).forEach(item => {
-                        response += `• ${item.text}<br>`;
-                    });
-                }
-                
-                if (salahInfo && salahInfo.info.length > 0) {
-                    response += `<br><br>🌐 <strong>Community Data on Salah:</strong><br>`;
-                    salahInfo.info.slice(-2).forEach(item => {
-                        response += `• ${item.text}<br>`;
-                    });
-                }
-                
-                return response;
-                
+                return generateCaptainAdvice();
             } else if (lowerMessage.includes('transfer')) {
-                let response = "Looking at your team value and upcoming fixtures, I suggest transferring out any injured players for <strong>Cole Palmer</strong>.";
-                
-                const palmerInfo = window.fplDataManager.getPlayerInfo('palmer');
-                if (palmerInfo && palmerInfo.info.length > 0) {
-                    response += `<br><br>🌐 <strong>Community Data on Palmer:</strong><br>`;
-                    palmerInfo.info.slice(-2).forEach(item => {
-                        response += `• ${item.text}<br>`;
-                    });
-                }
-                
-                return response;
-                
-            } else if (lowerMessage.includes('differential')) {
-                let response = "For a differential pick, consider <strong>Anthony Gordon</strong> (8.5% ownership).";
-                
-                const gordonInfo = window.fplDataManager.getPlayerInfo('gordon');
-                if (gordonInfo && gordonInfo.info.length > 0) {
-                    response += `<br><br>🌐 <strong>Community Data on Gordon:</strong><br>`;
-                    gordonInfo.info.slice(-2).forEach(item => {
-                        response += `• ${item.text}<br>`;
-                    });
-                }
-                
-                return response;
-                
+                return generateTransferAdvice();
             } else if (lowerMessage.includes('wildcard')) {
                 return "The optimal time for your wildcard would be <strong>GW28-30</strong> when there are multiple double gameweeks. Build a team targeting those fixtures.";
             } else if (lowerMessage.includes('team')) {
@@ -996,6 +959,233 @@
             } else {
                 return "I can help you with transfer advice, captain picks, differentials, wildcard timing, and team strategy. What would you like to know?";
             }
+        }
+        
+        function generatePlayerResponse(foundPlayer, message, lowerMessage) {
+            let response = `<strong>${foundPlayer.name}</strong><br><br>`;
+            
+            if (foundPlayer.info && foundPlayer.info.length > 0) {
+                // Analyze what specific info they want about the player
+                if (lowerMessage.includes('price') || lowerMessage.includes('cost')) {
+                    const priceInfo = foundPlayer.info.find(item => item.text.includes('price') || item.text.includes('£'));
+                    if (priceInfo) {
+                        response += `💰 ${priceInfo.text}`;
+                    } else if (foundPlayer.stats.price) {
+                        response += `💰 ${foundPlayer.name} is currently priced at £${foundPlayer.stats.price}m with ${foundPlayer.stats.ownership}% ownership.`;
+                    }
+                } else if (lowerMessage.includes('points') || lowerMessage.includes('score')) {
+                    const pointsInfo = foundPlayer.info.find(item => item.text.includes('points') || item.text.includes('total'));
+                    if (pointsInfo) {
+                        response += `⚽ ${pointsInfo.text}`;
+                    } else if (foundPlayer.stats.totalPoints) {
+                        response += `⚽ ${foundPlayer.name} has ${foundPlayer.stats.totalPoints} total points this season (${foundPlayer.stats.ppg} points per game).`;
+                    }
+                } else if (lowerMessage.includes('form') || lowerMessage.includes('playing')) {
+                    const formInfo = foundPlayer.info.find(item => item.text.includes('form'));
+                    if (formInfo) {
+                        response += `📈 ${formInfo.text}`;
+                    } else if (foundPlayer.stats.form) {
+                        response += `📈 ${foundPlayer.name} is in good form with a ${foundPlayer.stats.form} form rating.`;
+                    }
+                } else if (lowerMessage.includes('injured') || lowerMessage.includes('injury') || lowerMessage.includes('fit')) {
+                    const injuryInfo = foundPlayer.info.find(item => item.text.includes('injury') || item.text.includes('news'));
+                    if (injuryInfo) {
+                        response += `🏥 ${injuryInfo.text}`;
+                    } else if (foundPlayer.stats.status === 'injured') {
+                        response += `🏥 ${foundPlayer.name} is currently injured.`;
+                    } else {
+                        response += `✅ ${foundPlayer.name} appears to be fit with no injury concerns.`;
+                    }
+                } else {
+                    // General info request - show most relevant recent data
+                    response += `📝 <strong>Latest on ${foundPlayer.name}:</strong><br>`;
+                    foundPlayer.info.slice(-2).forEach(item => {
+                        response += `• ${item.text}<br>`;
+                    });
+                }
+                
+                response += `<br>🌐 <strong>Using live FPL API data + community insights!</strong>`;
+            } else {
+                response += `I don't have any specific information about ${foundPlayer.name} yet. Feed me some data about them!`;
+            }
+            
+            return response;
+        }
+        
+        function generatePriceAnalysis(message) {
+            const allPlayers = window.fplDataManager.getAllPlayers();
+            const playersWithPrices = Object.values(allPlayers).filter(p => p.stats && p.stats.price);
+            
+            if (playersWithPrices.length === 0) return "I need more player data to analyze prices. Feed me some information!";
+            
+            const sortedByPrice = playersWithPrices.sort((a, b) => (b.stats.price || 0) - (a.stats.price || 0));
+            const expensive = sortedByPrice.slice(0, 3);
+            const cheap = sortedByPrice.slice(-3).reverse();
+            
+            let response = "💰 <strong>Price Analysis:</strong><br><br>";
+            response += "<strong>Most Expensive:</strong><br>";
+            expensive.forEach(p => response += `• ${p.name}: £${p.stats.price}m<br>`);
+            response += "<br><strong>Budget Options:</strong><br>";
+            cheap.forEach(p => response += `• ${p.name}: £${p.stats.price}m<br>`);
+            
+            return response;
+        }
+        
+        function generateFormAnalysis(message) {
+            const allPlayers = window.fplDataManager.getAllPlayers();
+            const playersWithForm = Object.values(allPlayers).filter(p => p.stats && p.stats.form > 0);
+            
+            if (playersWithForm.length === 0) return "I need more player data to analyze form. Feed me some information!";
+            
+            const topForm = playersWithForm.sort((a, b) => (b.stats.form || 0) - (a.stats.form || 0)).slice(0, 5);
+            
+            let response = "📈 <strong>Players in Top Form:</strong><br><br>";
+            topForm.forEach(p => {
+                response += `• <strong>${p.name}</strong>: ${p.stats.form} form rating`;
+                if (p.stats.ppg) response += ` (${p.stats.ppg} PPG)`;
+                response += `<br>`;
+            });
+            
+            return response;
+        }
+        
+        function generateInjuryAnalysis(message) {
+            const allPlayers = window.fplDataManager.getAllPlayers();
+            const injuredPlayers = Object.values(allPlayers).filter(p => p.stats && p.stats.status === 'injured');
+            const fitPlayers = Object.values(allPlayers).filter(p => p.stats && p.stats.status !== 'injured' && p.stats.form > 0);
+            
+            let response = "🏥 <strong>Injury Update:</strong><br><br>";
+            
+            if (injuredPlayers.length > 0) {
+                response += "<strong>Currently Injured:</strong><br>";
+                injuredPlayers.forEach(p => {
+                    response += `• <strong>${p.name}</strong>`;
+                    const injuryInfo = p.info.find(item => item.text.includes('injury') || item.text.includes('news'));
+                    if (injuryInfo) {
+                        response += `: ${injuryInfo.text.replace('Latest news: ', '')}<br>`;
+                    } else {
+                        response += `: Status unknown<br>`;
+                    }
+                });
+            }
+            
+            if (fitPlayers.length > 0) {
+                response += "<br><strong>Good Alternatives:</strong><br>";
+                fitPlayers.slice(0, 3).forEach(p => {
+                    response += `• <strong>${p.name}</strong>: £${p.stats.price}m, ${p.stats.form} form<br>`;
+                });
+            }
+            
+            return response;
+        }
+        
+        function generateTransferTrendsAnalysis(message) {
+            const allPlayers = window.fplDataManager.getAllPlayers();
+            const playersWithTransfers = Object.values(allPlayers).filter(p => 
+                p.info.some(item => item.text.includes('transfer activity'))
+            );
+            
+            if (playersWithTransfers.length === 0) return "I need more transfer data to show trends. Feed me some information!";
+            
+            let response = "📊 <strong>Transfer Trends This Week:</strong><br><br>";
+            playersWithTransfers.slice(0, 5).forEach(p => {
+                const transferInfo = p.info.find(item => item.text.includes('transfer activity'));
+                if (transferInfo) {
+                    response += `• <strong>${p.name}</strong>: ${transferInfo.text}<br>`;
+                }
+            });
+            
+            return response;
+        }
+        
+        function generateOwnershipAnalysis(message) {
+            const allPlayers = window.fplDataManager.getAllPlayers();
+            const playersWithOwnership = Object.values(allPlayers).filter(p => p.stats && p.stats.ownership);
+            
+            if (playersWithOwnership.length === 0) return "I need more ownership data. Feed me some information!";
+            
+            const sortedByOwnership = playersWithOwnership.sort((a, b) => (b.stats.ownership || 0) - (a.stats.ownership || 0));
+            
+            let response = "👥 <strong>Ownership Analysis:</strong><br><br>";
+            response += "<strong>Most Popular:</strong><br>";
+            sortedByOwnership.slice(0, 3).forEach(p => {
+                response += `• <strong>${p.name}</strong>: ${p.stats.ownership}% owned (£${p.stats.price}m)<br>`;
+            });
+            
+            return response;
+        }
+        
+        function generateDifferentialAnalysis(message) {
+            const allPlayers = window.fplDataManager.getAllPlayers();
+            const goodDifferentials = Object.values(allPlayers).filter(p => 
+                p.stats && p.stats.ownership < 15 && p.stats.form > 3
+            );
+            
+            if (goodDifferentials.length === 0) return "I need more player data to find differentials. Feed me some information!";
+            
+            let response = "🎯 <strong>Differential Picks (Low Ownership, Good Form):</strong><br><br>";
+            goodDifferentials.slice(0, 4).forEach(p => {
+                response += `• <strong>${p.name}</strong>: ${p.stats.ownership}% owned, ${p.stats.form} form (£${p.stats.price}m)<br>`;
+            });
+            
+            return response;
+        }
+        
+        function generateCaptainAdvice() {
+            const allPlayers = window.fplDataManager.getAllPlayers();
+            const topCaptains = Object.values(allPlayers).filter(p => 
+                p.stats && p.stats.form > 5 && p.stats.price > 8
+            ).sort((a, b) => (b.stats.form || 0) - (a.stats.form || 0));
+            
+            let response = "⭐ <strong>Captain Recommendations:</strong><br><br>";
+            
+            if (topCaptains.length > 0) {
+                const captain = topCaptains[0];
+                response += `<strong>Main Pick: ${captain.name}</strong><br>`;
+                const relevantInfo = captain.info.find(item => item.text.includes('form') || item.text.includes('points'));
+                if (relevantInfo) response += `• ${relevantInfo.text}<br>`;
+                if (captain.stats.price) response += `• Price: £${captain.stats.price}m<br>`;
+                
+                if (topCaptains.length > 1) {
+                    const viceCaptain = topCaptains[1];
+                    response += `<br><strong>Vice Captain: ${viceCaptain.name}</strong><br>`;
+                    const viceInfo = viceCaptain.info.find(item => item.text.includes('form') || item.text.includes('points'));
+                    if (viceInfo) response += `• ${viceInfo.text}<br>`;
+                }
+            } else {
+                response += "Based on current form and fixtures, I recommend <strong>Erling Haaland (C)</strong> and <strong>Mohamed Salah (VC)</strong> for this gameweek.";
+            }
+            
+            return response;
+        }
+        
+        function generateTransferAdvice() {
+            const allPlayers = window.fplDataManager.getAllPlayers();
+            const injured = Object.values(allPlayers).filter(p => p.stats && p.stats.status === 'injured');
+            const goodValue = Object.values(allPlayers).filter(p => 
+                p.stats && p.stats.form > 5 && p.stats.price < 8
+            );
+            
+            let response = "🔄 <strong>Transfer Recommendations:</strong><br><br>";
+            
+            if (injured.length > 0) {
+                response += "<strong>Players to Transfer Out (Injured):</strong><br>";
+                injured.slice(0, 3).forEach(p => {
+                    response += `• <strong>${p.name}</strong>: Currently injured<br>`;
+                });
+                response += "<br>";
+            }
+            
+            if (goodValue.length > 0) {
+                response += "<strong>Good Value Targets:</strong><br>";
+                goodValue.slice(0, 3).forEach(p => {
+                    response += `• <strong>${p.name}</strong>: £${p.stats.price}m, ${p.stats.form} form<br>`;
+                });
+            } else {
+                response += "Looking at your team value and upcoming fixtures, I suggest transferring out any injured players for <strong>Cole Palmer</strong>.";
+            }
+            
+            return response;
         }
         
         // Enter key to send
