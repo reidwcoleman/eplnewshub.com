@@ -52,55 +52,13 @@ app.post('/api/search', async (req, res) => {
 
 async function performGoogleSearch(query) {
     try {
-        console.log(`🔍 Performing real Google search with content extraction: ${query}`);
+        console.log(`🔍 Performing real web search and content extraction: ${query}`);
         
-        // Define key FPL websites to search and scrape
-        const fplSites = [
-            'https://www.premierleague.com',
-            'https://fantasy.premierleague.com', 
-            'https://www.skysports.com',
-            'https://www.bbc.com/sport',
-            'https://www.fantasyfootballscout.co.uk'
-        ];
+        // First, try to get real search results and then fetch content
+        const searchResults = await getRealSearchResults(query);
         
-        // Try to search for specific FPL articles and fetch their content
-        const searchResults = [];
-        
-        // Use specific FPL content URLs based on query
-        const contentUrls = getRelevantFPLUrls(query);
-        
-        for (const url of contentUrls.slice(0, 2)) {
-            try {
-                console.log(`🌐 Fetching content from: ${url}`);
-                
-                const response = await fetch(url, {
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-                    },
-                    timeout: 8000
-                });
-                
-                if (response.ok) {
-                    const html = await response.text();
-                    const extractedInfo = extractRelevantContent(html, query);
-                    
-                    if (extractedInfo) {
-                        const siteName = url.replace('https://www.', '').replace('https://', '').split('/')[0].replace('.com', '').toUpperCase();
-                        searchResults.push(`${siteName}: ${extractedInfo}`);
-                        console.log(`✅ Extracted content from ${siteName}`);
-                    }
-                }
-                
-            } catch (siteError) {
-                console.log(`❌ Failed to fetch from ${url}:`, siteError.message);
-            }
-        }
-        
-        // If we got real results, return them
         if (searchResults.length > 0) {
-            // Add one more enhanced result for completeness
-            searchResults.push(getEnhancedSearchResults(query)[0]);
+            console.log('✅ Got real search results, now fetching content...');
             return searchResults;
         }
         
@@ -111,6 +69,108 @@ async function performGoogleSearch(query) {
     } catch (error) {
         console.error('Google search failed:', error);
         return getEnhancedSearchResults(query);
+    }
+}
+
+async function getRealSearchResults(query) {
+    const results = [];
+    
+    // Try to fetch content from known FPL resource sites
+    const fplResourceUrls = [
+        'https://www.reddit.com/r/FantasyPL/',
+        'https://www.fantasyfootballscout.co.uk/',
+        'https://fantasy.premierleague.com/help'
+    ];
+    
+    for (const url of fplResourceUrls.slice(0, 2)) {
+        try {
+            console.log(`🌐 Attempting to fetch from: ${url}`);
+            
+            // Use a more robust fetch with proper headers
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            
+            const response = await fetch(url, {
+                signal: controller.signal,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.5',
+                    'Accept-Encoding': 'gzip, deflate',
+                    'DNT': '1',
+                    'Connection': 'keep-alive',
+                    'Upgrade-Insecure-Requests': '1'
+                }
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+                const text = await response.text();
+                console.log(`📄 Got ${text.length} characters from ${url}`);
+                
+                const extractedContent = extractFPLContent(text, query);
+                if (extractedContent) {
+                    const siteName = url.split('/')[2].replace('www.', '').replace('.com', '').replace('.co.uk', '').toUpperCase();
+                    results.push(`${siteName} Real Data: ${extractedContent}`);
+                    console.log(`✅ Successfully extracted content from ${siteName}`);
+                }
+            } else {
+                console.log(`❌ HTTP ${response.status} from ${url}`);
+            }
+            
+        } catch (fetchError) {
+            console.log(`❌ Fetch failed for ${url}: ${fetchError.message}`);
+        }
+    }
+    
+    return results;
+}
+
+function extractFPLContent(html, query) {
+    try {
+        const lowerQuery = query.toLowerCase();
+        
+        // Remove scripts and style tags
+        let cleanHtml = html.replace(/<script[^>]*>.*?<\/script>/gis, '');
+        cleanHtml = cleanHtml.replace(/<style[^>]*>.*?<\/style>/gis, '');
+        
+        // Look for FPL-specific content
+        const fplKeywords = ['free hit', 'wildcard', 'bench boost', 'triple captain', 'chip', 'gameweek', 'transfer', 'captain'];
+        let relevantContent = '';
+        
+        // Extract text content and look for FPL keywords
+        const textContent = cleanHtml.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
+        
+        // Find sentences containing query terms
+        const sentences = textContent.split(/[.!?]+/);
+        for (const sentence of sentences) {
+            const lowerSentence = sentence.toLowerCase();
+            if (lowerSentence.includes(lowerQuery) || 
+                fplKeywords.some(keyword => lowerSentence.includes(keyword) && lowerSentence.includes(lowerQuery.split(' ')[0]))) {
+                relevantContent = sentence.trim();
+                if (relevantContent.length > 50) {
+                    break;
+                }
+            }
+        }
+        
+        // If no specific match, look for any FPL content
+        if (!relevantContent) {
+            for (const sentence of sentences.slice(0, 20)) {
+                const lowerSentence = sentence.toLowerCase();
+                if (fplKeywords.some(keyword => lowerSentence.includes(keyword)) && sentence.length > 30) {
+                    relevantContent = sentence.trim();
+                    break;
+                }
+            }
+        }
+        
+        return relevantContent ? relevantContent.substring(0, 250) + '...' : null;
+        
+    } catch (error) {
+        console.error('Content extraction error:', error);
+        return null;
     }
 }
 
