@@ -369,10 +369,26 @@ class IntelligentFPLAssistant {
             ...this.knowledge.playerDatabase.budget
         ];
         
+        // Add trained players if available
+        if (window.aiTrainer) {
+            const trainedPlayers = window.aiTrainer.getAllTrainedPlayers();
+            allPlayers.push(...trainedPlayers);
+        }
+        
         allPlayers.forEach(player => {
             const lastName = player.name.split(' ').pop().toLowerCase();
             if (query.toLowerCase().includes(lastName)) {
-                players.push(player);
+                // Check for updated info from training data
+                if (window.aiTrainer) {
+                    const updatedInfo = window.aiTrainer.getPlayerData(player.name);
+                    if (updatedInfo) {
+                        players.push({...player, ...updatedInfo});
+                    } else {
+                        players.push(player);
+                    }
+                } else {
+                    players.push(player);
+                }
                 this.contextMemory.mentionedPlayers.add(player.name);
             }
         });

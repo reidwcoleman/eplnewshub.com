@@ -569,6 +569,7 @@
                                 <button onclick="quickQuestion('transfer')">🔄 Transfer Advice</button>
                                 <button onclick="quickQuestion('differential')">💎 Differentials</button>
                                 <button onclick="quickQuestion('wildcard')">🎯 Wildcard Strategy</button>
+                                <button onclick="toggleFeedMode()" id="feedModeBtn">📝 Feed Info</button>
                             </div>
                             <p style="margin-top: 15px; font-style: italic; color: #6b7280;">Type your question or click a suggestion above to get started!</p>
                         </div>
@@ -796,6 +797,34 @@
     <script>
         // AI Assistant Functionality
         function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Handle feed mode
+            if (feedMode) {
+                const messagesDiv = document.getElementById('chatMessages');
+                
+                // Add user message
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'user-message';
+                userMessageDiv.innerHTML = `
+                    <div class="message-content">
+                        <p>📝 ${message}</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(userMessageDiv);
+                
+                // Clear input
+                input.value = '';
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                // Process the information
+                processFeedInfo(message);
+                return;
+            }
+            
             // Use intelligent assistant if available
             if (window.fplIntelligent && window.fplIntelligent.processIntelligentQuery) {
                 window.fplIntelligent.processIntelligentQuery();
@@ -803,9 +832,6 @@
             }
             
             // Fallback to basic functionality
-            const input = document.getElementById('userInput');
-            const message = input.value.trim();
-            
             if (!message) return;
             
             const messagesDiv = document.getElementById('chatMessages');
@@ -916,6 +942,122 @@
         // Scroll to assistant
         function scrollToAssistant() {
             document.getElementById('ai-assistant').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Information feeding system
+        let feedMode = false;
+
+        function toggleFeedMode() {
+            feedMode = !feedMode;
+            const input = document.getElementById('userInput');
+            const button = document.getElementById('feedModeBtn');
+            
+            if (feedMode) {
+                input.placeholder = "Feed me information (e.g., 'Haaland scored 2 goals and got 12 points vs Brighton')";
+                button.textContent = "💬 Chat Mode";
+                button.style.background = "#10b981";
+                showFeedModeHelp();
+            } else {
+                input.placeholder = "Ask me anything about FPL...";
+                button.textContent = "📝 Feed Info";
+                button.style.background = "";
+            }
+        }
+
+        function showFeedModeHelp() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const helpDiv = document.createElement('div');
+            helpDiv.className = 'ai-message feed-mode-help';
+            helpDiv.innerHTML = `
+                <div class="message-avatar">📝</div>
+                <div class="message-content">
+                    <p><strong>Information Feed Mode Active!</strong></p>
+                    <p>You can now feed me information to update my knowledge. Examples:</p>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>"Haaland scored 2 goals vs Brighton and got 12 points"</li>
+                        <li>"Palmer is on penalties for Chelsea now"</li>
+                        <li>"Salah is injured and out for 2 weeks"</li>
+                        <li>"Newcastle have easy fixtures for next 5 gameweeks"</li>
+                        <li>"Gordon's price rose to 7.6m last night"</li>
+                    </ul>
+                    <p style="color: #10b981; font-weight: 600;">I'll automatically learn from everything you tell me!</p>
+                </div>
+            `;
+            messagesDiv.appendChild(helpDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function processFeedInfo(info) {
+            // Parse and store the information
+            const analysis = parseInformation(info);
+            
+            // Add to AI knowledge
+            if (window.aiTrainer) {
+                window.aiTrainer.processInformation(analysis);
+            }
+            
+            // Show confirmation
+            const messagesDiv = document.getElementById('chatMessages');
+            const confirmDiv = document.createElement('div');
+            confirmDiv.className = 'ai-message';
+            confirmDiv.innerHTML = `
+                <div class="message-avatar">🧠</div>
+                <div class="message-content">
+                    <p><strong>Information Learned!</strong> ✅</p>
+                    <p>I've updated my knowledge with: ${analysis.summary}</p>
+                    <p style="color: #6b7280; font-size: 0.9rem;">This information will now influence my future responses.</p>
+                </div>
+            `;
+            messagesDiv.appendChild(confirmDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function parseInformation(info) {
+            const lower = info.toLowerCase();
+            const analysis = {
+                type: 'general',
+                summary: info,
+                data: {}
+            };
+
+            // Detect player information
+            const playerMatch = info.match(/(\w+(?:\s+\w+)*?)(?:\s+(?:scored|got|has|is|was))/i);
+            if (playerMatch) {
+                analysis.player = playerMatch[1].trim();
+                analysis.type = 'player_update';
+            }
+
+            // Detect scores/points
+            const pointsMatch = info.match(/(\d+)\s*points?/i);
+            if (pointsMatch) {
+                analysis.data.points = parseInt(pointsMatch[1]);
+            }
+
+            // Detect goals/assists
+            const goalMatch = info.match(/(\d+)\s*goals?/i);
+            const assistMatch = info.match(/(\d+)\s*assists?/i);
+            if (goalMatch) analysis.data.goals = parseInt(goalMatch[1]);
+            if (assistMatch) analysis.data.assists = parseInt(assistMatch[1]);
+
+            // Detect price changes
+            const priceMatch = info.match(/price.*?(\d+\.\d+)m?/i);
+            if (priceMatch) {
+                analysis.data.price = parseFloat(priceMatch[1]);
+                analysis.type = 'price_update';
+            }
+
+            // Detect injuries
+            if (lower.includes('injured') || lower.includes('out')) {
+                analysis.type = 'injury_update';
+                analysis.data.status = 'injured';
+            }
+
+            // Detect fixtures
+            if (lower.includes('fixtures') || lower.includes('easy') || lower.includes('hard')) {
+                analysis.type = 'fixture_update';
+            }
+
+            return analysis;
         }
     </script>
     

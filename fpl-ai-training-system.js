@@ -856,6 +856,106 @@ class FPLAITrainingSystem {
     getAllTrainedPlayers() {
         return Object.values(this.trainingData.players);
     }
+
+    // Process information fed by user
+    processInformation(analysis) {
+        switch (analysis.type) {
+            case 'player_update':
+                this.updatePlayerInfo(analysis);
+                break;
+            case 'price_update':
+                this.updatePlayerPrice(analysis);
+                break;
+            case 'injury_update':
+                this.updatePlayerInjury(analysis);
+                break;
+            case 'fixture_update':
+                this.updateFixtureInfo(analysis);
+                break;
+            default:
+                this.addGeneralKnowledge(analysis);
+        }
+        
+        this.saveTrainingData();
+    }
+
+    updatePlayerInfo(analysis) {
+        const playerKey = analysis.player.toLowerCase();
+        
+        if (!this.trainingData.players[playerKey]) {
+            this.trainingData.players[playerKey] = {
+                name: analysis.player,
+                team: 'Unknown',
+                price: 0,
+                points: 0,
+                ownership: 0,
+                notes: '',
+                added: new Date().toISOString()
+            };
+        }
+        
+        const player = this.trainingData.players[playerKey];
+        
+        // Update with new data
+        if (analysis.data.points) {
+            player.recentPoints = analysis.data.points;
+            player.notes += ` Recent: ${analysis.data.points} points.`;
+        }
+        
+        if (analysis.data.goals) {
+            player.notes += ` Goals: ${analysis.data.goals}.`;
+        }
+        
+        if (analysis.data.assists) {
+            player.notes += ` Assists: ${analysis.data.assists}.`;
+        }
+        
+        player.lastUpdated = new Date().toISOString();
+        player.notes = player.notes.trim();
+    }
+
+    updatePlayerPrice(analysis) {
+        if (analysis.player) {
+            const playerKey = analysis.player.toLowerCase();
+            if (this.trainingData.players[playerKey]) {
+                this.trainingData.players[playerKey].price = analysis.data.price;
+                this.trainingData.players[playerKey].notes += ` Price updated to £${analysis.data.price}m.`;
+            }
+        }
+    }
+
+    updatePlayerInjury(analysis) {
+        if (analysis.player) {
+            const playerKey = analysis.player.toLowerCase();
+            if (this.trainingData.players[playerKey]) {
+                this.trainingData.players[playerKey].status = analysis.data.status;
+                this.trainingData.players[playerKey].notes += ` Injury status: ${analysis.data.status}.`;
+            }
+        }
+    }
+
+    updateFixtureInfo(analysis) {
+        if (!this.trainingData.fixtures.general) {
+            this.trainingData.fixtures.general = [];
+        }
+        
+        this.trainingData.fixtures.general.push({
+            info: analysis.summary,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    addGeneralKnowledge(analysis) {
+        if (!this.trainingData.general) {
+            this.trainingData.general = [];
+        }
+        
+        this.trainingData.general.push({
+            info: analysis.summary,
+            type: analysis.type,
+            timestamp: new Date().toISOString()
+        });
+    }
 }
 
 // Initialize training system
