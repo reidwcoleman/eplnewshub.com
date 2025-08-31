@@ -914,7 +914,13 @@
         }
         
         function analyzeQueryAndRespond(message, lowerMessage) {
-            // First check for specific player mentions
+            // Enhanced player keyword detection with intent analysis
+            const playerIntent = analyzePlayerQuery(message, lowerMessage);
+            if (playerIntent.player) {
+                return generateContextualPlayerResponse(playerIntent.player, playerIntent.intent, message);
+            }
+            
+            // First check for specific player mentions (fallback)
             const foundPlayer = window.fplDataManager.findPlayerInText(message);
             if (foundPlayer) {
                 return generatePlayerResponse(foundPlayer, message, lowerMessage);
@@ -959,6 +965,173 @@
             } else {
                 return "I can help you with transfer advice, captain picks, differentials, wildcard timing, and team strategy. What would you like to know?";
             }
+        }
+        
+        function analyzePlayerQuery(message, lowerMessage) {
+            // Enhanced player keyword database
+            const playerKeywords = {
+                'haaland': ['haaland', 'erling', 'city striker', 'norwegian striker', 'man city forward'],
+                'salah': ['salah', 'mo', 'mohamed', 'liverpool winger', 'egyptian king', 'reds winger'],
+                'palmer': ['palmer', 'cole', 'chelsea midfielder', 'blues midfielder', 'cole palmer'],
+                'saka': ['saka', 'bukayo', 'arsenal winger', 'gunners winger', 'bukayo saka'],
+                'son': ['son', 'heung-min', 'spurs forward', 'korean forward', 'tottenham striker'],
+                'watkins': ['watkins', 'ollie', 'villa striker', 'aston villa striker', 'villa forward'],
+                'isak': ['isak', 'alexander', 'newcastle striker', 'toon striker', 'swedish striker'],
+                'gordon': ['gordon', 'anthony', 'newcastle winger', 'toon winger', 'everton winger'],
+                'foden': ['foden', 'phil', 'city midfielder', 'man city mid', 'phil foden'],
+                'bruno': ['bruno', 'fernandes', 'united midfielder', 'man united captain', 'bruno fernandes'],
+                'rice': ['rice', 'declan', 'arsenal midfielder', 'gunners midfielder', 'declan rice'],
+                'semenyo': ['semenyo', 'antoine', 'bournemouth forward', 'cherries forward'],
+                'timber': ['timber', 'jurrien', 'arsenal defender', 'gunners defender'],
+                'calafiori': ['calafiori', 'riccardo', 'arsenal defender', 'italian defender']
+            };
+            
+            // Intent keywords for different types of queries
+            const intentPatterns = {
+                'price': ['price', 'cost', 'how much', 'expensive', 'cheap', 'value', '£', 'million'],
+                'points': ['points', 'scored', 'score', 'total', 'how many points', 'performance'],
+                'form': ['form', 'playing well', 'good form', 'hot', 'in form', 'performance'],
+                'injury': ['injured', 'injury', 'fit', 'hurt', 'out', 'available', 'return'],
+                'ownership': ['owned', 'ownership', 'popular', 'how many people', 'percentage'],
+                'transfers': ['transfer', 'brought in', 'selling', 'buying', 'popular transfer'],
+                'comparison': ['vs', 'versus', 'better than', 'compare', 'or', 'who should i pick'],
+                'general': ['tell me about', 'what about', 'how is', 'thoughts on', 'opinion']
+            };
+            
+            // Find player mentions
+            let detectedPlayer = null;
+            let playerMatch = '';
+            
+            for (const [playerKey, keywords] of Object.entries(playerKeywords)) {
+                for (const keyword of keywords) {
+                    if (lowerMessage.includes(keyword.toLowerCase())) {
+                        detectedPlayer = window.fplDataManager.getPlayerInfo(playerKey);
+                        playerMatch = keyword;
+                        break;
+                    }
+                }
+                if (detectedPlayer) break;
+            }
+            
+            // Detect intent
+            let detectedIntent = 'general';
+            for (const [intent, patterns] of Object.entries(intentPatterns)) {
+                if (patterns.some(pattern => lowerMessage.includes(pattern.toLowerCase()))) {
+                    detectedIntent = intent;
+                    break;
+                }
+            }
+            
+            return {
+                player: detectedPlayer,
+                playerMatch: playerMatch,
+                intent: detectedIntent,
+                confidence: detectedPlayer ? 0.9 : 0
+            };
+        }
+        
+        function generateContextualPlayerResponse(player, intent, originalMessage) {
+            if (!player) return "I couldn't find information about that player.";
+            
+            const name = player.name;
+            let response = '';
+            
+            // Generate response based on specific intent
+            switch (intent) {
+                case 'price':
+                    if (player.stats && player.stats.price) {
+                        response = `💰 <strong>${name}</strong> is currently priced at <strong>£${player.stats.price}m</strong>`;
+                        if (player.stats.ownership) {
+                            response += ` with ${player.stats.ownership}% ownership`;
+                        }
+                        response += `.`;
+                    } else {
+                        response = `I don't have current pricing information for ${name}.`;
+                    }
+                    break;
+                    
+                case 'points':
+                    if (player.stats && player.stats.totalPoints) {
+                        response = `⚽ <strong>${name}</strong> has scored <strong>${player.stats.totalPoints} total points</strong> this season`;
+                        if (player.stats.ppg) {
+                            response += ` averaging ${player.stats.ppg} points per game`;
+                        }
+                        response += `.`;
+                    } else {
+                        response = `I don't have current points information for ${name}.`;
+                    }
+                    break;
+                    
+                case 'form':
+                    if (player.stats && player.stats.form) {
+                        response = `📈 <strong>${name}</strong> is in good form with a <strong>${player.stats.form} form rating</strong>`;
+                        if (player.stats.ppg) {
+                            response += ` and ${player.stats.ppg} points per game`;
+                        }
+                        response += `.`;
+                    } else {
+                        response = `I don't have current form information for ${name}.`;
+                    }
+                    break;
+                    
+                case 'injury':
+                    if (player.stats && player.stats.status === 'injured') {
+                        const injuryInfo = player.info.find(item => item.text.includes('injury') || item.text.includes('news'));
+                        if (injuryInfo) {
+                            response = `🏥 <strong>${name}</strong> is currently injured. ${injuryInfo.text.replace('Latest news: ', '')}`;
+                        } else {
+                            response = `🏥 <strong>${name}</strong> is currently injured with unknown return date.`;
+                        }
+                    } else {
+                        response = `✅ <strong>${name}</strong> appears to be fit with no current injury concerns.`;
+                    }
+                    break;
+                    
+                case 'ownership':
+                    if (player.stats && player.stats.ownership) {
+                        response = `👥 <strong>${name}</strong> is owned by <strong>${player.stats.ownership}%</strong> of FPL managers`;
+                        if (player.stats.price) {
+                            response += ` at £${player.stats.price}m`;
+                        }
+                        response += `.`;
+                    } else {
+                        response = `I don't have current ownership information for ${name}.`;
+                    }
+                    break;
+                    
+                case 'transfers':
+                    const transferInfo = player.info.find(item => item.text.includes('transfer activity'));
+                    if (transferInfo) {
+                        response = `📊 <strong>${name}</strong> has high transfer activity this week. ${transferInfo.text}`;
+                    } else {
+                        response = `I don't have current transfer trend information for ${name}.`;
+                    }
+                    break;
+                    
+                case 'general':
+                default:
+                    if (player.info && player.info.length > 0) {
+                        const recentInfo = player.info.slice(-2);
+                        response = `🤖 <strong>${name}:</strong> `;
+                        if (recentInfo.length === 1) {
+                            response += recentInfo[0].text;
+                        } else {
+                            response += recentInfo.map(item => item.text).join('. ');
+                        }
+                    } else {
+                        response = `I don't have specific information about ${name} yet.`;
+                    }
+                    break;
+            }
+            
+            // Add data source attribution
+            if (player.source === 'fpl_api_import') {
+                response += ` <em>(from my built-in FPL knowledge)</em>`;
+            } else {
+                response += ` <em>(from community insights)</em>`;
+            }
+            
+            return response;
         }
         
         function generatePlayerResponse(foundPlayer, message, lowerMessage) {
