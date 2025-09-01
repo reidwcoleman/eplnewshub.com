@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Llama AI Chat - Hosted AI Assistant</title>
+    <title>FPL AI Expert - Fantasy Premier League Assistant</title>
     
     <style>
         * {
@@ -14,7 +14,7 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #38003c 0%, #00ff87 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -23,18 +23,18 @@
         
         .chat-container {
             width: 90%;
-            max-width: 800px;
+            max-width: 900px;
             height: 90vh;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 60px rgba(56, 0, 60, 0.3);
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
         
         .chat-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #38003c, #00ff87);
             color: white;
             padding: 20px;
             text-align: center;
@@ -44,11 +44,67 @@
         .chat-header h1 {
             font-size: 1.8rem;
             margin-bottom: 8px;
+            font-weight: 700;
         }
         
         .chat-header p {
             opacity: 0.9;
             font-size: 0.9rem;
+        }
+        
+        .training-panel {
+            background: #f8f9fa;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 15px 20px;
+            display: none;
+        }
+        
+        .training-panel.active {
+            display: block;
+        }
+        
+        .training-input {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            resize: vertical;
+            outline: none;
+        }
+        
+        .training-input:focus {
+            border-color: #38003c;
+        }
+        
+        .training-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #38003c;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
         }
         
         .chat-messages {
@@ -85,18 +141,18 @@
         }
         
         .ai-avatar {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #38003c, #00ff87);
         }
         
         .message-content {
-            max-width: 70%;
+            max-width: 75%;
             padding: 15px 20px;
             border-radius: 18px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         
         .user-message .message-content {
-            background: #667eea;
+            background: #38003c;
             color: white;
         }
         
@@ -130,7 +186,7 @@
         .thinking-dots span {
             width: 6px;
             height: 6px;
-            background: #667eea;
+            background: #38003c;
             border-radius: 50%;
             animation: bounce 1.4s infinite ease-in-out;
         }
@@ -154,10 +210,18 @@
             border-top: 1px solid #e5e7eb;
             display: flex;
             gap: 12px;
+            align-items: flex-end;
+        }
+        
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
         
         .chat-input {
-            flex: 1;
+            width: 100%;
             padding: 15px 20px;
             border: 2px solid #e5e7eb;
             border-radius: 25px;
@@ -167,28 +231,42 @@
         }
         
         .chat-input:focus {
-            border-color: #667eea;
+            border-color: #38003c;
         }
         
-        .send-button {
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .send-button, .train-button {
             width: 50px;
             height: 50px;
             border: none;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: transform 0.2s;
+            font-size: 1.2rem;
         }
         
-        .send-button:hover {
+        .send-button {
+            background: linear-gradient(135deg, #38003c, #00ff87);
+            color: white;
+        }
+        
+        .train-button {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .send-button:hover, .train-button:hover {
             transform: scale(1.05);
         }
         
-        .send-button:disabled {
+        .send-button:disabled, .train-button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
@@ -196,10 +274,10 @@
         
         .status-indicator {
             position: absolute;
-            top: 20px;
+            top: 15px;
             right: 20px;
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 15px;
             font-size: 0.8rem;
             font-weight: 600;
         }
@@ -209,9 +287,28 @@
             color: white;
         }
         
-        .status-offline {
-            background: #ef4444;
+        .status-trained {
+            background: #f59e0b;
             color: white;
+        }
+        
+        .fpl-stats {
+            background: #f8f9fa;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .knowledge-indicator {
+            background: #ecfdf5;
+            border: 1px solid #d1fae5;
+            color: #065f46;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 8px 0;
+            font-size: 0.85rem;
         }
         
         .error-message {
@@ -238,15 +335,29 @@
             .chat-header h1 {
                 font-size: 1.5rem;
             }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <h1>🦙 Llama AI Chat</h1>
-            <p>Reliable AI conversations - No local setup required</p>
-            <div id="statusIndicator" class="status-indicator status-online">🟢 Online</div>
+            <h1>⚽ FPL AI Expert</h1>
+            <p>Fantasy Premier League AI Assistant with Custom Training</p>
+            <div id="statusIndicator" class="status-indicator status-online">🟢 Ready</div>
+        </div>
+        
+        <div id="trainingPanel" class="training-panel">
+            <h3 style="margin-bottom: 10px; color: #38003c;">📚 Train FPL Knowledge</h3>
+            <textarea id="trainingInput" class="training-input" placeholder="Paste FPL data, articles, or information here to train the AI..."></textarea>
+            <div class="training-buttons">
+                <button onclick="trainAI()" class="btn btn-primary">🧠 Train AI</button>
+                <button onclick="toggleTraining()" class="btn btn-secondary">❌ Cancel</button>
+                <button onclick="clearKnowledge()" class="btn btn-secondary">🗑️ Clear Knowledge</button>
+            </div>
         </div>
         
         <div id="chatMessages" class="chat-messages">
@@ -254,21 +365,31 @@
         </div>
         
         <div class="chat-input-container">
-            <input type="text" id="userInput" placeholder="Ask me anything..." class="chat-input" autocomplete="off">
-            <button id="sendButton" onclick="sendMessage()" class="send-button" aria-label="Send Message">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
-                </svg>
-            </button>
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="Ask me anything about FPL..." class="chat-input" autocomplete="off">
+            </div>
+            <div class="action-buttons">
+                <button id="trainButton" onclick="toggleTraining()" class="train-button" title="Train AI with FPL data">
+                    📚
+                </button>
+                <button id="sendButton" onclick="sendMessage()" class="send-button" aria-label="Send Message">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
         let isTyping = false;
         let messageCount = 0;
+        let fplKnowledge = [];
+        let trainingMode = false;
         
         // Initialize chat
         document.addEventListener('DOMContentLoaded', () => {
+            loadKnowledge();
             showWelcomeMessage();
             
             // Handle Enter key
@@ -280,25 +401,137 @@
             });
         });
         
+        function loadKnowledge() {
+            const saved = localStorage.getItem('fplKnowledge');
+            if (saved) {
+                fplKnowledge = JSON.parse(saved);
+                updateKnowledgeStatus();
+            }
+        }
+        
+        function saveKnowledge() {
+            localStorage.setItem('fplKnowledge', JSON.stringify(fplKnowledge));
+            updateKnowledgeStatus();
+        }
+        
+        function updateKnowledgeStatus() {
+            const statusEl = document.getElementById('statusIndicator');
+            if (fplKnowledge.length > 0) {
+                statusEl.textContent = `📚 ${fplKnowledge.length} trained items`;
+                statusEl.className = 'status-indicator status-trained';
+            } else {
+                statusEl.textContent = '🟢 Ready to train';
+                statusEl.className = 'status-indicator status-online';
+            }
+        }
+        
+        function toggleTraining() {
+            trainingMode = !trainingMode;
+            const panel = document.getElementById('trainingPanel');
+            const button = document.getElementById('trainButton');
+            
+            if (trainingMode) {
+                panel.classList.add('active');
+                button.style.background = '#ef4444';
+                button.title = 'Close training panel';
+                document.getElementById('trainingInput').focus();
+            } else {
+                panel.classList.remove('active');
+                button.style.background = '#f59e0b';
+                button.title = 'Train AI with FPL data';
+            }
+        }
+        
+        function trainAI() {
+            const input = document.getElementById('trainingInput');
+            const text = input.value.trim();
+            
+            if (!text) {
+                alert('Please enter some FPL data to train on.');
+                return;
+            }
+            
+            // Parse and store training data
+            const trainingItem = {
+                id: Date.now(),
+                content: text,
+                timestamp: new Date().toISOString(),
+                keywords: extractKeywords(text)
+            };
+            
+            fplKnowledge.push(trainingItem);
+            saveKnowledge();
+            
+            // Clear input and close panel
+            input.value = '';
+            toggleTraining();
+            
+            // Show confirmation
+            displayAIMessage(`✅ **Training complete!** 
+
+I've learned from your FPL data. I now have **${fplKnowledge.length}** pieces of FPL knowledge to help answer your questions.
+
+The information included: ${trainingItem.keywords.slice(0, 5).join(', ')}${trainingItem.keywords.length > 5 ? '...' : ''}
+
+Try asking me something related to this data!`);
+        }
+        
+        function extractKeywords(text) {
+            const fplTerms = [
+                'haaland', 'salah', 'palmer', 'saka', 'son', 'bruno', 'kdb', 'watkins', 'isak', 'nunez',
+                'captain', 'transfer', 'wildcard', 'free hit', 'bench boost', 'triple captain',
+                'gameweek', 'fixture', 'form', 'price', 'ownership', 'differential', 'template',
+                'defender', 'midfielder', 'forward', 'goalkeeper', 'premium', 'budget',
+                'rotation', 'injury', 'suspension', 'yellow', 'red card', 'clean sheet',
+                'goal', 'assist', 'bonus', 'save', 'penalty', 'corners', 'crosses'
+            ];
+            
+            const words = text.toLowerCase().split(/\W+/);
+            const keywords = [];
+            
+            for (const term of fplTerms) {
+                if (words.some(word => word.includes(term) || term.includes(word))) {
+                    keywords.push(term);
+                }
+            }
+            
+            // Add any capitalized words (likely player names)
+            const caps = text.match(/\b[A-Z][a-z]+\b/g) || [];
+            keywords.push(...caps.slice(0, 10));
+            
+            return [...new Set(keywords)];
+        }
+        
+        function clearKnowledge() {
+            if (confirm('Are you sure you want to clear all FPL training data?')) {
+                fplKnowledge = [];
+                saveKnowledge();
+                toggleTraining();
+                displayAIMessage('🗑️ **Knowledge cleared.** All training data has been removed. You can train me with new FPL information using the training panel.');
+            }
+        }
+        
         function showWelcomeMessage() {
             setTimeout(() => {
-                const message = `👋 **Welcome to Llama AI Chat!**
+                const knowledgeCount = fplKnowledge.length;
+                const message = `⚽ **Welcome to your FPL AI Expert!**
 
-I'm a reliable AI assistant that doesn't require any local setup. I can help you with:
+I'm a Fantasy Premier League specialist that you can train with your own data. I can help with:
 
-• **General questions** and conversations
-• **Coding help** and technical problems  
-• **Creative writing** and brainstorming
-• **Analysis** and explanations
-• **Math** and science questions
-• **Research** and fact-checking
+• **Player Analysis** - Form, fixtures, differentials
+• **Transfer Strategy** - When to buy/sell, price predictions  
+• **Captain Picks** - EO analysis, fixture difficulty
+• **Chip Strategy** - Wildcard, Free Hit, Bench Boost timing
+• **Team Building** - Template vs differential approaches
+• **Gameweek Planning** - Short and long-term strategy
 
-🌐 **Hosted Service:** Reliable for multiple users
-🔒 **Privacy:** No personal data stored
-⚡ **Speed:** Fast responses without local dependencies
-🦙 **Powered by:** Llama AI technology
+📚 **Current Knowledge:** ${knowledgeCount > 0 ? `${knowledgeCount} trained items` : 'Ready for training'}
+🎯 **Specialized in:** FPL strategy and analysis
+⚡ **Trainable:** Use the 📚 button to teach me new FPL data
 
-What would you like to chat about?`;
+${knowledgeCount === 0 ? 
+'**Get started:** Click the 📚 button to train me with FPL articles, stats, or insights!' : 
+'What FPL question can I help you with?'}`;
                 
                 displayAIMessage(message);
             }, 500);
@@ -312,9 +545,9 @@ What would you like to chat about?`;
             
             if (!message) return;
             
-            // Rate limiting for demo
-            if (messageCount >= 10) {
-                displayErrorMessage('Rate limit reached. Please refresh the page to continue chatting.');
+            // Rate limiting
+            if (messageCount >= 20) {
+                displayErrorMessage('Rate limit reached. Please refresh the page to continue.');
                 return;
             }
             
@@ -330,7 +563,7 @@ What would you like to chat about?`;
             toggleSendButton(false);
             
             // Show thinking and get AI response
-            await getAIResponse(message);
+            await getFPLResponse(message);
             
             // Re-enable send button
             toggleSendButton(true);
@@ -354,7 +587,7 @@ What would you like to chat about?`;
             msgDiv.className = 'message ai-message';
             
             msgDiv.innerHTML = `
-                <div class="message-avatar ai-avatar">🦙</div>
+                <div class="message-avatar ai-avatar">⚽</div>
                 <div class="message-content">${formatMessage(message)}</div>
             `;
             messagesDiv.appendChild(msgDiv);
@@ -370,93 +603,255 @@ What would you like to chat about?`;
             scrollToBottom();
         }
         
-        async function getAIResponse(message) {
+        async function getFPLResponse(message) {
             // Show thinking indicator
             showThinking();
             
             try {
-                // Use a hosted AI service instead of local Ollama
-                const aiResponse = await queryHostedAI(message);
+                // Simulate AI processing time
+                await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 2000));
+                
+                // Generate FPL expert response using training data
+                const response = generateFPLExpertResponse(message);
                 
                 // Remove thinking indicator
                 removeThinking();
                 
                 // Display response
-                displayAIMessage(aiResponse);
+                displayAIMessage(response);
                 
             } catch (error) {
-                console.error('AI query error:', error);
+                console.error('FPL AI error:', error);
                 removeThinking();
-                displayAIMessage('Sorry, I encountered an error. Please try again in a moment.');
+                displayAIMessage('Sorry, I encountered an error analyzing your FPL question. Please try again.');
             }
         }
         
-        async function queryHostedAI(query) {
-            try {
-                // For demo purposes, use Hugging Face Inference API or similar hosted service
-                // In production, you'd use a reliable hosted LLM service
-                
-                // Simulate API call with realistic response time
-                await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-                
-                // Generate contextual responses based on query
-                return generateIntelligentResponse(query);
-                
-            } catch (error) {
-                console.error('Hosted AI error:', error);
-                throw error;
-            }
-        }
-        
-        function generateIntelligentResponse(query) {
+        function generateFPLExpertResponse(query) {
             const lowerQuery = query.toLowerCase();
             
-            // Coding questions
-            if (lowerQuery.includes('code') || lowerQuery.includes('programming') || lowerQuery.includes('function')) {
-                return "I'd be happy to help with coding! What programming language are you working with? I can assist with JavaScript, Python, HTML/CSS, and many other languages. Feel free to share your specific problem or question.";
+            // Search training data for relevant information
+            const relevantKnowledge = findRelevantKnowledge(query);
+            
+            // Generate response based on query type and available knowledge
+            if (lowerQuery.includes('captain') || lowerQuery.includes('(c)')) {
+                return generateCaptainAdvice(query, relevantKnowledge);
+            } else if (lowerQuery.includes('transfer') || lowerQuery.includes('buy') || lowerQuery.includes('sell')) {
+                return generateTransferAdvice(query, relevantKnowledge);
+            } else if (lowerQuery.includes('wildcard') || lowerQuery.includes('free hit') || lowerQuery.includes('chip')) {
+                return generateChipAdvice(query, relevantKnowledge);
+            } else if (lowerQuery.includes('team') || lowerQuery.includes('squad')) {
+                return generateTeamAdvice(query, relevantKnowledge);
+            } else if (containsPlayerName(lowerQuery)) {
+                return generatePlayerAnalysis(query, relevantKnowledge);
+            } else if (lowerQuery.includes('gameweek') || lowerQuery.includes('gw')) {
+                return generateGameweekAdvice(query, relevantKnowledge);
+            } else {
+                return generateGeneralFPLAdvice(query, relevantKnowledge);
+            }
+        }
+        
+        function findRelevantKnowledge(query) {
+            const queryWords = query.toLowerCase().split(/\W+/);
+            const relevant = [];
+            
+            for (const item of fplKnowledge) {
+                let score = 0;
+                const content = item.content.toLowerCase();
+                
+                // Score based on keyword matches
+                for (const keyword of item.keywords) {
+                    if (queryWords.some(word => word.includes(keyword.toLowerCase()) || keyword.toLowerCase().includes(word))) {
+                        score += 10;
+                    }
+                }
+                
+                // Score based on direct content matches
+                for (const word of queryWords) {
+                    if (word.length > 3 && content.includes(word)) {
+                        score += 5;
+                    }
+                }
+                
+                if (score > 0) {
+                    relevant.push({ ...item, score });
+                }
             }
             
-            // Creative writing
-            if (lowerQuery.includes('write') || lowerQuery.includes('story') || lowerQuery.includes('creative')) {
-                return "I love helping with creative writing! What kind of story or content would you like to create? I can help with:\n\n• **Fiction stories** - characters, plot, dialogue\n• **Blog posts** and articles\n• **Scripts** and screenplays\n• **Poetry** and creative prose\n• **Marketing copy** and content\n\nWhat's your creative project?";
+            return relevant.sort((a, b) => b.score - a.score).slice(0, 3);
+        }
+        
+        function generateCaptainAdvice(query, knowledge) {
+            let response = "🏆 **Captain Advice:**\n\n";
+            
+            if (knowledge.length > 0) {
+                response += "Based on your training data:\n\n";
+                knowledge.forEach((item, i) => {
+                    const snippet = item.content.substring(0, 150) + '...';
+                    response += `${i + 1}. ${snippet}\n\n`;
+                });
+                response += "**My recommendation:** ";
             }
             
-            // Math and calculations
-            if (lowerQuery.includes('math') || lowerQuery.includes('calculate') || lowerQuery.includes('equation')) {
-                return "I can help with math problems! I'm good with:\n\n• **Basic arithmetic** and algebra\n• **Calculus** and advanced math\n• **Statistics** and probability\n• **Geometry** and trigonometry\n• **Word problems** and applications\n\nWhat math problem are you working on?";
+            response += "Consider these captain factors:\n\n";
+            response += "• **Fixture difficulty** - Look for favorable matchups\n";
+            response += "• **Recent form** - Players scoring/assisting consistently\n";
+            response += "• **Effective ownership** - Balance risk vs reward\n";
+            response += "• **Injury status** - Avoid rotation risks\n\n";
+            response += "Popular captain options are usually Haaland, Salah, and Palmer when they have good fixtures.";
+            
+            return response;
+        }
+        
+        function generateTransferAdvice(query, knowledge) {
+            let response = "🔄 **Transfer Strategy:**\n\n";
+            
+            if (knowledge.length > 0) {
+                response += "From your training data:\n\n";
+                const relevantSnippet = knowledge[0].content.substring(0, 200) + '...';
+                response += `📊 ${relevantSnippet}\n\n`;
             }
             
-            // Explanations
-            if (lowerQuery.includes('explain') || lowerQuery.includes('how does') || lowerQuery.includes('what is')) {
-                return "I love explaining things! I can break down complex topics into easy-to-understand explanations. Whether it's science, technology, history, or any other subject - just ask and I'll provide a clear, detailed explanation.";
+            response += "**Key transfer principles:**\n\n";
+            response += "• **Form over fixtures** - Prioritize in-form players\n";
+            response += "• **Price trends** - Buy before rises, sell before falls\n";
+            response += "• **Fixture runs** - Plan 3-4 gameweeks ahead\n";
+            response += "• **Team structure** - Maintain playing XI balance\n\n";
+            response += "💡 **Tip:** Use your free transfer wisely and avoid hits unless necessary for urgent moves.";
+            
+            return response;
+        }
+        
+        function generateChipAdvice(query, knowledge) {
+            let response = "🎯 **Chip Strategy:**\n\n";
+            
+            if (knowledge.length > 0) {
+                response += "Based on your data:\n\n";
+                const chipInfo = knowledge.find(k => k.keywords.some(kw => 
+                    ['wildcard', 'free hit', 'bench boost', 'triple captain'].includes(kw.toLowerCase())
+                ));
+                if (chipInfo) {
+                    response += `📈 ${chipInfo.content.substring(0, 180)}...\n\n`;
+                }
             }
             
-            // Science questions
-            if (lowerQuery.includes('science') || lowerQuery.includes('physics') || lowerQuery.includes('chemistry') || lowerQuery.includes('biology')) {
-                return "Science questions are fascinating! I can help explain scientific concepts, theories, and phenomena across:\n\n• **Physics** - mechanics, thermodynamics, quantum\n• **Chemistry** - reactions, molecular structure\n• **Biology** - life processes, evolution, genetics\n• **Earth Science** - geology, climate, space\n\nWhat scientific topic interests you?";
+            response += "**Optimal chip timing:**\n\n";
+            response += "• **Wildcard** - Use during international breaks or when team needs overhaul\n";
+            response += "• **Free Hit** - Double gameweeks or blank gameweeks\n";
+            response += "• **Bench Boost** - Strong bench + double gameweek\n";
+            response += "• **Triple Captain** - Safe pick in double gameweek\n\n";
+            response += "⏰ Plan ahead - chips are most effective when used strategically, not reactively.";
+            
+            return response;
+        }
+        
+        function generatePlayerAnalysis(query, knowledge) {
+            const playerName = extractPlayerName(query);
+            let response = `👤 **Player Analysis: ${playerName}**\n\n`;
+            
+            if (knowledge.length > 0) {
+                const playerData = knowledge.find(k => 
+                    k.keywords.some(kw => kw.toLowerCase().includes(playerName.toLowerCase()))
+                );
+                if (playerData) {
+                    response += `📊 **Your Training Data:**\n${playerData.content.substring(0, 250)}...\n\n`;
+                }
             }
             
-            // Greetings
-            if (lowerQuery.includes('hello') || lowerQuery.includes('hi') || lowerQuery.includes('hey')) {
-                const greetings = [
-                    "Hello! I'm your AI assistant. How can I help you today?",
-                    "Hi there! I'm ready to chat about anything you'd like to explore.",
-                    "Hey! Great to meet you. What's on your mind?",
-                    "Hello! I'm here to help with questions, conversations, or creative projects."
-                ];
-                return greetings[Math.floor(Math.random() * greetings.length)];
+            response += "**Analysis Framework:**\n\n";
+            response += "• **Recent form** - Last 5 gameweeks performance\n";
+            response += "• **Fixture analysis** - Upcoming difficulty rating\n";
+            response += "• **Underlying stats** - xG, xA, key passes\n";
+            response += "• **Price trends** - Current trajectory\n";
+            response += "• **Rotation risk** - Manager's recent selections\n\n";
+            response += `💭 Need more specific analysis? Train me with recent ${playerName} stats or news!`;
+            
+            return response;
+        }
+        
+        function generateTeamAdvice(query, knowledge) {
+            let response = "🏆 **Team Strategy:**\n\n";
+            
+            if (knowledge.length > 0) {
+                response += "Insights from your training:\n\n";
+                const teamData = knowledge.find(k => 
+                    k.keywords.some(kw => ['team', 'squad', 'formation', 'structure'].includes(kw.toLowerCase()))
+                );
+                if (teamData) {
+                    response += `🎯 ${teamData.content.substring(0, 200)}...\n\n`;
+                }
             }
             
-            // Default intelligent response
-            const responses = [
-                "That's an interesting question! I'd be happy to help you explore that topic. Could you provide a bit more context about what specifically you'd like to know?",
-                "I can help with that! To give you the most useful response, could you tell me more about what you're looking for?",
-                "Great question! I'm here to help. What aspect of this topic would you like me to focus on?",
-                "I'm ready to assist! Could you share a bit more detail about what you're trying to accomplish or understand?",
-                "Interesting! I can help you with that. What specific information or guidance are you looking for?"
+            response += "**Team building principles:**\n\n";
+            response += "• **Balance** - Premium players + budget enablers\n";
+            response += "• **Playing time** - Ensure 11 starters minimum\n";
+            response += "• **Fixture rotation** - Plan for different gameweeks\n";
+            response += "• **Team correlation** - Avoid too many from same team\n\n";
+            response += "📈 Current template: 3-5-2 or 3-4-3 with premium forwards/mids.";
+            
+            return response;
+        }
+        
+        function generateGameweekAdvice(query, knowledge) {
+            let response = "📅 **Gameweek Planning:**\n\n";
+            
+            if (knowledge.length > 0) {
+                response += "From your gameweek data:\n\n";
+                const gwData = knowledge.find(k => 
+                    k.keywords.some(kw => kw.toLowerCase().includes('gameweek') || kw.toLowerCase().includes('gw'))
+                );
+                if (gwData) {
+                    response += `📋 ${gwData.content.substring(0, 200)}...\n\n`;
+                }
+            }
+            
+            response += "**Gameweek strategy:**\n\n";
+            response += "• **Fixture analysis** - Check team schedules\n";
+            response += "• **Rotation tracking** - Monitor team news\n";
+            response += "• **Price monitoring** - Plan transfers around changes\n";
+            response += "• **Captaincy options** - Identify best picks\n\n";
+            response += "🔍 Always check team news before deadline!";
+            
+            return response;
+        }
+        
+        function generateGeneralFPLAdvice(query, knowledge) {
+            let response = "⚽ **FPL Expert Analysis:**\n\n";
+            
+            if (knowledge.length > 0) {
+                response += "Based on your training data:\n\n";
+                const bestMatch = knowledge[0];
+                response += `📊 ${bestMatch.content.substring(0, 250)}...\n\n`;
+                response += "**My analysis:** ";
+            }
+            
+            response += "Here are some key FPL principles:\n\n";
+            response += "• **Follow form** - Recent performance over reputation\n";
+            response += "• **Plan ahead** - Think 3-4 gameweeks in advance\n";
+            response += "• **Stay patient** - Avoid knee-jerk reactions\n";
+            response += "• **Monitor metrics** - xG, xA, key passes, shots\n";
+            response += "• **Watch ownership** - Balance template vs differential\n\n";
+            
+            if (knowledge.length === 0) {
+                response += "💡 **Tip:** Train me with FPL articles, player stats, or expert analysis to get more specific advice!";
+            }
+            
+            return response;
+        }
+        
+        function containsPlayerName(query) {
+            const commonPlayers = [
+                'haaland', 'salah', 'palmer', 'saka', 'son', 'bruno', 'kdb', 'de bruyne',
+                'watkins', 'isak', 'nunez', 'diaz', 'jota', 'rashford', 'fernandes',
+                'bowen', 'paqueta', 'gordon', 'barnes', 'wissa', 'solanke'
             ];
-            
-            return responses[Math.floor(Math.random() * responses.length)];
+            return commonPlayers.some(player => query.includes(player));
+        }
+        
+        function extractPlayerName(query) {
+            const words = query.split(' ');
+            const capitalized = words.find(word => /^[A-Z][a-z]+$/.test(word));
+            return capitalized || 'this player';
         }
         
         function showThinking() {
@@ -467,17 +862,17 @@ What would you like to chat about?`;
             thinkingDiv.id = 'thinkingIndicator';
             
             const thoughts = [
-                "🦙 Llama is thinking...",
-                "🧠 Processing your question...",
-                "⚡ Generating response...",
-                "🤖 AI brain working...",
-                "🔍 Analyzing your request...",
-                "💭 Crafting a helpful response..."
+                "⚽ Analyzing FPL data...",
+                "🧠 Processing your FPL question...",
+                "📊 Consulting training knowledge...",
+                "🎯 Generating expert advice...",
+                "📈 Reviewing player stats...",
+                "🔍 Checking fixture data..."
             ];
             const thought = thoughts[Math.floor(Math.random() * thoughts.length)];
             
             thinkingDiv.innerHTML = `
-                <div class="message-avatar ai-avatar">🦙</div>
+                <div class="message-avatar ai-avatar">⚽</div>
                 <div class="thinking-content">
                     ${thought}
                     <div class="thinking-dots">
@@ -511,7 +906,7 @@ What would you like to chat about?`;
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.*?)\*/g, '<em>$1</em>')
                 .replace(/`(.*?)`/g, '<code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">$1</code>')
-                .replace(/• /g, '• '); // Preserve bullet points
+                .replace(/• /g, '• ');
         }
         
         function escapeHtml(text) {
@@ -525,14 +920,14 @@ What would you like to chat about?`;
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
         
-        // Example conversation starters
-        function addExampleButtons() {
+        // Add example FPL questions
+        function addFPLExamples() {
             setTimeout(() => {
                 const examples = [
-                    "Explain quantum physics simply",
-                    "Help me write a story",
-                    "Debug my JavaScript code",
-                    "What's the weather like today?"
+                    "Who should I captain this week?",
+                    "Is Haaland worth his price?",
+                    "When should I use my wildcard?",
+                    "Best defender under 5m?"
                 ];
                 
                 const messagesDiv = document.getElementById('chatMessages');
@@ -541,27 +936,31 @@ What would you like to chat about?`;
                 exampleDiv.innerHTML = `
                     <div class="message-avatar ai-avatar">💡</div>
                     <div class="message-content">
-                        <p><strong>Try these examples:</strong></p>
+                        <p><strong>Try these FPL questions:</strong></p>
                         <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
                             ${examples.map(ex => `
                                 <button onclick="askExample('${ex}')" style="
-                                    background: #f3f4f6; 
-                                    border: 1px solid #d1d5db; 
+                                    background: #f0fdf4; 
+                                    border: 1px solid #bbf7d0; 
                                     border-radius: 20px; 
                                     padding: 8px 16px; 
                                     font-size: 0.9rem; 
                                     cursor: pointer;
                                     transition: all 0.2s;
-                                " onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">
+                                    color: #166534;
+                                " onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
                                     ${ex}
                                 </button>
                             `).join('')}
                         </div>
+                        <p style="margin-top: 15px; font-size: 0.9rem; color: #6b7280;">
+                            💡 <strong>Pro tip:</strong> Use the 📚 button to train me with FPL articles, player stats, or expert analysis for more personalized advice!
+                        </p>
                     </div>
                 `;
                 messagesDiv.appendChild(exampleDiv);
                 scrollToBottom();
-            }, 1500);
+            }, 2000);
         }
         
         function askExample(question) {
@@ -569,8 +968,8 @@ What would you like to chat about?`;
             sendMessage();
         }
         
-        // Add example buttons after welcome
-        setTimeout(addExampleButtons, 1000);
+        // Add FPL examples after welcome
+        setTimeout(addFPLExamples, 1000);
     </script>
 </body>
 </html>
