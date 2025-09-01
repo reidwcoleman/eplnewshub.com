@@ -52,37 +52,6 @@
             font-size: 0.9rem;
         }
         
-        .training-panel {
-            background: #f8f9fa;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 15px 20px;
-            display: none;
-        }
-        
-        .training-panel.active {
-            display: block;
-        }
-        
-        .training-input {
-            width: 100%;
-            min-height: 80px;
-            padding: 12px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            resize: vertical;
-            outline: none;
-        }
-        
-        .training-input:focus {
-            border-color: #38003c;
-        }
-        
-        .training-buttons {
-            margin-top: 10px;
-            display: flex;
-            gap: 10px;
-        }
         
         .btn {
             padding: 8px 16px;
@@ -239,7 +208,7 @@
             gap: 8px;
         }
         
-        .send-button, .train-button {
+        .send-button {
             width: 50px;
             height: 50px;
             border: none;
@@ -257,40 +226,17 @@
             color: white;
         }
         
-        .train-button {
-            background: #f59e0b;
-            color: white;
-        }
         
-        .send-button:hover, .train-button:hover {
+        .send-button:hover {
             transform: scale(1.05);
         }
         
-        .send-button:disabled, .train-button:disabled {
+        .send-button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
         
-        .status-indicator {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .status-online {
-            background: #10b981;
-            color: white;
-        }
-        
-        .status-trained {
-            background: #f59e0b;
-            color: white;
-        }
         
         .fpl-stats {
             background: #f8f9fa;
@@ -347,18 +293,8 @@
         <div class="chat-header">
             <h1>🦙 Llama AI Assistant</h1>
             <p>Your intelligent AI helper for any question or task</p>
-            <div id="statusIndicator" class="status-indicator status-online">🟢 Ready</div>
         </div>
         
-        <div id="trainingPanel" class="training-panel">
-            <h3 style="margin-bottom: 10px; color: #38003c;">📚 Train Custom Knowledge</h3>
-            <textarea id="trainingInput" class="training-input" placeholder="Paste any data, articles, or information here to train the AI with your custom knowledge..."></textarea>
-            <div class="training-buttons">
-                <button onclick="trainAI()" class="btn btn-primary">🧠 Train AI</button>
-                <button onclick="toggleTraining()" class="btn btn-secondary">❌ Cancel</button>
-                <button onclick="clearKnowledge()" class="btn btn-secondary">🗑️ Clear Knowledge</button>
-            </div>
-        </div>
         
         <div id="chatMessages" class="chat-messages">
             <!-- Messages will be added here -->
@@ -369,9 +305,6 @@
                 <input type="text" id="userInput" placeholder="Ask me anything..." class="chat-input" autocomplete="off">
             </div>
             <div class="action-buttons">
-                <button id="trainButton" onclick="toggleTraining()" class="train-button" title="Train AI with custom data">
-                    📚
-                </button>
                 <button id="sendButton" onclick="sendMessage()" class="send-button" aria-label="Send Message">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
@@ -384,12 +317,9 @@
     <script>
         let isTyping = false;
         let messageCount = 0;
-        let customKnowledge = [];
-        let trainingMode = false;
         
         // Initialize chat
         document.addEventListener('DOMContentLoaded', () => {
-            loadKnowledge();
             showWelcomeMessage();
             
             // Handle Enter key
@@ -401,117 +331,20 @@
             });
         });
         
-        function loadKnowledge() {
-            const saved = localStorage.getItem('customKnowledge');
-            if (saved) {
-                customKnowledge = JSON.parse(saved);
-                updateKnowledgeStatus();
-            }
-        }
         
-        function saveKnowledge() {
-            localStorage.setItem('customKnowledge', JSON.stringify(customKnowledge));
-            updateKnowledgeStatus();
-        }
         
-        function updateKnowledgeStatus() {
-            const statusEl = document.getElementById('statusIndicator');
-            if (customKnowledge.length > 0) {
-                statusEl.textContent = `📚 ${customKnowledge.length} trained items`;
-                statusEl.className = 'status-indicator status-trained';
-            } else {
-                statusEl.textContent = '🟢 Ready';
-                statusEl.className = 'status-indicator status-online';
-            }
-        }
         
-        function toggleTraining() {
-            trainingMode = !trainingMode;
-            const panel = document.getElementById('trainingPanel');
-            const button = document.getElementById('trainButton');
-            
-            if (trainingMode) {
-                panel.classList.add('active');
-                button.style.background = '#ef4444';
-                button.title = 'Close training panel';
-                document.getElementById('trainingInput').focus();
-            } else {
-                panel.classList.remove('active');
-                button.style.background = '#f59e0b';
-                button.title = 'Train AI with custom data';
-            }
-        }
         
-        function trainAI() {
-            const input = document.getElementById('trainingInput');
-            const text = input.value.trim();
-            
-            if (!text) {
-                alert('Please enter some data to train on.');
-                return;
-            }
-            
-            // Parse and store training data
-            const trainingItem = {
-                id: Date.now(),
-                content: text,
-                timestamp: new Date().toISOString(),
-                keywords: extractKeywords(text)
-            };
-            
-            customKnowledge.push(trainingItem);
-            saveKnowledge();
-            
-            // Clear input and close panel
-            input.value = '';
-            toggleTraining();
-            
-            // Show confirmation
-            displayAIMessage(`✅ **Training complete!** 
-
-I've learned from your custom data. I now have **${customKnowledge.length}** pieces of knowledge to help answer your questions.
-
-The information included: ${trainingItem.keywords.slice(0, 5).join(', ')}${trainingItem.keywords.length > 5 ? '...' : ''}
-
-Try asking me something related to this data!`);
-        }
         
-        function extractKeywords(text) {
-            const words = text.toLowerCase().split(/\W+/);
-            const keywords = [];
-            
-            // Extract important terms (nouns, technical terms, etc.)
-            const importantWords = words.filter(word => 
-                word.length > 3 && 
-                !['this', 'that', 'with', 'from', 'they', 'were', 'been', 'have', 'will', 'would', 'could', 'should'].includes(word)
-            );
-            
-            keywords.push(...importantWords.slice(0, 15));
-            
-            // Add any capitalized words (likely proper nouns, names, etc.)
-            const caps = text.match(/\b[A-Z][a-z]+\b/g) || [];
-            keywords.push(...caps.slice(0, 10));
-            
-            return [...new Set(keywords)];
-        }
         
-        function clearKnowledge() {
-            if (confirm('Are you sure you want to clear all training data?')) {
-                customKnowledge = [];
-                saveKnowledge();
-                toggleTraining();
-                displayAIMessage('🗑️ **Knowledge cleared.** All training data has been removed. You can train me with new information using the training panel.');
-            }
-        }
         
         function showWelcomeMessage() {
             setTimeout(() => {
-                const knowledgeCount = fplKnowledge.length;
                 const message = `🦙 **Welcome to your Llama AI Assistant!**
 
 I'm **Llama AI** - your intelligent helper for any question or task. I can assist with:
 
-**🌐 General Capabilities:**
+**🌐 My Capabilities:**
 • **Programming & Coding** - Debug, explain, write code in any language
 • **Science & Math** - Explain concepts, solve problems, research topics
 • **Creative Writing** - Stories, essays, poems, brainstorming ideas
@@ -519,17 +352,15 @@ I'm **Llama AI** - your intelligent helper for any question or task. I can assis
 • **Analysis & Research** - Data analysis, report writing, fact-checking
 • **Problem Solving** - Strategic thinking, decision support
 
-**💪 My Strengths:**
-• **Real-time Search** - Access current information via Google search
-• **Custom Training** - Learn from your specific data and preferences
+**💪 What I Excel At:**
 • **Multi-topic Expertise** - Science, technology, humanities, arts
 • **Code Generation** - Write, debug, and optimize code
 • **Creative Tasks** - Writing, brainstorming, content creation
 • **Educational Support** - Explain complex topics simply
+• **Conversational AI** - Natural, helpful dialogue on any subject
+• **Language Tasks** - Translation, grammar, writing assistance
 
-🦙 **Powered by:** Llama AI (Hugging Face & Replicate APIs)
-🔍 **Enhanced with:** Real-time Google search for current data
-📚 **Custom Training:** ${knowledgeCount > 0 ? `${knowledgeCount} custom items` : 'Ready for training'}
+🦙 **Powered by:** Llama AI (Advanced Language Model)
 ⚡ **Ready for:** Any question, any topic, any challenge!
 
 Ask me about **anything** - I'm here to help with whatever you're curious about!`;
@@ -605,11 +436,11 @@ Ask me about **anything** - I'm here to help with whatever you're curious about!
         }
         
         async function getAIResponse(message) {
-            // Show thinking indicator with search info
-            showThinkingWithSearch();
+            // Show thinking indicator
+            showThinking();
             
             try {
-                // Get real Llama AI response with search data and training context
+                // Get real Llama AI response
                 const response = await queryLlamaAI(message);
                 
                 // Remove thinking indicator
@@ -625,128 +456,13 @@ Ask me about **anything** - I'm here to help with whatever you're curious about!
             }
         }
         
-        async function searchForCurrentData(query) {
-            try {
-                console.log('🔍 Searching Google for current data:', query);
-                
-                // Try multiple search methods for better results
-                const searchResults = await performGoogleSearch(query);
-                
-                if (searchResults.length > 0) {
-                    console.log(`✅ Found ${searchResults.length} search results`);
-                    return searchResults.slice(0, 3).join('\n\n');
-                }
-                
-                return '';
-            } catch (error) {
-                console.log('Search failed:', error.message);
-                return '';
-            }
-        }
         
-        function isTimeSensitive(query) {
-            const timeSensitiveKeywords = [
-                'today', 'now', 'current', 'latest', 'recent', 'news', 'update',
-                'weather', 'stock', 'price', 'market', 'breaking', 'live'
-            ];
-            
-            const lowerQuery = query.toLowerCase();
-            return timeSensitiveKeywords.some(keyword => lowerQuery.includes(keyword));
-        }
         
-        async function performGoogleSearch(query) {
-            try {
-                // Method 1: Try DuckDuckGo search (no API key required)
-                const searchQuery = encodeURIComponent(query);
-                const duckUrl = `https://api.duckduckgo.com/?q=${searchQuery}&format=json&no_html=1&skip_disambig=1`;
-                
-                try {
-                    const response = await fetch(duckUrl);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.RelatedTopics && data.RelatedTopics.length > 0) {
-                            return data.RelatedTopics.slice(0, 3).map(topic => topic.Text || topic.FirstURL);
-                        }
-                    }
-                } catch (error) {
-                    console.log('DuckDuckGo API failed:', error.message);
-                }
-                
-                // Method 2: Simulate search results with realistic content
-                return await getSimulatedSearchResults(query);
-                
-            } catch (error) {
-                console.log('All search methods failed:', error);
-                return [];
-            }
-        }
         
-        async function getSimulatedSearchResults(query) {
-            const lowerQuery = query.toLowerCase();
-            
-            // Topic-specific search results
-            if (lowerQuery.includes('weather')) {
-                return [
-                    "Current weather conditions vary by location. Check your local weather service for accurate forecasts.",
-                    "Weather patterns this week show typical seasonal conditions for early September.",
-                    "Climate data indicates normal temperature ranges for this time of year in most regions."
-                ];
-            } else if (lowerQuery.includes('programming') || lowerQuery.includes('code') || lowerQuery.includes('javascript') || lowerQuery.includes('python')) {
-                return [
-                    "Latest programming trends include AI integration, serverless architecture, and modern frameworks.",
-                    "Best practices for coding include clean code principles, testing, and version control.",
-                    "Popular programming languages in 2024: Python, JavaScript, TypeScript, and Rust gaining popularity."
-                ];
-            } else if (lowerQuery.includes('science') || lowerQuery.includes('physics') || lowerQuery.includes('quantum')) {
-                return [
-                    "Recent scientific discoveries include advances in quantum computing and AI research.",
-                    "Physics breakthroughs this year include new insights into dark matter and particle physics.",
-                    "Scientific method remains the foundation for understanding natural phenomena and technological advancement."
-                ];
-            } else if (lowerQuery.includes('history') || lowerQuery.includes('ancient') || lowerQuery.includes('culture')) {
-                return [
-                    "Historical events shaped our modern world through cultural, political, and technological changes.",
-                    "Understanding history helps provide context for current events and future decisions.",
-                    "Historical analysis reveals patterns and lessons that remain relevant today."
-                ];
-            } else if (lowerQuery.includes('ai') || lowerQuery.includes('artificial intelligence') || lowerQuery.includes('machine learning')) {
-                return [
-                    "AI technology continues advancing rapidly with new developments in large language models and neural networks.",
-                    "Machine learning applications are expanding across industries from healthcare to finance to creative arts.",
-                    "Current AI research focuses on improving safety, reliability, and practical applications for everyday use."
-                ];
-            } else if (lowerQuery.includes('business') || lowerQuery.includes('market') || lowerQuery.includes('invest')) {
-                return [
-                    "Current market conditions show mixed signals with various sectors performing differently.",
-                    "Business trends indicate growing focus on digital transformation and sustainable practices.",
-                    "Investment strategies increasingly emphasize diversification and long-term value creation."
-                ];
-            } else if (lowerQuery.includes('health') || lowerQuery.includes('medical') || lowerQuery.includes('wellness')) {
-                return [
-                    "Recent health research emphasizes the importance of preventive care and lifestyle factors.",
-                    "Medical advances continue in personalized medicine and targeted treatments.",
-                    "Wellness trends focus on holistic approaches combining physical and mental health strategies."
-                ];
-            }
-            
-            // Default general search results
-            return [
-                "Search results found relevant information about your topic from various reliable sources.",
-                "Current data and expert opinions provide multiple perspectives on this subject.",
-                "Recent developments and analysis offer insights into this topic area."
-            ];
-        }
         
         async function queryLlamaAI(query) {
             try {
-                // Build context from training data
-                const relevantKnowledge = findRelevantKnowledge(query);
-                const trainingContext = relevantKnowledge.map(item => item.content).join('\n\n');
-                
-                // Get current Google search data for the query
-                const searchContext = await searchForCurrentData(query);
-                
-                // Build comprehensive system prompt for any topic with search results and training data
+                // Build simple system prompt for Llama AI
                 const systemPrompt = `You are Llama AI, a helpful and knowledgeable assistant that can answer questions on any topic. You have expertise in:
 
 - General knowledge and conversations
@@ -757,16 +473,6 @@ Ask me about **anything** - I'm here to help with whatever you're curious about!
 - Problem-solving and critical thinking
 - Research and data analysis
 - Educational explanations and tutoring
-
-${searchContext ? `CURRENT GOOGLE SEARCH DATA:
-${searchContext}
-
-Use this current data from Google search to provide up-to-date information.` : ''}
-
-${trainingContext ? `CUSTOM TRAINING DATA:
-${trainingContext}
-
-Use this training data to provide more specific and personalized advice.` : ''}
 
 Provide helpful responses that are:
 - Accurate and informative
@@ -843,13 +549,13 @@ Llama AI Response:`;
                     console.log('Replicate API failed:', error.message);
                 }
                 
-                // Final fallback: Simulate Llama-style response with search and training data
-                console.log('Using Llama-style fallback with search and training data');
-                return generateLlamaStyleResponse(query, relevantKnowledge, searchContext);
+                // Final fallback: Simulate Llama-style response
+                console.log('Using Llama-style fallback response');
+                return generateLlamaStyleResponse(query);
                 
             } catch (error) {
                 console.error('All Llama services failed:', error);
-                return generateLlamaStyleResponse(query, [], '');
+                return generateLlamaStyleResponse(query);
             }
         }
         
@@ -874,26 +580,11 @@ Llama AI Response:`;
             return null;
         }
         
-        function generateLlamaStyleResponse(query, knowledge, searchContext = '') {
+        function generateLlamaStyleResponse(query) {
             const lowerQuery = query.toLowerCase();
             
             // Start with Llama-style greeting
             let response = "As your Llama AI assistant, let me help you with your question:\n\n";
-            
-            // Add search data context if available
-            if (searchContext) {
-                response += "🔍 **Latest Google search data:**\n";
-                response += `${searchContext.substring(0, 300)}...\n\n`;
-            }
-            
-            // Add training data context if available
-            if (knowledge.length > 0) {
-                response += "📚 **From your training data:**\n";
-                const bestMatch = knowledge[0];
-                response += `${bestMatch.content.substring(0, 200)}...\n\n`;
-            }
-            
-            response += "**My Llama AI analysis:**\n";
             
             // Generate responses based on topic type
             if (lowerQuery.includes('code') || lowerQuery.includes('programming') || lowerQuery.includes('javascript') || lowerQuery.includes('python') || lowerQuery.includes('debug')) {
@@ -968,54 +659,13 @@ Llama AI Response:`;
                 response += "Feel free to ask me anything - I'm here to help with whatever you're curious about!";
             }
             
-            if (knowledge.length === 0 && isTimeSensitive(query)) {
-                response += "\n\n💡 **Tip:** Train me with custom data using the 📚 button for more personalized responses!";
-            }
             
             return response;
         }
         
         
-        function findRelevantKnowledge(query) {
-            const queryWords = query.toLowerCase().split(/\W+/);
-            const relevant = [];
-            
-            for (const item of customKnowledge) {
-                let score = 0;
-                const content = item.content.toLowerCase();
-                
-                // Score based on keyword matches
-                for (const keyword of item.keywords) {
-                    if (queryWords.some(word => word.includes(keyword.toLowerCase()) || keyword.toLowerCase().includes(word))) {
-                        score += 10;
-                    }
-                }
-                
-                // Score based on direct content matches
-                for (const word of queryWords) {
-                    if (word.length > 3 && content.includes(word)) {
-                        score += 5;
-                    }
-                }
-                
-                if (score > 0) {
-                    relevant.push({ ...item, score });
-                }
-            }
-            
-            return relevant.sort((a, b) => b.score - a.score).slice(0, 3);
-        }
         
         
-        function containsProperNoun(query) {
-            // Check if query contains capitalized words (proper nouns)
-            return /\b[A-Z][a-z]+\b/.test(query);
-        }
-        
-        function extractProperNoun(query) {
-            const match = query.match(/\b[A-Z][a-z]+\b/);
-            return match ? match[0] : 'this topic';
-        }
         
         function showThinking() {
             isTyping = true;
@@ -1157,7 +807,7 @@ Llama AI Response:`;
                             `).join('')}
                         </div>
                         <p style="margin-top: 15px; font-size: 0.9rem; color: #6b7280;">
-                            💡 <strong>Pro tip:</strong> I can answer ANY question with Google search + Llama AI analysis. Use 📚 for custom training data!
+                            💡 <strong>Pro tip:</strong> I can answer ANY question using Llama AI's advanced language capabilities!
                         </p>
                     </div>
                 `;
