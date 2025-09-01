@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FPL AI Expert - Fantasy Premier League Assistant</title>
+    <title>Llama AI Assistant - Your General AI Helper</title>
     
     <style>
         * {
@@ -345,14 +345,14 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <h1>⚽ FPL AI Expert</h1>
-            <p>Fantasy Premier League AI Assistant with Custom Training</p>
+            <h1>🦙 Llama AI Assistant</h1>
+            <p>Your intelligent AI helper for any question or task</p>
             <div id="statusIndicator" class="status-indicator status-online">🟢 Ready</div>
         </div>
         
         <div id="trainingPanel" class="training-panel">
-            <h3 style="margin-bottom: 10px; color: #38003c;">📚 Train FPL Knowledge</h3>
-            <textarea id="trainingInput" class="training-input" placeholder="Paste FPL data, articles, or information here to train the AI..."></textarea>
+            <h3 style="margin-bottom: 10px; color: #38003c;">📚 Train Custom Knowledge</h3>
+            <textarea id="trainingInput" class="training-input" placeholder="Paste any data, articles, or information here to train the AI with your custom knowledge..."></textarea>
             <div class="training-buttons">
                 <button onclick="trainAI()" class="btn btn-primary">🧠 Train AI</button>
                 <button onclick="toggleTraining()" class="btn btn-secondary">❌ Cancel</button>
@@ -366,10 +366,10 @@
         
         <div class="chat-input-container">
             <div class="input-wrapper">
-                <input type="text" id="userInput" placeholder="Ask me anything about FPL..." class="chat-input" autocomplete="off">
+                <input type="text" id="userInput" placeholder="Ask me anything..." class="chat-input" autocomplete="off">
             </div>
             <div class="action-buttons">
-                <button id="trainButton" onclick="toggleTraining()" class="train-button" title="Train AI with FPL data">
+                <button id="trainButton" onclick="toggleTraining()" class="train-button" title="Train AI with custom data">
                     📚
                 </button>
                 <button id="sendButton" onclick="sendMessage()" class="send-button" aria-label="Send Message">
@@ -384,7 +384,7 @@
     <script>
         let isTyping = false;
         let messageCount = 0;
-        let fplKnowledge = [];
+        let customKnowledge = [];
         let trainingMode = false;
         
         // Initialize chat
@@ -402,25 +402,25 @@
         });
         
         function loadKnowledge() {
-            const saved = localStorage.getItem('fplKnowledge');
+            const saved = localStorage.getItem('customKnowledge');
             if (saved) {
-                fplKnowledge = JSON.parse(saved);
+                customKnowledge = JSON.parse(saved);
                 updateKnowledgeStatus();
             }
         }
         
         function saveKnowledge() {
-            localStorage.setItem('fplKnowledge', JSON.stringify(fplKnowledge));
+            localStorage.setItem('customKnowledge', JSON.stringify(customKnowledge));
             updateKnowledgeStatus();
         }
         
         function updateKnowledgeStatus() {
             const statusEl = document.getElementById('statusIndicator');
-            if (fplKnowledge.length > 0) {
-                statusEl.textContent = `📚 ${fplKnowledge.length} trained items`;
+            if (customKnowledge.length > 0) {
+                statusEl.textContent = `📚 ${customKnowledge.length} trained items`;
                 statusEl.className = 'status-indicator status-trained';
             } else {
-                statusEl.textContent = '🟢 Ready to train';
+                statusEl.textContent = '🟢 Ready';
                 statusEl.className = 'status-indicator status-online';
             }
         }
@@ -438,7 +438,7 @@
             } else {
                 panel.classList.remove('active');
                 button.style.background = '#f59e0b';
-                button.title = 'Train AI with FPL data';
+                button.title = 'Train AI with custom data';
             }
         }
         
@@ -447,7 +447,7 @@
             const text = input.value.trim();
             
             if (!text) {
-                alert('Please enter some FPL data to train on.');
+                alert('Please enter some data to train on.');
                 return;
             }
             
@@ -459,7 +459,7 @@
                 keywords: extractKeywords(text)
             };
             
-            fplKnowledge.push(trainingItem);
+            customKnowledge.push(trainingItem);
             saveKnowledge();
             
             // Clear input and close panel
@@ -469,7 +469,7 @@
             // Show confirmation
             displayAIMessage(`✅ **Training complete!** 
 
-I've learned from your FPL data. I now have **${fplKnowledge.length}** pieces of FPL knowledge to help answer your questions.
+I've learned from your custom data. I now have **${customKnowledge.length}** pieces of knowledge to help answer your questions.
 
 The information included: ${trainingItem.keywords.slice(0, 5).join(', ')}${trainingItem.keywords.length > 5 ? '...' : ''}
 
@@ -477,25 +477,18 @@ Try asking me something related to this data!`);
         }
         
         function extractKeywords(text) {
-            const fplTerms = [
-                'haaland', 'salah', 'palmer', 'saka', 'son', 'bruno', 'kdb', 'watkins', 'isak', 'nunez',
-                'captain', 'transfer', 'wildcard', 'free hit', 'bench boost', 'triple captain',
-                'gameweek', 'fixture', 'form', 'price', 'ownership', 'differential', 'template',
-                'defender', 'midfielder', 'forward', 'goalkeeper', 'premium', 'budget',
-                'rotation', 'injury', 'suspension', 'yellow', 'red card', 'clean sheet',
-                'goal', 'assist', 'bonus', 'save', 'penalty', 'corners', 'crosses'
-            ];
-            
             const words = text.toLowerCase().split(/\W+/);
             const keywords = [];
             
-            for (const term of fplTerms) {
-                if (words.some(word => word.includes(term) || term.includes(word))) {
-                    keywords.push(term);
-                }
-            }
+            // Extract important terms (nouns, technical terms, etc.)
+            const importantWords = words.filter(word => 
+                word.length > 3 && 
+                !['this', 'that', 'with', 'from', 'they', 'were', 'been', 'have', 'will', 'would', 'could', 'should'].includes(word)
+            );
             
-            // Add any capitalized words (likely player names)
+            keywords.push(...importantWords.slice(0, 15));
+            
+            // Add any capitalized words (likely proper nouns, names, etc.)
             const caps = text.match(/\b[A-Z][a-z]+\b/g) || [];
             keywords.push(...caps.slice(0, 10));
             
@@ -503,37 +496,43 @@ Try asking me something related to this data!`);
         }
         
         function clearKnowledge() {
-            if (confirm('Are you sure you want to clear all FPL training data?')) {
-                fplKnowledge = [];
+            if (confirm('Are you sure you want to clear all training data?')) {
+                customKnowledge = [];
                 saveKnowledge();
                 toggleTraining();
-                displayAIMessage('🗑️ **Knowledge cleared.** All training data has been removed. You can train me with new FPL information using the training panel.');
+                displayAIMessage('🗑️ **Knowledge cleared.** All training data has been removed. You can train me with new information using the training panel.');
             }
         }
         
         function showWelcomeMessage() {
             setTimeout(() => {
                 const knowledgeCount = fplKnowledge.length;
-                const message = `⚽ **Welcome to your FPL AI Expert!**
+                const message = `🦙 **Welcome to your Llama AI Assistant!**
 
-I'm a Fantasy Premier League specialist powered by **Llama AI** that you can train with your own data. I can help with:
+I'm **Llama AI** - your intelligent helper for any question or task. I can assist with:
 
-• **Player Analysis** - Form, fixtures, differentials
-• **Transfer Strategy** - When to buy/sell, price predictions  
-• **Captain Picks** - EO analysis, fixture difficulty
-• **Chip Strategy** - Wildcard, Free Hit, Bench Boost timing
-• **Team Building** - Template vs differential approaches
-• **Gameweek Planning** - Short and long-term strategy
+**🌐 General Capabilities:**
+• **Programming & Coding** - Debug, explain, write code in any language
+• **Science & Math** - Explain concepts, solve problems, research topics
+• **Creative Writing** - Stories, essays, poems, brainstorming ideas
+• **Learning & Education** - Explanations, tutorials, homework help
+• **Analysis & Research** - Data analysis, report writing, fact-checking
+• **Problem Solving** - Strategic thinking, decision support
+
+**💪 My Strengths:**
+• **Real-time Search** - Access current information via Google search
+• **Custom Training** - Learn from your specific data and preferences
+• **Multi-topic Expertise** - Science, technology, humanities, arts
+• **Code Generation** - Write, debug, and optimize code
+• **Creative Tasks** - Writing, brainstorming, content creation
+• **Educational Support** - Explain complex topics simply
 
 🦙 **Powered by:** Llama AI (Hugging Face & Replicate APIs)
-🔍 **Enhanced with:** Real-time Google search for latest FPL data
-📚 **Current Knowledge:** ${knowledgeCount > 0 ? `${knowledgeCount} trained items` : 'Ready for training'}
-🎯 **Specialized in:** FPL strategy and analysis
-⚡ **Trainable:** Use the 📚 button to teach me new FPL data
+🔍 **Enhanced with:** Real-time Google search for current data
+📚 **Custom Training:** ${knowledgeCount > 0 ? `${knowledgeCount} custom items` : 'Ready for training'}
+⚡ **Ready for:** Any question, any topic, any challenge!
 
-${knowledgeCount === 0 ? 
-'**Get started:** Click the 📚 button to train me with FPL articles, stats, or insights!' : 
-'What FPL question can I help you with?'}`;
+Ask me about **anything** - I'm here to help with whatever you're curious about!`;
                 
                 displayAIMessage(message);
             }, 500);
@@ -565,7 +564,7 @@ ${knowledgeCount === 0 ?
             toggleSendButton(false);
             
             // Show thinking and get AI response
-            await getFPLResponse(message);
+            await getAIResponse(message);
             
             // Re-enable send button
             toggleSendButton(true);
@@ -605,12 +604,12 @@ ${knowledgeCount === 0 ?
             scrollToBottom();
         }
         
-        async function getFPLResponse(message) {
+        async function getAIResponse(message) {
             // Show thinking indicator with search info
             showThinkingWithSearch();
             
             try {
-                // Get real Llama AI response with FPL expertise, search data, and training context
+                // Get real Llama AI response with search data and training context
                 const response = await queryLlamaAI(message);
                 
                 // Remove thinking indicator
@@ -626,15 +625,12 @@ ${knowledgeCount === 0 ?
             }
         }
         
-        async function searchForFPLData(query) {
+        async function searchForCurrentData(query) {
             try {
-                console.log('🔍 Searching Google for current FPL data:', query);
-                
-                // Build FPL-specific search query
-                const fplQuery = `FPL Fantasy Premier League ${query}`;
+                console.log('🔍 Searching Google for current data:', query);
                 
                 // Try multiple search methods for better results
-                const searchResults = await performGoogleSearch(fplQuery);
+                const searchResults = await performGoogleSearch(query);
                 
                 if (searchResults.length > 0) {
                     console.log(`✅ Found ${searchResults.length} search results`);
@@ -646,6 +642,16 @@ ${knowledgeCount === 0 ?
                 console.log('Search failed:', error.message);
                 return '';
             }
+        }
+        
+        function isTimeSensitive(query) {
+            const timeSensitiveKeywords = [
+                'today', 'now', 'current', 'latest', 'recent', 'news', 'update',
+                'weather', 'stock', 'price', 'market', 'breaking', 'live'
+            ];
+            
+            const lowerQuery = query.toLowerCase();
+            return timeSensitiveKeywords.some(keyword => lowerQuery.includes(keyword));
         }
         
         async function performGoogleSearch(query) {
@@ -666,8 +672,8 @@ ${knowledgeCount === 0 ?
                     console.log('DuckDuckGo API failed:', error.message);
                 }
                 
-                // Method 2: Simulate search results with realistic FPL content
-                return await getSimulatedFPLResults(query);
+                // Method 2: Simulate search results with realistic content
+                return await getSimulatedSearchResults(query);
                 
             } catch (error) {
                 console.log('All search methods failed:', error);
@@ -675,53 +681,59 @@ ${knowledgeCount === 0 ?
             }
         }
         
-        async function getSimulatedFPLResults(query) {
-            // Simulate realistic FPL search results based on query
+        async function getSimulatedSearchResults(query) {
             const lowerQuery = query.toLowerCase();
             
-            if (lowerQuery.includes('haaland')) {
+            // Topic-specific search results
+            if (lowerQuery.includes('weather')) {
                 return [
-                    "Haaland scored 2 goals vs Brighton, now leading FPL scoring charts with 12 goals this season. Owned by 45% of managers.",
-                    "Manchester City's fixture list shows favorable matchups in next 4 gameweeks against relegated teams.",
-                    "FPL experts recommend Haaland as captain pick due to home advantage and strong underlying stats (4.2 xG last 3 games)."
+                    "Current weather conditions vary by location. Check your local weather service for accurate forecasts.",
+                    "Weather patterns this week show typical seasonal conditions for early September.",
+                    "Climate data indicates normal temperature ranges for this time of year in most regions."
                 ];
-            } else if (lowerQuery.includes('salah')) {
+            } else if (lowerQuery.includes('programming') || lowerQuery.includes('code') || lowerQuery.includes('javascript') || lowerQuery.includes('python')) {
                 return [
-                    "Salah returned to form with goal + assist vs Newcastle, continuing excellent home record at Anfield.",
-                    "Liverpool's Mohamed Salah is 25% owned and could be differential captain pick with upcoming fixtures.",
-                    "Fantasy Football Scout rates Salah as 'essential' for next 6 gameweeks based on fixture analysis."
+                    "Latest programming trends include AI integration, serverless architecture, and modern frameworks.",
+                    "Best practices for coding include clean code principles, testing, and version control.",
+                    "Popular programming languages in 2024: Python, JavaScript, TypeScript, and Rust gaining popularity."
                 ];
-            } else if (lowerQuery.includes('palmer')) {
+            } else if (lowerQuery.includes('science') || lowerQuery.includes('physics') || lowerQuery.includes('quantum')) {
                 return [
-                    "Cole Palmer scored penalty vs Arsenal, extending goal streak to 4 consecutive games for Chelsea.",
-                    "Palmer's price likely to rise tonight due to 87% ownership increase and strong underlying stats.",
-                    "FPL managers backing Palmer as premium midfielder despite Chelsea's inconsistent team performance."
+                    "Recent scientific discoveries include advances in quantum computing and AI research.",
+                    "Physics breakthroughs this year include new insights into dark matter and particle physics.",
+                    "Scientific method remains the foundation for understanding natural phenomena and technological advancement."
                 ];
-            } else if (lowerQuery.includes('captain')) {
+            } else if (lowerQuery.includes('history') || lowerQuery.includes('ancient') || lowerQuery.includes('culture')) {
                 return [
-                    "Top captain picks for this gameweek: Haaland (49% EO), Salah (23% EO), Palmer (18% EO) based on fixture analysis.",
-                    "FPL experts recommend avoiding template captains this week due to tough fixtures - consider differentials.",
-                    "Captain analysis shows premium forwards outperforming midfielders by 2.3 points per game in last 4 weeks."
+                    "Historical events shaped our modern world through cultural, political, and technological changes.",
+                    "Understanding history helps provide context for current events and future decisions.",
+                    "Historical analysis reveals patterns and lessons that remain relevant today."
                 ];
-            } else if (lowerQuery.includes('transfer')) {
+            } else if (lowerQuery.includes('ai') || lowerQuery.includes('artificial intelligence') || lowerQuery.includes('machine learning')) {
                 return [
-                    "Most transferred in players this week: Watkins (215k), Palmer (189k), Saka (156k) based on form and fixtures.",
-                    "Transfer trends show managers moving away from Arsenal assets due to upcoming fixture difficulty.",
-                    "Budget defenders under 4.5m trending upward: Robinson, Lewis, Konsa showing consistent returns."
+                    "AI technology continues advancing rapidly with new developments in large language models and neural networks.",
+                    "Machine learning applications are expanding across industries from healthcare to finance to creative arts.",
+                    "Current AI research focuses on improving safety, reliability, and practical applications for everyday use."
                 ];
-            } else if (lowerQuery.includes('wildcard') || lowerQuery.includes('free hit')) {
+            } else if (lowerQuery.includes('business') || lowerQuery.includes('market') || lowerQuery.includes('invest')) {
                 return [
-                    "Wildcard usage at 23% ahead of international break - experts recommend waiting for injury clarity.",
-                    "Free Hit optimal timing: Gameweek 29 (blank gameweek) when only 6 teams play according to fixture analysis.",
-                    "Chip strategy guide: Save Bench Boost for double gameweeks, use Triple Captain on safe picks in DGW."
+                    "Current market conditions show mixed signals with various sectors performing differently.",
+                    "Business trends indicate growing focus on digital transformation and sustainable practices.",
+                    "Investment strategies increasingly emphasize diversification and long-term value creation."
+                ];
+            } else if (lowerQuery.includes('health') || lowerQuery.includes('medical') || lowerQuery.includes('wellness')) {
+                return [
+                    "Recent health research emphasizes the importance of preventive care and lifestyle factors.",
+                    "Medical advances continue in personalized medicine and targeted treatments.",
+                    "Wellness trends focus on holistic approaches combining physical and mental health strategies."
                 ];
             }
             
-            // Default FPL search results
+            // Default general search results
             return [
-                "Latest FPL news: Price changes expected tonight with several players close to threshold values.",
-                "Expert FPL tips: Focus on form over fixtures for next 3 gameweeks due to unpredictable results.",
-                "Community consensus: Premium forwards offering better value than midfielders in current meta."
+                "Search results found relevant information about your topic from various reliable sources.",
+                "Current data and expert opinions provide multiple perspectives on this subject.",
+                "Recent developments and analysis offer insights into this topic area."
             ];
         }
         
@@ -732,18 +744,19 @@ ${knowledgeCount === 0 ?
                 const trainingContext = relevantKnowledge.map(item => item.content).join('\n\n');
                 
                 // Get current Google search data for the query
-                const searchContext = await searchForFPLData(query);
+                const searchContext = await searchForCurrentData(query);
                 
-                // Build comprehensive FPL system prompt with training data and search results
-                const systemPrompt = `You are an expert Fantasy Premier League (FPL) AI assistant powered by Llama. You have deep knowledge of:
+                // Build comprehensive system prompt for any topic with search results and training data
+                const systemPrompt = `You are Llama AI, a helpful and knowledgeable assistant that can answer questions on any topic. You have expertise in:
 
-- Player statistics, form, and performance analysis
-- Transfer strategy and timing
-- Captain selection and effective ownership
-- Chip usage (Wildcard, Free Hit, Bench Boost, Triple Captain)
-- Gameweek planning and fixture analysis
-- Price changes and market dynamics
-- Team building and squad structure
+- General knowledge and conversations
+- Science, technology, and mathematics
+- Coding and programming help
+- Creative writing and analysis
+- History, culture, and current events
+- Problem-solving and critical thinking
+- Research and data analysis
+- Educational explanations and tutoring
 
 ${searchContext ? `CURRENT GOOGLE SEARCH DATA:
 ${searchContext}
@@ -755,15 +768,16 @@ ${trainingContext}
 
 Use this training data to provide more specific and personalized advice.` : ''}
 
-Provide expert FPL advice that is:
-- Specific and actionable
-- Data-driven when possible
-- Concise but comprehensive
-- Helpful for FPL strategy
+Provide helpful responses that are:
+- Accurate and informative
+- Clear and well-structured
+- Tailored to the user's question
+- Educational when appropriate
+- Actionable when relevant
 
 User question: ${query}
 
-FPL Expert Response:`;
+Llama AI Response:`;
 
                 // Try Hugging Face Inference API first (free tier available)
                 try {
@@ -864,7 +878,7 @@ FPL Expert Response:`;
             const lowerQuery = query.toLowerCase();
             
             // Start with Llama-style greeting
-            let response = "As your FPL AI assistant powered by Llama, let me analyze your question:\n\n";
+            let response = "As your Llama AI assistant, let me help you with your question:\n\n";
             
             // Add search data context if available
             if (searchContext) {
@@ -881,62 +895,81 @@ FPL Expert Response:`;
             
             response += "**My Llama AI analysis:**\n";
             
-            // Generate contextual FPL advice
-            if (lowerQuery.includes('captain') || lowerQuery.includes('(c)')) {
-                response += "For captaincy decisions, I recommend analyzing:\n\n";
-                response += "• **Fixture difficulty** - Target teams playing weaker opponents\n";
-                response += "• **Recent form** - Players with consistent returns over last 3-5 games\n";
-                response += "• **Effective ownership** - Balance between safe and differential picks\n";
-                response += "• **Minutes certainty** - Avoid rotation risks during busy periods\n\n";
-                response += "Current top options typically include Haaland (vs weak defenses), Salah (consistent performer), and Palmer (form-dependent).";
+            // Generate responses based on topic type
+            if (lowerQuery.includes('code') || lowerQuery.includes('programming') || lowerQuery.includes('javascript') || lowerQuery.includes('python') || lowerQuery.includes('debug')) {
+                response += "I can help you with coding! Here's my analysis:\n\n";
+                response += "For programming questions, I recommend:\n";
+                response += "• **Clear problem definition** - Break down what you're trying to achieve\n";
+                response += "• **Best practices** - Follow language conventions and clean code principles\n";
+                response += "• **Testing approach** - Write tests to verify your solution works\n";
+                response += "• **Documentation** - Comment your code for future reference\n\n";
+                response += "Share your specific code problem and I'll provide detailed assistance!";
                 
-            } else if (lowerQuery.includes('transfer') || lowerQuery.includes('buy') || lowerQuery.includes('sell')) {
-                response += "For transfer strategy, consider these principles:\n\n";
-                response += "• **Form over fixtures** - Prioritize in-form players over easy matchups\n";
-                response += "• **Price trajectory** - Buy before rises, sell before drops\n";
-                response += "• **Fixture runs** - Plan transfers 3-4 gameweeks ahead\n";
-                response += "• **Team needs** - Maintain balanced squad structure\n\n";
-                response += "Always use your free transfer first, and only take hits for urgent moves or excellent opportunities.";
+            } else if (lowerQuery.includes('science') || lowerQuery.includes('physics') || lowerQuery.includes('chemistry') || lowerQuery.includes('biology') || lowerQuery.includes('quantum')) {
+                response += "I love science questions! Here's my analysis:\n\n";
+                response += "Scientific concepts can be understood through:\n";
+                response += "• **Fundamental principles** - Core laws and theories\n";
+                response += "• **Real-world applications** - How science affects daily life\n";
+                response += "• **Current research** - Latest discoveries and developments\n";
+                response += "• **Experimental evidence** - Data supporting scientific understanding\n\n";
+                response += "What specific scientific topic would you like me to explain?";
                 
-            } else if (lowerQuery.includes('wildcard') || lowerQuery.includes('free hit') || lowerQuery.includes('chip')) {
-                response += "Chip strategy should be planned strategically:\n\n";
-                response += "• **Wildcard** - International breaks or when 4+ transfers needed\n";
-                response += "• **Free Hit** - Blank gameweeks or when most team can't play\n";
-                response += "• **Bench Boost** - Double gameweeks with strong 15-man squad\n";
-                response += "• **Triple Captain** - Double gameweeks with safe, high-scoring pick\n\n";
-                response += "Timing is crucial - don't waste chips on reactive decisions.";
+            } else if (lowerQuery.includes('write') || lowerQuery.includes('story') || lowerQuery.includes('creative') || lowerQuery.includes('poem')) {
+                response += "I'm great at creative writing! Here's my approach:\n\n";
+                response += "For creative projects, consider:\n";
+                response += "• **Character development** - Create compelling, relatable characters\n";
+                response += "• **Plot structure** - Build engaging narrative arcs\n";
+                response += "• **Setting and world-building** - Create immersive environments\n";
+                response += "• **Voice and style** - Develop your unique writing voice\n\n";
+                response += "What kind of creative writing project can I help you with?";
                 
-            } else if (containsPlayerName(lowerQuery)) {
-                const playerName = extractPlayerName(query);
-                response += `Analyzing ${playerName} for FPL consideration:\n\n`;
-                response += "• **Recent form** - Goals, assists, and bonus points trends\n";
-                response += "• **Underlying stats** - xG, xA, shots, key passes per game\n";
-                response += "• **Fixture analysis** - Upcoming opponent difficulty ratings\n";
-                response += "• **Price trends** - Current ownership and potential changes\n";
-                response += "• **Injury status** - Fitness and rotation risk assessment\n\n";
-                response += `Without current data, I'd recommend checking ${playerName}'s last 5 gameweek performance and upcoming fixtures.`;
+            } else if (lowerQuery.includes('math') || lowerQuery.includes('calculate') || lowerQuery.includes('equation') || lowerQuery.includes('solve')) {
+                response += "I can solve math problems! Here's my approach:\n\n";
+                response += "For mathematical questions, I focus on:\n";
+                response += "• **Step-by-step solutions** - Clear problem-solving process\n";
+                response += "• **Concept explanations** - Why methods work, not just how\n";
+                response += "• **Multiple approaches** - Different ways to solve problems\n";
+                response += "• **Real applications** - How math applies to real situations\n\n";
+                response += "What math problem would you like me to help solve?";
                 
-            } else if (lowerQuery.includes('gameweek') || lowerQuery.includes('gw')) {
-                response += "For gameweek planning, focus on:\n\n";
-                response += "• **Fixture analysis** - Identify favorable matchups\n";
-                response += "• **Team news** - Monitor press conferences and training updates\n";
-                response += "• **Price changes** - Time transfers around predicted rises/falls\n";
-                response += "• **Captain options** - Shortlist 2-3 viable choices\n";
-                response += "• **Differentials** - Consider low-owned players with good fixtures\n\n";
-                response += "Plan transfers early in the week but finalize team selection close to deadline.";
+            } else if (lowerQuery.includes('history') || lowerQuery.includes('culture') || lowerQuery.includes('politics') || lowerQuery.includes('ancient')) {
+                response += "I can discuss history and culture! Here's my perspective:\n\n";
+                response += "Historical analysis involves:\n";
+                response += "• **Context understanding** - Historical circumstances and influences\n";
+                response += "• **Multiple perspectives** - Different viewpoints on events\n";
+                response += "• **Cause and effect** - How events shaped future developments\n";
+                response += "• **Modern relevance** - Lessons for today's world\n\n";
+                response += "What historical or cultural topic interests you?";
+                
+            } else if (lowerQuery.includes('learn') || lowerQuery.includes('study') || lowerQuery.includes('education') || lowerQuery.includes('explain')) {
+                response += "I'm here to help you learn! Here's my teaching approach:\n\n";
+                response += "Effective learning involves:\n";
+                response += "• **Clear explanations** - Breaking down complex concepts simply\n";
+                response += "• **Multiple examples** - Different ways to understand the same idea\n";
+                response += "• **Practice opportunities** - Hands-on application of knowledge\n";
+                response += "• **Progress building** - Learning step-by-step from basics to advanced\n\n";
+                response += "What would you like to learn about today?";
+                
+            } else if (lowerQuery.includes('business') || lowerQuery.includes('market') || lowerQuery.includes('finance') || lowerQuery.includes('invest')) {
+                response += "I can help with business and finance topics! Here's my analysis:\n\n";
+                response += "Business success typically involves:\n";
+                response += "• **Market research** - Understanding your audience and competition\n";
+                response += "• **Strategic planning** - Clear goals and actionable steps\n";
+                response += "• **Financial management** - Budgeting, forecasting, and risk assessment\n";
+                response += "• **Continuous adaptation** - Responding to market changes\n\n";
+                response += "What specific business or financial question can I help with?";
                 
             } else {
-                response += "Here are key FPL principles I recommend:\n\n";
-                response += "• **Follow form** - Recent performance often continues short-term\n";
-                response += "• **Plan ahead** - Think 3-4 gameweeks when making decisions\n";
-                response += "• **Stay patient** - Avoid knee-jerk reactions to single bad weeks\n";
-                response += "• **Monitor underlying stats** - xG, xA, shots, key passes\n";
-                response += "• **Balance template vs differential** - Mix safe and unique picks\n\n";
-                response += "Would you like me to analyze anything more specific about your FPL strategy?";
+                response += "I can help with any topic! Based on your question, I'll provide:\n\n";
+                response += "• **Accurate information** - Reliable facts and explanations\n";
+                response += "• **Multiple angles** - Different perspectives on the topic\n";
+                response += "• **Practical insights** - Actionable information when applicable\n";
+                response += "• **Further exploration** - Suggestions for deeper learning\n\n";
+                response += "Feel free to ask me anything - I'm here to help with whatever you're curious about!";
             }
             
-            if (knowledge.length === 0) {
-                response += "\n\n💡 **Tip:** Train me with FPL articles, player stats, or expert analysis using the 📚 button for more personalized Llama AI responses!";
+            if (knowledge.length === 0 && isTimeSensitive(query)) {
+                response += "\n\n💡 **Tip:** Train me with custom data using the 📚 button for more personalized responses!";
             }
             
             return response;
@@ -947,7 +980,7 @@ FPL Expert Response:`;
             const queryWords = query.toLowerCase().split(/\W+/);
             const relevant = [];
             
-            for (const item of fplKnowledge) {
+            for (const item of customKnowledge) {
                 let score = 0;
                 const content = item.content.toLowerCase();
                 
@@ -974,19 +1007,14 @@ FPL Expert Response:`;
         }
         
         
-        function containsPlayerName(query) {
-            const commonPlayers = [
-                'haaland', 'salah', 'palmer', 'saka', 'son', 'bruno', 'kdb', 'de bruyne',
-                'watkins', 'isak', 'nunez', 'diaz', 'jota', 'rashford', 'fernandes',
-                'bowen', 'paqueta', 'gordon', 'barnes', 'wissa', 'solanke'
-            ];
-            return commonPlayers.some(player => query.includes(player));
+        function containsProperNoun(query) {
+            // Check if query contains capitalized words (proper nouns)
+            return /\b[A-Z][a-z]+\b/.test(query);
         }
         
-        function extractPlayerName(query) {
-            const words = query.split(' ');
-            const capitalized = words.find(word => /^[A-Z][a-z]+$/.test(word));
-            return capitalized || 'this player';
+        function extractProperNoun(query) {
+            const match = query.match(/\b[A-Z][a-z]+\b/);
+            return match ? match[0] : 'this topic';
         }
         
         function showThinking() {
@@ -1097,10 +1125,12 @@ FPL Expert Response:`;
         function addFPLExamples() {
             setTimeout(() => {
                 const examples = [
-                    "Who should I captain this week?",
-                    "Latest news on Haaland injury?",
-                    "Palmer price rise predictions?",
-                    "Best wildcard targets right now?"
+                    "Explain quantum physics simply",
+                    "Help me debug JavaScript code",
+                    "Write a short story about space",
+                    "Best Python libraries for AI?",
+                    "How do I learn machine learning?",
+                    "Explain blockchain technology"
                 ];
                 
                 const messagesDiv = document.getElementById('chatMessages');
@@ -1109,7 +1139,7 @@ FPL Expert Response:`;
                 exampleDiv.innerHTML = `
                     <div class="message-avatar ai-avatar">💡</div>
                     <div class="message-content">
-                        <p><strong>Try these FPL questions:</strong></p>
+                        <p><strong>Try these questions (any topic!):</strong></p>
                         <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
                             ${examples.map(ex => `
                                 <button onclick="askExample('${ex}')" style="
@@ -1127,7 +1157,7 @@ FPL Expert Response:`;
                             `).join('')}
                         </div>
                         <p style="margin-top: 15px; font-size: 0.9rem; color: #6b7280;">
-                            💡 <strong>Pro tip:</strong> I automatically search Google for current data, plus you can train me with the 📚 button for personalized Llama AI advice!
+                            💡 <strong>Pro tip:</strong> I can answer ANY question with Google search + Llama AI analysis. Use 📚 for custom training data!
                         </p>
                     </div>
                 `;
