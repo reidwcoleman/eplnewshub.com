@@ -157,7 +157,7 @@ class IntelligentFPLAssistant {
         this.thinkAndRespond(query);
     }
 
-    thinkAndRespond(query) {
+    async thinkAndRespond(query) {
         // Show thinking indicator
         this.showThinkingProcess();
         
@@ -167,11 +167,11 @@ class IntelligentFPLAssistant {
         // Simulate thinking time based on complexity
         const thinkingTime = this.calculateThinkingTime(analysis);
         
-        setTimeout(() => {
+        setTimeout(async () => {
             this.removeThinkingIndicator();
             
-            // Generate intelligent response
-            const response = this.generateIntelligentResponse(analysis, query);
+            // Generate intelligent response (now async)
+            const response = await this.generateIntelligentResponse(analysis, query);
             
             // Display response with typing effect
             this.displayResponse(response);
@@ -433,7 +433,7 @@ class IntelligentFPLAssistant {
         return baseTime + Math.random() * 500;
     }
 
-    generateIntelligentResponse(analysis, originalQuery) {
+    async generateIntelligentResponse(analysis, originalQuery) {
         let response = '';
         
         // Add contextual greeting if needed
@@ -441,43 +441,185 @@ class IntelligentFPLAssistant {
             response += this.getContextualGreeting(analysis);
         }
         
-        // Generate main response based on analysis
-        switch (analysis.responseType) {
-            case 'captain_advice':
-                response = this.generateCaptainAdvice(analysis, originalQuery);
-                break;
-            case 'transfer_advice':
-                response = this.generateTransferAdvice(analysis, originalQuery);
-                break;
-            case 'player_comparison':
-                response = this.generatePlayerComparison(analysis);
-                break;
-            case 'price_analysis':
-                response = this.generatePriceAnalysis(analysis);
-                break;
-            case 'injury_update':
-                response = this.generateInjuryUpdate(analysis);
-                break;
-            case 'wildcard_strategy':
-                response = this.generateWildcardAdvice(analysis);
-                break;
-            case 'differential_picks':
-                response = this.generateDifferentialPicks(analysis);
-                break;
-            case 'detailed_analysis':
-                response = this.generateDetailedAnalysis(analysis, originalQuery);
-                break;
-            case 'urgent_advice':
-                response = this.generateUrgentAdvice(analysis, originalQuery);
-                break;
-            default:
-                response = this.generateComprehensiveResponse(analysis, originalQuery);
+        // Try to get LLM response first
+        const llmResponse = await this.queryLLM(originalQuery, analysis);
+        
+        if (llmResponse) {
+            // Use LLM response as primary, enhanced with our data
+            response = await this.enhanceLLMResponse(llmResponse, analysis, originalQuery);
+        } else {
+            // Fallback to rule-based responses
+            response = this.generateRuleBasedResponse(analysis, originalQuery);
         }
         
         // Add follow-up suggestions
         response += this.generateFollowUpSuggestions(analysis);
         
         return response;
+    }
+
+    async queryLLM(query, analysis) {
+        try {
+            // Build context from analysis
+            const context = this.buildLLMContext(analysis);
+            
+            const response = await fetch('http://localhost:3001/api/ai-query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: this.buildFPLPrompt(query, analysis),
+                    context: context
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ LLM Response received:', data.source);
+                return data.response;
+            } else {
+                console.log('❌ LLM API failed, using fallback');
+                return null;
+            }
+        } catch (error) {
+            console.log('❌ LLM query error:', error.message);
+            return null;
+        }
+    }
+
+    buildFPLPrompt(query, analysis) {
+        let prompt = `You are an expert Fantasy Premier League (FPL) assistant. `;
+        
+        // Add context based on analysis
+        if (analysis.players.length > 0) {
+            const playerNames = analysis.players.map(p => p.name).join(', ');
+            prompt += `The user is asking about these players: ${playerNames}. `;
+        }
+        
+        if (analysis.responseType) {
+            prompt += `This appears to be a ${analysis.responseType.replace('_', ' ')} question. `;
+        }
+        
+        prompt += `Please provide specific, actionable FPL advice. Keep your response concise and focused on practical recommendations. `;
+        
+        // Add current gameweek context
+        prompt += `We are currently in Gameweek ${this.currentGW} of the 2024/25 season. `;
+        
+        prompt += `User question: "${query}"`;
+        
+        return prompt;
+    }
+
+    buildLLMContext(analysis) {
+        let context = '';
+        
+        // Add player data context
+        if (analysis.players.length > 0) {
+            context += 'Player Data:\n';
+            analysis.players.forEach(p => {
+                context += `${p.name}: £${p.price}m, ${p.team}, Form: ${p.form}/10, Ownership: ${p.own}%\n`;
+            });
+        }
+        
+        // Add community data if available
+        if (window.fplDataManager) {
+            const communityStats = window.fplDataManager.getStats();
+            if (communityStats.totalPlayers > 0) {
+                context += `\nCommunity Database: ${communityStats.totalPlayers} players with community insights\n`;
+            }
+        }
+        
+        return context;
+    }
+
+    async enhanceLLMResponse(llmResponse, analysis, originalQuery) {
+        let enhanced = llmResponse;
+        
+        // Add specific data for mentioned players
+        if (analysis.players.length > 0) {
+            enhanced += '\n\n**Current Data:**\n';
+            analysis.players.forEach(p => {
+                enhanced += `• **${p.name}**: £${p.price}m | Form: ${p.form}/10 | Ownership: ${p.own}%\n`;
+                
+                // Add community data if available
+                if (window.fplDataManager) {
+                    const playerData = window.fplDataManager.getPlayerInfo(p.name);
+                    if (playerData && playerData.info && playerData.info.length > 0) {
+                        const latestInfo = playerData.info.slice(-1)[0].text;
+                        enhanced += `  🌐 Community update: ${latestInfo}\n`;
+                    }
+                }
+            });
+        }
+        
+        // Add search enhancement if needed
+        if (this.shouldEnhanceWithSearch(analysis)) {
+            try {
+                const searchResults = await this.getSearchEnhancement(originalQuery);
+                if (searchResults.length > 0) {
+                    enhanced += '\n\n**Latest Updates:**\n';
+                    searchResults.slice(0, 2).forEach(result => {
+                        enhanced += `• ${result}\n`;
+                    });
+                }
+            } catch (error) {
+                console.log('Search enhancement failed:', error.message);
+            }
+        }
+        
+        return enhanced;
+    }
+
+    shouldEnhanceWithSearch(analysis) {
+        const searchWorthyTypes = ['injury_update', 'urgent_advice', 'detailed_analysis'];
+        return searchWorthyTypes.includes(analysis.responseType) || analysis.urgency === 'high';
+    }
+
+    async getSearchEnhancement(query) {
+        try {
+            const response = await fetch('http://localhost:3001/api/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                return data.results || [];
+            }
+        } catch (error) {
+            console.log('Search enhancement failed:', error.message);
+        }
+        return [];
+    }
+
+    generateRuleBasedResponse(analysis, originalQuery) {
+        // Generate main response based on analysis
+        switch (analysis.responseType) {
+            case 'captain_advice':
+                return this.generateCaptainAdvice(analysis, originalQuery);
+            case 'transfer_advice':
+                return this.generateTransferAdvice(analysis, originalQuery);
+            case 'player_comparison':
+                return this.generatePlayerComparison(analysis);
+            case 'price_analysis':
+                return this.generatePriceAnalysis(analysis);
+            case 'injury_update':
+                return this.generateInjuryUpdate(analysis);
+            case 'wildcard_strategy':
+                return this.generateWildcardAdvice(analysis);
+            case 'differential_picks':
+                return this.generateDifferentialPicks(analysis);
+            case 'detailed_analysis':
+                return this.generateDetailedAnalysis(analysis, originalQuery);
+            case 'urgent_advice':
+                return this.generateUrgentAdvice(analysis, originalQuery);
+            default:
+                return this.generateComprehensiveResponse(analysis, originalQuery);
+        }
     }
 
     generateCaptainAdvice(analysis, query) {
@@ -936,7 +1078,13 @@ class IntelligentFPLAssistant {
         thinkingDiv.className = 'thinking-indicator fade-in';
         thinkingDiv.id = 'thinkingIndicator';
         
-        const thoughts = this.knowledge.responses.thinking;
+        const thoughts = [
+            "🧠 Consulting my LLM brain for expert analysis...",
+            "🤖 Running Ollama LLM to generate personalized advice...",
+            "⚡ Processing with open-source AI and your data...",
+            "🎯 Analyzing with local LLM + community insights...",
+            ...this.knowledge.responses.thinking
+        ];
         const thought = thoughts[Math.floor(Math.random() * thoughts.length)];
         
         thinkingDiv.innerHTML = `
@@ -1291,9 +1439,13 @@ class IntelligentFPLAssistant {
         const chatMessages = document.getElementById('chatMessages');
         if (chatMessages && chatMessages.children.length <= 1) {
             setTimeout(() => {
-                const message = `👋 **Welcome to your Intelligent FPL Assistant!**
+                const message = `👋 **Welcome to your LLM-Powered FPL Assistant!**
 
-I analyze your questions using advanced keyword detection and context understanding to provide personalized FPL advice.
+I now use **Ollama (open-source LLM)** for natural conversations, enhanced with your player data and community insights!
+
+🧠 **Powered by:** Local Llama 3.1 model  
+📊 **Enhanced with:** Real FPL data & community insights  
+🔒 **Privacy:** All AI processing happens locally  
 
 **Try asking me:**
 • "Should I captain Haaland or Salah?"
