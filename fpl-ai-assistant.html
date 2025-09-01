@@ -634,9 +634,6 @@
                 </div>
                 <div class="chat-input-container">
                     <input type="text" id="userInput" placeholder="Ask me anything about FPL..." class="chat-input" autocomplete="off">
-                    <button id="searchButton" onclick="toggleSearchMode()" class="search-button" aria-label="Activate Search Mode" title="Click to activate search mode">
-                        🔍
-                    </button>
                     <button id="sendButton" onclick="sendMessage()" class="send-button" aria-label="Send Message">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
@@ -891,7 +888,7 @@
                 return;
             }
             
-            // Fallback to basic functionality
+            // Fallback to basic LLM functionality only
             if (!message) return;
             
             const messagesDiv = document.getElementById('chatMessages');
@@ -912,7 +909,7 @@
             // Scroll to bottom
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
             
-            // Simulate AI response with search enhancement
+            // Use Ollama LLM for response
             setTimeout(async () => {
                 // Show thinking indicator
                 const thinkingDiv = document.createElement('div');
@@ -920,14 +917,14 @@
                 thinkingDiv.innerHTML = `
                     <div class="message-avatar">🤔</div>
                     <div class="message-content">
-                        <p>🔍 Analyzing your question and searching for latest data...</p>
+                        <p>🤖 Thinking with Ollama LLM...</p>
                     </div>
                 `;
                 messagesDiv.appendChild(thinkingDiv);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
                 
-                // Generate response (potentially with search)
-                const aiResponse = await generateAIResponseAsync(message);
+                // Generate response with Ollama LLM only
+                const aiResponse = await queryOllamaLLM(message);
                 
                 // Remove thinking indicator
                 messagesDiv.removeChild(thinkingDiv);
@@ -946,7 +943,53 @@
             }, 500);
         }
         
-        let searchModeActive = false;
+        async function queryOllamaLLM(query) {
+            try {
+                console.log('🤖 Querying Ollama LLM:', query);
+                
+                const response = await fetch('http://localhost:3002/api/ai-query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        context: 'FPL Assistant conversation'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ LLM Response received:', data.source);
+                    return data.response || 'I apologize, but I received an empty response. Please try rephrasing your question.';
+                } else {
+                    console.log('❌ LLM API failed, using fallback');
+                    return generateFallbackResponse(query);
+                }
+            } catch (error) {
+                console.log('❌ LLM query error:', error.message);
+                return generateFallbackResponse(query);
+            }
+        }
+        
+        function generateFallbackResponse(query) {
+            const lowerQuery = query.toLowerCase();
+            
+            if (lowerQuery.includes('haaland')) {
+                return "Haaland is one of the top premium forwards in FPL, known for his consistent goal-scoring record at Manchester City.";
+            } else if (lowerQuery.includes('salah')) {
+                return "Salah remains a reliable FPL pick with consistent attacking returns for Liverpool.";
+            } else if (lowerQuery.includes('captain')) {
+                return "For captaincy, consider players with good fixtures, form, and high ownership. Premium forwards and midfielders often make the best captain choices.";
+            } else if (lowerQuery.includes('transfer')) {
+                return "Make transfers based on player form, fixtures, and price changes. Avoid knee-jerk reactions and plan ahead.";
+            } else if (lowerQuery.includes('wildcard') || lowerQuery.includes('free hit')) {
+                return "Chips should be used strategically during double gameweeks or when your team needs major restructuring.";
+            }
+            
+            return "I can help with FPL strategy, player analysis, transfers, captaincy advice, and more. What specific aspect would you like to discuss?";
+        }
+        
         
         function toggleSearchMode() {
             const searchButton = document.getElementById('searchButton');

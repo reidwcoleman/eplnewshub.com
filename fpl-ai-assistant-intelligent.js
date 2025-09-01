@@ -463,7 +463,7 @@ class IntelligentFPLAssistant {
             // Build context from analysis
             const context = this.buildLLMContext(analysis);
             
-            const response = await fetch('http://localhost:3001/api/ai-query', {
+            const response = await fetch('http://localhost:3002/api/ai-query', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -553,48 +553,9 @@ class IntelligentFPLAssistant {
             });
         }
         
-        // Add search enhancement if needed
-        if (this.shouldEnhanceWithSearch(analysis)) {
-            try {
-                const searchResults = await this.getSearchEnhancement(originalQuery);
-                if (searchResults.length > 0) {
-                    enhanced += '\n\n**Latest Updates:**\n';
-                    searchResults.slice(0, 2).forEach(result => {
-                        enhanced += `• ${result}\n`;
-                    });
-                }
-            } catch (error) {
-                console.log('Search enhancement failed:', error.message);
-            }
-        }
-        
         return enhanced;
     }
 
-    shouldEnhanceWithSearch(analysis) {
-        const searchWorthyTypes = ['injury_update', 'urgent_advice', 'detailed_analysis'];
-        return searchWorthyTypes.includes(analysis.responseType) || analysis.urgency === 'high';
-    }
-
-    async getSearchEnhancement(query) {
-        try {
-            const response = await fetch('http://localhost:3001/api/search', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ query })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                return data.results || [];
-            }
-        } catch (error) {
-            console.log('Search enhancement failed:', error.message);
-        }
-        return [];
-    }
 
     generateRuleBasedResponse(analysis, originalQuery) {
         // Generate main response based on analysis
@@ -1079,11 +1040,11 @@ class IntelligentFPLAssistant {
         thinkingDiv.id = 'thinkingIndicator';
         
         const thoughts = [
-            "🧠 Consulting my LLM brain for expert analysis...",
-            "🤖 Running Ollama LLM to generate personalized advice...",
+            "🧠 Consulting Ollama Llama 3.1 for expert FPL analysis...",
+            "🤖 Running local LLM to generate personalized advice...",
             "⚡ Processing with open-source AI and your data...",
-            "🎯 Analyzing with local LLM + community insights...",
-            ...this.knowledge.responses.thinking
+            "🎯 Analyzing with Ollama LLM + community insights...",
+            "🔥 Llama 3.1 thinking deeply about your FPL question..."
         ];
         const thought = thoughts[Math.floor(Math.random() * thoughts.length)];
         
@@ -1439,19 +1400,20 @@ class IntelligentFPLAssistant {
         const chatMessages = document.getElementById('chatMessages');
         if (chatMessages && chatMessages.children.length <= 1) {
             setTimeout(() => {
-                const message = `👋 **Welcome to your LLM-Powered FPL Assistant!**
+                const message = `👋 **Welcome to your Ollama-Powered FPL Assistant!**
 
-I now use **Ollama (open-source LLM)** for natural conversations, enhanced with your player data and community insights!
+I use **Ollama (open-source Llama 3.1)** for intelligent conversations, enhanced with your player data and community insights!
 
-🧠 **Powered by:** Local Llama 3.1 model  
-📊 **Enhanced with:** Real FPL data & community insights  
-🔒 **Privacy:** All AI processing happens locally  
+🧠 **Powered by:** Local Llama 3.1 8B model  
+📊 **Enhanced with:** Your FPL data & community insights  
+🔒 **Privacy:** All AI processing happens locally on your machine
+⚡ **Fast:** Direct connection to your local Ollama instance
 
 **Try asking me:**
 • "Should I captain Haaland or Salah?"
 • "Best midfielder under 8m?"
-• "Is Palmer going to rise tonight?"
 • "Compare Watkins vs Isak"
+• "Help me plan my transfers"
 
 What's on your FPL mind today?`;
                 
