@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FPL AI Assistant - Your Intelligent FPL Expert | EPL News Hub</title>
+    <title>Mistral AI Assistant - Your Intelligent AI Helper | EPL News Hub</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Get expert FPL advice from our AI assistant. Transfer recommendations, captain picks, chip strategies, and more. Powered by advanced Qwen AI technology.">
-    <meta name="keywords" content="FPL, Fantasy Premier League, AI Assistant, Transfer Tips, Captain Picks, FPL Strategy">
+    <meta name="description" content="Get intelligent help with any question using Mistral AI. Programming, science, creative writing, general knowledge, and more. Powered by advanced Mistral AI technology.">
+    <meta name="keywords" content="AI Assistant, Mistral AI, Programming Help, Science Questions, Creative Writing, General Knowledge">
     <meta name="author" content="EPL News Hub">
     
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="FPL AI Assistant - Your Intelligent FPL Expert">
-    <meta property="og:description" content="Get expert FPL advice from our AI assistant. Transfer recommendations, captain picks, chip strategies, and more.">
+    <meta property="og:title" content="Mistral AI Assistant - Your Intelligent AI Helper">
+    <meta property="og:description" content="Get intelligent help with any question using Mistral AI. Programming, science, creative writing, general knowledge, and more.">
     <meta property="og:image" content="/upscalemedia-transformed.png">
     <meta property="og:url" content="https://eplnewshub.com/fpl-ai-assistant.html">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="FPL AI Assistant - Your Intelligent FPL Expert">
-    <meta name="twitter:description" content="Get expert FPL advice from our AI assistant. Transfer recommendations, captain picks, chip strategies, and more.">
+    <meta name="twitter:title" content="Mistral AI Assistant - Your Intelligent AI Helper">
+    <meta name="twitter:description" content="Get intelligent help with any question using Mistral AI. Programming, science, creative writing, general knowledge, and more.">
     <meta name="twitter:image" content="/upscalemedia-transformed.png">
     
     <!-- Site Styles -->
@@ -333,14 +333,14 @@
     <!-- Main Content -->
     <main class="page-container">
         <div class="ai-assistant-hero">
-            <h1>🧠 FPL AI Assistant</h1>
-            <p>Your intelligent Fantasy Premier League expert powered by Qwen AI</p>
+            <h1>🌪️ Mistral AI Assistant</h1>
+            <p>Your intelligent helper for any question, powered by Mistral AI</p>
         </div>
         
         <div class="chat-container">
             <div class="chat-header">
-                <h2>🧠 Qwen AI Assistant</h2>
-                <p>Your intelligent FPL expert powered by advanced AI</p>
+                <h2>🌪️ Mistral AI Assistant</h2>
+                <p>Your intelligent helper powered by advanced Mistral AI</p>
             </div>
         
         
@@ -539,255 +539,110 @@ User question: ${query}
 
 Mistral AI Response:`;
 
-                // Try Hugging Face Inference API first with Mistral model
+                // Try Ollama first (local Mistral instance)
                 try {
-                    const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1', {
+                    const response = await fetch('http://localhost:11434/api/generate', {
                         method: 'POST',
                         headers: {
-                            'Authorization': 'Bearer YOUR_HF_TOKEN', // User would need to add their token
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            inputs: systemPrompt,
-                            parameters: {
-                                max_new_tokens: 400,
+                            model: 'mistral',
+                            prompt: query,
+                            stream: false,
+                            options: {
                                 temperature: 0.7,
                                 top_p: 0.9,
-                                do_sample: true
+                                num_predict: 500
                             }
                         })
                     });
                     
                     if (response.ok) {
                         const data = await response.json();
-                        if (data[0] && data[0].generated_text) {
-                            const fullResponse = data[0].generated_text;
-                            // Extract only the new response after our prompt
-                            const aiResponse = fullResponse.replace(systemPrompt, '').trim();
-                            if (aiResponse.length > 50) {
-                                return aiResponse;
-                            }
+                        if (data.response && data.response.length > 10) {
+                            return data.response;
                         }
                     }
                 } catch (error) {
-                    console.log('Hugging Face API failed:', error.message);
+                    console.log('Ollama local instance not available:', error.message);
                 }
-                
-                // Fallback to Replicate API with Mistral model
+
+                // Try OpenRouter API with Mistral model
                 try {
-                    const response = await fetch('https://api.replicate.com/v1/predictions', {
+                    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                         method: 'POST',
                         headers: {
-                            'Authorization': 'Token YOUR_REPLICATE_TOKEN', // User would need to add their token
-                            'Content-Type': 'application/json'
+                            'Authorization': 'Bearer sk-or-v1-YOUR_OPENROUTER_KEY', // User would need to add their key
+                            'Content-Type': 'application/json',
+                            'HTTP-Referer': window.location.href,
+                            'X-Title': 'EPL News Hub AI Assistant'
                         },
                         body: JSON.stringify({
-                            version: "mistralai/mixtral-8x7b-instruct-v0.1",
-                            input: {
-                                prompt: systemPrompt,
-                                max_new_tokens: 400,
-                                temperature: 0.7
-                            }
+                            model: 'mistralai/mistral-7b-instruct:free',
+                            messages: [
+                                {
+                                    role: 'system',
+                                    content: 'You are Mistral AI, a helpful and knowledgeable assistant. Provide clear, accurate, and helpful responses to any question on any topic.'
+                                },
+                                {
+                                    role: 'user',
+                                    content: query
+                                }
+                            ],
+                            temperature: 0.7,
+                            max_tokens: 500
                         })
                     });
                     
                     if (response.ok) {
-                        const prediction = await response.json();
-                        // Poll for completion (simplified for demo)
-                        const result = await pollReplicateResult(prediction.id);
-                        if (result && result.output) {
-                            return result.output.join('');
+                        const data = await response.json();
+                        if (data.choices && data.choices[0] && data.choices[0].message) {
+                            return data.choices[0].message.content;
                         }
                     }
                 } catch (error) {
-                    console.log('Replicate API failed:', error.message);
+                    console.log('OpenRouter API failed:', error.message);
                 }
                 
-                // Final fallback: Simulate Qwen FPL-style response
-                console.log('Using Qwen FPL-style fallback response');
-                return generateQwenFPLStyleResponse(query);
+                // Final fallback: Generic helpful response encouraging proper setup
+                console.log('All Mistral services failed, using fallback');
+                return `🤖 **Mistral AI Setup Required**
+
+I'm configured to use Mistral AI, but I need proper setup to give you real AI responses.
+
+**To enable real Mistral AI responses:**
+
+**Option 1: Local Ollama (Recommended)**
+1. Install Ollama: \`curl -fsSL https://ollama.ai/install.sh | sh\`
+2. Run: \`ollama pull mistral\`
+3. Start: \`ollama serve\`
+
+**Option 2: OpenRouter API**
+1. Get API key from openrouter.ai
+2. Replace "YOUR_OPENROUTER_KEY" in the code
+
+**Your question was:** "${query}"
+
+Once properly configured, I'll provide intelligent responses powered by Mistral AI for any topic - programming, science, creative writing, general knowledge, and more!`;
                 
             } catch (error) {
-                console.error('All Qwen services failed:', error);
-                return generateQwenFPLStyleResponse(query);
+                console.error('All Mistral services failed:', error);
+                return `❌ **Connection Error**
+
+I'm having trouble connecting to Mistral AI services. Please check:
+
+1. **Internet connection**
+2. **Ollama setup** (if using local): \`ollama serve\`
+3. **API configuration** (if using OpenRouter)
+
+Your question: "${query}"
+
+Try refreshing the page or setting up Ollama locally for the best experience!`;
             }
         }
         
-        async function pollReplicateResult(predictionId) {
-            // Simplified polling - in production you'd want proper polling with delays
-            try {
-                const response = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
-                    headers: {
-                        'Authorization': 'Token YOUR_REPLICATE_TOKEN'
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.status === 'succeeded') {
-                        return data;
-                    }
-                }
-            } catch (error) {
-                console.log('Polling failed:', error);
-            }
-            return null;
-        }
         
-        function generateQwenFPLStyleResponse(query) {
-            const lowerQuery = query.toLowerCase();
-            
-            // Generate direct FPL answers instead of asking for more info
-            if (lowerQuery.includes('captain') || lowerQuery.includes('armband')) {
-                return `⚽ **This Week's Captaincy Recommendations:**
-
-**🏆 Premium Options (Safe Picks):**
-• **Erling Haaland** - Home vs weaker defense, high ceiling
-• **Mohamed Salah** - Strong form and Liverpool's attacking prowess
-• **Son Heung-min** - Consistent returns and favorable fixture
-
-**🎯 Mid-Price Differentials:**
-• **Bruno Fernandes** - Penalties + creative threat
-• **Bukayo Saka** - Arsenal's key player, good fixtures
-• **Alexander Isak** - Newcastle's main goal threat
-
-**📊 Key Factors This Week:**
-• Home advantage weighs heavily for premium assets
-• Consider opponent's defensive record (goals conceded)
-• Weather conditions can impact attacking returns
-
-**💡 My Top Pick:** Based on current form and fixtures, I'd recommend **Haaland** if you have him, or **Salah** as a strong alternative.`;
-                
-            } else if (lowerQuery.includes('transfer') || lowerQuery.includes('who should i buy') || lowerQuery.includes('sell')) {
-                return `🔄 **Current Transfer Targets:**
-
-**🔥 Hot Picks (Rising in Price):**
-• **Cole Palmer** (7.2m) - Chelsea's creative hub, excellent value
-• **Morgan Gibbs-White** (6.4m) - Nottingham Forest's key player
-• **Matheus Cunha** (6.8m) - Wolves' main attacking threat
-
-**💎 Budget Gems (Under 6.0m):**
-• **Chris Wood** (5.8m) - Consistent scorer with good fixtures
-• **Yoane Wissa** (5.9m) - Brentford's reliable forward option
-• **Antoine Semenyo** (5.7m) - Bournemouth winger with attacking returns
-
-**🛑 Players to Avoid:**
-• Injured players (check latest team news)
-• Heavy rotation risks in big clubs
-• Players with tough fixture runs
-
-**💡 Strategy:** Focus on players with good fixture runs over next 4-6 gameweeks, not just this week.`;
-                
-            } else if (lowerQuery.includes('wildcard') || lowerQuery.includes('chip') || lowerQuery.includes('when')) {
-                return `💎 **Chip Strategy Guide:**
-
-**🃏 Wildcard Timing:**
-• **Now (International Break):** Good if team needs major surgery
-• **Gameweek 16-17:** Traditional Christmas wildcard window  
-• **Before DGW:** Wait for double gameweek announcements
-
-**⚡ Other Chips:**
-• **Free Hit:** Save for blank gameweeks (few teams playing)
-• **Bench Boost:** Use during double gameweeks with full playing bench
-• **Triple Captain:** DGW with reliable premium player
-
-**📊 Current Recommendation:**
-If your team needs 4+ transfers, consider wildcarding now. Otherwise, save it for the busy Christmas period when fixtures pile up and rotation increases.
-
-**💡 Key Rule:** Don't rush chips - better to wait for optimal timing than use early.`;
-                
-            } else if (lowerQuery.includes('differential') || lowerQuery.includes('punt') || lowerQuery.includes('template')) {
-                return `🎲 **Top Differentials Right Now:**
-
-**🌟 Low-Owned Premiums (Under 15%):**
-• **Kevin De Bruyne** (9.8m, 8% owned) - City's creative engine
-• **Bruno Fernandes** (8.4m, 12% owned) - Penalties and consistency
-• **Bukayo Saka** (8.9m, 14% owned) - Arsenal's key attacker
-
-**⚡ Mid-Price Punts (5-15% owned):**
-• **Morgan Gibbs-White** (6.4m, 8% owned) - Forest's playmaker
-• **Antoine Semenyo** (5.7m, 6% owned) - Bournemouth winger
-• **Matheus Cunha** (6.8m, 11% owned) - Wolves' main threat
-
-**🔒 Defensive Differentials:**
-• **Josko Gvardiol** (6.2m, 7% owned) - City defender with attacking returns
-• **Lewis Dunk** (4.9m, 4% owned) - Brighton captain, set pieces
-
-**⚠️ Risk Level:** Differentials can quickly backfire. Only punt if you're behind in mini-leagues and need to catch up!`;
-                
-            } else if (lowerQuery.includes('budget') || lowerQuery.includes('cheap') || lowerQuery.includes('under')) {
-                return `💰 **Budget Player Recommendations:**
-
-**🥅 Goalkeepers (Under 5.0m):**
-• **Matz Sels** (4.6m) - Nottingham Forest, good value
-• **Jason Steele** (4.5m) - Brighton backup with potential
-
-**🛡️ Defenders (Under 5.0m):**
-• **Lewis Dunk** (4.9m) - Brighton captain, set piece threat
-• **Ezri Konsa** (4.7m) - Aston Villa, attacking potential
-• **Vitaliy Mykolenko** (4.5m) - Everton, nailed starter
-
-**⚽ Midfielders (Under 6.0m):**
-• **Morgan Gibbs-White** (6.4m) - Just over budget but excellent
-• **Anthony Gordon** (5.8m) - Newcastle winger with pace
-• **Yoane Wissa** (5.9m) - Can play forward, good value
-
-**🔥 Forwards (Under 6.0m):**
-• **Chris Wood** (5.8m) - Nottingham Forest, consistent
-• **Matheus Cunha** (6.8m) - Over budget but worth considering
-
-**💡 Strategy:** Spend big on 2-3 premium players, then fill with these budget gems.`;
-                
-            } else if (lowerQuery.includes('formation') || lowerQuery.includes('structure') || lowerQuery.includes('setup')) {
-                return `⚽ **Optimal Formation Strategy:**
-
-**🏆 Most Popular: 3-5-2**
-• 3 premium defenders (City/Arsenal/Liverpool)
-• 5 midfielders including premium captains
-• 2 forwards for consistent returns
-• Allows flexibility with captain choices
-
-**💪 Alternative: 3-4-3**  
-• Same defensive structure
-• 4 midfielders (2 premium, 2 budget)
-• 3 forwards for more attacking returns
-• Good when forwards are outperforming mids
-
-**🎯 Budget Structure:**
-• **Premium spots:** 2-3 players (Haaland, Salah, etc.)
-• **Mid-tier:** 4-5 players (Palmer, Saka level)  
-• **Budget:** 4-5 enablers under 5.5m
-
-**📊 Current Meta:** 3-5-2 dominates due to strong midfield options and reliable premium defenders offering attacking returns.
-
-**💡 Key:** Don't get stuck in one formation - adapt based on player form and fixtures!`;
-                
-            } else {
-                return `🧠 **General FPL Guidance:**
-
-**📈 This Week's Priorities:**
-• **Check team news** - Press conferences usually Thursday/Friday
-• **Monitor price changes** - Use FPLStatistics or similar tools  
-• **Review fixtures** - Not just this week, but next 3-4 gameweeks
-• **Consider rotation** - European competitions affect lineups
-
-**🎯 Key Strategies:**
-• **Template + differentials** - Mix of popular picks and unique choices
-• **Fixture-based thinking** - Target players with good runs
-• **Value hunting** - Find players outperforming their price
-• **Patience with transfers** - Don't knee-jerk after bad weeks
-
-**💡 Current Market Trends:**
-• Midfielders outperforming forwards in many price brackets
-• Premium defenders from top teams offering great value
-• Budget goalkeepers rotate based on fixtures
-
-**🔥 This Week's Focus:** 
-Check your captain choice, monitor any injury news, and consider if any players have tough fixtures worth avoiding.
-
-What specific aspect would you like me to dive deeper into?`;
-            }
-        }
         
         function showThinking() {
             isTyping = true;
