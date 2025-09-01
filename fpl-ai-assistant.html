@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Llama AI Assistant - Your General AI Helper</title>
+    <title>Mistral AI Assistant - Your Intelligent AI Helper</title>
     
     <style>
         * {
@@ -291,7 +291,7 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <h1>🦙 Llama AI Assistant</h1>
+            <h1>🌪️ Mistral AI Assistant</h1>
             <p>Your intelligent AI helper for any question or task</p>
         </div>
         
@@ -340,9 +340,9 @@
         
         function showWelcomeMessage() {
             setTimeout(() => {
-                const message = `🦙 **Welcome to your Llama AI Assistant!**
+                const message = `🌪️ **Welcome to your Mistral AI Assistant!**
 
-I'm **Llama AI** - your intelligent helper for any question or task. I can assist with:
+I'm **Mistral AI** - your intelligent helper for any question or task. I can assist with:
 
 **🌐 My Capabilities:**
 • **Programming & Coding** - Debug, explain, write code in any language
@@ -360,7 +360,7 @@ I'm **Llama AI** - your intelligent helper for any question or task. I can assis
 • **Conversational AI** - Natural, helpful dialogue on any subject
 • **Language Tasks** - Translation, grammar, writing assistance
 
-🦙 **Powered by:** Llama AI (Advanced Language Model)
+🌪️ **Powered by:** Mistral AI (Advanced Open Source LLM)
 ⚡ **Ready for:** Any question, any topic, any challenge!
 
 Ask me about **anything** - I'm here to help with whatever you're curious about!`;
@@ -419,7 +419,7 @@ Ask me about **anything** - I'm here to help with whatever you're curious about!
             msgDiv.className = 'message ai-message';
             
             msgDiv.innerHTML = `
-                <div class="message-avatar ai-avatar">⚽</div>
+                <div class="message-avatar ai-avatar">🧠</div>
                 <div class="message-content">${formatMessage(message)}</div>
             `;
             messagesDiv.appendChild(msgDiv);
@@ -441,7 +441,7 @@ Ask me about **anything** - I'm here to help with whatever you're curious about!
             
             try {
                 // Get real Llama AI response
-                const response = await queryLlamaAI(message);
+                const response = await queryMistralAI(message);
                 
                 // Remove thinking indicator
                 removeThinking();
@@ -450,9 +450,9 @@ Ask me about **anything** - I'm here to help with whatever you're curious about!
                 displayAIMessage(response);
                 
             } catch (error) {
-                console.error('Llama AI error:', error);
+                console.error('Mistral AI error:', error);
                 removeThinking();
-                displayAIMessage('Sorry, I encountered an error with the Llama AI service. Please try again in a moment.');
+                displayAIMessage('Sorry, I encountered an error with the Mistral AI service. Please try again in a moment.');
             }
         }
         
@@ -460,10 +460,10 @@ Ask me about **anything** - I'm here to help with whatever you're curious about!
         
         
         
-        async function queryLlamaAI(query) {
+        async function queryMistralAI(query) {
             try {
-                // Build simple system prompt for Llama AI
-                const systemPrompt = `You are Llama AI, a helpful and knowledgeable assistant that can answer questions on any topic. You have expertise in:
+                // Build simple system prompt for Mistral AI
+                const systemPrompt = `You are Mistral AI, a helpful and knowledgeable assistant that can answer questions on any topic. You have expertise in:
 
 - General knowledge and conversations
 - Science, technology, and mathematics
@@ -483,11 +483,11 @@ Provide helpful responses that are:
 
 User question: ${query}
 
-Llama AI Response:`;
+Mistral AI Response:`;
 
-                // Try Hugging Face Inference API first (free tier available)
+                // Try Hugging Face Inference API first with Mistral model
                 try {
-                    const response = await fetch('https://api-inference.huggingface.co/models/meta-llama/Llama-2-7b-chat-hf', {
+                    const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1', {
                         method: 'POST',
                         headers: {
                             'Authorization': 'Bearer YOUR_HF_TOKEN', // User would need to add their token
@@ -519,7 +519,7 @@ Llama AI Response:`;
                     console.log('Hugging Face API failed:', error.message);
                 }
                 
-                // Fallback to Replicate API (also supports Llama)
+                // Fallback to Replicate API with Mistral model
                 try {
                     const response = await fetch('https://api.replicate.com/v1/predictions', {
                         method: 'POST',
@@ -528,7 +528,7 @@ Llama AI Response:`;
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            version: "meta/llama-2-7b-chat",
+                            version: "mistralai/mixtral-8x7b-instruct-v0.1",
                             input: {
                                 prompt: systemPrompt,
                                 max_new_tokens: 400,
@@ -549,13 +549,13 @@ Llama AI Response:`;
                     console.log('Replicate API failed:', error.message);
                 }
                 
-                // Final fallback: Simulate Llama-style response
-                console.log('Using Llama-style fallback response');
-                return generateLlamaStyleResponse(query);
+                // Final fallback: Simulate Mistral-style response
+                console.log('Using Mistral-style fallback response');
+                return generateMistralStyleResponse(query);
                 
             } catch (error) {
-                console.error('All Llama services failed:', error);
-                return generateLlamaStyleResponse(query);
+                console.error('All Mistral services failed:', error);
+                return generateMistralStyleResponse(query);
             }
         }
         
@@ -580,11 +580,11 @@ Llama AI Response:`;
             return null;
         }
         
-        function generateLlamaStyleResponse(query) {
+        function generateMistralStyleResponse(query) {
             const lowerQuery = query.toLowerCase();
             
-            // Start with Llama-style greeting
-            let response = "As your Llama AI assistant, let me help you with your question:\n\n";
+            // Start with Mistral-style greeting
+            let response = "As your Mistral AI assistant, let me help you with your question:\n\n";
             
             // Generate responses based on topic type
             if (lowerQuery.includes('code') || lowerQuery.includes('programming') || lowerQuery.includes('javascript') || lowerQuery.includes('python') || lowerQuery.includes('debug')) {
@@ -675,17 +675,17 @@ Llama AI Response:`;
             thinkingDiv.id = 'thinkingIndicator';
             
             const thoughts = [
-                "⚽ Analyzing FPL data...",
-                "🧠 Processing your FPL question...",
-                "📊 Consulting training knowledge...",
-                "🎯 Generating expert advice...",
-                "📈 Reviewing player stats...",
-                "🔍 Checking fixture data..."
+                "🧠 Processing your question...",
+                "🌪️ Mistral AI analyzing your request...",
+                "📊 Generating intelligent response...",
+                "🎯 Crafting helpful answer...",
+                "🔍 Researching information...",
+                "⚙️ Thinking through the problem..."
             ];
             const thought = thoughts[Math.floor(Math.random() * thoughts.length)];
             
             thinkingDiv.innerHTML = `
-                <div class="message-avatar ai-avatar">⚽</div>
+                <div class="message-avatar ai-avatar">🌪️</div>
                 <div class="thinking-content">
                     ${thought}
                     <div class="thinking-dots">
@@ -807,7 +807,7 @@ Llama AI Response:`;
                             `).join('')}
                         </div>
                         <p style="margin-top: 15px; font-size: 0.9rem; color: #6b7280;">
-                            💡 <strong>Pro tip:</strong> I can answer ANY question using Llama AI's advanced language capabilities!
+                            💡 <strong>Pro tip:</strong> I can answer ANY question using Mistral AI's advanced language capabilities!
                         </p>
                     </div>
                 `;
