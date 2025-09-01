@@ -549,13 +549,13 @@ Mistral AI Response:`;
                     console.log('Replicate API failed:', error.message);
                 }
                 
-                // Final fallback: Simulate Mistral-style response
-                console.log('Using Mistral-style fallback response');
-                return generateMistralStyleResponse(query);
+                // Final fallback: Simulate Qwen FPL-style response
+                console.log('Using Qwen FPL-style fallback response');
+                return generateQwenFPLStyleResponse(query);
                 
             } catch (error) {
-                console.error('All Mistral services failed:', error);
-                return generateMistralStyleResponse(query);
+                console.error('All Qwen services failed:', error);
+                return generateQwenFPLStyleResponse(query);
             }
         }
         
@@ -580,92 +580,160 @@ Mistral AI Response:`;
             return null;
         }
         
-        function generateMistralStyleResponse(query) {
+        function generateQwenFPLStyleResponse(query) {
             const lowerQuery = query.toLowerCase();
             
-            // Start with Mistral-style greeting
-            let response = "As your Mistral AI assistant, let me help you with your question:\n\n";
-            
-            // Generate responses based on topic type
-            if (lowerQuery.includes('code') || lowerQuery.includes('programming') || lowerQuery.includes('javascript') || lowerQuery.includes('python') || lowerQuery.includes('debug')) {
-                response += "I can help you with coding! Here's my analysis:\n\n";
-                response += "For programming questions, I recommend:\n";
-                response += "• **Clear problem definition** - Break down what you're trying to achieve\n";
-                response += "• **Best practices** - Follow language conventions and clean code principles\n";
-                response += "• **Testing approach** - Write tests to verify your solution works\n";
-                response += "• **Documentation** - Comment your code for future reference\n\n";
-                response += "Share your specific code problem and I'll provide detailed assistance!";
+            // Generate direct FPL answers instead of asking for more info
+            if (lowerQuery.includes('captain') || lowerQuery.includes('armband')) {
+                return `⚽ **This Week's Captaincy Recommendations:**
+
+**🏆 Premium Options (Safe Picks):**
+• **Erling Haaland** - Home vs weaker defense, high ceiling
+• **Mohamed Salah** - Strong form and Liverpool's attacking prowess
+• **Son Heung-min** - Consistent returns and favorable fixture
+
+**🎯 Mid-Price Differentials:**
+• **Bruno Fernandes** - Penalties + creative threat
+• **Bukayo Saka** - Arsenal's key player, good fixtures
+• **Alexander Isak** - Newcastle's main goal threat
+
+**📊 Key Factors This Week:**
+• Home advantage weighs heavily for premium assets
+• Consider opponent's defensive record (goals conceded)
+• Weather conditions can impact attacking returns
+
+**💡 My Top Pick:** Based on current form and fixtures, I'd recommend **Haaland** if you have him, or **Salah** as a strong alternative.`;
                 
-            } else if (lowerQuery.includes('science') || lowerQuery.includes('physics') || lowerQuery.includes('chemistry') || lowerQuery.includes('biology') || lowerQuery.includes('quantum')) {
-                response += "I love science questions! Here's my analysis:\n\n";
-                response += "Scientific concepts can be understood through:\n";
-                response += "• **Fundamental principles** - Core laws and theories\n";
-                response += "• **Real-world applications** - How science affects daily life\n";
-                response += "• **Current research** - Latest discoveries and developments\n";
-                response += "• **Experimental evidence** - Data supporting scientific understanding\n\n";
-                response += "What specific scientific topic would you like me to explain?";
+            } else if (lowerQuery.includes('transfer') || lowerQuery.includes('who should i buy') || lowerQuery.includes('sell')) {
+                return `🔄 **Current Transfer Targets:**
+
+**🔥 Hot Picks (Rising in Price):**
+• **Cole Palmer** (7.2m) - Chelsea's creative hub, excellent value
+• **Morgan Gibbs-White** (6.4m) - Nottingham Forest's key player
+• **Matheus Cunha** (6.8m) - Wolves' main attacking threat
+
+**💎 Budget Gems (Under 6.0m):**
+• **Chris Wood** (5.8m) - Consistent scorer with good fixtures
+• **Yoane Wissa** (5.9m) - Brentford's reliable forward option
+• **Antoine Semenyo** (5.7m) - Bournemouth winger with attacking returns
+
+**🛑 Players to Avoid:**
+• Injured players (check latest team news)
+• Heavy rotation risks in big clubs
+• Players with tough fixture runs
+
+**💡 Strategy:** Focus on players with good fixture runs over next 4-6 gameweeks, not just this week.`;
                 
-            } else if (lowerQuery.includes('write') || lowerQuery.includes('story') || lowerQuery.includes('creative') || lowerQuery.includes('poem')) {
-                response += "I'm great at creative writing! Here's my approach:\n\n";
-                response += "For creative projects, consider:\n";
-                response += "• **Character development** - Create compelling, relatable characters\n";
-                response += "• **Plot structure** - Build engaging narrative arcs\n";
-                response += "• **Setting and world-building** - Create immersive environments\n";
-                response += "• **Voice and style** - Develop your unique writing voice\n\n";
-                response += "What kind of creative writing project can I help you with?";
+            } else if (lowerQuery.includes('wildcard') || lowerQuery.includes('chip') || lowerQuery.includes('when')) {
+                return `💎 **Chip Strategy Guide:**
+
+**🃏 Wildcard Timing:**
+• **Now (International Break):** Good if team needs major surgery
+• **Gameweek 16-17:** Traditional Christmas wildcard window  
+• **Before DGW:** Wait for double gameweek announcements
+
+**⚡ Other Chips:**
+• **Free Hit:** Save for blank gameweeks (few teams playing)
+• **Bench Boost:** Use during double gameweeks with full playing bench
+• **Triple Captain:** DGW with reliable premium player
+
+**📊 Current Recommendation:**
+If your team needs 4+ transfers, consider wildcarding now. Otherwise, save it for the busy Christmas period when fixtures pile up and rotation increases.
+
+**💡 Key Rule:** Don't rush chips - better to wait for optimal timing than use early.`;
                 
-            } else if (lowerQuery.includes('math') || lowerQuery.includes('calculate') || lowerQuery.includes('equation') || lowerQuery.includes('solve')) {
-                response += "I can solve math problems! Here's my approach:\n\n";
-                response += "For mathematical questions, I focus on:\n";
-                response += "• **Step-by-step solutions** - Clear problem-solving process\n";
-                response += "• **Concept explanations** - Why methods work, not just how\n";
-                response += "• **Multiple approaches** - Different ways to solve problems\n";
-                response += "• **Real applications** - How math applies to real situations\n\n";
-                response += "What math problem would you like me to help solve?";
+            } else if (lowerQuery.includes('differential') || lowerQuery.includes('punt') || lowerQuery.includes('template')) {
+                return `🎲 **Top Differentials Right Now:**
+
+**🌟 Low-Owned Premiums (Under 15%):**
+• **Kevin De Bruyne** (9.8m, 8% owned) - City's creative engine
+• **Bruno Fernandes** (8.4m, 12% owned) - Penalties and consistency
+• **Bukayo Saka** (8.9m, 14% owned) - Arsenal's key attacker
+
+**⚡ Mid-Price Punts (5-15% owned):**
+• **Morgan Gibbs-White** (6.4m, 8% owned) - Forest's playmaker
+• **Antoine Semenyo** (5.7m, 6% owned) - Bournemouth winger
+• **Matheus Cunha** (6.8m, 11% owned) - Wolves' main threat
+
+**🔒 Defensive Differentials:**
+• **Josko Gvardiol** (6.2m, 7% owned) - City defender with attacking returns
+• **Lewis Dunk** (4.9m, 4% owned) - Brighton captain, set pieces
+
+**⚠️ Risk Level:** Differentials can quickly backfire. Only punt if you're behind in mini-leagues and need to catch up!`;
                 
-            } else if (lowerQuery.includes('history') || lowerQuery.includes('culture') || lowerQuery.includes('politics') || lowerQuery.includes('ancient')) {
-                response += "I can discuss history and culture! Here's my perspective:\n\n";
-                response += "Historical analysis involves:\n";
-                response += "• **Context understanding** - Historical circumstances and influences\n";
-                response += "• **Multiple perspectives** - Different viewpoints on events\n";
-                response += "• **Cause and effect** - How events shaped future developments\n";
-                response += "• **Modern relevance** - Lessons for today's world\n\n";
-                response += "What historical or cultural topic interests you?";
+            } else if (lowerQuery.includes('budget') || lowerQuery.includes('cheap') || lowerQuery.includes('under')) {
+                return `💰 **Budget Player Recommendations:**
+
+**🥅 Goalkeepers (Under 5.0m):**
+• **Matz Sels** (4.6m) - Nottingham Forest, good value
+• **Jason Steele** (4.5m) - Brighton backup with potential
+
+**🛡️ Defenders (Under 5.0m):**
+• **Lewis Dunk** (4.9m) - Brighton captain, set piece threat
+• **Ezri Konsa** (4.7m) - Aston Villa, attacking potential
+• **Vitaliy Mykolenko** (4.5m) - Everton, nailed starter
+
+**⚽ Midfielders (Under 6.0m):**
+• **Morgan Gibbs-White** (6.4m) - Just over budget but excellent
+• **Anthony Gordon** (5.8m) - Newcastle winger with pace
+• **Yoane Wissa** (5.9m) - Can play forward, good value
+
+**🔥 Forwards (Under 6.0m):**
+• **Chris Wood** (5.8m) - Nottingham Forest, consistent
+• **Matheus Cunha** (6.8m) - Over budget but worth considering
+
+**💡 Strategy:** Spend big on 2-3 premium players, then fill with these budget gems.`;
                 
-            } else if (lowerQuery.includes('learn') || lowerQuery.includes('study') || lowerQuery.includes('education') || lowerQuery.includes('explain')) {
-                response += "I'm here to help you learn! Here's my teaching approach:\n\n";
-                response += "Effective learning involves:\n";
-                response += "• **Clear explanations** - Breaking down complex concepts simply\n";
-                response += "• **Multiple examples** - Different ways to understand the same idea\n";
-                response += "• **Practice opportunities** - Hands-on application of knowledge\n";
-                response += "• **Progress building** - Learning step-by-step from basics to advanced\n\n";
-                response += "What would you like to learn about today?";
-                
-            } else if (lowerQuery.includes('business') || lowerQuery.includes('market') || lowerQuery.includes('finance') || lowerQuery.includes('invest')) {
-                response += "I can help with business and finance topics! Here's my analysis:\n\n";
-                response += "Business success typically involves:\n";
-                response += "• **Market research** - Understanding your audience and competition\n";
-                response += "• **Strategic planning** - Clear goals and actionable steps\n";
-                response += "• **Financial management** - Budgeting, forecasting, and risk assessment\n";
-                response += "• **Continuous adaptation** - Responding to market changes\n\n";
-                response += "What specific business or financial question can I help with?";
+            } else if (lowerQuery.includes('formation') || lowerQuery.includes('structure') || lowerQuery.includes('setup')) {
+                return `⚽ **Optimal Formation Strategy:**
+
+**🏆 Most Popular: 3-5-2**
+• 3 premium defenders (City/Arsenal/Liverpool)
+• 5 midfielders including premium captains
+• 2 forwards for consistent returns
+• Allows flexibility with captain choices
+
+**💪 Alternative: 3-4-3**  
+• Same defensive structure
+• 4 midfielders (2 premium, 2 budget)
+• 3 forwards for more attacking returns
+• Good when forwards are outperforming mids
+
+**🎯 Budget Structure:**
+• **Premium spots:** 2-3 players (Haaland, Salah, etc.)
+• **Mid-tier:** 4-5 players (Palmer, Saka level)  
+• **Budget:** 4-5 enablers under 5.5m
+
+**📊 Current Meta:** 3-5-2 dominates due to strong midfield options and reliable premium defenders offering attacking returns.
+
+**💡 Key:** Don't get stuck in one formation - adapt based on player form and fixtures!`;
                 
             } else {
-                response += "I can help with any topic! Based on your question, I'll provide:\n\n";
-                response += "• **Accurate information** - Reliable facts and explanations\n";
-                response += "• **Multiple angles** - Different perspectives on the topic\n";
-                response += "• **Practical insights** - Actionable information when applicable\n";
-                response += "• **Further exploration** - Suggestions for deeper learning\n\n";
-                response += "Feel free to ask me anything - I'm here to help with whatever you're curious about!";
+                return `🧠 **General FPL Guidance:**
+
+**📈 This Week's Priorities:**
+• **Check team news** - Press conferences usually Thursday/Friday
+• **Monitor price changes** - Use FPLStatistics or similar tools  
+• **Review fixtures** - Not just this week, but next 3-4 gameweeks
+• **Consider rotation** - European competitions affect lineups
+
+**🎯 Key Strategies:**
+• **Template + differentials** - Mix of popular picks and unique choices
+• **Fixture-based thinking** - Target players with good runs
+• **Value hunting** - Find players outperforming their price
+• **Patience with transfers** - Don't knee-jerk after bad weeks
+
+**💡 Current Market Trends:**
+• Midfielders outperforming forwards in many price brackets
+• Premium defenders from top teams offering great value
+• Budget goalkeepers rotate based on fixtures
+
+**🔥 This Week's Focus:** 
+Check your captain choice, monitor any injury news, and consider if any players have tough fixtures worth avoiding.
+
+What specific aspect would you like me to dive deeper into?`;
             }
-            
-            
-            return response;
         }
-        
-        
-        
-        
         
         function showThinking() {
             isTyping = true;
