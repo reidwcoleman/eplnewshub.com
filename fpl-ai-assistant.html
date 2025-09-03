@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free AI Assistant - Your Open Source AI Helper | EPL News Hub</title>
+    <title>ChatGPT Assistant - AI-Powered Help | EPL News Hub</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Get intelligent help with any question using our free, open source AI assistant. Programming, science, creative writing, general knowledge, and more. No API keys required!">
-    <meta name="keywords" content="Free AI Assistant, Open Source AI, Programming Help, Science Questions, Creative Writing, General Knowledge">
+    <meta name="description" content="Get intelligent help with any question using ChatGPT. Programming, science, creative writing, FPL analysis, and more. Powered by OpenAI's advanced models.">
+    <meta name="keywords" content="ChatGPT Assistant, AI Help, Programming Help, FPL Analysis, OpenAI, Science Questions, Creative Writing">
     <meta name="author" content="EPL News Hub">
     
     <!-- Open Graph / Social Media -->
@@ -333,14 +333,14 @@
     <!-- Main Content -->
     <main class="page-container">
         <div class="ai-assistant-hero">
-            <h1>🤖 Free AI Assistant</h1>
-            <p>Your intelligent helper powered by free, open source AI - no setup required!</p>
+            <h1>🤖 ChatGPT Assistant</h1>
+            <p>Your intelligent helper powered by ChatGPT - configure your API key to get started!</p>
         </div>
         
         <div class="chat-container">
             <div class="chat-header">
-                <h2>🤖 Free AI Assistant</h2>
-                <p>Powered by open source AI models - completely free to use</p>
+                <h2>🤖 ChatGPT Assistant</h2>
+                <p>Powered by OpenAI's ChatGPT - configure your API key to start</p>
             </div>
         
         
@@ -442,11 +442,11 @@
         function showWelcomeMessage() {
             setTimeout(() => {
                 const hasApiKey = AI_CONFIG.OPENAI_API_KEY ? true : false;
-                const aiProvider = hasApiKey ? 'ChatGPT' : 'Free Open Source AI Models';
                 
-                const message = `🤖 **Welcome to your AI Assistant!**
+                const message = hasApiKey ? 
+                `🤖 **Welcome to your ChatGPT Assistant!**
 
-I'm your **AI Assistant** - ready to help with any question! I can assist with:
+I'm your **ChatGPT-powered AI Assistant** - ready to help with any question! I can assist with:
 
 **🌐 My Capabilities:**
 • **Programming & Coding** - Debug, explain, write code in any language
@@ -457,17 +457,35 @@ I'm your **AI Assistant** - ready to help with any question! I can assist with:
 • **Problem Solving** - Strategic thinking, decision support
 
 **💪 Current Configuration:**
-• **AI Provider:** ${aiProvider}
+• **AI Provider:** ChatGPT (${AI_CONFIG.CHATGPT_MODEL})
 • **Privacy Focused** - Your conversations stay private
-• **Multi-topic Help** - Science, technology, humanities, arts
-${hasApiKey ? '• **ChatGPT Enabled** - High-quality responses via OpenAI API' : '• **Free Models** - Using Hugging Face\'s open source models'}
+• **High Quality Responses** - Powered by OpenAI's advanced models
 
-${hasApiKey ? '🤖 **Powered by:** ChatGPT (OpenAI)' : '🤖 **Powered by:** Free Open Source AI Models'}
+🤖 **Powered by:** ChatGPT (OpenAI)
 ⚡ **Ready for:** Any question, any topic, any challenge!
 
-${!hasApiKey ? '💡 **Want better responses?** Click the ⚙️ button to configure ChatGPT integration!' : ''}
+Ask me about **anything** - I'm here to help with whatever you're curious about!` :
 
-Ask me about **anything** - I'm here to help with whatever you're curious about!`;
+                `🔑 **ChatGPT Assistant - Setup Required**
+
+Welcome to your **ChatGPT-powered AI Assistant**! 
+
+**⚙️ Setup Required:**
+To use this assistant, you need to configure your OpenAI API key.
+
+**Getting Started:**
+1. **Get an API Key** - Visit https://platform.openai.com/account/api-keys
+2. **Click the ⚙️ button** below to configure your key
+3. **Start chatting** with ChatGPT!
+
+**What You'll Get:**
+• **High-Quality Responses** - Powered by ChatGPT models
+• **Programming Help** - Code debugging, explanations, tutorials
+• **FPL Analysis** - Fantasy Premier League strategy and advice
+• **General Knowledge** - Science, math, writing, and more
+
+🤖 **Powered by:** ChatGPT (OpenAI)
+⚡ **Click ⚙️ to get started!**`;
                 
                 displayAIMessage(message);
             }, 500);
@@ -499,13 +517,10 @@ Ask me about **anything** - I'm here to help with whatever you're curious about!
                 AI_CONFIG.CHATGPT_MODEL = model;
                 localStorage.setItem('chatgpt_model', model);
                 
-                displayAIMessage(`✅ **Configuration Saved!**\n\nChatGPT integration is now enabled with model: **${model}**\n\nYour API key has been stored locally and will be used for all future conversations. You'll now get high-quality responses powered by OpenAI!`);
+                displayAIMessage(`✅ **ChatGPT Configured!**\n\nYour assistant is now powered by **${model}**!\n\nYour API key has been stored securely in your browser. You're all set to start chatting with ChatGPT!`);
             } else {
-                // Remove API key to use free models
-                localStorage.removeItem('openai_api_key');
-                AI_CONFIG.OPENAI_API_KEY = '';
-                
-                displayAIMessage(`✅ **Configuration Updated!**\n\nSwitched back to **free open source models**. No API key required!\n\nYour conversations will now use Hugging Face's free AI models.`);
+                displayAIMessage(`❌ **API Key Required**\n\nPlease enter a valid OpenAI API key to use this assistant. Get your key from: https://platform.openai.com/account/api-keys`);
+                return;
             }
             
             hideAPIConfig();
@@ -582,8 +597,8 @@ Ask me about **anything** - I'm here to help with whatever you're curious about!
             showThinking();
             
             try {
-                // Get AI response
-                const response = await queryFreeAI(message);
+                // Get ChatGPT response
+                const response = await queryAI(message);
                 
                 // Remove thinking indicator
                 removeThinking();
@@ -592,16 +607,18 @@ Ask me about **anything** - I'm here to help with whatever you're curious about!
                 displayAIMessage(response);
                 
             } catch (error) {
-                console.error('AI error:', error);
+                console.error('ChatGPT error:', error);
                 removeThinking();
                 
-                // Show specific error for API key issues
-                if (error.message.includes('API key') || error.message.includes('authentication')) {
-                    displayAIMessage('🔑 **API Key Error**\n\nYour OpenAI API key appears to be invalid or missing. Please click the ⚙️ button to configure your API key, or the system will automatically fall back to free models.');
+                // Show specific error messages
+                if (error.message.includes('API key') || error.message.includes('authentication') || error.message.includes('required')) {
+                    displayAIMessage('🔑 **API Key Required**\n\nPlease click the ⚙️ button to configure your OpenAI API key. ChatGPT integration requires a valid API key to function.\n\nGet your API key from: https://platform.openai.com/account/api-keys');
                 } else if (error.message.includes('quota') || error.message.includes('billing')) {
-                    displayAIMessage('💳 **Quota Exceeded**\n\nYour OpenAI API quota has been exceeded. The system will fall back to free open source models for now. You can add billing to your OpenAI account or continue using the free models.');
+                    displayAIMessage('💳 **Quota Exceeded**\n\nYour OpenAI API quota has been exceeded. Please add billing to your OpenAI account or check your usage limits at: https://platform.openai.com/account/usage');
+                } else if (error.message.includes('rate limit')) {
+                    displayAIMessage('⏱️ **Rate Limited**\n\nToo many requests sent to OpenAI. Please wait a moment and try again.');
                 } else {
-                    displayAIMessage('⚠️ **Service Error**\n\nSorry, I encountered an error with the AI service. The system will automatically try backup models. Please try again in a moment.');
+                    displayAIMessage('⚠️ **ChatGPT Error**\n\nSorry, I encountered an error with ChatGPT. Please check your API key configuration and try again.\n\nError: ' + error.message);
                 }
             }
         }
@@ -624,111 +641,12 @@ Ask me about **anything** - I'm here to help with whatever you're curious about!
             AI_CONFIG.OPENAI_API_KEY = apiKey;
         }
 
-        async function queryFreeAI(query) {
-            try {
-                // Try ChatGPT first if configured
-                if (AI_CONFIG.USE_CHATGPT && AI_CONFIG.OPENAI_API_KEY) {
-                    try {
-                        const response = await queryOpenAI(query);
-                        if (response) return response;
-                    } catch (error) {
-                        console.log('ChatGPT failed, falling back to Hugging Face:', error.message);
-                    }
-                }
-                
-                // Try multiple free Hugging Face models as fallback
-                const models = [
-                    'microsoft/DialoGPT-medium',
-                    'facebook/blenderbot-400M-distill',
-                    'microsoft/DialoGPT-small',
-                    'google/flan-t5-base'
-                ];
-                
-                for (const model of models) {
-                    try {
-                        const response = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                inputs: query,
-                                parameters: {
-                                    max_length: 200,
-                                    temperature: 0.7,
-                                    do_sample: true,
-                                    top_p: 0.9
-                                },
-                                options: {
-                                    wait_for_model: true
-                                }
-                            })
-                        });
-                        
-                        if (response.ok) {
-                            const data = await response.json();
-                            if (data && data.length > 0 && data[0].generated_text) {
-                                let aiResponse = data[0].generated_text.trim();
-                                // Clean up the response - remove the original query if it's included
-                                aiResponse = aiResponse.replace(query, '').trim();
-                                if (aiResponse.length > 10) {
-                                    return aiResponse;
-                                }
-                            }
-                        }
-                    } catch (error) {
-                        console.log(`Model ${model} failed:`, error.message);
-                        continue; // Try next model
-                    }
-                }
-                
-                // Try a simple text generation approach with GPT-2
-                try {
-                    const response = await fetch('https://api-inference.huggingface.co/models/gpt2', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            inputs: `Question: ${query}\nAnswer:`,
-                            parameters: {
-                                max_length: 150,
-                                temperature: 0.7,
-                                do_sample: true,
-                                top_p: 0.9,
-                                stop: ["\n\n", "Question:", "Q:"]
-                            },
-                            options: {
-                                wait_for_model: true
-                            }
-                        })
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data && data.length > 0 && data[0].generated_text) {
-                            let aiResponse = data[0].generated_text.trim();
-                            // Extract just the answer part
-                            const answerMatch = aiResponse.match(/Answer:\s*(.+)/s);
-                            if (answerMatch) {
-                                aiResponse = answerMatch[1].trim();
-                            }
-                            if (aiResponse.length > 10) {
-                                return aiResponse;
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.log('GPT-2 fallback failed:', error.message);
-                }
-                
-                // Final intelligent fallback based on question type
-                return generateIntelligentResponse(query);
-                
-            } catch (error) {
-                console.error('All AI services failed:', error);
-                return generateIntelligentResponse(query);
+        async function queryAI(query) {
+            if (!AI_CONFIG.OPENAI_API_KEY) {
+                throw new Error('OpenAI API key is required. Please configure your API key using the settings button.');
             }
+            
+            return await queryOpenAI(query);
         }
 
         async function queryOpenAI(query) {
@@ -764,29 +682,6 @@ Ask me about **anything** - I'm here to help with whatever you're curious about!
             return data.choices[0]?.message?.content?.trim() || null;
         }
         
-        function generateIntelligentResponse(query) {
-            const lowerQuery = query.toLowerCase();
-            
-            // Analyze the question and provide helpful responses
-            if (lowerQuery.includes('code') || lowerQuery.includes('programming') || lowerQuery.includes('javascript') || lowerQuery.includes('python')) {
-                return `🔧 **Programming Help**\n\nFor your coding question about "${query}", here are some general guidelines:\n\n• **Break down the problem** - Start with small, manageable pieces\n• **Check documentation** - Official docs often have the best examples\n• **Use debugging tools** - Console logs, debuggers, and error messages\n• **Test incrementally** - Make small changes and test frequently\n\nFor specific programming questions, I recommend:\n- Stack Overflow for community solutions\n- Official documentation for your language/framework\n- GitHub repositories for code examples\n\nWould you like me to help you break down your specific coding problem?`;
-            }
-            
-            if (lowerQuery.includes('science') || lowerQuery.includes('physics') || lowerQuery.includes('chemistry') || lowerQuery.includes('biology')) {
-                return `🔬 **Science Explanation**\n\nRegarding your science question: "${query}"\n\nScience topics often involve:\n• **Observation** - What can we see or measure?\n• **Hypothesis** - What do we think is happening?\n• **Experimentation** - How can we test our ideas?\n• **Analysis** - What do the results tell us?\n\nFor reliable scientific information, I recommend:\n- Khan Academy for educational content\n- NASA, NIH, or other official science organizations\n- Peer-reviewed scientific journals\n- University educational resources\n\nWhat specific aspect of this topic interests you most?`;
-            }
-            
-            if (lowerQuery.includes('math') || lowerQuery.includes('calculate') || lowerQuery.includes('equation')) {
-                return `📊 **Math Problem Solving**\n\nFor your math question: "${query}"\n\nMath problem-solving approach:\n• **Understand the problem** - What are we looking for?\n• **Identify given information** - What do we know?\n• **Choose a strategy** - Which method fits best?\n• **Solve step by step** - Show your work\n• **Check your answer** - Does it make sense?\n\nUseful math resources:\n- Wolfram Alpha for calculations\n- Khan Academy for explanations\n- Desmos for graphing\n- Paul's Online Math Notes for advanced topics\n\nWould you like help breaking down your specific math problem?`;
-            }
-            
-            if (lowerQuery.includes('write') || lowerQuery.includes('story') || lowerQuery.includes('creative') || lowerQuery.includes('essay')) {
-                return `✍️ **Writing Assistance**\n\nFor your writing question: "${query}"\n\nGood writing involves:\n• **Planning** - Outline your main points\n• **Structure** - Organize ideas logically\n• **Clarity** - Use clear, concise language\n• **Revision** - Edit and improve your work\n• **Voice** - Develop your unique style\n\nWriting resources:\n- Grammarly for grammar and style\n- Hemingway Editor for clarity\n- Writing communities for feedback\n- Reading widely in your genre\n\nWhat type of writing project are you working on?`;
-            }
-            
-            // General helpful response
-            return `🤖 **AI Assistant Response**\n\nThank you for your question: "${query}"\n\nI'm a free, open-source AI assistant designed to help with various topics. While I may not have access to the latest AI models right now, I can still provide guidance on:\n\n• **General problem-solving approaches**\n• **Resource recommendations**\n• **Breaking down complex questions**\n• **Suggesting next steps**\n\n**For the best AI responses, try:**\n- ChatGPT, Claude, or Gemini for advanced AI chat\n- Hugging Face Spaces for specialized AI tools\n- Local AI models like Ollama for privacy\n\nWould you like me to help you find the right resources for your specific question, or would you like to rephrase your question in a different way?`;
-        }
         
         
         
