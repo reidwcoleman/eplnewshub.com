@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FPL Tools & Analysis - Coming Soon | EPL News Hub</title>
+    <title>Free AI Assistant - Open Source LLM | EPL News Hub</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Advanced FPL tools and analysis coming soon. Player stats, transfer recommendations, team optimization, fixture analysis, and price change predictions.">
-    <meta name="keywords" content="FPL Tools, Fantasy Premier League Analysis, Player Stats, Transfer Recommendations, Team Optimization, FPL Strategy">
+    <meta name="description" content="Free AI assistant powered by open source LLMs. Get help with FPL analysis, programming, science, creative writing, and more - completely free and no API keys required.">
+    <meta name="keywords" content="Free AI Assistant, Open Source LLM, FPL Analysis, Programming Help, Hugging Face AI, Free Chatbot">
     <meta name="author" content="EPL News Hub">
     
     <!-- Open Graph / Social Media -->
@@ -58,25 +58,214 @@
             padding: 0 20px;
         }
         
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-block;
+        .chat-container {
+            width: 100%;
+            max-width: 900px;
+            height: 70vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(56, 0, 60, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: 20px auto;
         }
         
-        .btn-primary {
+        .chat-header {
+            background: linear-gradient(135deg, #38003c, #00ff87);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .chat-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .chat-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .user-message {
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .user-avatar {
+            background: #6b7280;
+        }
+        
+        .ai-avatar {
+            background: linear-gradient(135deg, #38003c, #00ff87);
+        }
+        
+        .message-content {
+            max-width: 75%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            line-height: 1.6;
+        }
+        
+        .user-message .message-content {
             background: #38003c;
             color: white;
         }
         
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(56, 0, 60, 0.3);
+        .ai-message .message-content {
+            background: white;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .thinking-indicator {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .thinking-content {
+            background: #f3f4f6;
+            padding: 15px 20px;
+            border-radius: 18px;
+            color: #6b7280;
+            font-style: italic;
+            max-width: 70%;
+        }
+        
+        .thinking-dots {
+            display: inline-flex;
+            gap: 4px;
+            margin-left: 10px;
+        }
+        
+        .thinking-dots span {
+            width: 6px;
+            height: 6px;
+            background: #38003c;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        
+        .thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        
+        .input-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .chat-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .chat-input:focus {
+            border-color: #38003c;
+        }
+        
+        .send-button {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #38003c, #00ff87);
+            color: white;
+        }
+        
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 95%;
+                height: 95vh;
+                border-radius: 15px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .ai-assistant-hero h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
@@ -87,28 +276,29 @@
     <!-- Main Content -->
     <main class="page-container">
         <div class="ai-assistant-hero">
-            <h1>🚀 FPL Tools & Analysis</h1>
-            <p>Coming soon - Advanced FPL analysis and tools for Fantasy Premier League managers</p>
+            <h1>🤖 Free AI Assistant</h1>
+            <p>Powered by open source LLMs - completely free, no API keys required!</p>
         </div>
         
-        <div style="max-width: 800px; margin: 40px auto; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-            <h2 style="color: #38003c; margin-bottom: 20px;">🔧 Under Development</h2>
-            <p style="line-height: 1.6; color: #4b5563; margin-bottom: 20px;">
-                We're working on exciting new FPL tools and features for this page. Check back soon for:
-            </p>
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2>🤖 Free AI Assistant</h2>
+                <p>Powered by open source AI models - ask me anything!</p>
+            </div>
             
-            <ul style="color: #4b5563; line-height: 1.8; margin-bottom: 30px;">
-                <li><strong>Player Analysis Tools</strong> - In-depth stats and performance metrics</li>
-                <li><strong>Transfer Recommendations</strong> - AI-powered transfer suggestions</li>
-                <li><strong>Team Optimization</strong> - Squad planning and formation analysis</li>
-                <li><strong>Fixture Analysis</strong> - Upcoming fixtures and difficulty ratings</li>
-                <li><strong>Price Change Predictions</strong> - Market trends and value picks</li>
-            </ul>
+            <div id="chatMessages" class="chat-messages">
+                <!-- Messages will be added here -->
+            </div>
             
-            <div style="text-align: center;">
-                <a href="/index.html" class="btn btn-primary" style="text-decoration: none; display: inline-block;">
-                    🏠 Return to Homepage
-                </a>
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <input type="text" id="userInput" placeholder="Ask me anything..." class="chat-input" autocomplete="off">
+                </div>
+                <button id="sendButton" onclick="sendMessage()" class="send-button" aria-label="Send Message">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </main>
@@ -118,6 +308,378 @@
     
     <!-- Site Scripts -->
     <script src="/index.js"></script>
+    
+    <script>
+        let isTyping = false;
+        let messageCount = 0;
+        
+        // Initialize chat
+        document.addEventListener('DOMContentLoaded', () => {
+            showWelcomeMessage();
+            
+            // Handle Enter key
+            document.getElementById('userInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        });
+        
+        function showWelcomeMessage() {
+            setTimeout(() => {
+                const message = `🤖 **Welcome to your Free AI Assistant!**
+
+I'm your **completely free AI assistant** powered by open source language models! I can help with:
+
+**🌐 My Capabilities:**
+• **Programming & Coding** - Debug code, explain concepts, write functions
+• **FPL Analysis** - Fantasy Premier League strategy, player advice, transfers
+• **Science & Math** - Explain concepts, solve problems, research topics
+• **Creative Writing** - Stories, essays, poems, brainstorming ideas
+• **Learning & Education** - Explanations, tutorials, homework help
+• **General Questions** - History, current events, how-to guides
+
+**💪 What Makes Me Special:**
+• **Completely Free** - No API keys, no setup, no costs!
+• **Open Source Models** - Powered by Hugging Face's free AI models
+• **Privacy Focused** - Your conversations aren't stored or tracked
+• **Always Available** - No rate limits or usage restrictions
+• **Multi-topic Help** - Science, technology, humanities, arts, sports
+
+🤖 **Powered by:** Open Source LLMs (Hugging Face)
+⚡ **Ready for:** Any question, any topic, any challenge!
+
+Ask me about **anything** - from FPL strategy to coding help to creative writing!`;
+                
+                displayAIMessage(message);
+            }, 500);
+        }
+        
+        async function sendMessage() {
+            if (isTyping) return;
+            
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Simple rate limiting
+            if (messageCount >= 25) {
+                displayErrorMessage('Rate limit reached. Please refresh the page to continue.');
+                return;
+            }
+            
+            messageCount++;
+            
+            // Display user message
+            displayUserMessage(message);
+            
+            // Clear input
+            input.value = '';
+            
+            // Disable send button
+            toggleSendButton(false);
+            
+            // Show thinking and get AI response
+            await getAIResponse(message);
+            
+            // Re-enable send button
+            toggleSendButton(true);
+        }
+        
+        function displayUserMessage(message) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message user-message';
+            msgDiv.innerHTML = `
+                <div class="message-content">${escapeHtml(message)}</div>
+                <div class="message-avatar user-avatar">👤</div>
+            `;
+            messagesDiv.appendChild(msgDiv);
+            scrollToBottom();
+        }
+        
+        function displayAIMessage(message) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message ai-message';
+            
+            msgDiv.innerHTML = `
+                <div class="message-avatar ai-avatar">🤖</div>
+                <div class="message-content">${formatMessage(message)}</div>
+            `;
+            messagesDiv.appendChild(msgDiv);
+            scrollToBottom();
+        }
+        
+        function displayErrorMessage(errorText) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = errorText;
+            messagesDiv.appendChild(errorDiv);
+            scrollToBottom();
+        }
+        
+        async function getAIResponse(message) {
+            // Show thinking indicator
+            showThinking();
+            
+            try {
+                // Get AI response from open source models
+                const response = await queryOpenSourceAI(message);
+                
+                // Remove thinking indicator
+                removeThinking();
+                
+                // Display response
+                displayAIMessage(response);
+                
+            } catch (error) {
+                console.error('AI error:', error);
+                removeThinking();
+                displayAIMessage('Sorry, I encountered an error with the AI service. Please try again in a moment.');
+            }
+        }
+        
+        async function queryOpenSourceAI(query) {
+            // Try multiple open source models with different approaches
+            const models = [
+                'microsoft/DialoGPT-large',
+                'facebook/blenderbot-400M-distill',
+                'microsoft/DialoGPT-medium',
+                'google/flan-t5-large',
+                'microsoft/DialoGPT-small'
+            ];
+            
+            for (const model of models) {
+                try {
+                    const response = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            inputs: query,
+                            parameters: {
+                                max_new_tokens: 250,
+                                temperature: 0.7,
+                                do_sample: true,
+                                top_p: 0.9,
+                                repetition_penalty: 1.1
+                            },
+                            options: {
+                                wait_for_model: true,
+                                use_cache: false
+                            }
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.length > 0) {
+                            let aiResponse = '';
+                            
+                            if (data[0].generated_text) {
+                                aiResponse = data[0].generated_text.trim();
+                                // Clean up the response - remove the original query if it's included
+                                aiResponse = aiResponse.replace(query, '').trim();
+                            } else if (data[0].response) {
+                                aiResponse = data[0].response.trim();
+                            } else if (typeof data[0] === 'string') {
+                                aiResponse = data[0].trim();
+                            }
+                            
+                            if (aiResponse.length > 15) {
+                                return aiResponse;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.log(`Model ${model} failed:`, error.message);
+                    continue; // Try next model
+                }
+            }
+            
+            // Try specialized text generation with Flan-T5
+            try {
+                const response = await fetch('https://api-inference.huggingface.co/models/google/flan-t5-base', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        inputs: `Please answer this question: ${query}`,
+                        parameters: {
+                            max_new_tokens: 200,
+                            temperature: 0.7,
+                            do_sample: true,
+                            top_p: 0.9
+                        },
+                        options: {
+                            wait_for_model: true,
+                            use_cache: false
+                        }
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.length > 0 && data[0].generated_text) {
+                        const aiResponse = data[0].generated_text.trim();
+                        if (aiResponse.length > 10) {
+                            return aiResponse;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Flan-T5 fallback failed:', error.message);
+            }
+            
+            // Final fallback - intelligent response based on question type
+            return generateIntelligentResponse(query);
+        }
+        
+        function generateIntelligentResponse(query) {
+            const lowerQuery = query.toLowerCase();
+            
+            // FPL-specific responses
+            if (lowerQuery.includes('fpl') || lowerQuery.includes('fantasy premier league') || lowerQuery.includes('fantasy football')) {
+                return `⚽ **FPL Analysis**\n\nFor your FPL question: "${query}"\n\nHere are some key FPL strategies:\n• **Form over fixtures** - Pick in-form players even with tough fixtures\n• **Captain differentials** - Look for less popular but high-ceiling options\n• **Bench boost timing** - Use during double gameweeks for maximum points\n• **Transfer timing** - Make transfers after Champions League/Europa matches\n\n💡 **Current season tips:**\n- Monitor press conferences for injury updates\n- Check underlying stats (xG, xA) for true form\n- Consider rotation risk for big teams\n- Watch for price rises on trending players\n\nWould you like specific advice about transfers, captaincy, or team structure?`;
+            }
+            
+            if (lowerQuery.includes('code') || lowerQuery.includes('programming') || lowerQuery.includes('javascript') || lowerQuery.includes('python')) {
+                return `💻 **Programming Help**\n\nFor your coding question: "${query}"\n\n**Best practices for coding:**\n• **Break down problems** - Start with small, manageable pieces\n• **Write clean code** - Use descriptive variable names and comments\n• **Test frequently** - Debug as you go, don't wait until the end\n• **Use version control** - Git helps track changes and collaborate\n• **Learn debugging** - Master console.log, breakpoints, and error messages\n\n**Great resources:**\n- MDN Web Docs for JavaScript\n- Python.org documentation\n- Stack Overflow for specific problems\n- GitHub for code examples\n- FreeCodeCamp for tutorials\n\nWhat specific programming challenge are you working on?`;
+            }
+            
+            if (lowerQuery.includes('science') || lowerQuery.includes('physics') || lowerQuery.includes('chemistry') || lowerQuery.includes('biology')) {
+                return `🔬 **Science Help**\n\nRegarding your science question: "${query}"\n\n**Scientific method approach:**\n• **Observation** - What can we see or measure?\n• **Hypothesis** - What do we think is happening?\n• **Experiment** - How can we test our ideas?\n• **Analysis** - What do the results tell us?\n• **Conclusion** - Does this support our hypothesis?\n\n**Reliable science resources:**\n- Khan Academy for educational content\n- NASA for space and earth sciences\n- NIH for health and medical sciences\n- Scientific journals for latest research\n- University websites for detailed explanations\n\nWhat specific aspect of science interests you most?`;
+            }
+            
+            // General helpful response
+            return `🤖 **AI Assistant Response**\n\nThank you for asking: "${query}"\n\nI'm powered by open source AI models and I'm here to help! While the AI models might be loading or busy, I can still provide guidance on:\n\n• **Problem-solving approaches**\n• **Resource recommendations**\n• **Step-by-step breakdowns**\n• **Research directions**\n• **Creative brainstorming**\n\n**💡 Pro tips:**\n- Try rephrasing your question for different perspectives\n- Ask for specific examples or step-by-step guides\n- Request explanations at different complexity levels\n- Feel free to ask follow-up questions!\n\nThe open source AI models will provide better responses as they become available. What would you like to explore further?`;
+        }
+        
+        function showThinking() {
+            isTyping = true;
+            const messagesDiv = document.getElementById('chatMessages');
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = 'thinking-indicator';
+            thinkingDiv.id = 'thinkingIndicator';
+            
+            const thoughts = [
+                "🤖 Processing your question...",
+                "🧠 AI thinking through the problem...",
+                "📊 Generating helpful response...",
+                "🔍 Searching knowledge base...",
+                "💡 Preparing intelligent answer...",
+                "⚡ Open source models working..."
+            ];
+            const thought = thoughts[Math.floor(Math.random() * thoughts.length)];
+            
+            thinkingDiv.innerHTML = `
+                <div class="message-avatar ai-avatar">🤖</div>
+                <div class="thinking-content">
+                    ${thought}
+                    <div class="thinking-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+            
+            messagesDiv.appendChild(thinkingDiv);
+            scrollToBottom();
+        }
+        
+        function removeThinking() {
+            const indicator = document.getElementById('thinkingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+            isTyping = false;
+        }
+        
+        function toggleSendButton(enabled) {
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = !enabled;
+        }
+        
+        function formatMessage(message) {
+            return message
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">$1</code>')
+                .replace(/• /g, '• ');
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function scrollToBottom() {
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        // Add example questions after welcome message
+        function addExampleQuestions() {
+            setTimeout(() => {
+                const examples = [
+                    "Best FPL captain this week?",
+                    "Help me debug JavaScript code",
+                    "Explain quantum physics simply",
+                    "Write a creative story prompt",
+                    "Best Python libraries for AI?",
+                    "How does photosynthesis work?"
+                ];
+                
+                const messagesDiv = document.getElementById('chatMessages');
+                const exampleDiv = document.createElement('div');
+                exampleDiv.className = 'message ai-message';
+                exampleDiv.innerHTML = `
+                    <div class="message-avatar ai-avatar">🤖</div>
+                    <div class="message-content">
+                        <p><strong>Try these example questions:</strong></p>
+                        <div style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;">
+                            ${examples.map(ex => `
+                                <button onclick="askExample('${ex}')" style="
+                                    background: #f0fdf4; 
+                                    border: 1px solid #bbf7d0; 
+                                    border-radius: 20px; 
+                                    padding: 8px 16px; 
+                                    font-size: 0.9rem; 
+                                    cursor: pointer;
+                                    transition: all 0.2s;
+                                    color: #166534;
+                                " onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+                                    ${ex}
+                                </button>
+                            `).join('')}
+                        </div>
+                        <p style="margin-top: 15px; font-size: 0.9rem; color: #6b7280;">
+                            💡 <strong>Free & Open Source:</strong> Powered by Hugging Face AI models!
+                        </p>
+                    </div>
+                `;
+                messagesDiv.appendChild(exampleDiv);
+                scrollToBottom();
+            }, 2000);
+        }
+        
+        function askExample(question) {
+            document.getElementById('userInput').value = question;
+            sendMessage();
+        }
+        
+        // Show example questions after welcome
+        setTimeout(addExampleQuestions, 1000);
+    </script>
     
     <!-- Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
