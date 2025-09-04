@@ -1,113 +1,391 @@
-<!-- FPL 50% Off Promotional Banner -->
-<div class="fpl-discount-banner" style="
-    background: linear-gradient(135deg, #37003c 0%, #00ff87 100%);
-    color: white;
-    padding: 15px 20px;
-    text-align: center;
-    position: relative;
-    border-radius: 8px;
-    margin: 20px 0;
-    box-shadow: 0 4px 12px rgba(55, 0, 60, 0.3);
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-" onclick="window.open('fpl-premium-hub.html', '_blank')">
-    
-    <!-- Animated background pattern -->
-    <div style="
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image: repeating-linear-gradient(
-            45deg,
-            rgba(255,255,255,0.1) 0px,
-            rgba(255,255,255,0.1) 2px,
-            transparent 2px,
-            transparent 20px
-        );
-        animation: slide 3s linear infinite;
-    "></div>
-    
-    <!-- Main content -->
-    <div style="position: relative; z-index: 2;">
-        <div style="
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        ">
-            🚀 FPL PREMIUM TOOLS - 50% OFF! 🚀
+<div class="fpl-banner" id="fpl-discount-banner">
+    <div class="fpl-banner-content">
+        <div class="fpl-banner-header">
+            <h3>🚀 FPL Premium Tools</h3>
+            <div class="banner-close" onclick="closeFPLBanner()">&times;</div>
         </div>
         
-        <div style="
-            font-size: 16px;
-            margin-bottom: 10px;
-            opacity: 0.95;
-        ">
-            Unlock Advanced Analytics • Player Predictions • Transfer Insights
+        <div class="fpl-tools-grid">
+            <div class="fpl-tool">
+                <span class="tool-icon">🤖</span>
+                <span class="tool-name">AI Assistant</span>
+            </div>
+            <div class="fpl-tool">
+                <span class="tool-icon">⚡</span>
+                <span class="tool-name">Transfer Simulator Pro</span>
+            </div>
+            <div class="fpl-tool">
+                <span class="tool-icon">📊</span>
+                <span class="tool-name">Player Predictor</span>
+            </div>
+            <div class="fpl-tool">
+                <span class="tool-icon">📈</span>
+                <span class="tool-name">Team Analyzer</span>
+            </div>
+            <div class="fpl-tool">
+                <span class="tool-icon">🎯</span>
+                <span class="tool-name">Fixture Tracker Pro</span>
+            </div>
+            <div class="fpl-tool">
+                <span class="tool-icon">💎</span>
+                <span class="tool-name">Premium Hub</span>
+            </div>
         </div>
         
-        <div style="
-            background: rgba(255,255,255,0.2);
-            border: 2px solid #00ff87;
-            border-radius: 25px;
-            padding: 8px 20px;
-            display: inline-block;
-            font-weight: bold;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        ">
-            LIMITED TIME OFFER
+        <div class="fpl-discount-section">
+            <div class="discount-badge">50% OFF</div>
+            <div class="discount-text">
+                <p><strong>Limited Time Offer!</strong></p>
+                <p>Access all premium FPL tools</p>
+            </div>
+            <div class="countdown-timer">
+                <div class="countdown-item">
+                    <span id="days">-</span>
+                    <label>Days</label>
+                </div>
+                <div class="countdown-item">
+                    <span id="hours">-</span>
+                    <label>Hours</label>
+                </div>
+                <div class="countdown-item">
+                    <span id="minutes">-</span>
+                    <label>Minutes</label>
+                </div>
+                <div class="countdown-item">
+                    <span id="seconds">-</span>
+                    <label>Seconds</label>
+                </div>
+            </div>
+            <a href="/fpl-premium-hub.html" class="cta-button">Get Premium Access</a>
         </div>
     </div>
-    
-    <!-- Close button -->
-    <button style="
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        background: rgba(255,255,255,0.2);
-        border: none;
-        color: white;
-        font-size: 18px;
-        cursor: pointer;
-        border-radius: 50%;
-        width: 25px;
-        height: 25px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 3;
-    " onclick="event.stopPropagation(); this.parentElement.style.display='none';">
-        ×
-    </button>
 </div>
 
 <style>
-@keyframes slide {
-    0% { transform: translateX(-20px); }
-    100% { transform: translateX(20px); }
+.fpl-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #38003c 0%, #00ff87 100%);
+    color: white;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    border-bottom: 3px solid #00ff87;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: none;
 }
 
-.fpl-discount-banner:hover {
+.fpl-banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 20px;
+}
+
+.fpl-banner-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.fpl-banner-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.banner-close {
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: background 0.3s;
+}
+
+.banner-close:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.fpl-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.fpl-tool {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.fpl-tool:hover {
+    transform: scale(1.05);
+}
+
+.tool-icon {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+}
+
+.tool-name {
+    font-size: 0.8rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.fpl-discount-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.discount-badge {
+    background: #ff4444;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.discount-text {
+    flex: 1;
+}
+
+.discount-text p {
+    margin: 2px 0;
+    font-size: 0.9rem;
+}
+
+.countdown-timer {
+    display: flex;
+    gap: 10px;
+}
+
+.countdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0,0,0,0.3);
+    padding: 8px 10px;
+    border-radius: 8px;
+    min-width: 50px;
+}
+
+.countdown-item span {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #00ff87;
+}
+
+.countdown-item label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+.cta-button {
+    background: #00ff87;
+    color: #38003c;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0,255,135,0.3);
+}
+
+.cta-button:hover {
+    background: #00e676;
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,255,135,0.4);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .fpl-banner-content {
+        padding: 10px 15px;
+    }
+    
+    .fpl-tools-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+    
+    .tool-name {
+        font-size: 0.7rem;
+    }
+    
+    .fpl-discount-section {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .countdown-timer {
+        justify-content: center;
+    }
+    
+    .countdown-item {
+        min-width: 45px;
+        padding: 6px 8px;
+    }
+    
+    .discount-text {
+        order: -1;
+    }
+}
+
+@media (max-width: 480px) {
+    .fpl-banner-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .fpl-tools-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .countdown-item {
+        min-width: 40px;
+        padding: 5px 6px;
+    }
+    
+    .countdown-item span {
+        font-size: 1rem;
+    }
+    
+    .countdown-item label {
+        font-size: 0.6rem;
+    }
+}
+
+/* Banner spacing adjustment */
+body.banner-active {
+    padding-top: 200px !important;
 }
 
 @media (max-width: 768px) {
-    .fpl-discount-banner {
-        margin: 10px;
-        padding: 12px 15px;
-    }
-    
-    .fpl-discount-banner div:first-child div:first-child {
-        font-size: 20px !important;
-    }
-    
-    .fpl-discount-banner div:first-child div:nth-child(2) {
-        font-size: 14px !important;
+    body.banner-active {
+        padding-top: 250px !important;
     }
 }
 </style>
+
+<script>
+// FPL Banner functionality
+function initFPLBanner() {
+    // Check if banner was previously closed
+    if (localStorage.getItem('fpl-banner-closed') === 'true') {
+        return;
+    }
+    
+    // Show banner and adjust body padding
+    const banner = document.getElementById('fpl-discount-banner');
+    if (banner) {
+        banner.style.display = 'block';
+        document.body.classList.add('banner-active');
+    }
+    
+    // Initialize countdown
+    startCountdown();
+}
+
+function closeFPLBanner() {
+    const banner = document.getElementById('fpl-discount-banner');
+    if (banner) {
+        banner.style.display = 'none';
+        document.body.classList.remove('banner-active');
+        localStorage.setItem('fpl-banner-closed', 'true');
+        
+        // Set expiry for banner closure (24 hours)
+        const expiryTime = new Date().getTime() + (24 * 60 * 60 * 1000);
+        localStorage.setItem('fpl-banner-closed-expiry', expiryTime);
+    }
+}
+
+function startCountdown() {
+    // Set the date we're counting down to (7 days from now)
+    let countDownDate;
+    
+    // Check if we have an existing countdown in localStorage
+    const savedCountdown = localStorage.getItem('fpl-countdown-target');
+    if (savedCountdown) {
+        countDownDate = parseInt(savedCountdown);
+    } else {
+        // Create new 7-day countdown
+        countDownDate = new Date().getTime() + (7 * 24 * 60 * 60 * 1000);
+        localStorage.setItem('fpl-countdown-target', countDownDate);
+    }
+    
+    // Update the countdown every 1 second
+    const countdownInterval = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = countDownDate - now;
+        
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            // Hide banner when countdown expires
+            closeFPLBanner();
+            // Clear the stored countdown
+            localStorage.removeItem('fpl-countdown-target');
+            return;
+        }
+        
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        // Display the result
+        const daysElement = document.getElementById("days");
+        const hoursElement = document.getElementById("hours");
+        const minutesElement = document.getElementById("minutes");
+        const secondsElement = document.getElementById("seconds");
+        
+        if (daysElement) daysElement.innerHTML = days.toString().padStart(2, '0');
+        if (hoursElement) hoursElement.innerHTML = hours.toString().padStart(2, '0');
+        if (minutesElement) minutesElement.innerHTML = minutes.toString().padStart(2, '0');
+        if (secondsElement) secondsElement.innerHTML = seconds.toString().padStart(2, '0');
+        
+    }, 1000);
+}
+
+// Check if banner closure has expired
+function checkBannerExpiry() {
+    const closedExpiry = localStorage.getItem('fpl-banner-closed-expiry');
+    if (closedExpiry) {
+        const now = new Date().getTime();
+        if (now > parseInt(closedExpiry)) {
+            // Expiry has passed, remove the closed status
+            localStorage.removeItem('fpl-banner-closed');
+            localStorage.removeItem('fpl-banner-closed-expiry');
+        }
+    }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    checkBannerExpiry();
+    initFPLBanner();
+});
+</script>
