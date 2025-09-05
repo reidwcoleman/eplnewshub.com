@@ -44,14 +44,34 @@ async function injectHTML(filePath,elem) {
  * This function injects a content of <filename> to
  * each div with the "include" attribute
  */
-function injectAll() {
-    document.querySelectorAll("div[include]")
-            .forEach((elem) => {
-                injectHTML(elem.getAttribute("include"),elem);
-    })
+async function injectAll() {
+    const elements = document.querySelectorAll("div[include]");
+    const promises = Array.from(elements).map((elem) => {
+        return injectHTML(elem.getAttribute("include"), elem);
+    });
+    
+    // Wait for all injections to complete
+    await Promise.all(promises);
 }
 
-injectAll();
+// Initialize content injection with better error handling
+async function initializeContent() {
+    try {
+        await injectAll();
+        
+        // Wait a bit more for all content to be fully rendered
+        setTimeout(() => {
+            // Initialize enhancements after content is fully loaded
+            addVisualEnhancements();
+        }, 800);
+        
+    } catch (error) {
+        console.error('Error initializing content:', error);
+    }
+}
+
+// Start content initialization
+initializeContent();
 
 // Load advertising systems after content injection
 window.addEventListener('DOMContentLoaded', function() {
@@ -538,11 +558,8 @@ function addVisualEnhancements() {
     });
 }
 
-// Initialize enhancements when DOM is ready
+// Initialize membership system when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Small delay to ensure all content is loaded
-    setTimeout(addVisualEnhancements, 500);
-    
     // Initialize membership system
     initializeMembershipSystem();
 });
