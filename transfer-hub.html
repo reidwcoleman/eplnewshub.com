@@ -1147,10 +1147,10 @@
         </div>
     </div>
 
-    <!-- Transfer Deadline Countdown -->
+    <!-- Transfer Window Countdown -->
     <div class="deadline-countdown">
-        <div class="countdown-label">Transfer Deadline</div>
-        <div class="countdown-timer" id="deadlineTimer">8D 14H 32M</div>
+        <div class="countdown-label">Next Transfer Window Opens</div>
+        <div class="countdown-timer" id="deadlineTimer">Loading...</div>
     </div>
 
     <!-- Notification Container -->
@@ -2391,21 +2391,32 @@
             });
 
 
-            // Countdown timer
+            // Countdown timer for next transfer window
             function updateCountdown() {
-                const deadline = new Date('2025-09-01T23:00:00');
+                // Next transfer window opens January 1, 2026 at 00:00 GMT
+                const nextWindow = new Date('2026-01-01T00:00:00Z');
                 const now = new Date();
-                const diff = deadline - now;
+                const diff = nextWindow - now;
+                
+                const timer = document.getElementById('deadlineTimer');
+                if (!timer) return;
                 
                 if (diff > 0) {
                     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                     
-                    const timer = document.getElementById('deadlineTimer');
-                    if (timer) {
+                    // Show different format based on how far away it is
+                    if (days > 30) {
+                        const months = Math.floor(days / 30);
+                        const remainingDays = days % 30;
+                        timer.textContent = `${months}M ${remainingDays}D`;
+                    } else {
                         timer.textContent = `${days}D ${hours}H ${minutes}M`;
                     }
+                } else {
+                    // Transfer window is open
+                    timer.textContent = "WINDOW OPEN";
                 }
             }
             
