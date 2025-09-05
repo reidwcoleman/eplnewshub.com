@@ -4,9 +4,9 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
          crossorigin="anonymous"></script>
 
-<!-- Ezoic Privacy Scripts (MUST load first for compliance) -->
-<script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
-<script src="https://the.gatekeeperconsent.com/cmp.min.js" data-cfasync="false"></script>
+<!-- Ezoic Privacy Scripts (Disabled - causing unwanted popups) -->
+<!-- <script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script> -->
+<!-- <script src="https://the.gatekeeperconsent.com/cmp.min.js" data-cfasync="false"></script> -->
 
 <!-- Ezoic Header Script (Initializes ad system) -->
 <script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
@@ -15,8 +15,24 @@
     ezstandalone.cmd = ezstandalone.cmd || [];
 </script>
 
-<!-- Premium Member Ad Control -->
+<!-- Premium Member Ad Control & Popup Suppression -->
 <script>
+    // Suppress Ezoic ad-blocker detection and consent popups
+    window.ezstandalone = window.ezstandalone || {};
+    window.ezstandalone.cmd = window.ezstandalone.cmd || [];
+    
+    // Disable ad-blocker detection
+    window.ezstandalone.cmd.push(function() {
+        if (window.ezstandalone.setAdBlockerDetectionDisabled) {
+            window.ezstandalone.setAdBlockerDetectionDisabled(true);
+        }
+        
+        // Disable consent management popups
+        if (window.ezstandalone.setConsentManagementEnabled) {
+            window.ezstandalone.setConsentManagementEnabled(false);
+        }
+    });
+    
     // Check if user has premium membership and disable Ezoic ads if they do
     document.addEventListener('DOMContentLoaded', function() {
         try {
@@ -38,6 +54,17 @@
                     console.log('Premium member detected - Ezoic ads disabled');
                 }
             }
+            
+            // Remove any ad-blocker detection popups that might appear
+            setTimeout(function() {
+                const popups = document.querySelectorAll('[class*="adblock"], [class*="ad-block"], [id*="adblock"], [id*="ad-block"], .ez-consent-overlay, .ez-privacy-dialog');
+                popups.forEach(popup => {
+                    if (popup && popup.parentNode) {
+                        popup.parentNode.removeChild(popup);
+                    }
+                });
+            }, 2000);
+            
         } catch (error) {
             console.error('Error checking membership for Ezoic ads:', error);
         }
@@ -51,5 +78,38 @@
     .ezoic-ads-disabled .ez-ad-placeholder {
         display: none !important;
         visibility: hidden !important;
+    }
+    
+    /* Hide all ad-blocker detection and consent popups */
+    [class*="adblock"],
+    [class*="ad-block"],
+    [id*="adblock"],
+    [id*="ad-block"],
+    .ez-consent-overlay,
+    .ez-privacy-dialog,
+    .ez-modal,
+    .ez-popup,
+    .gatekeeper-modal,
+    .gatekeeper-overlay,
+    [class*="consent"],
+    [class*="privacy-notice"],
+    [data-ez*="popup"],
+    [data-ez*="modal"],
+    .ezoic-privacy-popup,
+    .ezoic-consent-dialog {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        left: -9999px !important;
+        top: -9999px !important;
+        z-index: -1 !important;
+    }
+    
+    /* Ensure body overflow is not hidden by popups */
+    body.ez-modal-open,
+    body.gatekeeper-modal-open {
+        overflow: auto !important;
     }
 </style>
