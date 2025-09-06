@@ -270,12 +270,7 @@
 <script>
 // FPL Banner functionality
 function initFPLBanner() {
-    // Check if banner was previously closed
-    if (localStorage.getItem('fpl-banner-closed') === 'true') {
-        return;
-    }
-    
-    // Show banner and adjust body padding
+    // Always show banner - no checking for previous closure
     const banner = document.getElementById('fpl-discount-banner');
     if (banner) {
         banner.style.display = 'block';
@@ -291,11 +286,7 @@ function closeFPLBanner() {
     if (banner) {
         banner.style.display = 'none';
         document.body.classList.remove('banner-active');
-        localStorage.setItem('fpl-banner-closed', 'true');
-        
-        // Set expiry for banner closure (24 hours)
-        const expiryTime = new Date().getTime() + (24 * 60 * 60 * 1000);
-        localStorage.setItem('fpl-banner-closed-expiry', expiryTime);
+        // Don't save closed state - banner will reappear on page reload
     }
 }
 
@@ -320,10 +311,10 @@ function startCountdown() {
         
         if (distance < 0) {
             clearInterval(countdownInterval);
-            // Hide banner when countdown expires
-            closeFPLBanner();
-            // Clear the stored countdown
+            // Reset countdown instead of hiding banner
             localStorage.removeItem('fpl-countdown-target');
+            // Restart with a new 7-day countdown
+            startCountdown();
             return;
         }
         
@@ -346,22 +337,9 @@ function startCountdown() {
     }, 1000);
 }
 
-// Check if banner closure has expired
-function checkBannerExpiry() {
-    const closedExpiry = localStorage.getItem('fpl-banner-closed-expiry');
-    if (closedExpiry) {
-        const now = new Date().getTime();
-        if (now > parseInt(closedExpiry)) {
-            // Expiry has passed, remove the closed status
-            localStorage.removeItem('fpl-banner-closed');
-            localStorage.removeItem('fpl-banner-closed-expiry');
-        }
-    }
-}
-
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    checkBannerExpiry();
+    // No need to check expiry - always show banner
     initFPLBanner();
 });
 </script>
