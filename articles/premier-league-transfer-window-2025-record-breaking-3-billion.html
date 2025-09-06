@@ -42,9 +42,11 @@
     <link rel="icon" type="image/png" href="/eplnewshub_logo.png">
     <title>Premier League Transfer Window 2025: Record-Breaking £3.087 Billion Spending | EPL News Hub</title>
     <link rel="stylesheet" href="../styles.css">
-    <script src="../article-enhancer.js"></script>
-    <script src="../adsense-lazy-load.js" defer></script>
-     
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="../0_GettyImages-2233072459.webp" as="image">
+    <link rel="preconnect" href="https://www.htmlcommentbox.com">
+    
     <style>
         * {
             margin: 0;
@@ -54,11 +56,14 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f5f5;
             min-height: 100vh;
             position: relative;
+            /* Prevent layout shift */
+            overflow-x: hidden;
         }
         
+        /* Simplified background for better performance */
         body::before {
             content: '';
             position: fixed;
@@ -66,45 +71,28 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
-            z-index: -2;
-        }
-        
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                radial-gradient(circle at 20% 80%, rgba(120, 40, 200, 0.13) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(40, 200, 120, 0.13) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(200, 40, 120, 0.13) 0%, transparent 50%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             z-index: -1;
+            opacity: 0.95;
         }
         
         .modern-article {
             max-width: 900px;
             margin: 40px auto;
-            background: rgba(255, 255, 255, 0.98);
+            background: #ffffff;
             border-radius: 24px;
             overflow: hidden;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.3),
-                0 0 100px rgba(120, 40, 200, 0.1);
-            backdrop-filter: blur(10px);
-            animation: slideUp 0.6s ease-out;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            /* Smoother, simpler animation */
+            animation: fadeIn 0.4s ease-out;
         }
         
-        @keyframes slideUp {
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(30px);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
             }
         }
         
@@ -181,11 +169,19 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s ease;
+            /* Remove transition for better performance */
+            will-change: transform;
         }
         
-        .modern-article:hover .hero-image {
-            transform: scale(1.05);
+        /* Disable hover effect on mobile for better performance */
+        @media (hover: hover) {
+            .hero-image {
+                transition: transform 0.3s ease;
+            }
+            
+            .modern-article:hover .hero-image {
+                transform: scale(1.02);
+            }
         }
         
         .hero-overlay {
@@ -627,7 +623,7 @@
             
             <!-- Hero Image Section -->
             <div class="hero-section">
-                <img src="../0_GettyImages-2233072459.webp" alt="Premier League Transfer Window 2025" class="hero-image">
+                <img src="../0_GettyImages-2233072459.webp" alt="Premier League Transfer Window 2025" class="hero-image" loading="eager">
                 <div class="hero-overlay">
                     <div class="hero-caption">Historic Transfer Window Closes</div>
                     <div class="hero-subcaption">Premier League clubs shatter all previous spending records</div>
@@ -894,6 +890,7 @@
     
     <!-- Footer -->
     <div class="footer" include="../footer.html"></div>
-    <script src="../index.js"></script>
+    <script src="../index.js" defer></script>
+    
 </body>
 </html>
