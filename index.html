@@ -702,21 +702,7 @@
     <div class="header" include="./header.html"></div>
 
     <!-- AdSense Auto-relaxed Ad Below Header -->
-    <div style="margin: 20px auto; max-width: 1200px; padding: 0 20px;">
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
-             crossorigin="anonymous"></script>
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-format="autorelaxed"
-             data-ad-client="ca-pub-6480210605786899"
-             data-ad-slot="7113482222"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
-
-    <!-- Header Ad -->
-    <div class="header-ad-section" style="margin: 20px 0; text-align: center; padding: 10px;">
+    <div style="margin: 20px auto; max-width: 1200px; padding: 0 20px; min-height: 100px;">
         <ins class="adsbygoogle"
              style="display:block"
              data-ad-format="autorelaxed"
@@ -760,9 +746,7 @@
                 </div>
                 
                 <!-- AdSense Homepage Ad After Secondary Articles -->
-                <div style="margin: 30px auto; max-width: 100%;">
-                    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
-                         crossorigin="anonymous"></script>
+                <div style="margin: 30px auto; max-width: 1200px; padding: 0 20px; min-height: 100px;">
                     <!-- homepage ad -->
                     <ins class="adsbygoogle"
                          style="display:block"
@@ -777,18 +761,6 @@
             </section>
 
             <!-- Homepage Ad -->
-            <section class="homepage-ad-section" style="margin: 40px 0; text-align: center; padding: 20px;">
-                <!-- homepage ad -->
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-6480210605786899"
-                     data-ad-slot="9257016562"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-            </section>
 
             <!-- Latest News Grid -->
             
@@ -946,9 +918,7 @@
 
 
     <!-- AdSense Auto-relaxed Ad Above Footer -->
-    <div style="margin: 30px auto; max-width: 1200px; padding: 0 20px;">
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
-             crossorigin="anonymous"></script>
+    <div style="margin: 30px auto; max-width: 1200px; padding: 0 20px; min-height: 100px;">
         <ins class="adsbygoogle"
              style="display:block"
              data-ad-format="autorelaxed"
@@ -3950,6 +3920,33 @@
                     .catch(err => console.log('SW registration failed'));
             });
         }
+    </script>
+    
+    <!-- AdSense Initialization Script -->
+    <script>
+        // Ensure ads are loaded after DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Give AdSense script time to load
+            setTimeout(function() {
+                // Check if adsbygoogle is defined
+                if (typeof adsbygoogle !== 'undefined') {
+                    console.log('AdSense loaded, initializing ads...');
+                    // Push ads that might not have been pushed yet
+                    var ads = document.querySelectorAll('.adsbygoogle');
+                    ads.forEach(function(ad) {
+                        if (ad.getAttribute('data-ad-status') !== 'filled') {
+                            try {
+                                (adsbygoogle = window.adsbygoogle || []).push({});
+                            } catch (e) {
+                                console.log('Ad push error:', e);
+                            }
+                        }
+                    });
+                } else {
+                    console.log('AdSense script not loaded yet');
+                }
+            }, 1000);
+        });
     </script>
 </body>
 </html>
