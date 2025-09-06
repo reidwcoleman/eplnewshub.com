@@ -310,6 +310,41 @@ async function formatArticle(articleData) {
     };
 }
 
+// Function to update read-next.js with new article
+async function updateReadNextDatabase(newArticle) {
+    console.log('\n📚 Updating article database...');
+    
+    try {
+        // Read the current read-next.js file
+        const readNextPath = './read-next.js';
+        let readNextContent = await fs.readFile(readNextPath, 'utf-8');
+        
+        // Create new article entry
+        const newEntry = `        {
+            url: '/articles/${newArticle.filename}.html',
+            title: '${newArticle.headline.replace(/'/g, "\\'")}',
+            excerpt: '${newArticle.excerpt.replace(/'/g, "\\'")}',
+            image: '/premier-league-default.jpg',
+            category: '${newArticle.category}',
+            date: '${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}',
+            tags: [${newArticle.tags ? newArticle.tags.map(tag => `'${tag.toLowerCase()}'`).join(', ') : ''}],
+            teams: []
+        },`;
+        
+        // Find the articleDatabase array and add the new entry at the beginning
+        const databaseStart = readNextContent.indexOf('const articleDatabase = [');
+        if (databaseStart !== -1) {
+            const insertPosition = readNextContent.indexOf('[', databaseStart) + 1;
+            readNextContent = readNextContent.slice(0, insertPosition) + '\n' + newEntry + readNextContent.slice(insertPosition);
+            
+            await fs.writeFile(readNextPath, readNextContent);
+            console.log('✅ Updated read-next.js with new article');
+        }
+    } catch (error) {
+        console.log('⚠️  Could not update read-next.js:', error.message);
+    }
+}
+
 // Function to rotate articles
 async function rotateArticles(newArticle) {
     console.log('\n🔄 Rotating articles...');
@@ -361,6 +396,9 @@ async function rotateArticles(newArticle) {
             break;
         }
     }
+    
+    // Update read-next.js database
+    await updateReadNextDatabase(newArticle);
 }
 
 // Main function
