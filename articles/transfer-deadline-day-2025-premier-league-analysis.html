@@ -42,6 +42,15 @@
     <link rel="icon" type="image/png" href="/eplnewshubnewlogo.png">
     <title>Transfer Deadline Day 2025: Premier League Analysis, Key Deals & Tactical Impacts | EPL News Hub</title>
     <link rel="stylesheet" href="../styles.css">
+    
+    <!-- Prevent FOUC -->
+    <script>
+        document.documentElement.style.visibility = 'hidden';
+        document.addEventListener('DOMContentLoaded', function() {
+            document.documentElement.style.visibility = 'visible';
+        });
+    </script>
+    
     <script src="../article-enhancer.js"></script>
     <script src="../adsense-lazy-load.js" defer></script>
     
@@ -56,11 +65,37 @@
             box-sizing: border-box;
         }
         
+        /* Prevent layout shift during loading */
+        html {
+            visibility: visible;
+            opacity: 1;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             position: relative;
+            opacity: 0;
+            animation: fadeIn 0.3s ease-in forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* Prevent include elements from jumping */
+        .header, .footer {
+            min-height: 60px;
+            transition: opacity 0.3s ease;
+        }
+        
+        .header:empty, .footer:empty {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
         }
         
         body::before {
@@ -117,6 +152,7 @@
             position: relative;
             height: 500px;
             overflow: hidden;
+            background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
         }
         
         .hero-image {
@@ -124,6 +160,14 @@
             height: 100%;
             object-fit: cover;
             transition: transform 0.6s ease;
+            opacity: 0;
+            animation: imageLoad 0.5s ease-in forwards;
+        }
+        
+        @keyframes imageLoad {
+            to {
+                opacity: 1;
+            }
         }
         
         .modern-article:hover .hero-image {
