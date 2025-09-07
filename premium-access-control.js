@@ -288,7 +288,7 @@
             const hasAccess = this.hasAccess(page);
             
             if (!hasAccess.hasAccess) {
-                // Show upgrade prompt instead of blocking
+                // Show upgrade prompt instead of blocking (unless pro member)
                 this.showUpgradePrompt(hasAccess.reason);
             } else {
                 // Clear any existing restrictions
@@ -408,6 +408,12 @@
 
         // Show upgrade prompt
         showUpgradePrompt(reason, feature = null) {
+            // Don't show popup if user is pro member
+            if (this.userStatus.membershipLevel === 'pro' && this.userStatus.membershipStatus === 'active') {
+                console.log('Skipping upgrade prompt for pro member');
+                return;
+            }
+            
             // Remove any existing prompts
             const existingPrompt = document.querySelector('.premium-upgrade-modal');
             if (existingPrompt) {

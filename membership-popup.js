@@ -336,6 +336,15 @@ class MembershipPopup {
     }
 
     show(toolName = null) {
+        // Check if user is a pro member
+        if (window.premiumAccessControl) {
+            const userStatus = window.premiumAccessControl.getUserStatus();
+            if (userStatus.membershipLevel === 'pro' && userStatus.membershipStatus === 'active') {
+                console.log('Skipping membership popup for pro member');
+                return;
+            }
+        }
+        
         this.currentTool = toolName;
         
         // Create modal if it doesn't exist
@@ -468,6 +477,14 @@ window.showMembershipPopup = function(toolName = null) {
 
 // Function to check and handle premium content access
 window.checkPremiumAccess = async function(requiredPlan = 'starter') {
+    // Check if user is a pro member using premium access control
+    if (window.premiumAccessControl) {
+        const userStatus = window.premiumAccessControl.getUserStatus();
+        if (userStatus.membershipLevel === 'pro' && userStatus.membershipStatus === 'active') {
+            return true; // Pro members have access to everything
+        }
+    }
+    
     const membershipPlan = await window.membershipPopup.checkMembership();
     
     if (!membershipPlan) {
