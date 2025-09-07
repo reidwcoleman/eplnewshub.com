@@ -4,6 +4,8 @@
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
          crossorigin="anonymous"></script>
+    <!-- Include Premium Access Control System -->
+    <script src="/premium-access-control.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="description" content="Welcome to EPL News Hub Premium! Your membership is now active. Access exclusive Premier League content, advanced FPL tools, AI-powered analytics, and ad-free browsing experience.">
@@ -109,35 +111,95 @@
         });
         
         function initializeMembership(planType, userEmail) {
-            // Create membership record in localStorage (in production, this would be stored in a database)
-            const membershipData = {
-                plan: planType || 'premium',
-                status: 'active',
-                startDate: new Date().toISOString(),
-                email: userEmail,
-                features: getPlanFeatures(planType),
-                subscriptionSource: 'stripe'
-            };
+            // Get session ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
             
-            // Store membership data
-            localStorage.setItem('eplMembership', JSON.stringify(membershipData));
+            // Determine membership level
+            let membershipLevel = 'free';
+            if (planType && planType.includes('pro')) {
+                membershipLevel = 'pro';
+            } else if (planType && planType.includes('starter')) {
+                membershipLevel = 'starter';
+            }
             
-            // Log for debugging
-            console.log('Membership initialized:', membershipData);
+            // Calculate expiry date
+            const now = new Date();
+            const expiryDate = new Date();
+            if (planType && planType.includes('annual')) {
+                expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+            } else {
+                expiryDate.setMonth(expiryDate.getMonth() + 1);
+            }
+            
+            // Update premium access control system
+            if (window.premiumAccessControl) {
+                // Process the successful payment
+                window.premiumAccessControl.processSuccessfulPayment(planType, sessionId);
+                
+                // Update email if provided
+                if (userEmail) {
+                    window.premiumAccessControl.saveUserStatus({ email: userEmail });
+                }
+                
+                console.log('Premium access control updated for:', membershipLevel);
+            } else {
+                // Fallback: Store data locally if premium access control not loaded
+                const membershipData = {
+                    plan: planType || 'premium',
+                    membershipLevel: membershipLevel,
+                    membershipStatus: 'active',
+                    startDate: now.toISOString(),
+                    expiryDate: expiryDate.toISOString(),
+                    email: userEmail,
+                    features: getPlanFeatures(planType),
+                    subscriptionSource: 'stripe',
+                    stripeSessionId: sessionId
+                };
+                
+                // Store in both old and new format for compatibility
+                localStorage.setItem('eplMembership', JSON.stringify(membershipData));
+                localStorage.setItem('epl_user_status', JSON.stringify({
+                    isLoggedIn: true,
+                    email: userEmail,
+                    uid: null,
+                    membershipLevel: membershipLevel,
+                    membershipStatus: 'active',
+                    startDate: now.toISOString(),
+                    expiryDate: expiryDate.toISOString(),
+                    stripeSessionId: sessionId,
+                    plan: planType,
+                    lastUpdated: now.toISOString()
+                }));
+                
+                console.log('Membership initialized (fallback):', membershipData);
+            }
             
             // Check authentication state
             if (window.onAuthStateChanged && window.auth) {
                 window.onAuthStateChanged(window.auth, (user) => {
-                    if (user && userEmail && user.email === userEmail) {
-                        // User is properly authenticated, membership is valid
-                        console.log('Authenticated user matches subscription email');
+                    if (user) {
+                        // Update premium access control with authenticated user
+                        if (window.premiumAccessControl) {
+                            window.premiumAccessControl.updateAuthStatus(user);
+                        }
                         
-                        // Store user-specific membership data
-                        const userMembershipKey = `eplMembership_${user.uid}`;
-                        localStorage.setItem(userMembershipKey, JSON.stringify(membershipData));
+                        // Verify email match if provided
+                        if (userEmail && user.email === userEmail) {
+                            console.log('Authenticated user matches subscription email');
+                        }
                     }
                 });
             }
+            
+            // Dispatch custom event for other components
+            window.dispatchEvent(new CustomEvent('paymentSuccess', {
+                detail: {
+                    plan: planType,
+                    email: userEmail,
+                    sessionId: sessionId
+                }
+            }));
         }
         
         function getPlanFeatures(planType) {
