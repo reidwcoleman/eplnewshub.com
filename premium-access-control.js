@@ -56,6 +56,9 @@
             // Reset daily limits if needed
             this.resetDailyLimitsIfNeeded();
             
+            // Check if current user is admin and apply access immediately
+            this.checkAdminStatus();
+            
             // Set up page access control
             this.setupPageAccessControl();
             
@@ -71,6 +74,25 @@
             window.addEventListener('paymentSuccess', (e) => {
                 this.handlePaymentSuccess(e.detail);
             });
+        }
+        
+        // Check if current user is admin
+        checkAdminStatus() {
+            // If user email is set and is admin, grant immediate access
+            if (this.userStatus.email && this.isAdminAccount()) {
+                console.log('Admin account detected on init:', this.userStatus.email);
+                this.saveUserStatus({
+                    membershipLevel: 'pro',
+                    membershipStatus: 'active',
+                    startDate: new Date().toISOString(),
+                    expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+                });
+                
+                // Clear restrictions after a short delay to ensure page is loaded
+                setTimeout(() => {
+                    this.clearAccessRestrictions();
+                }, 100);
+            }
         }
 
         // Load user status from storage
@@ -280,6 +302,15 @@
         hasAccess(feature) {
             // Admin accounts always have access
             if (this.isAdminAccount()) {
+                // Ensure admin status is active
+                if (this.userStatus.membershipStatus !== 'active') {
+                    this.saveUserStatus({
+                        membershipLevel: 'pro',
+                        membershipStatus: 'active',
+                        startDate: new Date().toISOString(),
+                        expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+                    });
+                }
                 return { hasAccess: true, unlimited: true };
             }
             
@@ -618,6 +649,109 @@
             document.body.appendChild(modal);
         }
 
+        // Add notification styles
+        addNotificationStyles() {
+            const styles = document.createElement('style');
+            styles.id = 'success-notification-styles';
+            styles.innerHTML = `
+                .premium-success-notification {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #37003c, #6f42c1);
+                    color: white;
+                    border-radius: 15px;
+                    padding: 20px;
+                    max-width: 400px;
+                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+                    z-index: 10001;
+                    animation: slideInRight 0.5s ease;
+                }
+                
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                
+                .success-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                }
+                
+                .success-icon {
+                    font-size: 40px;
+                }
+                
+                .success-text h3 {
+                    margin: 0 0 5px 0;
+                    font-size: 18px;
+                }
+                
+                .success-text p {
+                    margin: 0;
+                    font-size: 14px;
+                    opacity: 0.9;
+                }
+                
+                .success-content button {
+                    background: rgba(255, 255, 255, 0.2);
+                    border: none;
+                    color: white;
+                    font-size: 24px;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-left: auto;
+                }
+                
+                .success-content button:hover {
+                    background: rgba(255, 255, 255, 0.3);
+                }
+            `;
+            document.head.appendChild(styles);
+        }
+        
+        // Show admin notification
+        showAdminNotification() {
+            const notification = document.createElement('div');
+            notification.className = 'premium-success-notification';
+            notification.innerHTML = `
+                <div class="success-content">
+                    <span class="success-icon">👑</span>
+                    <div class="success-text">
+                        <h3>Admin Access Activated</h3>
+                        <p>Welcome! You have full Pro access to all features.</p>
+                    </div>
+                    <button onclick="this.closest('.premium-success-notification').remove()">×</button>
+                </div>
+            `;
+            
+            // Add styles if not present
+            if (!document.querySelector('#success-notification-styles')) {
+                this.addNotificationStyles();
+            }
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+        
         // Show success notification
         showSuccessNotification(level) {
             const notification = document.createElement('div');
@@ -744,11 +878,30 @@
                     email: user.email,
                     uid: user.uid
                 });
+                
+                // Check if this is an admin account and grant immediate access
+                if (this.isAdminAccount()) {
+                    console.log('Admin account detected:', user.email);
+                    this.saveUserStatus({
+                        membershipLevel: 'pro',
+                        membershipStatus: 'active',
+                        startDate: new Date().toISOString(),
+                        expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 year from now
+                    });
+                    
+                    // Clear all restrictions immediately for admin
+                    this.clearAccessRestrictions();
+                    
+                    // Show admin notification
+                    this.showAdminNotification();
+                }
             } else {
                 this.saveUserStatus({
                     isLoggedIn: false,
                     email: null,
-                    uid: null
+                    uid: null,
+                    membershipLevel: 'free',
+                    membershipStatus: 'inactive'
                 });
             }
         }
