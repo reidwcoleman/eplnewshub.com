@@ -40,7 +40,7 @@
         },
         // Live Keys
         live: {
-            publishableKey: 'pk_live_51R1zJxR10Q6bz3BHKVdTzRdwLsxzlrbN5bQoZ96FpQ7nZaZZ4aNrfk7EhW4aSDLKhqhSzBWNKFvxxLwMp6Zb9b3p005qGMCRDO',
+            publishableKey: 'pk_live_51RSKcBR10Q6bz3BHDJ7b0hniY7eCnnakbMNBlpEVyOVWDiA8A0MI22YMaaSpGaAMIv8NnaK6bLfGdNM0Xt8rpK1200itJbMZNm',
             prices: {
                 starter_monthly: 'price_1RoaG1R10Q6bz3BHC2hDRKLv',
                 pro_monthly: 'price_1Rox4aR10Q6bz3BHxohJtpcO',

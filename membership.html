@@ -1218,33 +1218,49 @@
         
         // Wait for dev config to load and initialize Stripe properly
         function initializeStripe() {
-            if (window.devConfig) {
-                const config = window.devConfig.getConfig();
-                stripeConfig = config;
-                stripe = Stripe(config.stripe.publishableKey);
-                window.devConfig.log('Stripe initialized with:', config.isDevelopment ? 'TEST' : 'LIVE', 'keys');
-                window.devConfig.log('Available prices:', config.stripe.prices);
-            } else {
-                // Fallback configuration
-                stripeConfig = {
-                    isDevelopment: false,
-                    stripe: {
-                        publishableKey: 'pk_live_51R1zJxR10Q6bz3BHKVdTzRdwLsxzlrbN5bQoZ96FpQ7nZaZZ4aNrfk7EhW4aSDLKhqhSzBWNKFvxxLwMp6Zb9b3p005qGMCRDO',
-                        prices: {
-                            starter_monthly: 'price_1RoaG1R10Q6bz3BHC2hDRKLv',
-                            pro_monthly: 'price_1Rox4aR10Q6bz3BHxohJtpcO',
-                            starter_annual: 'price_1RoxK6R10Q6bz3BHdZkxAn3p',
-                            pro_annual: 'price_1RoxmQR10Q6bz3BHQKy7G89g'
+            try {
+                if (window.devConfig) {
+                    const config = window.devConfig.getConfig();
+                    stripeConfig = config;
+                    
+                    console.log('Initializing Stripe with dev config...');
+                    console.log('Environment:', config.isDevelopment ? 'DEVELOPMENT' : 'PRODUCTION');
+                    console.log('Stripe key (first 20 chars):', config.stripe.publishableKey.substring(0, 20) + '...');
+                    
+                    stripe = Stripe(config.stripe.publishableKey);
+                    window.devConfig.log('Stripe initialized with:', config.isDevelopment ? 'TEST' : 'LIVE', 'keys');
+                    window.devConfig.log('Available prices:', config.stripe.prices);
+                } else {
+                    // Fallback configuration
+                    console.log('Dev config not available, using fallback configuration');
+                    stripeConfig = {
+                        isDevelopment: false,
+                        stripe: {
+                            publishableKey: 'pk_live_51RSKcBR10Q6bz3BHDJ7b0hniY7eCnnakbMNBlpEVyOVWDiA8A0MI22YMaaSpGaAMIv8NnaK6bLfGdNM0Xt8rpK1200itJbMZNm',
+                            prices: {
+                                starter_monthly: 'price_1RoaG1R10Q6bz3BHC2hDRKLv',
+                                pro_monthly: 'price_1Rox4aR10Q6bz3BHxohJtpcO',
+                                starter_annual: 'price_1RoxK6R10Q6bz3BHdZkxAn3p',
+                                pro_annual: 'price_1RoxmQR10Q6bz3BHQKy7G89g'
+                            }
                         }
-                    }
-                };
-                stripe = Stripe(stripeConfig.stripe.publishableKey);
-                console.log('Using fallback Stripe configuration');
+                    };
+                    
+                    console.log('Fallback Stripe key (first 20 chars):', stripeConfig.stripe.publishableKey.substring(0, 20) + '...');
+                    stripe = Stripe(stripeConfig.stripe.publishableKey);
+                    console.log('Using fallback Stripe configuration');
+                }
+                
+                // Make stripe accessible globally for debugging
+                window.stripe = stripe;
+                window.stripeConfig = stripeConfig;
+                
+                console.log('Stripe initialization completed successfully');
+                
+            } catch (error) {
+                console.error('Error initializing Stripe:', error);
+                alert('Failed to initialize payment system. Please refresh the page and try again.');
             }
-            
-            // Make stripe accessible globally for debugging
-            window.stripe = stripe;
-            window.stripeConfig = stripeConfig;
         }
         
         // Initialize Stripe when dev config is ready
@@ -1488,7 +1504,27 @@
                 
             } catch (error) {
                 console.error('Error in selectPlan:', error);
-                alert('Payment processing failed. Please try again. Error: ' + error.message);
+                console.error('Error details:', {
+                    message: error.message,
+                    type: error.type,
+                    code: error.code,
+                    stripeConfigUsed: stripeConfig,
+                    finalPriceId: finalPriceId
+                });
+                
+                let errorMessage = 'Payment processing failed. ';
+                
+                if (error.message && error.message.includes('Invalid API Key')) {
+                    errorMessage += 'There\'s an issue with the payment system configuration. Please contact support.';
+                } else if (error.message && error.message.includes('401')) {
+                    errorMessage += 'Authentication failed with payment processor. Please contact support.';
+                } else {
+                    errorMessage += 'Please try again. If the problem persists, contact support.';
+                }
+                
+                errorMessage += '\n\nError details: ' + error.message;
+                
+                alert(errorMessage);
             } finally {
                 button.textContent = originalText;
                 button.disabled = false;

@@ -120,16 +120,26 @@
                 if (window.devConfig) {
                     const config = window.devConfig.getConfig();
                     
+                    console.log('Testing Stripe initialization...');
+                    console.log('Full config:', config);
+                    
                     // Test Stripe initialization
                     if (window.Stripe) {
                         const stripe = Stripe(config.stripe.publishableKey);
                         console.log('Stripe initialized successfully with key:', config.stripe.publishableKey.substring(0, 20) + '...');
+                        console.log('Full key for debugging:', config.stripe.publishableKey);
+                        
+                        // Validate the key format
+                        const keyValidation = validateStripeKey(config.stripe.publishableKey);
                         
                         resultDiv.innerHTML = `
                             <div class="success">
                                 <h4>✅ Stripe Initialized Successfully</h4>
                                 <p><strong>Key Type:</strong> ${config.isDevelopment ? 'Test' : 'Live'}</p>
                                 <p><strong>Key Prefix:</strong> ${config.stripe.publishableKey.substring(0, 20)}...</p>
+                                <p><strong>Key Format Valid:</strong> ${keyValidation.valid ? '✅' : '❌'}</p>
+                                <p><strong>Key Details:</strong> ${keyValidation.details}</p>
+                                <p><strong>Environment Detection:</strong> ${config.isDevelopment ? 'Development Mode' : 'Production Mode'}</p>
                             </div>
                         `;
                     } else {
@@ -146,6 +156,20 @@
                         <p>${error.message}</p>
                     </div>
                 `;
+            }
+        }
+        
+        function validateStripeKey(key) {
+            if (!key) {
+                return { valid: false, details: 'Key is missing' };
+            }
+            
+            if (key.startsWith('pk_test_')) {
+                return { valid: true, details: 'Test publishable key (valid format)' };
+            } else if (key.startsWith('pk_live_')) {
+                return { valid: true, details: 'Live publishable key (valid format)' };
+            } else {
+                return { valid: false, details: 'Invalid key format - should start with pk_test_ or pk_live_' };
             }
         }
 
