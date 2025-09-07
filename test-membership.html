@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Membership Purchasing Flow</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .success { border-color: #4CAF50; background: #f8fff8; }
+        .error { border-color: #f44336; background: #fff8f8; }
+        .warning { border-color: #ff9800; background: #fff8f0; }
+        button {
+            background: #37003c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #6f42c1; }
+        .log { background: #f0f0f0; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; white-space: pre-wrap; max-height: 200px; overflow-y: auto; }
+    </style>
+    <script src="/dev-config.js"></script>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Membership Purchasing Flow Test</h1>
+        <p>This page tests the fixes applied to the membership purchasing system.</p>
+        
+        <div class="test-section">
+            <h3>1. Dev Config Initialization Test</h3>
+            <button onclick="testDevConfig()">Test Dev Config</button>
+            <div id="devConfigResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. Stripe Initialization Test</h3>
+            <button onclick="testStripeInit()">Test Stripe Init</button>
+            <div id="stripeResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. Price ID Mapping Test</h3>
+            <button onclick="testPriceMapping()">Test Price Mapping</button>
+            <div id="priceMappingResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. Payment Simulation Test</h3>
+            <button onclick="simulatePayment('starter')">Test Starter Plan</button>
+            <button onclick="simulatePayment('pro')">Test Pro Plan</button>
+            <div id="paymentResult"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Console Log</h3>
+            <div id="console" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        // Override console.log to capture output
+        const originalLog = console.log;
+        const logDiv = document.getElementById('console');
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            logDiv.textContent += args.join(' ') + '\n';
+            logDiv.scrollTop = logDiv.scrollHeight;
+        };
+
+        // Test functions
+        function testDevConfig() {
+            const resultDiv = document.getElementById('devConfigResult');
+            
+            if (window.devConfig) {
+                const config = window.devConfig.getConfig();
+                console.log('Dev Config Test:', config);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <h4>✅ Dev Config Loaded Successfully</h4>
+                        <p><strong>Development Mode:</strong> ${config.isDevelopment}</p>
+                        <p><strong>Stripe Key:</strong> ${config.stripe.publishableKey.substring(0, 20)}...</p>
+                        <p><strong>Available Prices:</strong> ${Object.keys(config.stripe.prices).length}</p>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Dev Config Not Found</h4>
+                        <p>The dev-config.js file may not be loading properly.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function testStripeInit() {
+            const resultDiv = document.getElementById('stripeResult');
+            
+            try {
+                if (window.devConfig) {
+                    const config = window.devConfig.getConfig();
+                    
+                    // Test Stripe initialization
+                    if (window.Stripe) {
+                        const stripe = Stripe(config.stripe.publishableKey);
+                        console.log('Stripe initialized successfully with key:', config.stripe.publishableKey.substring(0, 20) + '...');
+                        
+                        resultDiv.innerHTML = `
+                            <div class="success">
+                                <h4>✅ Stripe Initialized Successfully</h4>
+                                <p><strong>Key Type:</strong> ${config.isDevelopment ? 'Test' : 'Live'}</p>
+                                <p><strong>Key Prefix:</strong> ${config.stripe.publishableKey.substring(0, 20)}...</p>
+                            </div>
+                        `;
+                    } else {
+                        throw new Error('Stripe library not loaded');
+                    }
+                } else {
+                    throw new Error('Dev config not available');
+                }
+            } catch (error) {
+                console.error('Stripe initialization error:', error);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Stripe Initialization Failed</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function testPriceMapping() {
+            const resultDiv = document.getElementById('priceMappingResult');
+            
+            if (window.devConfig) {
+                const config = window.devConfig.getConfig();
+                
+                const planMapping = {
+                    'starter': 'starter_monthly',
+                    'pro': 'pro_monthly',
+                    'starter-annual': 'starter_annual',
+                    'pro-annual': 'pro_annual'
+                };
+
+                let results = '<div class="success"><h4>✅ Price ID Mapping Test</h4>';
+                let allValid = true;
+
+                Object.entries(planMapping).forEach(([planType, configKey]) => {
+                    const priceId = config.stripe.prices[configKey];
+                    if (priceId) {
+                        results += `<p><strong>${planType}:</strong> ${priceId}</p>`;
+                        console.log(`Price mapping - ${planType} -> ${priceId}`);
+                    } else {
+                        results += `<p style="color: red;"><strong>${planType}:</strong> Missing price ID</p>`;
+                        allValid = false;
+                    }
+                });
+
+                results += '</div>';
+
+                if (!allValid) {
+                    results = results.replace('success', 'warning');
+                    results = results.replace('✅', '⚠️');
+                }
+
+                resultDiv.innerHTML = results;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Cannot Test Price Mapping</h4>
+                        <p>Dev config not available</p>
+                    </div>
+                `;
+            }
+        }
+
+        function simulatePayment(planType) {
+            const resultDiv = document.getElementById('paymentResult');
+            
+            try {
+                if (!window.devConfig) {
+                    throw new Error('Dev config not available');
+                }
+
+                const config = window.devConfig.getConfig();
+                
+                const planMapping = {
+                    'starter': 'starter_monthly',
+                    'pro': 'pro_monthly',
+                    'starter-annual': 'starter_annual',
+                    'pro-annual': 'pro_annual'
+                };
+
+                const configKey = planMapping[planType];
+                const priceId = config.stripe.prices[configKey];
+
+                if (!priceId) {
+                    throw new Error(`No price ID found for plan: ${planType}`);
+                }
+
+                console.log(`Simulating payment for ${planType} plan with price ID: ${priceId}`);
+
+                // Simulate the payment flow
+                const simulateSuccess = confirm(
+                    `🧪 PAYMENT SIMULATION\n\n` +
+                    `Plan: ${planType}\n` +
+                    `Price ID: ${priceId}\n` +
+                    `Environment: ${config.isDevelopment ? 'Development' : 'Production'}\n\n` +
+                    `Click OK to simulate successful payment, Cancel to simulate failure.`
+                );
+
+                if (simulateSuccess) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ Payment Simulation Successful</h4>
+                            <p><strong>Plan:</strong> ${planType}</p>
+                            <p><strong>Price ID:</strong> ${priceId}</p>
+                            <p><strong>Status:</strong> Would redirect to success page</p>
+                        </div>
+                    `;
+                    console.log('Payment simulation: SUCCESS');
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="warning">
+                            <h4>⚠️ Payment Simulation Cancelled</h4>
+                            <p>User cancelled the simulated payment</p>
+                        </div>
+                    `;
+                    console.log('Payment simulation: CANCELLED');
+                }
+
+            } catch (error) {
+                console.error('Payment simulation error:', error);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ Payment Simulation Failed</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize tests
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== MEMBERSHIP PURCHASING TEST INITIALIZED ===');
+            console.log('Page loaded at:', new Date().toISOString());
+            
+            setTimeout(() => {
+                testDevConfig();
+            }, 500);
+        });
+    </script>
+    
+    <!-- Load Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
+</body>
+</html>
