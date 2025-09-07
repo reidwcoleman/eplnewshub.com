@@ -32,10 +32,10 @@
         test: {
             publishableKey: 'pk_test_51R1zJxR10Q6bz3BHmXUzrCnWKhVtFVlYnZgXvVzMBWzQPKH8iJPNKj6tHYmJfKqWYvNP0Ht5vZ5UkNZqKJxQwzKa00nNMSgDCH',
             prices: {
-                starter_monthly: 'price_test_starter_monthly',
-                pro_monthly: 'price_test_pro_monthly',
-                starter_annual: 'price_test_starter_annual',
-                pro_annual: 'price_test_pro_annual'
+                starter_monthly: 'price_1QgN6tR10Q6bz3BH0J4VGm7O',
+                pro_monthly: 'price_1QgN7hR10Q6bz3BHlZxuZ5Yx', 
+                starter_annual: 'price_1QgN8MR10Q6bz3BH8kBbGH2D',
+                pro_annual: 'price_1QgN8nR10Q6bz3BHqX9yN4Tc'
             }
         },
         // Live Keys

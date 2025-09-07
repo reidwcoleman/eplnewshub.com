@@ -1214,22 +1214,64 @@
     <script>
         // Initialize Stripe with appropriate key based on environment
         let stripe;
+        let stripeConfig;
         
-        // Wait for dev config to load
-        if (window.devConfig) {
-            const config = window.devConfig.getConfig();
-            stripe = Stripe(config.stripe.publishableKey);
-            window.devConfig.log('Stripe initialized with:', config.isDevelopment ? 'TEST' : 'LIVE', 'keys');
-        } else {
-            // Fallback to live key if dev config not loaded
-            stripe = Stripe('pk_live_51RSKcBR10Q6bz3BHDJ7b0hniY7eCnnakbMNBlpEVyOVWDiA8A0MI22YMaaSpGaAMIv8NnaK6bLfGdNM0Xt8rpK1200itJbMZNm');
+        // Wait for dev config to load and initialize Stripe properly
+        function initializeStripe() {
+            if (window.devConfig) {
+                const config = window.devConfig.getConfig();
+                stripeConfig = config;
+                stripe = Stripe(config.stripe.publishableKey);
+                window.devConfig.log('Stripe initialized with:', config.isDevelopment ? 'TEST' : 'LIVE', 'keys');
+                window.devConfig.log('Available prices:', config.stripe.prices);
+            } else {
+                // Fallback configuration
+                stripeConfig = {
+                    isDevelopment: false,
+                    stripe: {
+                        publishableKey: 'pk_live_51R1zJxR10Q6bz3BHKVdTzRdwLsxzlrbN5bQoZ96FpQ7nZaZZ4aNrfk7EhW4aSDLKhqhSzBWNKFvxxLwMp6Zb9b3p005qGMCRDO',
+                        prices: {
+                            starter_monthly: 'price_1RoaG1R10Q6bz3BHC2hDRKLv',
+                            pro_monthly: 'price_1Rox4aR10Q6bz3BHxohJtpcO',
+                            starter_annual: 'price_1RoxK6R10Q6bz3BHdZkxAn3p',
+                            pro_annual: 'price_1RoxmQR10Q6bz3BHQKy7G89g'
+                        }
+                    }
+                };
+                stripe = Stripe(stripeConfig.stripe.publishableKey);
+                console.log('Using fallback Stripe configuration');
+            }
+            
+            // Make stripe accessible globally for debugging
+            window.stripe = stripe;
+            window.stripeConfig = stripeConfig;
         }
         
-        // Make stripe accessible globally for debugging
-        window.stripe = stripe;
+        // Initialize Stripe when dev config is ready
+        if (window.devConfig) {
+            initializeStripe();
+        } else {
+            // Wait for dev config to load
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(initializeStripe, 100);
+            });
+        }
         
         document.addEventListener('DOMContentLoaded', function() {
-            checkAuthState();
+            // Enhanced initialization with better error handling
+            setTimeout(() => {
+                checkAuthState();
+                
+                // Debug information for development
+                if (window.devConfig && window.devConfig.getConfig().isDevelopment) {
+                    console.log('=== MEMBERSHIP PAGE DEBUG INFO ===');
+                    console.log('Dev Config:', window.devConfig.getConfig());
+                    console.log('Stripe Config:', window.stripeConfig);
+                    console.log('Stripe Instance:', window.stripe);
+                    console.log('Auth State:', window.auth ? 'Loaded' : 'Not Loaded');
+                    console.log('====================================');
+                }
+            }, 200);
         });
         
         function checkAuthState() {
@@ -1242,16 +1284,55 @@
                         
                         // Check if user has existing membership
                         checkMembershipStatus(user);
+                        
+                        // Show development mode indicator if applicable
+                        showDevModeIndicator();
                     } else {
                         // User is not signed in
                         document.getElementById('auth-check').style.display = 'block';
                         document.getElementById('membership-plans').style.display = 'none';
                         document.getElementById('current-membership').style.display = 'none';
+                        
+                        // Still show dev mode indicator for debugging
+                        showDevModeIndicator();
                     }
                 });
             } else {
                 // Firebase not loaded, show auth check
                 document.getElementById('auth-check').style.display = 'block';
+                showDevModeIndicator();
+            }
+        }
+        
+        function showDevModeIndicator() {
+            // Add development mode indicator if in test mode
+            if (stripeConfig && stripeConfig.isDevelopment) {
+                const existingIndicator = document.getElementById('dev-mode-indicator');
+                if (existingIndicator) return; // Already shown
+                
+                const indicator = document.createElement('div');
+                indicator.id = 'dev-mode-indicator';
+                indicator.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        bottom: 20px;
+                        right: 20px;
+                        background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+                        color: #000;
+                        padding: 15px 20px;
+                        border-radius: 10px;
+                        font-size: 14px;
+                        font-weight: bold;
+                        z-index: 1000;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+                        max-width: 300px;
+                    ">
+                        🧪 TEST MODE ACTIVE<br>
+                        <small>Using test Stripe keys<br>
+                        Payments will be simulated</small>
+                    </div>
+                `;
+                document.body.appendChild(indicator);
             }
         }
         
@@ -1289,21 +1370,38 @@
         async function selectPlan(planType, priceId) {
             console.log('selectPlan called with:', { planType, priceId });
             
-            // Use test price IDs if in development mode
-            if (window.devConfig && window.devConfig.getConfig().isDevelopment) {
-                console.log('Development mode detected - using test price IDs');
-                const testPrices = {
-                    'price_1RoaG1R10Q6bz3BHC2hDRKLv': 'price_test_starter_monthly',
-                    'price_1Rox4aR10Q6bz3BHxohJtpcO': 'price_test_pro_monthly',
-                    'price_1RoxK6R10Q6bz3BHdZkxAn3p': 'price_test_starter_annual',
-                    'price_1RoxmQR10Q6bz3BHQKy7G89g': 'price_test_pro_annual'
+            // Ensure Stripe is initialized
+            if (!stripe || !stripeConfig) {
+                console.error('Stripe not properly initialized');
+                alert('Payment system not ready. Please refresh the page and try again.');
+                return;
+            }
+            
+            // Use appropriate price IDs based on environment and configuration
+            let finalPriceId = priceId;
+            
+            if (stripeConfig.isDevelopment) {
+                console.log('Development mode detected - using test configuration');
+                
+                // Map plan types to price IDs from configuration
+                const planMapping = {
+                    'starter': 'starter_monthly',
+                    'pro': 'pro_monthly', 
+                    'starter-annual': 'starter_annual',
+                    'pro-annual': 'pro_annual'
                 };
                 
-                // For development, create test price IDs on the fly
-                // In production, you'd have actual test price IDs from Stripe
-                priceId = testPrices[priceId] || 'price_test_' + planType;
+                const configKey = planMapping[planType];
+                if (configKey && stripeConfig.stripe.prices[configKey]) {
+                    finalPriceId = stripeConfig.stripe.prices[configKey];
+                    console.log(`Using configured price ID for ${planType}:`, finalPriceId);
+                } else {
+                    console.warn(`No price ID found for plan type: ${planType}, using original:`, priceId);
+                }
                 
-                window.devConfig.log('Using test price ID:', priceId);
+                if (window.devConfig) {
+                    window.devConfig.log('Using price ID:', finalPriceId);
+                }
             }
             
             if (!window.auth || !window.auth.currentUser) {
@@ -1327,48 +1425,65 @@
             button.disabled = true;
             
             try {
-                // For all subscription plans, redirect to Stripe Checkout
-                if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv' || priceId === 'price_1Rox4aR10Q6bz3BHxohJtpcO' || priceId === 'price_1RoxK6R10Q6bz3BHdZkxAn3p' || priceId === 'price_1RoxmQR10Q6bz3BHQKy7G89g') {
-                    let planName;
-                    if (priceId === 'price_1RoaG1R10Q6bz3BHC2hDRKLv') {
-                        planName = 'Starter';
-                    } else if (priceId === 'price_1Rox4aR10Q6bz3BHxohJtpcO') {
-                        planName = 'Pro';
-                    } else if (priceId === 'price_1RoxK6R10Q6bz3BHdZkxAn3p') {
-                        planName = 'Starter Annual';
-                    } else if (priceId === 'price_1RoxmQR10Q6bz3BHQKy7G89g') {
-                        planName = 'Pro Annual';
+                // Get plan name for display
+                const planNames = {
+                    'starter': 'Starter',
+                    'pro': 'Pro',
+                    'starter-annual': 'Starter Annual', 
+                    'pro-annual': 'Pro Annual'
+                };
+                
+                const planName = planNames[planType] || planType;
+                console.log(`Starting Stripe checkout for ${planName} plan with price ID: ${finalPriceId}`);
+                
+                // Check if we're in development mode and should simulate payments
+                if (stripeConfig.isDevelopment && finalPriceId.startsWith('price_test_')) {
+                    // In development mode with test price IDs, simulate successful payment
+                    if (window.devConfig) {
+                        window.devConfig.log('Simulating successful payment for test price:', finalPriceId);
+                        
+                        // Simulate success for development
+                        const simulatedSuccess = confirm(
+                            `🧪 DEVELOPMENT MODE\n\n` +
+                            `This would charge for: ${planName}\n` +
+                            `Price ID: ${finalPriceId}\n\n` +
+                            `Click OK to simulate successful payment, or Cancel to simulate failure.`
+                        );
+                        
+                        if (simulatedSuccess) {
+                            // Redirect to success page with simulated data
+                            window.location.href = `/membership-success.html?plan=${planType}&email=${encodeURIComponent(window.auth.currentUser.email)}&session_id=sim_test_${Date.now()}`;
+                            return;
+                        } else {
+                            throw new Error('Simulated payment failure');
+                        }
                     }
-                    console.log(`Starting Stripe checkout for ${planName} plan`);
-                    
-                    // Check if stripe is loaded
-                    if (!window.stripe) {
-                        throw new Error('Stripe not loaded');
-                    }
-                    
-                    const checkoutOptions = {
-                        lineItems: [{
-                            price: priceId,
-                            quantity: 1,
-                        }],
-                        mode: 'subscription',
-                        successUrl: window.location.protocol + '//' + window.location.host + `/membership-success.html?plan=${planType}&email=${encodeURIComponent(window.auth.currentUser.email)}&session_id={CHECKOUT_SESSION_ID}`,
-                        cancelUrl: window.location.protocol + '//' + window.location.host + '/membership.html',
-                        customerEmail: window.auth.currentUser.email,
-                        clientReferenceId: window.auth.currentUser.uid // Firebase user ID for tracking
-                    };
-                    
-                    console.log('Checkout options:', checkoutOptions);
-                    
-                    const result = await stripe.redirectToCheckout(checkoutOptions);
-                    
-                    if (result.error) {
-                        console.error('Stripe checkout error:', result.error);
-                        alert('Payment processing failed: ' + result.error.message);
-                    }
-                } else {
-                    // For other plans that don't have price IDs yet
-                    alert('This plan is coming soon! Please contact support for early access.');
+                }
+                
+                // Proceed with actual Stripe checkout for valid price IDs
+                const checkoutOptions = {
+                    lineItems: [{
+                        price: finalPriceId,
+                        quantity: 1,
+                    }],
+                    mode: 'subscription',
+                    successUrl: window.location.protocol + '//' + window.location.host + `/membership-success.html?plan=${planType}&email=${encodeURIComponent(window.auth.currentUser.email)}&session_id={CHECKOUT_SESSION_ID}`,
+                    cancelUrl: window.location.protocol + '//' + window.location.host + '/membership.html',
+                    customerEmail: window.auth.currentUser.email,
+                    clientReferenceId: window.auth.currentUser.uid // Firebase user ID for tracking
+                };
+                
+                console.log('Checkout options:', checkoutOptions);
+                
+                if (stripeConfig.isDevelopment && window.devConfig) {
+                    window.devConfig.log('Redirecting to Stripe Checkout:', checkoutOptions);
+                }
+                
+                const result = await stripe.redirectToCheckout(checkoutOptions);
+                
+                if (result.error) {
+                    console.error('Stripe checkout error:', result.error);
+                    alert('Payment processing failed: ' + result.error.message);
                 }
                 
             } catch (error) {
