@@ -5819,74 +5819,34 @@
             }, 1000);
         };
         
-        // Advanced AI Team Building Algorithm with Machine Learning Approach
+        // AI Team Building Algorithm
         function buildOptimizedTeam() {
             const players = window.transferSimPro.allPlayers;
             const budget = 100.0; // £100m budget
             const formation = {GK: 2, DEF: 5, MID: 5, FWD: 3}; // 2-5-5-3 formation
             
-            // Enhanced AI scoring system with advanced metrics
+            // Create player scoring system
             const scoredPlayers = players.map(player => {
                 let score = 0;
                 
-                // Multi-factor analysis with weighted importance
-                const form = parseFloat(player.form || 0);
-                const totalPoints = player.total_points || 0;
-                const price = player.price || 4.0;
+                // Points contribution (40% weight)
+                score += (player.total_points || 0) * 0.4;
+                
+                // Form contribution (30% weight)  
+                score += parseFloat(player.form || 0) * 30 * 0.3;
+                
+                // Value efficiency (20% weight) - points per price
+                const efficiency = player.price > 0 ? (player.total_points || 0) / player.price : 0;
+                score += efficiency * 0.2;
+                
+                // Selection popularity (10% weight) - but inverse (less popular = better value)
                 const popularity = parseFloat(player.selected_by_percent || 0);
-                const minutes = player.minutes || 0;
-                const goals = player.goals_scored || 0;
-                const assists = player.assists || 0;
-                const saves = player.saves || 0;
-                const cleanSheets = player.clean_sheets || 0;
-                const bonus = player.bonus || 0;
-                
-                // 1. Current Season Performance (35% weight)
-                const performanceScore = (totalPoints * 1.2) + (form * 15) + (bonus * 2);
-                score += performanceScore * 0.35;
-                
-                // 2. Value Efficiency Analysis (25% weight)
-                const efficiency = price > 0 ? totalPoints / price : 0;
-                const priceValue = price < 6 ? (6 - price) * 5 : 0; // Bonus for budget players
-                score += (efficiency * 10 + priceValue) * 0.25;
-                
-                // 3. Position-Specific Metrics (20% weight)
-                let positionBonus = 0;
-                if (player.position === 1) { // GK
-                    positionBonus = saves * 0.5 + cleanSheets * 6;
-                } else if (player.position === 2) { // DEF
-                    positionBonus = cleanSheets * 4 + goals * 8 + assists * 4;
-                } else if (player.position === 3) { // MID
-                    positionBonus = goals * 6 + assists * 5 + (totalPoints > 100 ? 20 : 0);
-                } else if (player.position === 4) { // FWD
-                    positionBonus = goals * 5 + assists * 3 + (goals > 10 ? 25 : 0);
-                }
-                score += positionBonus * 0.20;
-                
-                // 4. Consistency & Reliability (15% weight)
-                const minutesRatio = minutes / (38 * 90); // Season availability
-                const consistencyBonus = minutesRatio > 0.7 ? 30 : minutesRatio * 40;
-                score += consistencyBonus * 0.15;
-                
-                // 5. Differential Factor (5% weight)
-                const differentialBonus = popularity < 5 ? (5 - popularity) * 3 : 0;
-                const templatePenalty = popularity > 50 ? (popularity - 50) * 0.2 : 0;
-                score += (differentialBonus - templatePenalty) * 0.05;
-                
-                // Advanced metrics calculation
-                const expectedPoints = form * 2.5 + (totalPoints / 38) * 1.5;
-                const riskFactor = popularity > 20 ? 'Low' : popularity > 10 ? 'Medium' : 'High';
-                const trend = form > 6 ? 'Rising' : form > 3 ? 'Stable' : 'Falling';
+                score += (50 - Math.min(popularity, 50)) * 0.1;
                 
                 return {
                     ...player,
-                    aiScore: Math.max(score, 0),
-                    valueEfficiency: efficiency,
-                    expectedPoints,
-                    riskFactor,
-                    trend,
-                    positionBonus,
-                    consistencyScore: minutesRatio
+                    aiScore: score,
+                    valueEfficiency: efficiency
                 };
             });
             
@@ -5902,85 +5862,40 @@
             let squad = [];
             let remainingBudget = budget;
             
-            // Advanced dynamic programming approach with multiple optimization passes
-            
-            // Phase 1: Core team selection (premium players)
-            const premiumBudget = budget * 0.6; // 60% for premium players
-            let coreSquad = [];
-            let coreSpent = 0;
-            
+            // Greedy algorithm with budget constraints
             for (const [position, count] of Object.entries(formation)) {
                 const positionPlayers = playersByPosition[position] || [];
-                const premiumPlayers = positionPlayers.filter(p => p.price >= 8 && p.aiScore > 50);
-                const coreCount = position === 'GK' ? 1 : position === 'FWD' ? 2 : Math.floor(count * 0.4);
-                
                 let added = 0;
-                for (const player of premiumPlayers) {
-                    if (added >= coreCount) break;
-                    if (coreSpent + player.price <= premiumBudget) {
-                        coreSquad.push(player);
-                        coreSpent += player.price;
-                        added++;
-                        console.log(`🌟 AI Core: ${player.name} (${position}) - £${player.price}m - AI Score: ${player.aiScore.toFixed(1)}`);
-                    }
-                }
-            }
-            
-            // Phase 2: Fill remaining positions with optimal value picks
-            let squad = [...coreSquad];
-            remainingBudget = budget - coreSpent;
-            
-            for (const [position, count] of Object.entries(formation)) {
-                const positionPlayers = playersByPosition[position] || [];
-                const currentCount = squad.filter(p => {
-                    const posMap = {1: 'GK', 2: 'DEF', 3: 'MID', 4: 'FWD'};
-                    return posMap[p.position] === position;
-                }).length;
-                
-                let needed = count - currentCount;
-                let added = 0;
-                
-                // Smart selection considering remaining budget distribution
-                const avgBudgetPerPlayer = remainingBudget / (15 - squad.length);
                 
                 for (const player of positionPlayers) {
-                    if (added >= needed) break;
-                    if (squad.includes(player)) continue;
-                    
-                    // Dynamic pricing strategy
-                    const canAfford = player.price <= Math.min(remainingBudget - (needed - added - 1) * 4.0, remainingBudget);
-                    
-                    if (canAfford) {
+                    if (added >= count) break;
+                    if ((player.price || 0) <= remainingBudget) {
                         squad.push(player);
-                        remainingBudget -= player.price;
+                        remainingBudget -= (player.price || 0);
                         added++;
-                        console.log(`💎 AI Value: ${player.name} (${position}) - £${player.price}m - Efficiency: ${player.valueEfficiency.toFixed(2)}`);
+                        console.log(`AI selected ${player.name} (${position}) - £${player.price}m - Score: ${player.aiScore.toFixed(1)}`);
                     }
                 }
                 
-                // Emergency budget picks if positions still unfilled
-                if (added < needed) {
-                    const emergencyPlayers = positionPlayers
-                        .filter(p => !squad.includes(p) && p.price <= 4.5)
-                        .sort((a, b) => b.aiScore - a.aiScore);
+                // If we couldn't fill the position, try cheaper players
+                if (added < count) {
+                    const cheaperPlayers = positionPlayers
+                        .filter(p => !squad.includes(p))
+                        .sort((a, b) => (a.price || 0) - (b.price || 0));
                     
-                    for (const player of emergencyPlayers) {
-                        if (added >= needed) break;
-                        if (player.price <= remainingBudget) {
+                    for (const player of cheaperPlayers) {
+                        if (added >= count) break;
+                        if ((player.price || 0) <= remainingBudget) {
                             squad.push(player);
-                            remainingBudget -= player.price;
+                            remainingBudget -= (player.price || 0);
                             added++;
-                            console.log(`🚨 AI Emergency: ${player.name} (${position}) - £${player.price}m`);
+                            console.log(`AI selected (budget) ${player.name} (${position}) - £${player.price}m`);
                         }
                     }
                 }
             }
             
-            // Final optimization phase: Balance and validate squad
-            const finalScore = squad.reduce((sum, p) => sum + p.aiScore, 0);
-            const avgScore = finalScore / squad.length;
-            
-            console.log(`🎯 AI optimization complete. Squad: ${squad.length} players, Budget remaining: £${remainingBudget.toFixed(1)}m, Avg AI Score: ${avgScore.toFixed(1)}`);
+            console.log(`AI optimization complete. Squad: ${squad.length} players, Budget remaining: £${remainingBudget.toFixed(1)}m`);
             return squad;
         }
         
@@ -7904,25 +7819,16 @@ Son Heung-min
         };
         
         window.showCaptainOptimizer = function() {
-            const modal = createAdvancedModal('👑 Advanced Captain AI Optimizer', `
+            const modal = createAdvancedModal('👑 Captain AI Optimizer', `
                 <div style="margin-bottom: 20px;">
-                    <h4 style="color: #37003c; margin-bottom: 15px;">🤖 ML-Powered Captain Recommendations</h4>
+                    <h4 style="color: #37003c; margin-bottom: 15px;">🤖 AI Captain Recommendations</h4>
                     <div id="captainOptimizerContent">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                            <div style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 20px; border-radius: 12px; color: white;">
-                                <h5 style="margin-bottom: 12px; display: flex; align-items: center;"><span style="margin-right: 8px;">🏆</span>Elite Captain Picks</h5>
-                                <div id="topCaptainPicks" style="color: white;">Analyzing fixtures and form...</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                                <h5 style="color: #37003c; margin-bottom: 10px;">🎯 Top Picks</h5>
+                                <div id="topCaptainPicks">Loading...</div>
                             </div>
-                            <div style="background: linear-gradient(135deg, #f093fb, #f5576c); padding: 20px; border-radius: 12px; color: white;">
-                                <h5 style="margin-bottom: 12px; display: flex; align-items: center;"><span style="margin-right: 8px;">📊</span>Differential Captains</h5>
-                                <div id="differentialCaptains" style="color: white;">Finding hidden gems...</div>
-                            </div>
-                        </div>
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 15px;">
-                            <h5 style="color: #37003c; margin-bottom: 15px; display: flex; align-items: center;"><span style="margin-right: 8px;">🧠</span>AI Captain Analysis</h5>
-                            <div id="captainAnalysis">Performing deep analysis of fixtures, form, and historical performance...</div>
-                        </div>
-                        <div style="background: #e8f5e8; padding: 15px; border-radius: 10px;">
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
                                 <h5 style="color: #37003c; margin-bottom: 10px;">📊 Form Analysis</h5>
                                 <div id="captainForm">Loading...</div>
                             </div>
@@ -8066,81 +7972,23 @@ Son Heung-min
                 return;
             }
             
-            // Advanced Price Change Prediction Algorithm
-            const priceAnalysis = players.map(player => {
-                const ownership = parseFloat(player.selected_by_percent || 0);
-                const form = parseFloat(player.form || 0);
-                const totalPoints = player.total_points || 0;
-                const price = player.price || 4.0;
-                const minutes = player.minutes || 0;
-                
-                // Price drop probability calculation
-                let dropProb = 0;
-                if (ownership > 10 && form < 3) dropProb += 40; // High ownership, poor form
-                if (totalPoints < 50 && ownership > 5) dropProb += 30; // Underperforming popular pick
-                if (minutes < 1000 && ownership > 8) dropProb += 35; // Injured/rotated popular player
-                if (price > 8 && form < 4) dropProb += 25; // Expensive player in poor form
-                
-                // Price rise probability calculation  
-                let riseProb = 0;
-                if (form > 6 && ownership < 15) riseProb += 45; // Excellent form, still under-owned
-                if (totalPoints > 80 && ownership < 10) riseProb += 35; // Strong season, low ownership
-                if (price < 6 && form > 4) riseProb += 40; // Cheap player in good form
-                if (minutes > 2000 && totalPoints > 60 && ownership < 20) riseProb += 30; // Reliable performer
-                
-                return {
-                    ...player,
-                    dropProbability: Math.min(dropProb, 95),
-                    riseProbability: Math.min(riseProb, 95),
-                    priceMovement: riseProb > dropProb ? 'Rise' : dropProb > riseProb ? 'Drop' : 'Stable'
-                };
-            });
+            // Mock price changes for demonstration
+            const priceDrops = players.filter(p => p.price < 8).slice(0, 5);
+            const priceRises = players.filter(p => p.price > 8 && p.total_points > 50).slice(0, 5);
             
-            // Price Drop Predictions (sorted by drop probability)
-            const dropCandidates = priceAnalysis
-                .filter(p => p.dropProbability > 30)
-                .sort((a, b) => b.dropProbability - a.dropProbability)
-                .slice(0, 6);
-            
-            document.getElementById('priceDrops').innerHTML = dropCandidates.map(player => {
+            document.getElementById('priceDrops').innerHTML = priceDrops.map(player => {
                 const team = teams.find(t => t.id === player.team) || { name: 'Unknown' };
-                const probability = player.dropProbability;
-                const riskLevel = probability > 70 ? 'High' : probability > 50 ? 'Medium' : 'Low';
-                const color = probability > 70 ? '#dc3545' : probability > 50 ? '#fd7e14' : '#6c757d';
-                
-                return `<div style="margin-bottom: 10px; padding: 10px; background: #fff3f3; border-radius: 8px; border-left: 3px solid ${color};">
-                    <div style="font-weight: bold; color: #37003c;">${player.name} (£${player.price}m)</div>
-                    <div style="font-size: 0.85em; color: #666; margin-top: 2px;">
-                        ${team.name} | Ownership: ${player.selected_by_percent}% | Form: ${player.form}
-                    </div>
-                    <div style="font-size: 0.8em; margin-top: 4px; color: ${color}; font-weight: 600;">
-                        Drop Risk: ${riskLevel} (${probability.toFixed(0)}%)
-                    </div>
+                return `<div style="margin-bottom: 8px; padding: 8px; background: #fff3f3; border-radius: 5px;">
+                    ${player.name} (${team.name}) - £${player.price}m
                 </div>`;
-            }).join('') || '<p>🟢 No immediate price drop risks detected</p>';
+            }).join('') || '<p>No recent price drops detected</p>';
             
-            // Price Rise Predictions (sorted by rise probability)
-            const riseCandidates = priceAnalysis
-                .filter(p => p.riseProbability > 30)
-                .sort((a, b) => b.riseProbability - a.riseProbability)
-                .slice(0, 6);
-            
-            document.getElementById('priceRises').innerHTML = riseCandidates.map(player => {
+            document.getElementById('priceRises').innerHTML = priceRises.map(player => {
                 const team = teams.find(t => t.id === player.team) || { name: 'Unknown' };
-                const probability = player.riseProbability;
-                const potential = probability > 70 ? 'High' : probability > 50 ? 'Good' : 'Moderate';
-                const color = probability > 70 ? '#28a745' : probability > 50 ? '#17a2b8' : '#6c757d';
-                
-                return `<div style="margin-bottom: 10px; padding: 10px; background: #f3fff3; border-radius: 8px; border-left: 3px solid ${color};">
-                    <div style="font-weight: bold; color: #37003c;">${player.name} (£${player.price}m)</div>
-                    <div style="font-size: 0.85em; color: #666; margin-top: 2px;">
-                        ${team.name} | Ownership: ${player.selected_by_percent}% | Form: ${player.form}
-                    </div>
-                    <div style="font-size: 0.8em; margin-top: 4px; color: ${color}; font-weight: 600;">
-                        Rise Potential: ${potential} (${probability.toFixed(0)}%)
-                    </div>
+                return `<div style="margin-bottom: 8px; padding: 8px; background: #f3fff3; border-radius: 5px;">
+                    ${player.name} (${team.name}) - £${player.price}m
                 </div>`;
-            }).join('') || '<p>🔍 No significant price rise opportunities detected</p>';
+            }).join('') || '<p>No recent price rises detected</p>';
         }
         
         function updateCaptainOptimizerData() {
@@ -8235,23 +8083,7 @@ Son Heung-min
             }).join('') || '<p>No consistency data available</p>';
         }
         
-        // Enhanced fixture difficulty simulation
-        function getSimulatedFixtureDifficulty(teamId) {
-            const strongTeams = [1, 2, 3, 4, 5, 6]; // Top 6 teams
-            const midTableTeams = [7, 8, 9, 10, 11, 12, 13, 14];
-            const strugglingTeams = [15, 16, 17, 18, 19, 20];
-            
-            if (strugglingTeams.includes(teamId)) {
-                return Math.random() > 0.3 ? 'Easy' : 'Medium';
-            } else if (strongTeams.includes(teamId)) {
-                return Math.random() > 0.6 ? 'Medium' : 'Hard';
-            } else {
-                return Math.random() > 0.5 ? 'Medium' : Math.random() > 0.5 ? 'Easy' : 'Hard';
-            }
-        }
-        
-        // Wildcard Optimizer AI Function
-        window.runWildcardOptimizer = function() {\n            const resultsDiv = document.getElementById('strategyResults');\n            const outputDiv = document.getElementById('strategyOutput');\n            \n            resultsDiv.style.display = 'block';\n            outputDiv.innerHTML = '🤖 AI is analyzing 20M+ team combinations...';\n            \n            setTimeout(() => {\n                const players = window.transferSimPro?.allPlayers || [];\n                if (players.length === 0) {\n                    outputDiv.innerHTML = '❌ Player data not loaded. Please load data first.';\n                    return;\n                }\n                \n                const optimalTiming = Math.floor(Math.random() * 10) + 10;\n                const projectedGain = Math.floor(Math.random() * 50) + 30;\n                const confidence = Math.floor(Math.random() * 30) + 70;\n                \n                outputDiv.innerHTML = `\n                    <div style=\"margin-bottom: 15px;\">\n                        <h6 style=\"color: #28a745; margin-bottom: 8px;\">✅ Optimization Complete</h6>\n                        <div style=\"background: white; padding: 15px; border-radius: 8px; border-left: 3px solid #28a745;\">\n                            <p><strong>🎯 Optimal Wildcard Timing:</strong> Gameweek ${optimalTiming}</p>\n                            <p><strong>📈 Projected Points Gain:</strong> +${projectedGain} points</p>\n                            <p><strong>🔮 AI Confidence:</strong> ${confidence}%</p>\n                        </div>\n                    </div>\n                `;\n            }, 2000);\n        };\n        \n        // Free Hit Planner AI Function\n        window.planFreeHit = function() {\n            const resultsDiv = document.getElementById('strategyResults');\n            const outputDiv = document.getElementById('strategyOutput');\n            \n            resultsDiv.style.display = 'block';\n            outputDiv.innerHTML = '🧠 ML algorithm identifying optimal Free Hit gameweek...';\n            \n            setTimeout(() => {\n                const optimalGW = Math.floor(Math.random() * 8) + 29;\n                const expectedPoints = Math.floor(Math.random() * 40) + 60;\n                const riskFactor = ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)];\n                \n                outputDiv.innerHTML = `\n                    <div style=\"margin-bottom: 15px;\">\n                        <h6 style=\"color: #17a2b8; margin-bottom: 8px;\">🎯 Free Hit Strategy Identified</h6>\n                        <div style=\"background: white; padding: 15px; border-radius: 8px; border-left: 3px solid #17a2b8;\">\n                            <p><strong>🏆 Optimal Gameweek:</strong> ${optimalGW}</p>\n                            <p><strong>⚡ Expected Points:</strong> ${expectedPoints}+ points</p>\n                            <p><strong>⚠️ Risk Level:</strong> ${riskFactor}</p>\n                        </div>\n                    </div>\n                `;\n            }, 2500);\n        };\n        \n        // Advanced xG Analytics Engine\n        window.showXGStats = function() {\n            const modal = createAdvancedModal('📊 Advanced xG Analytics Engine', `\n                <div style=\"margin-bottom: 20px;\">\n                    <h4 style=\"color: #37003c; margin-bottom: 15px;\">⚽ ML-Powered Performance Analytics</h4>\n                    <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px;\">\n                        <div style=\"background: linear-gradient(135deg, #4facfe, #00f2fe); padding: 20px; border-radius: 12px; color: white;\">\n                            <h5 style=\"margin-bottom: 12px;\">🎯 Expected Goals Engine</h5>\n                            <div id=\"xgData\" style=\"color: white;\">Calculating xG metrics...</div>\n                        </div>\n                        <div style=\"background: linear-gradient(135deg, #43e97b, #38f9d7); padding: 20px; border-radius: 12px; color: white;\">\n                            <h5 style=\"margin-bottom: 12px;\">🗺️ Player Heat Maps</h5>\n                            <div id=\"heatMapData\" style=\"color: white;\">Generating heat maps...</div>\n                        </div>\n                    </div>\n                    <div style=\"background: #f8f9fa; padding: 20px; border-radius: 12px;\">\n                        <h5 style=\"color: #37003c; margin-bottom: 15px;\">🧠 Advanced Metric Analysis</h5>\n                        <div id=\"advancedMetrics\">Processing advanced performance indicators...</div>\n                    </div>\n                </div>\n            `);\n            updateXGAnalytics();\n        };\n        \n        // Update xG Analytics Data\n        function updateXGAnalytics() {\n            const players = window.transferSimPro?.allPlayers || [];\n            \n            setTimeout(() => {\n                if (players.length === 0) {\n                    document.getElementById('xgData').innerHTML = 'Player data not loaded';\n                    return;\n                }\n                \n                const topPerformers = players\n                    .filter(p => (p.total_points || 0) > 50)\n                    .sort((a, b) => (b.total_points || 0) - (a.total_points || 0))\n                    .slice(0, 8);\n                \n                const xgHTML = topPerformers.map(player => {\n                    const xg = ((player.goals_scored || 0) * 0.8 + Math.random() * 2).toFixed(2);\n                    const xa = ((player.assists || 0) * 0.7 + Math.random() * 1.5).toFixed(2);\n                    \n                    return `\n                        <div style=\"margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 6px;\">\n                            <div style=\"font-weight: bold;\">${player.name}</div>\n                            <div style=\"font-size: 0.8em; opacity: 0.9;\">xG: ${xg} | xA: ${xa}</div>\n                        </div>\n                    `;\n                }).join('');\n                \n                document.getElementById('xgData').innerHTML = xgHTML;\n                document.getElementById('heatMapData').innerHTML = '<p>🔥 Hot zones: High xG areas<br>❄️ Cold zones: Value opportunities</p>';\n                document.getElementById('advancedMetrics').innerHTML = '<p>📈 AI accuracy: 87% for next gameweek</p>';\n            }, 1500);\n        }\n        \n        // Squad comparison helper functions
+        // Squad comparison helper functions
         window.loadComparisonTeam = function() {
             const teamId = document.getElementById('compareTeamId').value;
             if (!teamId) {
