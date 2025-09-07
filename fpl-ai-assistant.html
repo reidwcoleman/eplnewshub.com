@@ -309,12 +309,22 @@
     <!-- Site Scripts -->
     <script src="/index.js"></script>
     
+    <script src="/ai-assistant-sidebar.js"></script>
+    
     <script>
-        let isTyping = false;
+        // Use the same AI logic from the sidebar but adapt it for the main page
+        let aiAssistant;
         let messageCount = 0;
-        
-        // Initialize chat
+        let isTyping = false;
+
+        // Initialize chat when page loads
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize with sidebar AI logic
+            if (window.fplAISidebar) {
+                // Borrow the AI processing logic from sidebar
+                aiAssistant = window.fplAISidebar;
+            }
+            
             showWelcomeMessage();
             
             // Handle Enter key
@@ -325,11 +335,12 @@
                 }
             });
         });
-        
+
         function showWelcomeMessage() {
-            // No welcome message - just ready to chat
+            const welcomeText = "👋 **Welcome to your FPL AI Assistant!**\n\nI have access to real-time data, advanced analytics, and expert insights to help you dominate your mini-leagues.\n\nAsk me about:\n• Captain picks & differentials\n• Transfer recommendations  \n• Value players & budgets\n• Fixture analysis\n• Wildcard & chip strategies\n\nLet's get you to the top! 🚀";
+            displayAIMessage(welcomeText);
         }
-        
+
         async function sendMessage() {
             if (isTyping) return;
             
@@ -337,31 +348,96 @@
             const message = input.value.trim();
             
             if (!message) return;
-            
-            // Simple rate limiting
-            if (messageCount >= 25) {
-                displayErrorMessage('Rate limit reached. Please refresh the page to continue.');
+
+            // Check message limits (same as sidebar)
+            const hasAccess = await checkMessageLimit();
+            if (!hasAccess) {
+                displayAIMessage("🚀 **Upgrade to Premium for More AI Assistance!**\n\nYou've reached your daily AI query limit. Upgrade to get:\n\n⚽ **Starter ($2/month)**: 50 AI queries per day\n🏆 **Pro ($7/month)**: Unlimited AI queries\n\n✅ **Advanced FPL analytics**\n✅ **Exclusive transfer insights**\n✅ **Priority captain recommendations**");
                 return;
             }
-            
-            messageCount++;
-            
+
             // Display user message
             displayUserMessage(message);
-            
+
             // Clear input
             input.value = '';
-            
+
             // Disable send button
             toggleSendButton(false);
-            
-            // Show thinking and get AI response
+
+            // Show thinking and get AI response using sidebar logic
             await getAIResponse(message);
-            
+
             // Re-enable send button
             toggleSendButton(true);
         }
-        
+
+        async function checkMessageLimit() {
+            // Use same logic as sidebar
+            if (window.premiumAccessControl) {
+                const userStatus = window.premiumAccessControl.getUserStatus();
+                const access = window.premiumAccessControl.hasAccess('fpl-ai-assistant.html');
+                
+                if (access.hasAccess) {
+                    if (!access.unlimited && access.remaining <= 0) {
+                        return false;
+                    }
+                    window.premiumAccessControl.updateDailyUsage('ai-assistant');
+                    return true;
+                }
+                return false;
+            }
+            
+            // Fallback - free users get 5 messages
+            if (messageCount >= 5) {
+                return false;
+            }
+            messageCount++;
+            return true;
+        }
+
+        async function getAIResponse(message) {
+            showThinking();
+
+            try {
+                let response;
+                
+                // Use sidebar AI processing if available
+                if (aiAssistant && aiAssistant.processQuery) {
+                    response = await aiAssistant.processQuery(message);
+                } else {
+                    // Fallback to built-in FPL responses
+                    response = generateFPLResponse(message);
+                }
+
+                removeThinking();
+                displayAIMessage(response);
+
+            } catch (error) {
+                console.error('AI error:', error);
+                removeThinking();
+                displayAIMessage('Sorry, I encountered an error. Please try again in a moment.');
+            }
+        }
+
+        function generateFPLResponse(query) {
+            const lowerQuery = query.toLowerCase();
+            
+            if (lowerQuery.includes('captain')) {
+                return `🎯 **Captain Recommendations:**\n\n**Top Picks:**\n• **Mohamed Salah** - Excellent form, penalty taker\n• **Erling Haaland** - High ceiling, Man City assets\n• **Cole Palmer** - In-form, good fixtures\n\n**Differential Options:**\n• **Bryan Mbeumo** - Low ownership, great value\n• **Alexander Isak** - Inform striker, good fixtures\n\n*Choose based on your mini-league position and risk tolerance!*`;
+            }
+            
+            if (lowerQuery.includes('transfer')) {
+                return `🔄 **Transfer Recommendations:**\n\n**Hot Picks:**\n• **Bryan Mbeumo** (£7.5m) - Excellent form\n• **Chris Wood** (£6.5m) - Budget striker option\n• **Anthony Gordon** (£7.5m) - Good fixtures ahead\n\n**Players to Consider Selling:**\n• Injured players or those with tough fixtures\n• Underperforming premium assets\n• Players facing rotation\n\n*Bank transfers when possible for flexibility!*`;
+            }
+            
+            if (lowerQuery.includes('value') || lowerQuery.includes('budget')) {
+                return `💰 **Best Value Picks:**\n\n**Budget Gems:**\n• **Bryan Mbeumo** - £7.5m (Amazing points per million)\n• **Chris Wood** - £6.5m (Reliable penalty taker)\n• **Anthony Gordon** - £7.5m (Consistent returns)\n\n**Mid-Price Options:**\n• **Cole Palmer** - £10.5m (Chelsea's main man)\n• **Alexander Isak** - £8.5m (Newcastle's key striker)\n\n*Focus on players with good minutes and consistent returns!*`;
+            }
+            
+            return `🤖 **FPL AI Assistant:**\n\nI can help you with:\n• **Captain picks** - Who to give the armband\n• **Transfer advice** - Best players to bring in/out\n• **Value analysis** - Budget-friendly options\n• **Fixture analysis** - Which teams have good runs\n• **Chip strategy** - When to use wildcards, etc.\n\nWhat specific area would you like help with?`;
+        }
+
         function displayUserMessage(message) {
             const messagesDiv = document.getElementById('chatMessages');
             const msgDiv = document.createElement('div');
@@ -373,7 +449,7 @@
             messagesDiv.appendChild(msgDiv);
             scrollToBottom();
         }
-        
+
         function displayAIMessage(message) {
             const messagesDiv = document.getElementById('chatMessages');
             const msgDiv = document.createElement('div');
@@ -386,155 +462,7 @@
             messagesDiv.appendChild(msgDiv);
             scrollToBottom();
         }
-        
-        function displayErrorMessage(errorText) {
-            const messagesDiv = document.getElementById('chatMessages');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.textContent = errorText;
-            messagesDiv.appendChild(errorDiv);
-            scrollToBottom();
-        }
-        
-        async function getAIResponse(message) {
-            // Show thinking indicator
-            showThinking();
-            
-            try {
-                // Get AI response from open source models
-                const response = await queryOpenSourceAI(message);
-                
-                // Remove thinking indicator
-                removeThinking();
-                
-                // Display response
-                displayAIMessage(response);
-                
-            } catch (error) {
-                console.error('AI error:', error);
-                removeThinking();
-                displayAIMessage('Sorry, I encountered an error with the AI service. Please try again in a moment.');
-            }
-        }
-        
-        async function queryOpenSourceAI(query) {
-            // Try multiple open source models with different approaches
-            const models = [
-                'microsoft/DialoGPT-large',
-                'facebook/blenderbot-400M-distill',
-                'microsoft/DialoGPT-medium',
-                'google/flan-t5-large',
-                'microsoft/DialoGPT-small'
-            ];
-            
-            for (const model of models) {
-                try {
-                    const response = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            inputs: query,
-                            parameters: {
-                                max_new_tokens: 250,
-                                temperature: 0.7,
-                                do_sample: true,
-                                top_p: 0.9,
-                                repetition_penalty: 1.1
-                            },
-                            options: {
-                                wait_for_model: true,
-                                use_cache: false
-                            }
-                        })
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data && data.length > 0) {
-                            let aiResponse = '';
-                            
-                            if (data[0].generated_text) {
-                                aiResponse = data[0].generated_text.trim();
-                                // Clean up the response - remove the original query if it's included
-                                aiResponse = aiResponse.replace(query, '').trim();
-                            } else if (data[0].response) {
-                                aiResponse = data[0].response.trim();
-                            } else if (typeof data[0] === 'string') {
-                                aiResponse = data[0].trim();
-                            }
-                            
-                            if (aiResponse.length > 15) {
-                                return aiResponse;
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.log(`Model ${model} failed:`, error.message);
-                    continue; // Try next model
-                }
-            }
-            
-            // Try specialized text generation with Flan-T5
-            try {
-                const response = await fetch('https://api-inference.huggingface.co/models/google/flan-t5-base', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        inputs: `Please answer this question: ${query}`,
-                        parameters: {
-                            max_new_tokens: 200,
-                            temperature: 0.7,
-                            do_sample: true,
-                            top_p: 0.9
-                        },
-                        options: {
-                            wait_for_model: true,
-                            use_cache: false
-                        }
-                    })
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.length > 0 && data[0].generated_text) {
-                        const aiResponse = data[0].generated_text.trim();
-                        if (aiResponse.length > 10) {
-                            return aiResponse;
-                        }
-                    }
-                }
-            } catch (error) {
-                console.log('Flan-T5 fallback failed:', error.message);
-            }
-            
-            // Final fallback - intelligent response based on question type
-            return generateIntelligentResponse(query);
-        }
-        
-        function generateIntelligentResponse(query) {
-            const lowerQuery = query.toLowerCase();
-            
-            // FPL-specific responses
-            if (lowerQuery.includes('fpl') || lowerQuery.includes('fantasy premier league') || lowerQuery.includes('fantasy football')) {
-                return `⚽ **FPL Analysis**\n\nFor your FPL question: "${query}"\n\nHere are some key FPL strategies:\n• **Form over fixtures** - Pick in-form players even with tough fixtures\n• **Captain differentials** - Look for less popular but high-ceiling options\n• **Bench boost timing** - Use during double gameweeks for maximum points\n• **Transfer timing** - Make transfers after Champions League/Europa matches\n\n💡 **Current season tips:**\n- Monitor press conferences for injury updates\n- Check underlying stats (xG, xA) for true form\n- Consider rotation risk for big teams\n- Watch for price rises on trending players\n\nWould you like specific advice about transfers, captaincy, or team structure?`;
-            }
-            
-            if (lowerQuery.includes('code') || lowerQuery.includes('programming') || lowerQuery.includes('javascript') || lowerQuery.includes('python')) {
-                return `💻 **Programming Help**\n\nFor your coding question: "${query}"\n\n**Best practices for coding:**\n• **Break down problems** - Start with small, manageable pieces\n• **Write clean code** - Use descriptive variable names and comments\n• **Test frequently** - Debug as you go, don't wait until the end\n• **Use version control** - Git helps track changes and collaborate\n• **Learn debugging** - Master console.log, breakpoints, and error messages\n\n**Great resources:**\n- MDN Web Docs for JavaScript\n- Python.org documentation\n- Stack Overflow for specific problems\n- GitHub for code examples\n- FreeCodeCamp for tutorials\n\nWhat specific programming challenge are you working on?`;
-            }
-            
-            if (lowerQuery.includes('science') || lowerQuery.includes('physics') || lowerQuery.includes('chemistry') || lowerQuery.includes('biology')) {
-                return `🔬 **Science Help**\n\nRegarding your science question: "${query}"\n\n**Scientific method approach:**\n• **Observation** - What can we see or measure?\n• **Hypothesis** - What do we think is happening?\n• **Experiment** - How can we test our ideas?\n• **Analysis** - What do the results tell us?\n• **Conclusion** - Does this support our hypothesis?\n\n**Reliable science resources:**\n- Khan Academy for educational content\n- NASA for space and earth sciences\n- NIH for health and medical sciences\n- Scientific journals for latest research\n- University websites for detailed explanations\n\nWhat specific aspect of science interests you most?`;
-            }
-            
-            // General helpful response
-            return `🤖 **AI Assistant Response**\n\nThank you for asking: "${query}"\n\nI'm powered by open source AI models and I'm here to help! While the AI models might be loading or busy, I can still provide guidance on:\n\n• **Problem-solving approaches**\n• **Resource recommendations**\n• **Step-by-step breakdowns**\n• **Research directions**\n• **Creative brainstorming**\n\n**💡 Pro tips:**\n- Try rephrasing your question for different perspectives\n- Ask for specific examples or step-by-step guides\n- Request explanations at different complexity levels\n- Feel free to ask follow-up questions!\n\nThe open source AI models will provide better responses as they become available. What would you like to explore further?`;
-        }
-        
+
         function showThinking() {
             isTyping = true;
             const messagesDiv = document.getElementById('chatMessages');
@@ -543,12 +471,11 @@
             thinkingDiv.id = 'thinkingIndicator';
             
             const thoughts = [
-                "🤖 Processing your question...",
-                "🧠 AI thinking through the problem...",
-                "📊 Generating helpful response...",
-                "🔍 Searching knowledge base...",
-                "💡 Preparing intelligent answer...",
-                "⚡ Open source models working..."
+                "🤖 Analyzing FPL data...",
+                "📊 Processing player stats...",
+                "🎯 Calculating recommendations...",
+                "⚽ Checking fixtures and form...",
+                "💡 Preparing smart advice..."
             ];
             const thought = thoughts[Math.floor(Math.random() * thoughts.length)];
             
@@ -567,7 +494,7 @@
             messagesDiv.appendChild(thinkingDiv);
             scrollToBottom();
         }
-        
+
         function removeThinking() {
             const indicator = document.getElementById('thinkingIndicator');
             if (indicator) {
@@ -575,12 +502,12 @@
             }
             isTyping = false;
         }
-        
+
         function toggleSendButton(enabled) {
             const sendButton = document.getElementById('sendButton');
             sendButton.disabled = !enabled;
         }
-        
+
         function formatMessage(message) {
             return message
                 .replace(/\n/g, '<br>')
@@ -589,18 +516,17 @@
                 .replace(/`(.*?)`/g, '<code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">$1</code>')
                 .replace(/• /g, '• ');
         }
-        
+
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
-        
+
         function scrollToBottom() {
             const messagesDiv = document.getElementById('chatMessages');
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
-        
     </script>
     
     <!-- Analytics -->
