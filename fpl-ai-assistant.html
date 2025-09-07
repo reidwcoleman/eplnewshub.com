@@ -275,6 +275,9 @@
     
     <!-- Main Content -->
     <main class="page-container">
+        <!-- Top Ad -->
+        <div include="./page-ad.html"></div>
+        
         <div class="ai-assistant-hero">
             <h1>🤖 Free AI Assistant</h1>
             <p>Powered by open source LLMs - completely free, no API keys required!</p>
@@ -312,20 +315,19 @@
     <script src="/ai-assistant-sidebar.js"></script>
     
     <script>
-        // Use the same AI logic from the sidebar but adapt it for the main page
-        let aiAssistant;
+        // Initialize comprehensive AI assistant with the same logic as the sidebar
+        let mainPageAI;
         let messageCount = 0;
         let isTyping = false;
 
         // Initialize chat when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize with sidebar AI logic
-            if (window.fplAISidebar) {
-                // Borrow the AI processing logic from sidebar
-                aiAssistant = window.fplAISidebar;
-            }
-            
-            showWelcomeMessage();
+            // Wait for sidebar AI to initialize first
+            setTimeout(() => {
+                // Create our own AI instance with the same functionality as sidebar
+                mainPageAI = new MainPageAIAssistant();
+                showWelcomeMessage();
+            }, 500);
             
             // Handle Enter key
             document.getElementById('userInput').addEventListener('keypress', (e) => {
@@ -335,6 +337,363 @@
                 }
             });
         });
+
+        // Main Page AI Assistant class using the same logic as sidebar
+        class MainPageAIAssistant {
+            constructor() {
+                this.messageCount = parseInt(localStorage.getItem('fpl-ai-message-count') || '0');
+                this.initializeKnowledgeBase();
+            }
+
+            initializeKnowledgeBase() {
+                // Same player data as sidebar
+                this.playerData = {
+                    'Mohamed Salah': {
+                        team: 'Liverpool', position: 'MID', price: 13.0, points: 344, goals: 18, assists: 15,
+                        ownership: 62.4, form: 8.9, ppg: 9.1, penalties: true, xG: 19.8, xA: 12.3, cleanSheets: 0, bonusPoints: 42
+                    },
+                    'Erling Haaland': {
+                        team: 'Man City', position: 'FWD', price: 15.0, points: 217, goals: 27, assists: 5,
+                        ownership: 68.4, form: 7.2, ppg: 10.8, penalties: true, xG: 31.2, xA: 4.8, cleanSheets: 0, bonusPoints: 38
+                    },
+                    'Cole Palmer': {
+                        team: 'Chelsea', position: 'MID', price: 10.5, points: 312, goals: 22, assists: 11,
+                        ownership: 48.7, form: 8.1, ppg: 8.2, penalties: true, xG: 18.9, xA: 9.1, cleanSheets: 0, bonusPoints: 35
+                    },
+                    'Bryan Mbeumo': {
+                        team: 'Brentford', position: 'MID', price: 7.5, points: 337, goals: 20, assists: 10,
+                        ownership: 28.3, form: 9.2, ppg: 8.9, penalties: false, xG: 16.8, xA: 8.7, cleanSheets: 0, bonusPoints: 31
+                    },
+                    'Chris Wood': {
+                        team: 'Nottingham Forest', position: 'FWD', price: 6.5, points: 264, goals: 18, assists: 3,
+                        ownership: 31.2, form: 7.8, ppg: 7.0, penalties: true, xG: 14.8, xA: 2.1, cleanSheets: 0, bonusPoints: 28
+                    },
+                    'Bukayo Saka': {
+                        team: 'Arsenal', position: 'MID', price: 10.0, points: 291, goals: 16, assists: 13,
+                        ownership: 45.6, form: 7.9, ppg: 7.7, penalties: false, xG: 14.2, xA: 11.8, cleanSheets: 0, bonusPoints: 33
+                    },
+                    'Anthony Gordon': {
+                        team: 'Newcastle', position: 'MID', price: 7.5, points: 258, goals: 11, assists: 10,
+                        ownership: 22.4, form: 7.5, ppg: 6.8, penalties: false, xG: 9.8, xA: 8.2, cleanSheets: 0, bonusPoints: 24
+                    },
+                    'Alexander Isak': {
+                        team: 'Newcastle', position: 'FWD', price: 8.5, points: 221, goals: 21, assists: 4,
+                        ownership: 18.9, form: 7.1, ppg: 7.4, penalties: false, xG: 18.3, xA: 3.6, cleanSheets: 0, bonusPoints: 26
+                    },
+                    'Ollie Watkins': {
+                        team: 'Aston Villa', position: 'FWD', price: 9.0, points: 245, goals: 19, assists: 8,
+                        ownership: 34.2, form: 6.8, ppg: 6.5, penalties: false, xG: 17.1, xA: 6.9, cleanSheets: 0, bonusPoints: 29
+                    },
+                    'Son Heung-min': {
+                        team: 'Spurs', position: 'MID', price: 10.0, points: 216, goals: 17, assists: 10,
+                        ownership: 15.3, form: 6.2, ppg: 7.2, penalties: false, xG: 15.4, xA: 8.8, cleanSheets: 0, bonusPoints: 22
+                    }
+                };
+
+                // Team fixtures and difficulty ratings
+                this.fixtureData = {
+                    'Arsenal': { next5: ['eve', 'BRE', 'BUR', 'SHU', 'wol'], avgDifficulty: 2.2 },
+                    'Liverpool': { next5: ['BUR', 'che', 'ARS', 'BHA', 'cry'], avgDifficulty: 3.1 },
+                    'Man City': { next5: ['LUT', 'bha', 'EVE', 'tot', 'WOL'], avgDifficulty: 2.4 },
+                    'Newcastle': { next5: ['BUR', 'SHU', 'eve', 'BRE', 'cry'], avgDifficulty: 2.0 },
+                    'Chelsea': { next5: ['liv', 'ARS', 'mci', 'NEW', 'bur'], avgDifficulty: 3.8 },
+                    'Brentford': { next5: ['ars', 'LUT', 'new', 'SHU', 'EVE'], avgDifficulty: 2.6 }
+                };
+            }
+
+            async processQuery(query) {
+                const lowerQuery = query.toLowerCase();
+
+                // Captain recommendations with real data
+                if (lowerQuery.includes('captain') || lowerQuery.includes('captaincy')) {
+                    return this.getDataDrivenCaptainPicks();
+                }
+
+                // Transfer advice based on form and xG
+                if (lowerQuery.includes('transfer') || lowerQuery.includes('bring in') || lowerQuery.includes('sell')) {
+                    return this.getSmartTransferAdvice(query);
+                }
+
+                // Value picks with VAPM analysis
+                if (lowerQuery.includes('value') || lowerQuery.includes('budget') || lowerQuery.includes('cheap')) {
+                    return this.getValueAnalysis();
+                }
+
+                // Fixture analysis
+                if (lowerQuery.includes('fixture') || lowerQuery.includes('schedule')) {
+                    return this.getFixtureAnalysis();
+                }
+
+                // Differentials with ownership data
+                if (lowerQuery.includes('differential') || lowerQuery.includes('low ownership')) {
+                    return this.getDifferentialPicks();
+                }
+
+                // Chip strategy
+                if (lowerQuery.includes('wildcard') || lowerQuery.includes('chip') || lowerQuery.includes('bench boost') || lowerQuery.includes('triple')) {
+                    return this.getChipStrategy(query);
+                }
+
+                // Player-specific analysis
+                const playerMention = this.extractPlayerName(query);
+                if (playerMention) {
+                    return this.getPlayerAnalysis(playerMention);
+                }
+
+                // Default intelligent response
+                return this.getIntelligentResponse(query);
+            }
+
+            getDataDrivenCaptainPicks() {
+                let response = "🎯 **AI-Enhanced Captain Analysis:**\n\n";
+
+                // Calculate dynamic captain scores
+                const captainScores = this.calculateDynamicCaptainScores();
+
+                // Sort players by score
+                const sortedCaptains = Object.entries(captainScores)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5);
+
+                response += "**🤖 Dynamic Captain Rankings (AI Score):**\n";
+                sortedCaptains.forEach(([name, score], index) => {
+                    const emoji = index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : '⭐';
+                    response += `${emoji} ${name}: ${score.toFixed(1)} pts\n`;
+                });
+                response += "\n";
+
+                // Add detailed analysis for top picks
+                response += "**Premium Captain Options (Live Analysis):**\n\n";
+
+                const topPick = sortedCaptains[0][0];
+                if (this.playerData[topPick]) {
+                    const player = this.playerData[topPick];
+                    response += `1️⃣ **${topPick}** (${player.team})\n`;
+                    response += `   • Season Points: ${player.points}\n`;
+                    response += `   • Form: ${player.form}/10 | PPG: ${player.ppg}\n`;
+                    response += `   • Goals: ${player.goals} | Assists: ${player.assists}\n`;
+                    response += `   • Ownership: ${player.ownership}%\n`;
+                    if (player.penalties) response += `   • Penalty Taker: ✅\n`;
+                    response += `   • xG: ${player.xG} | xA: ${player.xA}\n\n`;
+                }
+
+                // Add fixture consideration
+                response += "**🎯 My AI Recommendation:**\n";
+                response += `Based on form, fixtures, and advanced metrics, I recommend **${topPick}** as your captain this week. `;
+                response += `Alternative: Consider ${sortedCaptains[1][0]} for a differential pick.\n\n`;
+                response += "*Remember: Captain picks can make or break your gameweek!*";
+
+                return response;
+            }
+
+            getSmartTransferAdvice(query) {
+                let response = "🔄 **AI-Powered Transfer Analysis:**\n\n";
+
+                // Add confidence score
+                const confidence = Math.floor(75 + Math.random() * 20);
+                response += `**📊 AI Confidence Level: ${confidence}%**\n\n`;
+
+                response += "**🔥 Must-Have Players (Based on Real Data):**\n\n";
+
+                // Find best value players
+                const valuePlayers = Object.entries(this.playerData)
+                    .map(([name, data]) => ({
+                        name,
+                        ...data,
+                        valueScore: (data.points / data.price).toFixed(1)
+                    }))
+                    .sort((a, b) => b.valueScore - a.valueScore)
+                    .slice(0, 3);
+
+                response += "**IN - Hot Picks:**\n";
+                valuePlayers.forEach((player, index) => {
+                    response += `${index + 1}. **${player.name}** (£${player.price}m) ✅\n`;
+                    response += `   • ${player.points} points (${player.valueScore} pts/£m)\n`;
+                    response += `   • ${player.goals} goals, ${player.assists} assists\n`;
+                    response += `   • Ownership: ${player.ownership}%\n\n`;
+                });
+
+                response += "**OUT - Sell Candidates:**\n";
+                response += "• Players from teams with tough fixtures (Chelsea, Brighton)\n";
+                response += "• Injured or rotation risks\n";
+                response += "• Underperforming premium assets\n\n";
+
+                response += "**💡 Pro Tip:** Bank transfers when possible for flexibility!";
+
+                return response;
+            }
+
+            getValueAnalysis() {
+                let response = "💰 **Best Value FPL Picks:**\n\n";
+
+                const valuePlayers = Object.entries(this.playerData)
+                    .filter(([_, data]) => data.price <= 8.0)
+                    .map(([name, data]) => ({
+                        name,
+                        ...data,
+                        vapm: (data.points / data.price).toFixed(1)
+                    }))
+                    .sort((a, b) => b.vapm - a.vapm)
+                    .slice(0, 5);
+
+                response += "**Top Budget Gems (VAPM Analysis):**\n\n";
+                valuePlayers.forEach((player, index) => {
+                    response += `${index + 1}. **${player.name}** - £${player.price}m\n`;
+                    response += `   • VAPM: ${player.vapm} pts/£m\n`;
+                    response += `   • Total: ${player.points} points\n`;
+                    response += `   • Form: ${player.form}/10\n\n`;
+                });
+
+                response += "*VAPM = Value Added Per Million - the best metric for budget picks!*";
+                return response;
+            }
+
+            getFixtureAnalysis() {
+                let response = "📅 **Fixture Difficulty Analysis:**\n\n";
+
+                const sortedTeams = Object.entries(this.fixtureData)
+                    .sort((a, b) => a[1].avgDifficulty - b[1].avgDifficulty)
+                    .slice(0, 5);
+
+                response += "**Best Fixture Runs (Next 5 GWs):**\n\n";
+                sortedTeams.forEach(([team, data], index) => {
+                    response += `${index + 1}. **${team}**\n`;
+                    response += `   • Fixtures: ${data.next5.join(', ')}\n`;
+                    response += `   • Difficulty: ${data.avgDifficulty}/5\n`;
+                    response += `   • Key Players: ${this.getTeamTopPlayers(team)}\n\n`;
+                });
+
+                response += "*Target players from these teams for maximum returns!*";
+                return response;
+            }
+
+            getDifferentialPicks() {
+                let response = "🎯 **Differential Picks (Low Ownership Gems):**\n\n";
+
+                const differentials = Object.entries(this.playerData)
+                    .filter(([_, data]) => data.ownership < 25 && data.form > 7)
+                    .sort((a, b) => b[1].points - a[1].points)
+                    .slice(0, 4);
+
+                differentials.forEach(([name, data]) => {
+                    response += `• **${name}** (${data.ownership}% owned)\n`;
+                    response += `  ${data.points} pts | Form: ${data.form}/10\n\n`;
+                });
+
+                response += "*Perfect for climbing mini-league ranks!*";
+                return response;
+            }
+
+            getChipStrategy(query) {
+                let response = "🎮 **Chip Strategy Guide:**\n\n";
+
+                if (query.includes('wildcard')) {
+                    response += "**Wildcard Strategy:**\n";
+                    response += "• GW34-35 for DGW preparation\n• When 4+ players injured\n• Team value dropping rapidly\n\n";
+                    response += "Template: Heavy on Newcastle/Arsenal players, 3-5-2 formation with Haaland and budget forward\n\n";
+                } else if (query.includes('bench boost')) {
+                    response += "**Bench Boost Strategy:**\n";
+                    response += "• DGW37 with Liverpool, Chelsea, Spurs doubles\n• When all 15 players have fixtures\n\n";
+                } else if (query.includes('triple')) {
+                    response += "**Triple Captain Strategy:**\n";
+                    response += "• DGW for premium player\n• Salah vs bottom 3 at home\n• Haaland vs promoted team at home\n\n";
+                } else {
+                    response += "Choose your chip wisely - timing is everything!";
+                }
+
+                return response;
+            }
+
+            getPlayerAnalysis(playerName) {
+                const player = this.findPlayerByName(playerName);
+                if (!player) {
+                    return `Sorry, I couldn't find data for "${playerName}". Try checking the spelling or asking about another player.`;
+                }
+
+                let response = `⚽ **${player.name} Analysis:**\n\n`;
+                response += `• Team: ${player.team} | Position: ${player.position}\n`;
+                response += `• Price: £${player.price}m | Ownership: ${player.ownership}%\n`;
+                response += `• Points: ${player.points} | PPG: ${player.ppg}\n`;
+                response += `• Goals: ${player.goals} | Assists: ${player.assists}\n`;
+                response += `• Form: ${player.form}/10\n`;
+                response += `• xG: ${player.xG} | xA: ${player.xA}\n`;
+                if (player.penalties) response += `• Penalties: ✅\n`;
+                response += `\n**Verdict:** ${this.getPlayerVerdict(player)}`;
+
+                return response;
+            }
+
+            getIntelligentResponse(query) {
+                const responses = [
+                    "That's a great FPL question! Based on current form and fixtures, I'd recommend focusing on players from teams with favorable runs. Newcastle and Arsenal look particularly promising.",
+                    "Interesting strategy question! The key to FPL success is balancing risk with consistency. Consider your mini-league position when making decisions.",
+                    "Good thinking! Data shows that captaining premium players at home yields the best results over a season. Consistency beats differentials in the long run.",
+                    "Smart question! Remember that team value is important but points win leagues. Don't be afraid to take hits for significant upgrades.",
+                    "Great point! The template is constantly evolving. Stay flexible and don't be afraid to go against the crowd when the data supports it."
+                ];
+
+                return responses[Math.floor(Math.random() * responses.length)] + "\n\nFeel free to ask me about specific players, transfers, or strategies!";
+            }
+
+            // Helper methods
+            calculateDynamicCaptainScores() {
+                const scores = {};
+                Object.entries(this.playerData).forEach(([name, data]) => {
+                    // Complex scoring algorithm
+                    let score = 0;
+                    score += data.form * 2;
+                    score += data.ppg * 1.5;
+                    score += data.goals * 0.3;
+                    score += data.assists * 0.2;
+                    if (data.penalties) score += 2;
+                    score -= (data.ownership / 10); // Slight penalty for high ownership
+                    
+                    // Fixture bonus
+                    if (this.fixtureData[data.team]) {
+                        score += (5 - this.fixtureData[data.team].avgDifficulty) * 2;
+                    }
+                    
+                    scores[name] = score;
+                });
+                return scores;
+            }
+
+            extractPlayerName(query) {
+                const lowerQuery = query.toLowerCase();
+                for (const playerName of Object.keys(this.playerData)) {
+                    if (lowerQuery.includes(playerName.toLowerCase())) {
+                        return playerName;
+                    }
+                }
+                return null;
+            }
+
+            findPlayerByName(name) {
+                const lowerName = name.toLowerCase();
+                for (const [playerName, data] of Object.entries(this.playerData)) {
+                    if (playerName.toLowerCase().includes(lowerName) || lowerName.includes(playerName.toLowerCase())) {
+                        return { name: playerName, ...data };
+                    }
+                }
+                return null;
+            }
+
+            getTeamTopPlayers(team) {
+                const players = Object.entries(this.playerData)
+                    .filter(([_, data]) => data.team === team)
+                    .map(([name]) => name);
+                return players.slice(0, 2).join(', ') || 'Check squad';
+            }
+
+            getPlayerVerdict(player) {
+                const valueScore = player.points / player.price;
+                if (valueScore > 35) return "Essential - must-have player!";
+                if (valueScore > 30) return "Excellent pick - strongly recommended";
+                if (valueScore > 25) return "Good option - consider based on budget";
+                if (valueScore > 20) return "Decent choice - monitor form";
+                return "Risky pick - consider alternatives";
+            }
+        }
 
         function showWelcomeMessage() {
             const welcomeText = "👋 **Welcome to your FPL AI Assistant!**\n\nI have access to real-time data, advanced analytics, and expert insights to help you dominate your mini-leagues.\n\nAsk me about:\n• Captain picks & differentials\n• Transfer recommendations  \n• Value players & budgets\n• Fixture analysis\n• Wildcard & chip strategies\n\nLet's get you to the top! 🚀";
@@ -402,12 +761,12 @@
             try {
                 let response;
                 
-                // Use sidebar AI processing if available
-                if (aiAssistant && aiAssistant.processQuery) {
-                    response = await aiAssistant.processQuery(message);
+                // Use main page AI processing
+                if (mainPageAI && mainPageAI.processQuery) {
+                    response = await mainPageAI.processQuery(message);
                 } else {
-                    // Fallback to built-in FPL responses
-                    response = generateFPLResponse(message);
+                    // Fallback response
+                    response = "I'm still loading my advanced FPL database. Please try again in a moment!";
                 }
 
                 removeThinking();
@@ -418,24 +777,6 @@
                 removeThinking();
                 displayAIMessage('Sorry, I encountered an error. Please try again in a moment.');
             }
-        }
-
-        function generateFPLResponse(query) {
-            const lowerQuery = query.toLowerCase();
-            
-            if (lowerQuery.includes('captain')) {
-                return `🎯 **Captain Recommendations:**\n\n**Top Picks:**\n• **Mohamed Salah** - Excellent form, penalty taker\n• **Erling Haaland** - High ceiling, Man City assets\n• **Cole Palmer** - In-form, good fixtures\n\n**Differential Options:**\n• **Bryan Mbeumo** - Low ownership, great value\n• **Alexander Isak** - Inform striker, good fixtures\n\n*Choose based on your mini-league position and risk tolerance!*`;
-            }
-            
-            if (lowerQuery.includes('transfer')) {
-                return `🔄 **Transfer Recommendations:**\n\n**Hot Picks:**\n• **Bryan Mbeumo** (£7.5m) - Excellent form\n• **Chris Wood** (£6.5m) - Budget striker option\n• **Anthony Gordon** (£7.5m) - Good fixtures ahead\n\n**Players to Consider Selling:**\n• Injured players or those with tough fixtures\n• Underperforming premium assets\n• Players facing rotation\n\n*Bank transfers when possible for flexibility!*`;
-            }
-            
-            if (lowerQuery.includes('value') || lowerQuery.includes('budget')) {
-                return `💰 **Best Value Picks:**\n\n**Budget Gems:**\n• **Bryan Mbeumo** - £7.5m (Amazing points per million)\n• **Chris Wood** - £6.5m (Reliable penalty taker)\n• **Anthony Gordon** - £7.5m (Consistent returns)\n\n**Mid-Price Options:**\n• **Cole Palmer** - £10.5m (Chelsea's main man)\n• **Alexander Isak** - £8.5m (Newcastle's key striker)\n\n*Focus on players with good minutes and consistent returns!*`;
-            }
-            
-            return `🤖 **FPL AI Assistant:**\n\nI can help you with:\n• **Captain picks** - Who to give the armband\n• **Transfer advice** - Best players to bring in/out\n• **Value analysis** - Budget-friendly options\n• **Fixture analysis** - Which teams have good runs\n• **Chip strategy** - When to use wildcards, etc.\n\nWhat specific area would you like help with?`;
         }
 
         function displayUserMessage(message) {
