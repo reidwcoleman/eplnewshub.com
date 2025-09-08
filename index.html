@@ -54,29 +54,73 @@
     <!-- Critical CSS - Inline for Performance -->
     <style>
         /* Critical Above-the-Fold CSS */
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
-        .header { background: #262627; color: white; }
-        .main-content { min-height: 100vh; }
-        .site-footer { background: #262627; color: white; }
+        * { box-sizing: border-box; }
+        body { 
+            margin: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header { background: #262627; color: white; min-height: 60px; }
+        .main-content { min-height: 100vh; background: #fff; }
+        .site-footer { background: #262627; color: white; padding: 20px 0; }
+        
         /* Prevent Layout Shift */
-        img { max-width: 100%; height: auto; }
+        img { 
+            max-width: 100%; 
+            height: auto; 
+            display: block;
+        }
+        
+        /* Loading placeholder for lazy images */
+        img[data-src] {
+            background: #f0f0f0;
+            min-height: 200px;
+        }
+        
+        /* Above-the-fold layout */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+        .hero-section { padding: 40px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        
+        /* Prevent FOUC */
+        .no-js { display: none; }
+        
+        /* Smooth loading transitions */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
     </style>
     
     <!-- Stylesheets with Preload for Critical Resources -->
-    <link rel="preload" href="styles.css" as="style">
-    <link rel="preload" href="enhanced-homepage-v2.css" as="style">
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="enhanced-homepage-v2.css">
-    <link rel="stylesheet" href="featured-article-cards.css">
-    <link rel="stylesheet" href="remove-ads.css">
+    <noscript><link rel="stylesheet" href="styles.css"></noscript>
     
-    <!-- Font Awesome - Load with Display Swap -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
+    <!-- Defer non-critical CSS -->
+    <link rel="preload" href="enhanced-homepage-v2.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="featured-article-cards.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="remove-ads.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="enhanced-homepage-v2.css">
+        <link rel="stylesheet" href="featured-article-cards.css">
+        <link rel="stylesheet" href="remove-ads.css">
+    </noscript>
+    
+    <!-- Font Awesome - Defer Loading -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></noscript>
     
     
-    <!-- Mobile Detection Script - Load First -->
-    <script src="mobile-detector.js"></script>
+    <!-- Performance Optimizer - Load First -->
+    <script src="performance-optimizer.js" async></script>
+    
+    <!-- Mobile Detection Script -->
+    <script src="mobile-detector.js" defer></script>
     
     <!-- SEO Helper Script - Deferred -->
     <script src="seo-helper.js" defer></script>
@@ -92,12 +136,22 @@
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="canonical" href="https://www.eplnewshub.com/">
     
-    <!-- Service Worker Registration for PWA -->
+    <!-- Service Worker Registration for PWA - Optimized -->
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed'));
-            });
+            // Register service worker after page becomes idle
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => {
+                    navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed'));
+                });
+            } else {
+                // Fallback for browsers without requestIdleCallback
+                window.addEventListener('load', () => {
+                    setTimeout(() => {
+                        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed'));
+                    }, 1000);
+                });
+            }
         }
     </script>
     
@@ -918,8 +972,8 @@
         <div class="footer" include="./footer.html"></div>
     </footer>
 
-    <script src="./index.js"></script>
-    <script src="./enhanced-homepage-v2.js"></script>
+    <script src="./index.js" defer></script>
+    <script src="./enhanced-homepage-v2.js" defer></script>
     <!-- Article popups removed for better user experience -->
     <script type="module">
         // Initialize push notifications on page load
@@ -3885,10 +3939,8 @@
             }
         }
     </style>
-    <!-- Performance Boost Script - Load First for Maximum Impact -->
-    <script src="./performance-boost.js" async></script>
-    
-    <!-- Deferred Scripts -->
+    <!-- Performance and Mobile Enhancements -->
+    <script src="./performance-boost.js" defer></script>
     <script src="/mobile-enhance.js" defer></script>
     <script src="./premium-access-control.js" defer></script>
     
