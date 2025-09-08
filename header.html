@@ -1,12 +1,51 @@
-<!-- NYT-Style Header -->
+<!-- Enhanced Modern Header -->
 <header class="site-header">
-    <!-- Logo Section at Top -->
+    <!-- Top Bar with Live Scores -->
+    <div class="header-top-bar">
+        <div class="top-bar-content">
+            <div class="live-scores-ticker">
+                <span class="live-indicator">🔴 LIVE</span>
+                <div class="scores-scroll">
+                    <span class="score-item">Arsenal 2-1 Chelsea</span>
+                    <span class="score-item">Man City 3-0 Tottenham</span>
+                    <span class="score-item">Liverpool 1-1 Man United</span>
+                    <span class="score-item">Newcastle 2-0 West Ham</span>
+                </div>
+            </div>
+            <div class="quick-links">
+                <a href="/standings.html" class="quick-link">📊 Table</a>
+                <a href="/fixtures.html" class="quick-link">📅 Fixtures</a>
+                <a href="/results.html" class="quick-link">✅ Results</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Logo Section -->
     <div class="header-logo-section">
         <div class="logo-container">
-            <img src="/eplnewshubnewlogo.png" alt="EPL News Hub Logo" class="logo-main">
-            <div class="logo-text">
-                <h1>EPL News Hub</h1>
-                <p class="tagline">Premier League News & Analysis</p>
+            <a href="/index.html" class="logo-link">
+                <img src="/eplnewshubnewlogo.png" alt="EPL News Hub Logo" class="logo-main">
+                <div class="logo-text">
+                    <h1>EPL News Hub</h1>
+                    <p class="tagline">Your Premier League Authority</p>
+                </div>
+            </a>
+            <div class="header-actions">
+                <div class="search-container">
+                    <div class="search-input-wrapper">
+                        <input type="text" id="search-input" placeholder="Search news, teams, players..." autocomplete="off">
+                        <button class="search-clear" style="display: none;">×</button>
+                        <button class="search-btn" onclick="performSearch()">🔍</button>
+                    </div>
+                    <div class="search-results-dropdown" id="search-results"></div>
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button class="notification-btn" onclick="toggleNotifications()" title="Notifications">
+                    <span class="notification-icon">🔔</span>
+                    <span class="notification-badge" style="display: none;">3</span>
+                </button>
             </div>
         </div>
     </div>
@@ -15,6 +54,10 @@
     <div class="header-secondary">
         <div class="header-secondary-content">
             <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+            <div class="mobile-actions">
+                <button class="mobile-search-btn" onclick="toggleMobileSearch()">🔍</button>
+                <button class="mobile-theme-btn" onclick="toggleTheme()">🌙</button>
+            </div>
         </div>
     </div>
     
@@ -22,10 +65,57 @@
     <nav class="main-nav">
         <div class="nav-content">
             <ul class="nav-links">
-                <li><a href="/index.html">Home</a></li>
-                <li><a href="/news.html">News</a></li>
-                <li><a href="/transfer-hub.html">Transfer Hub</a></li>
-                <li><a href="/stats.html">Stats</a></li>
+                <li><a href="/index.html" class="nav-link">Home</a></li>
+                <li><a href="/news.html" class="nav-link">News</a></li>
+                <li class="dropdown">
+                    <a href="/transfer-hub.html" class="nav-link">
+                        Transfers
+                        <span class="dropdown-arrow">▼</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="/transfer-hub.html" class="dropdown-item">
+                            <span class="item-icon">📋</span>
+                            <span>Transfer Hub</span>
+                        </a>
+                        <a href="/transfer-news.html" class="dropdown-item">
+                            <span class="item-icon">📰</span>
+                            <span>Latest News</span>
+                        </a>
+                        <a href="/transfer-rumors.html" class="dropdown-item">
+                            <span class="item-icon">💭</span>
+                            <span>Rumors</span>
+                        </a>
+                        <a href="/done-deals.html" class="dropdown-item">
+                            <span class="item-icon">✅</span>
+                            <span>Done Deals</span>
+                        </a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="/stats.html" class="nav-link">
+                        Stats
+                        <span class="dropdown-arrow">▼</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="/stats.html" class="dropdown-item">
+                            <span class="item-icon">📊</span>
+                            <span>All Stats</span>
+                        </a>
+                        <a href="/player-stats.html" class="dropdown-item">
+                            <span class="item-icon">👤</span>
+                            <span>Player Stats</span>
+                        </a>
+                        <a href="/team-stats.html" class="dropdown-item">
+                            <span class="item-icon">⚽</span>
+                            <span>Team Stats</span>
+                        </a>
+                        <a href="/live-scores.html" class="dropdown-item">
+                            <span class="item-icon">🔴</span>
+                            <span>Live Scores</span>
+                            <span class="badge-new">LIVE</span>
+                        </a>
+                    </div>
+                </li>
                 <li class="dropdown">
                     <a href="/fpl-premium-hub.html" class="fpl-premium-nav">
                         <span class="premium-icon">⚡</span> FPL Tools
@@ -55,9 +145,10 @@
                         </a>
                     </div>
                 </li>
-                <li><a href="/fpl.html">Fantasy Hub</a></li>
-                <li><a href="/polls.html">Polls</a></li>
-                <li><a href="/social.html">Social</a></li>
+                <li><a href="/fpl.html" class="nav-link">Fantasy Hub</a></li>
+                <li><a href="/polls.html" class="nav-link">Polls</a></li>
+                <li><a href="/social.html" class="nav-link">Social</a></li>
+                <li><a href="/videos.html" class="nav-link">Videos</a></li>
             </ul>
             <ul class="nav-auth-links" id="nav-auth-links">
                 <li><a href="/account.html" class="account-nav-btn">👤 My Account</a></li>
@@ -297,9 +388,203 @@
         const style = document.createElement('style');
         style.setAttribute('data-header-auth', 'true');
         style.textContent = `
-            /* Header CSS Reset & Overrides */
+            /* Enhanced Header Styles */
             .site-header * {
                 box-sizing: border-box !important;
+            }
+            
+            /* Top Bar Styles */
+            .header-top-bar {
+                background: linear-gradient(90deg, #37003c 0%, #04f5ff 100%);
+                color: white;
+                padding: 8px 0;
+                font-size: 0.85rem;
+                overflow: hidden;
+            }
+            
+            .top-bar-content {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 0 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .live-scores-ticker {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                flex: 1;
+                overflow: hidden;
+            }
+            
+            .live-indicator {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-weight: 700;
+                animation: pulse 1.5s ease-in-out infinite;
+            }
+            
+            .scores-scroll {
+                display: flex;
+                gap: 30px;
+                animation: scroll 30s linear infinite;
+                white-space: nowrap;
+            }
+            
+            @keyframes scroll {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+            }
+            
+            .score-item {
+                font-weight: 600;
+                padding: 2px 8px;
+                background: rgba(255,255,255,0.1);
+                border-radius: 4px;
+            }
+            
+            .quick-links {
+                display: flex;
+                gap: 15px;
+            }
+            
+            .quick-link {
+                color: white !important;
+                text-decoration: none !important;
+                font-weight: 600;
+                transition: transform 0.2s ease;
+            }
+            
+            .quick-link:hover {
+                transform: translateY(-2px);
+            }
+            
+            /* Logo Link Styles */
+            .logo-link {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                text-decoration: none !important;
+                color: inherit !important;
+                transition: transform 0.3s ease;
+            }
+            
+            .logo-link:hover {
+                transform: scale(1.02);
+            }
+            
+            /* Header Actions */
+            .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .theme-toggle,
+            .notification-btn {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+                border: 2px solid #dee2e6;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+                transition: all 0.3s ease;
+                position: relative;
+            }
+            
+            .theme-toggle:hover,
+            .notification-btn:hover {
+                background: linear-gradient(135deg, #e9ecef, #dee2e6);
+                transform: scale(1.1);
+            }
+            
+            .notification-badge {
+                position: absolute;
+                top: -5px;
+                right: -5px;
+                background: #ff3366;
+                color: white;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                font-size: 0.7rem;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* Mobile Actions */
+            .mobile-actions {
+                display: none;
+                gap: 10px;
+            }
+            
+            .mobile-search-btn,
+            .mobile-theme-btn {
+                background: none;
+                border: none;
+                font-size: 1.2rem;
+                cursor: pointer;
+                padding: 5px;
+            }
+            
+            /* Dark Mode Styles */
+            body.dark-mode {
+                background: #1a1a1a;
+                color: #e0e0e0;
+            }
+            
+            body.dark-mode .site-header {
+                background: #2a2a2a !important;
+                border-bottom-color: #444 !important;
+            }
+            
+            body.dark-mode .header-logo-section {
+                background: #2a2a2a !important;
+                border-bottom-color: #444 !important;
+            }
+            
+            body.dark-mode .logo-text h1 {
+                color: #e0e0e0 !important;
+            }
+            
+            body.dark-mode .logo-text .tagline {
+                color: #aaa !important;
+            }
+            
+            body.dark-mode .main-nav {
+                background: #2a2a2a !important;
+                border-color: #444 !important;
+            }
+            
+            body.dark-mode .nav-links a {
+                color: #e0e0e0 !important;
+            }
+            
+            body.dark-mode .nav-links a:hover {
+                background: rgba(255,255,255,0.1) !important;
+                color: #04f5ff !important;
+            }
+            
+            body.dark-mode .dropdown-menu {
+                background: linear-gradient(135deg, rgba(42,42,42,0.98), rgba(30,30,30,0.98)) !important;
+                border-color: #444 !important;
+            }
+            
+            body.dark-mode .dropdown-item {
+                color: #e0e0e0 !important;
+            }
+            
+            body.dark-mode .dropdown-item:hover {
+                background: rgba(255,255,255,0.1) !important;
             }
             
             .site-header ul, .site-header li {
@@ -1219,16 +1504,65 @@
                 }
             }
             
+            /* Mobile Search Overlay */
+            .mobile-search-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.95);
+                z-index: 10001;
+                display: none;
+                padding: 20px;
+            }
+            
+            .mobile-search-overlay.active {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .mobile-search-container {
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .mobile-search-close {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: none;
+                border: none;
+                color: white;
+                font-size: 2rem;
+                cursor: pointer;
+            }
+            
             /* Mobile Responsive Styles */
             @media (max-width: 768px) {
+                /* Hide desktop elements */
+                .header-top-bar {
+                    display: none;
+                }
+                
+                .header-actions {
+                    display: none;
+                }
+                
+                .mobile-actions {
+                    display: flex !important;
+                }
+                
                 /* Header mobile optimization */
                 .site-header {
                     position: sticky !important;
                     top: 0 !important;
                     z-index: 1000 !important;
-                    background: linear-gradient(180deg, #0066cc 0%, #004499 100%) !important;
+                    background: white !important;
                     width: 100% !important;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
                 }
                 
                 .header-top {
@@ -2302,5 +2636,92 @@
             }
         }
     });
+    
+    // Theme Toggle Function
+    function toggleTheme() {
+        const body = document.body;
+        const currentTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', newTheme);
+        
+        // Update theme icon
+        const themeIcons = document.querySelectorAll('.theme-icon');
+        themeIcons.forEach(icon => {
+            icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        });
+        
+        // Show notification
+        showHeaderNotification(`${newTheme === 'dark' ? 'Dark' : 'Light'} mode activated`, 'success');
+    }
+    
+    // Load saved theme
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            const themeIcons = document.querySelectorAll('.theme-icon');
+            themeIcons.forEach(icon => {
+                icon.textContent = '☀️';
+            });
+        }
+        
+        // Initialize live scores animation
+        initializeLiveScores();
+    });
+    
+    // Toggle Notifications
+    function toggleNotifications() {
+        // This would open a notifications panel
+        showHeaderNotification('Notifications coming soon!', 'info');
+    }
+    
+    // Toggle Mobile Search
+    function toggleMobileSearch() {
+        let overlay = document.querySelector('.mobile-search-overlay');
+        
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'mobile-search-overlay';
+            overlay.innerHTML = `
+                <button class="mobile-search-close" onclick="toggleMobileSearch()">×</button>
+                <div class="mobile-search-container">
+                    <div class="search-input-wrapper" style="background: white; border-radius: 25px;">
+                        <input type="text" id="mobile-search-input" placeholder="Search..." style="flex: 1; border: none; padding: 15px 20px; font-size: 1rem; outline: none; background: transparent; border-radius: 25px;">
+                        <button class="search-btn" onclick="performMobileSearch()" style="background: none; border: none; padding: 15px; font-size: 1.2rem;">🔍</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+        
+        overlay.classList.toggle('active');
+        
+        if (overlay.classList.contains('active')) {
+            setTimeout(() => {
+                const input = document.getElementById('mobile-search-input');
+                if (input) input.focus();
+            }, 100);
+        }
+    }
+    
+    function performMobileSearch() {
+        const input = document.getElementById('mobile-search-input');
+        if (input && input.value.trim()) {
+            performSearch(input.value.trim());
+            toggleMobileSearch();
+        }
+    }
+    
+    // Initialize Live Scores
+    function initializeLiveScores() {
+        const scoresScroll = document.querySelector('.scores-scroll');
+        if (scoresScroll) {
+            // Clone scores for infinite scroll
+            const scores = scoresScroll.innerHTML;
+            scoresScroll.innerHTML = scores + scores;
+        }
+    }
 </script>
 
