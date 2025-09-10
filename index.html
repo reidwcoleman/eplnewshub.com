@@ -41,7 +41,7 @@
     
     <title>Premier League News & Transfers | EPL News Hub</title>
     
-    <!-- Basic CSS -->
+    <!-- Basic CSS + Fast Loading -->
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
@@ -59,15 +59,27 @@
         h1, h2, h3 { font-weight: 700; line-height: 1.2; }
         p { margin: 1em 0; }
         a { color: inherit; text-decoration: none; }
+        
+        /* Simple placeholder for loading content */
+        [include]:empty { background: #f9f9f9; }
     </style>
     
+    <!-- Start loading critical includes immediately -->
+    <script>
+        // Preload critical includes
+        ['./header.html', './main_headline.html'].forEach(url => {
+            fetch(url).catch(() => {});
+        });
+    </script>
     
     
-    <!-- Stylesheets -->
+    
+    <!-- Critical Stylesheet First -->
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="enhanced-homepage-v2.css">
-    <link rel="stylesheet" href="featured-article-cards.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Defer non-critical CSS -->
+    <link rel="stylesheet" href="enhanced-homepage-v2.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="featured-article-cards.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
     
     <!-- PWA Manifest and Icons -->
     <link rel="manifest" href="manifest.json">
@@ -960,7 +972,9 @@
         <div class="footer" include="./footer.html"></div>
     </footer>
 
-    <script src="./index.js" defer></script>
+    <!-- Fast include system -->
+    <script src="./index-fast.js" async></script>
+    <!-- Defer enhancement scripts -->
     <script src="./enhanced-homepage-v2.js" defer></script>
     <!-- Article popups removed for better user experience -->
     <script type="module">
