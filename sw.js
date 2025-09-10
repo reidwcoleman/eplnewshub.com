@@ -1,28 +1,22 @@
 // Service Worker for EPL News Hub
 // Implements caching strategies for improved performance and offline functionality
 
-const CACHE_NAME = 'eplnewshub-v1.2';
-const STATIC_CACHE = 'eplnewshub-static-v1.2';
-const DYNAMIC_CACHE = 'eplnewshub-dynamic-v1.2';
+const CACHE_NAME = 'eplnewshub-v1.3';
+const STATIC_CACHE = 'eplnewshub-static-v1.3';
+const DYNAMIC_CACHE = 'eplnewshub-dynamic-v1.3';
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
     '/',
     '/index.html',
-    '/enhanced-homepage-v2.html',
     '/styles.css',
-    '/enhanced-homepage-v2.css',
-    '/index.js',
-    '/enhanced-homepage-v2.js',
-    '/scripts.js',
-    '/seo-enhancer.js',
+    '/index-fast.js',
+    '/universal-fast-load.js',
     '/header.html',
     '/footer.html',
     '/main_headline.html',
-    '/reidsnbest.webp',
-    '/upscalemedia-transformed.png',
-    '/fpl.html',
-    '/transfer-hub.html',
+    '/saka.png',
+    '/eplnewshubnewlogo.png',
     '/manifest.json'
 ];
 
