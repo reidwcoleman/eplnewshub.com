@@ -16,7 +16,6 @@ const STATIC_ASSETS = [
     '/enhanced-homepage-v2.js',
     '/scripts.js',
     '/seo-enhancer.js',
-    '/performance-optimizer.js',
     '/header.html',
     '/footer.html',
     '/main_headline.html',
