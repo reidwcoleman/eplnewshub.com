@@ -63,15 +63,37 @@
         loadIncludes();
     }
     
-    // Add native lazy loading to all images
-    window.addEventListener('load', () => {
-        const images = document.querySelectorAll('img:not([loading])');
-        images.forEach(img => {
-            // Skip above-the-fold images
-            const rect = img.getBoundingClientRect();
-            if (rect.top > window.innerHeight) {
+    // Optimize image loading
+    function optimizeImages() {
+        const images = document.querySelectorAll('img');
+        images.forEach((img, index) => {
+            // First 3 images load eagerly (above the fold)
+            if (index < 3 && !img.hasAttribute('loading')) {
+                img.loading = 'eager';
+                img.fetchpriority = index === 0 ? 'high' : 'auto';
+            }
+            // Rest load lazily
+            else if (!img.hasAttribute('loading')) {
                 img.loading = 'lazy';
             }
+            
+            // Add dimensions if missing to prevent layout shift
+            if (!img.hasAttribute('width') && img.naturalWidth) {
+                img.width = img.naturalWidth;
+            }
+            if (!img.hasAttribute('height') && img.naturalHeight) {
+                img.height = img.naturalHeight;
+            }
         });
-    });
+    }
+    
+    // Run image optimization after content loads
+    window.addEventListener('load', optimizeImages);
+    
+    // Also run after each include loads
+    const originalLoadInclude = loadInclude;
+    window.loadInclude = async function(element, path) {
+        await originalLoadInclude(element, path);
+        optimizeImages();
+    };
 })();
