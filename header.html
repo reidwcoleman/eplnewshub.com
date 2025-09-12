@@ -1229,9 +1229,9 @@
                     position: sticky !important;
                     top: 0 !important;
                     z-index: 1000 !important;
-                    background: linear-gradient(180deg, #0066cc 0%, #004499 100%) !important;
+                    background: white !important;
                     width: 100% !important;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
                 }
                 
                 .header-top {
@@ -1241,61 +1241,74 @@
                 
                 /* Mobile Logo Section */
                 .header-logo-section {
-                    padding: 12px 0 !important;
+                    padding: 8px 0 !important;
+                    border-bottom: 1px solid #e0e0e0 !important;
                 }
                 
                 .logo-container {
-                    gap: 12px !important;
-                    padding: 0 10px !important;
+                    gap: 10px !important;
+                    padding: 0 15px !important;
+                    justify-content: space-between !important;
+                    align-items: center !important;
                 }
                 
                 .logo-main {
-                    width: 75px !important;
-                    height: 75px !important;
+                    width: 50px !important;
+                    height: 50px !important;
                     border-radius: 0 !important;
                     box-shadow: none !important;
                     background: transparent !important;
                 }
                 
+                .logo-text {
+                    flex: 1 !important;
+                }
+                
                 .logo-text h1 {
-                    font-size: 1.3rem !important;
+                    font-size: 1.1rem !important;
+                    line-height: 1.2 !important;
                 }
                 
                 .logo-text .tagline {
-                    font-size: 0.8rem !important;
+                    font-size: 0.7rem !important;
+                    display: none !important; /* Hide tagline on mobile to save space */
                 }
                 
                 /* Mobile Secondary Header */
                 .header-secondary {
-                    padding: 8px 0 !important;
+                    display: block !important;
+                    padding: 10px 0 !important;
+                    background: white !important;
+                    border-bottom: none !important;
                 }
                 
                 .header-secondary-content {
-                    padding: 0 10px !important;
-                    justify-content: space-between !important;
+                    padding: 0 15px !important;
+                    justify-content: flex-end !important;
+                    display: flex !important;
+                    align-items: center !important;
                 }
                 
                 /* Hide desktop nav on mobile */
                 .main-nav {
-                    display: none;
+                    display: none !important;
                 }
                 
                 /* Mobile menu button */
                 .menu-btn {
-                    display: block;
-                    font-size: 1.5rem;
-                    background: linear-gradient(135deg, #38003c, #00ff87);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                    border: none;
-                    padding: 8px 12px;
-                    cursor: pointer;
-                    transition: transform 0.3s ease;
+                    display: block !important;
+                    font-size: 1.8rem !important;
+                    color: #38003c !important;
+                    border: none !important;
+                    padding: 5px 10px !important;
+                    cursor: pointer !important;
+                    transition: transform 0.3s ease !important;
+                    background: transparent !important;
+                    line-height: 1 !important;
                 }
                 
-                .menu-btn:hover {
-                    transform: scale(1.1) rotate(5deg);
+                .menu-btn:active {
+                    transform: scale(0.95) !important;
                 }
                 
                 /* Hide search on mobile - show in sidebar */
@@ -1363,15 +1376,17 @@
             .mobile-sidebar {
                 position: fixed;
                 top: 0;
-                left: -280px;
-                width: 280px;
+                left: -100%;
+                width: 85%;
+                max-width: 320px;
                 height: 100vh;
                 background: white;
-                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-                transition: left 0.3s ease;
+                box-shadow: 2px 0 15px rgba(0,0,0,0.2);
+                transition: left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                 z-index: 10000;
                 overflow-y: auto;
                 display: none;
+                -webkit-overflow-scrolling: touch;
             }
             
             /* Ensure dropdown appears above all page content */
@@ -1414,31 +1429,44 @@
             }
             
             .mobile-sidebar-header {
-                padding: 20px;
-                background: linear-gradient(135deg, #38003c, #00ff87);
+                padding: 15px 20px;
+                background: linear-gradient(135deg, #38003c, #4a0e4e);
                 color: white;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 100;
             }
             
             .mobile-sidebar-header h3 {
                 margin: 0;
-                font-size: 1.2rem;
+                font-size: 1.1rem;
+                font-weight: 700;
+                letter-spacing: 0.5px;
             }
             
             .close-sidebar {
-                background: none;
+                background: rgba(255, 255, 255, 0.1);
                 border: none;
                 color: white;
-                font-size: 1.5rem;
+                font-size: 1.8rem;
                 cursor: pointer;
                 padding: 0;
-                width: 30px;
-                height: 30px;
+                width: 36px;
+                height: 36px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                border-radius: 50%;
+                transition: all 0.3s ease;
+            }
+            
+            .close-sidebar:hover,
+            .close-sidebar:active {
+                background: rgba(255, 255, 255, 0.2);
+                transform: rotate(90deg);
             }
             
             .mobile-sidebar-nav {
@@ -1457,11 +1485,19 @@
             
             .mobile-nav-links a {
                 display: block;
-                padding: 12px 20px;
+                padding: 14px 20px;
                 color: #333 !important;
                 text-decoration: none;
-                transition: background 0.3s ease;
+                transition: all 0.2s ease;
                 font-weight: 500;
+                font-size: 0.95rem;
+                position: relative;
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            .mobile-nav-links a:active {
+                background: #f0f0f0;
+                transform: scale(0.98);
             }
             
             .mobile-nav-links a:hover {
@@ -1847,28 +1883,172 @@
                     left: -40px;
                     right: -40px;
                 }
+                
+                /* Extra small mobile adjustments */
+                .logo-container {
+                    padding: 0 10px !important;
+                }
+                
+                .logo-main {
+                    width: 40px !important;
+                    height: 40px !important;
+                }
+                
+                .logo-text h1 {
+                    font-size: 1rem !important;
+                }
+                
+                .menu-btn {
+                    font-size: 1.5rem !important;
+                    padding: 5px 8px !important;
+                }
+                
+                .mobile-sidebar {
+                    width: 90% !important;
+                }
+                
+                .mobile-nav-links a {
+                    padding: 10px 15px !important;
+                    font-size: 0.9rem !important;
+                }
+            }
+            
+            /* Extra small devices (phones in landscape) */
+            @media (max-width: 576px) and (orientation: landscape) {
+                .site-header {
+                    position: fixed !important;
+                }
+                
+                .header-logo-section {
+                    padding: 5px 0 !important;
+                }
+                
+                .logo-main {
+                    width: 35px !important;
+                    height: 35px !important;
+                }
+                
+                .logo-text h1 {
+                    font-size: 0.95rem !important;
+                }
+            }
+            
+            /* Tablets and iPads */
+            @media (min-width: 769px) and (max-width: 1024px) {
+                .nav-links {
+                    gap: 2px !important;
+                }
+                
+                .nav-links a {
+                    font-size: 0.85rem !important;
+                    padding: 5px 8px !important;
+                }
+                
+                .logo-main {
+                    width: 70px !important;
+                    height: 70px !important;
+                }
+                
+                .logo-text h1 {
+                    font-size: 1.3rem !important;
+                }
+                
+                .logo-text .tagline {
+                    font-size: 0.75rem !important;
+                }
+                
+                .nav-auth-links {
+                    gap: 3px !important;
+                }
+                
+                .auth-link {
+                    font-size: 0.8rem !important;
+                    padding: 5px 10px !important;
+                }
             }
         `;
         document.head.appendChild(style);
     }
     
-    // Mobile menu toggle function
+    // Mobile menu toggle function with improved animations
     function toggleMobileMenu() {
         const sidebar = document.getElementById('mobile-sidebar');
         const overlay = document.getElementById('mobile-sidebar-overlay');
+        const menuBtn = document.querySelector('.menu-btn');
         
         if (sidebar && overlay) {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
+            const isOpening = !sidebar.classList.contains('active');
             
-            // Prevent body scroll when menu is open
-            if (sidebar.classList.contains('active')) {
+            if (isOpening) {
+                // Opening menu
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
                 document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                
+                // Animate hamburger to X
+                if (menuBtn) {
+                    menuBtn.innerHTML = '✕';
+                    menuBtn.style.transform = 'rotate(180deg)';
+                }
             } else {
+                // Closing menu
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
                 document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                
+                // Animate X back to hamburger
+                if (menuBtn) {
+                    menuBtn.innerHTML = '☰';
+                    menuBtn.style.transform = 'rotate(0)';
+                }
             }
         }
     }
+    
+    // Add swipe gesture support for mobile
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('mobile-sidebar');
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+        
+        // Touch start
+        sidebar?.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        });
+        
+        // Touch move
+        sidebar?.addEventListener('touchmove', function(e) {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
+            const diff = currentX - startX;
+            
+            // Only allow swiping left to close
+            if (diff < 0) {
+                sidebar.style.transform = `translateX(${diff}px)`;
+            }
+        });
+        
+        // Touch end
+        sidebar?.addEventListener('touchend', function(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            const diff = currentX - startX;
+            
+            // If swiped more than 50px left, close the menu
+            if (diff < -50) {
+                toggleMobileMenu();
+            }
+            
+            // Reset transform
+            sidebar.style.transform = '';
+        });
+    });
 </script>
 
 <script>
