@@ -52,9 +52,7 @@
     
     <!-- Prevent FOUC -->
     <script>
-        document.documentElement.style.visibility = 'hidden';
         document.addEventListener('DOMContentLoaded', function() {
-            document.documentElement.style.visibility = 'visible';
         });
     </script>
     
@@ -83,12 +81,12 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             position: relative;
-            opacity: 0;
+            opacity: 1;
             
         }
         
         @keyframes fadeIn {
-            to {
+            to { opacity: 1; }
                 
             }
         }
@@ -145,7 +143,7 @@
         
         @keyframes slideUp {
             from {
-                opacity: 0;
+                opacity: 1;
                 transform: translateY(30px);
             }
             to {
@@ -167,12 +165,12 @@
             height: 100%;
             object-fit: cover;
             transition: transform 0.6s ease;
-            opacity: 0;
+            opacity: 1;
             animation: imageLoad 0.5s ease-in forwards;
         }
         
         @keyframes imageLoad {
-            to {
+            to { opacity: 1;
                 
             }
         }
@@ -543,7 +541,7 @@
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
-            opacity: 0;
+            opacity: 1;
             transition: opacity 0.3s ease;
         }
         
@@ -676,7 +674,7 @@
     <style>
         /* Prevent Flash of Unstyled Content (FOUC) */
         html { visibility: visible !important; }
-        body { opacity: 0; transition: opacity 0.3s ease-in; }
+        body { opacity: 1; transition: opacity 0.3s ease-in; }
         body.loaded {  }
         
         /* Prevent layout shifts during include loading */
@@ -696,7 +694,7 @@
         .header:not(:empty), .footer:not(:empty) { background: none !important; animation: none !important; }
         
         /* Smooth image loading */
-        img { opacity: 0; transition: opacity 0.3s ease-in; }
+        img { opacity: 1; transition: opacity 0.3s ease-in; }
         img.loaded {  }
         
         /* AdSense container stabilization */
@@ -710,7 +708,6 @@
     </style>
     
     <script>
-        document.documentElement.style.visibility = "visible";
         function optimizeImageLoading() {
             const images = document.querySelectorAll("img");
             images.forEach(img => {
@@ -728,7 +725,6 @@
         } else { document.body.classList.add("loaded"); optimizeImageLoading(); }
         setTimeout(function() {
             document.body.classList.add("loaded");
-            document.documentElement.style.visibility = "visible";
         }, 2000);
     </script>
 <body>
