@@ -3254,6 +3254,63 @@
 
             <!-- Right Panel - Transfer Market & What-If Scenarios -->
             <div>
+                <!-- AI Transfer Recommendations -->
+                <div class="panel ai-recommendations" style="margin-bottom: 20px;">
+                    <h2 style="color: white; display: flex; align-items: center; gap: 10px;">
+                        <span>🤖</span> AI Transfer Assistant
+                        <span style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; margin-left: auto;">BETA</span>
+                    </h2>
+                    
+                    <!-- Gameweek Planner -->
+                    <div style="background: rgba(255,255,255,0.95); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+                        <h3 style="color: #37003c; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            📅 Gameweek Transfer Plan
+                            <button onclick="generateTransferPlan()" style="margin-left: auto; padding: 5px 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                                Generate Plan
+                            </button>
+                        </h3>
+                        <div id="gameweekPlan" style="display: none;">
+                            <div id="currentGW" style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="font-weight: 600; color: #37003c; margin-bottom: 8px;">Current Gameweek</div>
+                                <div id="gwRecommendation" style="color: #666; font-size: 0.9rem;">
+                                    Analyzing your squad...
+                                </div>
+                            </div>
+                            <div id="futureGWs" style="display: grid; gap: 10px;">
+                                <!-- Future gameweek recommendations will go here -->
+                            </div>
+                        </div>
+                        <div id="planPlaceholder" style="text-align: center; padding: 20px; color: #999;">
+                            <span style="font-size: 2rem;">📊</span>
+                            <p style="margin-top: 10px; font-size: 0.9rem;">Click "Generate Plan" to get AI-powered transfer recommendations for the next 5 gameweeks</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Smart Tips Section -->
+                    <div style="background: rgba(255,255,255,0.95); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+                        <h3 style="color: #37003c; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            💡 Smart Tips
+                            <span id="tipsCount" style="background: #37003c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem;">0</span>
+                        </h3>
+                        <div id="smartTips" style="display: grid; gap: 10px;">
+                            <!-- Tips will be dynamically loaded here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Transfer Suggestions -->
+                    <div style="background: rgba(255,255,255,0.95); border-radius: 12px; padding: 20px;">
+                        <h3 style="color: #37003c; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            🔄 Recommended Transfers
+                            <button onclick="refreshRecommendations()" style="margin-left: auto; padding: 4px 8px; background: transparent; border: 1px solid #37003c; color: #37003c; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">
+                                🔄 Refresh
+                            </button>
+                        </h3>
+                        <div id="transferSuggestions">
+                            <!-- Transfer suggestions will go here -->
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Transfer Market Search Panel -->
                 <div class="panel" style="margin-bottom: 20px;">
                     <h2>🔍 Transfer Market</h2>
@@ -8750,6 +8807,349 @@ Son Heung-min
                 `;
             }, 1800);
         };
+        
+        // ============================================
+        // AI TRANSFER RECOMMENDATION ENGINE
+        // ============================================
+        
+        // Initialize AI recommendations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                generateSmartTips();
+                loadInitialRecommendations();
+            }, 1000);
+        });
+        
+        // Generate Transfer Plan for multiple gameweeks
+        window.generateTransferPlan = function() {
+            const planDiv = document.getElementById('gameweekPlan');
+            const placeholderDiv = document.getElementById('planPlaceholder');
+            const gwRecommendation = document.getElementById('gwRecommendation');
+            const futureGWs = document.getElementById('futureGWs');
+            
+            // Show plan div, hide placeholder
+            planDiv.style.display = 'block';
+            placeholderDiv.style.display = 'none';
+            
+            // Analyze current squad
+            const squad = window.currentSquad || [];
+            const budget = window.currentBudget || 100.0;
+            
+            // Simulate AI analysis
+            gwRecommendation.innerHTML = '<span style="color: #667eea;">🔄 Analyzing squad performance...</span>';
+            
+            setTimeout(() => {
+                // Generate plan for next 5 gameweeks
+                const plan = generateGameweekPlan(squad, budget);
+                
+                // Update current gameweek recommendation
+                gwRecommendation.innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color: #37003c;">GW${plan.currentGW} Strategy:</strong> ${plan.currentStrategy}
+                    </div>
+                    <div style="display: grid; gap: 8px;">
+                        ${plan.immediateActions.map(action => `
+                            <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: white; border-radius: 6px;">
+                                <span style="font-size: 1.2rem;">${action.icon}</span>
+                                <span style="flex: 1; font-size: 0.85rem;">${action.text}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                // Update future gameweeks
+                futureGWs.innerHTML = plan.futureGWs.map(gw => `
+                    <div style="background: white; padding: 12px; border-radius: 8px; border-left: 3px solid ${gw.priority === 'high' ? '#dc3545' : gw.priority === 'medium' ? '#ffc107' : '#28a745'};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <strong style="color: #37003c;">GW${gw.number}</strong>
+                            <span style="background: ${gw.priority === 'high' ? '#dc3545' : gw.priority === 'medium' ? '#ffc107' : '#28a745'}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">
+                                ${gw.transfers} Transfer${gw.transfers > 1 ? 's' : ''}
+                            </span>
+                        </div>
+                        <div style="color: #666; font-size: 0.85rem; margin-bottom: 6px;">${gw.focus}</div>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            ${gw.targets.map(target => `
+                                <span style="background: #f0f0f0; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem;">
+                                    ${target}
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }, 1500);
+        };
+        
+        // Generate gameweek plan based on squad analysis
+        function generateGameweekPlan(squad, budget) {
+            const currentGW = Math.floor(Math.random() * 20) + 10; // Simulate current GW
+            
+            // Analyze squad weaknesses
+            const analysis = analyzeSquadWeaknesses(squad);
+            
+            return {
+                currentGW: currentGW,
+                currentStrategy: analysis.urgentFix ? 'Address immediate concerns' : 'Optimize for upcoming fixtures',
+                immediateActions: [
+                    {
+                        icon: analysis.urgentFix ? '⚠️' : '✅',
+                        text: analysis.primaryRecommendation
+                    },
+                    {
+                        icon: '💰',
+                        text: `Budget: £${budget.toFixed(1)}m - ${budget > 2 ? 'Good flexibility' : 'Consider freeing funds'}`
+                    },
+                    {
+                        icon: '📊',
+                        text: `Squad strength: ${analysis.squadRating}/10`
+                    }
+                ],
+                futureGWs: [
+                    {
+                        number: currentGW + 1,
+                        transfers: 1,
+                        priority: 'high',
+                        focus: 'Target premium midfielder with good fixtures',
+                        targets: ['Salah (liv)', 'De Bruyne (mci)', 'Saka (ars)']
+                    },
+                    {
+                        number: currentGW + 2,
+                        transfers: 2,
+                        priority: 'medium',
+                        focus: 'Defensive reinforcement before tough fixtures',
+                        targets: ['TAA (liv)', 'Gabriel (ars)', 'Stones (mci)']
+                    },
+                    {
+                        number: currentGW + 3,
+                        transfers: 0,
+                        priority: 'low',
+                        focus: 'Bank transfer - squad looking good',
+                        targets: ['Monitor injuries', 'Watch price changes']
+                    },
+                    {
+                        number: currentGW + 4,
+                        transfers: 2,
+                        priority: 'high',
+                        focus: 'Double gameweek preparation',
+                        targets: ['DGW players', 'Captain options', 'Bench boost?']
+                    },
+                    {
+                        number: currentGW + 5,
+                        transfers: 1,
+                        priority: 'medium',
+                        focus: 'Long-term hold acquisitions',
+                        targets: ['Form players', 'Differentials', 'Value picks']
+                    }
+                ]
+            };
+        }
+        
+        // Analyze squad weaknesses
+        function analyzeSquadWeaknesses(squad) {
+            const hasSquad = squad && squad.length > 0;
+            const squadCount = hasSquad ? squad.length : 0;
+            const rating = Math.min(10, Math.floor(squadCount * 0.7 + Math.random() * 3));
+            
+            const recommendations = [
+                'Consider players with favorable fixture runs',
+                'Monitor form and injury updates closely',
+                'Balance premium players with value picks',
+                'Ensure strong bench for rotation',
+                'Target players from top 6 teams'
+            ];
+            
+            return {
+                urgentFix: squadCount < 11,
+                primaryRecommendation: squadCount < 11 ? 
+                    `Fill remaining ${15 - squadCount} positions first` : 
+                    recommendations[Math.floor(Math.random() * recommendations.length)],
+                squadRating: rating
+            };
+        }
+        
+        // Generate Smart Tips
+        function generateSmartTips() {
+            const tipsContainer = document.getElementById('smartTips');
+            const tipsCount = document.getElementById('tipsCount');
+            
+            const tips = [
+                {
+                    icon: '📈',
+                    title: 'Price Rise Alert',
+                    text: 'Haaland expected to rise tonight (+0.1m)',
+                    priority: 'high'
+                },
+                {
+                    icon: '🏥',
+                    title: 'Injury Update',
+                    text: 'Martinelli doubtful for GW' + (Math.floor(Math.random() * 10) + 20),
+                    priority: 'medium'
+                },
+                {
+                    icon: '🎯',
+                    title: 'Differential Pick',
+                    text: 'Watkins (7.9%) has 3 home fixtures',
+                    priority: 'low'
+                },
+                {
+                    icon: '⭐',
+                    title: 'Form Alert',
+                    text: 'Palmer averaging 8.5 pts last 5 games',
+                    priority: 'high'
+                },
+                {
+                    icon: '🔄',
+                    title: 'Transfer Trend',
+                    text: '150k+ managers bringing in Salah',
+                    priority: 'medium'
+                }
+            ];
+            
+            // Randomly select 3-4 tips
+            const selectedTips = tips.sort(() => Math.random() - 0.5).slice(0, Math.floor(Math.random() * 2) + 3);
+            
+            tipsCount.textContent = selectedTips.length;
+            
+            tipsContainer.innerHTML = selectedTips.map(tip => `
+                <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: ${
+                    tip.priority === 'high' ? 'rgba(220, 53, 69, 0.1)' : 
+                    tip.priority === 'medium' ? 'rgba(255, 193, 7, 0.1)' : 
+                    'rgba(40, 167, 69, 0.1)'
+                }; border-radius: 8px; border-left: 3px solid ${
+                    tip.priority === 'high' ? '#dc3545' : 
+                    tip.priority === 'medium' ? '#ffc107' : 
+                    '#28a745'
+                };">
+                    <span style="font-size: 1.5rem;">${tip.icon}</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #37003c; margin-bottom: 4px; font-size: 0.9rem;">
+                            ${tip.title}
+                        </div>
+                        <div style="color: #666; font-size: 0.85rem;">
+                            ${tip.text}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Load initial transfer recommendations
+        function loadInitialRecommendations() {
+            const container = document.getElementById('transferSuggestions');
+            
+            const recommendations = [
+                {
+                    out: { name: 'Rashford', team: 'MUN', price: 7.2 },
+                    in: { name: 'Palmer', team: 'CHE', price: 7.1 },
+                    reason: 'Better form & fixtures',
+                    impact: '+2.3 xPts'
+                },
+                {
+                    out: { name: 'Ederson', team: 'MCI', price: 5.5 },
+                    in: { name: 'Raya', team: 'ARS', price: 5.4 },
+                    reason: 'Free up funds',
+                    impact: '+0.1m ITB'
+                },
+                {
+                    out: { name: 'Mitoma', team: 'BHA', price: 6.8 },
+                    in: { name: 'Gordon', team: 'NEW', price: 6.9 },
+                    reason: 'Penalty taker',
+                    impact: '+1.8 xPts'
+                }
+            ];
+            
+            container.innerHTML = recommendations.map((rec, index) => `
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="background: linear-gradient(135deg, #dc3545, #c82333); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">
+                            OUT
+                        </span>
+                        <span style="color: #28a745; font-weight: 600; font-size: 0.85rem;">
+                            ${rec.impact}
+                        </span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <span style="font-weight: 600; color: #37003c;">
+                            ${rec.out.name}
+                        </span>
+                        <span style="color: #999; font-size: 0.85rem;">
+                            ${rec.out.team} • £${rec.out.price}m
+                        </span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <span style="color: #999;">→</span>
+                        <span style="background: linear-gradient(135deg, #28a745, #218838); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">
+                            IN
+                        </span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                        <span style="font-weight: 600; color: #37003c;">
+                            ${rec.in.name}
+                        </span>
+                        <span style="color: #999; font-size: 0.85rem;">
+                            ${rec.in.team} • £${rec.in.price}m
+                        </span>
+                    </div>
+                    <div style="background: white; padding: 8px 12px; border-radius: 6px; color: #666; font-size: 0.85rem;">
+                        💡 ${rec.reason}
+                    </div>
+                    <button onclick="applyTransfer('${rec.out.name}', '${rec.in.name}')" style="width: 100%; margin-top: 10px; padding: 8px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
+                        Apply Transfer
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        // Refresh recommendations
+        window.refreshRecommendations = function() {
+            const container = document.getElementById('transferSuggestions');
+            container.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;">🔄 Refreshing recommendations...</div>';
+            
+            setTimeout(() => {
+                loadInitialRecommendations();
+                generateSmartTips();
+            }, 1000);
+        };
+        
+        // Apply a recommended transfer
+        window.applyTransfer = function(playerOut, playerIn) {
+            // Show confirmation
+            if (confirm(`Apply transfer: ${playerOut} → ${playerIn}?`)) {
+                // Add to transfer history if function exists
+                if (typeof window.addTransferToHistory === 'function') {
+                    window.addTransferToHistory(playerIn, playerOut);
+                }
+                
+                // Show success message
+                const container = document.getElementById('transferSuggestions');
+                const successMsg = document.createElement('div');
+                successMsg.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(135deg, #28a745, #20c997);
+                    color: white;
+                    padding: 20px 30px;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    z-index: 10000;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                `;
+                successMsg.innerHTML = `✅ Transfer Applied Successfully!`;
+                document.body.appendChild(successMsg);
+                
+                setTimeout(() => {
+                    successMsg.remove();
+                    refreshRecommendations();
+                }, 2000);
+            }
+        };
+        
+        // Periodically update tips (every 30 seconds)
+        setInterval(() => {
+            generateSmartTips();
+        }, 30000);
+        
     </script>
 </body>
 </html>
