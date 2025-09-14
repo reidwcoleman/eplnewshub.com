@@ -2962,30 +2962,40 @@
                 if (statusEl) statusEl.textContent = 'OCR Pass 1: High contrast scan...';
                 const highContrastImage = await preprocessImageForOCR(imageDataUrl, 'highContrast');
                 await worker.setParameters({
-                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .()',
+                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .()£CV',
                     tessedit_pageseg_mode: '11',
                     preserve_interword_spaces: '1'
                 });
                 const result1 = await worker.recognize(highContrastImage);
                 ocrResults.push(result1);
                 
-                // Pass 2: Original image with different settings
-                if (statusEl) statusEl.textContent = 'OCR Pass 2: Original image scan...';
+                // Pass 2: Inverted colors for better text detection
+                if (statusEl) statusEl.textContent = 'OCR Pass 2: Inverted color scan...';
+                const invertedImage = await preprocessImageForOCR(imageDataUrl, 'inverted');
                 await worker.setParameters({
-                    tessedit_pageseg_mode: '3', // Fully automatic page segmentation
+                    tessedit_pageseg_mode: '3',
                     preserve_interword_spaces: '1'
                 });
-                const result2 = await worker.recognize(imageDataUrl);
+                const result2 = await worker.recognize(invertedImage);
                 ocrResults.push(result2);
                 
-                // Pass 3: Enhanced image
+                // Pass 3: Enhanced with sharpening
                 if (statusEl) statusEl.textContent = 'OCR Pass 3: Enhanced scan...';
                 const enhancedImage = await preprocessImageForOCR(imageDataUrl, 'enhanced');
                 await worker.setParameters({
-                    tessedit_pageseg_mode: '6', // Uniform block of text
+                    tessedit_pageseg_mode: '6',
                 });
                 const result3 = await worker.recognize(enhancedImage);
                 ocrResults.push(result3);
+                
+                // Pass 4: Original image as-is
+                if (statusEl) statusEl.textContent = 'OCR Pass 4: Original image scan...';
+                await worker.setParameters({
+                    tessedit_pageseg_mode: '1', // Automatic with orientation
+                    preserve_interword_spaces: '1'
+                });
+                const result4 = await worker.recognize(imageDataUrl);
+                ocrResults.push(result4);
                 
                 // Combine all OCR results
                 const combinedText = ocrResults.map(r => r.data.text || '').join(' ');
@@ -3138,6 +3148,20 @@
                             data[i + 1] = value;
                             data[i + 2] = value;
                         }
+                    } else if (mode === 'inverted') {
+                        // Inverted colors for dark mode screenshots
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                            // Invert and threshold
+                            const inverted = 255 - gray;
+                            const value = inverted < 128 ? 0 : 255;
+                            data[i] = value;
+                            data[i + 1] = value;
+                            data[i + 2] = value;
+                        }
                     } else if (mode === 'enhanced') {
                         // Enhanced with better edge detection
                         for (let i = 0; i < data.length; i += 4) {
@@ -3145,11 +3169,11 @@
                             const g = data[i + 1];
                             const b = data[i + 2];
                             const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-                            // Multi-level thresholding
+                            // Multi-level thresholding for text
                             let value;
-                            if (gray < 80) value = 0;
-                            else if (gray < 160) value = gray < 120 ? 0 : 255;
-                            else value = 255;
+                            if (gray < 90) value = 0;
+                            else if (gray > 170) value = 255;
+                            else value = gray < 130 ? 0 : 255;
                             data[i] = value;
                             data[i + 1] = value;
                             data[i + 2] = value;
@@ -3203,9 +3227,31 @@
             const textLines = text.split(/[\r\n]+/).filter(l => l.trim().length > 0);
             const textWords = cleanedText.split(/\s+/).filter(w => w.length > 1);
             
+            // Also extract potential player names by patterns
+            const potentialNames = [];
+            
+            // Pattern 1: Capital letter followed by lowercase letters (typical names)
+            const namePattern1 = /[A-Z][a-z]+/g;
+            const matches1 = text.match(namePattern1) || [];
+            potentialNames.push(...matches1.map(m => m.toUpperCase()));
+            
+            // Pattern 2: All caps words (some players shown in all caps)
+            const namePattern2 = /[A-Z]{3,}/g;
+            const matches2 = text.match(namePattern2) || [];
+            potentialNames.push(...matches2);
+            
+            // Pattern 3: Look for patterns like "Name (C)" or "Name (V)"
+            const captainPattern = /([A-Za-z\s\-]+)\s*\([CV]\)/g;
+            const captainMatches = text.match(captainPattern) || [];
+            captainMatches.forEach(match => {
+                const name = match.replace(/\s*\([CV]\)/, '').trim();
+                potentialNames.push(name.toUpperCase());
+            });
+            
             console.log('Cleaned text:', cleanedText);
             console.log('Text lines:', textLines);
             console.log('Text words:', textWords);
+            console.log('Potential player names found:', potentialNames);
             
             // Comprehensive FPL player names database with variations
             const playerDatabase = {
@@ -3271,6 +3317,8 @@
             
             // First pass: Look for exact matches of player variations
             const foundByExact = [];
+            
+            // Check in cleaned text
             allPlayerVariations.forEach(({ key, variation }) => {
                 if (cleanedText.includes(variation)) {
                     console.log(`✅ Found player variation in text: ${variation} -> ${key}`);
@@ -3278,6 +3326,18 @@
                         foundByExact.push({ key, variation });
                     }
                 }
+            });
+            
+            // Also check in potential names
+            potentialNames.forEach(name => {
+                allPlayerVariations.forEach(({ key, variation }) => {
+                    if (name === variation || name.includes(variation) || variation.includes(name)) {
+                        console.log(`✅ Found in potential names: ${name} matches ${variation} -> ${key}`);
+                        if (!foundByExact.find(f => f.key === key)) {
+                            foundByExact.push({ key, variation, source: 'pattern' });
+                        }
+                    }
+                });
             });
             
             // Also check individual lines for better accuracy
@@ -3437,6 +3497,21 @@
             const mediumConfidencePlayers = detectedPlayers.filter(p => p.confidence >= 70 && p.confidence < 85);
             const lowConfidencePlayers = detectedPlayers.filter(p => p.confidence < 70);
             
+            // Additional validation: Check if players make sense together
+            const validateTeamComposition = (players) => {
+                const positions = { GK: 0, DEF: 0, MID: 0, FWD: 0 };
+                players.forEach(p => positions[p.position]++);
+                
+                // FPL requires: 2 GK, 5 DEF, 5 MID, 3 FWD
+                const isValid = positions.GK <= 2 && positions.DEF <= 5 && 
+                               positions.MID <= 5 && positions.FWD <= 3;
+                
+                if (!isValid) {
+                    console.log('Team composition validation failed:', positions);
+                }
+                return isValid;
+            };
+            
             console.log(`High confidence: ${highConfidencePlayers.length}, Medium: ${mediumConfidencePlayers.length}, Low: ${lowConfidencePlayers.length}`);
             
             // Build team with high confidence players first
@@ -3458,10 +3533,29 @@
             }
             
             if (finalTeam.length >= 11) {
-                // Success! Display the detected team
+                // Validate team composition
+                const isValidTeam = validateTeamComposition(finalTeam);
+                
+                if (!isValidTeam) {
+                    console.log('Invalid team composition - attempting to fix...');
+                    // Try to fix by removing duplicates or wrong positions
+                    finalTeam = fixTeamComposition(finalTeam);
+                }
+                
+                // Success! Display the detected team with confirmation
+                const avgConfidence = Math.round(finalTeam.reduce((sum, p) => sum + p.confidence, 0) / finalTeam.length);
+                
                 showUploadStatus(`
                     <div class="fpl-tips">✅ <strong>Successfully detected ${finalTeam.length} players!</strong></div>
-                    <div>Confidence: ${Math.round(finalTeam.reduce((sum, p) => sum + p.confidence, 0) / finalTeam.length)}% average</div>
+                    <div>Confidence: ${avgConfidence}% average</div>
+                    <div style="margin-top: 10px;">
+                        <details>
+                            <summary style="cursor: pointer; color: var(--secondary-color);">View detected players ▼</summary>
+                            <div style="margin-top: 10px; max-height: 200px; overflow-y: auto; font-size: 12px;">
+                                ${finalTeam.map(p => `${p.position}: ${p.name} (${p.team}) - ${p.confidence}%`).join('<br>')}
+                            </div>
+                        </details>
+                    </div>
                 `, 'success');
                 
                 // Ensure we have exactly 15 players
@@ -3482,16 +3576,29 @@
                 `, 'processing');
                 setTimeout(() => completeWithTemplate(finalTeam), 1000);
             } else {
-                // No reliable players found - use manual selection
-                console.log('No reliable players detected from OCR');
-                showUploadStatus(`
-                    <div class="fpl-warning">⚠️ Could not reliably detect players from screenshot</div>
-                    <div>Please select players manually or try a clearer screenshot...</div>
-                `, 'warning');
-                setTimeout(() => {
-                    // Show manual player selection interface
-                    showManualPlayerSelection();
-                }, 1500);
+                // No reliable players found - try one more strategy
+                console.log('No reliable players detected - trying fallback OCR strategy...');
+                
+                // Try to find any player names at all
+                const anyPlayers = findAnyPlayersInText(cleanedText);
+                
+                if (anyPlayers.length > 0) {
+                    console.log('Found some players with fallback strategy:', anyPlayers);
+                    showUploadStatus(`
+                        <div class="fpl-tips">✅ Found ${anyPlayers.length} players using fallback detection</div>
+                        <div>Completing team with popular picks...</div>
+                    `, 'processing');
+                    setTimeout(() => completeWithTemplate(anyPlayers), 1000);
+                } else {
+                    // Final fallback - manual selection
+                    showUploadStatus(`
+                        <div class="fpl-warning">⚠️ Could not detect players from screenshot</div>
+                        <div>Please select players manually or try a clearer screenshot...</div>
+                    `, 'warning');
+                    setTimeout(() => {
+                        showManualPlayerSelection();
+                    }, 1500);
+                }
             }
         }
         
@@ -3770,6 +3877,57 @@
         }
         
         // Quick fallback with popular team
+        // Fix team composition to ensure valid FPL formation
+        function fixTeamComposition(players) {
+            const positions = { GK: [], DEF: [], MID: [], FWD: [] };
+            players.forEach(p => positions[p.position].push(p));
+            
+            // FPL limits: 2 GK, 5 DEF, 5 MID, 3 FWD
+            const fixed = [];
+            
+            // Take best players per position (highest confidence)
+            fixed.push(...positions.GK.sort((a, b) => b.confidence - a.confidence).slice(0, 2));
+            fixed.push(...positions.DEF.sort((a, b) => b.confidence - a.confidence).slice(0, 5));
+            fixed.push(...positions.MID.sort((a, b) => b.confidence - a.confidence).slice(0, 5));
+            fixed.push(...positions.FWD.sort((a, b) => b.confidence - a.confidence).slice(0, 3));
+            
+            return fixed;
+        }
+        
+        // Fallback strategy to find any players in text
+        function findAnyPlayersInText(text) {
+            if (!window.fplData || !window.fplData.loaded) return [];
+            
+            const foundPlayers = [];
+            const textUpper = text.toUpperCase();
+            
+            // Try to find any player by checking every player in database
+            window.fplData.players.forEach(player => {
+                const nameUpper = player.name.toUpperCase();
+                const lastNameUpper = player.fullName.split(' ').pop().toUpperCase();
+                
+                // Check if player name appears in text
+                if ((nameUpper.length > 3 && textUpper.includes(nameUpper)) ||
+                    (lastNameUpper.length > 4 && textUpper.includes(lastNameUpper))) {
+                    
+                    const team = window.fplData.teams.find(t => t.id === player.team);
+                    if (!foundPlayers.find(p => p.playerId === player.id)) {
+                        foundPlayers.push({
+                            position: positionMap[player.position],
+                            name: player.name,
+                            team: team ? team.short_name : 'Unknown',
+                            price: player.price.toFixed(1),
+                            playerId: player.id,
+                            confidence: 60
+                        });
+                        console.log(`Fallback found: ${player.name}`);
+                    }
+                }
+            });
+            
+            return foundPlayers;
+        }
+        
         // Show manual player selection interface
         function showManualPlayerSelection() {
             console.log('Showing manual player selection...');
