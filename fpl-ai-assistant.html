@@ -3179,52 +3179,40 @@
         
         // Process OCR results with ultra accuracy
         function processOCRResultsUltra(ocrData, originalImage) {
-            console.log('Processing OCR with ultra accuracy...');
-            console.log('OCR Data received:', ocrData);
+            console.log('Processing OCR with simplified approach...');
             
             const text = ocrData.text || '';
             const words = ocrData.words || [];
             const lines = ocrData.lines || [];
             
-            // Log the extracted text for debugging
-            console.log('=== OCR EXTRACTED TEXT ===');
-            console.log('Full text:', text);
-            console.log('Lines:', lines.map(l => l.text));
-            console.log('Words (first 50):', words.slice(0, 50).map(w => w.text));
-            console.log('========================');
+            // Debug: Show raw OCR text
+            console.log('=== RAW OCR TEXT ===');
+            console.log(text);
+            console.log('===================');
             
             // Wait for FPL data if needed
             if (!window.fplData || !window.fplData.loaded) {
                 console.log('Waiting for FPL data...');
-                showUploadStatus(`
-                    <div class="fpl-tips">⏳ <strong>Loading player database...</strong></div>
-                    <div>Please wait a moment...</div>
-                `, 'processing');
-                
                 setTimeout(() => {
                     if (window.fplData && window.fplData.loaded) {
-                        processOCRResults(ocrData);
+                        processOCRResultsUltra(ocrData, originalImage);
                     } else {
                         useQuickFallback();
                     }
-                }, 3000);
+                }, 1000);
                 return;
             }
             
-            // Show what we extracted
-            showUploadStatus(`
-                <div class="fpl-tips">📝 <strong>OCR extracted text:</strong></div>
-                <div style="max-height: 200px; overflow-y: auto; text-align: left; font-size: 12px; background: #f5f5f5; padding: 10px; border-radius: 4px; margin: 10px 0;">
-                    ${text.substring(0, 500)}${text.length > 500 ? '...' : ''}
-                </div>
-                <div>Processing player names...</div>
-            `, 'processing');
+            // Simple approach: Just find player names that exist in our database
+            const foundPlayers = findPlayersSimple(text);
             
-            // Use ultra-accurate processing with verification
-            const detectedPlayers = processOCRTextUltra(text, words, lines);
-            
-            // Show interactive verification
-            showInteractiveVerification(detectedPlayers, originalImage);
+            if (foundPlayers.length > 0) {
+                console.log(`Found ${foundPlayers.length} players`);
+                showInteractiveVerification(foundPlayers, originalImage);
+            } else {
+                // Show debug mode
+                showDebugMode(text, originalImage);
+            }
         }
         
         // Preprocess image for better OCR accuracy on FPL screenshots
@@ -3323,6 +3311,145 @@
             });
         }
         
+        // Simple player finding - just look for exact matches
+        function findPlayersSimple(text) {
+            console.log('Simple player detection...');
+            
+            if (!window.fplData || !window.fplData.loaded) return [];
+            
+            const foundPlayers = [];
+            const textUpper = text.toUpperCase();
+            const addedPlayerIds = new Set();
+            
+            // Check each player in database
+            window.fplData.players.forEach(player => {
+                // Skip if already added
+                if (addedPlayerIds.has(player.id)) return;
+                
+                const playerName = player.name.toUpperCase();
+                const lastName = player.fullName.split(' ').pop().toUpperCase();
+                
+                // Simple check: does the name appear in text?
+                let found = false;
+                let confidence = 0;
+                
+                // Check full name
+                if (playerName.length > 2 && textUpper.includes(playerName)) {
+                    found = true;
+                    confidence = 95;
+                    console.log(`Found: ${player.name}`);
+                }
+                // Check last name (must be longer to avoid false positives)
+                else if (lastName.length > 5 && textUpper.includes(lastName)) {
+                    // Make sure it's the right player (avoid common last names)
+                    const commonLastNames = ['SILVA', 'GARCIA', 'MARTINEZ', 'RODRIGUEZ', 'SMITH', 'JONES'];
+                    if (!commonLastNames.includes(lastName)) {
+                        found = true;
+                        confidence = 80;
+                        console.log(`Found by last name: ${player.name} (${lastName})`);
+                    }
+                }
+                
+                if (found && !addedPlayerIds.has(player.id)) {
+                    const team = window.fplData.teams.find(t => t.id === player.team);
+                    foundPlayers.push({
+                        position: positionMap[player.position],
+                        name: player.name,
+                        team: team ? team.short_name : 'Unknown',
+                        price: player.price.toFixed(1),
+                        playerId: player.id,
+                        confidence: confidence
+                    });
+                    addedPlayerIds.add(player.id);
+                }
+            });
+            
+            return foundPlayers;
+        }
+        
+        // Show debug mode when OCR fails
+        function showDebugMode(ocrText, originalImage) {
+            console.log('Showing debug mode...');
+            
+            showUploadStatus(`
+                <div style="text-align: center;">
+                    <div class="fpl-warning">⚠️ OCR couldn't find players</div>
+                    <div style="margin: 10px 0;">Here's what the OCR saw:</div>
+                    <div style="max-height: 200px; overflow-y: auto; background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 10px; text-align: left; font-family: monospace; font-size: 11px; margin: 10px 0;">
+                        ${ocrText || 'No text detected'}
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button onclick="tryManualEntry()" style="margin: 5px; padding: 10px 20px; background: var(--secondary-color); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Enter Players Manually
+                        </button>
+                        <button onclick="useQuickFallback()" style="margin: 5px; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Use Popular Team
+                        </button>
+                    </div>
+                </div>
+            `, 'warning');
+        }
+        
+        // Manual entry mode
+        window.tryManualEntry = function() {
+            showUploadStatus(`
+                <div style="text-align: center;">
+                    <div class="fpl-tips">📝 <strong>Manual Player Entry</strong></div>
+                    <div>Type player names (one per line):</div>
+                    <textarea id="manualPlayerInput" style="width: 90%; height: 200px; margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;" 
+                              placeholder="Example:
+Haaland
+Salah
+Palmer
+Saka
+..."></textarea>
+                    <div>
+                        <button onclick="processManualEntry()" style="margin: 5px; padding: 10px 20px; background: var(--secondary-color); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Process Names
+                        </button>
+                    </div>
+                </div>
+            `, 'info');
+        };
+        
+        // Process manually entered names
+        window.processManualEntry = function() {
+            const input = document.getElementById('manualPlayerInput').value;
+            if (!input.trim()) return;
+            
+            const names = input.split('\n').filter(n => n.trim());
+            const foundPlayers = [];
+            
+            names.forEach(name => {
+                const nameUpper = name.trim().toUpperCase();
+                
+                // Find in database
+                const player = window.fplData.players.find(p => 
+                    p.name.toUpperCase() === nameUpper ||
+                    p.fullName.toUpperCase().includes(nameUpper) ||
+                    p.fullName.split(' ').pop().toUpperCase() === nameUpper
+                );
+                
+                if (player) {
+                    const team = window.fplData.teams.find(t => t.id === player.team);
+                    foundPlayers.push({
+                        position: positionMap[player.position],
+                        name: player.name,
+                        team: team ? team.short_name : 'Unknown',
+                        price: player.price.toFixed(1),
+                        playerId: player.id,
+                        confidence: 100
+                    });
+                }
+            });
+            
+            if (foundPlayers.length > 0) {
+                showInteractiveVerification(foundPlayers, null);
+            } else {
+                alert('No players found. Please check the names and try again.');
+            }
+        };
+        
         // Ultra-accurate OCR text processing
         function processOCRTextUltra(text, words, lines) {
             console.log('Ultra-accurate OCR text processing...');
@@ -3333,7 +3460,7 @@
             if (!window.fplData || !window.fplData.loaded) {
                 console.log('FPL data not ready');
                 useQuickFallback();
-                return;
+                return detectedPlayers;
             }
             
             // Clean and normalize the text - keep more characters for FPL
