@@ -2870,101 +2870,139 @@
                 }
                 
                 console.log('Creating Tesseract worker...');
+                console.log('Tesseract version:', Tesseract.version);
                 
-                // Create a single worker with detailed progress logging
-                const worker = await Tesseract.createWorker({
+                // Simulate initial progress
+                let simulatedProgress = 0;
+                const progressInterval = setInterval(() => {
+                    if (simulatedProgress < 10) {
+                        simulatedProgress += 2;
+                        const percentEl = document.getElementById('ocrPercent');
+                        const progressBar = document.getElementById('ocrProgressBar');
+                        if (percentEl) percentEl.textContent = simulatedProgress;
+                        if (progressBar) progressBar.style.width = simulatedProgress + '%';
+                    }
+                }, 200);
+                
+                // Use simpler worker creation
+                const worker = await Tesseract.createWorker('eng', 1, {
                     logger: (m) => {
-                        console.log('Tesseract:', m);
+                        console.log('OCR Status:', m.status, 'Progress:', m.progress);
+                        
+                        // Clear simulated progress
+                        clearInterval(progressInterval);
                         
                         // Update status text
                         const statusEl = document.getElementById('ocrStatusText');
                         if (statusEl) {
                             if (m.status === 'loading tesseract core') {
-                                statusEl.textContent = 'Loading OCR engine...';
+                                statusEl.textContent = 'Loading OCR engine core...';
                             } else if (m.status === 'initializing tesseract') {
-                                statusEl.textContent = 'Initializing OCR...';
+                                statusEl.textContent = 'Initializing OCR engine...';
                             } else if (m.status === 'loading language traineddata') {
                                 statusEl.textContent = 'Loading English language data...';
                             } else if (m.status === 'initializing api') {
-                                statusEl.textContent = 'Preparing to scan...';
+                                statusEl.textContent = 'Preparing OCR API...';
                             } else if (m.status === 'recognizing text') {
-                                statusEl.textContent = 'Reading player names from screenshot...';
-                                
-                                // Update progress
-                                const progress = Math.round((m.progress || 0) * 100);
-                                const percentEl = document.getElementById('ocrPercent');
-                                const progressBar = document.getElementById('ocrProgressBar');
-                                
-                                if (percentEl) percentEl.textContent = progress;
-                                if (progressBar) progressBar.style.width = progress + '%';
-                                
-                                // Update time estimate
-                                if (progress > lastProgress) {
-                                    lastProgress = progress;
-                                    updateTimeEstimate(progress);
-                                }
+                                statusEl.textContent = 'Scanning image for player names...';
+                            }
+                        }
+                        
+                        // Update progress for recognition
+                        if (m.status === 'recognizing text' && m.progress) {
+                            const progress = Math.round(m.progress * 100);
+                            const percentEl = document.getElementById('ocrPercent');
+                            const progressBar = document.getElementById('ocrProgressBar');
+                            
+                            if (percentEl) percentEl.textContent = progress;
+                            if (progressBar) progressBar.style.width = progress + '%';
+                            
+                            // Update time estimate
+                            if (progress > lastProgress) {
+                                lastProgress = progress;
+                                updateTimeEstimate(progress);
                             }
                         }
                     },
                     errorHandler: (error) => {
-                        console.error('Tesseract error:', error);
+                        console.error('OCR Worker Error:', error);
+                        clearInterval(progressInterval);
                     }
                 });
                 
-                console.log('Worker created, loading language...');
+                console.log('Worker created successfully');
                 
-                // Set timeout for OCR
-                const ocrTimeout = setTimeout(() => {
-                    console.log('OCR timeout - using fallback');
-                    worker.terminate();
-                    showUploadStatus(`
-                        <div class="fpl-warning">⚠️ OCR is taking too long</div>
-                        <div>Loading a popular team instead...</div>
-                    `, 'warning');
-                    setTimeout(() => useQuickFallback(), 1000);
-                }, 30000); // 30 second timeout
-                
-                // Load language and initialize
-                await worker.loadLanguage('eng');
-                await worker.initialize('eng');
-                
-                // Simple configuration
-                await worker.setParameters({
-                    tessedit_pageseg_mode: Tesseract.PSM.AUTO
-                });
+                // Set timeout for OCR with better error handling
+                let timeoutCleared = false;
+                const ocrTimeout = setTimeout(async () => {
+                    if (!timeoutCleared) {
+                        console.log('OCR timeout - using fallback');
+                        clearInterval(progressInterval);
+                        try {
+                            await worker.terminate();
+                        } catch (e) {
+                            console.error('Error terminating worker:', e);
+                        }
+                        showUploadStatus(`
+                            <div class="fpl-warning">⚠️ OCR is taking too long</div>
+                            <div>Loading a popular team instead...</div>
+                        `, 'warning');
+                        setTimeout(() => useQuickFallback(), 1000);
+                    }
+                }, 20000); // 20 second timeout
                 
                 console.log('Starting recognition...');
-                document.getElementById('ocrStatusText').textContent = 'Scanning screenshot for players...';
+                const statusEl = document.getElementById('ocrStatusText');
+                if (statusEl) statusEl.textContent = 'Analyzing screenshot...';
                 
-                // Perform OCR
+                // Perform OCR with the image
                 const result = await worker.recognize(imageDataUrl);
                 
-                // Clear timeout
+                // Clear timeout and interval
+                timeoutCleared = true;
                 clearTimeout(ocrTimeout);
+                clearInterval(progressInterval);
                 
                 // Terminate worker
                 await worker.terminate();
                 
                 console.log('OCR complete!');
+                console.log('OCR Result:', result);
                 console.log('Text found:', result.data.text ? result.data.text.substring(0, 500) : 'None');
                 
                 // Update to 100% complete
-                document.getElementById('ocrPercent').textContent = '100';
-                document.getElementById('ocrProgressBar').style.width = '100%';
-                document.getElementById('ocrStatusText').textContent = 'Processing results...';
+                const percentEl = document.getElementById('ocrPercent');
+                const progressBar = document.getElementById('ocrProgressBar');
+                if (percentEl) percentEl.textContent = '100';
+                if (progressBar) progressBar.style.width = '100%';
+                if (statusEl) statusEl.textContent = 'Processing results...';
                 
                 // Process the results
                 if (result.data && result.data.text) {
                     processOCRResults(result.data);
                 } else {
-                    console.log('No text found in image');
-                    useQuickFallback();
+                    console.log('No text found in image - using fallback');
+                    showUploadStatus(`
+                        <div class="fpl-warning">⚠️ Could not read player names from image</div>
+                        <div>Loading a template team instead...</div>
+                    `, 'warning');
+                    setTimeout(() => useQuickFallback(), 1500);
                 }
                 
             } catch (error) {
-                console.error('OCR failed:', error);
+                console.error('OCR Error Details:', error);
+                console.error('Error stack:', error.stack);
+                
+                // More detailed error message
+                let errorMsg = 'Unknown error';
+                if (error.message) {
+                    errorMsg = error.message;
+                } else if (typeof error === 'string') {
+                    errorMsg = error;
+                }
+                
                 showUploadStatus(`
-                    <div class="fpl-warning">⚠️ OCR error: ${error.message}</div>
+                    <div class="fpl-warning">⚠️ OCR failed: ${errorMsg}</div>
                     <div>Loading a template team instead...</div>
                 `, 'warning');
                 setTimeout(() => useQuickFallback(), 1500);
