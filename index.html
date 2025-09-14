@@ -250,14 +250,283 @@
             transform: translateY(0);
         }
         
+        /* Section Header Enhancements */
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .section-title-main {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 900;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .title-accent {
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(30deg); }
+        }
+        
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #ff0000, #ff4444);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            animation: pulse 2s ease infinite;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1.5s ease infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .section-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .divider-line {
+            height: 2px;
+            width: 100px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        }
+        
+        .divider-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            animation: rotate 4s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Featured Story Enhancement */
+        .featured-story {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .featured-story::before {
+            content: 'FEATURED';
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            z-index: 10;
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* Secondary Stories Grid */
+        .secondary-stories {
+            margin-top: 3rem;
+        }
+        
+        .secondary-stories > div {
+            animation-delay: calc(var(--index, 0) * 0.1s);
+        }
+        
+        .secondary-stories > div:nth-child(1) { --index: 1; }
+        .secondary-stories > div:nth-child(2) { --index: 2; }
+        .secondary-stories > div:nth-child(3) { --index: 3; }
+        .secondary-stories > div:nth-child(4) { --index: 4; }
+        .secondary-stories > div:nth-child(5) { --index: 5; }
+        .secondary-stories > div:nth-child(6) { --index: 6; }
+        
+        /* SEO Content Section Polish */
+        .seo-content-section {
+            padding: 4rem 0;
+            background: linear-gradient(180deg, var(--light-gray) 0%, white 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .seo-content-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0,255,135,0.03) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+        
+        .seo-content-section .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: clamp(2rem, 4vw, 2.5rem);
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+        
+        .lead-paragraph {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto 3rem;
+            color: var(--text-secondary);
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+        
+        .content-column h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .content-column h3::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, var(--secondary-color), var(--accent-color));
+            border-radius: 2px;
+        }
+        
+        .coverage-areas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .coverage-item {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .coverage-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .coverage-item:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .coverage-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--secondary-color);
+        }
+        
+        .coverage-item h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .coverage-item h3 i {
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+        }
+        
         /* Mobile Optimizations */
         @media (max-width: 768px) {
             .main-content { padding-top: 1rem; }
             .articles-grid { grid-template-columns: 1fr; gap: 1.5rem; }
             .content-wrapper { padding: 0 15px; }
+            .content-grid { grid-template-columns: 1fr; }
+            .coverage-areas { grid-template-columns: 1fr; }
             h1 { font-size: 1.8rem; }
             h2 { font-size: 1.5rem; }
             h3 { font-size: 1.2rem; }
+            .section-title-main { font-size: 1.8rem; }
+            .divider-line { width: 50px; }
+            .featured-story::before { top: -10px; left: 10px; }
         }
     </style>
     
@@ -978,21 +1247,31 @@
     <div include="./fpl-discount-banner.html"></div>
 
     <!-- Main Content Area -->
-    <main class="main-content">
+    <main class="main-content" id="main-content">
         <!-- SEO-Optimized H1 for EPL News -->
         <h1 style="position: absolute; left: -9999px;">EPL News - Latest Premier League News, Transfers & Match Updates Today</h1>
         
         <div class="content-wrapper">
             
             <!-- Top Stories Section -->
-            <section class="top-stories">
+            <section class="top-stories scroll-reveal">
                 <div class="section-header">
-                    <h2 class="section-title-main">Top Stories</h2>
-                    <div class="section-divider"></div>
+                    <h2 class="section-title-main">
+                        <span class="title-accent">Top</span> Stories
+                        <span class="live-indicator">
+                            <span class="live-dot"></span>
+                            <span class="live-text">LIVE</span>
+                        </span>
+                    </h2>
+                    <div class="section-divider">
+                        <span class="divider-line"></span>
+                        <span class="divider-icon">⚽</span>
+                        <span class="divider-line"></span>
+                    </div>
                 </div>
                 
 
-                <div class="featured-story">
+                <div class="featured-story interactive-element">
                     <div class="main_headline" include="./main_headline.html"></div>
                 </div>
                 
@@ -1008,16 +1287,16 @@
                     </script>
                 </div>
                 
-                <div class="secondary-stories">
+                <div class="secondary-stories articles-grid">
                     <!-- Secondary headlines using modular include system -->
-                    <div include="./secondary_subheadline1.html"></div>
-                    <div include="./secondary_subheadline2.html"></div>
-                    <div include="./secondary_subheadline3.html"></div>
+                    <div class="scroll-reveal" include="./secondary_subheadline1.html"></div>
+                    <div class="scroll-reveal" include="./secondary_subheadline2.html"></div>
+                    <div class="scroll-reveal" include="./secondary_subheadline3.html"></div>
                     
                     
-                    <div include="./secondary_subheadline4.html"></div>
-                    <div include="./secondary_subheadline5.html"></div>
-                    <div include="./secondary_subheadline6.html"></div>
+                    <div class="scroll-reveal" include="./secondary_subheadline4.html"></div>
+                    <div class="scroll-reveal" include="./secondary_subheadline5.html"></div>
+                    <div class="scroll-reveal" include="./secondary_subheadline6.html"></div>
                 </div>
                 
                 <!-- Ad After Secondary Articles -->
@@ -4404,6 +4683,68 @@
                 window.location.reload();
             });
         }
+    </script>
+    
+    <!-- Scroll Reveal Animation Script -->
+    <script>
+        // Intersection Observer for scroll reveal animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const revealElements = document.querySelectorAll('.scroll-reveal');
+            
+            const revealOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                        // Optional: stop observing after reveal
+                        // observer.unobserve(entry.target);
+                    }
+                });
+            }, revealOptions);
+            
+            revealElements.forEach(element => {
+                revealOnScroll.observe(element);
+            });
+            
+            // Add smooth parallax effect to hero section
+            let ticking = false;
+            function updateParallax() {
+                const scrolled = window.pageYOffset;
+                const parallaxElements = document.querySelectorAll('.featured-image');
+                
+                parallaxElements.forEach(element => {
+                    const speed = 0.5;
+                    const yPos = -(scrolled * speed);
+                    element.style.transform = `translateY(${yPos}px)`;
+                });
+                
+                ticking = false;
+            }
+            
+            function requestTick() {
+                if (!ticking) {
+                    window.requestAnimationFrame(updateParallax);
+                    ticking = true;
+                }
+            }
+            
+            window.addEventListener('scroll', requestTick);
+            
+            // Add hover effect sound (optional - remove if not wanted)
+            const interactiveElements = document.querySelectorAll('.interactive-element');
+            interactiveElements.forEach(element => {
+                element.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px) scale(1.02)';
+                });
+                element.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
     </script>
     
     <!-- AdSense Initialization Script -->
