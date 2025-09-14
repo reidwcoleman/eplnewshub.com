@@ -456,6 +456,16 @@
             padding: 10px;
             border-radius: 8px;
             display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
+            max-height: 80vh;
+            max-width: 90%;
+            overflow-y: auto;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
         .upload-status.success {
@@ -477,6 +487,50 @@
             color: #f57c00;
             border: 1px solid #ff9800;
             display: block;
+        }
+        
+        .upload-status.info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #2196f3;
+            display: block;
+        }
+        
+        .upload-status.warning {
+            background: #fff9c4;
+            color: #f57f17;
+            border: 1px solid #ffeb3b;
+            display: block;
+        }
+        
+        /* Overlay for upload status */
+        .upload-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+        }
+        
+        .upload-overlay.active {
+            display: block;
+        }
+        
+        #uploadStatus table {
+            width: 100%;
+            text-align: left;
+        }
+        
+        #uploadStatus button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
         }
 
         .detected-players {
@@ -1435,8 +1489,9 @@
                             <button class="quick-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">Choose File</button>
                         </div>
                     </div>
-                    <div id="uploadStatus" class="upload-status"></div>
                 </div>
+                <div class="upload-overlay" id="uploadOverlay"></div>
+                <div id="uploadStatus" class="upload-status"></div>
                 
                 <!-- FPL Pitch -->
                 <div class="fpl-pitch">
@@ -4256,19 +4311,19 @@ Saka
             console.log(`User verified ${verifiedPlayers.length} players`);
             
             if (verifiedPlayers.length >= 11) {
-                // Have enough players - complete team if needed
-                if (verifiedPlayers.length < 15) {
-                    completeWithTemplate(verifiedPlayers);
-                } else {
-                    displayDetectedPlayers(verifiedPlayers.slice(0, 15));
-                }
+                // Have enough players - import them
+                window.ocrDetectedTeam = verifiedPlayers;
+                importOCRDetectedTeam();
             } else if (verifiedPlayers.length > 0) {
                 // Some players verified - complete with template
                 showUploadStatus(`
                     <div class="fpl-tips">✅ Using ${verifiedPlayers.length} verified players</div>
                     <div>Adding popular players to complete your team...</div>
                 `, 'processing');
-                setTimeout(() => completeWithTemplate(verifiedPlayers), 1000);
+                setTimeout(() => {
+                    completeWithTemplate(verifiedPlayers);
+                    closeUploadStatus();
+                }, 1000);
             } else {
                 // No players selected
                 showManualPlayerSelection();
@@ -4855,6 +4910,9 @@ Saka
             // Use the same import logic but with OCR detected players
             window.detectedTeam = window.ocrDetectedTeam;
             importDetectedTeam();
+            
+            // Close all overlays
+            closeUploadStatus();
         }
 
         function detectPlayersFromImage(imageData) {
@@ -5144,8 +5202,37 @@ Saka
 
         function showUploadStatus(message, type) {
             const statusDiv = document.getElementById('uploadStatus');
+            const overlay = document.getElementById('uploadOverlay');
+            
             statusDiv.className = `upload-status ${type}`;
             statusDiv.innerHTML = message;
+            statusDiv.style.display = 'block';
+            
+            // Show overlay for better visibility
+            if (overlay) {
+                overlay.classList.add('active');
+            }
+            
+            // Add close button if not processing
+            if (type !== 'processing') {
+                statusDiv.innerHTML += `
+                    <div style="margin-top: 20px;">
+                        <button onclick="closeUploadStatus()" style="background: #666; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">
+                            Close
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        function closeUploadStatus() {
+            const statusDiv = document.getElementById('uploadStatus');
+            const overlay = document.getElementById('uploadOverlay');
+            const uploadDiv = document.getElementById('screenshotUpload');
+            
+            if (statusDiv) statusDiv.style.display = 'none';
+            if (overlay) overlay.classList.remove('active');
+            if (uploadDiv) uploadDiv.style.display = 'none';
         }
 
         // Initialize on load
