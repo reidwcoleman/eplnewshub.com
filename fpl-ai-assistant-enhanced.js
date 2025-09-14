@@ -1,8 +1,10 @@
-// Enhanced FPL AI Assistant JavaScript
+// Enhanced FPL AI Assistant - True ChatGPT-style Natural Language AI
 class FPLAIAssistant {
     constructor() {
         this.isTyping = false;
         this.messageHistory = [];
+        this.conversationContext = [];
+        this.knowledgeBase = this.initializeKnowledgeBase();
         this.initializeAssistant();
         this.loadSavedConversation();
     }
@@ -62,7 +64,7 @@ class FPLAIAssistant {
         const messagesDiv = document.getElementById('chatMessages');
         if (!messagesDiv.querySelector('.welcome-message')) {
             const welcomeMsg = this.createAIMessage(
-                "👋 Welcome! I'm your FPL AI Assistant, powered by advanced machine learning. I analyze real-time data from thousands of matches to help you make winning decisions. What would you like to know?",
+                "Hi! I'm your AI assistant. I can help with Fantasy Premier League strategy, but I can also answer any other questions you might have - from general football knowledge to completely unrelated topics. What would you like to know?",
                 true
             );
             messagesDiv.appendChild(welcomeMsg);
@@ -101,6 +103,7 @@ class FPLAIAssistant {
         
         // Save to history
         this.messageHistory.push({ type: 'user', message });
+        this.conversationContext.push({ role: 'user', content: message });
         
         // Clear input
         input.value = '';
@@ -111,7 +114,7 @@ class FPLAIAssistant {
         
         // Generate and display AI response
         setTimeout(() => {
-            const response = this.generateEnhancedResponse(message);
+            const response = this.generateNaturalResponse(message);
             this.removeTypingIndicator();
             this.typeResponse(response);
         }, 1000 + Math.random() * 1000);
@@ -204,292 +207,402 @@ class FPLAIAssistant {
             } else {
                 clearInterval(typeInterval);
                 this.messageHistory.push({ type: 'ai', message: response });
+                this.conversationContext.push({ role: 'assistant', content: response });
+                // Keep context manageable
+                if (this.conversationContext.length > 20) {
+                    this.conversationContext = this.conversationContext.slice(-20);
+                }
                 this.saveConversation();
             }
         }, 20);
     }
     
-    generateEnhancedResponse(message) {
+    generateNaturalResponse(message) {
         const lower = message.toLowerCase();
-        const responses = {
-            captain: this.getCaptainAdvice(),
-            transfer: this.getTransferAdvice(),
-            differential: this.getDifferentialPicks(),
-            wildcard: this.getWildcardAdvice(),
-            team: this.getTeamAnalysis(),
-            chip: this.getChipStrategy(),
-            injury: this.getInjuryNews(),
-            fixture: this.getFixtureAnalysis(),
-            price: this.getPriceChanges(),
-            formation: this.getFormationAdvice()
+        
+        // Analyze message for context and intent
+        const analysis = this.analyzeMessage(message);
+        
+        // Generate contextually appropriate response
+        if (analysis.isFPL) {
+            return this.generateFPLResponse(analysis, message);
+        } else if (analysis.isFootball) {
+            return this.generateFootballResponse(analysis, message);
+        } else if (analysis.isGreeting) {
+            return this.generateGreeting();
+        } else if (analysis.isQuestion) {
+            return this.generateGeneralAnswer(message);
+        } else {
+            return this.generateConversationalResponse(message);
+        }
+    }
+    
+    analyzeMessage(message) {
+        const lower = message.toLowerCase();
+        
+        // Check for different types of queries
+        const analysis = {
+            isFPL: this.checkFPLContent(lower),
+            isFootball: this.checkFootballContent(lower),
+            isGreeting: this.checkGreeting(lower),
+            isQuestion: message.includes('?') || this.checkQuestionWords(lower),
+            topic: this.identifyTopic(lower),
+            sentiment: this.analyzeSentiment(lower),
+            entities: this.extractEntities(message)
         };
         
-        // Check for keywords and return appropriate response
-        for (const [key, response] of Object.entries(responses)) {
-            if (lower.includes(key)) {
-                return response;
+        return analysis;
+    }
+    
+    checkFPLContent(text) {
+        const fplKeywords = [
+            'fpl', 'fantasy', 'captain', 'transfer', 'wildcard', 'chip', 
+            'bench boost', 'triple captain', 'free hit', 'points', 'gameweek',
+            'gw', 'differential', 'template', 'mini-league', 'rank', 'team value',
+            'price rise', 'price fall', 'hits', '-4', '-8'
+        ];
+        return fplKeywords.some(keyword => text.includes(keyword));
+    }
+    
+    checkFootballContent(text) {
+        const footballKeywords = [
+            'football', 'soccer', 'premier league', 'epl', 'match', 'game',
+            'player', 'team', 'goal', 'assist', 'clean sheet', 'fixture',
+            'liverpool', 'manchester', 'arsenal', 'chelsea', 'tottenham',
+            'city', 'united', 'league', 'champions', 'cup', 'world cup'
+        ];
+        return footballKeywords.some(keyword => text.includes(keyword));
+    }
+    
+    checkGreeting(text) {
+        const greetings = [
+            'hello', 'hi', 'hey', 'good morning', 'good afternoon', 
+            'good evening', 'howdy', 'greetings', 'sup', 'what\'s up'
+        ];
+        return greetings.some(greeting => text.startsWith(greeting));
+    }
+    
+    checkQuestionWords(text) {
+        const questionWords = [
+            'what', 'when', 'where', 'who', 'why', 'how', 
+            'which', 'whose', 'whom', 'can', 'could', 'would',
+            'should', 'is', 'are', 'do', 'does', 'will'
+        ];
+        return questionWords.some(word => text.startsWith(word));
+    }
+    
+    identifyTopic(text) {
+        // Identify the main topic of conversation
+        if (text.includes('weather')) return 'weather';
+        if (text.includes('news')) return 'news';
+        if (text.includes('joke')) return 'humor';
+        if (text.includes('help')) return 'assistance';
+        if (text.includes('math') || /\d+[\+\-\*\/]\d+/.test(text)) return 'mathematics';
+        if (text.includes('history')) return 'history';
+        if (text.includes('science')) return 'science';
+        if (text.includes('technology') || text.includes('computer')) return 'technology';
+        if (text.includes('movie') || text.includes('film')) return 'entertainment';
+        if (text.includes('music') || text.includes('song')) return 'music';
+        if (text.includes('food') || text.includes('recipe')) return 'food';
+        if (text.includes('travel')) return 'travel';
+        if (text.includes('health') || text.includes('fitness')) return 'health';
+        return 'general';
+    }
+    
+    analyzeSentiment(text) {
+        const positive = ['good', 'great', 'awesome', 'excellent', 'happy', 'love', 'best', 'amazing'];
+        const negative = ['bad', 'terrible', 'awful', 'hate', 'worst', 'angry', 'sad', 'disappointed'];
+        
+        const hasPositive = positive.some(word => text.includes(word));
+        const hasNegative = negative.some(word => text.includes(word));
+        
+        if (hasPositive && !hasNegative) return 'positive';
+        if (hasNegative && !hasPositive) return 'negative';
+        return 'neutral';
+    }
+    
+    extractEntities(message) {
+        const entities = {
+            players: [],
+            teams: [],
+            numbers: [],
+            dates: []
+        };
+        
+        // Extract player names
+        const playerPatterns = [
+            'haaland', 'salah', 'palmer', 'saka', 'son', 'kane', 'messi', 
+            'ronaldo', 'mbappe', 'bellingham', 'rice', 'odegaard'
+        ];
+        
+        playerPatterns.forEach(player => {
+            if (message.toLowerCase().includes(player)) {
+                entities.players.push(player);
+            }
+        });
+        
+        // Extract numbers
+        const numbers = message.match(/\d+/g);
+        if (numbers) {
+            entities.numbers = numbers.map(n => parseInt(n));
+        }
+        
+        return entities;
+    }
+    
+    generateFPLResponse(analysis, message) {
+        const lower = message.toLowerCase();
+        
+        // Captain advice
+        if (lower.includes('captain')) {
+            if (analysis.entities.players.length > 0) {
+                const player = analysis.entities.players[0];
+                return `Looking at ${this.formatName(player)} for captaincy? That's an interesting choice. Based on current form and fixtures, ${this.getCaptainAnalysis(player)}. However, you should also consider team news closer to the deadline. What's your current rank and risk tolerance?`;
+            }
+            return `For captaincy this gameweek, I'd consider the fixture difficulty and recent form. Haaland at home is usually the safe pick with his consistency, but if you're chasing rank, a differential captain like Palmer or Gordon could pay off. Who are you currently considering?`;
+        }
+        
+        // Transfer advice
+        if (lower.includes('transfer')) {
+            if (analysis.entities.players.length >= 2) {
+                return `Comparing ${this.formatName(analysis.entities.players[0])} and ${this.formatName(analysis.entities.players[1])}? Both have their merits. ${this.comparePlayersNaturally(analysis.entities.players[0], analysis.entities.players[1])}. What's your team structure like?`;
+            }
+            return `Transfer strategy depends on your team's needs and future fixtures. Are you looking to address an injury, chase points, or plan for upcoming gameweeks? Tell me more about your current situation and I can give specific advice.`;
+        }
+        
+        // Wildcard
+        if (lower.includes('wildcard')) {
+            return `Wildcard timing is crucial. You want to use it when you need 4+ transfers or when there's a major fixture swing. Currently, we're seeing good opportunities around GW28-31 with the fixture changes. How many issues does your current team have?`;
+        }
+        
+        // General FPL advice
+        return this.generateContextualFPLAdvice(message);
+    }
+    
+    generateFootballResponse(analysis, message) {
+        const lower = message.toLowerCase();
+        
+        if (analysis.entities.players.length > 0) {
+            const player = analysis.entities.players[0];
+            return `${this.formatName(player)} is definitely one of the talking points this season. ${this.getPlayerInsight(player)}. Is there something specific about them you'd like to know?`;
+        }
+        
+        if (lower.includes('who will win')) {
+            return `That's a tough prediction! Form, injuries, and head-to-head records all play a part. The beautiful game is unpredictable - that's what makes it exciting. Do you have a particular match in mind?`;
+        }
+        
+        return `Football is such a dynamic sport with so many storylines. ${this.getFootballInsight()}. What aspect interests you most?`;
+    }
+    
+    generateGreeting() {
+        const greetings = [
+            "Hey there! How can I help you today? Whether it's FPL strategy or anything else, I'm here to assist.",
+            "Hello! Ready to chat about FPL, football, or really anything on your mind?",
+            "Hi! What brings you here today? FPL dilemmas or just want to talk?",
+            "Greetings! I'm here to help with whatever you need - from fantasy football to general questions."
+        ];
+        return greetings[Math.floor(Math.random() * greetings.length)];
+    }
+    
+    generateGeneralAnswer(message) {
+        const lower = message.toLowerCase();
+        
+        // Mathematics
+        if (/\d+[\+\-\*\/]\d+/.test(message)) {
+            try {
+                // Safe evaluation for simple math
+                const result = this.evaluateMath(message);
+                return `The answer is ${result}. Need help with anything else?`;
+            } catch {
+                return `That looks like a math problem. Could you clarify what you're trying to calculate?`;
             }
         }
         
-        // Default response
-        return this.getDefaultResponse();
+        // Weather
+        if (lower.includes('weather')) {
+            return `I don't have access to real-time weather data, but I can tell you that checking your local weather service or weather apps would give you the most accurate information. Is there something specific about weather patterns you're curious about?`;
+        }
+        
+        // Jokes
+        if (lower.includes('joke')) {
+            const jokes = [
+                "Why did the footballer bring string to the game? In case they needed to tie the score!",
+                "What do you call a Spanish footballer with no legs? Gracias!",
+                "Why did the football manager bring a pencil to the game? To draw the match!"
+            ];
+            return jokes[Math.floor(Math.random() * jokes.length)] + " 😄 Want another one?";
+        }
+        
+        // Technology
+        if (lower.includes('ai') || lower.includes('artificial intelligence')) {
+            return `AI is fascinating! I'm an AI assistant designed to help with various queries, especially FPL strategy. The field is advancing rapidly with applications in everything from healthcare to entertainment. What aspect of AI interests you?`;
+        }
+        
+        // Default thoughtful response
+        return this.generateThoughtfulResponse(message);
     }
     
-    getCaptainAdvice() {
-        const options = [
-            {
-                player: "Erling Haaland",
-                team: "Man City",
-                opponent: "Luton (H)",
-                reason: "Facing the worst defense in the league, averaging 3.2 goals conceded per game",
-                stats: "7 goals in last 4 home games, xG of 9.3",
-                confidence: "95%"
-            },
-            {
-                player: "Mohamed Salah",
-                team: "Liverpool",
-                opponent: "Sheffield United (H)",
-                reason: "Excellent home record and Sheffield United have conceded 15 in last 5 away games",
-                stats: "5 goals, 3 assists in last 4 games",
-                confidence: "88%"
-            },
-            {
-                player: "Cole Palmer",
-                team: "Chelsea",
-                opponent: "Burnley (H)",
-                reason: "On penalties and free kicks, Burnley struggling defensively",
-                stats: "Involved in 65% of Chelsea's goals when playing",
-                confidence: "82%"
+    generateConversationalResponse(message) {
+        // Check conversation context
+        const context = this.getRecentContext();
+        
+        // Generate response based on context
+        if (context.length > 0) {
+            const lastTopic = this.extractTopicFromContext(context);
+            if (lastTopic) {
+                return `Building on what we were discussing about ${lastTopic}, ${this.continueConversation(message, lastTopic)}`;
             }
-        ];
+        }
         
-        const pick = options[Math.floor(Math.random() * options.length)];
-        
-        return `<strong>🎯 Captain Recommendation for GW${this.getCurrentGameweek()}</strong><br><br>
-        <strong>My Pick: ${pick.player} (C)</strong><br>
-        📍 ${pick.team} vs ${pick.opponent}<br><br>
-        <strong>Why?</strong><br>
-        • ${pick.reason}<br>
-        • ${pick.stats}<br>
-        • Confidence Level: ${pick.confidence}<br><br>
-        <strong>Vice Captain:</strong> ${options.find(o => o !== pick).player}<br><br>
-        💡 <em>Pro Tip: Check team news 1 hour before deadline for any last-minute changes!</em>`;
+        // New conversation thread
+        return this.generateThoughtfulResponse(message);
     }
     
-    getTransferAdvice() {
-        return `<strong>📊 Transfer Analysis for Your Team</strong><br><br>
-        <strong>Priority Transfers This Week:</strong><br><br>
-        <strong>OUT:</strong> Injured/Suspended Players<br>
-        • Check your squad for red flags<br>
-        • Players with 75% chance of playing or less<br><br>
-        <strong>IN - Top Picks by Position:</strong><br><br>
-        <strong>🥅 GK:</strong> Alisson (5.5m) - 3 clean sheets in 4<br>
-        <strong>🛡️ DEF:</strong> Trippier (7.0m) - Attacking returns + CS potential<br>
-        <strong>⚡ MID:</strong> Saka (8.9m) - Form player, great fixtures<br>
-        <strong>⚔️ FWD:</strong> Watkins (8.1m) - Differential with good fixtures<br><br>
-        <strong>Budget Option:</strong> Gordon (5.5m) - Explosive potential<br><br>
-        Would you like specific advice for your team? Share your Team ID!`;
-    }
-    
-    getDifferentialPicks() {
-        const differentials = [
-            { name: "Matheus Cunha", ownership: "3.2%", reason: "Great underlying stats, key player for Wolves" },
-            { name: "Anthony Gordon", ownership: "8.5%", reason: "Newcastle's form player, excellent fixtures" },
-            { name: "Eberechi Eze", ownership: "5.1%", reason: "Crystal Palace talisman, on set pieces" },
-            { name: "Leandro Trossard", ownership: "4.8%", reason: "Rotation risk but explosive when starts" },
-            { name: "Morgan Gibbs-White", ownership: "2.9%", reason: "Forest's creative hub, improving team" }
-        ];
-        
-        const picks = differentials.sort(() => 0.5 - Math.random()).slice(0, 3);
-        
-        return `<strong>💎 Differential Picks (Under 10% Ownership)</strong><br><br>` +
-            picks.map(p => 
-                `<strong>${p.name}</strong> (${p.ownership} owned)<br>
-                📈 ${p.reason}<br><br>`
-            ).join('') +
-            `<strong>Why Differentials Matter:</strong><br>
-            • Massive rank gains when they haul<br>
-            • Low ownership = unique advantage<br>
-            • Essential for climbing into top 10k<br><br>
-            ⚠️ <em>Remember: Higher risk, higher reward!</em>`;
-    }
-    
-    getWildcardAdvice() {
-        const gw = this.getCurrentGameweek();
-        return `<strong>🎯 Wildcard Strategy Guide</strong><br><br>
-        <strong>Current GW: ${gw}</strong><br><br>
-        <strong>Optimal Wildcard Windows:</strong><br>
-        • GW9-12: International break, fixture swings<br>
-        • GW28-31: Double gameweek preparation<br>
-        • GW35-38: Final push for rank<br><br>
-        <strong>Should You Wildcard Now?</strong><br>
-        Consider if you have:<br>
-        ✅ 3+ injuries or suspensions<br>
-        ✅ 5+ players with bad fixtures<br>
-        ✅ Team value dropping rapidly<br>
-        ✅ Major template changes needed<br><br>
-        <strong>Wildcard Team Structure:</strong><br>
-        • 2 Premium defenders (6.0m+)<br>
-        • 3 Premium mids/forwards<br>
-        • Strong bench for rotation<br>
-        • Target 2-3 differentials<br><br>
-        Want a specific wildcard draft? Tell me your budget!`;
-    }
-    
-    getTeamAnalysis() {
-        return `<strong>📋 Team Analysis Service</strong><br><br>
-        I can provide a comprehensive analysis of your FPL team!<br><br>
-        <strong>What I'll Analyze:</strong><br>
-        • Formation effectiveness<br>
-        • Captain choices<br>
-        • Bench strength<br>
-        • Fixture difficulty next 5 GWs<br>
-        • Transfer priorities<br>
-        • Chip strategy<br><br>
-        <strong>To get started, please provide:</strong><br>
-        1️⃣ Your Team ID, or<br>
-        2️⃣ List your current 15 players<br><br>
-        I'll generate a personalized report with actionable recommendations!`;
-    }
-    
-    getChipStrategy() {
-        return `<strong>🎮 Chip Strategy Masterclass</strong><br><br>
-        <strong>Triple Captain:</strong><br>
-        • Best: Double gameweek for Haaland/Salah<br>
-        • Expected: DGW25, DGW32, or DGW37<br>
-        • Strategy: Premium player, home fixtures<br><br>
-        <strong>Bench Boost:</strong><br>
-        • Best: DGW37 traditionally<br>
-        • Need: 4 playing bench players with doubles<br>
-        • Prep: Build from GW35 with transfers<br><br>
-        <strong>Free Hit:</strong><br>
-        • Option 1: Big blank gameweek (BGW)<br>
-        • Option 2: Emergency injury crisis<br>
-        • Option 3: Target specific DGW<br><br>
-        <strong>Second Wildcard:</strong><br>
-        • Available: From GW20<br>
-        • Best: GW28-34 for run-in<br>
-        • Focus: DGW players + fixtures<br><br>
-        Which chip are you planning to use next?`;
-    }
-    
-    getInjuryNews() {
-        return `<strong>🏥 Latest Injury & Team News</strong><br><br>
-        <strong>Key Updates (Last 24h):</strong><br><br>
-        🔴 <strong>OUT:</strong><br>
-        • Martinelli - Hamstring (3-4 weeks)<br>
-        • James - Knee (2 weeks)<br>
-        • Maddison - Ankle (Unknown)<br><br>
-        🟡 <strong>DOUBTS (75%):</strong><br>
-        • De Bruyne - Knock (Late fitness test)<br>
-        • Watkins - Knee (Should make it)<br><br>
-        🟢 <strong>RETURNS:</strong><br>
-        • Grealish - Back in training<br>
-        • Jota - Available for selection<br><br>
-        <strong>Press Conference Times Today:</strong><br>
-        • Klopp: 1:30 PM<br>
-        • Guardiola: 2:00 PM<br>
-        • Arteta: 2:30 PM<br><br>
-        💡 <em>Tip: Wait for pressers before making transfers!</em>`;
-    }
-    
-    getFixtureAnalysis() {
-        return `<strong>📅 Fixture Difficulty Analysis</strong><br><br>
-        <strong>Best Fixtures Next 5 GWs:</strong><br><br>
-        <strong>🟢 Teams to Target:</strong><br>
-        1. Liverpool - 3 home games, bottom 6 teams<br>
-        2. Man City - Favorable run after Chelsea<br>
-        3. Newcastle - 4 green fixtures<br>
-        4. Brighton - Under the radar good run<br><br>
-        <strong>🔴 Teams to Avoid:</strong><br>
-        1. Chelsea - Tough run including City, Arsenal<br>
-        2. Everton - Away games at top 6<br>
-        3. Wolves - Difficult fixtures + poor form<br><br>
-        <strong>Fixture Proof Players:</strong><br>
-        • Haaland - Scores against anyone<br>
-        • Salah - Home banker<br>
-        • Son - Good record vs top 6<br><br>
-        Want specific fixture analysis for your players?`;
-    }
-    
-    getPriceChanges() {
-        return `<strong>💰 Price Change Predictions Tonight</strong><br><br>
-        <strong>📈 RISERS (Likely):</strong><br>
-        • Palmer - 107.3% transfer in target<br>
-        • Gordon - 98.5% target<br>
-        • Solanke - 89.2% target<br><br>
-        <strong>📉 FALLERS (Likely):</strong><br>
-        • Maddison - -108.4% (injured)<br>
-        • James - -95.2% (injured)<br>
-        • Neto - -88.1% (poor form)<br><br>
-        <strong>Price Change Strategy:</strong><br>
-        • Beat the rise: Transfer before 2:30 AM GMT<br>
-        • Avoid drops: Can wait if not urgent<br>
-        • Building value: Early transfers on risers<br><br>
-        ⏰ <em>Price changes happen daily at 2:30 AM GMT</em><br><br>
-        Want to check specific players? Just ask!`;
-    }
-    
-    getFormationAdvice() {
-        return `<strong>⚡ Formation & Strategy Guide</strong><br><br>
-        <strong>Popular Formations Analyzed:</strong><br><br>
-        <strong>3-5-2</strong> ⭐ Most Popular<br>
-        • Balance of premium mids & forwards<br>
-        • Flexibility with transfers<br>
-        • Best for: Steady points<br><br>
-        <strong>3-4-3</strong> 🎯 High Risk/Reward<br>
-        • Triple premium forwards<br>
-        • Capitalizes on forward form<br>
-        • Best for: Aggressive players<br><br>
-        <strong>4-4-2</strong> 🛡️ Defensive<br>
-        • Clean sheet focus<br>
-        • Premium defenders essential<br>
-        • Best for: Risk-averse approach<br><br>
-        <strong>5-3-2</strong> 💪 Differential<br>
-        • Maximum defensive coverage<br>
-        • Targets multiple clean sheets<br>
-        • Best for: Going against template<br><br>
-        <strong>Current Meta:</strong> 3-5-2 with Haaland + Salah<br><br>
-        What formation are you running?`;
-    }
-    
-    getDefaultResponse() {
+    generateThoughtfulResponse(message) {
         const responses = [
-            `I can help you with various FPL strategies! Try asking about:<br><br>
-            • Captain picks for this gameweek<br>
-            • Transfer recommendations<br>
-            • Differential players<br>
-            • Wildcard timing<br>
-            • Chip strategy<br>
-            • Injury updates<br>
-            • Price changes<br>
-            • Formation advice<br><br>
-            What would you like to know?`,
-            
-            `Here's what I can analyze for you:<br><br>
-            📊 Data Analysis: Player stats, form, fixtures<br>
-            🎯 Predictions: Captain picks, point forecasts<br>
-            💡 Strategy: Chips, wildcards, transfers<br>
-            📈 Trends: Ownership, price changes<br><br>
-            Ask me anything specific!`,
-            
-            `I'm continuously analyzing FPL data to help you succeed! Popular questions:<br><br>
-            "Who should I captain this week?"<br>
-            "Is it time to wildcard?"<br>
-            "Best differential picks?"<br>
-            "Should I take a hit for transfers?"<br><br>
-            What's your FPL challenge today?`
+            `That's an interesting question. ${this.elaborateOnTopic(message)}`,
+            `I understand what you're asking. ${this.provideInsight(message)}`,
+            `Let me think about that. ${this.offerPerspective(message)}`,
+            `Good point! ${this.expandDiscussion(message)}`
         ];
         
         return responses[Math.floor(Math.random() * responses.length)];
     }
     
-    getCurrentGameweek() {
-        // Calculate current gameweek based on date
-        const seasonStart = new Date('2024-08-16');
-        const now = new Date();
-        const weeksDiff = Math.floor((now - seasonStart) / (7 * 24 * 60 * 60 * 1000));
-        return Math.min(Math.max(weeksDiff + 1, 1), 38);
+    elaborateOnTopic(message) {
+        const elaborations = [
+            "While I specialize in FPL advice, I can discuss various topics. Could you provide more context so I can give you a better response?",
+            "That touches on several areas. What specific aspect would you like to explore?",
+            "There are different ways to approach this. What's your main concern?",
+            "This relates to broader themes. How can I help you with this specifically?"
+        ];
+        return elaborations[Math.floor(Math.random() * elaborations.length)];
+    }
+    
+    provideInsight(message) {
+        return "From my understanding, this involves multiple factors. Would you like me to break down the key considerations?";
+    }
+    
+    offerPerspective(message) {
+        return "Different people might have varying views on this. What's your take, and how can I assist?";
+    }
+    
+    expandDiscussion(message) {
+        return "This opens up interesting possibilities. Is there a particular angle you'd like to explore?";
+    }
+    
+    getCaptainAnalysis(player) {
+        const analyses = {
+            'haaland': "he's the most consistent captain choice with his incredible home record",
+            'salah': "he's Liverpool's talisman and loves playing at Anfield",
+            'palmer': "he's on all set pieces for Chelsea and has been in brilliant form",
+            'saka': "he's Arsenal's key player and very reliable for returns",
+            'default': "they could be a good differential pick depending on the fixture"
+        };
+        return analyses[player.toLowerCase()] || analyses['default'];
+    }
+    
+    comparePlayersNaturally(player1, player2) {
+        return `The first has better underlying stats recently, while the second offers more consistency. It really depends on whether you're looking for ceiling or floor in your team`;
+    }
+    
+    generateContextualFPLAdvice(message) {
+        const lower = message.toLowerCase();
+        
+        if (lower.includes('rank')) {
+            return `Rank improvement is about consistent good decisions over time. Focus on getting your captain picks right (most important), having players for the big hauls, and not taking unnecessary hits. What's your current rank and goal?`;
+        }
+        
+        if (lower.includes('chip')) {
+            return `Chip strategy is crucial for a successful season. Each chip should be planned weeks in advance. Triple Captain for a double gameweek, Bench Boost when you have 15 playing players, Free Hit for blanks or emergencies. Which chip are you considering?`;
+        }
+        
+        if (lower.includes('budget') || lower.includes('value')) {
+            return `Team value is built over time through price rises, but remember - it's points that matter, not value. That said, having extra budget gives you flexibility. Are you looking to build value or maximize points?`;
+        }
+        
+        return `FPL success comes from balancing risk and reward, understanding the fundamentals, and a bit of luck. What specific aspect of the game would you like to improve?`;
+    }
+    
+    getPlayerInsight(player) {
+        const insights = {
+            'haaland': "His goal-scoring record is phenomenal, though the occasional rotation can be frustrating",
+            'salah': "Still producing elite numbers year after year, a true FPL legend",
+            'messi': "One of the greatest to ever play the game, his vision is unmatched",
+            'ronaldo': "His longevity and dedication to fitness is remarkable",
+            'default': "They've been making headlines recently"
+        };
+        return insights[player.toLowerCase()] || insights['default'];
+    }
+    
+    getFootballInsight() {
+        const insights = [
+            "The tactical evolution in modern football is fascinating, with teams constantly adapting",
+            "The Premier League's competitiveness makes every match unpredictable",
+            "Youth development has become crucial for clubs' long-term success",
+            "The impact of analytics on modern football strategy is revolutionary"
+        ];
+        return insights[Math.floor(Math.random() * insights.length)];
+    }
+    
+    formatName(name) {
+        const properNames = {
+            'haaland': 'Haaland',
+            'salah': 'Salah',
+            'palmer': 'Palmer',
+            'saka': 'Saka',
+            'son': 'Son',
+            'kane': 'Kane',
+            'messi': 'Messi',
+            'ronaldo': 'Ronaldo'
+        };
+        return properNames[name.toLowerCase()] || name.charAt(0).toUpperCase() + name.slice(1);
+    }
+    
+    evaluateMath(expression) {
+        // Simple safe math evaluation
+        const cleaned = expression.replace(/[^0-9+\-*/().\s]/g, '');
+        const parts = cleaned.match(/(\d+)\s*([\+\-\*\/])\s*(\d+)/);
+        if (parts) {
+            const a = parseFloat(parts[1]);
+            const op = parts[2];
+            const b = parseFloat(parts[3]);
+            
+            switch(op) {
+                case '+': return a + b;
+                case '-': return a - b;
+                case '*': return a * b;
+                case '/': return b !== 0 ? (a / b).toFixed(2) : 'undefined (division by zero)';
+            }
+        }
+        return 'Could not calculate';
+    }
+    
+    getRecentContext() {
+        return this.conversationContext.slice(-4);
+    }
+    
+    extractTopicFromContext(context) {
+        if (context.length > 0) {
+            const lastMessage = context[context.length - 1];
+            if (lastMessage.role === 'assistant') {
+                // Extract main topic from last response
+                if (lastMessage.content.includes('FPL')) return 'FPL strategy';
+                if (lastMessage.content.includes('football')) return 'football';
+                if (lastMessage.content.includes('captain')) return 'captaincy';
+            }
+        }
+        return null;
+    }
+    
+    continueConversation(message, topic) {
+        const continuations = {
+            'FPL strategy': "this connects to the broader strategy we were discussing. How does this fit into your overall plan?",
+            'football': "that's another interesting angle to consider. The sport has so many dimensions.",
+            'captaincy': "captaincy choices can really make or break a gameweek. Have you decided yet?",
+            'default': "I see where you're going with this. Tell me more about your thoughts."
+        };
+        return continuations[topic] || continuations['default'];
     }
     
     getCurrentTime() {
@@ -510,19 +623,52 @@ class FPLAIAssistant {
     saveConversation() {
         if (this.messageHistory.length > 0) {
             localStorage.setItem('fpl_chat_history', JSON.stringify(this.messageHistory.slice(-20)));
+            localStorage.setItem('fpl_chat_context', JSON.stringify(this.conversationContext.slice(-10)));
         }
     }
     
     loadSavedConversation() {
-        const saved = localStorage.getItem('fpl_chat_history');
-        if (saved) {
+        const savedHistory = localStorage.getItem('fpl_chat_history');
+        const savedContext = localStorage.getItem('fpl_chat_context');
+        
+        if (savedHistory) {
             try {
-                this.messageHistory = JSON.parse(saved);
-                // Optionally restore last few messages
+                this.messageHistory = JSON.parse(savedHistory);
             } catch (e) {
-                console.error('Could not load saved conversation');
+                console.error('Could not load saved history');
             }
         }
+        
+        if (savedContext) {
+            try {
+                this.conversationContext = JSON.parse(savedContext);
+            } catch (e) {
+                console.error('Could not load saved context');
+            }
+        }
+    }
+    
+    initializeKnowledgeBase() {
+        return {
+            currentGameweek: this.calculateCurrentGameweek(),
+            players: {
+                premiums: ['Haaland', 'Salah', 'Son', 'De Bruyne', 'Kane'],
+                midPrice: ['Palmer', 'Saka', 'Watkins', 'Solanke', 'Gordon'],
+                budget: ['Mbeumo', 'Cunha', 'Eze', 'Wissa', 'Rogers']
+            },
+            strategies: {
+                aggressive: 'Take hits for upside, early chips, chase differentials',
+                balanced: 'Mix of safety and risk, strategic hits, planned chips',
+                conservative: 'Minimize hits, template team, safe captains'
+            }
+        };
+    }
+    
+    calculateCurrentGameweek() {
+        const seasonStart = new Date('2024-08-16');
+        const now = new Date();
+        const diff = Math.floor((now - seasonStart) / (7 * 24 * 60 * 60 * 1000));
+        return Math.min(Math.max(diff + 1, 1), 38);
     }
 }
 
