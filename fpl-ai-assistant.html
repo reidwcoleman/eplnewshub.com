@@ -3366,42 +3366,81 @@
             });
         }
         
-        // Simple player finding - just look for exact matches
+        // Enhanced player finding - detect all 15 players including bench
         function findPlayersSimple(text) {
-            console.log('Simple player detection...');
+            console.log('Enhanced player detection for all 15 slots...');
             
             if (!window.fplData || !window.fplData.loaded) return [];
             
             const foundPlayers = [];
             const textUpper = text.toUpperCase();
             const addedPlayerIds = new Set();
+            const unmatchedWords = [];
+            
+            // Split text into words for more thorough matching
+            const words = textUpper.split(/[\s\n\r,.()£]+/).filter(w => w.length > 2);
+            console.log('Words found in OCR:', words.length, 'words');
+            
+            // Track which words we've matched
+            const matchedWords = new Set();
             
             // Check each player in database
             window.fplData.players.forEach(player => {
-                // Skip if already added
                 if (addedPlayerIds.has(player.id)) return;
                 
                 const playerName = player.name.toUpperCase();
-                const lastName = player.fullName.split(' ').pop().toUpperCase();
+                const fullName = player.fullName.toUpperCase();
+                const firstName = fullName.split(' ')[0];
+                const lastName = fullName.split(' ').pop();
                 
-                // Simple check: does the name appear in text?
                 let found = false;
                 let confidence = 0;
+                let matchedWord = null;
                 
-                // Check full name
+                // 1. Check full player name
                 if (playerName.length > 2 && textUpper.includes(playerName)) {
                     found = true;
-                    confidence = 95;
-                    console.log(`Found: ${player.name}`);
+                    confidence = 100;
+                    matchedWord = playerName;
+                    console.log(`✅ Exact: ${player.name}`);
                 }
-                // Check last name (must be longer to avoid false positives)
-                else if (lastName.length > 5 && textUpper.includes(lastName)) {
-                    // Make sure it's the right player (avoid common last names)
-                    const commonLastNames = ['SILVA', 'GARCIA', 'MARTINEZ', 'RODRIGUEZ', 'SMITH', 'JONES'];
-                    if (!commonLastNames.includes(lastName)) {
+                // 2. Check last name (unique enough)
+                else if (lastName.length > 4 && textUpper.includes(lastName)) {
+                    const sameLastName = window.fplData.players.filter(p => 
+                        p.fullName.toUpperCase().includes(lastName)
+                    );
+                    if (sameLastName.length <= 2) {
                         found = true;
-                        confidence = 80;
-                        console.log(`Found by last name: ${player.name} (${lastName})`);
+                        confidence = 85;
+                        matchedWord = lastName;
+                        console.log(`✅ Last name: ${player.name} (${lastName})`);
+                    }
+                }
+                // 3. Check first name (if unique)
+                else if (firstName.length > 4 && textUpper.includes(firstName)) {
+                    const sameFirstName = window.fplData.players.filter(p => 
+                        p.fullName.toUpperCase().startsWith(firstName)
+                    );
+                    if (sameFirstName.length === 1) {
+                        found = true;
+                        confidence = 75;
+                        matchedWord = firstName;
+                        console.log(`✅ First name: ${player.name} (${firstName})`);
+                    }
+                }
+                // 4. Check individual words
+                else {
+                    for (const word of words) {
+                        if (word.length < 4) continue;
+                        
+                        if (playerName === word || lastName === word || 
+                            (firstName === word && firstName.length > 4)) {
+                            found = true;
+                            confidence = 70;
+                            matchedWord = word;
+                            console.log(`✅ Word: ${player.name} (${word})`);
+                            break;
+                        }
                     }
                 }
                 
@@ -3416,9 +3455,23 @@
                         confidence: confidence
                     });
                     addedPlayerIds.add(player.id);
+                    if (matchedWord) matchedWords.add(matchedWord);
                 }
             });
             
+            // Find unmatched words
+            words.forEach(word => {
+                if (!matchedWords.has(word) && word.length > 3 && isNaN(word)) {
+                    unmatchedWords.push(word);
+                }
+            });
+            
+            console.log(`Found ${foundPlayers.length}/15 players`);
+            if (unmatchedWords.length > 0 && foundPlayers.length < 15) {
+                console.log('Unmatched words:', unmatchedWords.slice(0, 10));
+            }
+            
+            window.unmatchedOCRWords = unmatchedWords;
             return foundPlayers;
         }
         
@@ -4238,10 +4291,21 @@ Saka
             // Sort by confidence
             detectedPlayers.sort((a, b) => b.confidence - a.confidence);
             
+            // Check if we found all 15 players
+            const missingCount = 15 - detectedPlayers.length;
+            let headerMessage = '';
+            if (detectedPlayers.length === 15) {
+                headerMessage = '✅ <strong>All 15 players detected!</strong>';
+            } else if (detectedPlayers.length >= 11) {
+                headerMessage = `✅ <strong>Detected ${detectedPlayers.length}/15 players</strong><br><small>Missing ${missingCount} players (likely bench)</small>`;
+            } else {
+                headerMessage = `⚠️ <strong>Only found ${detectedPlayers.length}/15 players</strong><br><small>You can add missing players manually</small>`;
+            }
+            
             // Create verification UI
             let verificationHTML = `
                 <div style="text-align: center;">
-                    <div class="fpl-tips">✅ <strong>Detected ${detectedPlayers.length} Players</strong></div>
+                    <div class="fpl-tips">${headerMessage}</div>
                     <div style="margin: 10px 0;">Please verify the detected players below:</div>
                     <div style="max-height: 300px; overflow-y: auto; background: #f5f5f5; border-radius: 8px; padding: 15px; margin: 10px 0;">
                         <table style="width: 100%; font-size: 14px;">
