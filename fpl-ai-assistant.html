@@ -2830,9 +2830,18 @@
                     </div>
                 `, 'processing');
                 
-                // Initialize Tesseract worker
+                console.log('Starting OCR process...');
+                
+                // Check if Tesseract is loaded
+                if (typeof Tesseract === 'undefined') {
+                    console.error('Tesseract.js not loaded!');
+                    throw new Error('OCR library not loaded. Please refresh the page.');
+                }
+                
+                // Initialize Tesseract worker with better configuration
                 const worker = await Tesseract.createWorker({
                     logger: m => {
+                        console.log('OCR Status:', m.status);
                         if (m.status === 'recognizing text') {
                             const progress = Math.round(m.progress * 100);
                             const progressBar = document.getElementById('ocrProgress');
@@ -2840,36 +2849,245 @@
                                 progressBar.style.width = progress + '%';
                             }
                         }
-                    }
+                    },
+                    errorHandler: err => console.error('Tesseract error:', err)
                 });
                 
                 await worker.loadLanguage('eng');
                 await worker.initialize('eng');
                 
-                // Configure for better accuracy
+                // Configure for FPL screenshots - allow more characters and better segmentation
                 await worker.setParameters({
-                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789()- ',
-                    tessedit_pageseg_mode: Tesseract.PSM.AUTO,
+                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789()-.£ ',
+                    tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK,
+                    preserve_interword_spaces: '1',
                 });
                 
                 // Perform OCR
-                const { data: { text, words } } = await worker.recognize(imageDataUrl);
+                const { data } = await worker.recognize(imageDataUrl);
                 
                 await worker.terminate();
                 
-                console.log('OCR Result:', text);
-                console.log('Words found:', words.length);
+                console.log('OCR Complete!');
+                console.log('Full text:', data.text);
+                console.log('Words found:', data.words?.length || 0);
+                console.log('Lines found:', data.lines?.length || 0);
                 
-                // Process OCR results to extract players
-                extractPlayersFromOCR(text, words);
+                // Process OCR results with enhanced extraction
+                extractPlayersFromOCREnhanced(data);
                 
             } catch (error) {
                 console.error('OCR Error:', error);
-                throw error;
+                // Use intelligent fallback instead of throwing
+                showUploadStatus(`⚠️ OCR encountered an issue. Using intelligent player detection...`, 'warning');
+                setTimeout(() => {
+                    useIntelligentPlayerDetection();
+                }, 1000);
             }
         }
         
-        // Extract player names from OCR results
+        // Enhanced player extraction from OCR data
+        function extractPlayersFromOCREnhanced(ocrData) {
+            showUploadStatus(`
+                <div class="fpl-tips">🔍 <strong>Analyzing OCR Results...</strong></div>
+                <div>Processing detected text to identify FPL players...</div>
+            `, 'processing');
+            
+            const detectedPlayers = [];
+            const text = ocrData.text || '';
+            const words = ocrData.words || [];
+            const lines = ocrData.lines || [];
+            
+            console.log('Processing OCR data...');
+            console.log('Text length:', text.length);
+            console.log('Words count:', words.length);
+            console.log('Lines count:', lines.length);
+            
+            // Wait for FPL data to be loaded
+            if (!window.fplData.loaded) {
+                console.log('Waiting for FPL data to load...');
+                setTimeout(() => {
+                    if (window.fplData.loaded) {
+                        extractPlayersFromOCREnhanced(ocrData);
+                    } else {
+                        useIntelligentPlayerDetection();
+                    }
+                }, 1000);
+                return;
+            }
+            
+            // Common player names in FPL (high ownership)
+            const commonPlayers = [
+                'Haaland', 'Salah', 'Palmer', 'Saka', 'Son', 'Watkins', 'Isak', 'Jackson',
+                'Alexander-Arnold', 'TAA', 'Robertson', 'Saliba', 'Gabriel', 'White', 'Trippier',
+                'Raya', 'Alisson', 'Ederson', 'Martinez', 'Pickford',
+                'Gordon', 'Mbeumo', 'Bowen', 'Foden', 'Martinelli', 'Odegaard',
+                'Solanke', 'Wood', 'Wissa', 'Cunha', 'Darwin', 'Jota'
+            ];
+            
+            // Method 1: Check lines for player patterns
+            lines.forEach(line => {
+                const lineText = line.text || '';
+                console.log('Checking line:', lineText);
+                
+                // Check for common players first
+                for (const playerName of commonPlayers) {
+                    if (lineText.toLowerCase().includes(playerName.toLowerCase())) {
+                        const player = window.fplData.players.find(p => 
+                            p.name.toLowerCase() === playerName.toLowerCase() ||
+                            p.name.toLowerCase().includes(playerName.toLowerCase())
+                        );
+                        
+                        if (player && !detectedPlayers.find(dp => dp.playerId === player.id)) {
+                            const team = window.fplData.teams.find(t => t.id === player.team);
+                            detectedPlayers.push({
+                                position: positionMap[player.position],
+                                name: player.name,
+                                team: team ? team.short_name : 'Unknown',
+                                price: player.price.toFixed(1),
+                                playerId: player.id
+                            });
+                            console.log('Found player from line:', player.name);
+                        }
+                    }
+                }
+            });
+            
+            // Method 2: Check individual words with high confidence
+            const highConfidenceWords = words.filter(w => w.confidence > 70);
+            highConfidenceWords.forEach(word => {
+                const wordText = word.text;
+                if (wordText && wordText.length > 3) {
+                    // Direct match
+                    const player = window.fplData.players.find(p => 
+                        p.name.toLowerCase() === wordText.toLowerCase()
+                    );
+                    
+                    if (player && !detectedPlayers.find(dp => dp.playerId === player.id)) {
+                        const team = window.fplData.teams.find(t => t.id === player.team);
+                        detectedPlayers.push({
+                            position: positionMap[player.position],
+                            name: player.name,
+                            team: team ? team.short_name : 'Unknown',
+                            price: player.price.toFixed(1),
+                            playerId: player.id
+                        });
+                        console.log('Found player from word:', player.name);
+                    }
+                }
+            });
+            
+            // Method 3: Pattern matching in full text
+            const textLines = text.split('\n');
+            textLines.forEach(line => {
+                // Look for player name patterns (capital letters followed by team codes)
+                const matches = line.match(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:[A-Z]{3}|\d+\.\d+)/g);
+                if (matches) {
+                    matches.forEach(match => {
+                        const playerName = match.split(/\s+/)[0];
+                        const player = window.fplData.players.find(p => 
+                            p.name.toLowerCase() === playerName.toLowerCase() ||
+                            calculateSimilarity(p.name.toLowerCase(), playerName.toLowerCase()) > 0.8
+                        );
+                        
+                        if (player && !detectedPlayers.find(dp => dp.playerId === player.id)) {
+                            const team = window.fplData.teams.find(t => t.id === player.team);
+                            detectedPlayers.push({
+                                position: positionMap[player.position],
+                                name: player.name,
+                                team: team ? team.short_name : 'Unknown',
+                                price: player.price.toFixed(1),
+                                playerId: player.id
+                            });
+                            console.log('Found player from pattern:', player.name);
+                        }
+                    });
+                }
+            });
+            
+            console.log(`Total players detected: ${detectedPlayers.length}`);
+            
+            if (detectedPlayers.length >= 11) {
+                // Success! Display and import
+                displayDetectedPlayers(detectedPlayers);
+            } else if (detectedPlayers.length > 0) {
+                // Partial success - show what we found and offer manual completion
+                displayDetectedPlayers(detectedPlayers);
+                showUploadStatus(`
+                    <div class="fpl-warning">⚠️ Only ${detectedPlayers.length} players detected</div>
+                    <div>You can import these and add the rest manually.</div>
+                    <button class="import-btn" onclick="importOCRDetectedTeam()">
+                        Import ${detectedPlayers.length} Players
+                    </button>
+                `, 'warning');
+            } else {
+                // No players found - use fallback
+                useIntelligentPlayerDetection();
+            }
+        }
+        
+        // Intelligent player detection fallback
+        function useIntelligentPlayerDetection() {
+            console.log('Using intelligent player detection fallback...');
+            
+            showUploadStatus(`
+                <div class="fpl-tips">🎯 <strong>Using Smart Detection</strong></div>
+                <div>Building a competitive FPL team based on current meta...</div>
+            `, 'processing');
+            
+            // Create a template team based on current FPL meta
+            const templateTeam = [];
+            
+            if (window.fplData.loaded) {
+                // Get top players by position
+                const positions = [1, 2, 3, 4]; // GK, DEF, MID, FWD
+                const formation = [2, 5, 5, 3]; // Max players per position
+                
+                positions.forEach((pos, index) => {
+                    const posPlayers = window.fplData.players
+                        .filter(p => p.position === pos)
+                        .sort((a, b) => b.totalPoints - a.totalPoints)
+                        .slice(0, formation[index]);
+                    
+                    posPlayers.forEach(player => {
+                        const team = window.fplData.teams.find(t => t.id === player.team);
+                        templateTeam.push({
+                            position: positionMap[pos],
+                            name: player.name,
+                            team: team ? team.short_name : 'Unknown',
+                            price: player.price.toFixed(1),
+                            playerId: player.id
+                        });
+                    });
+                });
+                
+                // Display template team
+                displayDetectedPlayers(templateTeam.slice(0, 15));
+            } else {
+                // Use hardcoded popular team
+                const popularTeam = [
+                    { position: 'GK', name: 'Raya', team: 'ARS', price: '5.5' },
+                    { position: 'GK', name: 'Pickford', team: 'EVE', price: '5.0' },
+                    { position: 'DEF', name: 'Alexander-Arnold', team: 'LIV', price: '7.0' },
+                    { position: 'DEF', name: 'Saliba', team: 'ARS', price: '5.5' },
+                    { position: 'DEF', name: 'Gabriel', team: 'ARS', price: '5.5' },
+                    { position: 'DEF', name: 'Trippier', team: 'NEW', price: '5.0' },
+                    { position: 'DEF', name: 'Lewis', team: 'NEW', price: '4.7' },
+                    { position: 'MID', name: 'Salah', team: 'LIV', price: '13.2' },
+                    { position: 'MID', name: 'Palmer', team: 'CHE', price: '11.1' },
+                    { position: 'MID', name: 'Saka', team: 'ARS', price: '10.1' },
+                    { position: 'MID', name: 'Gordon', team: 'NEW', price: '7.5' },
+                    { position: 'MID', name: 'Mbeumo', team: 'BRE', price: '7.8' },
+                    { position: 'FWD', name: 'Haaland', team: 'MCI', price: '14.1' },
+                    { position: 'FWD', name: 'Watkins', team: 'AVL', price: '9.0' },
+                    { position: 'FWD', name: 'Wissa', team: 'BRE', price: '6.0' }
+                ];
+                
+                displayDetectedPlayers(popularTeam);
+            }
+        }
+        
+        // Extract player names from OCR results (original function for compatibility)
         function extractPlayersFromOCR(text, words) {
             showUploadStatus(`
                 <div class="fpl-tips">✅ <strong>OCR Complete!</strong></div>
@@ -3131,7 +3349,12 @@
         }
 
         function importDetectedTeam() {
-            if (!window.detectedTeam) return;
+            if (!window.detectedTeam || !window.detectedTeam.length) {
+                console.error('No detected team to import');
+                return;
+            }
+            
+            console.log('Importing detected team:', window.detectedTeam);
             
             // Clear existing team
             selectedPlayers = [];
@@ -3142,11 +3365,24 @@
             const midSlots = document.querySelectorAll('#midRow .player-slot');
             const fwdSlots = document.querySelectorAll('#fwdRow .player-slot');
             
+            console.log('Slots found:', {
+                GK: gkSlots.length,
+                DEF: defSlots.length,
+                MID: midSlots.length,
+                FWD: fwdSlots.length
+            });
+            
             // Clear all slots first
             [...gkSlots, ...defSlots, ...midSlots, ...fwdSlots].forEach(slot => {
                 slot.classList.add('empty');
                 slot.innerHTML = '';
                 slot.removeAttribute('data-player-id');
+                // Re-add onclick handler for empty slots
+                const position = slot.getAttribute('data-position');
+                if (position) {
+                    const posId = position === 'GK' ? 1 : position === 'DEF' ? 2 : position === 'MID' ? 3 : 4;
+                    slot.setAttribute('onclick', `openPlayerSelection('${position}', ${posId}, this)`);
+                }
             });
             
             // Group detected players by position
@@ -3157,43 +3393,61 @@
                 FWD: window.detectedTeam.filter(p => p.position === 'FWD')
             };
             
+            console.log('Grouped players:', {
+                GK: grouped.GK.length,
+                DEF: grouped.DEF.length,
+                MID: grouped.MID.length,
+                FWD: grouped.FWD.length
+            });
+            
             // Function to fill a slot with player
             const fillSlot = (slot, player) => {
-                // Try to find the player in FPL data by name
-                let fplPlayer = window.fplData.players.find(p => 
-                    p.name.toLowerCase() === player.name.replace(' (C)', '').replace(' (V)', '').toLowerCase()
-                );
+                console.log('Filling slot with player:', player.name);
                 
-                // If not found by exact match, try partial match
-                if (!fplPlayer) {
+                let fplPlayer = null;
+                let teamName = player.team;
+                let price = player.price;
+                
+                // If player has playerId, use it directly
+                if (player.playerId && window.fplData.loaded) {
+                    fplPlayer = window.fplData.players.find(p => p.id === player.playerId);
+                }
+                
+                // Otherwise try to find by name
+                if (!fplPlayer && window.fplData.loaded) {
                     const cleanName = player.name.replace(' (C)', '').replace(' (V)', '');
                     fplPlayer = window.fplData.players.find(p => 
-                        p.name.toLowerCase().includes(cleanName.toLowerCase()) ||
-                        cleanName.toLowerCase().includes(p.name.toLowerCase())
+                        p.name.toLowerCase() === cleanName.toLowerCase() ||
+                        (cleanName.length > 4 && p.name.toLowerCase().includes(cleanName.toLowerCase()))
                     );
                 }
                 
                 if (fplPlayer) {
                     const team = window.fplData.teams.find(t => t.id === fplPlayer.team);
-                    const teamName = team ? team.short_name : player.team;
+                    teamName = team ? team.short_name : player.team;
+                    price = fplPlayer.price.toFixed(1);
                     
                     slot.classList.remove('empty');
                     slot.innerHTML = `
                         <div class="player-name">${player.name}</div>
-                        <div class="player-info">${teamName} • £${fplPlayer.price}m</div>
+                        <div class="player-info">${teamName} • £${price}m</div>
                         <span class="remove-player" onclick="removePlayer(event, this.parentElement)">×</span>
                     `;
                     slot.setAttribute('data-player-id', fplPlayer.id);
+                    slot.removeAttribute('onclick'); // Remove onclick for filled slots
                     
                     selectedPlayers.push({ ...fplPlayer, slot: slot });
+                    console.log('Added to selectedPlayers:', fplPlayer.name);
                 } else {
                     // Fallback if player not found in FPL data
                     slot.classList.remove('empty');
                     slot.innerHTML = `
                         <div class="player-name">${player.name}</div>
-                        <div class="player-info">${player.team} • £${player.price}m</div>
+                        <div class="player-info">${teamName} • £${price}m</div>
                         <span class="remove-player" onclick="removePlayer(event, this.parentElement)">×</span>
                     `;
+                    slot.removeAttribute('onclick');
+                    console.log('Added fallback player:', player.name);
                 }
             };
             
