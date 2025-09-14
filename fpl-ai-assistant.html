@@ -3520,6 +3520,94 @@ Saka
             `, 'info');
         };
         
+        // Add missing players manually
+        window.addMissingPlayers = function() {
+            const currentPlayers = window.detectedPlayersForVerification || [];
+            const missingCount = 15 - currentPlayers.length;
+            
+            let html = `
+                <div style="text-align: center;">
+                    <div class="fpl-tips">🔍 <strong>Add ${missingCount} Missing Players</strong></div>
+                    <div style="margin: 10px 0;">Enter the missing player names (usually bench players):</div>
+                    <textarea id="missingPlayerInput" style="width: 90%; height: 150px; margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;" 
+                              placeholder="Example:\nNeto\nFerguson\nLewis"></textarea>
+                    <div style="margin-top: 10px;">
+                        <button onclick="processMissingPlayers()" style="margin: 5px; padding: 10px 20px; background: var(--secondary-color); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Add These Players
+                        </button>
+                        <button onclick="showInteractiveVerification(window.detectedPlayersForVerification, null)" style="margin: 5px; padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Back
+                        </button>
+                    </div>
+            `;
+            
+            // Show unmatched words as hints
+            if (window.unmatchedOCRWords && window.unmatchedOCRWords.length > 0) {
+                html += `
+                    <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 4px; text-align: left;">
+                        <strong>Hint - unmatched text from screenshot:</strong><br>
+                        <small style="color: #666; font-family: monospace;">${window.unmatchedOCRWords.join(', ')}</small>
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
+            
+            showUploadStatus(html, 'info');
+        };
+        
+        // Process the missing players
+        window.processMissingPlayers = function() {
+            const input = document.getElementById('missingPlayerInput').value;
+            if (!input.trim()) return;
+            
+            const names = input.split('\n').filter(n => n.trim());
+            const foundPlayers = [];
+            const notFound = [];
+            
+            names.forEach(name => {
+                const nameUpper = name.trim().toUpperCase();
+                
+                // Find in database - be more flexible
+                const player = window.fplData.players.find(p => {
+                    const pName = p.name.toUpperCase();
+                    const pFullName = p.fullName.toUpperCase();
+                    const pLastName = pFullName.split(' ').pop();
+                    
+                    return pName === nameUpper ||
+                           pFullName === nameUpper ||
+                           pLastName === nameUpper ||
+                           pName.includes(nameUpper) ||
+                           (nameUpper.length > 3 && pFullName.includes(nameUpper));
+                });
+                
+                if (player) {
+                    const team = window.fplData.teams.find(t => t.id === player.team);
+                    foundPlayers.push({
+                        position: positionMap[player.position],
+                        name: player.name,
+                        team: team ? team.short_name : 'Unknown',
+                        price: player.price.toFixed(1),
+                        playerId: player.id,
+                        confidence: 100
+                    });
+                } else {
+                    notFound.push(name);
+                }
+            });
+            
+            // Combine with existing detected players
+            const allPlayers = [...window.detectedPlayersForVerification, ...foundPlayers];
+            
+            if (notFound.length > 0) {
+                alert(`Could not find: ${notFound.join(', ')}\nPlease check the spelling.`);
+            }
+            
+            // Show updated verification
+            window.detectedPlayersForVerification = allPlayers;
+            showInteractiveVerification(allPlayers, null);
+        };
+        
         // Process manually entered names
         window.processManualEntry = function() {
             const input = document.getElementById('manualPlayerInput').value;
@@ -4341,12 +4429,38 @@ Saka
                             </tbody>
                         </table>
                     </div>
+            `;
+            
+            // Show unmatched words if any
+            if (window.unmatchedOCRWords && window.unmatchedOCRWords.length > 0 && detectedPlayers.length < 15) {
+                verificationHTML += `
+                    <div style="margin: 15px 0; padding: 10px; background: #fff9c4; border-radius: 4px;">
+                        <strong>Unmatched text that might be players:</strong><br>
+                        <small style="color: #666;">${window.unmatchedOCRWords.slice(0, 10).join(', ')}</small>
+                    </div>
+                `;
+            }
+            
+            // Add buttons
+            verificationHTML += `
                     <div style="margin-top: 15px;">
                         <button onclick="confirmVerifiedPlayers()" style="margin: 5px; padding: 10px 20px; background: var(--secondary-color); color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            Confirm Selected Players
+                            ${detectedPlayers.length < 15 ? 'Use These ' + detectedPlayers.length + ' Players' : 'Confirm All 15 Players'}
                         </button>
+            `;
+            
+            // Add button to add missing players if needed
+            if (detectedPlayers.length < 15) {
+                verificationHTML += `
+                        <button onclick="addMissingPlayers()" style="margin: 5px; padding: 10px 20px; background: #4caf50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Add Missing ${missingCount} Players
+                        </button>
+                `;
+            }
+            
+            verificationHTML += `
                         <button onclick="showManualPlayerSelection()" style="margin: 5px; padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            Select Manually Instead
+                            Start Over Manually
                         </button>
                     </div>
                 </div>
