@@ -1160,13 +1160,13 @@
                 
                 <!-- Screenshot Upload Zone -->
                 <div id="screenshotUpload" class="screenshot-upload" style="display: none;">
-                    <div class="upload-zone" id="uploadZone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                    <div class="upload-zone" id="uploadZone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="triggerFileUpload()">
                         <div class="upload-content">
                             <span class="upload-icon">📸</span>
                             <h3>Upload FPL Team Screenshot</h3>
-                            <p>Drag & drop your FPL team screenshot here or click to browse</p>
+                            <p>Drag & drop your FPL team screenshot here or click anywhere to browse</p>
                             <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
-                            <button class="quick-btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+                            <button class="quick-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">Choose File</button>
                         </div>
                     </div>
                     <div id="uploadStatus" class="upload-status"></div>
@@ -2005,7 +2005,21 @@
         // Screenshot Upload Functions
         function openScreenshotUpload() {
             const uploadDiv = document.getElementById('screenshotUpload');
-            uploadDiv.style.display = uploadDiv.style.display === 'none' ? 'block' : 'none';
+            const isVisible = uploadDiv.style.display !== 'none';
+            
+            if (!isVisible) {
+                uploadDiv.style.display = 'block';
+                // Automatically open file browser when showing upload zone
+                setTimeout(() => {
+                    document.getElementById('fileInput').click();
+                }, 100);
+            } else {
+                uploadDiv.style.display = 'none';
+            }
+        }
+
+        function triggerFileUpload() {
+            document.getElementById('fileInput').click();
         }
 
         function handleDragOver(event) {
