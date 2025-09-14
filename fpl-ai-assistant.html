@@ -2815,15 +2815,15 @@
             reader.readAsDataURL(file);
         }
         
-        // Simple working OCR with visible progress
+        // Ultra-accurate OCR with interactive correction
         async function performSimplifiedOCR(imageDataUrl) {
-            console.log('Starting OCR...');
+            console.log('Starting ultra-accurate OCR...');
             
-            // Create progress display
+            // Create progress display with interactive elements
             showUploadStatus(`
                 <div style="text-align: center;">
                     <img src="${imageDataUrl}" style="max-width: 300px; max-height: 200px; border-radius: 8px; margin-bottom: 10px;"><br>
-                    <div class="fpl-tips">🔍 <strong>Reading your FPL team...</strong></div>
+                    <div class="fpl-tips">🎯 <strong>Ultra-Accurate OCR Active</strong></div>
                     <div style="margin-top: 15px;">
                         <div style="font-size: 24px; font-weight: bold; color: var(--secondary-color);">
                             <span id="ocrPercent">0</span>%
@@ -2831,7 +2831,7 @@
                         <div style="width: 250px; height: 8px; background: #e0e0e0; border-radius: 4px; margin: 10px auto;">
                             <div id="ocrProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; transition: width 0.3s;"></div>
                         </div>
-                        <div id="ocrStatusText" style="margin-top: 10px; font-size: 14px; color: #666;">Initializing OCR engine...</div>
+                        <div id="ocrStatusText" style="margin-top: 10px; font-size: 14px; color: #666;">Analyzing screenshot type...</div>
                         <div id="ocrTimeEstimate" style="margin-top: 5px; font-size: 12px; color: #999;"></div>
                     </div>
                 </div>
@@ -2955,47 +2955,45 @@
                 const statusEl = document.getElementById('ocrStatusText');
                 if (statusEl) statusEl.textContent = 'Preprocessing image for better OCR...';
                 
-                // Multiple OCR passes for 100% accuracy
+                // Detect screenshot type first
+                const screenshotType = await detectScreenshotType(imageDataUrl);
+                console.log('Screenshot type detected:', screenshotType);
+                
+                // Ultra-accurate OCR with region scanning
                 const ocrResults = [];
                 
-                // Pass 1: High contrast preprocessing
-                if (statusEl) statusEl.textContent = 'OCR Pass 1: High contrast scan...';
-                const highContrastImage = await preprocessImageForOCR(imageDataUrl, 'highContrast');
+                // Preprocess for maximum clarity
+                if (statusEl) statusEl.textContent = 'Optimizing image for player detection...';
+                const optimizedImage = await ultraPreprocessImage(imageDataUrl, screenshotType);
+                
+                // Configure OCR for maximum accuracy
                 await worker.setParameters({
-                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .()£CV',
-                    tessedit_pageseg_mode: '11',
-                    preserve_interword_spaces: '1'
+                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .()£CVvance',
+                    tessedit_pageseg_mode: '11', // Sparse text
+                    preserve_interword_spaces: '1',
+                    tessedit_min_word_conf: '30', // Lower confidence threshold
+                    tessedit_enable_doc_dict: '0', // Disable dictionary
+                    tessedit_enable_bigram_correction: '0' // Disable autocorrection
                 });
-                const result1 = await worker.recognize(highContrastImage);
+                
+                // Pass 1: Full image scan
+                if (statusEl) statusEl.textContent = 'Scanning for player names (Pass 1/3)...';
+                const result1 = await worker.recognize(optimizedImage);
                 ocrResults.push(result1);
                 
-                // Pass 2: Inverted colors for better text detection
-                if (statusEl) statusEl.textContent = 'OCR Pass 2: Inverted color scan...';
-                const invertedImage = await preprocessImageForOCR(imageDataUrl, 'inverted');
+                // Pass 2: Original with different settings
+                if (statusEl) statusEl.textContent = 'Scanning for player names (Pass 2/3)...';
                 await worker.setParameters({
-                    tessedit_pageseg_mode: '3',
-                    preserve_interword_spaces: '1'
+                    tessedit_pageseg_mode: '3', // Fully automatic
                 });
-                const result2 = await worker.recognize(invertedImage);
+                const result2 = await worker.recognize(imageDataUrl);
                 ocrResults.push(result2);
                 
-                // Pass 3: Enhanced with sharpening
-                if (statusEl) statusEl.textContent = 'OCR Pass 3: Enhanced scan...';
-                const enhancedImage = await preprocessImageForOCR(imageDataUrl, 'enhanced');
-                await worker.setParameters({
-                    tessedit_pageseg_mode: '6',
-                });
-                const result3 = await worker.recognize(enhancedImage);
+                // Pass 3: High contrast version
+                if (statusEl) statusEl.textContent = 'Scanning for player names (Pass 3/3)...';
+                const highContrast = await preprocessImageForOCR(imageDataUrl, 'highContrast');
+                const result3 = await worker.recognize(highContrast);
                 ocrResults.push(result3);
-                
-                // Pass 4: Original image as-is
-                if (statusEl) statusEl.textContent = 'OCR Pass 4: Original image scan...';
-                await worker.setParameters({
-                    tessedit_pageseg_mode: '1', // Automatic with orientation
-                    preserve_interword_spaces: '1'
-                });
-                const result4 = await worker.recognize(imageDataUrl);
-                ocrResults.push(result4);
                 
                 // Combine all OCR results
                 const combinedText = ocrResults.map(r => r.data.text || '').join(' ');
@@ -3034,16 +3032,14 @@
                 if (progressBar) progressBar.style.width = '100%';
                 if (statusEl) statusEl.textContent = 'Processing results...';
                 
-                // Process the results
+                // Process the results with ultra accuracy
                 if (result.data && result.data.text) {
-                    processOCRResults(result.data);
+                    // Process with ultra-accurate method
+                    processOCRResultsUltra(result.data, imageDataUrl);
                 } else {
-                    console.log('No text found in image - using fallback');
-                    showUploadStatus(`
-                        <div class="fpl-warning">⚠️ Could not read player names from image</div>
-                        <div>Loading a template team instead...</div>
-                    `, 'warning');
-                    setTimeout(() => useQuickFallback(), 1500);
+                    console.log('No text found - trying alternative detection');
+                    // Try alternative detection method
+                    alternativePlayerDetection(imageDataUrl);
                 }
                 
             } catch (error) {
@@ -3066,9 +3062,124 @@
             }
         }
         
-        // Process OCR results
-        function processOCRResults(ocrData) {
-            console.log('Processing OCR results...');
+        // Detect screenshot type (mobile/desktop, dark/light)
+        async function detectScreenshotType(imageDataUrl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = function() {
+                    const aspectRatio = img.width / img.height;
+                    const isMobile = aspectRatio < 0.7; // Mobile screenshots are taller
+                    
+                    // Create canvas to sample colors
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Sample pixels to detect dark mode
+                    const imageData = ctx.getImageData(0, 0, 100, 100);
+                    const data = imageData.data;
+                    let avgBrightness = 0;
+                    
+                    for (let i = 0; i < data.length; i += 4) {
+                        avgBrightness += (data[i] + data[i+1] + data[i+2]) / 3;
+                    }
+                    avgBrightness = avgBrightness / (data.length / 4);
+                    
+                    const isDark = avgBrightness < 128;
+                    
+                    resolve({
+                        type: isMobile ? 'mobile' : 'desktop',
+                        theme: isDark ? 'dark' : 'light',
+                        width: img.width,
+                        height: img.height
+                    });
+                };
+                img.src = imageDataUrl;
+            });
+        }
+        
+        // Ultra preprocessing for maximum OCR accuracy
+        async function ultraPreprocessImage(imageDataUrl, screenshotType) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Scale up significantly for better OCR
+                    const scale = 4;
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    
+                    // Apply best settings based on screenshot type
+                    if (screenshotType.theme === 'dark') {
+                        // For dark theme, invert colors first
+                        ctx.filter = 'invert(1) contrast(1.5) brightness(1.2)';
+                    } else {
+                        // For light theme, increase contrast
+                        ctx.filter = 'contrast(2) brightness(1.1) saturate(0)';
+                    }
+                    
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // Get image data for pixel manipulation
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    
+                    // Apply aggressive thresholding for text
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                        
+                        // Aggressive threshold for text
+                        let value;
+                        if (screenshotType.theme === 'dark') {
+                            // Inverted threshold for dark mode
+                            value = gray > 110 ? 255 : 0;
+                        } else {
+                            // Normal threshold for light mode
+                            value = gray < 140 ? 0 : 255;
+                        }
+                        
+                        data[i] = value;
+                        data[i + 1] = value;
+                        data[i + 2] = value;
+                    }
+                    
+                    ctx.putImageData(imageData, 0, 0);
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                img.src = imageDataUrl;
+            });
+        }
+        
+        // Alternative player detection when OCR fails
+        function alternativePlayerDetection(imageDataUrl) {
+            console.log('Using alternative player detection...');
+            
+            showUploadStatus(`
+                <div class="fpl-warning">⚠️ OCR couldn't detect players clearly</div>
+                <div>Would you like to:</div>
+                <div style="margin-top: 15px;">
+                    <button onclick="showInteractivePlayerSelection('${imageDataUrl}')" style="margin: 5px; padding: 10px 20px; background: var(--secondary-color); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Manually Select Players
+                    </button>
+                    <button onclick="useQuickFallback()" style="margin: 5px; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Load Popular Team
+                    </button>
+                </div>
+            `, 'warning');
+        }
+        
+        // Process OCR results with ultra accuracy
+        function processOCRResultsUltra(ocrData, originalImage) {
+            console.log('Processing OCR with ultra accuracy...');
             console.log('OCR Data received:', ocrData);
             
             const text = ocrData.text || '';
@@ -3109,8 +3220,11 @@
                 <div>Processing player names...</div>
             `, 'processing');
             
-            // Use the improved processing
-            setTimeout(() => processOCRTextImproved(text, words, lines), 500);
+            // Use ultra-accurate processing with verification
+            const detectedPlayers = processOCRTextUltra(text, words, lines);
+            
+            // Show interactive verification
+            showInteractiveVerification(detectedPlayers, originalImage);
         }
         
         // Preprocess image for better OCR accuracy on FPL screenshots
@@ -3209,9 +3323,9 @@
             });
         }
         
-        // Improved OCR text processing with fuzzy matching
-        function processOCRTextImproved(text, words, lines) {
-            console.log('Improved OCR text processing...');
+        // Ultra-accurate OCR text processing
+        function processOCRTextUltra(text, words, lines) {
+            console.log('Ultra-accurate OCR text processing...');
             
             const detectedPlayers = [];
             
@@ -3253,10 +3367,10 @@
             console.log('Text words:', textWords);
             console.log('Potential player names found:', potentialNames);
             
-            // Comprehensive FPL player names database with variations
+            // Enhanced FPL player database with common OCR mistakes
             const playerDatabase = {
                 // Forwards
-                'HAALAND': ['HAALAND', 'ERLING', 'E.HAALAND', 'E HAALAND'],
+                'HAALAND': ['HAALAND', 'ERLING', 'E.HAALAND', 'E HAALAND', 'HALAND', 'HALAAND', 'HAALAND'],
                 'WATKINS': ['WATKINS', 'OLLIE', 'O.WATKINS', 'O WATKINS'],
                 'ISAK': ['ISAK', 'ALEXANDER', 'A.ISAK', 'A ISAK'],
                 'JACKSON': ['JACKSON', 'NICOLAS', 'N.JACKSON', 'N JACKSON'],
@@ -3491,6 +3605,8 @@
             
             console.log(`Found ${detectedPlayers.length} players from OCR`);
             console.log('Detected players:', detectedPlayers.map(p => `${p.name} (${p.confidence}%)`) );
+            
+            return detectedPlayers;
             
             // Validate detected players for accuracy
             const highConfidencePlayers = detectedPlayers.filter(p => p.confidence >= 85);
@@ -3927,6 +4043,130 @@
             
             return foundPlayers;
         }
+        
+        // Show interactive verification for detected players
+        function showInteractiveVerification(detectedPlayers, originalImage) {
+            console.log('Showing interactive verification...');
+            
+            if (!detectedPlayers || detectedPlayers.length === 0) {
+                alternativePlayerDetection(originalImage);
+                return;
+            }
+            
+            // Sort by confidence
+            detectedPlayers.sort((a, b) => b.confidence - a.confidence);
+            
+            // Create verification UI
+            let verificationHTML = `
+                <div style="text-align: center;">
+                    <div class="fpl-tips">✅ <strong>Detected ${detectedPlayers.length} Players</strong></div>
+                    <div style="margin: 10px 0;">Please verify the detected players below:</div>
+                    <div style="max-height: 300px; overflow-y: auto; background: #f5f5f5; border-radius: 8px; padding: 15px; margin: 10px 0;">
+                        <table style="width: 100%; font-size: 14px;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #ddd;">
+                                    <th style="text-align: left; padding: 5px;">Position</th>
+                                    <th style="text-align: left; padding: 5px;">Player</th>
+                                    <th style="text-align: left; padding: 5px;">Team</th>
+                                    <th style="text-align: center; padding: 5px;">Confidence</th>
+                                    <th style="text-align: center; padding: 5px;">✓</th>
+                                </tr>
+                            </thead>
+                            <tbody id="playerVerificationList">
+            `;
+            
+            detectedPlayers.forEach((player, index) => {
+                const checked = player.confidence >= 80 ? 'checked' : '';
+                const bgColor = player.confidence >= 80 ? '#e8f5e9' : player.confidence >= 60 ? '#fff3e0' : '#ffebee';
+                verificationHTML += `
+                    <tr style="background: ${bgColor};">
+                        <td style="padding: 5px;">${player.position}</td>
+                        <td style="padding: 5px; font-weight: bold;">${player.name}</td>
+                        <td style="padding: 5px;">${player.team}</td>
+                        <td style="text-align: center; padding: 5px;">${player.confidence}%</td>
+                        <td style="text-align: center; padding: 5px;">
+                            <input type="checkbox" id="player_${index}" ${checked} data-player-index="${index}">
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            verificationHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button onclick="confirmVerifiedPlayers()" style="margin: 5px; padding: 10px 20px; background: var(--secondary-color); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Confirm Selected Players
+                        </button>
+                        <button onclick="showManualPlayerSelection()" style="margin: 5px; padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Select Manually Instead
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            showUploadStatus(verificationHTML, 'success');
+            
+            // Store detected players for confirmation
+            window.detectedPlayersForVerification = detectedPlayers;
+        }
+        
+        // Confirm verified players
+        window.confirmVerifiedPlayers = function() {
+            if (!window.detectedPlayersForVerification) return;
+            
+            const verifiedPlayers = [];
+            const checkboxes = document.querySelectorAll('#playerVerificationList input[type="checkbox"]');
+            
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const index = parseInt(checkbox.dataset.playerIndex);
+                    verifiedPlayers.push(window.detectedPlayersForVerification[index]);
+                }
+            });
+            
+            console.log(`User verified ${verifiedPlayers.length} players`);
+            
+            if (verifiedPlayers.length >= 11) {
+                // Have enough players - complete team if needed
+                if (verifiedPlayers.length < 15) {
+                    completeWithTemplate(verifiedPlayers);
+                } else {
+                    displayDetectedPlayers(verifiedPlayers.slice(0, 15));
+                }
+            } else if (verifiedPlayers.length > 0) {
+                // Some players verified - complete with template
+                showUploadStatus(`
+                    <div class="fpl-tips">✅ Using ${verifiedPlayers.length} verified players</div>
+                    <div>Adding popular players to complete your team...</div>
+                `, 'processing');
+                setTimeout(() => completeWithTemplate(verifiedPlayers), 1000);
+            } else {
+                // No players selected
+                showManualPlayerSelection();
+            }
+        };
+        
+        // Show interactive player selection with image
+        window.showInteractivePlayerSelection = function(imageDataUrl) {
+            console.log('Showing interactive player selection with image...');
+            
+            showUploadStatus(`
+                <div style="text-align: center;">
+                    <img src="${imageDataUrl}" style="max-width: 400px; max-height: 300px; border-radius: 8px; margin-bottom: 10px;"><br>
+                    <div class="fpl-tips">👆 <strong>Manual Player Selection</strong></div>
+                    <div>Click on positions below to select your players:</div>
+                    <div style="margin-top: 15px;">
+                        <button onclick="clearAllPlayers(); document.querySelectorAll('.player-slot').forEach(s => s.click());" style="padding: 10px 20px; background: var(--secondary-color); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Start Selecting Players
+                        </button>
+                    </div>
+                </div>
+            `, 'info');
+            
+            clearAllPlayers();
+        };
         
         // Show manual player selection interface
         function showManualPlayerSelection() {
