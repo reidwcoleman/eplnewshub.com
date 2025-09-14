@@ -3012,10 +3012,18 @@
         // Process OCR results
         function processOCRResults(ocrData) {
             console.log('Processing OCR results...');
+            console.log('OCR Data received:', ocrData);
             
             const text = ocrData.text || '';
             const words = ocrData.words || [];
             const lines = ocrData.lines || [];
+            
+            // Log the extracted text for debugging
+            console.log('=== OCR EXTRACTED TEXT ===');
+            console.log('Full text:', text);
+            console.log('Lines:', lines.map(l => l.text));
+            console.log('Words (first 50):', words.slice(0, 50).map(w => w.text));
+            console.log('========================');
             
             // Wait for FPL data if needed
             if (!window.fplData || !window.fplData.loaded) {
@@ -3035,8 +3043,17 @@
                 return;
             }
             
-            // Use the advanced processing
-            processOCRTextAdvanced(text, words, lines, null);
+            // Show what we extracted
+            showUploadStatus(`
+                <div class="fpl-tips">📝 <strong>OCR extracted text:</strong></div>
+                <div style="max-height: 200px; overflow-y: auto; text-align: left; font-size: 12px; background: #f5f5f5; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                    ${text.substring(0, 500)}${text.length > 500 ? '...' : ''}
+                </div>
+                <div>Processing player names...</div>
+            `, 'processing');
+            
+            // Use the improved processing
+            setTimeout(() => processOCRTextImproved(text, words, lines), 500);
         }
         
         // Preprocess image for better OCR
@@ -3077,6 +3094,140 @@
                 };
                 img.src = imageDataUrl;
             });
+        }
+        
+        // Improved OCR text processing with fuzzy matching
+        function processOCRTextImproved(text, words, lines) {
+            console.log('Improved OCR text processing...');
+            
+            const detectedPlayers = [];
+            
+            // Ensure FPL data is loaded
+            if (!window.fplData || !window.fplData.loaded) {
+                console.log('FPL data not ready');
+                useQuickFallback();
+                return;
+            }
+            
+            // Clean and normalize the text
+            const cleanedText = text.replace(/[^a-zA-Z\s\-']/g, ' ').replace(/\s+/g, ' ').toUpperCase();
+            const textWords = cleanedText.split(' ').filter(w => w.length > 2);
+            
+            console.log('Cleaned text words:', textWords);
+            
+            // Calculate Levenshtein distance for fuzzy matching
+            function levenshteinDistance(str1, str2) {
+                const matrix = [];
+                for (let i = 0; i <= str2.length; i++) {
+                    matrix[i] = [i];
+                }
+                for (let j = 0; j <= str1.length; j++) {
+                    matrix[0][j] = j;
+                }
+                for (let i = 1; i <= str2.length; i++) {
+                    for (let j = 1; j <= str1.length; j++) {
+                        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                            matrix[i][j] = matrix[i - 1][j - 1];
+                        } else {
+                            matrix[i][j] = Math.min(
+                                matrix[i - 1][j - 1] + 1,
+                                matrix[i][j - 1] + 1,
+                                matrix[i - 1][j] + 1
+                            );
+                        }
+                    }
+                }
+                return matrix[str2.length][str1.length];
+            }
+            
+            // Try to match each word or word combination against player names
+            const playerMatches = [];
+            
+            window.fplData.players.forEach(player => {
+                const playerName = player.name.toUpperCase();
+                const playerFullName = player.fullName.toUpperCase();
+                const lastName = playerFullName.split(' ').pop();
+                
+                // Check for exact matches first
+                if (cleanedText.includes(playerName) || cleanedText.includes(playerFullName)) {
+                    playerMatches.push({ player, confidence: 100 });
+                    console.log(`Exact match found: ${player.name}`);
+                    return;
+                }
+                
+                // Check for last name matches (for unique last names)
+                if (lastName.length > 4 && cleanedText.includes(lastName)) {
+                    playerMatches.push({ player, confidence: 90 });
+                    console.log(`Last name match: ${player.name} (${lastName})`);
+                    return;
+                }
+                
+                // Fuzzy matching for close matches
+                textWords.forEach(word => {
+                    if (word.length < 4) return;
+                    
+                    // Check similarity with player name
+                    const nameDistance = levenshteinDistance(word, playerName);
+                    const lastNameDistance = levenshteinDistance(word, lastName);
+                    
+                    // If distance is small (1-2 characters different), it's likely a match
+                    if (nameDistance <= 2 && playerName.length > 4) {
+                        playerMatches.push({ player, confidence: 80 - (nameDistance * 10) });
+                        console.log(`Fuzzy match: ${word} → ${player.name} (distance: ${nameDistance})`);
+                    } else if (lastNameDistance <= 2 && lastName.length > 4) {
+                        playerMatches.push({ player, confidence: 75 - (lastNameDistance * 10) });
+                        console.log(`Fuzzy last name match: ${word} → ${player.name} (${lastName}) (distance: ${lastNameDistance})`);
+                    }
+                });
+            });
+            
+            // Sort by confidence and remove duplicates
+            playerMatches.sort((a, b) => b.confidence - a.confidence);
+            const uniquePlayers = new Map();
+            
+            playerMatches.forEach(match => {
+                if (!uniquePlayers.has(match.player.id)) {
+                    uniquePlayers.set(match.player.id, match);
+                }
+            });
+            
+            // Convert to detected players format
+            uniquePlayers.forEach(match => {
+                const player = match.player;
+                const team = window.fplData.teams.find(t => t.id === player.team);
+                
+                detectedPlayers.push({
+                    position: positionMap[player.position],
+                    name: player.name,
+                    team: team ? team.short_name : 'Unknown',
+                    price: player.price.toFixed(1),
+                    playerId: player.id,
+                    confidence: match.confidence
+                });
+            });
+            
+            console.log(`Found ${detectedPlayers.length} players from OCR`);
+            console.log('Detected players:', detectedPlayers.map(p => `${p.name} (${p.confidence}%)`) );
+            
+            if (detectedPlayers.length >= 11) {
+                // Take the top 15 players by confidence
+                displayDetectedPlayers(detectedPlayers.slice(0, 15));
+            } else if (detectedPlayers.length > 0) {
+                // Fill in with template players
+                showUploadStatus(`
+                    <div class="fpl-tips">✅ Found ${detectedPlayers.length} players</div>
+                    <div>Adding popular players to complete your team...</div>
+                `, 'processing');
+                setTimeout(() => completeWithTemplate(detectedPlayers), 1000);
+            } else {
+                // No players found - use fallback
+                console.log('No players detected from OCR');
+                showUploadStatus(`
+                    <div class="fpl-warning">⚠️ Could not detect player names clearly</div>
+                    <div>Loading a popular template team instead...</div>
+                `, 'warning');
+                setTimeout(() => useQuickFallback(), 1500);
+            }
         }
         
         // Advanced OCR text processing with position awareness
