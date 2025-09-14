@@ -2815,90 +2815,190 @@
             reader.readAsDataURL(file);
         }
         
-        // Enhanced OCR with preprocessing for 100% accuracy
+        // Simple working OCR with visible progress
         async function performSimplifiedOCR(imageDataUrl) {
-            console.log('Starting enhanced OCR with preprocessing...');
+            console.log('Starting OCR...');
             
-            const statusEl = document.getElementById('ocrStatus');
-            if (statusEl) statusEl.textContent = 'Preprocessing image for better accuracy...';
+            // Create progress display
+            showUploadStatus(`
+                <div style="text-align: center;">
+                    <img src="${imageDataUrl}" style="max-width: 300px; max-height: 200px; border-radius: 8px; margin-bottom: 10px;"><br>
+                    <div class="fpl-tips">🔍 <strong>Reading your FPL team...</strong></div>
+                    <div style="margin-top: 15px;">
+                        <div style="font-size: 24px; font-weight: bold; color: var(--secondary-color);">
+                            <span id="ocrPercent">0</span>%
+                        </div>
+                        <div style="width: 250px; height: 8px; background: #e0e0e0; border-radius: 4px; margin: 10px auto;">
+                            <div id="ocrProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; transition: width 0.3s;"></div>
+                        </div>
+                        <div id="ocrStatusText" style="margin-top: 10px; font-size: 14px; color: #666;">Initializing OCR engine...</div>
+                        <div id="ocrTimeEstimate" style="margin-top: 5px; font-size: 12px; color: #999;"></div>
+                    </div>
+                </div>
+            `, 'processing');
+            
+            const startTime = Date.now();
+            let lastProgress = 0;
+            
+            // Update time estimate
+            const updateTimeEstimate = (progress) => {
+                if (progress > 5) {
+                    const elapsed = (Date.now() - startTime) / 1000;
+                    const estimatedTotal = elapsed / (progress / 100);
+                    const remaining = Math.max(0, estimatedTotal - elapsed);
+                    const timeEl = document.getElementById('ocrTimeEstimate');
+                    if (timeEl) {
+                        if (remaining > 0) {
+                            timeEl.textContent = `Estimated time remaining: ${Math.ceil(remaining)} seconds`;
+                        } else {
+                            timeEl.textContent = 'Almost done...';
+                        }
+                    }
+                }
+            };
             
             try {
-                // Preprocess image for better OCR accuracy
-                const enhancedImage = await preprocessImage(imageDataUrl);
-                
                 // Check if Tesseract is available
                 if (typeof Tesseract === 'undefined') {
-                    console.error('Tesseract not loaded');
-                    throw new Error('OCR library not available');
+                    console.error('Tesseract.js not loaded!');
+                    showUploadStatus(`
+                        <div class="fpl-warning">⚠️ OCR library not loaded</div>
+                        <div>Loading a template team instead...</div>
+                    `, 'warning');
+                    setTimeout(() => useQuickFallback(), 1000);
+                    return;
                 }
                 
-                if (statusEl) statusEl.textContent = 'Initializing OCR engine...';
+                console.log('Creating Tesseract worker...');
                 
-                // Create scheduler for parallel processing
-                const scheduler = Tesseract.createScheduler();
-                
-                // Create multiple workers for different regions
-                const worker1 = await Tesseract.createWorker({
-                    logger: m => {
-                        if (m.status === 'recognizing text' && statusEl) {
-                            const progress = Math.round(m.progress * 100);
-                            statusEl.textContent = `Scanning players... ${progress}%`;
+                // Create a single worker with detailed progress logging
+                const worker = await Tesseract.createWorker({
+                    logger: (m) => {
+                        console.log('Tesseract:', m);
+                        
+                        // Update status text
+                        const statusEl = document.getElementById('ocrStatusText');
+                        if (statusEl) {
+                            if (m.status === 'loading tesseract core') {
+                                statusEl.textContent = 'Loading OCR engine...';
+                            } else if (m.status === 'initializing tesseract') {
+                                statusEl.textContent = 'Initializing OCR...';
+                            } else if (m.status === 'loading language traineddata') {
+                                statusEl.textContent = 'Loading English language data...';
+                            } else if (m.status === 'initializing api') {
+                                statusEl.textContent = 'Preparing to scan...';
+                            } else if (m.status === 'recognizing text') {
+                                statusEl.textContent = 'Reading player names from screenshot...';
+                                
+                                // Update progress
+                                const progress = Math.round((m.progress || 0) * 100);
+                                const percentEl = document.getElementById('ocrPercent');
+                                const progressBar = document.getElementById('ocrProgressBar');
+                                
+                                if (percentEl) percentEl.textContent = progress;
+                                if (progressBar) progressBar.style.width = progress + '%';
+                                
+                                // Update time estimate
+                                if (progress > lastProgress) {
+                                    lastProgress = progress;
+                                    updateTimeEstimate(progress);
+                                }
+                            }
                         }
+                    },
+                    errorHandler: (error) => {
+                        console.error('Tesseract error:', error);
                     }
                 });
                 
-                const worker2 = await Tesseract.createWorker();
+                console.log('Worker created, loading language...');
                 
-                // Add workers to scheduler
-                scheduler.addWorker(worker1);
-                scheduler.addWorker(worker2);
+                // Set timeout for OCR
+                const ocrTimeout = setTimeout(() => {
+                    console.log('OCR timeout - using fallback');
+                    worker.terminate();
+                    showUploadStatus(`
+                        <div class="fpl-warning">⚠️ OCR is taking too long</div>
+                        <div>Loading a popular team instead...</div>
+                    `, 'warning');
+                    setTimeout(() => useQuickFallback(), 1000);
+                }, 30000); // 30 second timeout
                 
-                // Configure workers for optimal FPL screenshot reading
-                const workers = [worker1, worker2];
-                for (const worker of workers) {
-                    await worker.loadLanguage('eng');
-                    await worker.initialize('eng');
-                    await worker.setParameters({
-                        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789()-.£ \'',
-                        tessedit_pageseg_mode: Tesseract.PSM.SPARSE_TEXT,
-                        preserve_interword_spaces: '1',
-                        tessedit_min_confidence: 60
-                    });
-                }
+                // Load language and initialize
+                await worker.loadLanguage('eng');
+                await worker.initialize('eng');
                 
-                if (statusEl) statusEl.textContent = 'Reading player names...';
-                
-                // Perform multiple OCR passes with different settings
-                const results = await Promise.all([
-                    // Pass 1: Full image with sparse text mode
-                    scheduler.addJob('recognize', enhancedImage),
-                    // Pass 2: Original image with auto mode
-                    scheduler.addJob('recognize', imageDataUrl)
-                ]);
-                
-                // Combine results from all passes
-                const allText = results.map(r => r.data.text).join('\n');
-                const allWords = [];
-                const allLines = [];
-                
-                results.forEach(result => {
-                    if (result.data.words) allWords.push(...result.data.words);
-                    if (result.data.lines) allLines.push(...result.data.lines);
+                // Simple configuration
+                await worker.setParameters({
+                    tessedit_pageseg_mode: Tesseract.PSM.AUTO
                 });
                 
-                // Terminate workers
-                await scheduler.terminate();
+                console.log('Starting recognition...');
+                document.getElementById('ocrStatusText').textContent = 'Scanning screenshot for players...';
                 
-                console.log('Enhanced OCR complete. Total text:', allText.length);
+                // Perform OCR
+                const result = await worker.recognize(imageDataUrl);
                 
-                // Process with advanced detection
-                processOCRTextAdvanced(allText, allWords, allLines, imageDataUrl);
+                // Clear timeout
+                clearTimeout(ocrTimeout);
+                
+                // Terminate worker
+                await worker.terminate();
+                
+                console.log('OCR complete!');
+                console.log('Text found:', result.data.text ? result.data.text.substring(0, 500) : 'None');
+                
+                // Update to 100% complete
+                document.getElementById('ocrPercent').textContent = '100';
+                document.getElementById('ocrProgressBar').style.width = '100%';
+                document.getElementById('ocrStatusText').textContent = 'Processing results...';
+                
+                // Process the results
+                if (result.data && result.data.text) {
+                    processOCRResults(result.data);
+                } else {
+                    console.log('No text found in image');
+                    useQuickFallback();
+                }
                 
             } catch (error) {
-                console.error('OCR error:', error);
-                // Try region-based detection as fallback
-                tryRegionBasedDetection(imageDataUrl);
+                console.error('OCR failed:', error);
+                showUploadStatus(`
+                    <div class="fpl-warning">⚠️ OCR error: ${error.message}</div>
+                    <div>Loading a template team instead...</div>
+                `, 'warning');
+                setTimeout(() => useQuickFallback(), 1500);
             }
+        }
+        
+        // Process OCR results
+        function processOCRResults(ocrData) {
+            console.log('Processing OCR results...');
+            
+            const text = ocrData.text || '';
+            const words = ocrData.words || [];
+            const lines = ocrData.lines || [];
+            
+            // Wait for FPL data if needed
+            if (!window.fplData || !window.fplData.loaded) {
+                console.log('Waiting for FPL data...');
+                showUploadStatus(`
+                    <div class="fpl-tips">⏳ <strong>Loading player database...</strong></div>
+                    <div>Please wait a moment...</div>
+                `, 'processing');
+                
+                setTimeout(() => {
+                    if (window.fplData && window.fplData.loaded) {
+                        processOCRResults(ocrData);
+                    } else {
+                        useQuickFallback();
+                    }
+                }, 3000);
+                return;
+            }
+            
+            // Use the advanced processing
+            processOCRTextAdvanced(text, words, lines, null);
         }
         
         // Preprocess image for better OCR
@@ -3221,7 +3321,12 @@
             
             showUploadStatus(`
                 <div class="fpl-tips">🎯 <strong>Loading Popular FPL Team</strong></div>
-                <div>Creating a meta team based on top picks...</div>
+                <div>Creating a competitive team with top-performing players...</div>
+                <div style="margin-top: 10px;">
+                    <div style="font-size: 18px; font-weight: bold; color: var(--secondary-color);">
+                        Loading...
+                    </div>
+                </div>
             `, 'processing');
             
             // Popular meta team
