@@ -266,11 +266,56 @@
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative;
         }
 
         .player-slot:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .player-slot.empty {
+            background: rgba(255,255,255,0.3);
+            border: 2px dashed rgba(255,255,255,0.5);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .player-slot.empty:hover {
+            background: rgba(255,255,255,0.5);
+            border-color: white;
+        }
+        
+        .player-slot.empty::before {
+            content: '+ Add';
+            color: rgba(255,255,255,0.8);
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .remove-player {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+        
+        .player-slot:hover .remove-player {
+            opacity: 1;
         }
 
         .player-slot.empty {
@@ -1137,6 +1182,137 @@
             font-size: 20px;
             margin-bottom: 15px;
         }
+        /* Player Selection Modal Styles */
+        .player-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+
+        .player-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 90%;
+            width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .player-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .player-modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .player-modal-close {
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .player-modal-close:hover {
+            color: #333;
+        }
+
+        .player-search-box {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .player-search-box:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .player-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .player-card {
+            background: linear-gradient(135deg, #f5f5f5, #fff);
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .player-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: var(--secondary-color);
+        }
+
+        .player-card-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .player-card-team {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .player-card-price {
+            font-size: 13px;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .player-card-points {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .player-card-form {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        .form-high { background: #c8f7c5; color: #2e7d32; }
+        .form-medium { background: #ffe8b3; color: #f57c00; }
+        .form-low { background: #ffcccc; color: #c62828; }
     </style>
 </head>
 <body>
@@ -1215,42 +1391,23 @@
                     
                     <!-- Goalkeepers -->
                     <div class="formation-row" id="gkRow">
-                        <div class="player-slot" onclick="selectPlayer(this, 'GK')">
-                            <div class="player-name">Raya</div>
-                            <div class="player-info">ARS • £5.5m</div>
-                        </div>
+                        <div class="player-slot empty" onclick="openPlayerSelection('GK', 1, this)" data-position="GK"></div>
                     </div>
                     
                     <!-- Defenders -->
                     <div class="formation-row" id="defRow">
-                        <div class="player-slot" onclick="selectPlayer(this, 'DEF')">
-                            <div class="player-name">TAA</div>
-                            <div class="player-info">LIV • £7.0m</div>
-                        </div>
-                        <div class="player-slot" onclick="selectPlayer(this, 'DEF')">
-                            <div class="player-name">Saliba</div>
-                            <div class="player-info">ARS • £5.5m</div>
-                        </div>
-                        <div class="player-slot" onclick="selectPlayer(this, 'DEF')">
-                            <div class="player-name">Gabriel</div>
-                            <div class="player-info">ARS • £5.5m</div>
-                        </div>
+                        <div class="player-slot empty" onclick="openPlayerSelection('DEF', 2, this)" data-position="DEF"></div>
+                        <div class="player-slot empty" onclick="openPlayerSelection('DEF', 2, this)" data-position="DEF"></div>
+                        <div class="player-slot empty" onclick="openPlayerSelection('DEF', 2, this)" data-position="DEF"></div>
+                        <div class="player-slot empty" onclick="openPlayerSelection('DEF', 2, this)" data-position="DEF"></div>
                     </div>
                     
                     <!-- Midfielders -->
                     <div class="formation-row" id="midRow">
-                        <div class="player-slot" onclick="selectPlayer(this, 'MID')">
-                            <div class="player-name">Salah (C)</div>
-                            <div class="player-info">LIV • £13.2m</div>
-                        </div>
-                        <div class="player-slot" onclick="selectPlayer(this, 'MID')">
-                            <div class="player-name">Palmer</div>
-                            <div class="player-info">CHE • £11.1m</div>
-                        </div>
-                        <div class="player-slot" onclick="selectPlayer(this, 'MID')">
-                            <div class="player-name">Saka</div>
-                            <div class="player-info">ARS • £10.1m</div>
-                        </div>
+                        <div class="player-slot empty" onclick="openPlayerSelection('MID', 3, this)" data-position="MID"></div>
+                        <div class="player-slot empty" onclick="openPlayerSelection('MID', 3, this)" data-position="MID"></div>
+                        <div class="player-slot empty" onclick="openPlayerSelection('MID', 3, this)" data-position="MID"></div>
+                        <div class="player-slot empty" onclick="openPlayerSelection('MID', 3, this)" data-position="MID"></div>
                         <div class="player-slot" onclick="selectPlayer(this, 'MID')">
                             <div class="player-name">Gordon</div>
                             <div class="player-info">NEW • £7.5m</div>
@@ -1259,18 +1416,9 @@
                     
                     <!-- Forwards -->
                     <div class="formation-row" id="fwdRow">
-                        <div class="player-slot" onclick="selectPlayer(this, 'FWD')">
-                            <div class="player-name">Haaland (V)</div>
-                            <div class="player-info">MCI • £14.1m</div>
-                        </div>
-                        <div class="player-slot" onclick="selectPlayer(this, 'FWD')">
-                            <div class="player-name">Watkins</div>
-                            <div class="player-info">AVL • £9.0m</div>
-                        </div>
-                        <div class="player-slot empty" onclick="selectPlayer(this, 'FWD')">
-                            <div class="player-name">+</div>
-                            <div class="player-info">Add Player</div>
-                        </div>
+                        <div class="player-slot empty" onclick="openPlayerSelection('FWD', 4, this)" data-position="FWD"></div>
+                        <div class="player-slot empty" onclick="openPlayerSelection('FWD', 4, this)" data-position="FWD"></div>
+                        <div class="player-slot empty" onclick="openPlayerSelection('FWD', 4, this)" data-position="FWD"></div>
                     </div>
                 </div>
                 
@@ -1278,19 +1426,33 @@
                 <div class="team-stats">
                     <div class="stat-card">
                         <div class="stat-label">Team Value</div>
-                        <div class="stat-value">£102.3m</div>
+                        <div class="stat-value" id="teamValue">£0.0m</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">In Bank</div>
-                        <div class="stat-value">£0.2m</div>
+                        <div class="stat-value" id="inBank">£100.0m</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Free Transfers</div>
-                        <div class="stat-value">1</div>
+                        <div class="stat-label">Players Selected</div>
+                        <div class="stat-value" id="playersCount">0/15</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Overall Rank</div>
-                        <div class="stat-value">1.2M</div>
+                        <div class="stat-label">Formation</div>
+                        <div class="stat-value" id="formation">0-0-0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Player Selection Modal -->
+            <div id="playerModal" class="player-modal">
+                <div class="player-modal-content">
+                    <div class="player-modal-header">
+                        <h2 class="player-modal-title" id="modalTitle">Select Player</h2>
+                        <span class="player-modal-close" onclick="closePlayerModal()">×</span>
+                    </div>
+                    <input type="text" id="playerSearch" class="player-search-box" placeholder="Search players..." onkeyup="filterPlayers()">
+                    <div id="playerGrid" class="player-grid">
+                        <!-- Players will be populated here -->
                     </div>
                 </div>
             </div>
@@ -1522,10 +1684,20 @@
         // Initialize FPL AI Assistant Pro
         let conversationHistory = [];
         let messageCount = 0;
-        let userTeam = JSON.parse(localStorage.getItem('fplTeam')) || {};
+        let userTeam = JSON.parse(localStorage.getItem('fplTeam')) || [];
+        let selectedPlayers = [];
+        let currentSelectedSlot = null;
         let aiMode = 'balanced';
         let isRecording = false;
         let recognition = null;
+        
+        // Position mapping for FPL API
+        const positionMap = {
+            1: 'GK',
+            2: 'DEF', 
+            3: 'MID',
+            4: 'FWD'
+        };
 
         // Gameweek Data
         const gameweekData = {
@@ -1650,12 +1822,174 @@
             }
         };
 
+        // Player Selection Functions
+        function openPlayerSelection(position, positionId, slot) {
+            if (!window.fplData.loaded) {
+                alert('Player data is still loading. Please wait a moment...');
+                return;
+            }
+            
+            currentSelectedSlot = slot;
+            const modal = document.getElementById('playerModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const playerGrid = document.getElementById('playerGrid');
+            
+            // Filter players by position
+            const players = window.fplData.players.filter(p => p.position === positionId);
+            
+            // Sort by total points descending
+            players.sort((a, b) => b.totalPoints - a.totalPoints);
+            
+            modalTitle.textContent = `Select ${position}`;
+            
+            // Populate player grid
+            playerGrid.innerHTML = players.map(player => {
+                const team = window.fplData.teams.find(t => t.id === player.team);
+                const teamName = team ? team.short_name : 'Unknown';
+                const formClass = player.form >= 7 ? 'form-high' : player.form >= 5 ? 'form-medium' : 'form-low';
+                
+                return `
+                    <div class="player-card" onclick="selectPlayerFromModal(${player.id})">
+                        <div class="player-card-name">${player.name}</div>
+                        <div class="player-card-team">${teamName}</div>
+                        <div class="player-card-price">£${player.price}m</div>
+                        <div class="player-card-points">${player.totalPoints} pts</div>
+                        <div class="player-card-form ${formClass}">Form: ${player.form}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            modal.style.display = 'block';
+            document.getElementById('playerSearch').value = '';
+            document.getElementById('playerSearch').focus();
+        }
+        
+        function selectPlayerFromModal(playerId) {
+            if (!currentSelectedSlot) return;
+            
+            const player = window.fplData.players.find(p => p.id === playerId);
+            if (!player) return;
+            
+            const team = window.fplData.teams.find(t => t.id === player.team);
+            const teamName = team ? team.short_name : 'Unknown';
+            
+            // Update the slot with player info
+            currentSelectedSlot.classList.remove('empty');
+            currentSelectedSlot.innerHTML = `
+                <div class="player-name">${player.name}</div>
+                <div class="player-info">${teamName} • £${player.price}m</div>
+                <span class="remove-player" onclick="removePlayer(event, this.parentElement)">×</span>
+            `;
+            currentSelectedSlot.setAttribute('data-player-id', playerId);
+            
+            // Add to selected players
+            const existingIndex = selectedPlayers.findIndex(p => p.slot === currentSelectedSlot);
+            if (existingIndex >= 0) {
+                selectedPlayers[existingIndex] = { ...player, slot: currentSelectedSlot };
+            } else {
+                selectedPlayers.push({ ...player, slot: currentSelectedSlot });
+            }
+            
+            // Update team stats
+            updateTeamStats();
+            
+            // Store team
+            saveTeamToStorage();
+            
+            // Close modal
+            closePlayerModal();
+        }
+        
+        function removePlayer(event, slot) {
+            event.stopPropagation();
+            
+            slot.classList.add('empty');
+            slot.innerHTML = '';
+            slot.removeAttribute('data-player-id');
+            
+            // Remove from selected players
+            selectedPlayers = selectedPlayers.filter(p => p.slot !== slot);
+            
+            // Update team stats
+            updateTeamStats();
+            
+            // Store team
+            saveTeamToStorage();
+        }
+        
+        function closePlayerModal() {
+            document.getElementById('playerModal').style.display = 'none';
+            currentSelectedSlot = null;
+        }
+        
+        function filterPlayers() {
+            const search = document.getElementById('playerSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('.player-card');
+            
+            cards.forEach(card => {
+                const name = card.querySelector('.player-card-name').textContent.toLowerCase();
+                const team = card.querySelector('.player-card-team').textContent.toLowerCase();
+                
+                if (name.includes(search) || team.includes(search)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        function updateTeamStats() {
+            const totalValue = selectedPlayers.reduce((sum, p) => sum + p.price, 0);
+            const inBank = 100 - totalValue;
+            
+            const positionCounts = { GK: 0, DEF: 0, MID: 0, FWD: 0 };
+            selectedPlayers.forEach(p => {
+                const pos = positionMap[p.position];
+                if (pos) positionCounts[pos]++;
+            });
+            
+            document.getElementById('teamValue').textContent = `£${totalValue.toFixed(1)}m`;
+            document.getElementById('inBank').textContent = `£${inBank.toFixed(1)}m`;
+            document.getElementById('playersCount').textContent = `${selectedPlayers.length}/15`;
+            document.getElementById('formation').textContent = `${positionCounts.DEF}-${positionCounts.MID}-${positionCounts.FWD}`;
+            
+            // Update userTeam for AI analysis
+            userTeam = selectedPlayers.map(p => ({
+                id: p.id,
+                name: p.name,
+                position: positionMap[p.position],
+                team: p.teamCode,
+                price: p.price.toFixed(1),
+                form: p.form,
+                totalPoints: p.totalPoints
+            }));
+        }
+        
+        function saveTeamToStorage() {
+            localStorage.setItem('fplTeam', JSON.stringify(userTeam));
+        }
+        
         // Initialize Components
         function initializeApp() {
             updateDeadlineTimer();
-            loadUserTeam();
             initializeVoiceRecognition();
             setInterval(updateDeadlineTimer, 60000); // Update every minute
+            
+            // Wait for FPL data to load, then load saved team
+            const checkDataAndLoadTeam = setInterval(() => {
+                if (window.fplData.loaded) {
+                    clearInterval(checkDataAndLoadTeam);
+                    loadUserTeam();
+                }
+            }, 100);
+            
+            // Timeout after 5 seconds
+            setTimeout(() => {
+                clearInterval(checkDataAndLoadTeam);
+                if (!window.fplData.loaded) {
+                    console.warn('FPL data failed to load, using fallback');
+                }
+            }, 5000);
             
             // Load dark mode preference
             if (localStorage.getItem('darkMode') === 'true') {
@@ -1685,9 +2019,59 @@
         // Team Management
         function loadUserTeam() {
             const savedTeam = localStorage.getItem('fplTeam');
-            if (savedTeam) {
-                userTeam = JSON.parse(savedTeam);
-                updateTeamDisplay();
+            if (savedTeam && window.fplData.loaded) {
+                const savedPlayers = JSON.parse(savedTeam);
+                
+                // Get all player slots
+                const gkSlots = document.querySelectorAll('#gkRow .player-slot');
+                const defSlots = document.querySelectorAll('#defRow .player-slot');
+                const midSlots = document.querySelectorAll('#midRow .player-slot');
+                const fwdSlots = document.querySelectorAll('#fwdRow .player-slot');
+                
+                // Group saved players by position
+                const grouped = {
+                    GK: savedPlayers.filter(p => p.position === 'GK'),
+                    DEF: savedPlayers.filter(p => p.position === 'DEF'),
+                    MID: savedPlayers.filter(p => p.position === 'MID'),
+                    FWD: savedPlayers.filter(p => p.position === 'FWD')
+                };
+                
+                // Fill slots with saved players
+                const fillSlotFromSaved = (slot, player) => {
+                    const fplPlayer = window.fplData.players.find(p => p.id === player.id);
+                    if (fplPlayer) {
+                        const team = window.fplData.teams.find(t => t.id === fplPlayer.team);
+                        const teamName = team ? team.short_name : 'Unknown';
+                        
+                        slot.classList.remove('empty');
+                        slot.innerHTML = `
+                            <div class="player-name">${fplPlayer.name}</div>
+                            <div class="player-info">${teamName} • £${fplPlayer.price}m</div>
+                            <span class="remove-player" onclick="removePlayer(event, this.parentElement)">×</span>
+                        `;
+                        slot.setAttribute('data-player-id', fplPlayer.id);
+                        
+                        selectedPlayers.push({ ...fplPlayer, slot: slot });
+                    }
+                };
+                
+                grouped.GK.forEach((player, i) => {
+                    if (i < gkSlots.length) fillSlotFromSaved(gkSlots[i], player);
+                });
+                
+                grouped.DEF.forEach((player, i) => {
+                    if (i < defSlots.length) fillSlotFromSaved(defSlots[i], player);
+                });
+                
+                grouped.MID.forEach((player, i) => {
+                    if (i < midSlots.length) fillSlotFromSaved(midSlots[i], player);
+                });
+                
+                grouped.FWD.forEach((player, i) => {
+                    if (i < fwdSlots.length) fillSlotFromSaved(fwdSlots[i], player);
+                });
+                
+                updateTeamStats();
             }
         }
 
@@ -2417,16 +2801,23 @@
         function importDetectedTeam() {
             if (!window.detectedTeam) return;
             
-            // Update pitch display
-            const gkRow = document.getElementById('gkRow');
-            const defRow = document.getElementById('defRow');
-            const midRow = document.getElementById('midRow');
-            const fwdRow = document.getElementById('fwdRow');
+            // Clear existing team
+            selectedPlayers = [];
             
-            // Clear existing
-            [gkRow, defRow, midRow, fwdRow].forEach(row => row.innerHTML = '');
+            // Get all player slots
+            const gkSlots = document.querySelectorAll('#gkRow .player-slot');
+            const defSlots = document.querySelectorAll('#defRow .player-slot');
+            const midSlots = document.querySelectorAll('#midRow .player-slot');
+            const fwdSlots = document.querySelectorAll('#fwdRow .player-slot');
             
-            // Group by position
+            // Clear all slots first
+            [...gkSlots, ...defSlots, ...midSlots, ...fwdSlots].forEach(slot => {
+                slot.classList.add('empty');
+                slot.innerHTML = '';
+                slot.removeAttribute('data-player-id');
+            });
+            
+            // Group detected players by position
             const grouped = {
                 GK: window.detectedTeam.filter(p => p.position === 'GK'),
                 DEF: window.detectedTeam.filter(p => p.position === 'DEF'),
@@ -2434,23 +2825,68 @@
                 FWD: window.detectedTeam.filter(p => p.position === 'FWD')
             };
             
-            // Add to pitch
-            grouped.GK.forEach(player => {
-                gkRow.innerHTML += createPlayerSlot(player);
-            });
-            grouped.DEF.slice(0, 4).forEach(player => {
-                defRow.innerHTML += createPlayerSlot(player);
-            });
-            grouped.MID.slice(0, 5).forEach(player => {
-                midRow.innerHTML += createPlayerSlot(player);
-            });
-            grouped.FWD.slice(0, 3).forEach(player => {
-                fwdRow.innerHTML += createPlayerSlot(player);
+            // Function to fill a slot with player
+            const fillSlot = (slot, player) => {
+                // Try to find the player in FPL data by name
+                let fplPlayer = window.fplData.players.find(p => 
+                    p.name.toLowerCase() === player.name.replace(' (C)', '').replace(' (V)', '').toLowerCase()
+                );
+                
+                // If not found by exact match, try partial match
+                if (!fplPlayer) {
+                    const cleanName = player.name.replace(' (C)', '').replace(' (V)', '');
+                    fplPlayer = window.fplData.players.find(p => 
+                        p.name.toLowerCase().includes(cleanName.toLowerCase()) ||
+                        cleanName.toLowerCase().includes(p.name.toLowerCase())
+                    );
+                }
+                
+                if (fplPlayer) {
+                    const team = window.fplData.teams.find(t => t.id === fplPlayer.team);
+                    const teamName = team ? team.short_name : player.team;
+                    
+                    slot.classList.remove('empty');
+                    slot.innerHTML = `
+                        <div class="player-name">${player.name}</div>
+                        <div class="player-info">${teamName} • £${fplPlayer.price}m</div>
+                        <span class="remove-player" onclick="removePlayer(event, this.parentElement)">×</span>
+                    `;
+                    slot.setAttribute('data-player-id', fplPlayer.id);
+                    
+                    selectedPlayers.push({ ...fplPlayer, slot: slot });
+                } else {
+                    // Fallback if player not found in FPL data
+                    slot.classList.remove('empty');
+                    slot.innerHTML = `
+                        <div class="player-name">${player.name}</div>
+                        <div class="player-info">${player.team} • £${player.price}m</div>
+                        <span class="remove-player" onclick="removePlayer(event, this.parentElement)">×</span>
+                    `;
+                }
+            };
+            
+            // Fill slots with detected players
+            grouped.GK.forEach((player, i) => {
+                if (i < gkSlots.length) fillSlot(gkSlots[i], player);
             });
             
-            // Store detailed team for AI analysis
-            userTeam = window.detectedTeam;
-            localStorage.setItem('fplTeam', JSON.stringify(userTeam));
+            grouped.DEF.forEach((player, i) => {
+                if (i < defSlots.length) fillSlot(defSlots[i], player);
+            });
+            
+            grouped.MID.forEach((player, i) => {
+                if (i < midSlots.length) fillSlot(midSlots[i], player);
+            });
+            
+            grouped.FWD.forEach((player, i) => {
+                if (i < fwdSlots.length) fillSlot(fwdSlots[i], player);
+            });
+            
+            // Update team stats
+            updateTeamStats();
+            
+            // Store team
+            saveTeamToStorage();
             
             // Close upload panel
             document.getElementById('screenshotUpload').style.display = 'none';
@@ -2561,14 +2997,6 @@
             sendQuickMessage(message);
         }
 
-        function createPlayerSlot(player) {
-            return `
-                <div class="player-slot" onclick="selectPlayer(this, '${player.position}')">
-                    <div class="player-name">${player.name}</div>
-                    <div class="player-info">${player.team} • £${player.price}m</div>
-                </div>
-            `;
-        }
 
         function showUploadStatus(message, type) {
             const statusDiv = document.getElementById('uploadStatus');
