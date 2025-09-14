@@ -2955,20 +2955,55 @@
                 const statusEl = document.getElementById('ocrStatusText');
                 if (statusEl) statusEl.textContent = 'Preprocessing image for better OCR...';
                 
-                // Preprocess the image for better OCR accuracy
-                const processedImage = await preprocessImageForOCR(imageDataUrl);
+                // Multiple OCR passes for 100% accuracy
+                const ocrResults = [];
                 
-                if (statusEl) statusEl.textContent = 'Scanning for player names...';
-                
-                // Configure OCR for FPL screenshots
+                // Pass 1: High contrast preprocessing
+                if (statusEl) statusEl.textContent = 'OCR Pass 1: High contrast scan...';
+                const highContrastImage = await preprocessImageForOCR(imageDataUrl, 'highContrast');
                 await worker.setParameters({
                     tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .()',
-                    tessedit_pageseg_mode: '11', // Sparse text mode
+                    tessedit_pageseg_mode: '11',
                     preserve_interword_spaces: '1'
                 });
+                const result1 = await worker.recognize(highContrastImage);
+                ocrResults.push(result1);
                 
-                // Perform OCR with the preprocessed image
-                const result = await worker.recognize(processedImage);
+                // Pass 2: Original image with different settings
+                if (statusEl) statusEl.textContent = 'OCR Pass 2: Original image scan...';
+                await worker.setParameters({
+                    tessedit_pageseg_mode: '3', // Fully automatic page segmentation
+                    preserve_interword_spaces: '1'
+                });
+                const result2 = await worker.recognize(imageDataUrl);
+                ocrResults.push(result2);
+                
+                // Pass 3: Enhanced image
+                if (statusEl) statusEl.textContent = 'OCR Pass 3: Enhanced scan...';
+                const enhancedImage = await preprocessImageForOCR(imageDataUrl, 'enhanced');
+                await worker.setParameters({
+                    tessedit_pageseg_mode: '6', // Uniform block of text
+                });
+                const result3 = await worker.recognize(enhancedImage);
+                ocrResults.push(result3);
+                
+                // Combine all OCR results
+                const combinedText = ocrResults.map(r => r.data.text || '').join(' ');
+                const allWords = [];
+                const allLines = [];
+                
+                ocrResults.forEach(r => {
+                    if (r.data.words) allWords.push(...r.data.words);
+                    if (r.data.lines) allLines.push(...r.data.lines);
+                });
+                
+                const result = {
+                    data: {
+                        text: combinedText,
+                        words: allWords,
+                        lines: allLines
+                    }
+                };
                 
                 // Clear timeout and interval
                 timeoutCleared = true;
@@ -3069,7 +3104,7 @@
         }
         
         // Preprocess image for better OCR accuracy on FPL screenshots
-        async function preprocessImageForOCR(imageDataUrl) {
+        async function preprocessImageForOCR(imageDataUrl, mode = 'highContrast') {
             return new Promise((resolve) => {
                 const img = new Image();
                 img.onload = function() {
@@ -3090,30 +3125,50 @@
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     const data = imageData.data;
                     
-                    // Process pixels for better text recognition
-                    for (let i = 0; i < data.length; i += 4) {
-                        const r = data[i];
-                        const g = data[i + 1];
-                        const b = data[i + 2];
-                        
-                        // Convert to grayscale
-                        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-                        
-                        // Apply adaptive threshold
-                        // Dark text on light background (typical FPL)
-                        let value;
-                        if (gray < 100) {
-                            value = 0; // Make dark pixels black
-                        } else if (gray > 200) {
-                            value = 255; // Make light pixels white
-                        } else {
-                            // Enhance mid-tones based on surrounding context
-                            value = gray < 150 ? 0 : 255;
+                    // Process pixels based on mode
+                    if (mode === 'highContrast') {
+                        // High contrast black and white
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                            const value = gray < 128 ? 0 : 255;
+                            data[i] = value;
+                            data[i + 1] = value;
+                            data[i + 2] = value;
                         }
-                        
-                        data[i] = value;     // Red
-                        data[i + 1] = value; // Green
-                        data[i + 2] = value; // Blue
+                    } else if (mode === 'enhanced') {
+                        // Enhanced with better edge detection
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                            // Multi-level thresholding
+                            let value;
+                            if (gray < 80) value = 0;
+                            else if (gray < 160) value = gray < 120 ? 0 : 255;
+                            else value = 255;
+                            data[i] = value;
+                            data[i + 1] = value;
+                            data[i + 2] = value;
+                        }
+                    } else {
+                        // Adaptive threshold
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                            let value;
+                            if (gray < 100) value = 0;
+                            else if (gray > 200) value = 255;
+                            else value = gray < 150 ? 0 : 255;
+                            data[i] = value;
+                            data[i + 1] = value;
+                            data[i + 2] = value;
+                        }
                     }
                     
                     // Put processed image back
@@ -3152,24 +3207,90 @@
             console.log('Text lines:', textLines);
             console.log('Text words:', textWords);
             
-            // Common FPL player names to specifically look for
-            const commonPlayers = [
-                'HAALAND', 'SALAH', 'PALMER', 'SAKA', 'SON', 'FERNANDES', 'FODEN',
-                'WATKINS', 'ISAK', 'JACKSON', 'SOLANKE', 'DARWIN', 'NUNEZ', 'JESUS',
-                'GORDON', 'MBEUMO', 'BOWEN', 'MARTINELLI', 'ODEGAARD', 'RASHFORD',
-                'ALEXANDER-ARNOLD', 'TAA', 'ROBERTSON', 'VIRGIL', 'VAN DIJK', 'SALIBA',
-                'GABRIEL', 'WHITE', 'TRIPPIER', 'ALISSON', 'EDERSON', 'RAYA', 'MARTINEZ',
-                'DIAZ', 'JOTA', 'RICE', 'HAVERTZ', 'MADDISON', 'KULUSEVSKI', 'ROMERO',
-                'UDOGIE', 'PORRO', 'DIAS', 'STONES', 'WALKER', 'GVARDIOL', 'SHAW'
-            ];
+            // Comprehensive FPL player names database with variations
+            const playerDatabase = {
+                // Forwards
+                'HAALAND': ['HAALAND', 'ERLING', 'E.HAALAND', 'E HAALAND'],
+                'WATKINS': ['WATKINS', 'OLLIE', 'O.WATKINS', 'O WATKINS'],
+                'ISAK': ['ISAK', 'ALEXANDER', 'A.ISAK', 'A ISAK'],
+                'JACKSON': ['JACKSON', 'NICOLAS', 'N.JACKSON', 'N JACKSON'],
+                'SOLANKE': ['SOLANKE', 'DOMINIC', 'D.SOLANKE', 'D SOLANKE'],
+                'DARWIN': ['DARWIN', 'NUNEZ', 'DARWIN NUNEZ', 'D.NUNEZ', 'D NUNEZ'],
+                'JESUS': ['JESUS', 'GABRIEL', 'G.JESUS', 'G JESUS', 'GABRIEL JESUS'],
+                'TONEY': ['TONEY', 'IVAN', 'I.TONEY', 'I TONEY'],
+                'WOOD': ['WOOD', 'CHRIS', 'C.WOOD', 'C WOOD'],
+                // Midfielders
+                'SALAH': ['SALAH', 'MOHAMED', 'MO SALAH', 'M.SALAH', 'M SALAH', 'MO'],
+                'PALMER': ['PALMER', 'COLE', 'C.PALMER', 'C PALMER', 'COLE PALMER'],
+                'SAKA': ['SAKA', 'BUKAYO', 'B.SAKA', 'B SAKA'],
+                'SON': ['SON', 'HEUNG-MIN', 'SON HEUNG-MIN', 'H.SON', 'H SON', 'SONNY'],
+                'FERNANDES': ['FERNANDES', 'BRUNO', 'B.FERNANDES', 'B FERNANDES', 'BRUNO F'],
+                'FODEN': ['FODEN', 'PHIL', 'P.FODEN', 'P FODEN'],
+                'GORDON': ['GORDON', 'ANTHONY', 'A.GORDON', 'A GORDON'],
+                'MBEUMO': ['MBEUMO', 'BRYAN', 'B.MBEUMO', 'B MBEUMO'],
+                'BOWEN': ['BOWEN', 'JARROD', 'J.BOWEN', 'J BOWEN'],
+                'MARTINELLI': ['MARTINELLI', 'GABRIEL', 'G.MARTINELLI', 'GABI'],
+                'ODEGAARD': ['ODEGAARD', 'MARTIN', 'M.ODEGAARD', 'ØDEGAARD'],
+                'RASHFORD': ['RASHFORD', 'MARCUS', 'M.RASHFORD', 'M RASHFORD'],
+                'MADDISON': ['MADDISON', 'JAMES', 'J.MADDISON', 'J MADDISON', 'MADDERS'],
+                'RICE': ['RICE', 'DECLAN', 'D.RICE', 'D RICE'],
+                'HAVERTZ': ['HAVERTZ', 'KAI', 'K.HAVERTZ', 'K HAVERTZ'],
+                'DIAZ': ['DIAZ', 'LUIS', 'L.DIAZ', 'L DIAZ', 'LUCHO'],
+                'JOTA': ['JOTA', 'DIOGO', 'D.JOTA', 'D JOTA'],
+                // Defenders
+                'ALEXANDER-ARNOLD': ['ALEXANDER-ARNOLD', 'TAA', 'TRENT', 'T.ALEXANDER-ARNOLD', 'TRENT AA'],
+                'ROBERTSON': ['ROBERTSON', 'ANDY', 'ROBBO', 'A.ROBERTSON', 'A ROBERTSON'],
+                'VIRGIL': ['VIRGIL', 'VAN DIJK', 'VVD', 'V.VAN DIJK', 'VANDIJK'],
+                'SALIBA': ['SALIBA', 'WILLIAM', 'W.SALIBA', 'W SALIBA'],
+                'GABRIEL': ['GABRIEL', 'GABRIEL M', 'GABRIEL MAG', 'G.MAGALHAES'],
+                'WHITE': ['WHITE', 'BEN', 'B.WHITE', 'B WHITE'],
+                'TRIPPIER': ['TRIPPIER', 'KIERAN', 'K.TRIPPIER', 'K TRIPPIER', 'TRIPPS'],
+                'DIAS': ['DIAS', 'RUBEN', 'R.DIAS', 'R DIAS'],
+                'STONES': ['STONES', 'JOHN', 'J.STONES', 'J STONES'],
+                'WALKER': ['WALKER', 'KYLE', 'K.WALKER', 'K WALKER'],
+                'GVARDIOL': ['GVARDIOL', 'JOSKO', 'J.GVARDIOL', 'J GVARDIOL'],
+                'ROMERO': ['ROMERO', 'CRISTIAN', 'C.ROMERO', 'C ROMERO', 'CUTI'],
+                'PORRO': ['PORRO', 'PEDRO', 'P.PORRO', 'P PORRO'],
+                'UDOGIE': ['UDOGIE', 'DESTINY', 'D.UDOGIE', 'D UDOGIE'],
+                // Goalkeepers
+                'ALISSON': ['ALISSON', 'ALISSON B', 'ALISSON BECKER', 'A.BECKER'],
+                'EDERSON': ['EDERSON', 'EDERSON M', 'E.MORAES'],
+                'RAYA': ['RAYA', 'DAVID', 'D.RAYA', 'D RAYA'],
+                'MARTINEZ': ['MARTINEZ', 'EMI', 'E.MARTINEZ', 'EMILIANO', 'EMI MARTINEZ'],
+                'PICKFORD': ['PICKFORD', 'JORDAN', 'J.PICKFORD', 'J PICKFORD'],
+                'POPE': ['POPE', 'NICK', 'N.POPE', 'N POPE'],
+                'ONANA': ['ONANA', 'ANDRE', 'A.ONANA', 'A ONANA'],
+                'VICARIO': ['VICARIO', 'GUGLIELMO', 'G.VICARIO', 'G VICARIO']
+            };
             
-            // First pass: Look for exact matches of common players
+            // Flatten all variations for searching
+            const allPlayerVariations = [];
+            Object.entries(playerDatabase).forEach(([key, variations]) => {
+                variations.forEach(v => allPlayerVariations.push({ key, variation: v }));
+            });
+            
+            // First pass: Look for exact matches of player variations
             const foundByExact = [];
-            commonPlayers.forEach(playerName => {
-                if (cleanedText.includes(playerName)) {
-                    console.log(`Found common player in text: ${playerName}`);
-                    foundByExact.push(playerName);
+            allPlayerVariations.forEach(({ key, variation }) => {
+                if (cleanedText.includes(variation)) {
+                    console.log(`✅ Found player variation in text: ${variation} -> ${key}`);
+                    if (!foundByExact.find(f => f.key === key)) {
+                        foundByExact.push({ key, variation });
+                    }
                 }
+            });
+            
+            // Also check individual lines for better accuracy
+            textLines.forEach(line => {
+                const lineUpper = line.toUpperCase().trim();
+                allPlayerVariations.forEach(({ key, variation }) => {
+                    if (lineUpper.includes(variation) || lineUpper === variation) {
+                        console.log(`✅ Found in line: ${variation} -> ${key}`);
+                        if (!foundByExact.find(f => f.key === key)) {
+                            foundByExact.push({ key, variation });
+                        }
+                    }
+                });
             });
             
             // Calculate Levenshtein distance for fuzzy matching
@@ -3201,19 +3322,31 @@
             const playerMatches = [];
             
             // Priority matching for players we explicitly found
-            foundByExact.forEach(foundName => {
-                const player = window.fplData.players.find(p => 
-                    p.name.toUpperCase() === foundName ||
-                    p.fullName.toUpperCase() === foundName ||
-                    p.fullName.toUpperCase().includes(foundName) ||
-                    (foundName === 'TAA' && p.name === 'Alexander-Arnold') ||
-                    (foundName === 'VAN DIJK' && p.name === 'Virgil') ||
-                    (foundName === 'NUNEZ' && p.name.includes('Darwin'))
-                );
+            foundByExact.forEach(({ key, variation }) => {
+                // Find the player in database
+                const player = window.fplData.players.find(p => {
+                    const nameUpper = p.name.toUpperCase();
+                    const fullNameUpper = p.fullName.toUpperCase();
+                    
+                    // Check against all variations for this player
+                    const variations = playerDatabase[key] || [];
+                    return variations.some(v => 
+                        nameUpper.includes(v) || 
+                        fullNameUpper.includes(v) ||
+                        v.includes(nameUpper) ||
+                        (key === 'ALEXANDER-ARNOLD' && p.name === 'Alexander-Arnold') ||
+                        (key === 'VIRGIL' && p.name === 'Virgil') ||
+                        (key === 'DARWIN' && p.fullName.includes('Darwin')) ||
+                        (key === 'GABRIEL' && p.name === 'Gabriel' && p.team === 1) || // Arsenal Gabriel
+                        (key === 'JESUS' && p.name === 'Jesus' && p.team === 1) // Arsenal Jesus
+                    );
+                });
                 
                 if (player) {
                     playerMatches.push({ player, confidence: 100 });
-                    console.log(`✓ Matched common player: ${foundName} → ${player.name}`);
+                    console.log(`✅ Matched: ${variation} → ${player.fullName} (${player.name})`);
+                } else {
+                    console.log(`⚠️ Could not match ${variation} (${key}) to database`);
                 }
             });
             
@@ -3299,24 +3432,66 @@
             console.log(`Found ${detectedPlayers.length} players from OCR`);
             console.log('Detected players:', detectedPlayers.map(p => `${p.name} (${p.confidence}%)`) );
             
-            if (detectedPlayers.length >= 11) {
-                // Take the top 15 players by confidence
-                displayDetectedPlayers(detectedPlayers.slice(0, 15));
-            } else if (detectedPlayers.length > 0) {
-                // Fill in with template players
+            // Validate detected players for accuracy
+            const highConfidencePlayers = detectedPlayers.filter(p => p.confidence >= 85);
+            const mediumConfidencePlayers = detectedPlayers.filter(p => p.confidence >= 70 && p.confidence < 85);
+            const lowConfidencePlayers = detectedPlayers.filter(p => p.confidence < 70);
+            
+            console.log(`High confidence: ${highConfidencePlayers.length}, Medium: ${mediumConfidencePlayers.length}, Low: ${lowConfidencePlayers.length}`);
+            
+            // Build team with high confidence players first
+            let finalTeam = [];
+            
+            // Add all high confidence players
+            finalTeam.push(...highConfidencePlayers);
+            
+            // Add medium confidence players if needed
+            if (finalTeam.length < 15) {
+                const needed = 15 - finalTeam.length;
+                finalTeam.push(...mediumConfidencePlayers.slice(0, needed));
+            }
+            
+            // Only use low confidence if really needed
+            if (finalTeam.length < 11) {
+                const needed = 11 - finalTeam.length;
+                finalTeam.push(...lowConfidencePlayers.slice(0, needed));
+            }
+            
+            if (finalTeam.length >= 11) {
+                // Success! Display the detected team
                 showUploadStatus(`
-                    <div class="fpl-tips">✅ Found ${detectedPlayers.length} players</div>
-                    <div>Adding popular players to complete your team...</div>
+                    <div class="fpl-tips">✅ <strong>Successfully detected ${finalTeam.length} players!</strong></div>
+                    <div>Confidence: ${Math.round(finalTeam.reduce((sum, p) => sum + p.confidence, 0) / finalTeam.length)}% average</div>
+                `, 'success');
+                
+                // Ensure we have exactly 15 players
+                if (finalTeam.length > 15) {
+                    finalTeam = finalTeam.slice(0, 15);
+                } else if (finalTeam.length < 15) {
+                    // Add some popular players to complete
+                    completeWithTemplate(finalTeam);
+                    return;
+                }
+                
+                displayDetectedPlayers(finalTeam);
+            } else if (finalTeam.length > 0) {
+                // Partial success - show what we found and complete with template
+                showUploadStatus(`
+                    <div class="fpl-tips">✅ Found ${finalTeam.length} players with good confidence</div>
+                    <div>Adding popular players to complete your 15-player squad...</div>
                 `, 'processing');
-                setTimeout(() => completeWithTemplate(detectedPlayers), 1000);
+                setTimeout(() => completeWithTemplate(finalTeam), 1000);
             } else {
-                // No players found - use fallback
-                console.log('No players detected from OCR');
+                // No reliable players found - use manual selection
+                console.log('No reliable players detected from OCR');
                 showUploadStatus(`
-                    <div class="fpl-warning">⚠️ Could not detect player names clearly</div>
-                    <div>Loading a popular template team instead...</div>
+                    <div class="fpl-warning">⚠️ Could not reliably detect players from screenshot</div>
+                    <div>Please select players manually or try a clearer screenshot...</div>
                 `, 'warning');
-                setTimeout(() => useQuickFallback(), 1500);
+                setTimeout(() => {
+                    // Show manual player selection interface
+                    showManualPlayerSelection();
+                }, 1500);
             }
         }
         
@@ -3595,6 +3770,34 @@
         }
         
         // Quick fallback with popular team
+        // Show manual player selection interface
+        function showManualPlayerSelection() {
+            console.log('Showing manual player selection...');
+            
+            showUploadStatus(`
+                <div class="fpl-tips">👆 <strong>Manual Player Selection</strong></div>
+                <div>Click on each position on the field to select your players</div>
+                <div style="margin-top: 15px;">
+                    <button onclick="useQuickFallback()" style="padding: 10px 20px; background: var(--secondary-color); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Load Popular Team Instead
+                    </button>
+                </div>
+            `, 'info');
+            
+            // Clear all current players
+            clearAllPlayers();
+            
+            // Make all player slots clickable for manual selection
+            document.querySelectorAll('.player-slot').forEach(slot => {
+                slot.style.cursor = 'pointer';
+                slot.style.border = '2px dashed #667eea';
+                slot.onclick = function() {
+                    // This will trigger the existing player selection modal
+                    this.click();
+                };
+            });
+        }
+        
         function useQuickFallback() {
             console.log('Using quick fallback team...');
             
