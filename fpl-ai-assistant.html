@@ -2953,10 +2953,22 @@
                 
                 console.log('Starting recognition...');
                 const statusEl = document.getElementById('ocrStatusText');
-                if (statusEl) statusEl.textContent = 'Analyzing screenshot...';
+                if (statusEl) statusEl.textContent = 'Preprocessing image for better OCR...';
                 
-                // Perform OCR with the image
-                const result = await worker.recognize(imageDataUrl);
+                // Preprocess the image for better OCR accuracy
+                const processedImage = await preprocessImageForOCR(imageDataUrl);
+                
+                if (statusEl) statusEl.textContent = 'Scanning for player names...';
+                
+                // Configure OCR for FPL screenshots
+                await worker.setParameters({
+                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .()',
+                    tessedit_pageseg_mode: '11', // Sparse text mode
+                    preserve_interword_spaces: '1'
+                });
+                
+                // Perform OCR with the preprocessed image
+                const result = await worker.recognize(processedImage);
                 
                 // Clear timeout and interval
                 timeoutCleared = true;
@@ -3056,38 +3068,60 @@
             setTimeout(() => processOCRTextImproved(text, words, lines), 500);
         }
         
-        // Preprocess image for better OCR
-        async function preprocessImage(imageDataUrl) {
+        // Preprocess image for better OCR accuracy on FPL screenshots
+        async function preprocessImageForOCR(imageDataUrl) {
             return new Promise((resolve) => {
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     
-                    // Scale up for better OCR (2x size)
-                    canvas.width = img.width * 2;
-                    canvas.height = img.height * 2;
+                    // Scale up for better OCR (3x size for small text)
+                    const scale = 3;
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
                     
-                    // Apply image enhancements
-                    ctx.filter = 'contrast(1.5) brightness(1.2) saturate(0)'; // Convert to high contrast B&W
-                    ctx.imageSmoothingEnabled = false;
+                    // Draw with high quality
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     
-                    // Get image data for additional processing
+                    // Get image data
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     const data = imageData.data;
                     
-                    // Apply threshold to make text clearer (convert to pure black/white)
+                    // Process pixels for better text recognition
                     for (let i = 0; i < data.length; i += 4) {
-                        const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                        const threshold = 128;
-                        const value = brightness > threshold ? 255 : 0;
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        
+                        // Convert to grayscale
+                        const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                        
+                        // Apply adaptive threshold
+                        // Dark text on light background (typical FPL)
+                        let value;
+                        if (gray < 100) {
+                            value = 0; // Make dark pixels black
+                        } else if (gray > 200) {
+                            value = 255; // Make light pixels white
+                        } else {
+                            // Enhance mid-tones based on surrounding context
+                            value = gray < 150 ? 0 : 255;
+                        }
+                        
                         data[i] = value;     // Red
                         data[i + 1] = value; // Green
                         data[i + 2] = value; // Blue
                     }
                     
+                    // Put processed image back
                     ctx.putImageData(imageData, 0, 0);
+                    
+                    // Add sharpening filter
+                    ctx.filter = 'contrast(1.4) brightness(1.1)';
+                    ctx.drawImage(canvas, 0, 0);
                     
                     // Return enhanced image
                     resolve(canvas.toDataURL('image/png'));
@@ -3109,11 +3143,34 @@
                 return;
             }
             
-            // Clean and normalize the text
-            const cleanedText = text.replace(/[^a-zA-Z\s\-']/g, ' ').replace(/\s+/g, ' ').toUpperCase();
-            const textWords = cleanedText.split(' ').filter(w => w.length > 2);
+            // Clean and normalize the text - keep more characters for FPL
+            const cleanedText = text.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().toUpperCase();
+            const textLines = text.split(/[\r\n]+/).filter(l => l.trim().length > 0);
+            const textWords = cleanedText.split(/\s+/).filter(w => w.length > 1);
             
-            console.log('Cleaned text words:', textWords);
+            console.log('Cleaned text:', cleanedText);
+            console.log('Text lines:', textLines);
+            console.log('Text words:', textWords);
+            
+            // Common FPL player names to specifically look for
+            const commonPlayers = [
+                'HAALAND', 'SALAH', 'PALMER', 'SAKA', 'SON', 'FERNANDES', 'FODEN',
+                'WATKINS', 'ISAK', 'JACKSON', 'SOLANKE', 'DARWIN', 'NUNEZ', 'JESUS',
+                'GORDON', 'MBEUMO', 'BOWEN', 'MARTINELLI', 'ODEGAARD', 'RASHFORD',
+                'ALEXANDER-ARNOLD', 'TAA', 'ROBERTSON', 'VIRGIL', 'VAN DIJK', 'SALIBA',
+                'GABRIEL', 'WHITE', 'TRIPPIER', 'ALISSON', 'EDERSON', 'RAYA', 'MARTINEZ',
+                'DIAZ', 'JOTA', 'RICE', 'HAVERTZ', 'MADDISON', 'KULUSEVSKI', 'ROMERO',
+                'UDOGIE', 'PORRO', 'DIAS', 'STONES', 'WALKER', 'GVARDIOL', 'SHAW'
+            ];
+            
+            // First pass: Look for exact matches of common players
+            const foundByExact = [];
+            commonPlayers.forEach(playerName => {
+                if (cleanedText.includes(playerName)) {
+                    console.log(`Found common player in text: ${playerName}`);
+                    foundByExact.push(playerName);
+                }
+            });
             
             // Calculate Levenshtein distance for fuzzy matching
             function levenshteinDistance(str1, str2) {
@@ -3140,45 +3197,78 @@
                 return matrix[str2.length][str1.length];
             }
             
-            // Try to match each word or word combination against player names
+            // First, try to match the common players we found
             const playerMatches = [];
             
+            // Priority matching for players we explicitly found
+            foundByExact.forEach(foundName => {
+                const player = window.fplData.players.find(p => 
+                    p.name.toUpperCase() === foundName ||
+                    p.fullName.toUpperCase() === foundName ||
+                    p.fullName.toUpperCase().includes(foundName) ||
+                    (foundName === 'TAA' && p.name === 'Alexander-Arnold') ||
+                    (foundName === 'VAN DIJK' && p.name === 'Virgil') ||
+                    (foundName === 'NUNEZ' && p.name.includes('Darwin'))
+                );
+                
+                if (player) {
+                    playerMatches.push({ player, confidence: 100 });
+                    console.log(`✓ Matched common player: ${foundName} → ${player.name}`);
+                }
+            });
+            
+            // Then check all players for matches
             window.fplData.players.forEach(player => {
+                // Skip if already found
+                if (playerMatches.find(m => m.player.id === player.id)) return;
+                
                 const playerName = player.name.toUpperCase();
                 const playerFullName = player.fullName.toUpperCase();
                 const lastName = playerFullName.split(' ').pop();
                 
-                // Check for exact matches first
-                if (cleanedText.includes(playerName) || cleanedText.includes(playerFullName)) {
-                    playerMatches.push({ player, confidence: 100 });
-                    console.log(`Exact match found: ${player.name}`);
+                // Check for exact matches in text
+                if (cleanedText.includes(playerName)) {
+                    playerMatches.push({ player, confidence: 95 });
+                    console.log(`Exact name match: ${player.name}`);
+                    return;
+                }
+                
+                if (cleanedText.includes(playerFullName)) {
+                    playerMatches.push({ player, confidence: 95 });
+                    console.log(`Exact full name match: ${player.fullName}`);
                     return;
                 }
                 
                 // Check for last name matches (for unique last names)
                 if (lastName.length > 4 && cleanedText.includes(lastName)) {
-                    playerMatches.push({ player, confidence: 90 });
-                    console.log(`Last name match: ${player.name} (${lastName})`);
-                    return;
+                    // Check it's not part of another word
+                    const regex = new RegExp(`\\b${lastName}\\b`);
+                    if (regex.test(cleanedText)) {
+                        playerMatches.push({ player, confidence: 85 });
+                        console.log(`Last name match: ${player.name} (${lastName})`);
+                        return;
+                    }
                 }
                 
-                // Fuzzy matching for close matches
-                textWords.forEach(word => {
-                    if (word.length < 4) return;
-                    
-                    // Check similarity with player name
-                    const nameDistance = levenshteinDistance(word, playerName);
-                    const lastNameDistance = levenshteinDistance(word, lastName);
-                    
-                    // If distance is small (1-2 characters different), it's likely a match
-                    if (nameDistance <= 2 && playerName.length > 4) {
-                        playerMatches.push({ player, confidence: 80 - (nameDistance * 10) });
-                        console.log(`Fuzzy match: ${word} → ${player.name} (distance: ${nameDistance})`);
-                    } else if (lastNameDistance <= 2 && lastName.length > 4) {
-                        playerMatches.push({ player, confidence: 75 - (lastNameDistance * 10) });
-                        console.log(`Fuzzy last name match: ${word} → ${player.name} (${lastName}) (distance: ${lastNameDistance})`);
-                    }
-                });
+                // Only do fuzzy matching if we have few exact matches
+                if (playerMatches.length < 15) {
+                    textWords.forEach(word => {
+                        if (word.length < 4) return;
+                        
+                        // Check similarity with player name
+                        const nameDistance = levenshteinDistance(word, playerName);
+                        const lastNameDistance = levenshteinDistance(word, lastName);
+                        
+                        // Very close matches only (1 character different)
+                        if (nameDistance === 1 && playerName.length > 4) {
+                            playerMatches.push({ player, confidence: 70 });
+                            console.log(`Close match: ${word} → ${player.name} (distance: ${nameDistance})`);
+                        } else if (lastNameDistance === 1 && lastName.length > 5) {
+                            playerMatches.push({ player, confidence: 65 });
+                            console.log(`Close last name: ${word} → ${player.name} (${lastName})`);
+                        }
+                    });
+                }
             });
             
             // Sort by confidence and remove duplicates
