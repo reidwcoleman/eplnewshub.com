@@ -3108,41 +3108,73 @@
                     }
                 }, 60000); // 60 second timeout - much more time for OCR
                 
-                console.log('Starting FAST recognition...');
+                console.log('Starting FAST 2-pass recognition...');
                 const statusEl = document.getElementById('ocrStatusText');
                 if (statusEl) statusEl.textContent = 'Detecting players...';
                 
-                // SIMPLIFIED SINGLE-PASS OCR FOR SPEED
-                // Configure for simple, fast OCR
-                await worker.setParameters({
-                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .',
-                    tessedit_pageseg_mode: '3', // Fully automatic - fastest mode
-                    preserve_interword_spaces: '1',
-                    tessedit_min_word_conf: '10' // Low confidence to catch all text
+                // OPTIMIZED 2-PASS OCR FOR BALANCE OF SPEED AND ACCURACY
+                const ocrResults = [];
+                
+                try {
+                    // Configure for fast OCR
+                    await worker.setParameters({
+                        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .',
+                        tessedit_pageseg_mode: '3', // Fully automatic
+                        preserve_interword_spaces: '1',
+                        tessedit_min_word_conf: '10'
+                    });
+                    
+                    // Pass 1: Original image
+                    if (statusEl) statusEl.textContent = 'Scanning for players (Pass 1/2)...';
+                    const percentEl = document.getElementById('ocrPercent');
+                    const progressBar = document.getElementById('ocrProgressBar');
+                    
+                    if (percentEl) percentEl.textContent = '40';
+                    if (progressBar) progressBar.style.width = '40%';
+                    
+                    const result1 = await worker.recognize(imageDataUrl);
+                    ocrResults.push(result1);
+                    
+                    // Quick check
+                    const quickText = result1.data?.text || '';
+                    const quickPlayers = findPlayersSimple(quickText);
+                    console.log(`Pass 1 found ${quickPlayers.length} players`);
+                    
+                    // Pass 2: High contrast if needed
+                    if (quickPlayers.length < 11) {
+                        if (statusEl) statusEl.textContent = 'Enhanced scan (Pass 2/2)...';
+                        if (percentEl) percentEl.textContent = '70';
+                        if (progressBar) progressBar.style.width = '70%';
+                        
+                        const highContrast = await preprocessImageForOCR(imageDataUrl, 'highContrast');
+                        const result2 = await worker.recognize(highContrast);
+                        ocrResults.push(result2);
+                    }
+                    
+                    // Set to 90%
+                    if (percentEl) percentEl.textContent = '90';
+                    if (progressBar) progressBar.style.width = '90%';
+                    
+                } catch (passError) {
+                    console.error('OCR pass error:', passError);
+                }
+                
+                // Combine results
+                const combinedText = ocrResults.map(r => r.data?.text || '').join(' ');
+                const allWords = [];
+                const allLines = [];
+                
+                ocrResults.forEach(r => {
+                    if (r.data?.words) allWords.push(...r.data.words);
+                    if (r.data?.lines) allLines.push(...r.data.lines);
                 });
                 
-                // SINGLE OCR PASS - Direct on original image (no preprocessing)
-                if (statusEl) statusEl.textContent = 'Scanning for player names...';
-                const percentEl = document.getElementById('ocrPercent');
-                const progressBar = document.getElementById('ocrProgressBar');
-                
-                // Set to 50% during OCR
-                if (percentEl) percentEl.textContent = '50';
-                if (progressBar) progressBar.style.width = '50%';
-                
-                // Single recognition pass
-                const ocrResult = await worker.recognize(imageDataUrl);
-                
-                // Set to 90% after OCR
-                if (percentEl) percentEl.textContent = '90';
-                if (progressBar) progressBar.style.width = '90%';
-                
-                // Simple result structure
+                // Create result
                 const result = {
                     data: {
-                        text: ocrResult.data.text || '',
-                        words: ocrResult.data.words || [],
-                        lines: ocrResult.data.lines || []
+                        text: combinedText || '',
+                        words: allWords,
+                        lines: allLines
                     }
                 };
                 
