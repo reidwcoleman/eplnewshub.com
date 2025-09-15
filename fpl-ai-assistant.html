@@ -3021,34 +3021,53 @@
                 if (statusEl) statusEl.textContent = 'Optimizing image for player detection...';
                 const optimizedImage = await ultraPreprocessImage(imageDataUrl, screenshotType);
                 
-                // Configure OCR for maximum accuracy
+                // Configure OCR for maximum text extraction
                 await worker.setParameters({
-                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .()£CVvance',
-                    tessedit_pageseg_mode: '11', // Sparse text
+                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .()£áàâäéèêëíìîïñóòôöúùûüÁÀÂÄÉÈÊËÍÌÎÏÑÓÒÔÖÚÙÛÜ',
+                    tessedit_pageseg_mode: '11', // Sparse text - best for screenshots
                     preserve_interword_spaces: '1',
-                    tessedit_min_word_conf: '30', // Lower confidence threshold
+                    tessedit_min_word_conf: '20', // Very low confidence to catch everything
                     tessedit_enable_doc_dict: '0', // Disable dictionary
-                    tessedit_enable_bigram_correction: '0' // Disable autocorrection
+                    tessedit_enable_bigram_correction: '0', // Disable autocorrection
+                    textord_min_linesize: '1.0', // Detect smaller text
+                    textord_noise_normratio: '5', // More aggressive noise handling
+                    edges_max_children_per_outline: '50' // Detect more text regions
                 });
                 
-                // Pass 1: Full image scan
-                if (statusEl) statusEl.textContent = 'Scanning for player names (Pass 1/3)...';
+                // Pass 1: Optimized image with aggressive detection
+                if (statusEl) statusEl.textContent = 'Scanning for player names (Pass 1/4)...';
                 const result1 = await worker.recognize(optimizedImage);
                 ocrResults.push(result1);
                 
-                // Pass 2: Original with different settings
-                if (statusEl) statusEl.textContent = 'Scanning for player names (Pass 2/3)...';
+                // Pass 2: Original with column detection (for team lists)
+                if (statusEl) statusEl.textContent = 'Scanning for player names (Pass 2/4)...';
                 await worker.setParameters({
-                    tessedit_pageseg_mode: '3', // Fully automatic
+                    tessedit_pageseg_mode: '4', // Single column of text
+                    tessedit_min_word_conf: '15',
+                    textord_heavy_nr: '1' // Better for heavy text
                 });
                 const result2 = await worker.recognize(imageDataUrl);
                 ocrResults.push(result2);
                 
-                // Pass 3: High contrast version
-                if (statusEl) statusEl.textContent = 'Scanning for player names (Pass 3/3)...';
+                // Pass 3: High contrast with line detection
+                if (statusEl) statusEl.textContent = 'Scanning for player names (Pass 3/4)...';
                 const highContrast = await preprocessImageForOCR(imageDataUrl, 'highContrast');
+                await worker.setParameters({
+                    tessedit_pageseg_mode: '7', // Single text line
+                    tessedit_min_word_conf: '10'
+                });
                 const result3 = await worker.recognize(highContrast);
                 ocrResults.push(result3);
+                
+                // Pass 4: Inverted image for dark mode (if needed)
+                if (statusEl) statusEl.textContent = 'Scanning for bench players (Pass 4/4)...';
+                const inverted = await preprocessImageForOCR(imageDataUrl, 'inverted');
+                await worker.setParameters({
+                    tessedit_pageseg_mode: '3', // Fully automatic
+                    tessedit_min_word_conf: '25'
+                });
+                const result4 = await worker.recognize(inverted);
+                ocrResults.push(result4);
                 
                 // Combine all OCR results
                 const combinedText = ocrResults.map(r => r.data.text || '').join(' ');
@@ -3087,10 +3106,18 @@
                 if (progressBar) progressBar.style.width = '100%';
                 if (statusEl) statusEl.textContent = 'Processing results...';
                 
-                // Process the results with ultra accuracy
+                // Process the results with ultra accuracy and pattern recognition
                 if (result.data && result.data.text) {
+                    // Clean and prepare text for pattern recognition
+                    const cleanedText = cleanTextForPatternRecognition(result.data.text);
+                    const enhancedData = {
+                        ...result.data,
+                        text: cleanedText,
+                        originalText: result.data.text
+                    };
+                    
                     // Process with ultra-accurate method
-                    processOCRResultsUltra(result.data, imageDataUrl);
+                    processOCRResultsUltra(enhancedData, imageDataUrl);
                 } else {
                     console.log('No text found - trying alternative detection');
                     // Try alternative detection method
@@ -3115,6 +3142,55 @@
                 `, 'warning');
                 setTimeout(() => useQuickFallback(), 1500);
             }
+        }
+        
+        // Clean text for pattern recognition - removes common OCR artifacts
+        function cleanTextForPatternRecognition(text) {
+            if (!text) return '';
+            
+            // Remove common FPL UI elements and clean OCR artifacts
+            let cleaned = text
+                // Remove captain/vice captain indicators
+                .replace(/\(C\)/gi, '')
+                .replace(/\(VC\)/gi, '')
+                .replace(/\(V\)/gi, '')
+                // Remove common UI elements
+                .replace(/\b(GKP|DEF|MID|FWD|SUB)\b/gi, ' ')
+                .replace(/\b(BEN|BENCH)\b/gi, ' ')
+                // Remove prices and points
+                .replace(/£[\d.]+m?/gi, ' ')
+                .replace(/\d+pts?/gi, ' ')
+                .replace(/\d+\.\d+/g, ' ')
+                // Remove position numbers
+                .replace(/^\d+\s*/gm, '')
+                // Clean up OCR artifacts
+                .replace(/[|\\\/]/g, ' ')
+                .replace(/[\[\]{}()]/g, ' ')
+                .replace(/[_=+*]/g, ' ')
+                // Replace multiple spaces with single space
+                .replace(/\s+/g, ' ')
+                // Clean up common OCR errors
+                .replace(/0(?=[A-Z])/g, 'O') // 0 instead of O
+                .replace(/1(?=[a-z])/g, 'l') // 1 instead of l
+                .replace(/5(?=[a-z])/g, 'S') // 5 instead of S
+                .replace(/[^\w\s'-]/g, ' ') // Keep only letters, spaces, hyphens, apostrophes
+                .trim();
+            
+            // Also extract lines that might contain player names
+            const lines = text.split(/\n/).map(line => line.trim()).filter(line => {
+                // Keep lines that look like they might contain player names
+                return line.length > 2 && 
+                       line.length < 50 && 
+                       /[A-Za-z]/.test(line) &&
+                       !line.match(/^(Points|Team|Squad|Gameweek|GW|Total|Bank|Value)/i);
+            });
+            
+            // Combine cleaned text with extracted lines
+            const combinedText = cleaned + ' ' + lines.join(' ');
+            
+            console.log('Text cleaning applied - before:', text.length, 'chars, after:', combinedText.length, 'chars');
+            
+            return combinedText;
         }
         
         // Detect screenshot type (mobile/desktop, dark/light)
@@ -3366,112 +3442,255 @@
             });
         }
         
-        // Enhanced player finding - detect all 15 players including bench
+        // Ultra-enhanced player finding with comprehensive nickname database
         function findPlayersSimple(text) {
-            console.log('Enhanced player detection for all 15 slots...');
+            console.log('🚀 Ultra-Enhanced OCR Detection - Finding all 15 players...');
             
             if (!window.fplData || !window.fplData.loaded) return [];
+            
+            // Comprehensive nickname database for FPL
+            const nicknames = {
+                // Common FPL abbreviations
+                'TAA': 'Alexander-Arnold', 'TRENT': 'Alexander-Arnold',
+                'ROBBO': 'Robertson', 'VVD': 'van Dijk', 'VIRGIL': 'van Dijk',
+                'KDB': 'De Bruyne', 'DEBRUYNE': 'De Bruyne', 'KEVIN': 'De Bruyne',
+                'BRUNO': 'Fernandes', 'BRUNO F': 'Fernandes',
+                'MO': 'Salah', 'MOHAMED': 'Salah', 'SONNY': 'Son', 'SON': 'Heung-min',
+                'RASHY': 'Rashford', 'RASH': 'Rashford', 'MARCUS': 'Rashford',
+                'HAALAND': 'Haaland', 'ERLING': 'Haaland',
+                'SAKA': 'Saka', 'BUKAYO': 'Saka',
+                'MARTINELLI': 'Martinelli', 'GABI': 'Martinelli', 'GABRIEL M': 'Martinelli',
+                'MITOMA': 'Mitoma', 'KAORU': 'Mitoma',
+                'BOWEN': 'Bowen', 'JARROD': 'Bowen',
+                'MADDISON': 'Maddison', 'MADDERS': 'Maddison', 'JAMES': 'Maddison',
+                'WATKINS': 'Watkins', 'OLLIE': 'Watkins',
+                'GORDON': 'Gordon', 'ANTHONY': 'Gordon',
+                'PALMER': 'Palmer', 'COLE': 'Palmer',
+                'ISAK': 'Isak', 'ALEX': 'Isak', 'ALEXANDER': 'Isak',
+                'SOLANKE': 'Solanke', 'DOM': 'Solanke', 'DOMINIC': 'Solanke',
+                'JACKSON': 'Jackson', 'NICOLAS': 'Jackson',
+                'DARWIN': 'Núñez', 'NUNEZ': 'Núñez',
+                'JOTA': 'Jota', 'DIOGO': 'Jota',
+                'ALISSON': 'Alisson', 'ALI': 'Alisson',
+                'EDERSON': 'Ederson', 'RAMSDALE': 'Ramsdale', 'AARON': 'Ramsdale',
+                'POPE': 'Pope', 'NICK': 'Pope',
+                'SANCHEZ': 'Sánchez', 'ROBERT': 'Sánchez',
+                'RAYA': 'Raya', 'DAVID': 'Raya',
+                'ONANA': 'Onana', 'ANDRE': 'Onana',
+                'VICARIO': 'Vicario', 'GUGLIELMO': 'Vicario',
+                // Common bench players
+                'NETO': 'Neto', 'PEDRO': 'Neto',
+                'ESR': 'Smith Rowe', 'SMITH ROWE': 'Smith Rowe', 'EMILE': 'Smith Rowe',
+                'ROGERS': 'Rogers', 'MORGAN': 'Rogers',
+                'ANDREAS': 'Pereira', 'PEREIRA': 'Pereira',
+                'WARD': 'Ward', 'JOEL': 'Ward',
+                'LIVRAMENTO': 'Livramento', 'TINO': 'Livramento', 'VALENTINO': 'Livramento',
+                'COLWILL': 'Colwill', 'LEVI': 'Colwill',
+                'KONSA': 'Konsa', 'EZRI': 'Konsa',
+                'HALL': 'Hall', 'LEWIS': 'Hall',
+                'GABRIEL': 'Gabriel', 'SALIBA': 'Saliba', 'WILLIAM': 'Saliba',
+                'BURN': 'Burn', 'DAN': 'Burn',
+                'BOTMAN': 'Botman', 'SVEN': 'Botman',
+                'GUEHI': 'Guéhi', 'MARC': 'Guéhi',
+                'ANDERSEN': 'Andersen', 'JOACHIM': 'Andersen',
+                'DUNK': 'Dunk', 'LEWIS D': 'Dunk',
+                // Goalkeeper subs
+                'FABIANSKI': 'Fabiański', 'LUKASZ': 'Fabiański',
+                'HENDERSON': 'Henderson', 'DEAN': 'Henderson',
+                'STEELE': 'Steele', 'JASON': 'Steele',
+                'TURNER': 'Turner', 'MATT': 'Turner',
+                // Common misspellings/OCR errors
+                'HALAND': 'Haaland', 'HALLAND': 'Haaland',
+                'FERNANDES': 'Fernandes', 'BRUNO FERNANDES': 'Fernandes',
+                'ALEXANDERARNOLD': 'Alexander-Arnold', 'ARNOLD': 'Alexander-Arnold',
+                'DE BRUYNE': 'De Bruyne', 'VANDIJK': 'van Dijk', 'VAN DIJK': 'van Dijk'
+            };
             
             const foundPlayers = [];
             const textUpper = text.toUpperCase();
             const addedPlayerIds = new Set();
             const unmatchedWords = [];
             
-            // Split text into words for more thorough matching
-            const words = textUpper.split(/[\s\n\r,.()£]+/).filter(w => w.length > 2);
-            console.log('Words found in OCR:', words.length, 'words');
+            // Split text multiple ways for better detection
+            const lines = text.split(/[\n\r]+/);
+            const words = textUpper.split(/[\s\n\r,.()£]+/).filter(w => w.length > 1);
+            const allWords = text.split(/[\s\n\r,.()£]+/).filter(w => w.length > 1);
+            
+            console.log(`📊 Text analysis: ${lines.length} lines, ${words.length} words`);
             
             // Track which words we've matched
             const matchedWords = new Set();
             
-            // Check each player in database
-            window.fplData.players.forEach(player => {
-                if (addedPlayerIds.has(player.id)) return;
-                
-                const playerName = player.name.toUpperCase();
-                const fullName = player.fullName.toUpperCase();
-                const firstName = fullName.split(' ')[0];
-                const lastName = fullName.split(' ').pop();
-                
-                let found = false;
-                let confidence = 0;
-                let matchedWord = null;
-                
-                // 1. Check full player name
-                if (playerName.length > 2 && textUpper.includes(playerName)) {
-                    found = true;
-                    confidence = 100;
-                    matchedWord = playerName;
-                    console.log(`✅ Exact: ${player.name}`);
-                }
-                // 2. Check last name (unique enough)
-                else if (lastName.length > 4 && textUpper.includes(lastName)) {
-                    const sameLastName = window.fplData.players.filter(p => 
-                        p.fullName.toUpperCase().includes(lastName)
+            // Strategy 1: Check nicknames first (highest priority)
+            console.log('🔍 Strategy 1: Checking nicknames...');
+            for (const [nick, playerName] of Object.entries(nicknames)) {
+                if (textUpper.includes(nick)) {
+                    const player = window.fplData.players.find(p => 
+                        p.fullName.toUpperCase().includes(playerName.toUpperCase()) ||
+                        p.name.toUpperCase().includes(playerName.toUpperCase())
                     );
-                    if (sameLastName.length <= 2) {
-                        found = true;
-                        confidence = 85;
-                        matchedWord = lastName;
-                        console.log(`✅ Last name: ${player.name} (${lastName})`);
+                    if (player && !addedPlayerIds.has(player.id)) {
+                        const team = window.fplData.teams.find(t => t.id === player.team);
+                        foundPlayers.push({
+                            position: positionMap[player.position],
+                            name: player.name,
+                            team: team ? team.short_name : 'Unknown',
+                            price: player.price.toFixed(1),
+                            playerId: player.id,
+                            confidence: 95,
+                            matchType: 'nickname'
+                        });
+                        addedPlayerIds.add(player.id);
+                        matchedWords.add(nick);
+                        console.log(`✅ Nickname: ${nick} → ${player.name}`);
                     }
                 }
-                // 3. Check first name (if unique)
-                else if (firstName.length > 4 && textUpper.includes(firstName)) {
-                    const sameFirstName = window.fplData.players.filter(p => 
-                        p.fullName.toUpperCase().startsWith(firstName)
-                    );
-                    if (sameFirstName.length === 1) {
-                        found = true;
-                        confidence = 75;
-                        matchedWord = firstName;
-                        console.log(`✅ First name: ${player.name} (${firstName})`);
-                    }
-                }
-                // 4. Check individual words
-                else {
-                    for (const word of words) {
-                        if (word.length < 4) continue;
-                        
-                        if (playerName === word || lastName === word || 
-                            (firstName === word && firstName.length > 4)) {
-                            found = true;
-                            confidence = 70;
-                            matchedWord = word;
-                            console.log(`✅ Word: ${player.name} (${word})`);
-                            break;
-                        }
-                    }
-                }
+            }
+            
+            // Strategy 2: Check each line for player names
+            console.log('🔍 Strategy 2: Checking lines...');
+            lines.forEach((line, idx) => {
+                const lineUpper = line.toUpperCase().trim();
+                if (lineUpper.length < 2) return;
                 
-                if (found && !addedPlayerIds.has(player.id)) {
-                    const team = window.fplData.teams.find(t => t.id === player.team);
-                    foundPlayers.push({
-                        position: positionMap[player.position],
-                        name: player.name,
-                        team: team ? team.short_name : 'Unknown',
-                        price: player.price.toFixed(1),
-                        playerId: player.id,
-                        confidence: confidence
-                    });
-                    addedPlayerIds.add(player.id);
-                    if (matchedWord) matchedWords.add(matchedWord);
-                }
+                window.fplData.players.forEach(player => {
+                    if (addedPlayerIds.has(player.id)) return;
+                    
+                    const playerName = player.name.toUpperCase();
+                    const fullName = player.fullName.toUpperCase();
+                    const lastName = fullName.split(' ').pop();
+                    
+                    if (lineUpper.includes(playerName) || 
+                        (lastName.length > 3 && lineUpper.includes(lastName))) {
+                        const team = window.fplData.teams.find(t => t.id === player.team);
+                        foundPlayers.push({
+                            position: positionMap[player.position],
+                            name: player.name,
+                            team: team ? team.short_name : 'Unknown',
+                            price: player.price.toFixed(1),
+                            playerId: player.id,
+                            confidence: 90,
+                            matchType: 'line'
+                        });
+                        addedPlayerIds.add(player.id);
+                        matchedWords.add(playerName);
+                        console.log(`✅ Line ${idx+1}: ${player.name}`);
+                    }
+                });
             });
             
-            // Find unmatched words
+            // Strategy 3: Check each word individually
+            console.log('🔍 Strategy 3: Checking individual words...');
             words.forEach(word => {
-                if (!matchedWords.has(word) && word.length > 3 && isNaN(word)) {
+                if (word.length < 3 || matchedWords.has(word)) return;
+                
+                window.fplData.players.forEach(player => {
+                    if (addedPlayerIds.has(player.id)) return;
+                    
+                    const playerName = player.name.toUpperCase();
+                    const fullName = player.fullName.toUpperCase();
+                    const lastName = fullName.split(' ').pop();
+                    const firstName = fullName.split(' ')[0];
+                    
+                    if (word === playerName) {
+                        const team = window.fplData.teams.find(t => t.id === player.team);
+                        foundPlayers.push({
+                            position: positionMap[player.position],
+                            name: player.name,
+                            team: team ? team.short_name : 'Unknown',
+                            price: player.price.toFixed(1),
+                            playerId: player.id,
+                            confidence: 100,
+                            matchType: 'exact'
+                        });
+                        addedPlayerIds.add(player.id);
+                        matchedWords.add(word);
+                        console.log(`✅ Exact word: ${player.name}`);
+                    }
+                    else if (word === lastName && lastName.length > 3) {
+                        const sameLastName = window.fplData.players.filter(p => 
+                            p.fullName.toUpperCase().endsWith(lastName)
+                        );
+                        if (sameLastName.length <= 2) {
+                            const team = window.fplData.teams.find(t => t.id === player.team);
+                            foundPlayers.push({
+                                position: positionMap[player.position],
+                                name: player.name,
+                                team: team ? team.short_name : 'Unknown',
+                                price: player.price.toFixed(1),
+                                playerId: player.id,
+                                confidence: 85,
+                                matchType: 'lastName'
+                            });
+                            addedPlayerIds.add(player.id);
+                            matchedWords.add(word);
+                            console.log(`✅ Last name: ${player.name}`);
+                        }
+                    }
+                });
+            });
+            
+            // Strategy 4: Common bench/budget players if missing players
+            if (foundPlayers.length < 15) {
+                console.log(`🔍 Strategy 4: Checking common bench players (need ${15-foundPlayers.length} more)...`);
+                
+                const commonBenchPlayers = [
+                    'Steele', 'Ward', 'Matthews', 'Turner', 'Fabianski',
+                    'Livramento', 'Burn', 'Dunk', 'Andersen', 'Mitchell', 'Taylor',
+                    'Andreas', 'Smith Rowe', 'Rogers', 'Brownhill', 'Reed',
+                    'Archer', 'Greenwood', 'Morris', 'Brereton'
+                ];
+                
+                commonBenchPlayers.forEach(name => {
+                    const nameUpper = name.toUpperCase();
+                    if (textUpper.includes(nameUpper)) {
+                        const player = window.fplData.players.find(p => 
+                            p.name.toUpperCase().includes(nameUpper) ||
+                            p.fullName.toUpperCase().includes(nameUpper)
+                        );
+                        if (player && !addedPlayerIds.has(player.id)) {
+                            const team = window.fplData.teams.find(t => t.id === player.team);
+                            foundPlayers.push({
+                                position: positionMap[player.position],
+                                name: player.name,
+                                team: team ? team.short_name : 'Unknown',
+                                price: player.price.toFixed(1),
+                                playerId: player.id,
+                                confidence: 80,
+                                matchType: 'benchPlayer'
+                            });
+                            addedPlayerIds.add(player.id);
+                            matchedWords.add(nameUpper);
+                            console.log(`✅ Bench: ${player.name}`);
+                        }
+                    }
+                });
+            }
+            
+            // Track unmatched words for hints
+            allWords.forEach(word => {
+                const wordUpper = word.toUpperCase();
+                if (!matchedWords.has(wordUpper) && word.length > 2 && 
+                    !['THE', 'AND', 'FOR', 'WITH', 'FROM', 'YOUR', 'TEAM', 'FPL', 'FANTASY', 
+                      'PREMIER', 'LEAGUE', 'POINTS', 'PRICE', 'GAMEWEEK', 'GW'].includes(wordUpper)) {
                     unmatchedWords.push(word);
                 }
             });
             
-            console.log(`Found ${foundPlayers.length}/15 players`);
+            // Store for later use
+            window.unmatchedOCRWords = unmatchedWords.slice(0, 30);
+            
+            // Log position breakdown
+            const positionCounts = { GK: 0, DEF: 0, MID: 0, FWD: 0 };
+            foundPlayers.forEach(p => positionCounts[p.position]++);
+            
+            console.log(`✨ Detection complete: ${foundPlayers.length}/15 players found`);
+            console.log(`📍 Positions - GK: ${positionCounts.GK}/2, DEF: ${positionCounts.DEF}/5, MID: ${positionCounts.MID}/5, FWD: ${positionCounts.FWD}/3`);
+            
             if (unmatchedWords.length > 0 && foundPlayers.length < 15) {
-                console.log('Unmatched words:', unmatchedWords.slice(0, 10));
+                console.log(`❓ Unmatched words: ${unmatchedWords.slice(0, 10).join(', ')}`);
             }
             
-            window.unmatchedOCRWords = unmatchedWords;
             return foundPlayers;
         }
         
