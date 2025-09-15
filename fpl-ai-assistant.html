@@ -2972,15 +2972,15 @@
             reader.readAsDataURL(file);
         }
         
-        // Ultra-accurate OCR with interactive correction
+        // Fast simplified OCR to avoid timeouts
         async function performSimplifiedOCR(imageDataUrl) {
-            console.log('Starting ultra-accurate OCR...');
+            console.log('Starting FAST simplified OCR...');
             
             // Create progress display with interactive elements
             showUploadStatus(`
                 <div style="text-align: center;">
                     <img src="${imageDataUrl}" style="max-width: 300px; max-height: 200px; border-radius: 8px; margin-bottom: 10px;"><br>
-                    <div class="fpl-tips">🎯 <strong>Ultra-Accurate OCR Active</strong></div>
+                    <div class="fpl-tips">⚡ <strong>Fast OCR Active</strong></div>
                     <div style="margin-top: 15px;">
                         <div style="font-size: 24px; font-weight: bold; color: var(--secondary-color);">
                             <span id="ocrPercent">0</span>%
@@ -2988,7 +2988,7 @@
                         <div style="width: 250px; height: 8px; background: #e0e0e0; border-radius: 4px; margin: 10px auto;">
                             <div id="ocrProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; transition: width 0.3s;"></div>
                         </div>
-                        <div id="ocrStatusText" style="margin-top: 10px; font-size: 14px; color: #666;">Analyzing screenshot type...</div>
+                        <div id="ocrStatusText" style="margin-top: 10px; font-size: 14px; color: #666;">Starting fast OCR...</div>
                         <div id="ocrTimeEstimate" style="margin-top: 5px; font-size: 12px; color: #999;"></div>
                     </div>
                 </div>
@@ -3106,86 +3106,43 @@
                         `, 'warning');
                         setTimeout(() => useQuickFallback(), 1000);
                     }
-                }, 20000); // 20 second timeout
+                }, 60000); // 60 second timeout - much more time for OCR
                 
-                console.log('Starting recognition...');
+                console.log('Starting FAST recognition...');
                 const statusEl = document.getElementById('ocrStatusText');
-                if (statusEl) statusEl.textContent = 'Preprocessing image for better OCR...';
+                if (statusEl) statusEl.textContent = 'Detecting players...';
                 
-                // Detect screenshot type first
-                const screenshotType = await detectScreenshotType(imageDataUrl);
-                console.log('Screenshot type detected:', screenshotType);
-                
-                // Ultra-accurate OCR with region scanning
-                const ocrResults = [];
-                
-                // Preprocess for maximum clarity
-                if (statusEl) statusEl.textContent = 'Optimizing image for player detection...';
-                const optimizedImage = await ultraPreprocessImage(imageDataUrl, screenshotType);
-                
-                // Configure OCR for maximum text extraction
+                // SIMPLIFIED SINGLE-PASS OCR FOR SPEED
+                // Configure for simple, fast OCR
                 await worker.setParameters({
-                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .()£áàâäéèêëíìîïñóòôöúùûüÁÀÂÄÉÈÊËÍÌÎÏÑÓÒÔÖÚÙÛÜ',
-                    tessedit_pageseg_mode: '11', // Sparse text - best for screenshots
+                    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-\' .',
+                    tessedit_pageseg_mode: '3', // Fully automatic - fastest mode
                     preserve_interword_spaces: '1',
-                    tessedit_min_word_conf: '20', // Very low confidence to catch everything
-                    tessedit_enable_doc_dict: '0', // Disable dictionary
-                    tessedit_enable_bigram_correction: '0', // Disable autocorrection
-                    textord_min_linesize: '1.0', // Detect smaller text
-                    textord_noise_normratio: '5', // More aggressive noise handling
-                    edges_max_children_per_outline: '50' // Detect more text regions
+                    tessedit_min_word_conf: '10' // Low confidence to catch all text
                 });
                 
-                // Pass 1: Optimized image with aggressive detection
-                if (statusEl) statusEl.textContent = 'Scanning for player names (Pass 1/4)...';
-                const result1 = await worker.recognize(optimizedImage);
-                ocrResults.push(result1);
+                // SINGLE OCR PASS - Direct on original image (no preprocessing)
+                if (statusEl) statusEl.textContent = 'Scanning for player names...';
+                const percentEl = document.getElementById('ocrPercent');
+                const progressBar = document.getElementById('ocrProgressBar');
                 
-                // Pass 2: Original with column detection (for team lists)
-                if (statusEl) statusEl.textContent = 'Scanning for player names (Pass 2/4)...';
-                await worker.setParameters({
-                    tessedit_pageseg_mode: '4', // Single column of text
-                    tessedit_min_word_conf: '15',
-                    textord_heavy_nr: '1' // Better for heavy text
-                });
-                const result2 = await worker.recognize(imageDataUrl);
-                ocrResults.push(result2);
+                // Set to 50% during OCR
+                if (percentEl) percentEl.textContent = '50';
+                if (progressBar) progressBar.style.width = '50%';
                 
-                // Pass 3: High contrast with line detection
-                if (statusEl) statusEl.textContent = 'Scanning for player names (Pass 3/4)...';
-                const highContrast = await preprocessImageForOCR(imageDataUrl, 'highContrast');
-                await worker.setParameters({
-                    tessedit_pageseg_mode: '7', // Single text line
-                    tessedit_min_word_conf: '10'
-                });
-                const result3 = await worker.recognize(highContrast);
-                ocrResults.push(result3);
+                // Single recognition pass
+                const ocrResult = await worker.recognize(imageDataUrl);
                 
-                // Pass 4: Inverted image for dark mode (if needed)
-                if (statusEl) statusEl.textContent = 'Scanning for bench players (Pass 4/4)...';
-                const inverted = await preprocessImageForOCR(imageDataUrl, 'inverted');
-                await worker.setParameters({
-                    tessedit_pageseg_mode: '3', // Fully automatic
-                    tessedit_min_word_conf: '25'
-                });
-                const result4 = await worker.recognize(inverted);
-                ocrResults.push(result4);
+                // Set to 90% after OCR
+                if (percentEl) percentEl.textContent = '90';
+                if (progressBar) progressBar.style.width = '90%';
                 
-                // Combine all OCR results
-                const combinedText = ocrResults.map(r => r.data.text || '').join(' ');
-                const allWords = [];
-                const allLines = [];
-                
-                ocrResults.forEach(r => {
-                    if (r.data.words) allWords.push(...r.data.words);
-                    if (r.data.lines) allLines.push(...r.data.lines);
-                });
-                
+                // Simple result structure
                 const result = {
                     data: {
-                        text: combinedText,
-                        words: allWords,
-                        lines: allLines
+                        text: ocrResult.data.text || '',
+                        words: ocrResult.data.words || [],
+                        lines: ocrResult.data.lines || []
                     }
                 };
                 
