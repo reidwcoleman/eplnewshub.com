@@ -3108,11 +3108,11 @@
                     }
                 }, 60000); // 60 second timeout - much more time for OCR
                 
-                console.log('Starting FAST 2-pass recognition...');
+                console.log('Starting thorough 3-pass recognition...');
                 const statusEl = document.getElementById('ocrStatusText');
-                if (statusEl) statusEl.textContent = 'Detecting players...';
+                if (statusEl) statusEl.textContent = 'Detecting all 15 players...';
                 
-                // OPTIMIZED 2-PASS OCR FOR BALANCE OF SPEED AND ACCURACY
+                // THOROUGH 3-PASS OCR TO CATCH ALL 15 PLAYERS
                 const ocrResults = [];
                 
                 try {
@@ -3125,7 +3125,7 @@
                     });
                     
                     // Pass 1: Original image
-                    if (statusEl) statusEl.textContent = 'Scanning for players (Pass 1/2)...';
+                    if (statusEl) statusEl.textContent = 'Scanning for players (Pass 1/3)...';
                     const percentEl = document.getElementById('ocrPercent');
                     const progressBar = document.getElementById('ocrProgressBar');
                     
@@ -3140,16 +3140,27 @@
                     const quickPlayers = findPlayersSimple(quickText);
                     console.log(`Pass 1 found ${quickPlayers.length} players`);
                     
-                    // Pass 2: High contrast if needed
-                    if (quickPlayers.length < 11) {
-                        if (statusEl) statusEl.textContent = 'Enhanced scan (Pass 2/2)...';
-                        if (percentEl) percentEl.textContent = '70';
-                        if (progressBar) progressBar.style.width = '70%';
-                        
-                        const highContrast = await preprocessImageForOCR(imageDataUrl, 'highContrast');
-                        const result2 = await worker.recognize(highContrast);
-                        ocrResults.push(result2);
-                    }
+                    // Pass 2: ALWAYS run high contrast to catch more players
+                    if (statusEl) statusEl.textContent = 'Enhanced scan (Pass 2/3)...';
+                    if (percentEl) percentEl.textContent = '50';
+                    if (progressBar) progressBar.style.width = '50%';
+                    
+                    const highContrast = await preprocessImageForOCR(imageDataUrl, 'highContrast');
+                    const result2 = await worker.recognize(highContrast);
+                    ocrResults.push(result2);
+                    
+                    // Pass 3: Different segmentation for bench players
+                    if (statusEl) statusEl.textContent = 'Scanning bench (Pass 3/3)...';
+                    if (percentEl) percentEl.textContent = '70';
+                    if (progressBar) progressBar.style.width = '70%';
+                    
+                    // Try with different settings for bench area
+                    await worker.setParameters({
+                        tessedit_pageseg_mode: '11', // Sparse text - good for scattered names
+                        tessedit_min_word_conf: '5' // Very low confidence for hard to read text
+                    });
+                    const result3 = await worker.recognize(imageDataUrl);
+                    ocrResults.push(result3);
                     
                     // Set to 90%
                     if (percentEl) percentEl.textContent = '90';
@@ -3721,39 +3732,73 @@
                 });
             });
             
-            // Strategy 4: Common bench/budget players if missing players
+            // Strategy 4: Common bench/budget players - always check these
+            console.log(`🔍 Strategy 4: Checking common bench players...`);
+            
+            const commonBenchPlayers = [
+                'Steele', 'Ward', 'Matthews', 'Turner', 'Fabianski', 'Johnstone',
+                'Livramento', 'Burn', 'Dunk', 'Andersen', 'Mitchell', 'Taylor', 'Kelly',
+                'Andreas', 'Smith Rowe', 'Rogers', 'Brownhill', 'Reed', 'Elneny', 'Longstaff',
+                'Archer', 'Greenwood', 'Morris', 'Brereton', 'Stansfield'
+            ];
+            
+            commonBenchPlayers.forEach(name => {
+                const nameUpper = name.toUpperCase();
+                if (textUpper.includes(nameUpper)) {
+                    const player = window.fplData.players.find(p => 
+                        p.name.toUpperCase().includes(nameUpper) ||
+                        p.fullName.toUpperCase().includes(nameUpper)
+                    );
+                    if (player && !addedPlayerIds.has(player.id)) {
+                        const team = window.fplData.teams.find(t => t.id === player.team);
+                        foundPlayers.push({
+                            position: positionMap[player.position],
+                            name: player.name,
+                            team: team ? team.short_name : 'Unknown',
+                            price: player.price.toFixed(1),
+                            playerId: player.id,
+                            confidence: 80,
+                            matchType: 'benchPlayer'
+                        });
+                        addedPlayerIds.add(player.id);
+                        matchedWords.add(nameUpper);
+                        console.log(`✅ Bench: ${player.name}`);
+                    }
+                }
+            });
+            
+            // Strategy 5: Partial name matching for any remaining text
             if (foundPlayers.length < 15) {
-                console.log(`🔍 Strategy 4: Checking common bench players (need ${15-foundPlayers.length} more)...`);
+                console.log(`🔍 Strategy 5: Partial name matching (need ${15-foundPlayers.length} more)...`);
                 
-                const commonBenchPlayers = [
-                    'Steele', 'Ward', 'Matthews', 'Turner', 'Fabianski',
-                    'Livramento', 'Burn', 'Dunk', 'Andersen', 'Mitchell', 'Taylor',
-                    'Andreas', 'Smith Rowe', 'Rogers', 'Brownhill', 'Reed',
-                    'Archer', 'Greenwood', 'Morris', 'Brereton'
-                ];
-                
-                commonBenchPlayers.forEach(name => {
-                    const nameUpper = name.toUpperCase();
-                    if (textUpper.includes(nameUpper)) {
-                        const player = window.fplData.players.find(p => 
-                            p.name.toUpperCase().includes(nameUpper) ||
-                            p.fullName.toUpperCase().includes(nameUpper)
-                        );
-                        if (player && !addedPlayerIds.has(player.id)) {
-                            const team = window.fplData.teams.find(t => t.id === player.team);
-                            foundPlayers.push({
-                                position: positionMap[player.position],
-                                name: player.name,
-                                team: team ? team.short_name : 'Unknown',
-                                price: player.price.toFixed(1),
-                                playerId: player.id,
-                                confidence: 80,
-                                matchType: 'benchPlayer'
-                            });
-                            addedPlayerIds.add(player.id);
-                            matchedWords.add(nameUpper);
-                            console.log(`✅ Bench: ${player.name}`);
-                        }
+                // Check each unmatched word against partial player names
+                words.forEach(word => {
+                    if (word.length >= 3 && !matchedWords.has(word) && foundPlayers.length < 15) {
+                        window.fplData.players.forEach(player => {
+                            if (addedPlayerIds.has(player.id)) return;
+                            
+                            const playerName = player.name.toUpperCase();
+                            const lastName = player.fullName.toUpperCase().split(' ').pop();
+                            
+                            // Check if word is part of player name (minimum 3 chars match)
+                            if ((word.length >= 3 && playerName.includes(word)) ||
+                                (word.length >= 3 && lastName.includes(word))) {
+                                const team = window.fplData.teams.find(t => t.id === player.team);
+                                foundPlayers.push({
+                                    position: positionMap[player.position],
+                                    name: player.name,
+                                    team: team ? team.short_name : 'Unknown',
+                                    price: player.price.toFixed(1),
+                                    playerId: player.id,
+                                    confidence: 60,
+                                    matchType: 'partial'
+                                });
+                                addedPlayerIds.add(player.id);
+                                matchedWords.add(word);
+                                console.log(`✅ Partial match: ${word} → ${player.name}`);
+                                return; // Stop after finding one match
+                            }
+                        });
                     }
                 });
             }
