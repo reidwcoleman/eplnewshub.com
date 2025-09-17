@@ -2187,6 +2187,12 @@
             initializeVoiceRecognition();
             setInterval(updateDeadlineTimer, 60000); // Update every minute
             
+            // Initialize fixture data
+            FixturesModule.init().then(data => {
+                window.fplFixtures = data;
+                console.log('Fixtures loaded:', data.currentGameweek);
+            });
+            
             // Wait for FPL data to load, then load saved team
             const checkDataAndLoadTeam = setInterval(() => {
                 if (window.fplData.loaded) {
