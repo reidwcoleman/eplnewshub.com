@@ -913,6 +913,16 @@
         </div>
     </section>
 
+    <!-- Fixtures Widget -->
+    <div id="fixturesWidget" style="background: #f8f9fa; padding: 40px 20px; margin-top: 60px;">
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <h2 style="text-align: center; color: #37003c; margin-bottom: 30px;">📅 Upcoming Fixtures & FDR Analysis</h2>
+            <div id="fixturesList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div style="text-align: center; color: #666;">Loading fixtures...</div>
+            </div>
+        </div>
+    </div>
+
     <div class="footer" include="./footer.html"></div>
     <script src="./index.js"></script>
     <script src="./premium-access-control.js"></script>
@@ -998,6 +1008,47 @@
             } finally {
                 button.textContent = originalText;
                 button.disabled = false;
+            }
+        }
+    </script>
+    
+    <!-- Initialize Fixtures Widget -->
+    <script>
+        // Initialize fixtures when page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await FixturesModule.init();
+                displayFixtures();
+            } catch (error) {
+                console.error('Error loading fixtures:', error);
+            }
+        });
+
+        function displayFixtures() {
+            const fixturesList = document.getElementById('fixturesList');
+            const teams = ['Arsenal', 'Chelsea', 'Liverpool', 'Man City', 'Man United', 'Tottenham'];
+            
+            let html = '';
+            teams.forEach(team => {
+                const fdr = FixturesModule.calculateFDR(team, 5);
+                const ticker = FixturesModule.getFixtureTicker(team, 5);
+                
+                const difficultyClass = fdr.rating < 2.5 ? 'easy' : fdr.rating > 3.5 ? 'hard' : 'medium';
+                const difficultyColor = fdr.rating < 2.5 ? '#00ff87' : fdr.rating > 3.5 ? '#ff1751' : '#ffa500';
+                
+                html += `
+                    <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <h3 style="color: #37003c; margin-bottom: 10px;">${team}</h3>
+                        <div style="margin-bottom: 10px;">FDR: <span style="color: ${difficultyColor}; font-weight: bold;">${fdr.rating}/5.0</span></div>
+                        <div style="display: flex; gap: 5px; flex-wrap: wrap;">${ticker}</div>
+                    </div>
+                `;
+            });
+            
+            if (html) {
+                fixturesList.innerHTML = html;
+            } else {
+                fixturesList.innerHTML = '<div style="text-align: center; color: #666;">Unable to load fixtures at this time.</div>';
             }
         }
     </script>

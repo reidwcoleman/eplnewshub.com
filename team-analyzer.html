@@ -713,6 +713,7 @@
         }
     </style>
 <script src="/universal-fast-load.js" async></script>
+<script src="fixtures.js"></script>
 </head>
 <body>
     <div class="header" include="./header.html"></div>
@@ -1340,6 +1341,31 @@
                 const team2Stats = this.teamStats[this.selectedTeam2.id];
                 
                 const insights = [];
+                
+                // Add fixture difficulty insights if available
+                if (window.FixturesModule) {
+                    try {
+                        const team1FDR = FixturesModule.calculateFDR(this.selectedTeam1.name, 5);
+                        const team2FDR = FixturesModule.calculateFDR(this.selectedTeam2.name, 5);
+                        const team1Ticker = FixturesModule.getFixtureTicker(this.selectedTeam1.name, 5);
+                        const team2Ticker = FixturesModule.getFixtureTicker(this.selectedTeam2.name, 5);
+                        
+                        const betterFixtures = team1FDR.rating < team2FDR.rating ? this.selectedTeam1 : this.selectedTeam2;
+                        const worseFixtures = team1FDR.rating >= team2FDR.rating ? this.selectedTeam1 : this.selectedTeam2;
+                        
+                        insights.push({
+                            title: '📅 Fixture Difficulty Analysis',
+                            description: `${betterFixtures.name} (FDR: ${team1FDR.rating < team2FDR.rating ? team1FDR.rating : team2FDR.rating}/5.0) has easier fixtures than ${worseFixtures.name} (FDR: ${team1FDR.rating >= team2FDR.rating ? team1FDR.rating : team2FDR.rating}/5.0). Consider loading up on ${betterFixtures.name} assets.`
+                        });
+                        
+                        insights.push({
+                            title: '🗓️ Upcoming Fixtures',
+                            description: `${this.selectedTeam1.name}: ${team1Ticker}<br>${this.selectedTeam2.name}: ${team2Ticker}`
+                        });
+                    } catch (e) {
+                        console.log('Could not get fixture data:', e);
+                    }
+                }
                 
                 // Determine better value team
                 const team1Value = team1Stats.totalPoints / (team1Stats.totalValue / 10);

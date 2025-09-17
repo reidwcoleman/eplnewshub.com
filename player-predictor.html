@@ -701,6 +701,7 @@
         }
     </style>
 <script src="/universal-fast-load.js" async></script>
+<script src="fixtures.js"></script>
 </head>
 <body>
     <div class="header" include="./header.html"></div>
@@ -1161,6 +1162,18 @@
                 const team = this.teams.find(t => t.id === player.team);
                 const teamStrength = team ? (team.strength + team.strength_overall_home + team.strength_overall_away) / 15 : 1;
                 
+                // Get fixture difficulty rating if available
+                let fixtureDifficultyMultiplier = 1.0;
+                if (window.FixturesModule && team) {
+                    try {
+                        const fdr = FixturesModule.calculateFDR(team.name, 3);
+                        // Lower FDR = easier fixtures = higher multiplier
+                        fixtureDifficultyMultiplier = fdr.rating ? (5.5 - fdr.rating) / 4 : 1.0;
+                    } catch (e) {
+                        console.log('Could not get FDR for', team.name);
+                    }
+                }
+                
                 // Home/Away performance differential
                 const homeAwayFactor = 1.1; // Assume home advantage for now
                 
@@ -1179,11 +1192,11 @@
                     (threat / 100) * 0.1 +
                     priceExpectation * 0.1 + 
                     teamStrength * 0.05
-                ) * positionMultiplier * minutesReliability * homeAwayFactor * ownershipFactor;
+                ) * positionMultiplier * minutesReliability * homeAwayFactor * ownershipFactor * fixtureDifficultyMultiplier;
                 
                 // Machine learning-inspired prediction with fixture analysis
                 const nextGameweeks = [];
-                const fixturePatterns = [1.2, 0.8, 1.0, 1.1, 0.9]; // Simulate fixture difficulty
+                const fixturePatterns = [1.2, 0.8, 1.0, 1.1, 0.9]; // Default fixture difficulty if no real data
                 
                 for (let i = 0; i < 5; i++) {
                     const fixtureMultiplier = fixturePatterns[i];
@@ -1661,6 +1674,16 @@
         // Initialize the predictor
         let predictor;
         document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize fixtures module
+            if (window.FixturesModule) {
+                try {
+                    await FixturesModule.init();
+                    console.log('Fixtures module initialized');
+                } catch (e) {
+                    console.log('Could not initialize fixtures module:', e);
+                }
+            }
+            
             predictor = new PlayerPredictor();
             await predictor.initialize();
         });
