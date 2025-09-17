@@ -2469,9 +2469,22 @@
         function generateAdvancedFPLResponse(message) {
             const lowerMessage = message.toLowerCase();
             
-            // Captain Analysis with Advanced Stats
+            // Captain Analysis with Advanced Stats (Enhanced with Fixtures)
             if (lowerMessage.includes('captain')) {
                 const topPicks = fplKnowledge.captainPicks.gameweek20.top;
+                
+                // Get fixture data for top captain picks if available
+                let fixtureInfo = '';
+                if (window.fplFixtures) {
+                    topPicks.forEach(pick => {
+                        const fdr = FixturesModule.calculateFDR(pick.team, 3);
+                        const ticker = FixturesModule.getFixtureTicker(pick.team, 3);
+                        if (ticker) {
+                            fixtureInfo += `<br>${pick.name} fixtures: ${ticker}`;
+                        }
+                    });
+                }
+                
                 return `<strong>📊 FPL AI Assistant Pro Captain Analysis - GW${gameweekData.current}:</strong><br><br>` +
                     `<div class="player-analysis-card">` +
                     `<div class="player-header">` +
@@ -2537,6 +2550,48 @@
                         `</div>`
                     ).join('') +
                     `<br><div class="fpl-tips">💎 <strong>Hidden Gem Alert:</strong> ${diffs[0].name} has underlying stats of a £10m+ player but costs just £7.8m!</div>`;
+            }
+            
+            // Fixture Analysis
+            if (lowerMessage.includes('fixture') || lowerMessage.includes('schedule')) {
+                if (!window.fplFixtures) {
+                    return `<strong>⏳ Loading fixture data...</strong><br>Please try again in a moment.`;
+                }
+                
+                // Check if asking about specific team
+                const teams = ['arsenal', 'chelsea', 'liverpool', 'man city', 'man united', 'tottenham', 'newcastle', 'brighton', 'aston villa'];
+                let teamFound = null;
+                for (let team of teams) {
+                    if (lowerMessage.includes(team)) {
+                        teamFound = team;
+                        break;
+                    }
+                }
+                
+                if (teamFound) {
+                    const fixtures = FixturesModule.getTeamFixtures(teamFound, 6);
+                    const fdr = FixturesModule.calculateFDR(teamFound, 6);
+                    const ticker = FixturesModule.getFixtureTicker(teamFound, 6);
+                    
+                    return `<strong>📅 ${teamFound.toUpperCase()} Fixture Analysis:</strong><br><br>` +
+                        `<div class="player-analysis-card">` +
+                        `<strong>Next 6 Fixtures:</strong> ${ticker}<br><br>` +
+                        `<strong>Fixture Difficulty Rating:</strong> ${fdr.rating}/5.0<br><br>` +
+                        `<strong>Detailed Breakdown:</strong><br>` +
+                        fixtures.map(f => 
+                            `GW${f.event}: ${f.fixture_string} (Difficulty: ${f.fixture_difficulty}/5)`
+                        ).join('<br>') +
+                        `</div><br>` +
+                        `<div class="fpl-tips">💡 <strong>Pro Tip:</strong> ${fdr.rating < 2.5 ? 'Excellent fixtures ahead - consider loading up on their assets!' : fdr.rating > 3.5 ? 'Tough run coming - might be time to sell.' : 'Mixed fixtures - hold for now.'}</div>`;
+                }
+                
+                // General fixture overview
+                const gwFixtures = FixturesModule.getGameweekFixtures(window.fplFixtures.currentGameweek);
+                return `<strong>📅 Gameweek ${window.fplFixtures.currentGameweek} Fixtures:</strong><br><br>` +
+                    gwFixtures.slice(0, 5).map(f => 
+                        `${f.team_h_name} vs ${f.team_a_name} - ${f.kickoff_time_formatted}`
+                    ).join('<br>') +
+                    `<br><br>Ask about specific teams for detailed fixture analysis!`;
             }
             
             // Default intelligent response
