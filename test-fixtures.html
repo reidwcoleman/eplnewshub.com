@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fixtures Test</title>
+    <script src="fixtures.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .fixture-card { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .ticker span { padding: 5px; margin: 2px; border-radius: 3px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <h1>Fixtures Integration Test</h1>
+    <div id="status">Loading fixtures...</div>
+    <div id="fixtures"></div>
+    
+    <script>
+        async function testFixtures() {
+            const statusEl = document.getElementById('status');
+            const fixturesEl = document.getElementById('fixtures');
+            
+            try {
+                // Initialize fixtures module
+                const data = await FixturesModule.init();
+                statusEl.innerHTML = `✅ Fixtures loaded! Current GW: ${data.currentGameweek}`;
+                
+                // Test different functions
+                const teams = ['Arsenal', 'Liverpool', 'Man City'];
+                let html = '';
+                
+                for (const team of teams) {
+                    const fdr = FixturesModule.calculateFDR(team, 5);
+                    const ticker = FixturesModule.getFixtureTicker(team, 5);
+                    const fixtures = FixturesModule.getTeamFixtures(team, 3);
+                    
+                    html += `
+                        <div class="fixture-card">
+                            <h3>${team}</h3>
+                            <p><strong>FDR (next 5):</strong> ${fdr.rating}/5.0</p>
+                            <div class="ticker">${ticker}</div>
+                            <p><strong>Next 3 fixtures:</strong></p>
+                            <ul>
+                                ${fixtures.map(f => `
+                                    <li>GW${f.event}: ${f.fixture_string} (Difficulty: ${f.fixture_difficulty}/5)</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+                fixturesEl.innerHTML = html;
+                
+            } catch (error) {
+                statusEl.innerHTML = `❌ Error: ${error.message}`;
+                console.error(error);
+            }
+        }
+        
+        testFixtures();
+    </script>
+</body>
+</html>

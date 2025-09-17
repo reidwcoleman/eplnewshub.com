@@ -1637,6 +1637,16 @@
         // Initialize the analyzer
         let analyzer;
         document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize fixtures module
+            if (window.FixturesModule) {
+                try {
+                    await FixturesModule.init();
+                    console.log('Fixtures module initialized');
+                } catch (e) {
+                    console.log('Could not initialize fixtures module:', e);
+                }
+            }
+            
             analyzer = new TeamAnalyzer();
             await analyzer.initialize();
         });
