@@ -2401,7 +2401,7 @@
             sendMessage();
         }
 
-        function sendMessage() {
+        async function sendMessage() {
             const input = document.getElementById('chatInput');
             const message = input.value.trim();
             
@@ -2420,12 +2420,32 @@
             // Show typing indicator
             showTypingIndicator();
             
-            // Generate AI response
-            setTimeout(() => {
+            try {
+                // Call Ollama server
+                const response = await fetch('http://localhost:3001/api/fpl-ai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        context: conversationHistory.slice(-5).map(h => `${h.sender}: ${h.text}`).join('\n')
+                    })
+                });
+
                 hideTypingIndicator();
-                const response = generateAdvancedFPLResponse(message);
-                conversationHistory.push({ sender: 'ai', text: response, timestamp: new Date() });
-                addMessage(response, 'ai');
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.response) {
+                        conversationHistory.push({ sender: 'ai', text: data.response, timestamp: new Date() });
+                        addMessage(data.response, 'ai');
+                    } else {
+                        throw new Error(data.error || 'Failed to get response');
+                    }
+                } else {
+                    throw new Error('Server error');
+                }
                 
                 // Context-aware follow-up
                 if (messageCount % 5 === 0) {
@@ -2433,7 +2453,22 @@
                         addMessage(generateContextualTip(), 'ai');
                     }, 2000);
                 }
-            }, 1500);
+            } catch (error) {
+                hideTypingIndicator();
+                console.error('Ollama Error:', error);
+                
+                // Fallback to local response if Ollama server is not running
+                const fallbackResponse = generateAdvancedFPLResponse(message);
+                conversationHistory.push({ sender: 'ai', text: fallbackResponse, timestamp: new Date() });
+                addMessage(fallbackResponse, 'ai');
+                
+                // Show connection notice
+                if (messageCount === 1) {
+                    setTimeout(() => {
+                        addMessage("Note: Using offline mode. For enhanced AI responses, make sure the Ollama server is running (npm start in the project directory).", 'ai');
+                    }, 1000);
+                }
+            }
         }
 
         function addMessage(text, sender) {
