@@ -3,10 +3,42 @@ const cors = require('cors');
 const axios = require('axios');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
+
+// Enhanced CORS configuration for both local and remote access
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        // Allow all origins for development
+        const allowedOrigins = [
+            'http://localhost',
+            'http://127.0.0.1',
+            'https://eplnewshub.com',
+            'https://www.eplnewshub.com',
+            'https://reidwcoleman.github.io'
+        ];
+        
+        // Check if origin is allowed or if it's a local file
+        if (allowedOrigins.some(allowed => origin.startsWith(allowed)) || origin.startsWith('file://')) {
+            callback(null, true);
+        } else {
+            // Allow all origins in development mode
+            if (process.env.NODE_ENV !== 'production') {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // FPL context to make the AI more specialized

@@ -2420,55 +2420,102 @@
             // Show typing indicator
             showTypingIndicator();
             
-            try {
-                // Call Ollama server
-                const response = await fetch('http://localhost:3001/api/fpl-ai', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: message,
-                        context: conversationHistory.slice(-5).map(h => `${h.sender}: ${h.text}`).join('\n')
-                    })
-                });
-
-                hideTypingIndicator();
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success && data.response) {
-                        conversationHistory.push({ sender: 'ai', text: data.response, timestamp: new Date() });
-                        addMessage(data.response, 'ai');
-                    } else {
-                        throw new Error(data.error || 'Failed to get response');
+            // Try multiple AI services in order
+            let aiResponse = null;
+            let serviceUsed = 'offline';
+            
+            // 1. Try local Ollama first (if user is running it locally)
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                try {
+                    const response = await fetch('http://localhost:3001/api/fpl-ai', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: message,
+                            context: conversationHistory.slice(-5).map(h => `${h.sender}: ${h.text}`).join('\n')
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.response) {
+                            aiResponse = data.response;
+                            serviceUsed = 'ollama-local';
+                        }
                     }
-                } else {
-                    throw new Error('Server error');
-                }
-                
-                // Context-aware follow-up
-                if (messageCount % 5 === 0) {
-                    setTimeout(() => {
-                        addMessage(generateContextualTip(), 'ai');
-                    }, 2000);
-                }
-            } catch (error) {
-                hideTypingIndicator();
-                console.error('Ollama Error:', error);
-                
-                // Fallback to local response if Ollama server is not running
-                const fallbackResponse = generateAdvancedFPLResponse(message);
-                conversationHistory.push({ sender: 'ai', text: fallbackResponse, timestamp: new Date() });
-                addMessage(fallbackResponse, 'ai');
-                
-                // Show connection notice
-                if (messageCount === 1) {
-                    setTimeout(() => {
-                        addMessage("Note: Using offline mode. For enhanced AI responses, make sure the Ollama server is running (npm start in the project directory).", 'ai');
-                    }, 1000);
+                } catch (error) {
+                    console.log('Local Ollama not available');
                 }
             }
+            
+            // 2. Try free Hugging Face API (no key needed for inference API)
+            if (!aiResponse) {
+                try {
+                    const hfResponse = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            inputs: `The following is a conversation about Fantasy Premier League (FPL).\nUser: ${message}\nAssistant:`,
+                            parameters: {
+                                max_length: 200,
+                                temperature: 0.7,
+                                return_full_text: false
+                            }
+                        })
+                    });
+                    
+                    if (hfResponse.ok) {
+                        const data = await hfResponse.json();
+                        if (data && data[0] && data[0].generated_text) {
+                            aiResponse = enhanceFPLResponse(data[0].generated_text, message);
+                            serviceUsed = 'huggingface';
+                        }
+                    }
+                } catch (error) {
+                    console.log('Hugging Face API not available');
+                }
+            }
+            
+            // 3. Use advanced offline mode with FPL-specific responses
+            if (!aiResponse) {
+                aiResponse = generateAdvancedFPLResponse(message);
+                serviceUsed = 'offline-enhanced';
+            }
+            
+            hideTypingIndicator();
+            
+            // Add AI response
+            conversationHistory.push({ sender: 'ai', text: aiResponse, timestamp: new Date() });
+            addMessage(aiResponse, 'ai');
+            
+            // Add service indicator for first message
+            if (messageCount === 1 && serviceUsed === 'offline-enhanced') {
+                setTimeout(() => {
+                    addMessage("💡 Tip: For even better AI responses, you can run Ollama locally. Check the documentation for setup instructions.", 'ai');
+                }, 2000);
+            }
+            
+            // Context-aware follow-up
+            if (messageCount % 5 === 0) {
+                setTimeout(() => {
+                    addMessage(generateContextualTip(), 'ai');
+                }, 2000);
+            }
+        }
+        
+        // Enhance generic responses with FPL context
+        function enhanceFPLResponse(genericResponse, userMessage) {
+            // Add FPL-specific context to generic responses
+            const fplTerms = ['captain', 'transfer', 'wildcard', 'points', 'team', 'player', 'fixture', 'gameweek'];
+            const hasFPLContext = fplTerms.some(term => userMessage.toLowerCase().includes(term));
+            
+            if (hasFPLContext) {
+                // Prepend FPL context
+                const fplPrefix = "Based on FPL analysis: ";
+                return fplPrefix + genericResponse + "\n\nFor specific FPL data, check the Stats tab or try our other tools.";
+            }
+            
+            return genericResponse;
         }
 
         function addMessage(text, sender) {
