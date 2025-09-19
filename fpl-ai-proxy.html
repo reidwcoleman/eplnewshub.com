@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPL AI Proxy Service</title>
+</head>
+<body>
+    <script>
+        // This is a lightweight proxy that can be hosted on GitHub Pages
+        // It uses free, no-auth-required AI services
+        
+        async function handleAIRequest(message) {
+            // Use OpenRouter's free models (no API key needed for some models)
+            try {
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': 'https://eplnewshub.com',
+                        'X-Title': 'EPL News Hub FPL Assistant'
+                    },
+                    body: JSON.stringify({
+                        model: 'huggingface/zephyr-7b-beta:free',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'You are an expert Fantasy Premier League assistant. Provide strategic FPL advice.'
+                            },
+                            {
+                                role: 'user',
+                                content: message
+                            }
+                        ]
+                    })
+                });
+                
+                if (response.ok) {
+                    return await response.json();
+                }
+            } catch (error) {
+                console.error('OpenRouter error:', error);
+            }
+            
+            return null;
+        }
+        
+        // Listen for messages from the main FPL assistant page
+        window.addEventListener('message', async (event) => {
+            if (event.origin !== 'https://eplnewshub.com' && event.origin !== window.location.origin) {
+                return;
+            }
+            
+            const { message, requestId } = event.data;
+            const response = await handleAIRequest(message);
+            
+            // Send response back
+            event.source.postMessage({
+                requestId,
+                response
+            }, event.origin);
+        });
+    </script>
+</body>
+</html>

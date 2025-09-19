@@ -2448,27 +2448,104 @@
                 }
             }
             
-            // 2. Try free Hugging Face API (no key needed for inference API)
+            // 2. Try Together AI free tier (better quality, free credits)
             if (!aiResponse) {
                 try {
-                    const hfResponse = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
+                    const togetherResponse = await fetch('https://api.together.xyz/v1/chat/completions', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            // Free anonymous usage - no API key needed for demo
+                        },
                         body: JSON.stringify({
-                            inputs: `The following is a conversation about Fantasy Premier League (FPL).\nUser: ${message}\nAssistant:`,
-                            parameters: {
-                                max_length: 200,
-                                temperature: 0.7,
-                                return_full_text: false
-                            }
+                            model: "togethercomputer/RedPajama-INCITE-Chat-3B-v1",
+                            messages: [
+                                {
+                                    role: "system",
+                                    content: "You are an expert Fantasy Premier League (FPL) assistant. Provide helpful advice about team selection, transfers, captain choices, and FPL strategy."
+                                },
+                                {
+                                    role: "user",
+                                    content: message
+                                }
+                            ],
+                            max_tokens: 200,
+                            temperature: 0.7
                         })
                     });
                     
-                    if (hfResponse.ok) {
-                        const data = await hfResponse.json();
-                        if (data && data[0] && data[0].generated_text) {
-                            aiResponse = enhanceFPLResponse(data[0].generated_text, message);
-                            serviceUsed = 'huggingface';
+                    if (togetherResponse.ok) {
+                        const data = await togetherResponse.json();
+                        if (data.choices && data.choices[0] && data.choices[0].message) {
+                            aiResponse = data.choices[0].message.content;
+                            serviceUsed = 'together-ai';
+                        }
+                    }
+                } catch (error) {
+                    console.log('Together AI not available');
+                }
+            }
+            
+            // 3. Try Cohere free tier (no key needed for trial)
+            if (!aiResponse) {
+                try {
+                    const cohereResponse = await fetch('https://api.cohere.ai/v1/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Cohere-Version': '2022-12-06'
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            model: 'command-nightly',
+                            preamble: "You are an FPL expert assistant. Help users with Fantasy Premier League advice.",
+                            conversation_id: 'fpl-' + Date.now()
+                        })
+                    });
+                    
+                    if (cohereResponse.ok) {
+                        const data = await cohereResponse.json();
+                        if (data.text) {
+                            aiResponse = data.text;
+                            serviceUsed = 'cohere';
+                        }
+                    }
+                } catch (error) {
+                    console.log('Cohere API not available');
+                }
+            }
+            
+            // 4. Try free Hugging Face models
+            if (!aiResponse) {
+                try {
+                    // Try multiple Hugging Face models in order of quality
+                    const models = [
+                        'mistralai/Mistral-7B-Instruct-v0.1',
+                        'google/flan-t5-large',
+                        'microsoft/DialoGPT-medium'
+                    ];
+                    
+                    for (const model of models) {
+                        const hfResponse = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                inputs: `Fantasy Premier League Assistant: ${message}\n\nFPL Expert Response:`,
+                                parameters: {
+                                    max_length: 200,
+                                    temperature: 0.7,
+                                    return_full_text: false
+                                }
+                            })
+                        });
+                        
+                        if (hfResponse.ok) {
+                            const data = await hfResponse.json();
+                            if (data && data[0] && data[0].generated_text) {
+                                aiResponse = enhanceFPLResponse(data[0].generated_text, message);
+                                serviceUsed = 'huggingface';
+                                break;
+                            }
                         }
                     }
                 } catch (error) {
@@ -2476,7 +2553,7 @@
                 }
             }
             
-            // 3. Use advanced offline mode with FPL-specific responses
+            // 5. Use advanced offline mode with FPL-specific responses
             if (!aiResponse) {
                 aiResponse = generateAdvancedFPLResponse(message);
                 serviceUsed = 'offline-enhanced';
@@ -2489,10 +2566,26 @@
             addMessage(aiResponse, 'ai');
             
             // Add service indicator for first message
-            if (messageCount === 1 && serviceUsed === 'offline-enhanced') {
-                setTimeout(() => {
-                    addMessage("💡 Tip: For even better AI responses, you can run Ollama locally. Check the documentation for setup instructions.", 'ai');
-                }, 2000);
+            if (messageCount === 1) {
+                let statusMessage = "";
+                switch(serviceUsed) {
+                    case 'ollama-local':
+                        statusMessage = "🚀 Using local Ollama AI for best performance!";
+                        break;
+                    case 'together-ai':
+                    case 'cohere':
+                    case 'huggingface':
+                        statusMessage = "☁️ Connected to cloud AI service - responses may vary.";
+                        break;
+                    case 'offline-enhanced':
+                        statusMessage = "📱 Using smart offline mode - instant responses with FPL expertise built-in!";
+                        break;
+                }
+                if (statusMessage) {
+                    setTimeout(() => {
+                        addMessage(statusMessage, 'ai');
+                    }, 1500);
+                }
             }
             
             // Context-aware follow-up
