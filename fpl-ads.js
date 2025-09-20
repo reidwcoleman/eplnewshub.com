@@ -32,7 +32,7 @@
             subtitle: 'ML-Powered Predictions',
             description: 'Know who will score big before the gameweek starts',
             cta: 'Predict Points',
-            link: '/player-predictor.html',
+            link: '/fpl-player-analyzer.html',
             color: 'linear-gradient(135deg, #4facfe, #00f2fe)',
             features: ['5 GWs ahead', 'Captain picks', '85% accuracy'],
             priority: 3
@@ -120,7 +120,7 @@
                                     <span class="feature-icon">🔄</span>
                                     <span class="feature-text">Transfer Simulator</span>
                                 </a>
-                                <a href="/player-predictor.html" class="feature-item feature-link">
+                                <a href="/fpl-player-analyzer.html" class="feature-item feature-link">
                                     <span class="feature-icon">🔮</span>
                                     <span class="feature-text">Points Predictor</span>
                                 </a>

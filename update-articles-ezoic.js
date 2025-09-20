@@ -80,7 +80,7 @@ function updateMainPages() {
         'social.html',
         'player-data.html',
         'player-data-enhanced.html',
-        'player-predictor.html',
+        'fpl-player-analyzer.html',
         'transfer-simulator.html',
         'transfer-simulator-pro.html',
         'fpl_24_25.html',

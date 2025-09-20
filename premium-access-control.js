@@ -34,7 +34,7 @@
         },
         PREMIUM_PAGES: [
             'fpl-ai-assistant.html',
-            'player-predictor.html',
+            'fpl-player-analyzer.html',
             'transfer-simulator-pro.html',
             'team-analyzer.html',
             'player-data.html',
@@ -350,7 +350,7 @@
         getFeatureKey(feature) {
             const mapping = {
                 'fpl-ai-assistant.html': 'ai-assistant',
-                'player-predictor.html': 'player-predictor',
+                'fpl-player-analyzer.html': 'player-predictor',
                 'transfer-simulator-pro.html': 'transfer-simulator',
                 'team-analyzer.html': 'team-analyzer'
             };

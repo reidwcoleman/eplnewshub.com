@@ -155,7 +155,7 @@
                         <section class="mobile-fpl-widget">
                             <h2>FPL Quick Tools</h2>
                             <div class="fpl-tools-grid">
-                                <div class="fpl-tool-card" onclick="location.href='/player-predictor.html'">
+                                <div class="fpl-tool-card" onclick="location.href='/fpl-player-analyzer.html'">
                                     <h3>Player Predictor</h3>
                                     <p>AI-powered predictions</p>
                                 </div>

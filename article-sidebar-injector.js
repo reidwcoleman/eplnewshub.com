@@ -69,7 +69,7 @@
                     <li>✓ 85% accuracy</li>
                     <li>✓ Captain picks</li>
                 </ul>
-                <a href="/player-predictor.html" class="ad-cta">
+                <a href="/fpl-player-analyzer.html" class="ad-cta">
                     Predict Points
                     <span class="cta-arrow">→</span>
                 </a>

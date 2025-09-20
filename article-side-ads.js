@@ -348,7 +348,7 @@
             title: 'Points Predictor',
             desc: 'ML-powered gameweek predictions',
             price: 'Pro Feature',
-            link: '/player-predictor.html',
+            link: '/fpl-player-analyzer.html',
             cta: 'Predict →'
         }
     ];
