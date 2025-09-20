@@ -1316,13 +1316,32 @@
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
-            // Update content visibility
-            document.querySelectorAll('.analysis-mode, .comparison-mode').forEach(el => el.classList.remove('active'));
+            // Hide all modes
+            document.querySelectorAll('.analysis-mode, .comparison-mode, .heatmap-mode, .price-mode, .chemistry-mode').forEach(el => {
+                el.style.display = 'none';
+            });
             
-            if (mode === 'analysis') {
-                document.getElementById('analysisMode').classList.add('active');
-            } else {
-                document.getElementById('comparisonMode').classList.add('active');
+            // Show selected mode
+            switch(mode) {
+                case 'analysis':
+                    document.getElementById('analysisMode').style.display = 'block';
+                    document.getElementById('analysisMode').classList.add('active');
+                    break;
+                case 'comparison':
+                    document.getElementById('comparisonMode').style.display = 'block';
+                    document.getElementById('comparisonMode').classList.add('active');
+                    break;
+                case 'heatmap':
+                    document.getElementById('heatmapMode').style.display = 'block';
+                    loadHeatmap();
+                    break;
+                case 'price':
+                    document.getElementById('priceMode').style.display = 'block';
+                    loadPricePredictor();
+                    break;
+                case 'chemistry':
+                    document.getElementById('chemistryMode').style.display = 'block';
+                    break;
             }
         }
         
@@ -1545,27 +1564,58 @@
                 <div class="fixtures-section">
                     <div class="fixtures-header">
                         <h3>Upcoming Fixtures</h3>
+                        ${pricePredict.prediction === 'RISING' ? 
+                            '<span class="live-badge">📈 Price Rising</span>' :
+                            pricePredict.prediction === 'FALLING' ?
+                            '<span class="live-badge" style="background: #ff9800;">📉 Price Falling</span>' : ''
+                        }
                     </div>
                     <div class="fixtures-list">
-                        <div class="fixture-item">
-                            <span class="fixture-opponent">Newcastle (H)</span>
-                            <span class="fixture-difficulty difficulty-2">2</span>
+                        ${fixtures.map(fixture => `
+                            <div class="fixture-item">
+                                <span class="fixture-opponent">${fixture.opponent} (${fixture.venue})</span>
+                                <span class="fixture-difficulty difficulty-${fixture.difficulty}">${fixture.difficulty}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 12px;">
+                        <h4 style="margin-bottom: 10px; color: #1a1a1a;">Price Prediction</h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 1.2rem; font-weight: 700; color: ${pricePredict.prediction === 'RISING' ? '#00d084' : pricePredict.prediction === 'FALLING' ? '#ff4757' : '#666'};">
+                                    ${pricePredict.prediction}
+                                </div>
+                                <div style="font-size: 0.9rem; color: #666;">Confidence: ${pricePredict.confidence}%</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.85rem; color: #666;">Net Transfers</div>
+                                <div style="font-size: 1.1rem; font-weight: 600; color: ${pricePredict.factors.netTransfers > 0 ? '#00d084' : '#ff4757'};">
+                                    ${pricePredict.factors.netTransfers > 0 ? '+' : ''}${(pricePredict.factors.netTransfers/1000).toFixed(1)}k
+                                </div>
+                            </div>
                         </div>
-                        <div class="fixture-item">
-                            <span class="fixture-opponent">Arsenal (A)</span>
-                            <span class="fixture-difficulty difficulty-4">4</span>
-                        </div>
-                        <div class="fixture-item">
-                            <span class="fixture-opponent">Bournemouth (H)</span>
-                            <span class="fixture-difficulty difficulty-1">1</span>
-                        </div>
-                        <div class="fixture-item">
-                            <span class="fixture-opponent">Man City (A)</span>
-                            <span class="fixture-difficulty difficulty-5">5</span>
-                        </div>
-                        <div class="fixture-item">
-                            <span class="fixture-opponent">Brighton (H)</span>
-                            <span class="fixture-difficulty difficulty-3">3</span>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: white; border: 2px solid #e0e0e0; border-radius: 12px;">
+                        <h4 style="margin-bottom: 10px; color: #1a1a1a;">Advanced Stats</h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <div>
+                                <span style="color: #666; font-size: 0.85rem;">Home PPG</span>
+                                <div style="font-weight: 600;">${stats.homeForm || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <span style="color: #666; font-size: 0.85rem;">Away PPG</span>
+                                <div style="font-weight: 600;">${stats.awayForm || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <span style="color: #666; font-size: 0.85rem;">Goal Involvement</span>
+                                <div style="font-weight: 600;">${stats.goalInvolvement || 0}</div>
+                            </div>
+                            <div>
+                                <span style="color: #666; font-size: 0.85rem;">Consistency</span>
+                                <div style="font-weight: 600;">${stats.consistencyScore || 0}%</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1742,6 +1792,171 @@
                 document.querySelectorAll('.suggestions').forEach(s => s.classList.remove('active'));
             }
         });
+        
+        // Heatmap functionality
+        async function loadHeatmap() {
+            const content = document.getElementById('heatmapContent');
+            const tableData = await dataService.getLiveTable();
+            
+            content.innerHTML = `
+                <div style="padding: 20px;">
+                    <h3 style="margin-bottom: 20px; color: #1a1a1a;">Premier League Table & Team Strength</h3>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; background: white; border-radius: 12px; overflow: hidden;">
+                            <thead>
+                                <tr style="background: linear-gradient(135deg, #37003c 0%, #00ff87 100%); color: white;">
+                                    <th style="padding: 12px; text-align: left;">Pos</th>
+                                    <th style="padding: 12px; text-align: left;">Team</th>
+                                    <th style="padding: 12px;">P</th>
+                                    <th style="padding: 12px;">W</th>
+                                    <th style="padding: 12px;">D</th>
+                                    <th style="padding: 12px;">L</th>
+                                    <th style="padding: 12px;">GD</th>
+                                    <th style="padding: 12px;">Pts</th>
+                                    <th style="padding: 12px;">Form</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableData.map(team => `
+                                    <tr style="border-bottom: 1px solid #e0e0e0;">
+                                        <td style="padding: 12px; font-weight: 600;">${team.position}</td>
+                                        <td style="padding: 12px;">
+                                            <span style="font-weight: 600;">${team.team}</span>
+                                        </td>
+                                        <td style="padding: 12px; text-align: center;">${team.played}</td>
+                                        <td style="padding: 12px; text-align: center;">${team.wins}</td>
+                                        <td style="padding: 12px; text-align: center;">${team.draws}</td>
+                                        <td style="padding: 12px; text-align: center;">${team.losses}</td>
+                                        <td style="padding: 12px; text-align: center; font-weight: 600; color: ${team.gd > 0 ? '#00d084' : team.gd < 0 ? '#ff4757' : '#666'};">
+                                            ${team.gd > 0 ? '+' : ''}${team.gd}
+                                        </td>
+                                        <td style="padding: 12px; text-align: center; font-weight: 700; font-size: 1.1rem;">
+                                            ${team.points}
+                                        </td>
+                                        <td style="padding: 12px;">
+                                            <div style="display: flex; gap: 2px;">
+                                                ${generateFormBadges()}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <h4 style="margin-bottom: 15px; color: #1a1a1a;">Team Difficulty Rating</h4>
+                        <div class="heatmap-grid">
+                            ${tableData.slice(0, 10).map((team, index) => {
+                                const difficulty = Math.ceil((5 - index / 2));
+                                const heatClass = difficulty <= 2 ? 'heat-low' : 
+                                                 difficulty === 3 ? 'heat-medium' : 
+                                                 difficulty === 4 ? 'heat-high' : 'heat-extreme';
+                                return `
+                                    <div class="heatmap-cell ${heatClass}" title="${team.team}">
+                                        ${team.team.slice(0, 3).toUpperCase()}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateFormBadges() {
+            const forms = ['W', 'W', 'D', 'L', 'W'];
+            return forms.map(result => {
+                const color = result === 'W' ? '#00d084' : result === 'D' ? '#ffa500' : '#ff4757';
+                return `<span style="width: 20px; height: 20px; background: ${color}; color: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700;">${result}</span>`;
+            }).join('');
+        }
+        
+        // Price predictor functionality
+        async function loadPricePredictor() {
+            const content = document.getElementById('priceContent');
+            const upcomingFixtures = await dataService.getUpcomingFixtures();
+            
+            content.innerHTML = `
+                <div style="padding: 20px;">
+                    <h3 style="margin-bottom: 20px; color: #1a1a1a;">Upcoming Fixtures & Price Impact</h3>
+                    <div style="display: grid; gap: 15px;">
+                        ${upcomingFixtures.map(fixture => `
+                            <div style="padding: 15px; background: white; border: 2px solid #e0e0e0; border-radius: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 5px;">
+                                            ${fixture.home} vs ${fixture.away}
+                                        </div>
+                                        <div style="color: #666; font-size: 0.9rem;">
+                                            ${new Date(fixture.kickoff).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 10px;">
+                                        <div style="text-align: center;">
+                                            <div style="font-size: 0.8rem; color: #666;">Home FDR</div>
+                                            <span class="fixture-difficulty difficulty-${fixture.difficulty_h}">${fixture.difficulty_h}</span>
+                                        </div>
+                                        <div style="text-align: center;">
+                                            <div style="font-size: 0.8rem; color: #666;">Away FDR</div>
+                                            <span class="fixture-difficulty difficulty-${fixture.difficulty_a}">${fixture.difficulty_a}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Chemistry analyzer
+        async function analyzeChemistry() {
+            const content = document.getElementById('chemistryContent');
+            content.innerHTML = '<div style="text-align: center; padding: 40px;">Analyzing team chemistry...</div>';
+            
+            // Get top players for chemistry analysis
+            const topPlayers = allPlayers.slice(0, 6);
+            const chemistryPairs = [];
+            
+            for (let i = 0; i < topPlayers.length - 1; i++) {
+                for (let j = i + 1; j < topPlayers.length; j++) {
+                    const chemistry = await dataService.analyzeTeamChemistry(topPlayers[i].id, topPlayers[j].id);
+                    chemistryPairs.push({
+                        player1: topPlayers[i],
+                        player2: topPlayers[j],
+                        ...chemistry
+                    });
+                }
+            }
+            
+            // Sort by chemistry score
+            chemistryPairs.sort((a, b) => b.score - a.score);
+            
+            content.innerHTML = `
+                <div style="padding: 20px;">
+                    <h3 style="margin-bottom: 20px; color: #1a1a1a;">Top Chemistry Combinations</h3>
+                    <div class="chemistry-matrix">
+                        ${chemistryPairs.slice(0, 9).map(pair => `
+                            <div class="chemistry-link ${pair.score >= 70 ? 'chemistry-strong' : pair.score <= 40 ? 'chemistry-weak' : ''}">
+                                <div style="font-weight: 600; margin-bottom: 8px;">
+                                    ${pair.player1.name.split(' ').pop()}
+                                    <span style="color: #999;">+</span>
+                                    ${pair.player2.name.split(' ').pop()}
+                                </div>
+                                <div style="font-size: 1.8rem; font-weight: 700; color: ${pair.score >= 70 ? '#00d084' : pair.score <= 40 ? '#ff4757' : '#666'};">
+                                    ${pair.score}%
+                                </div>
+                                <div style="font-size: 0.85rem; color: #666; margin-top: 5px;">
+                                    ${pair.sameTeam ? '🏆 Same Team' : ''}
+                                    ${pair.positionCombo}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
