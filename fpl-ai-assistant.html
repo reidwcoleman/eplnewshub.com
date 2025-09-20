@@ -2515,35 +2515,20 @@
                 }
             }
             
-            // 4. Try free Hugging Face models with obfuscated token
+            // 4. Try free Hugging Face models (no token needed for public models)
             if (!aiResponse) {
                 try {
-                    // Obfuscated token to prevent automatic detection
-                    const getHFToken = () => {
-                        // Split and reversed to avoid detection
-                        const p1 = atob('aGZf'); // 'hf_'
-                        const p2 = String.fromCharCode(67,99,121,113); // 'Ccyq'
-                        const p3 = String.fromCharCode(84,100,110,87); // 'TdnW'
-                        const p4 = 'pkNGZExr'; 
-                        const p5 = 'SCyYEcmh';
-                        const p6 = String.fromCharCode(73,106,102,104); // 'Ijfh'
-                        const p7 = 'QFpIQm';
-                        return p1 + p2 + p3 + p4 + p5 + p6 + p7;
-                    };
-                    
-                    const HUGGINGFACE_TOKEN = getHFToken();
-                    
-                    // Try multiple Hugging Face models in order of quality
+                    // Use only models that work without authentication
                     const models = [
-                        'mistralai/Mistral-7B-Instruct-v0.1',
-                        'google/flan-t5-large',
-                        'microsoft/DialoGPT-medium'
+                        'microsoft/DialoGPT-medium',
+                        'facebook/blenderbot-400M-distill',
+                        'EleutherAI/gpt-neo-125M'
                     ];
                     
                     for (const model of models) {
                         const headers = { 
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${HUGGINGFACE_TOKEN}`
+                            'Content-Type': 'application/json'
+                            // No authorization header - using free tier
                         };
                         
                         const hfResponse = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
