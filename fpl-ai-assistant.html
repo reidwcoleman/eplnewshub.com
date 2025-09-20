@@ -1732,6 +1732,10 @@
                     </div>
 
                     <div class="chat-input-container">
+                        <div style="padding: 10px 20px 0; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 12px; color: #666;">💡 Free AI assistant - Works without API keys</span>
+                            <button onclick="showTokenModal()" style="padding: 4px 12px; background: #37003c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">⚙️ Add Token (Optional)</button>
+                        </div>
                         <div class="input-wrapper">
                             <input 
                                 type="text" 
@@ -1891,8 +1895,71 @@
 
     <div class="footer" include="./footer.html"></div>
 
+    <!-- Token Modal -->
+    <div id="tokenModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
+        <div style="background: white; border-radius: 12px; padding: 30px; max-width: 500px; margin: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+            <h3 style="margin: 0 0 20px; color: #37003c;">Add API Token (Optional)</h3>
+            <p style="margin-bottom: 20px; color: #666; font-size: 14px;">
+                Adding your own Hugging Face token can improve AI response quality. This is completely optional - the assistant works without it.
+                <br><br>
+                <strong>Your token is stored locally and never sent to our servers.</strong>
+            </p>
+            <input 
+                type="password" 
+                id="tokenInput" 
+                placeholder="Enter your Hugging Face token (or leave empty)"
+                style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; margin-bottom: 10px; font-size: 14px;"
+            >
+            <p style="margin: 10px 0; font-size: 12px; color: #999;">
+                Get a free token at: <a href="https://huggingface.co/settings/tokens" target="_blank" style="color: #667eea;">huggingface.co/settings/tokens</a>
+            </p>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="saveToken()" style="flex: 1; padding: 12px; background: #37003c; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Save</button>
+                <button onclick="clearToken()" style="padding: 12px 20px; background: #dc3545; color: white; border: none; border-radius: 8px; cursor: pointer;">Clear</button>
+                <button onclick="closeTokenModal()" style="padding: 12px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script src="index.js"></script>
     <script>
+        // Token Management
+        function showTokenModal() {
+            const modal = document.getElementById('tokenModal');
+            modal.style.display = 'flex';
+            // Load existing token if any
+            const storedToken = localStorage.getItem('hf_token');
+            if (storedToken) {
+                document.getElementById('tokenInput').value = storedToken;
+            }
+        }
+        
+        function closeTokenModal() {
+            document.getElementById('tokenModal').style.display = 'none';
+        }
+        
+        function saveToken() {
+            const token = document.getElementById('tokenInput').value.trim();
+            if (token) {
+                localStorage.setItem('hf_token', token);
+                alert('Token saved successfully! It will be used for improved AI responses.');
+            } else {
+                localStorage.removeItem('hf_token');
+                alert('No token saved. The assistant will use free services.');
+            }
+            closeTokenModal();
+        }
+        
+        function clearToken() {
+            localStorage.removeItem('hf_token');
+            document.getElementById('tokenInput').value = '';
+            alert('Token cleared successfully!');
+        }
+        
+        function getHuggingFaceToken() {
+            return localStorage.getItem('hf_token') || null;
+        }
+
         // Initialize FPL AI Assistant Pro
         let conversationHistory = [];
         let messageCount = 0;
@@ -2515,9 +2582,10 @@
                 }
             }
             
-            // 4. Try free Hugging Face models
+            // 4. Try free Hugging Face models (with optional user token for better rate limits)
             if (!aiResponse) {
                 try {
+                    const userToken = getHuggingFaceToken();
                     // Try multiple Hugging Face models in order of quality
                     const models = [
                         'mistralai/Mistral-7B-Instruct-v0.1',
@@ -2526,9 +2594,15 @@
                     ];
                     
                     for (const model of models) {
+                        const headers = { 'Content-Type': 'application/json' };
+                        // Add token if user has provided one
+                        if (userToken) {
+                            headers['Authorization'] = `Bearer ${userToken}`;
+                        }
+                        
                         const hfResponse = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: headers,
                             body: JSON.stringify({
                                 inputs: `Fantasy Premier League Assistant: ${message}\n\nFPL Expert Response:`,
                                 parameters: {
