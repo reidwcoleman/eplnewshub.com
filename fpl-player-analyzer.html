@@ -1039,11 +1039,14 @@
             <button class="mode-btn" onclick="switchMode('comparison')" aria-label="Compare Players">
                 ⚔️ Compare
             </button>
-            <button class="mode-btn" onclick="switchMode('heatmap')" aria-label="Performance Heatmap">
+            <button class="mode-btn" onclick="switchMode('heatmap')" aria-label="Player Heatmap">
                 🔥 Heatmap
             </button>
+            <button class="mode-btn" onclick="switchMode('fixtures')" aria-label="Fixtures & Table">
+                ⚽ Table
+            </button>
             <button class="mode-btn" onclick="switchMode('price')" aria-label="Price Predictor">
-                💰 Price Predict
+                💰 Price
             </button>
             <button class="mode-btn" onclick="switchMode('chemistry')" aria-label="Team Chemistry">
                 🤝 Chemistry
@@ -1167,6 +1170,17 @@
                 
                 <div id="chemistryContent">
                     <!-- Chemistry analysis will be loaded here -->
+                </div>
+            </section>
+            
+            <!-- Fixtures & Table Mode -->
+            <section class="fixtures-mode" id="fixturesMode" style="display: none;">
+                <div style="padding: 20px;">
+                    <h2 style="text-align: center; margin-bottom: 30px; color: #1a1a1a;">Live Premier League Table & Fixtures</h2>
+                    
+                    <div id="fixturesContent">
+                        <!-- Table and fixtures will be loaded here -->
+                    </div>
                 </div>
             </section>
         </div>
@@ -1317,7 +1331,7 @@
             event.target.classList.add('active');
             
             // Hide all modes
-            document.querySelectorAll('.analysis-mode, .comparison-mode, .heatmap-mode, .price-mode, .chemistry-mode').forEach(el => {
+            document.querySelectorAll('.analysis-mode, .comparison-mode, .heatmap-mode, .price-mode, .chemistry-mode, .fixtures-mode').forEach(el => {
                 el.style.display = 'none';
             });
             
@@ -1333,7 +1347,10 @@
                     break;
                 case 'heatmap':
                     document.getElementById('heatmapMode').style.display = 'block';
-                    loadHeatmap();
+                    break;
+                case 'fixtures':
+                    document.getElementById('fixturesMode').style.display = 'block';
+                    loadFixturesAndTable();
                     break;
                 case 'price':
                     document.getElementById('priceMode').style.display = 'block';
@@ -1389,46 +1406,6 @@
                 suggestionsDiv.classList.add('active');
             } else {
                 suggestionsDiv.classList.remove('active');
-            }
-        }
-        
-        function selectPlayer(playerId, searchType) {
-            const player = allPlayers.find(p => p.id === playerId);
-            if (!player) return;
-            
-            selectedPlayers[searchType] = player;
-            
-            // Update input field
-            const searchInput = searchType === 'analysis' 
-                ? document.getElementById('analysisPlayerSearch')
-                : searchType === 'compare1'
-                ? document.getElementById('comparePlayer1Search')
-                : document.getElementById('comparePlayer2Search');
-            
-            searchInput.value = player.name;
-            
-            // Hide suggestions
-            const suggestionsDiv = searchType === 'analysis'
-                ? document.getElementById('analysisSuggestions')
-                : searchType === 'compare1'
-                ? document.getElementById('compare1Suggestions')
-                : searchType === 'compare2'
-                ? document.getElementById('compare2Suggestions')
-                : searchType === 'heatmap'
-                ? document.getElementById('heatmapSuggestions')
-                : searchType === 'price'
-                ? document.getElementById('priceSuggestions')
-                : null;
-            
-            suggestionsDiv.classList.remove('active');
-            
-            // Load content based on mode
-            if (searchType === 'analysis') {
-                loadPlayerAnalysis(player);
-            } else {
-                if (selectedPlayers.compare1 && selectedPlayers.compare2) {
-                    loadPlayerComparison();
-                }
             }
         }
         
@@ -1793,9 +1770,179 @@
             }
         });
         
-        // Heatmap functionality
-        async function loadHeatmap() {
+        // Heatmap functionality - Player position heatmap
+        function selectPlayer(playerId, searchType) {
+            const player = allPlayers.find(p => p.id === playerId);
+            if (!player) return;
+            
+            selectedPlayers[searchType] = player;
+            
+            // Update input field
+            const searchInput = searchType === 'analysis' 
+                ? document.getElementById('analysisPlayerSearch')
+                : searchType === 'compare1'
+                ? document.getElementById('comparePlayer1Search')
+                : searchType === 'compare2'
+                ? document.getElementById('comparePlayer2Search')
+                : searchType === 'heatmap'
+                ? document.getElementById('heatmapPlayerSearch')
+                : searchType === 'price'
+                ? document.getElementById('pricePlayerSearch')
+                : null;
+            
+            if (searchInput) searchInput.value = player.name;
+            
+            // Hide suggestions
+            const suggestionsDiv = searchType === 'analysis'
+                ? document.getElementById('analysisSuggestions')
+                : searchType === 'compare1'
+                ? document.getElementById('compare1Suggestions')
+                : searchType === 'compare2'
+                ? document.getElementById('compare2Suggestions')
+                : searchType === 'heatmap'
+                ? document.getElementById('heatmapSuggestions')
+                : searchType === 'price'
+                ? document.getElementById('priceSuggestions')
+                : null;
+            
+            if (suggestionsDiv) suggestionsDiv.classList.remove('active');
+            
+            // Load content based on mode
+            if (searchType === 'analysis') {
+                loadPlayerAnalysis(player);
+            } else if (searchType === 'heatmap') {
+                loadPlayerHeatmap(player);
+            } else if (searchType === 'price') {
+                loadPlayerPriceAnalysis(player);
+            } else {
+                if (selectedPlayers.compare1 && selectedPlayers.compare2) {
+                    loadPlayerComparison();
+                }
+            }
+        }
+        
+        // Player position heatmap
+        async function loadPlayerHeatmap(player) {
             const content = document.getElementById('heatmapContent');
+            const detailedStats = await dataService.getDetailedPlayerStats(player.id);
+            
+            // Generate pitch heatmap data
+            const pitchZones = generatePitchZones(player, detailedStats);
+            
+            content.innerHTML = `
+                <div style="padding: 20px;">
+                    <h3 style="margin-bottom: 20px; color: #1a1a1a;">${player.name} - Position Heatmap</h3>
+                    
+                    <!-- Pitch Heatmap -->
+                    <div style="background: linear-gradient(180deg, #2ecc71 0%, #27ae60 100%); border-radius: 12px; padding: 20px; position: relative; max-width: 600px; margin: 0 auto;">
+                        <div style="border: 3px solid white; border-radius: 8px; padding: 20px; position: relative;">
+                            <!-- Pitch markings -->
+                            <div style="border: 2px solid white; height: 400px; position: relative;">
+                                <!-- Center line -->
+                                <div style="position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: white;"></div>
+                                <!-- Center circle -->
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; border: 2px solid white; border-radius: 50%;"></div>
+                                
+                                <!-- Penalty areas -->
+                                <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 60px; border: 2px solid white; border-top: none;"></div>
+                                <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 60px; border: 2px solid white; border-bottom: none;"></div>
+                                
+                                <!-- Heatmap overlay -->
+                                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(6, 1fr); gap: 2px;">
+                                    ${pitchZones.map(zone => `
+                                        <div style="background: ${getHeatColor(zone.intensity)}; opacity: ${zone.intensity / 100}; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+                                            ${zone.intensity > 50 ? zone.intensity + '%' : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Performance by position -->
+                    <div style="margin-top: 30px; background: white; padding: 20px; border-radius: 12px;">
+                        <h4 style="margin-bottom: 15px; color: #1a1a1a;">Performance Zones</h4>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #e74c3c;">🔥</div>
+                                <div style="font-size: 0.9rem; color: #666;">Attack</div>
+                                <div style="font-size: 1.2rem; font-weight: 600;">${player.goals + player.assists} G/A</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #3498db;">⚡</div>
+                                <div style="font-size: 0.9rem; color: #666;">Midfield</div>
+                                <div style="font-size: 1.2rem; font-weight: 600;">${player.influence.toFixed(0)} Inf</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #2ecc71;">🛡️</div>
+                                <div style="font-size: 0.9rem; color: #666;">Defense</div>
+                                <div style="font-size: 1.2rem; font-weight: 600;">${player.cleanSheets} CS</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent gameweek heatmap -->
+                    <div style="margin-top: 30px;">
+                        <h4 style="margin-bottom: 15px; color: #1a1a1a;">Last 10 Gameweeks Performance</h4>
+                        <div class="heatmap-grid" style="grid-template-columns: repeat(10, 1fr);">
+                            ${detailedStats.seasonHistory.slice(-10).map((gw, index) => {
+                                const points = gw.total_points;
+                                const heatClass = points <= 2 ? 'heat-low' : 
+                                                 points <= 5 ? 'heat-medium' : 
+                                                 points <= 8 ? 'heat-high' : 'heat-extreme';
+                                return `
+                                    <div class="heatmap-cell ${heatClass}" title="GW${gw.round}: ${points} pts">
+                                        ${points}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generatePitchZones(player, stats) {
+            // Generate 30 zones (5x6 grid) with intensity based on player position and stats
+            const zones = [];
+            const position = player.position;
+            
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 5; col++) {
+                    let intensity = Math.random() * 30 + 20; // Base intensity
+                    
+                    // Adjust intensity based on player position
+                    if (position === 'FWD' && row < 2) {
+                        intensity += 40; // Forwards more active in attacking third
+                    } else if (position === 'MID' && row >= 2 && row <= 3) {
+                        intensity += 40; // Midfielders in middle third
+                    } else if (position === 'DEF' && row >= 4) {
+                        intensity += 40; // Defenders in defensive third
+                    } else if (position === 'GKP' && row === 5 && col === 2) {
+                        intensity = 90; // Goalkeeper in goal area
+                    }
+                    
+                    zones.push({
+                        row,
+                        col,
+                        intensity: Math.min(100, Math.round(intensity))
+                    });
+                }
+            }
+            
+            return zones;
+        }
+        
+        function getHeatColor(intensity) {
+            if (intensity < 30) return 'rgba(52, 152, 219, 0.7)';
+            if (intensity < 50) return 'rgba(241, 196, 15, 0.7)';
+            if (intensity < 70) return 'rgba(230, 126, 34, 0.7)';
+            return 'rgba(231, 76, 60, 0.9)';
+        }
+        
+        // Fixtures and Table functionality
+        async function loadFixturesAndTable() {
+            const content = document.getElementById('fixturesContent');
             const tableData = await dataService.getLiveTable();
             
             content.innerHTML = `
@@ -1870,6 +2017,76 @@
                 const color = result === 'W' ? '#00d084' : result === 'D' ? '#ffa500' : '#ff4757';
                 return `<span style="width: 20px; height: 20px; background: ${color}; color: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700;">${result}</span>`;
             }).join('');
+        }
+        
+        // Player price analysis
+        async function loadPlayerPriceAnalysis(player) {
+            const content = document.getElementById('priceContent');
+            const pricePredict = await dataService.predictPriceChange(player);
+            const fixtures = await dataService.getPlayerFixtures(player);
+            
+            content.innerHTML = `
+                <div style="padding: 20px;">
+                    <h3 style="margin-bottom: 20px; color: #1a1a1a;">${player.name} - Price Analysis</h3>
+                    
+                    <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 25px; border-radius: 15px; margin-bottom: 20px;">
+                        <h4 style="margin-bottom: 15px;">Price Prediction</h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 2rem; font-weight: 700; color: ${pricePredict.prediction === 'RISING' ? '#00d084' : pricePredict.prediction === 'FALLING' ? '#ff4757' : '#666'};">
+                                    ${pricePredict.prediction}
+                                </div>
+                                <div style="font-size: 1rem; color: #666;">Confidence: ${pricePredict.confidence}%</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.9rem; color: #666;">Current Price</div>
+                                <div style="font-size: 1.8rem; font-weight: 700;">£${player.price}m</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);">
+                            <h5 style="margin-bottom: 10px;">Key Factors</h5>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                <div>
+                                    <span style="color: #666; font-size: 0.85rem;">Recent Form</span>
+                                    <div style="font-weight: 600;">${pricePredict.factors.performance} PPG</div>
+                                </div>
+                                <div>
+                                    <span style="color: #666; font-size: 0.85rem;">Ownership</span>
+                                    <div style="font-weight: 600;">${pricePredict.factors.ownership}</div>
+                                </div>
+                                <div>
+                                    <span style="color: #666; font-size: 0.85rem;">Net Transfers</span>
+                                    <div style="font-weight: 600; color: ${pricePredict.factors.netTransfers > 0 ? '#00d084' : '#ff4757'};">
+                                        ${pricePredict.factors.netTransfers > 0 ? '+' : ''}${(pricePredict.factors.netTransfers/1000).toFixed(1)}k
+                                    </div>
+                                </div>
+                                <div>
+                                    <span style="color: #666; font-size: 0.85rem;">Fixture Difficulty</span>
+                                    <div style="font-weight: 600;">${pricePredict.factors.fixtureRating}/5</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px;">Upcoming Fixtures Impact</h4>
+                    <div style="display: grid; gap: 10px;">
+                        ${fixtures.map(fixture => `
+                            <div style="padding: 12px; background: white; border: 1px solid #e0e0e0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <span style="font-weight: 600;">${fixture.opponent}</span>
+                                    <span style="color: #666; margin-left: 8px;">(${fixture.venue})</span>
+                                </div>
+                                <div>
+                                    <span class="fixture-difficulty difficulty-${fixture.difficulty}" style="padding: 4px 12px; border-radius: 12px;">
+                                        FDR ${fixture.difficulty}
+                                    </span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
         }
         
         // Price predictor functionality
