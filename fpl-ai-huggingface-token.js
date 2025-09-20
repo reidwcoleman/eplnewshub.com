@@ -7,7 +7,7 @@ class FPLAIAssistant {
         
         // IMPORTANT: Replace 'YOUR_HF_TOKEN_HERE' with your actual Hugging Face token
         // Get your token from: https://huggingface.co/settings/tokens
-        this.hfToken = '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'; // <-- ADD YOUR TOKEN HERE
+        this.hfToken = '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'; // <-- ADD YOUR TOKEN HERE
         
         // With a token, you can use better models
         this.models = {
