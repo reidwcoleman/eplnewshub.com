@@ -174,9 +174,9 @@
         /* Floating Ultra-thin View Counter */
         .floating-view-counter {
             position: fixed;
-            bottom: 20px;
+            top: 80px; /* Below header */
             left: 50%;
-            transform: translateX(-50%) translateY(100px);
+            transform: translateX(-50%) translateY(-100px);
             z-index: 1000;
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -242,10 +242,10 @@
         /* Ultra-thin mobile version */
         @media (max-width: 640px) {
             .floating-view-counter {
-                bottom: 10px;
+                top: 70px; /* Below mobile header */
                 left: 10px;
                 right: 10px;
-                transform: translateX(0) translateY(100px);
+                transform: translateX(0) translateY(-100px);
             }
             
             .floating-view-counter.show {
@@ -574,25 +574,35 @@
     
     <!-- Floating Counter Logic -->
     <script>
-        // Show floating counter after scrolling
-        let hasShownFloating = false;
+        // Show floating counter immediately at top
+        document.addEventListener('DOMContentLoaded', function() {
+            const floatingCounter = document.getElementById('floating-view-counter');
+            if (floatingCounter) {
+                // Show immediately after page load
+                setTimeout(() => {
+                    floatingCounter.style.display = 'block';
+                    setTimeout(() => {
+                        floatingCounter.classList.add('show');
+                    }, 100);
+                }, 500); // Small delay for smooth entrance
+            }
+        });
+        
+        // Optional: Hide when scrolling down far, show when scrolling up
+        let lastScrollTop = 0;
         window.addEventListener('scroll', function() {
-            const scrolled = window.scrollY > 500;
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const floatingCounter = document.getElementById('floating-view-counter');
             
-            if (scrolled && !hasShownFloating) {
-                floatingCounter.style.display = 'block';
-                setTimeout(() => {
-                    floatingCounter.classList.add('show');
-                }, 10);
-                hasShownFloating = true;
-            } else if (!scrolled && hasShownFloating) {
+            if (scrollTop > 1000) {
+                // Hide when scrolled down more than 1000px
                 floatingCounter.classList.remove('show');
-                setTimeout(() => {
-                    floatingCounter.style.display = 'none';
-                }, 300);
-                hasShownFloating = false;
+            } else {
+                // Show when near top
+                floatingCounter.classList.add('show');
             }
+            
+            lastScrollTop = scrollTop;
         });
     </script>
 </body>
