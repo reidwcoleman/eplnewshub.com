@@ -64,6 +64,222 @@
         }
         document.addEventListener('DOMContentLoaded', calculateReadTime);
     </script>
+    
+    <!-- Ultra-thin View Counter Styles -->
+    <style>
+        .view-counter-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.3s ease;
+            cursor: default;
+            position: relative;
+            margin: 0 8px;
+        }
+        
+        .view-counter-container:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .view-counter-icon {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .view-count-number {
+            font-weight: 600;
+            color: #1e293b;
+            letter-spacing: -0.02em;
+        }
+        
+        .view-counter-container.pulse {
+            animation: viewPulse 0.6s ease;
+        }
+        
+        @keyframes viewPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .view-counter-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            margin-bottom: 8px;
+        }
+        
+        .view-counter-container.hover .view-counter-tooltip {
+            opacity: 1;
+        }
+        
+        .view-counter-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid #1e293b;
+        }
+        
+        /* Ultra-thin inline version */
+        .view-counter-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-left: 12px;
+            font-weight: 500;
+        }
+        
+        .view-counter-inline .view-counter-icon {
+            font-size: 0.8rem;
+        }
+        
+        .view-counter-inline .view-count-number {
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Floating Ultra-thin View Counter */
+        .floating-view-counter {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .floating-view-counter.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .floating-counter-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 30px;
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06),
+                0 10px 40px -10px rgba(102, 126, 234, 0.2);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #475569;
+            white-space: nowrap;
+            animation: floatAnimation 3s ease-in-out infinite;
+        }
+        
+        @keyframes floatAnimation {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+        }
+        
+        .floating-counter-content .view-counter-icon {
+            font-size: 1rem;
+            filter: grayscale(20%);
+        }
+        
+        .floating-counter-content .view-count-number {
+            font-weight: 700;
+            font-size: 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.03em;
+        }
+        
+        .floating-counter-content .views-label {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        
+        .floating-counter-content:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                0 4px 6px -2px rgba(0, 0, 0, 0.05),
+                0 20px 60px -20px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Ultra-thin mobile version */
+        @media (max-width: 640px) {
+            .floating-view-counter {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                transform: translateX(0) translateY(100px);
+            }
+            
+            .floating-view-counter.show {
+                transform: translateX(0) translateY(0);
+            }
+            
+            .floating-counter-content {
+                padding: 6px 16px;
+                font-size: 0.8rem;
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .floating-counter-content .view-count-number {
+                font-size: 0.9rem;
+            }
+            
+            .floating-counter-content .views-label {
+                font-size: 0.75rem;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .view-counter-container {
+                font-size: 0.8rem;
+                padding: 3px 8px;
+            }
+            
+            .view-counter-inline {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="header" include="../header.html"></div>
@@ -90,6 +306,12 @@
                     <div class="byline-item">
                         <span>⏱️</span>
                         <span id="read-time">7 min read</span>
+                    </div>
+                    <div class="byline-item view-counter-container">
+                        <span class="view-counter-icon">👁️</span>
+                        <span class="view-count-number">0</span>
+                        <span>views</span>
+                        <div class="view-counter-tooltip"></div>
                     </div>
                 </div>
             </header>
@@ -338,5 +560,40 @@
     
     <!-- AdSense Lazy Load -->
     <script src="../adsense-lazy-load.js" defer></script>
+    <!-- Floating Ultra-thin View Counter -->
+    <div id="floating-view-counter" class="floating-view-counter" style="display: none;">
+        <div class="floating-counter-content">
+            <span class="view-counter-icon">👁️</span>
+            <span class="view-count-number">0</span>
+            <span class="views-label">people viewed this article</span>
+        </div>
+    </div>
+    
+    <!-- View Counter Script -->
+    <script src="../view-counter.js" defer></script>
+    
+    <!-- Floating Counter Logic -->
+    <script>
+        // Show floating counter after scrolling
+        let hasShownFloating = false;
+        window.addEventListener('scroll', function() {
+            const scrolled = window.scrollY > 500;
+            const floatingCounter = document.getElementById('floating-view-counter');
+            
+            if (scrolled && !hasShownFloating) {
+                floatingCounter.style.display = 'block';
+                setTimeout(() => {
+                    floatingCounter.classList.add('show');
+                }, 10);
+                hasShownFloating = true;
+            } else if (!scrolled && hasShownFloating) {
+                floatingCounter.classList.remove('show');
+                setTimeout(() => {
+                    floatingCounter.style.display = 'none';
+                }, 300);
+                hasShownFloating = false;
+            }
+        });
+    </script>
 </body>
 </html>
