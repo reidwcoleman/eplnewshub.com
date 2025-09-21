@@ -18,7 +18,11 @@
         <div class="floating-side-ad left-side-ad" id="left-side-ad">
             <button class="close-ad-btn" onclick="closeAd('left-side-ad')">×</button>
             <div class="side-ad-content">
-                <div class="ad-icon-small">🤖</div>
+                <div class="ad-image-container">
+                    <img src="/fpl-ai-assistant-icon.png" alt="FPL AI Assistant" class="ad-image-small" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="ad-icon-small" style="display:none;">🤖</div>
+                </div>
                 <h4 class="ad-title-small">FPL AI Assistant</h4>
                 <p class="ad-desc-small">Get instant transfer advice & captain picks</p>
                 <div class="ad-price-small">$2/mo</div>
@@ -33,7 +37,11 @@
         <div class="floating-side-ad right-side-ad" id="right-side-ad">
             <button class="close-ad-btn" onclick="closeAd('right-side-ad')">×</button>
             <div class="side-ad-content">
-                <div class="ad-icon-small">🔄</div>
+                <div class="ad-image-container">
+                    <img src="/transfer-simulator-icon.png" alt="Transfer Simulator" class="ad-image-small" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="ad-icon-small" style="display:none;">🔄</div>
+                </div>
                 <h4 class="ad-title-small">Transfer Simulator</h4>
                 <p class="ad-desc-small">AI-powered squad optimization</p>
                 <div class="ad-price-small">Pro Feature</div>
@@ -145,6 +153,26 @@
                 text-align: center;
             }
 
+            .ad-image-container {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto 15px;
+                position: relative;
+            }
+
+            .ad-image-small {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                transition: transform 0.3s ease;
+            }
+
+            .floating-side-ad:hover .ad-image-small {
+                transform: scale(1.1) rotate(2deg);
+            }
+
             .ad-icon-small {
                 font-size: 3rem;
                 margin-bottom: 15px;
@@ -243,6 +271,11 @@
                     right: 15px;
                 }
 
+                .ad-image-container {
+                    width: 70px;
+                    height: 70px;
+                }
+
                 .ad-icon-small {
                     font-size: 2.7rem;
                 }
@@ -337,6 +370,7 @@
     const leftAds = [
         {
             icon: '🤖',
+            image: '/fpl-ai-assistant-icon.png',
             title: 'FPL AI Assistant',
             desc: 'Get instant transfer advice & captain picks',
             price: '$2/mo',
@@ -345,6 +379,7 @@
         },
         {
             icon: '🔮',
+            image: '/points-predictor-icon.png',
             title: 'Points Predictor',
             desc: 'ML-powered gameweek predictions',
             price: 'Pro Feature',
@@ -356,6 +391,7 @@
     const rightAds = [
         {
             icon: '🔄',
+            image: '/transfer-simulator-icon.png',
             title: 'Transfer Simulator',
             desc: 'AI-powered squad optimization',
             price: 'Pro Feature',
@@ -364,6 +400,7 @@
         },
         {
             icon: '💎',
+            image: '/premium-hub-icon.png',
             title: 'Premium Hub',
             desc: 'All FPL tools in one place',
             price: 'From $2/mo',
@@ -386,7 +423,15 @@
                 
                 leftAd.classList.add('rotate-ad');
                 setTimeout(() => {
-                    leftAd.querySelector('.ad-icon-small').textContent = newAd.icon;
+                    // Update image or icon
+                    const imageContainer = leftAd.querySelector('.ad-image-container');
+                    if (imageContainer) {
+                        imageContainer.innerHTML = `
+                            <img src="${newAd.image}" alt="${newAd.title}" class="ad-image-small" 
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="ad-icon-small" style="display:none;">${newAd.icon}</div>
+                        `;
+                    }
                     leftAd.querySelector('.ad-title-small').textContent = newAd.title;
                     leftAd.querySelector('.ad-desc-small').textContent = newAd.desc;
                     leftAd.querySelector('.ad-price-small').textContent = newAd.price;
@@ -404,7 +449,15 @@
                 
                 rightAd.classList.add('rotate-ad');
                 setTimeout(() => {
-                    rightAd.querySelector('.ad-icon-small').textContent = newAd.icon;
+                    // Update image or icon
+                    const imageContainer = rightAd.querySelector('.ad-image-container');
+                    if (imageContainer) {
+                        imageContainer.innerHTML = `
+                            <img src="${newAd.image}" alt="${newAd.title}" class="ad-image-small" 
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="ad-icon-small" style="display:none;">${newAd.icon}</div>
+                        `;
+                    }
                     rightAd.querySelector('.ad-title-small').textContent = newAd.title;
                     rightAd.querySelector('.ad-desc-small').textContent = newAd.desc;
                     rightAd.querySelector('.ad-price-small').textContent = newAd.price;
