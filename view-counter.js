@@ -1,4 +1,6 @@
-// Ultra-thin View Counter System
+// Ultra-thin View Counter System - Real Visitor Tracking Only
+// This counter tracks actual page views with no simulated data
+// Each unique browser session counts as one view
 (function() {
     'use strict';
 
@@ -6,7 +8,6 @@
     const VIEW_COUNTER_CONFIG = {
         storageKey: 'articleViews',
         apiEndpoint: null, // Can be configured for backend tracking
-        updateInterval: 5000, // Update display every 5 seconds
         animationDuration: 500
     };
 
@@ -38,14 +39,11 @@
             // Update display
             this.updateDisplay();
             
-            // Simulate real-time updates (optional)
-            this.startRealTimeUpdates();
-            
             // Add hover effect
             this.addInteractivity();
         }
 
-        // Load view count from storage or generate random initial count
+        // Load view count from storage - always starts at 0
         loadViewCount() {
             try {
                 const stored = localStorage.getItem(VIEW_COUNTER_CONFIG.storageKey);
@@ -58,16 +56,16 @@
                         const sessionKey = `viewed_${this.articleId}`;
                         this.hasCountedThisSession = sessionStorage.getItem(sessionKey) === 'true';
                     } else {
-                        // New article - generate initial view count (100-500 for realism)
-                        this.viewCount = Math.floor(Math.random() * 400) + 100;
+                        // New article - starts at 0
+                        this.viewCount = 0;
                     }
                 } else {
-                    // First time - generate initial count
-                    this.viewCount = Math.floor(Math.random() * 400) + 100;
+                    // First time - starts at 0
+                    this.viewCount = 0;
                 }
             } catch (e) {
                 console.error('Error loading view count:', e);
-                this.viewCount = Math.floor(Math.random() * 400) + 100;
+                this.viewCount = 0;
             }
         }
 
@@ -148,24 +146,6 @@
             requestAnimationFrame(animate);
         }
 
-        // Simulate real-time updates (adds 0-2 views every interval)
-        startRealTimeUpdates() {
-            setInterval(() => {
-                // Small chance of incrementing view count
-                const random = Math.random();
-                if (random < 0.3) { // 30% chance
-                    const increment = Math.floor(Math.random() * 3); // 0-2 views
-                    if (increment > 0) {
-                        this.viewCount += increment;
-                        this.saveViewCount();
-                        this.updateDisplay();
-                        
-                        // Add pulse effect
-                        this.pulseCounter();
-                    }
-                }
-            }, VIEW_COUNTER_CONFIG.updateInterval);
-        }
 
         // Add pulse animation when count updates
         pulseCounter() {
