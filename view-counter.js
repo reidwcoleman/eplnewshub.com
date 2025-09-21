@@ -16,7 +16,30 @@
             this.articleId = this.getArticleId();
             this.viewCount = 0;
             this.hasCountedThisSession = false;
+            
+            // Optional: Clear specific article count for testing (remove in production)
+            // this.clearArticleCount();
+            
             this.init();
+        }
+        
+        // Method to clear count for this article (useful for testing)
+        clearArticleCount() {
+            try {
+                const stored = localStorage.getItem(VIEW_COUNTER_CONFIG.storageKey);
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (data[this.articleId]) {
+                        delete data[this.articleId];
+                        localStorage.setItem(VIEW_COUNTER_CONFIG.storageKey, JSON.stringify(data));
+                    }
+                }
+                // Also clear session
+                const sessionKey = `viewed_${this.articleId}`;
+                sessionStorage.removeItem(sessionKey);
+            } catch (e) {
+                console.error('Error clearing count:', e);
+            }
         }
 
         // Get unique article ID from URL
@@ -28,16 +51,19 @@
 
         // Initialize the view counter
         async init() {
-            // Load existing view count
+            // Load existing view count (starts at 0 if new)
             this.loadViewCount();
             
-            // Count this view if not already counted
-            if (!this.hasCountedThisSession) {
-                this.incrementView();
-            }
-            
-            // Update display
+            // Show current count immediately (before incrementing)
             this.updateDisplay();
+            
+            // Count this view if not already counted in this session
+            if (!this.hasCountedThisSession) {
+                // Small delay so user sees the count before it increments
+                setTimeout(() => {
+                    this.incrementView();
+                }, 1000);
+            }
             
             // Add hover effect
             this.addInteractivity();
@@ -71,8 +97,15 @@
 
         // Increment view count
         incrementView() {
+            console.log(`Incrementing view count from ${this.viewCount} to ${this.viewCount + 1}`);
             this.viewCount++;
             this.saveViewCount();
+            
+            // Update display immediately after incrementing
+            this.updateDisplay();
+            
+            // Add pulse effect to show the update
+            this.pulseCounter();
             
             // Mark as viewed in this session
             const sessionKey = `viewed_${this.articleId}`;
@@ -220,4 +253,35 @@
 
     // Export for global access if needed
     window.ViewCounter = ViewCounter;
+    
+    // Global function to reset view count for current article
+    window.resetArticleViewCount = function() {
+        const counter = new ViewCounter();
+        counter.clearArticleCount();
+        console.log('View count reset for this article. Refresh the page to see it start from 0.');
+        return 'Reset complete';
+    };
+    
+    // Global function to see current stored data
+    window.getViewCountData = function() {
+        try {
+            const stored = localStorage.getItem(VIEW_COUNTER_CONFIG.storageKey);
+            if (stored) {
+                const data = JSON.parse(stored);
+                console.table(data);
+                return data;
+            } else {
+                console.log('No view count data stored yet');
+                return null;
+            }
+        } catch (e) {
+            console.error('Error reading view count data:', e);
+            return null;
+        }
+    };
+    
+    // Log current article view count on load
+    console.log(`%cView Counter Active`, 'color: #667eea; font-weight: bold;');
+    console.log(`To reset this article's view count, run: resetArticleViewCount()`);
+    console.log(`To see all stored view data, run: getViewCountData()`);
 })();
