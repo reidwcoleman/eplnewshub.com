@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>EPL News - Latest Today [LIVE] Premier League News, Transfers & Scores 2025</title>
+    <meta name="description" content="EPL News ⚡ LIVE updates every 30 mins. Latest EPL news today including breaking transfers, team news, injury updates & match analysis.">
+    
+    <!-- Critical CSS Inline -->
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        html,body{background:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;line-height:1.6;color:#333}
+        .header{background:#262627;color:#fff;min-height:60px}
+        .main-content{min-height:100vh;background:#fff}
+        .site-footer{background:#262627;color:#fff;padding:20px 0}
+        img{max-width:100%;height:auto;display:block}
+        .featured-image{aspect-ratio:16/9;object-fit:cover;background:#f0f0f0}
+        [include]:empty{background:#f9f9f9;min-height:100px}
+        
+        /* Critical ticker styles */
+        .breaking-news-ticker{background:linear-gradient(135deg,#1e0f3d,#37003c);padding:12px 0;position:relative;overflow:hidden}
+        .ticker-label{position:absolute;left:0;top:50%;transform:translateY(-50%);background:#ff0066;padding:8px 20px;z-index:10;display:flex;align-items:center;gap:10px}
+        .ticker-wrapper{overflow:hidden;margin-left:200px}
+        .ticker-content{display:inline-flex;animation:smoothScroll 180s linear infinite;white-space:nowrap}
+        @keyframes smoothScroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+        .ticker-item{padding:0 40px;font-size:0.95rem;font-weight:600;color:#fff}
+        
+        /* Critical layout */
+        .content-wrapper{max-width:1400px;margin:0 auto;padding:20px}
+        .top-stories{margin:20px 0}
+        .story-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:20px;margin:20px 0}
+        @media(max-width:768px){.story-grid{grid-template-columns:1fr}.ticker-wrapper{margin-left:150px}}
+        
+        /* Skeleton loading */
+        .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:loading 1.5s infinite}
+        @keyframes loading{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    </style>
+    
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="//www.googletagmanager.com">
+    <link rel="dns-prefetch" href="//pagead2.googlesyndication.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+    <!-- Header loads immediately -->
+    <div class="header" id="header-container">
+        <div style="padding:15px;text-align:center">
+            <img src="/eplnewshubnewlogo.png" alt="EPL News Hub" style="height:40px;display:inline-block" loading="eager">
+        </div>
+    </div>
+    
+    <!-- Breaking News Ticker (simplified) -->
+    <div class="breaking-news-ticker">
+        <div class="ticker-label">
+            <span>BREAKING</span>
+            <span>EPL NEWS</span>
+        </div>
+        <div class="ticker-wrapper">
+            <div class="ticker-content">
+                <span class="ticker-item">⚡ Arsenal vs Manchester City: Premier League Live Updates as Title Rivals Clash</span>
+                <span class="ticker-item">💥 Erling Haaland Scores Stunning Counterattack Goal in Arsenal vs Man City Showdown</span>
+                <span class="ticker-item">🔴 Liverpool Secure 2-1 Victory Over Everton in Merseyside Derby</span>
+                <span class="ticker-item">📊 Manchester United Edge Chelsea 2-1 in Dramatic Premier League Encounter</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Main headline skeleton -->
+            <div class="main_headline skeleton" id="main-headline" style="min-height:400px;border-radius:8px;margin:20px 0"></div>
+            
+            <!-- Story grid skeleton -->
+            <div class="story-grid">
+                <div class="main_subheadline1 skeleton" style="min-height:300px;border-radius:8px"></div>
+                <div class="main_subheadline2 skeleton" style="min-height:300px;border-radius:8px"></div>
+                <div class="main_subheadline3 skeleton" style="min-height:300px;border-radius:8px"></div>
+            </div>
+            
+            <!-- Secondary grid skeleton -->
+            <div class="story-grid">
+                <div class="secondary_subheadline1 skeleton" style="min-height:250px;border-radius:8px"></div>
+                <div class="secondary_subheadline2 skeleton" style="min-height:250px;border-radius:8px"></div>
+                <div class="secondary_subheadline3 skeleton" style="min-height:250px;border-radius:8px"></div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer skeleton -->
+    <footer class="site-footer">
+        <div style="text-align:center;padding:20px">
+            <p>© 2025 EPL News Hub. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <!-- Async load content -->
+    <script>
+        // Fast content loader
+        async function loadContent() {
+            const contentMap = {
+                'main-headline': './main_headline.html',
+                'main_subheadline1': './main_subheadline1.html',
+                'main_subheadline2': './main_subheadline2.html',
+                'main_subheadline3': './main_subheadline3.html',
+                'secondary_subheadline1': './secondary_subheadline1.html',
+                'secondary_subheadline2': './secondary_subheadline2.html',
+                'header-container': './header.html'
+            };
+            
+            // Load critical content first
+            const critical = ['header-container', 'main-headline'];
+            await Promise.all(critical.map(async id => {
+                try {
+                    const res = await fetch(contentMap[id]);
+                    if (res.ok) {
+                        const html = await res.text();
+                        const el = document.getElementById(id) || document.querySelector('.' + id);
+                        if (el) {
+                            el.innerHTML = html;
+                            el.classList.remove('skeleton');
+                        }
+                    }
+                } catch (e) {}
+            }));
+            
+            // Then load secondary content
+            Object.keys(contentMap).filter(k => !critical.includes(k)).forEach(async id => {
+                try {
+                    const res = await fetch(contentMap[id]);
+                    if (res.ok) {
+                        const html = await res.text();
+                        const el = document.querySelector('.' + id);
+                        if (el) {
+                            el.innerHTML = html;
+                            el.classList.remove('skeleton');
+                        }
+                    }
+                } catch (e) {}
+            });
+        }
+        
+        // Start loading immediately
+        loadContent();
+        
+        // Load styles async after DOM ready
+        window.addEventListener('DOMContentLoaded', () => {
+            const styles = [
+                'styles.css',
+                'responsive-master.css',
+                'enhanced-homepage-v2.css',
+                'secondary-final-perfect.css'
+            ];
+            
+            styles.forEach(href => {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = href;
+                document.head.appendChild(link);
+            });
+        });
+        
+        // Lazy load images
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+    </script>
+    
+    <!-- Defer non-critical scripts -->
+    <script defer>
+        // Google Analytics - load after 3 seconds
+        setTimeout(() => {
+            const ga = document.createElement('script');
+            ga.async = true;
+            ga.src = 'https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9';
+            document.head.appendChild(ga);
+            
+            ga.onload = () => {
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-TVPLGM5QY9');
+            };
+        }, 3000);
+        
+        // AdSense - load after 5 seconds
+        setTimeout(() => {
+            const ad = document.createElement('script');
+            ad.async = true;
+            ad.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899';
+            ad.crossOrigin = 'anonymous';
+            document.head.appendChild(ad);
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -28,21 +28,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
+    <!-- Fast Page Loader - CRITICAL -->
+    <script src="./fast-loader.js"></script>
     
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
-         crossorigin="anonymous"></script>
+    <!-- Defer Google AdSense -->
+    <script>
+    setTimeout(() => {
+        const ad = document.createElement('script');
+        ad.async = true;
+        ad.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899';
+        ad.crossOrigin = 'anonymous';
+        document.head.appendChild(ad);
+    }, 5000);
+    </script>
     
     <!-- Prevent Auto-Reload -->
-    <script src="./prevent-reload.js"></script>
+    <script src="./prevent-reload.js" defer></script>
     
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <!-- Defer Google Analytics -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-TVPLGM5QY9');
+    setTimeout(() => {
+        const ga = document.createElement('script');
+        ga.async = true;
+        ga.src = 'https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9';
+        document.head.appendChild(ga);
+        ga.onload = () => {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-TVPLGM5QY9');
+        };
+    }, 3000);
     </script>
     <meta name="description" content="EPL News ⚡ LIVE updates every 30 mins. Latest EPL news today including breaking transfers, team news, injury updates & match analysis. Get instant EPL news for all 20 Premier League clubs. Updated: Sept 2025">
     <meta name="keywords" content="epl news, epl news today, latest epl news, epl news now, epl news live, premier league news, epl transfer news, epl breaking news, epl news manchester united, epl news liverpool, epl news arsenal, epl news chelsea, epl news 2025, epl news and transfers, epl news hub, english premier league news, epl football news, epl soccer news, epl match news, epl team news">
@@ -109,28 +125,53 @@
     </style>
     
     <!-- Start loading critical includes immediately -->
-    <link rel="preload" as="image" href="saka.png" fetchpriority="high">
+    <link rel="preload" as="image" href="untitled-2025-2025-09-20T191320-323-6439412.avif" fetchpriority="high">
     <script>
-        // Preload critical includes
-        ['./header.html', './main_headline.html'].forEach(url => {
-            fetch(url).catch(() => {});
-        });
+        // Preload critical includes for faster rendering
+        const criticalIncludes = ['./header.html', './main_headline.html'];
+        Promise.all(criticalIncludes.map(url => 
+            fetch(url).then(r => r.text()).then(html => ({url, html}))
+        )).then(results => {
+            // Cache the HTML for faster loading
+            results.forEach(({url, html}) => {
+                window.includeCache = window.includeCache || {};
+                window.includeCache[url] = html;
+            });
+        }).catch(() => {});
     </script>
     
     
     
     <!-- Critical Stylesheet First -->
     <link rel="stylesheet" href="styles.css">
-    <!-- Master Responsive Design System -->
     <link rel="stylesheet" href="responsive-master.css">
-    <!-- Load additional CSS normally to prevent glitches -->
-    <link rel="stylesheet" href="enhanced-homepage-v2.css">
-    <link rel="stylesheet" href="featured-article-cards.css">
-    <link rel="stylesheet" href="mobile-optimization.css">
-    <link rel="stylesheet" href="polished-articles.css">
-    <!-- Force Secondary Articles Final Perfect Styling -->
-    <link rel="stylesheet" href="secondary-final-perfect.css?v=2">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Defer non-critical CSS -->
+    <link rel="preload" href="enhanced-homepage-v2.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="featured-article-cards.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="mobile-optimization.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="polished-articles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="secondary-final-perfect.css?v=2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- Defer Font Awesome -->
+    <noscript>
+        <link rel="stylesheet" href="enhanced-homepage-v2.css">
+        <link rel="stylesheet" href="featured-article-cards.css">
+        <link rel="stylesheet" href="mobile-optimization.css">
+        <link rel="stylesheet" href="polished-articles.css">
+        <link rel="stylesheet" href="secondary-final-perfect.css?v=2">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    </noscript>
+    
+    <script>
+    // Defer Font Awesome loading
+    setTimeout(() => {
+        const fa = document.createElement('link');
+        fa.rel = 'stylesheet';
+        fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css';
+        document.head.appendChild(fa);
+    }, 2000);
+    </script>
     
     <!-- Responsive Menu System -->
     <script src="responsive-menu.js" defer></script>
