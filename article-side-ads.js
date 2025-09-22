@@ -379,12 +379,12 @@
         },
         {
             icon: '🔮',
-            image: '/points-predictor-icon.png',
-            title: 'Points Predictor',
+            image: '/fpl-player-analyzer-icon.png',
+            title: 'Player Analyzer',
             desc: 'ML-powered gameweek predictions',
             price: 'Pro Feature',
             link: '/fpl-player-analyzer.html',
-            cta: 'Predict →'
+            cta: 'Analyze →'
         }
     ];
 

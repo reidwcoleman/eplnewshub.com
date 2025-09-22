@@ -28,7 +28,7 @@
         },
         {
             icon: '🔮',
-            image: '/points-predictor-icon.png',
+            image: '/fpl-player-analyzer-icon.png',
             title: 'Points Predictor',
             desc: 'ML-powered gameweek predictions',
             price: 'Pro Feature',
