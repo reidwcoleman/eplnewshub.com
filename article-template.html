@@ -76,6 +76,16 @@
 <body>
     <div class="header" include="../header.html"></div>
     
+    <!-- Floating View Counter -->
+    <div id="floating-view-counter" class="floating-view-counter" style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(102, 126, 234, 0.2); border-radius: 20px; padding: 8px 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); z-index: 100; display: none; transition: all 0.3s ease;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 14px; color: #667eea;">👁️</span>
+            <span style="font-size: 13px; color: #4a5568; font-weight: 500;">
+                <span class="view-count-number" style="color: #667eea; font-weight: 700;">0</span> views
+            </span>
+        </div>
+    </div>
+    
     <!-- Main Content Area -->
     <main class="main-content">
         <article class="modern-article">
@@ -170,6 +180,16 @@
                     </div>
                     
                     <p style="font-size: 1.125rem; line-height: 1.85; color: #3a4556; margin-bottom: 24px; font-family: 'Georgia', serif; letter-spacing: 0.01em;">[ADDITIONAL_SECTION_3_CONTENT]</p>
+                </div>
+                
+                <!-- Premium FPL In-Article Ad -->
+                <div style="background: linear-gradient(135deg, #f0f4ff 0%, #e8edff 100%); border-radius: 20px; padding: 30px; margin: 40px 0; border: 2px solid #667eea;">
+                    <h3 style="color: #667eea; font-size: 1.5rem; margin-bottom: 15px; font-weight: 700;">🚀 Level Up Your FPL Game</h3>
+                    <p style="color: #4a5568; font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;">Get instant transfer suggestions, captain picks, and differential tips from our AI-powered FPL Assistant. Join 10,000+ managers already gaining the edge!</p>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <a href="/fpl-ai-assistant.html" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; display: inline-block; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Try AI Assistant →</a>
+                        <a href="/fpl-player-analyzer.html" style="background: white; color: #667eea; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; border: 2px solid #667eea; display: inline-block;">Player Analyzer</a>
+                    </div>
                 </div>
                 
                 <!-- Article Ad Include -->
@@ -370,35 +390,116 @@
     <script src="../article-enhancer.js" defer></script>
     <script src="../read-next.js"></script>
     <script src="../suggested-articles.js"></script>
+    <script src="../view-counter.js" defer></script>
     
     <!-- AdSense Lazy Load -->
     <script src="../adsense-lazy-load.js" defer></script>
     
-    <!-- Background Gradient Style -->
+    <!-- Premium FPL Popup Ad -->
+    <div id="premium-fpl-popup" class="premium-fpl-ad" style="display: none;">
+        <button class="close-btn" onclick="this.parentElement.style.display='none'">×</button>
+        <h3>🚀 Transform Your FPL Season</h3>
+        <p>AI-powered insights, differential picks, and captain analysis - all for less than a coffee!</p>
+        <button class="cta-button" onclick="window.location.href='/fpl-premium-hub.html'">Unlock Premium Tools →</button>
+    </div>
+    
+    <script>
+        // Show premium FPL popup after scrolling 30%
+        let popupShown = false;
+        window.addEventListener('scroll', () => {
+            if (!popupShown) {
+                const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+                if (scrollPercent > 30) {
+                    const popup = document.getElementById('premium-fpl-popup');
+                    if (popup) {
+                        popup.style.display = 'block';
+                        popupShown = true;
+                        
+                        // Auto-hide after 10 seconds
+                        setTimeout(() => {
+                            popup.style.display = 'none';
+                        }, 10000);
+                    }
+                }
+            }
+        });
+    </script>
+    
+    <!-- Background and Styling -->
     <style>
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
-            z-index: -2;
+        body {
+            background: #ffffff;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
         }
         
-        body::after {
-            content: '';
+        /* Premium FPL Tool Popup Ad */
+        .premium-fpl-ad {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                radial-gradient(circle at 20% 80%, rgba(120, 40, 200, 0.13) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(40, 200, 120, 0.13) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(200, 40, 120, 0.13) 0%, transparent 50%);
-            z-index: -1;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideInUp 0.5s ease-out;
+            color: white;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .premium-fpl-ad h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .premium-fpl-ad p {
+            margin: 0 0 15px 0;
+            font-size: 0.95rem;
+            opacity: 0.95;
+        }
+        
+        .premium-fpl-ad .cta-button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .premium-fpl-ad .cta-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .premium-fpl-ad .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
         }
     </style>
 </body>
