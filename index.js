@@ -107,11 +107,6 @@ const articles = [
         excerpt: "Viktor Gyökeres has taken European football by storm in the 2024-25 season, cementing his status as one of the continent's most lethal strikers."
     },
     {
-        title: "Premier League 2024/25 Final Day Drama",
-        url: "articles/Premier-League-Final-Day-Drama-05-24-25.html",
-        excerpt: "The 2024/2025 Premier League season wraps up on May 25, 2025, with all 20 teams playing simultaneously at 4:00 PM BST."
-    },
-    {
         title: "Latest EPL News: Manager Reactions, Financial, and Match Highlights",
         url: "articles/latest-epl-news-2025-02-07.html",
         excerpt: "The English Premier League has been abuzz with significant developments both on and off the pitch."
