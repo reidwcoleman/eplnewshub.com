@@ -66,6 +66,13 @@ class FPLAccountIntegration {
             document.head.appendChild(authScript);
         }
         
+        // Check and load live data service
+        if (!window.fplLiveData && !document.querySelector('script[src*="fpl-live-data-service"]')) {
+            const dataScript = document.createElement('script');
+            dataScript.src = '/fpl-live-data-service.js';
+            document.head.appendChild(dataScript);
+        }
+        
         // Check and load ultra predictions system (preferred) or fallback to regular
         if (!window.fplUltraPredictions && !window.fplPredictions) {
             if (!document.querySelector('script[src*="fpl-predictions-ultra"]')) {
