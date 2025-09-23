@@ -56,27 +56,24 @@
     // Content recommendation system
     const RecommendationEngine = {
         articles: [
-            // Transfers
-            { title: "BREAKING: Liverpool Close to Signing €80m Star", category: "transfers", url: "/articles/liverpool-transfer-news.html", image: "/images/liverpool.jpg", views: 15234, trending: true },
-            { title: "Chelsea's January Transfer Plans Revealed", category: "transfers", url: "/articles/chelsea-transfers.html", image: "/images/chelsea.jpg", views: 12456 },
-            { title: "Man United Eye Three January Signings", category: "transfers", url: "/articles/united-transfers.html", image: "/images/united.jpg", views: 11234 },
+            // Most Viewed Articles (Based on actual articles)
+            { title: "Ballon d'Or 2025: Ousmane Dembélé's Emotional Triumph", category: "awards", url: "/articles/ballon-dor-2025-final-odds-power-rankings-ceremony-looms-2025-09-22.html", image: "/images/ballondor.jpg", views: 48976, trending: true },
+            { title: "Arsenal Set to Win Premier League Title 2025/26", category: "analysis", url: "/articles/arsenal-premier-league-title-2025-26.html", image: "/images/arsenal.jpg", views: 42345, trending: true },
+            { title: "Liverpool vs Burnley: Salah Penalty Drama", category: "matches", url: "/articles/liverpool-vs-burnley-salah-penalty-2025-09-14.html", image: "/images/liverpool.jpg", views: 38234, trending: true },
+            { title: "Manchester Derby Preview: City vs United", category: "matches", url: "/articles/manchester-city-vs-manchester-united-derby-preview-2025-09-14.html", image: "/images/derby.jpg", views: 35678, trending: true },
+            { title: "Alexander Isak £125m Transfer to Liverpool", category: "transfers", url: "/articles/alexander-isak-transfer-liverpool-125m-2025-09-03.html", image: "/images/isak.jpg", views: 32456, trending: true },
             
-            // Fantasy
-            { title: "FPL Captain Picks GW22: Salah vs Haaland", category: "fantasy", url: "/fpl-ai-assistant.html", image: "/images/fpl.jpg", views: 18976, trending: true },
-            { title: "Top 5 FPL Differentials for GW23", category: "fantasy", url: "/fpl-premium-hub.html", image: "/images/fpl2.jpg", views: 14532 },
-            { title: "FPL Wildcard Strategy Guide", category: "fantasy", url: "/transfer-simulator-pro.html", image: "/images/wildcard.jpg", views: 13456 },
-            
-            // Matches
-            { title: "Arsenal vs Liverpool: Tactical Preview", category: "matches", url: "/articles/arsenal-liverpool.html", image: "/images/arsenal.jpg", views: 21345, trending: true },
-            { title: "Man City's Title Race Analysis", category: "matches", url: "/articles/city-analysis.html", image: "/images/city.jpg", views: 16789 },
-            
-            // Players
-            { title: "Exclusive: Haaland Interview", category: "players", url: "/articles/haaland-interview.html", image: "/images/haaland.jpg", views: 25678, trending: true },
-            { title: "Rising Stars: Top 10 Young EPL Talents", category: "players", url: "/articles/young-talents.html", image: "/images/talents.jpg", views: 14567 },
-            
-            // Analysis
-            { title: "How Arsenal Fixed Their Defense", category: "analysis", url: "/articles/arsenal-defense.html", image: "/images/tactics.jpg", views: 12890 },
-            { title: "Why Liverpool's System Works", category: "analysis", url: "/articles/liverpool-system.html", image: "/images/klopp.jpg", views: 11234 }
+            // High-traffic articles
+            { title: "Captain Haaland: FPL Gameweek 5 Essential", category: "fantasy", url: "/articles/captain-haaland-fantasy-premier-league-gameweek-5-2025-09-14.html", image: "/images/haaland.jpg", views: 28976 },
+            { title: "Premier League Transfer Window: Record-Breaking £3bn", category: "transfers", url: "/articles/premier-league-transfer-window-2025-record-breaking-3-billion.html", image: "/images/transfers.jpg", views: 26532 },
+            { title: "Marcus Rashford Barcelona Transfer Latest", category: "transfers", url: "/articles/marcus-rashford-barcelona-transfer-and-premier-league-updates-07-26-2025.html", image: "/images/rashford.jpg", views: 24567 },
+            { title: "FPL Gameweek 1 Best Team & Tips", category: "fantasy", url: "/articles/fantasy-premier-league-2025-26-gw1-best-fpl-team-scoring-rules-2025-08-13.html", image: "/images/fpl.jpg", views: 23456 },
+            { title: "Man United Struggling: Relegation Fears", category: "analysis", url: "/articles/man-utd-struggling-relegation-fears-2025-08-31.html", image: "/images/united.jpg", views: 22890 },
+            { title: "Pep Guardiola's Worst Start: What's Wrong?", category: "analysis", url: "/articles/pep-guardiola-downfall-worst-start-2025-09-01.html", image: "/images/pep.jpg", views: 21234 },
+            { title: "Top 5 Unforgettable Premier League Highlights", category: "matches", url: "/articles/top-5-unforgettable-premier-league-highlights-2025-09-21.html", image: "/images/highlights.jpg", views: 19876 },
+            { title: "Transfer Hub: Ultimate Guide August 2025", category: "transfers", url: "/articles/transfer-hub-ultimate-guide-august-2025.html", image: "/images/hub.jpg", views: 18765 },
+            { title: "Aston Villa Winless Streak Analysis", category: "analysis", url: "/articles/aston-villa-winless-streak-2025-26-emery-watkins-analysis.html", image: "/images/villa.jpg", views: 16543 },
+            { title: "Premier League GW5 Predictions", category: "matches", url: "/articles/premier-league-gameweek-5-predictions-2025-26-09-19-2025.html", image: "/images/predictions.jpg", views: 15432 }
         ],
         
         getRecommendations(count = 6) {
@@ -336,109 +333,247 @@
             <style>
                 .trending-sidebar {
                     position: fixed;
-                    right: -350px;
-                    top: 100px;
-                    width: 320px;
-                    background: white;
-                    border-radius: 15px 0 0 15px;
-                    box-shadow: -5px 0 20px rgba(0,0,0,0.1);
-                    padding: 20px;
+                    right: -380px;
+                    top: 80px;
+                    width: 350px;
+                    background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+                    border-radius: 20px 0 0 20px;
+                    box-shadow: -10px 0 40px rgba(0,0,0,0.08), -2px 0 10px rgba(0,0,0,0.04);
+                    padding: 0;
                     z-index: 9997;
-                    transition: right 0.5s ease;
-                    max-height: 80vh;
-                    overflow-y: auto;
+                    transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                    max-height: calc(90vh - 80px);
+                    overflow: hidden;
+                    border-left: 1px solid rgba(0,0,0,0.05);
                 }
                 
                 .trending-sidebar.visible {
                     right: 0;
                 }
                 
+                .trending-sidebar::-webkit-scrollbar {
+                    width: 6px;
+                }
+                
+                .trending-sidebar::-webkit-scrollbar-track {
+                    background: #f0f0f0;
+                }
+                
+                .trending-sidebar::-webkit-scrollbar-thumb {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 3px;
+                }
+                
                 .trending-header {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    margin-bottom: 20px;
-                    padding-bottom: 15px;
-                    border-bottom: 2px solid #f0f0f0;
+                    background: linear-gradient(135deg, #37003c 0%, #6366f1 100%);
+                    color: white;
+                    padding: 20px 25px;
+                    position: sticky;
+                    top: 0;
+                    z-index: 10;
                 }
                 
                 .trending-title {
-                    font-size: 18px;
+                    font-size: 20px;
                     font-weight: 800;
-                    color: #1a1a1a;
+                    color: white;
                     display: flex;
                     align-items: center;
-                    gap: 8px;
+                    gap: 10px;
+                    margin: 0;
+                }
+                
+                .trending-subtitle {
+                    font-size: 12px;
+                    color: rgba(255,255,255,0.8);
+                    margin-top: 5px;
+                    font-weight: 500;
                 }
                 
                 .trending-live {
-                    width: 8px;
-                    height: 8px;
-                    background: #ff4757;
+                    width: 10px;
+                    height: 10px;
+                    background: #00ff88;
                     border-radius: 50%;
                     animation: live-pulse 1.5s infinite;
+                    box-shadow: 0 0 10px rgba(0,255,136,0.5);
                 }
                 
                 @keyframes live-pulse {
-                    0%, 100% { opacity: 1; transform: scale(1); }
-                    50% { opacity: 0.5; transform: scale(1.5); }
+                    0%, 100% { 
+                        opacity: 1; 
+                        transform: scale(1);
+                        box-shadow: 0 0 10px rgba(0,255,136,0.5);
+                    }
+                    50% { 
+                        opacity: 0.6; 
+                        transform: scale(1.3);
+                        box-shadow: 0 0 20px rgba(0,255,136,0.8);
+                    }
+                }
+                
+                .trending-list-container {
+                    padding: 10px;
+                    overflow-y: auto;
+                    max-height: calc(90vh - 160px);
                 }
                 
                 .trending-item {
-                    padding: 15px 0;
-                    border-bottom: 1px solid #f0f0f0;
+                    background: white;
+                    margin-bottom: 12px;
+                    padding: 16px;
+                    border-radius: 12px;
                     cursor: pointer;
-                    transition: all 0.3s ease;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    overflow: hidden;
+                    border: 1px solid rgba(0,0,0,0.05);
+                    display: flex;
+                    align-items: start;
+                    gap: 15px;
+                }
+                
+                .trending-item::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(102,126,234,0.1), transparent);
+                    transition: left 0.5s ease;
                 }
                 
                 .trending-item:hover {
-                    padding-left: 10px;
+                    transform: translateX(-5px);
+                    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+                    border-color: #6366f1;
+                }
+                
+                .trending-item:hover::before {
+                    left: 100%;
                 }
                 
                 .trending-number {
-                    display: inline-block;
-                    width: 24px;
-                    height: 24px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    color: white;
+                    flex-shrink: 0;
+                    width: 32px;
+                    height: 32px;
+                    background: white;
+                    color: #37003c;
                     text-align: center;
-                    line-height: 24px;
-                    border-radius: 50%;
-                    font-size: 12px;
-                    font-weight: 700;
-                    margin-right: 10px;
+                    line-height: 32px;
+                    border-radius: 10px;
+                    font-size: 14px;
+                    font-weight: 900;
+                    box-shadow: 0 2px 8px rgba(55,0,60,0.15);
+                    border: 2px solid #37003c;
+                }
+                
+                .trending-number.top-1 {
+                    background: linear-gradient(135deg, #ffd700, #ffed4e);
+                    color: #37003c;
+                    border-color: #ffd700;
+                    box-shadow: 0 2px 10px rgba(255,215,0,0.4);
+                }
+                
+                .trending-number.top-2 {
+                    background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+                    color: #37003c;
+                    border-color: #c0c0c0;
+                }
+                
+                .trending-number.top-3 {
+                    background: linear-gradient(135deg, #cd7f32, #e8a85b);
+                    color: white;
+                    border-color: #cd7f32;
+                }
+                
+                .trending-content {
+                    flex: 1;
+                    min-width: 0;
                 }
                 
                 .trending-item-title {
                     font-size: 14px;
-                    font-weight: 600;
-                    color: #333;
-                    margin-bottom: 5px;
+                    font-weight: 700;
+                    color: #1a1a1a;
+                    margin-bottom: 6px;
+                    line-height: 1.3;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
                 
                 .trending-item-meta {
-                    font-size: 12px;
-                    color: #999;
+                    font-size: 11px;
+                    color: #666;
                     display: flex;
                     align-items: center;
-                    gap: 10px;
+                    gap: 12px;
+                    font-weight: 500;
+                }
+                
+                .trending-meta-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                }
+                
+                .trending-views {
+                    color: #6366f1;
+                    font-weight: 700;
+                }
+                
+                .trending-category {
+                    background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+                    padding: 2px 8px;
+                    border-radius: 10px;
+                    text-transform: uppercase;
+                    font-size: 9px;
+                    font-weight: 700;
+                    color: #666;
                 }
                 
                 .trending-toggle {
                     position: absolute;
-                    left: -40px;
+                    left: -48px;
                     top: 50%;
                     transform: translateY(-50%);
-                    width: 40px;
-                    height: 60px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    border-radius: 10px 0 0 10px;
+                    width: 48px;
+                    height: 80px;
+                    background: linear-gradient(135deg, #37003c 0%, #6366f1 100%);
+                    border-radius: 15px 0 0 15px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     cursor: pointer;
                     color: white;
-                    font-size: 20px;
+                    font-size: 24px;
+                    transition: all 0.3s ease;
+                    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+                }
+                
+                .trending-toggle:hover {
+                    transform: translateY(-50%) scale(1.05);
+                    box-shadow: -5px 0 20px rgba(0,0,0,0.15);
+                }
+                
+                .trending-toggle-icon {
+                    animation: bounce 2s infinite;
+                }
+                
+                @keyframes bounce {
+                    0%, 100% { transform: translateX(0); }
+                    50% { transform: translateX(-3px); }
+                }
+                
+                @media (max-width: 1400px) {
+                    .trending-sidebar {
+                        width: 320px;
+                        right: -350px;
+                    }
                 }
                 
                 @media (max-width: 1200px) {
@@ -449,17 +584,18 @@
             </style>
             
             <div class="trending-toggle" onclick="this.parentElement.classList.toggle('visible')">
-                📈
+                <span class="trending-toggle-icon">📊</span>
             </div>
             
             <div class="trending-header">
                 <div class="trending-title">
                     <span class="trending-live"></span>
-                    <span>Trending Now</span>
+                    <span>Most Viewed</span>
                 </div>
+                <div class="trending-subtitle">Updated every 30 minutes</div>
             </div>
             
-            <div id="trending-list">
+            <div class="trending-list-container" id="trending-list">
                 <!-- Trending items will be inserted here -->
             </div>
         `;
@@ -496,21 +632,36 @@
         const container = document.getElementById('trending-list');
         if (!container) return;
         
+        // Get top 8 most viewed articles
         const trending = RecommendationEngine.articles
-            .filter(a => a.trending)
             .sort((a, b) => b.views - a.views)
-            .slice(0, 5);
+            .slice(0, 8);
         
-        container.innerHTML = trending.map((article, index) => `
-            <div class="trending-item" onclick="window.location.href='${article.url}'">
-                <span class="trending-number">${index + 1}</span>
-                <div class="trending-item-title">${article.title}</div>
-                <div class="trending-item-meta">
-                    <span>👁 ${(article.views / 1000).toFixed(1)}k</span>
-                    <span>🔥 ${article.category}</span>
+        container.innerHTML = trending.map((article, index) => {
+            let numberClass = 'trending-number';
+            if (index === 0) numberClass += ' top-1';
+            else if (index === 1) numberClass += ' top-2';
+            else if (index === 2) numberClass += ' top-3';
+            
+            // Format category name
+            const categoryName = article.category.charAt(0).toUpperCase() + article.category.slice(1);
+            
+            return `
+                <div class="trending-item" onclick="window.location.href='${article.url}'">
+                    <span class="${numberClass}">${index + 1}</span>
+                    <div class="trending-content">
+                        <div class="trending-item-title">${article.title}</div>
+                        <div class="trending-item-meta">
+                            <span class="trending-meta-item">
+                                <span class="trending-views">${(article.views / 1000).toFixed(1)}k views</span>
+                            </span>
+                            <span class="trending-category">${categoryName}</span>
+                            ${article.trending ? '<span style="color: #ff4757;">🔥 Hot</span>' : ''}
+                        </div>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
     
     // Initialize content discovery
