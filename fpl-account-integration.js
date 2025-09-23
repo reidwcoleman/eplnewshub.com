@@ -39,7 +39,11 @@ class FPLAccountIntegration {
     async waitForSystems() {
         return new Promise((resolve) => {
             const checkSystems = () => {
-                if (window.fplAuth && window.fplPredictions) {
+                if (window.fplAuth && (window.fplUltraPredictions || window.fplPredictions)) {
+                    // Use ultra predictions if available, otherwise fallback to regular
+                    if (!window.fplPredictions && window.fplUltraPredictions) {
+                        window.fplPredictions = window.fplUltraPredictions;
+                    }
                     resolve();
                 } else {
                     // Load scripts if not present
@@ -62,11 +66,17 @@ class FPLAccountIntegration {
             document.head.appendChild(authScript);
         }
         
-        // Check and load predictions system
-        if (!window.fplPredictions && !document.querySelector('script[src*="fpl-predictions-system"]')) {
-            const predictionsScript = document.createElement('script');
-            predictionsScript.src = '/fpl-predictions-system.js';
-            document.head.appendChild(predictionsScript);
+        // Check and load ultra predictions system (preferred) or fallback to regular
+        if (!window.fplUltraPredictions && !window.fplPredictions) {
+            if (!document.querySelector('script[src*="fpl-predictions-ultra"]')) {
+                const ultraScript = document.createElement('script');
+                ultraScript.src = '/fpl-predictions-ultra.js';
+                document.head.appendChild(ultraScript);
+            } else if (!document.querySelector('script[src*="fpl-predictions-system"]')) {
+                const predictionsScript = document.createElement('script');
+                predictionsScript.src = '/fpl-predictions-system.js';
+                document.head.appendChild(predictionsScript);
+            }
         }
     }
 
