@@ -111,6 +111,7 @@
     
 </header>
 
+<script src="/user-auth-manager.js"></script>
 <script>
     // Check authentication state and update header
     document.addEventListener('DOMContentLoaded', function() {
@@ -119,22 +120,45 @@
     });
 
     function checkHeaderAuthState() {
-        // Check for user data in localStorage
-        const userData = localStorage.getItem('user');
-        
-        if (userData) {
-            try {
-                const user = JSON.parse(userData);
-                showSignedInState(user);
-                showHeaderAccountWidget(user);
-            } catch (error) {
-                console.error('Error parsing user data:', error);
+        // Use the user auth manager if available
+        if (window.userAuthManager && window.userAuthManager.currentUser) {
+            const user = window.userAuthManager.currentUser;
+            showSignedInState(user);
+            showHeaderAccountWidget(user);
+            
+            // Add premium badge if applicable
+            if (window.userAuthManager.isPremiumActive()) {
+                addHeaderPremiumBadge();
+            }
+        } else {
+            // Fallback to checking localStorage directly
+            const userData = localStorage.getItem('eplhub_user') || localStorage.getItem('user');
+            
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    showSignedInState(user);
+                    showHeaderAccountWidget(user);
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                    showSignedOutState();
+                    hideHeaderAccountWidget();
+                }
+            } else {
                 showSignedOutState();
                 hideHeaderAccountWidget();
             }
-        } else {
-            showSignedOutState();
-            hideHeaderAccountWidget();
+        }
+    }
+    
+    function addHeaderPremiumBadge() {
+        const navContent = document.querySelector('.nav-content');
+        if (navContent && !navContent.querySelector('.header-premium-indicator')) {
+            const badge = document.createElement('div');
+            badge.className = 'header-premium-indicator';
+            badge.innerHTML = `⭐ ${window.userAuthManager.getCurrentPlan().toUpperCase()}`;
+            badge.style.cssText = 'position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: gold; color: #37003c; padding: 5px 15px; border-radius: 20px; font-size: 0.85em; font-weight: bold;';
+            navContent.appendChild(badge);
         }
     }
 
@@ -238,25 +262,34 @@
     }
 
     function headerSignOut() {
-        // Clear user data
-        localStorage.removeItem('user');
-        localStorage.removeItem('membership');
-        localStorage.removeItem('eplMembership');
-        localStorage.removeItem('authToken');
-        
-        // Hide account widget
-        hideHeaderAccountWidget();
-        
-        // Update header state
-        showSignedOutState();
-        
-        // Show notification
-        showHeaderNotification('Signed out successfully!', 'success');
-        
-        // Reload page to reset state
-        setTimeout(() => {
-            window.location.reload();
-        }, 1000);
+        // Use auth manager if available
+        if (window.userAuthManager) {
+            window.userAuthManager.signOut();
+        } else {
+            // Fallback to manual clearing
+            localStorage.removeItem('user');
+            localStorage.removeItem('membership');
+            localStorage.removeItem('eplMembership');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('eplhub_user');
+            localStorage.removeItem('eplhub_membership');
+            localStorage.removeItem('eplhub_user_data');
+            localStorage.removeItem('eplhub_session');
+            
+            // Hide account widget
+            hideHeaderAccountWidget();
+            
+            // Update header state
+            showSignedOutState();
+            
+            // Show notification
+            showHeaderNotification('Signed out successfully!', 'success');
+            
+            // Reload page to reset state
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
     }
 
     function showHeaderNotification(message, type = 'info') {

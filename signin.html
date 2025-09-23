@@ -496,6 +496,7 @@
 
     <div class="footer" include="./footer.html"></div>
     <script src="./index.js"></script>
+    <script src="./user-auth-manager.js"></script>
     
     <script>
         // Wait for Firebase to be fully loaded
@@ -761,31 +762,34 @@
         
         function checkAndUpdateMembershipData(userUid, userEmail) {
             try {
-                // Check for existing membership data in localStorage
-                const membershipInfo = localStorage.getItem('membership');
-                const eplMembership = localStorage.getItem('eplMembership');
-                
-                let membership = null;
-                
-                // Check both possible storage keys
-                if (membershipInfo) {
-                    membership = JSON.parse(membershipInfo);
-                } else if (eplMembership) {
-                    membership = JSON.parse(eplMembership);
-                }
-                
-                if (membership) {
-                    // Associate membership with current user
-                    membership.userId = userUid;
-                    membership.userEmail = userEmail;
-                    membership.lastUpdated = new Date().toISOString();
+                // Use the new auth manager to handle membership data
+                if (window.userAuthManager) {
+                    window.userAuthManager.loadMembershipData(userUid);
                     
-                    // Store under user-specific key for better organization
-                    const userMembershipKey = `membership_${userUid}`;
-                    localStorage.setItem(userMembershipKey, JSON.stringify(membership));
-                    localStorage.setItem('membership', JSON.stringify(membership)); // Keep for backward compatibility
+                    // Check for existing membership data in localStorage for migration
+                    const membershipInfo = localStorage.getItem('membership');
+                    const eplMembership = localStorage.getItem('eplMembership');
                     
-                    console.log('Membership data associated with user:', membership);
+                    let membership = null;
+                    
+                    // Check both possible storage keys
+                    if (membershipInfo) {
+                        membership = JSON.parse(membershipInfo);
+                    } else if (eplMembership) {
+                        membership = JSON.parse(eplMembership);
+                    }
+                    
+                    if (membership && !window.userAuthManager.membershipData) {
+                        // Migrate old membership data to new system
+                        membership.userId = userUid;
+                        membership.userEmail = userEmail;
+                        membership.lastUpdated = new Date().toISOString();
+                        
+                        window.userAuthManager.membershipData = membership;
+                        window.userAuthManager.saveToStorage('eplhub_membership', membership);
+                        
+                        console.log('Membership data migrated to new system:', membership);
+                    }
                 }
             } catch (error) {
                 console.error('Error checking membership data:', error);

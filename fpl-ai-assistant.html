@@ -1524,7 +1524,19 @@
 
     <div class="header" include="./header.html"></div>
 
-    <div class="container">
+    <div class="container" data-premium="true">
+        <!-- Premium Access Check -->
+        <div id="premium-access-check" style="display:none;">
+            <div style="background: linear-gradient(135deg, #37003c, #6f42c1); color: white; padding: 40px; border-radius: 20px; text-align: center; margin: 20px 0;">
+                <h2 style="color: white; margin-bottom: 20px;">🔒 Premium Feature</h2>
+                <p style="font-size: 1.2em; margin-bottom: 30px;">The FPL AI Assistant is a premium feature available to our members.</p>
+                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                    <a href="/signin.html" style="background: white; color: #37003c; padding: 15px 30px; border-radius: 25px; text-decoration: none; font-weight: bold;">Sign In</a>
+                    <a href="/membership.html" style="background: rgba(255,255,255,0.2); color: white; padding: 15px 30px; border-radius: 25px; text-decoration: none; font-weight: bold; border: 2px solid white;">View Plans</a>
+                </div>
+            </div>
+        </div>
+        
         <!-- AI Header -->
         <div class="ai-header">
             <h1>
@@ -1892,7 +1904,56 @@
     <div class="footer" include="./footer.html"></div>
 
     <script src="index.js"></script>
+    <script src="user-auth-manager.js"></script>
     <script>
+        // Check premium access
+        function checkPremiumAccess() {
+            if (!window.userAuthManager) {
+                // Auth manager not loaded yet, wait
+                setTimeout(checkPremiumAccess, 100);
+                return;
+            }
+            
+            const hasPremiumAccess = window.userAuthManager.hasToolAccess('fpl-ai-assistant');
+            const premiumCheckDiv = document.getElementById('premium-access-check');
+            const mainContent = document.querySelector('.ai-header').parentElement;
+            
+            if (!hasPremiumAccess) {
+                // Show premium access required message
+                if (premiumCheckDiv) {
+                    premiumCheckDiv.style.display = 'block';
+                }
+                // Hide main content
+                const contentToHide = document.querySelectorAll('.ai-header, .assistant-layout, .ai-features, .quick-actions, .fpl-insights-dashboard');
+                contentToHide.forEach(el => {
+                    if (el) el.style.display = 'none';
+                });
+            } else {
+                // User has premium access
+                if (premiumCheckDiv) {
+                    premiumCheckDiv.style.display = 'none';
+                }
+                // Show premium badge if user is premium
+                if (window.userAuthManager.isPremiumActive()) {
+                    const plan = window.userAuthManager.getCurrentPlan();
+                    const badge = document.createElement('span');
+                    badge.className = 'user-premium-badge';
+                    badge.innerHTML = `⭐ ${plan.toUpperCase()} MEMBER`;
+                    badge.style.cssText = 'background: gold; color: #37003c; padding: 5px 15px; border-radius: 20px; margin-left: 10px; font-size: 0.8em; font-weight: bold;';
+                    const h1 = document.querySelector('.ai-header h1');
+                    if (h1 && !h1.querySelector('.user-premium-badge')) {
+                        h1.appendChild(badge);
+                    }
+                }
+            }
+        }
+        
+        // Check on load
+        document.addEventListener('DOMContentLoaded', checkPremiumAccess);
+        
+        // Also listen for premium features enabled event
+        window.addEventListener('premium-features-enabled', checkPremiumAccess);
+        
         // Initialize FPL AI Assistant Pro
         let conversationHistory = [];
         let messageCount = 0;
