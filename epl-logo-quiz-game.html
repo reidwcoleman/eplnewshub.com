@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Test your Premier League knowledge with the EPL Logo Quiz Game! Identify blurred team logos and earn points. Perfect for football fans.">
+    <meta name="keywords" content="EPL quiz, Premier League game, football quiz, team logos, EPL trivia">
+    <title>EPL Logo Quiz Game - Test Your Premier League Knowledge | EPL News Hub</title>
+    <link rel="icon" type="image/png" href="/eplnewshubnewlogo.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            color: #37003c;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #37003c;
+        }
+        
+        .logo-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 30px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .team-logo {
+            max-width: 200px;
+            max-height: 200px;
+            transition: filter 0.3s ease;
+        }
+        
+        .logo-blurred {
+            filter: blur(15px);
+        }
+        
+        .logo-revealed {
+            filter: blur(0);
+            animation: reveal 0.5s ease;
+        }
+        
+        @keyframes reveal {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .option-button {
+            padding: 15px;
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option-button:hover:not(:disabled) {
+            background: #f5f5f5;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #37003c;
+        }
+        
+        .option-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .option-button.correct {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            border-color: #4caf50;
+            animation: correctPulse 0.5s ease;
+        }
+        
+        .option-button.incorrect {
+            background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+            color: white;
+            border-color: #f44336;
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .hint-button {
+            background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 0 auto 20px;
+            display: block;
+            transition: all 0.3s ease;
+        }
+        
+        .hint-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,165,0,0.3);
+        }
+        
+        .hint-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .hint-text {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 20px;
+            min-height: 24px;
+        }
+        
+        .next-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+        
+        .next-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+        }
+        
+        .next-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .game-over {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
+        }
+        
+        .game-over h2 {
+            color: #37003c;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        
+        .final-score {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #37003c;
+            margin: 20px 0;
+        }
+        
+        .play-again-button {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .play-again-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76,175,80,0.3);
+        }
+        
+        .streak-indicator {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ff6b00;
+            min-height: 30px;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-link a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        @media (max-width: 640px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .logo-container {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .team-logo {
+                max-width: 150px;
+                max-height: 150px;
+            }
+            
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>⚽ EPL Logo Quiz</h1>
+        
+        <div id="gameArea">
+            <div class="game-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Score</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Question</div>
+                    <div class="stat-value" id="questionNumber">1/10</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Streak</div>
+                    <div class="stat-value" id="streak">0</div>
+                </div>
+            </div>
+            
+            <div class="streak-indicator" id="streakIndicator"></div>
+            
+            <div class="logo-container">
+                <img id="teamLogo" class="team-logo logo-blurred" src="" alt="Team Logo">
+            </div>
+            
+            <button id="hintButton" class="hint-button" onclick="useHint()">Use Hint (-5 points)</button>
+            <div class="hint-text" id="hintText"></div>
+            
+            <div class="options-container" id="optionsContainer">
+                <!-- Options will be dynamically generated -->
+            </div>
+            
+            <button id="nextButton" class="next-button" onclick="nextQuestion()" style="display: none;">Next Question →</button>
+        </div>
+        
+        <div id="gameOverScreen" style="display: none;">
+            <div class="game-over">
+                <h2>🏆 Game Complete!</h2>
+                <div class="final-score" id="finalScore">0</div>
+                <p id="performanceMessage"></p>
+                <button class="play-again-button" onclick="resetGame()">Play Again</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="back-link">
+        <a href="/">← Back to EPL News Hub</a>
+    </div>
+    
+    <script>
+        // Game data - Premier League teams
+        const teams = [
+            { 
+                name: "Arsenal", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg",
+                hint: "The Gunners, North London club",
+                stadium: "Emirates Stadium"
+            },
+            { 
+                name: "Aston Villa", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/thumb/9/9a/Aston_Villa_FC_new_crest.svg/150px-Aston_Villa_FC_new_crest.svg.png",
+                hint: "Birmingham-based club, claret and blue",
+                stadium: "Villa Park"
+            },
+            { 
+                name: "Bournemouth", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/e/e5/AFC_Bournemouth_%282013%29.svg",
+                hint: "The Cherries, South coast club",
+                stadium: "Vitality Stadium"
+            },
+            { 
+                name: "Brentford", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/2/2a/Brentford_FC_crest.svg",
+                hint: "The Bees, West London club",
+                stadium: "Brentford Community Stadium"
+            },
+            { 
+                name: "Brighton", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/f/fd/Brighton_%26_Hove_Albion_logo.svg",
+                hint: "The Seagulls, South coast",
+                stadium: "Amex Stadium"
+            },
+            { 
+                name: "Burnley", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/6/6d/Burnley_FC_Logo.svg",
+                hint: "The Clarets, Lancashire club",
+                stadium: "Turf Moor"
+            },
+            { 
+                name: "Chelsea", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg",
+                hint: "The Blues, West London powerhouse",
+                stadium: "Stamford Bridge"
+            },
+            { 
+                name: "Crystal Palace", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/a/a2/Crystal_Palace_FC_logo_%282022%29.svg",
+                hint: "The Eagles, South London club",
+                stadium: "Selhurst Park"
+            },
+            { 
+                name: "Everton", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/7/7c/Everton_FC_logo.svg",
+                hint: "The Toffees, Merseyside club",
+                stadium: "Goodison Park"
+            },
+            { 
+                name: "Fulham", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Fulham_FC_%28shield%29.svg",
+                hint: "The Cottagers, by the Thames",
+                stadium: "Craven Cottage"
+            },
+            { 
+                name: "Leeds United", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/5/54/Leeds_United_F.C._logo.svg",
+                hint: "The Whites, Yorkshire club",
+                stadium: "Elland Road"
+            },
+            { 
+                name: "Leicester City", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/2/2d/Leicester_City_crest.svg",
+                hint: "The Foxes, 2016 champions",
+                stadium: "King Power Stadium"
+            },
+            { 
+                name: "Liverpool", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg",
+                hint: "The Reds, Anfield legends",
+                stadium: "Anfield"
+            },
+            { 
+                name: "Manchester City", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg",
+                hint: "The Citizens, Sky Blues",
+                stadium: "Etihad Stadium"
+            },
+            { 
+                name: "Manchester United", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg",
+                hint: "The Red Devils, Old Trafford",
+                stadium: "Old Trafford"
+            },
+            { 
+                name: "Newcastle United", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/5/56/Newcastle_United_Logo.svg",
+                hint: "The Magpies, Northeast club",
+                stadium: "St James' Park"
+            },
+            { 
+                name: "Nottingham Forest", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/e/e5/Nottingham_Forest_F.C._logo.svg",
+                hint: "Two-time European champions",
+                stadium: "City Ground"
+            },
+            { 
+                name: "Sheffield United", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/9/9c/Sheffield_United_FC_logo.svg",
+                hint: "The Blades, Yorkshire club",
+                stadium: "Bramall Lane"
+            },
+            { 
+                name: "Tottenham", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/b/b4/Tottenham_Hotspur.svg",
+                hint: "Spurs, North London rivals",
+                stadium: "Tottenham Hotspur Stadium"
+            },
+            { 
+                name: "West Ham", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/c/c2/West_Ham_United_FC_logo.svg",
+                hint: "The Hammers, East London",
+                stadium: "London Stadium"
+            },
+            { 
+                name: "Wolves", 
+                logo: "https://upload.wikimedia.org/wikipedia/en/f/fc/Wolverhampton_Wanderers.svg",
+                hint: "Wanderers, Black Country club",
+                stadium: "Molineux"
+            }
+        ];
+        
+        // Game state
+        let currentTeam = null;
+        let score = 0;
+        let questionCount = 0;
+        let maxQuestions = 10;
+        let correctAnswers = 0;
+        let streak = 0;
+        let maxStreak = 0;
+        let hintUsed = false;
+        let answered = false;
+        let usedTeams = [];
+        
+        // Initialize game
+        function initGame() {
+            loadQuestion();
+        }
+        
+        function loadQuestion() {
+            if (questionCount >= maxQuestions) {
+                endGame();
+                return;
+            }
+            
+            // Reset state
+            answered = false;
+            hintUsed = false;
+            document.getElementById('hintText').textContent = '';
+            document.getElementById('hintButton').disabled = false;
+            document.getElementById('nextButton').style.display = 'none';
+            document.getElementById('streakIndicator').textContent = '';
+            
+            // Get random team that hasn't been used
+            let availableTeams = teams.filter(team => !usedTeams.includes(team.name));
+            if (availableTeams.length === 0) {
+                usedTeams = [];
+                availableTeams = teams;
+            }
+            
+            currentTeam = availableTeams[Math.floor(Math.random() * availableTeams.length)];
+            usedTeams.push(currentTeam.name);
+            
+            questionCount++;
+            
+            // Update UI
+            document.getElementById('questionNumber').textContent = `${questionCount}/${maxQuestions}`;
+            document.getElementById('teamLogo').src = currentTeam.logo;
+            document.getElementById('teamLogo').className = 'team-logo logo-blurred';
+            
+            // Generate options
+            generateOptions();
+        }
+        
+        function generateOptions() {
+            const options = [currentTeam];
+            const availableOptions = teams.filter(t => t.name !== currentTeam.name);
+            
+            // Add 3 random wrong options
+            while (options.length < 4) {
+                const randomTeam = availableOptions[Math.floor(Math.random() * availableOptions.length)];
+                if (!options.find(t => t.name === randomTeam.name)) {
+                    options.push(randomTeam);
+                }
+            }
+            
+            // Shuffle options
+            options.sort(() => Math.random() - 0.5);
+            
+            // Create buttons
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            
+            options.forEach(team => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = team.name;
+                button.onclick = () => checkAnswer(team.name, button);
+                container.appendChild(button);
+            });
+        }
+        
+        function checkAnswer(teamName, button) {
+            if (answered) return;
+            answered = true;
+            
+            const allButtons = document.querySelectorAll('.option-button');
+            allButtons.forEach(btn => btn.disabled = true);
+            
+            if (teamName === currentTeam.name) {
+                // Correct answer
+                button.classList.add('correct');
+                document.getElementById('teamLogo').className = 'team-logo logo-revealed';
+                
+                let points = hintUsed ? 5 : 10;
+                score += points;
+                correctAnswers++;
+                streak++;
+                
+                if (streak > maxStreak) maxStreak = streak;
+                
+                if (streak >= 3) {
+                    document.getElementById('streakIndicator').textContent = `🔥 ${streak} in a row! +5 bonus points!`;
+                    score += 5;
+                }
+                
+                document.getElementById('score').textContent = score;
+                document.getElementById('streak').textContent = streak;
+            } else {
+                // Wrong answer
+                button.classList.add('incorrect');
+                streak = 0;
+                document.getElementById('streak').textContent = streak;
+                
+                // Show correct answer
+                allButtons.forEach(btn => {
+                    if (btn.textContent === currentTeam.name) {
+                        btn.classList.add('correct');
+                    }
+                });
+                
+                document.getElementById('teamLogo').className = 'team-logo logo-revealed';
+            }
+            
+            document.getElementById('hintButton').disabled = true;
+            document.getElementById('nextButton').style.display = 'block';
+        }
+        
+        function useHint() {
+            if (hintUsed || answered) return;
+            
+            hintUsed = true;
+            score = Math.max(0, score - 5);
+            document.getElementById('score').textContent = score;
+            document.getElementById('hintText').textContent = `Hint: ${currentTeam.hint}`;
+            document.getElementById('hintButton').disabled = true;
+            
+            // Make logo slightly less blurred
+            document.getElementById('teamLogo').style.filter = 'blur(8px)';
+        }
+        
+        function nextQuestion() {
+            loadQuestion();
+        }
+        
+        function endGame() {
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'block';
+            
+            document.getElementById('finalScore').textContent = score;
+            
+            let message = '';
+            const percentage = (correctAnswers / maxQuestions) * 100;
+            
+            if (percentage === 100) {
+                message = "🏆 Perfect score! You're a true EPL expert!";
+            } else if (percentage >= 80) {
+                message = "⭐ Excellent! You really know your Premier League!";
+            } else if (percentage >= 60) {
+                message = "👍 Good job! You've got solid EPL knowledge!";
+            } else if (percentage >= 40) {
+                message = "💪 Not bad! Keep following EPL News Hub to improve!";
+            } else {
+                message = "📚 Keep learning! Check out more EPL content on our site!";
+            }
+            
+            message += `<br><br>You got ${correctAnswers}/${maxQuestions} correct`;
+            if (maxStreak > 2) {
+                message += `<br>Best streak: ${maxStreak} in a row!`;
+            }
+            
+            document.getElementById('performanceMessage').innerHTML = message;
+        }
+        
+        function resetGame() {
+            score = 0;
+            questionCount = 0;
+            correctAnswers = 0;
+            streak = 0;
+            maxStreak = 0;
+            usedTeams = [];
+            
+            document.getElementById('score').textContent = '0';
+            document.getElementById('streak').textContent = '0';
+            document.getElementById('gameArea').style.display = 'block';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            
+            loadQuestion();
+        }
+        
+        // Start game when page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
