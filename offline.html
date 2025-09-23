@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - EPL News Hub</title>
+    <link rel="icon" href="/eplnewshubnewlogo.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #37003c 0%, #667eea 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .offline-container {
+            background: white;
+            border-radius: 24px;
+            padding: 60px 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .offline-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #fef5e7 0%, #fdf3e5 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        
+        h1 {
+            color: #1a1a2e;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+        
+        p {
+            color: #4a5568;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+        
+        .offline-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #4a5568;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #cbd5e1;
+        }
+        
+        .cached-articles {
+            margin-top: 48px;
+            padding-top: 48px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .cached-articles h2 {
+            font-size: 20px;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .cached-list {
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .cached-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            border-radius: 8px;
+            color: #4a5568;
+            text-decoration: none;
+            display: block;
+            transition: all 0.2s;
+        }
+        
+        .cached-item:hover {
+            background: #f3f4f6;
+            transform: translateX(4px);
+        }
+        
+        @media (max-width: 480px) {
+            .offline-container {
+                padding: 40px 24px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">
+            ⚡
+        </div>
+        <h1>You're Offline</h1>
+        <p>It looks like you've lost your internet connection. Don't worry, you can still access cached content or try reconnecting.</p>
+        
+        <div class="offline-actions">
+            <button class="btn btn-primary" onclick="location.reload()">
+                Try Again
+            </button>
+            <button class="btn btn-secondary" onclick="history.back()">
+                Go Back
+            </button>
+        </div>
+        
+        <div class="cached-articles" id="cachedArticles" style="display: none;">
+            <h2>Available Offline</h2>
+            <div class="cached-list" id="cachedList"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Check for cached content
+        if ('caches' in window) {
+            caches.keys().then(cacheNames => {
+                if (cacheNames.length > 0) {
+                    document.getElementById('cachedArticles').style.display = 'block';
+                    
+                    // Get cached URLs (simplified for demo)
+                    const cachedUrls = [
+                        { title: 'Homepage', url: '/' },
+                        { title: 'FPL Tools', url: '/fpl-ai-assistant.html' },
+                        { title: 'Transfer Hub', url: '/transfer-hub.html' }
+                    ];
+                    
+                    const listHTML = cachedUrls.map(item => 
+                        `<a href="${item.url}" class="cached-item">${item.title}</a>`
+                    ).join('');
+                    
+                    document.getElementById('cachedList').innerHTML = listHTML;
+                }
+            });
+        }
+        
+        // Listen for online event
+        window.addEventListener('online', () => {
+            location.reload();
+        });
+        
+        // Periodic connectivity check
+        setInterval(() => {
+            fetch('/ping', { method: 'HEAD' })
+                .then(() => location.reload())
+                .catch(() => console.log('Still offline'));
+        }, 5000);
+    </script>
+</body>
+</html>
