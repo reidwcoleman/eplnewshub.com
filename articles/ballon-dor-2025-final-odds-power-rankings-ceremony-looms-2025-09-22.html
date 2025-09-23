@@ -76,6 +76,16 @@
 <body>
     <div class="header" include="../header.html"></div>
     
+    <!-- Floating View Counter -->
+    <div id="floating-view-counter" class="floating-view-counter" style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(102, 126, 234, 0.2); border-radius: 20px; padding: 8px 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); z-index: 100; display: none; transition: all 0.3s ease;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 14px; color: #667eea;">👁️</span>
+            <span style="font-size: 13px; color: #4a5568; font-weight: 500;">
+                <span class="view-count-number" style="color: #667eea; font-weight: 700;">0</span> views
+            </span>
+        </div>
+    </div>
+    
     <!-- Main Content Area -->
     <main class="main-content">
         <article class="modern-article">
@@ -98,6 +108,11 @@
                     <div class="byline-item">
                         <span>⏱️</span>
                         <span id="read-time">10 min read</span>
+                    </div>
+                    <div class="byline-item view-counter-container" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px;">
+                        <span class="view-counter-icon">👁️</span>
+                        <span class="view-count-number" style="font-weight: 600; color: #1e293b;">0</span>
+                        <span>views</span>
                     </div>
                 </div>
             </header>
@@ -265,6 +280,16 @@
                 </div>
                 
                 <!-- Article Ad Include -->
+                <!-- Premium FPL In-Article Ad -->
+                <div style="background: linear-gradient(135deg, #f0f4ff 0%, #e8edff 100%); border-radius: 20px; padding: 30px; margin: 40px 0; border: 2px solid #667eea;">
+                    <h3 style="color: #667eea; font-size: 1.5rem; margin-bottom: 15px; font-weight: 700;">🚀 Level Up Your FPL Game</h3>
+                    <p style="color: #4a5568; font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;">Get instant transfer suggestions, captain picks, and differential tips from our AI-powered FPL Assistant. Join 10,000+ managers already gaining the edge!</p>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <a href="/fpl-ai-assistant.html" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; display: inline-block; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Try AI Assistant →</a>
+                        <a href="/fpl-player-analyzer.html" style="background: white; color: #667eea; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; border: 2px solid #667eea; display: inline-block;">Player Analyzer</a>
+                    </div>
+                </div>
+                
                 <div include="../article-ad.html"></div>
                 
                 <!-- In-Article AdSense Ad -->
@@ -562,9 +587,50 @@
     <script src="../article-enhancer.js" defer></script>
     <script src="../read-next.js"></script>
     <script src="../suggested-articles.js"></script>
+    <script src="../view-counter.js" defer></script>
     
     <!-- AdSense Lazy Load -->
     <script src="../adsense-lazy-load.js" defer></script>
+    
+    <!-- Premium FPL Popup Ad -->
+    <div id="premium-fpl-popup" class="premium-fpl-ad" style="display: none; position: fixed; bottom: 20px; right: 20px; width: 320px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); z-index: 1000; color: white;">
+        <button class="close-btn" onclick="this.parentElement.style.display='none'" style="position: absolute; top: 10px; right: 10px; background: rgba(255, 255, 255, 0.2); border: none; color: white; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 16px;">×</button>
+        <h3 style="margin: 0 0 10px 0; font-size: 1.2rem; font-weight: 700;">🚀 Transform Your FPL Season</h3>
+        <p style="margin: 0 0 15px 0; font-size: 0.95rem; opacity: 0.95;">AI-powered insights, differential picks, and captain analysis - all for less than a coffee!</p>
+        <button class="cta-button" onclick="window.location.href='/fpl-premium-hub.html'" style="background: white; color: #667eea; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; width: 100%; transition: transform 0.2s;">Unlock Premium Tools →</button>
+    </div>
+    
+    <script>
+        // Show premium FPL popup after scrolling 30%
+        let popupShown = false;
+        window.addEventListener('scroll', () => {
+            if (!popupShown) {
+                const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+                if (scrollPercent > 30) {
+                    const popup = document.getElementById('premium-fpl-popup');
+                    if (popup) {
+                        popup.style.display = 'block';
+                        popupShown = true;
+                        
+                        // Auto-hide after 10 seconds
+                        setTimeout(() => {
+                            popup.style.display = 'none';
+                        }, 10000);
+                    }
+                }
+            }
+        });
+        
+        // Show floating view counter
+        document.addEventListener('DOMContentLoaded', function() {
+            const floatingCounter = document.getElementById('floating-view-counter');
+            if (floatingCounter) {
+                setTimeout(() => {
+                    floatingCounter.style.display = 'block';
+                }, 500);
+            }
+        });
+    </script>
     
     <!-- White Background and Enhanced Text Styling -->
     <style>
