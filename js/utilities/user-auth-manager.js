@@ -161,7 +161,7 @@ class UserAuthManager {
                     },
                     stats: {
                         articlesRead: 0,
-                        predictionsM ade: 0,
+                        predictionsMade: 0,
                         toolsUsed: [],
                         lastVisit: new Date().toISOString()
                     },

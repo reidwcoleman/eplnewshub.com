@@ -20,7 +20,6 @@
     <meta name="author" content="EPL News Hub">
     <title>Premium Membership | EPL News Hub - Exclusive Premier League Content</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="/mobile-master-optimize.css">
     <link rel="apple-touch-icon" href="/eplnewshub_logo.png">
     <link rel="icon" type="image/png" href="/eplnewshub_logo.png">
     
@@ -1476,30 +1475,36 @@
                     }
                 }
                 
-                // Proceed with actual Stripe checkout for valid price IDs
-                const checkoutOptions = {
-                    lineItems: [{
-                        price: finalPriceId,
-                        quantity: 1,
-                    }],
-                    mode: 'subscription',
-                    successUrl: window.location.protocol + '//' + window.location.host + `/membership-success.html?plan=${planType}&email=${encodeURIComponent(window.auth.currentUser.email)}&session_id={CHECKOUT_SESSION_ID}`,
-                    cancelUrl: window.location.protocol + '//' + window.location.host + '/membership.html',
-                    customerEmail: window.auth.currentUser.email,
-                    clientReferenceId: window.auth.currentUser.uid // Firebase user ID for tracking
-                };
-                
-                console.log('Checkout options:', checkoutOptions);
-                
-                if (stripeConfig.isDevelopment && window.devConfig) {
-                    window.devConfig.log('Redirecting to Stripe Checkout:', checkoutOptions);
+                // Use Netlify function to create Stripe Checkout Session
+                // This bypasses domain whitelisting issues
+                console.log('Creating checkout session via Netlify function...');
+
+                const response = await fetch('/.netlify/functions/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        priceId: finalPriceId,
+                        customerEmail: window.auth.currentUser.email,
+                        planType: planType,
+                        userId: window.auth.currentUser.uid
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to create checkout session');
                 }
-                
-                const result = await stripe.redirectToCheckout(checkoutOptions);
-                
-                if (result.error) {
-                    console.error('Stripe checkout error:', result.error);
-                    alert('Payment processing failed: ' + result.error.message);
+
+                const sessionData = await response.json();
+
+                if (sessionData.success && sessionData.url) {
+                    console.log('Redirecting to Stripe Checkout:', sessionData.url);
+                    // Redirect to Stripe Checkout
+                    window.location.href = sessionData.url;
+                } else {
+                    throw new Error('Invalid session response');
                 }
                 
             } catch (error) {
