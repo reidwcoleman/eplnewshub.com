@@ -1,316 +1,533 @@
-# EPL News Hub - Codebase Structure
+# EPL News Hub - Enhanced Codebase Structure
 
 Last Updated: October 5, 2025
 
-## Overview
+## 📋 Quick Navigation
 
-This document describes the organized file structure of the EPL News Hub codebase. The codebase has been reorganized for better maintainability, scalability, and developer experience.
+- [Directory Overview](#directory-overview)
+- [JavaScript Organization](#javascript-organization)
+- [Pages Organization](#pages-organization)
+- [Components Organization](#components-organization)
+- [Images Organization](#images-organization)
+- [CSS Organization](#css-organization)
+- [File Reference Patterns](#file-reference-patterns)
+- [Adding New Files](#adding-new-files)
 
-## Directory Structure
+---
+
+## 📁 Directory Overview
 
 ```
 eplnewshub.com/
-├── articles/              # All news articles
-├── components/            # Reusable HTML components
-├── css/                   # Stylesheets
-├── docs/                  # Documentation files
-├── config/                # Configuration files
-├── images/                # Image assets
-├── js/                    # JavaScript files
-├── pages/                 # Tool pages and features
-├── scripts/               # Shell/Python scripts for automation
-├── public/                # Public assets
-├── dist/                  # Distribution/build files
-├── src/                   # Source files (if applicable)
-├── node_modules/          # npm dependencies
-├── index.html             # Main homepage
-├── index.js               # HTML component injection system
-├── server.js              # Node.js server (optional)
-└── scripts.js             # Core JavaScript functionality
+│
+├── 📂 articles/                    # News articles
+│   └── *.html                      # Individual article files
+│
+├── 📂 components/                  # Reusable HTML components
+│   ├── 📂 layout/                  # Header, footer, headlines
+│   ├── 📂 ads/                     # Advertisement components
+│   └── 📂 articles/                # Article-specific components
+│
+├── 📂 css/                         # Stylesheets
+│   ├── styles.css                  # Main stylesheet
+│   ├── mobile-responsive.css       # Mobile styles
+│   ├── index.css                   # Homepage styles
+│   ├── enhanced-homepage.css       # Enhanced homepage
+│   ├── enhanced-homepage-v2.css    # Homepage v2
+│   └── featured-article-cards.css  # Article cards
+│
+├── 📂 js/                          # JavaScript files
+│   ├── 📂 core/                    # Core functionality
+│   ├── 📂 fpl/                     # FPL-specific features
+│   ├── 📂 features/                # Feature modules
+│   ├── 📂 services/                # Service/API layers
+│   └── 📂 utilities/               # Utility functions
+│
+├── 📂 pages/                       # Tool pages and features
+│   ├── 📂 fpl-tools/               # FPL analysis tools
+│   ├── 📂 admin/                   # Admin/account pages
+│   └── 📂 news/                    # News-related pages
+│
+├── 📂 images/                      # Image assets
+│   ├── 📂 logos/                   # Site logos & branding
+│   ├── 📂 players/                 # Player images
+│   ├── 📂 articles/                # Article featured images
+│   └── 📂 misc/                    # Miscellaneous images
+│
+├── 📂 scripts/                     # Automation scripts
+│   ├── *.sh                        # Shell scripts
+│   └── *.py                        # Python scripts
+│
+├── 📂 docs/                        # Documentation
+│   ├── CODEBASE_STRUCTURE.md       # This file
+│   ├── CLAUDE.md                   # Claude Code guidance
+│   ├── *.md                        # Other documentation
+│   ├── *.json                      # Configuration files
+│   └── ads.txt, CNAME, .htaccess   # Site config
+│
+├── 📂 config/                      # Environment configuration
+│   └── .env.example                # Environment template
+│
+├── 📄 index.html                   # Main homepage
+├── 📄 index.js                     # Component injection system
+├── 📄 server.js                    # Node.js server (optional)
+└── 📄 scripts.js                   # Core JavaScript
+
 ```
 
-## Detailed Directory Breakdown
+---
 
-### `/articles/`
-Contains all news article HTML files.
+## 🔧 JavaScript Organization
 
-**Naming Convention:** `title-with-hyphens-YYYY-MM-DD.html`
+### `/js/core/` - Core Functionality
+**Purpose:** Essential scripts that power the site's basic functionality
 
-**Examples:**
-- `ballon-dor-2025-final-odds-power-rankings-ceremony-looms-2025-09-22.html`
-- `fpl-gameweek-4-preview-2025-26-september-13.html`
+```
+js/core/
+├── fast-loader.js              # Critical performance loader
+├── index-fast.js               # Fast homepage loading
+├── mobile-nav.js               # Mobile navigation
+├── prevent-reload.js           # Prevent unwanted reloads
+└── universal-fast-load.js      # Universal fast loading
+```
 
-### `/components/`
-Reusable HTML components loaded via the include system.
+**When to use:** Core functionality needed site-wide
 
-**Key Files:**
-- `header.html` - Site header with navigation
-- `footer.html` - Site footer
-- `main_headline.html` - Featured article component
-- `main_subheadline*.html` - Secondary article components
-- `fpl-discount-banner.html` - Promotional banner
-- `fpl-tools-*.html` - FPL tool advertisement components
-- `article-ad.html` - Article page advertisements
-- `homepage-ad.html` - Homepage advertisements
-- `article-sidebar-ads.html` - Sidebar advertisement components
+---
 
-### `/css/`
-All stylesheet files.
+### `/js/fpl/` - Fantasy Premier League
+**Purpose:** All FPL-related features and tools
 
-**Key Files:**
-- `styles.css` - Main stylesheet (NYT-inspired article typography)
-- `mobile-responsive.css` - Mobile-first responsive design
-- `index.css` - Homepage-specific styles
-- `enhanced-homepage.css` - Enhanced homepage design
-- `enhanced-homepage-v2.css` - Homepage v2 styles
-- `featured-article-cards.css` - Article card components
+```
+js/fpl/
+├── fpl-api-optimized.js        # FPL API integration
+├── fpl-data-service.js         # Data management
+├── fpl-data-service-enhanced.js # Enhanced data service
+├── fpl-live-data-service.js    # Live FPL data
+├── fpl-auth-system.js          # FPL authentication
+├── fpl-account-integration.js  # Account features
+├── fpl-account-ui.js           # Account UI
+├── fpl-predictions-system.js   # Predictions engine
+├── fpl-predictions-real.js     # Real predictions
+├── fpl-predictions-ui-ultra.js # Predictions UI
+├── fpl-predictions-ultra.js    # Ultra predictions
+├── fpl-ai-*.js                 # AI-powered features
+├── fpl-player-analyzer-ultra.js # Player analysis
+├── fpl-player-visualizations.js # Data visualization
+├── fpl-realtime-data.js        # Real-time data
+├── fpl-cache-service.js        # Caching service
+└── fpl-analyzer-performance.js # Performance analytics
+```
 
-### `/js/`
-All JavaScript files.
+**When to use:** FPL tool pages and features
 
-**Core Files:**
-- `fast-loader.js` - Critical performance loader
-- `mobile-nav.js` - Mobile navigation functionality
-- `content-discovery.js` - Content discovery features
-- `engagement-maximizer.js` - User engagement optimization
-- `seo-meta-enhancer.js` - SEO enhancements
-- `viral-share-booster.js` - Social sharing features
-- `performance-optimizer.js` - Performance optimization
-- `prevent-reload.js` - Prevent unwanted page reloads
-- `index-fast.js` - Fast homepage loading
-- `enhanced-homepage-v2.js` - Homepage functionality
-- `read-next.js` - Related articles feature
-- `premium-access-control.js` - Premium feature access
-- `ai-assistant-sidebar.js` - AI assistant functionality
+---
 
-**FPL-Specific:**
-- `fpl-api-optimized.js` - FPL API integration
-- `fpl-data-service.js` - FPL data management
-- `fpl-data-service-enhanced.js` - Enhanced data service
-- `fpl-live-data-service.js` - Live FPL data
-- `fpl-auth-system.js` - FPL authentication
-- `fpl-account-integration.js` - Account integration
-- `fpl-predictions-system.js` - Predictions engine
-- `fpl-ai-*.js` - AI-powered FPL features
+### `/js/features/` - Feature Modules
+**Purpose:** Specific features and enhancements
 
-**Utilities:**
-- `article-metadata-extractor.js` - Extract article metadata
-- `article-enhancer.js` - Article enhancement features
-- `article-freshness.js` - Keep articles fresh
-- `grok-article-generator.js` - Article generation with Grok AI
+```
+js/features/
+├── seo-meta-enhancer.js        # SEO optimization
+├── viral-share-booster.js      # Social sharing
+├── engagement-maximizer.js     # User engagement
+├── performance-optimizer.js    # Performance features
+├── content-discovery.js        # Content discovery
+├── article-enhancer.js         # Article enhancements
+├── article-freshness.js        # Keep articles fresh
+├── article-metadata-extractor.js # Extract metadata
+├── article-side-ads.js         # Article advertisements
+├── article-sidebar-injector.js # Sidebar injection
+├── read-next.js                # Related articles
+└── suggested-articles.js       # Article suggestions
+```
 
-### `/pages/`
-Standalone tool pages and features.
+**When to use:** Feature-specific enhancements
 
-**Key Pages:**
-- `fpl-player-analyzer.html` - Player analysis tool
-- `fpl-player-analyzer-ultra.html` - Advanced player analyzer
-- `fpl-ai-assistant.html` - AI assistant for FPL
-- `fpl-premium-hub.html` - Premium FPL features hub
-- `player-predictor.html` - Player performance predictor
-- `team-analyzer.html` - Team analysis tool
-- `transfer-simulator-pro.html` - Transfer simulation tool
-- `budget-optimizer.html` - FPL budget optimizer
-- `fixture-tracker.html` - Fixture difficulty tracker
-- `fixture-tracker-pro.html` - Advanced fixture tracker
-- `fixture-analyzer-pro.html` - Fixture analysis tool
-- `player-data.html` - Player data viewer
-- `fantasy.html` - Fantasy game page
-- `transfer-hub.html` - Transfer news hub
-- `articles.html` - Articles listing page
-- `epl-table.html` - Premier League standings
+---
 
-### `/images/`
-All image assets (PNG, JPG, JPEG, WEBP, AVIF, JFIF).
+### `/js/services/` - Service Layer
+**Purpose:** API services, authentication, and backend communication
 
-**Organization:**
-- Player images
-- Match images
-- Logo/branding assets
-- Article featured images
-- Background images
+```
+js/services/
+├── auth-service.js             # Authentication service
+├── data-server.js              # Data server
+├── dev-server.js               # Development server
+├── comments-server.js          # Comments system
+├── fixture-difficulty-service.js # Fixture difficulty
+└── *-service.js                # Other services
+```
 
-### `/scripts/`
-Shell and Python scripts for automation and deployment.
+**When to use:** Backend integration and API calls
 
-**Key Scripts:**
-- `add-ads-to-articles.sh` - Add advertisements to articles
-- `add-auth-to-premium-tools.sh` - Add authentication
-- `add-read-next.sh` - Add related articles feature
-- `deploy-article-template.sh` - Deploy article templates
-- `deploy-fast-homepage.sh` - Deploy optimized homepage
-- `deploy-optimized.sh` - General deployment
-- `fix-*.sh` - Various fix scripts
-- `generate-article.sh` - Generate new articles
-- `cleanup-animations.py` - Clean up animations
-- `final-cleanup.py` - Final cleanup tasks
+---
 
-### `/docs/`
-Documentation and configuration files.
+### `/js/utilities/` - Utility Functions
+**Purpose:** Helper functions and utilities
 
-**Key Files:**
-- `CODEBASE_STRUCTURE.md` - This file
-- `CLAUDE.md` - Project guidance for Claude Code
-- `ARTICLE_NAMING_GUIDE.md` - Article naming conventions
-- `ARTICLE_TEMPLATE_UPGRADE.md` - Template upgrade guide
-- `DEVELOPMENT.md` - Development guidelines
-- `FIREBASE_SETUP.md` - Firebase integration
-- `GOOGLE_SETUP.md` - Google services setup
-- `GROK-INTEGRATION.md` - Grok AI integration
-- `HF_TOKEN_SETUP.md` - Hugging Face token setup
-- `EPL_NEWS_HUB_MOBILE_APP_PLAN.md` - Mobile app plan
-- `ads.txt` - AdSense ads configuration
-- `CNAME` - Custom domain configuration
-- `.htaccess` - Apache server configuration
-- `capacitor.config.json` - Capacitor mobile app config
+```
+js/utilities/
+├── enhanced-homepage-v2.js     # Homepage utilities
+├── premium-access-control.js   # Access control
+├── ai-assistant-sidebar.js     # AI assistant
+├── grok-article-generator.js   # Article generation
+├── gameweek-planner.js         # Gameweek planning
+├── budget-optimizer-enhanced.js # Budget optimization
+└── *.js                        # Other utilities
+```
 
-### `/config/`
-Configuration files.
+**When to use:** Reusable helper functions
 
-**Key Files:**
-- `.env.example` - Environment variables template
-- Various JSON configuration files
+---
 
-## Core Files (Root Directory)
+## 📄 Pages Organization
 
-### Essential Files
-- `index.html` - Main homepage (DO NOT MOVE)
-- `index.js` - HTML component injection system (DO NOT MOVE)
-- `server.js` - Optional Node.js server (DO NOT MOVE)
-- `scripts.js` - Core JavaScript functionality (DO NOT MOVE)
+### `/pages/fpl-tools/` - FPL Analysis Tools
+**Purpose:** Interactive FPL tools and analyzers
 
-### Configuration
-- `.gitignore` - Git ignore rules
-- `package.json` - npm dependencies (if exists)
-- `.env` - Environment variables (not in version control)
+```
+pages/fpl-tools/
+├── fpl-player-analyzer.html          # Basic player analyzer
+├── fpl-player-analyzer-ultra.html    # Advanced analyzer
+├── fpl-ai-assistant.html             # AI assistant
+├── fpl-premium-hub.html              # Premium features
+├── player-predictor.html             # Player predictions
+├── team-analyzer.html                # Team analysis
+├── transfer-simulator-pro.html       # Transfer simulator
+├── budget-optimizer.html             # Budget optimizer
+├── fixture-tracker.html              # Fixture tracker
+├── fixture-tracker-pro.html          # Advanced fixture tracker
+├── fixture-analyzer-pro.html         # Fixture analyzer
+└── player-data.html                  # Player data viewer
+```
 
-## File Reference Patterns
+**Access pattern:** `/pages/fpl-tools/[tool-name].html`
 
-### In `index.html`:
+---
+
+### `/pages/admin/` - Admin & Account Pages
+**Purpose:** User management and administrative functions
+
+```
+pages/admin/
+├── account.html                # User account dashboard
+├── admin.html                  # Admin panel
+├── create-account.html         # Account creation
+└── manage-subscription.html    # Subscription management
+```
+
+**Access pattern:** `/pages/admin/[page-name].html`
+
+---
+
+### `/pages/news/` - News & Content Pages
+**Purpose:** News aggregation and content pages
+
+```
+pages/news/
+├── articles.html               # Articles listing
+├── transfer-hub.html           # Transfer news hub
+├── epl-table.html              # Premier League standings
+└── fantasy.html                # Fantasy game page
+```
+
+**Access pattern:** `/pages/news/[page-name].html`
+
+---
+
+## 🧩 Components Organization
+
+### `/components/layout/` - Layout Components
+**Purpose:** Core page structure elements
+
+```
+components/layout/
+├── header.html                 # Site header with navigation
+├── footer.html                 # Site footer
+├── main_headline.html          # Featured article
+├── main_subheadline1.html      # Secondary article 1
+├── main_subheadline2.html      # Secondary article 2
+├── main_subheadline3.html      # Secondary article 3
+├── main_subheadline4.html      # Secondary article 4
+├── main_subheadline5.html      # Secondary article 5
+├── main_subheadline6.html      # Secondary article 6
+├── main_subheadline7.html      # Secondary article 7
+├── main_subheadline8.html      # Secondary article 8
+└── main_subheadline9.html      # Secondary article 9
+```
+
+**Usage in HTML:**
+```html
+<div class="header" include="./components/layout/header.html"></div>
+<div class="footer" include="./components/layout/footer.html"></div>
+```
+
+---
+
+### `/components/ads/` - Advertisement Components
+**Purpose:** Advertisement placements and promotional banners
+
+```
+components/ads/
+├── article-ad.html             # Article page ads
+├── article-sidebar-ads.html    # Article sidebar ads
+├── homepage-ad.html            # Homepage advertisements
+├── fpl-discount-banner.html    # FPL promotional banner
+├── fpl-tools-compact-ad.html   # Compact FPL ad
+├── fpl-tools-inline-ad.html    # Inline FPL ad
+└── fpl-tools-premium-ad.html   # Premium FPL ad
+```
+
+**Usage in HTML:**
+```html
+<div include="./components/ads/fpl-discount-banner.html"></div>
+```
+
+---
+
+## 🖼️ Images Organization
+
+### `/images/logos/` - Branding & Logos
+**Purpose:** Site logos, team badges, and branding assets
+
+```
+images/logos/
+├── eplnewshub_logo.png         # Main site logo
+├── eplnewshubnewlogo.png       # New site logo
+├── eplnewshub.png              # Alternative logo
+├── epl-news-hub-logo.png       # EPL News Hub logo
+└── apple-touch-icon.png        # iOS app icon
+```
+
+---
+
+### `/images/players/` - Player Images
+**Purpose:** Professional player photographs
+
+```
+images/players/
+├── Erling Haaland Man City 2025-26.jpg.webp
+├── mainoo.webp
+├── calafori.jpg
+├── jack-grealish-everton.webp
+└── [other player images]
+```
+
+---
+
+### `/images/articles/` - Article Featured Images
+**Purpose:** Hero images for news articles
+
+```
+images/articles/
+├── DALL·E [various AI-generated images].webp
+├── ChatGPT Image [dates].png
+├── GettyImages-*.webp
+└── [other article images]
+```
+
+---
+
+### `/images/misc/` - Miscellaneous Images
+**Purpose:** Other images not fitting specific categories
+
+```
+images/misc/
+└── [various supporting images]
+```
+
+---
+
+## 🎨 CSS Organization
+
+```
+css/
+├── styles.css                  # Main stylesheet (NYT-inspired)
+├── mobile-responsive.css       # Mobile-first responsive design
+├── index.css                   # Homepage-specific styles
+├── enhanced-homepage.css       # Enhanced homepage design
+├── enhanced-homepage-v2.css    # Homepage v2 styles
+└── featured-article-cards.css  # Article card components
+```
+
+**Import order in HTML:**
+```html
+<link rel="stylesheet" href="./css/styles.css">
+<link rel="stylesheet" href="./css/mobile-responsive.css">
+```
+
+---
+
+## 🔗 File Reference Patterns
+
+### From `index.html` (root):
 ```html
 <!-- CSS -->
 <link rel="stylesheet" href="./css/styles.css">
-<link rel="stylesheet" href="./css/mobile-responsive.css">
 
-<!-- JavaScript -->
-<script src="./js/mobile-nav.js"></script>
-<script src="./js/fast-loader.js"></script>
+<!-- Core JS -->
+<script src="./js/core/fast-loader.js"></script>
+<script src="./js/core/mobile-nav.js"></script>
 
-<!-- Components -->
-<div class="header" include="./components/header.html"></div>
-<div class="footer" include="./components/footer.html"></div>
+<!-- Feature JS -->
+<script src="./js/features/content-discovery.js"></script>
+
+<!-- FPL JS -->
+<script src="./js/fpl/fpl-data-service.js"></script>
+
+<!-- Services -->
+<script src="./js/services/auth-service.js"></script>
+
+<!-- Utilities -->
+<script src="./js/utilities/premium-access-control.js"></script>
+
+<!-- Layout Components -->
+<div include="./components/layout/header.html"></div>
+<div include="./components/layout/footer.html"></div>
+
+<!-- Ad Components -->
+<div include="./components/ads/fpl-discount-banner.html"></div>
+
+<!-- Images -->
+<img src="./images/logos/eplnewshub_logo.png">
 ```
 
-### In Tool Pages (`/pages/*.html`):
+---
+
+### From Tool Pages (`/pages/fpl-tools/*.html`):
 ```html
-<!-- CSS (relative to root) -->
+<!-- CSS (up two levels) -->
+<link rel="stylesheet" href="../../css/styles.css">
+
+<!-- JS (up two levels) -->
+<script src="../../js/core/mobile-nav.js"></script>
+<script src="../../js/fpl/fpl-data-service.js"></script>
+
+<!-- Components (up two levels) -->
+<div include="../../components/layout/header.html"></div>
+<div include="../../components/layout/footer.html"></div>
+
+<!-- Images (up two levels) -->
+<img src="../../images/logos/eplnewshub_logo.png">
+```
+
+---
+
+### From Admin Pages (`/pages/admin/*.html`):
+```html
+<!-- CSS (up two levels) -->
+<link rel="stylesheet" href="../../css/styles.css">
+
+<!-- JS (up two levels) -->
+<script src="../../js/core/mobile-nav.js"></script>
+<script src="../../js/services/auth-service.js"></script>
+
+<!-- Components (up two levels) -->
+<div include="../../components/layout/header.html"></div>
+```
+
+---
+
+### From Articles (`/articles/*.html`):
+```html
+<!-- CSS (up one level) -->
 <link rel="stylesheet" href="../css/styles.css">
 
-<!-- JavaScript (relative to root) -->
-<script src="../js/mobile-nav.js"></script>
+<!-- JS (up one level) -->
+<script src="../js/features/article-enhancer.js"></script>
 
-<!-- Components (relative to root) -->
-<div include="../components/header.html"></div>
-<div include="../components/footer.html"></div>
+<!-- Components (up one level) -->
+<div include="../components/layout/header.html"></div>
+
+<!-- Images (up one level) -->
+<img src="../images/articles/featured-image.webp">
 ```
 
-### In Articles (`/articles/*.html`):
-```html
-<!-- CSS -->
-<link rel="stylesheet" href="../css/styles.css">
+---
 
-<!-- Components -->
-<div include="../components/header.html"></div>
-```
+## ➕ Adding New Files
 
-## Component Include System
+### Adding a New FPL Tool Page
 
-The site uses a custom HTML injection system (`index.js`) that loads external HTML files into elements with the `include` attribute.
+1. **Create file in:** `/pages/fpl-tools/my-new-tool.html`
+2. **Use references:**
+   ```html
+   <link rel="stylesheet" href="../../css/styles.css">
+   <script src="../../js/fpl/fpl-data-service.js"></script>
+   <div include="../../components/layout/header.html"></div>
+   ```
+3. **Access at:** `https://yoursite.com/pages/fpl-tools/my-new-tool.html`
 
-**Example:**
-```html
-<div class="header" include="./components/header.html"></div>
-```
+---
 
-This system:
-1. Finds all elements with `include` attribute
-2. Fetches the specified HTML file
-3. Injects the content into the element
-4. Re-executes any `<script>` tags in the injected content
+### Adding a New JavaScript Feature
 
-## Best Practices
+1. **Core functionality** → `/js/core/feature-name.js`
+2. **FPL feature** → `/js/fpl/fpl-feature-name.js`
+3. **General feature** → `/js/features/feature-name.js`
+4. **Service/API** → `/js/services/service-name.js`
+5. **Utility** → `/js/utilities/utility-name.js`
 
-### Adding New Files
+---
 
-1. **Articles** → `/articles/`
-   - Follow naming convention: `title-with-hyphens-YYYY-MM-DD.html`
+### Adding a New Component
 
-2. **Reusable Components** → `/components/`
-   - Name descriptively: `feature-name.html`
+1. **Layout component** → `/components/layout/component-name.html`
+2. **Ad component** → `/components/ads/ad-name.html`
+3. **Article component** → `/components/articles/component-name.html`
 
-3. **Stylesheets** → `/css/`
-   - Use semantic naming: `feature-name.css`
+---
 
-4. **JavaScript** → `/js/`
-   - Use semantic naming: `feature-name.js`
+### Adding a New Image
 
-5. **Tool Pages** → `/pages/`
-   - Use descriptive names: `tool-name.html`
+1. **Logo/branding** → `/images/logos/logo-name.png`
+2. **Player photo** → `/images/players/player-name.webp`
+3. **Article image** → `/images/articles/article-image.webp`
+4. **Other** → `/images/misc/image-name.jpg`
 
-6. **Images** → `/images/`
-   - Use descriptive names with proper extensions
+---
 
-7. **Scripts** → `/scripts/`
-   - Shell scripts: `.sh`
-   - Python scripts: `.py`
-   - Make executable: `chmod +x script-name.sh`
+## 🎯 Quick Find Guide
 
-### File References
+### "Where do I find...?"
 
-- Always use relative paths
-- From root: `./directory/file.ext`
-- From subdirectory: `../directory/file.ext`
-- Keep paths consistent across similar file types
+| What you're looking for | Location |
+|------------------------|----------|
+| Homepage file | `/index.html` |
+| Site header | `/components/layout/header.html` |
+| Site footer | `/components/layout/footer.html` |
+| Main stylesheet | `/css/styles.css` |
+| Mobile styles | `/css/mobile-responsive.css` |
+| Core loading script | `/js/core/fast-loader.js` |
+| FPL data service | `/js/fpl/fpl-data-service.js` |
+| Player analyzer tool | `/pages/fpl-tools/fpl-player-analyzer.html` |
+| Transfer hub | `/pages/news/transfer-hub.html` |
+| Site logo | `/images/logos/eplnewshub_logo.png` |
+| News articles | `/articles/` |
+| Deployment scripts | `/scripts/` |
+| Documentation | `/docs/` |
 
-### Documentation
+---
 
-- Update this file when adding new directories
-- Document new patterns or conventions
-- Keep examples up-to-date
+## 📚 Related Documentation
 
-## Migration Notes
+- **CLAUDE.md** - Project guidance for Claude Code
+- **ARTICLE_NAMING_GUIDE.md** - Article naming conventions
+- **DEVELOPMENT.md** - Development workflows
+- **FIREBASE_SETUP.md** - Firebase integration guide
 
-Files have been reorganized from a flat structure to this organized hierarchy. All path references have been updated in:
+---
 
-- ✅ `index.html`
-- ✅ Tool pages in `/pages/`
-- ✅ Component files
-- ✅ CSS references
-- ✅ JavaScript references
-
-## Maintenance
+## 🔄 Maintenance
 
 ### Regular Tasks
 
-1. **Clean up unused files** - Remove deprecated files
-2. **Update documentation** - Keep this file current
-3. **Review file organization** - Ensure files are in correct directories
-4. **Check broken links** - Verify all file references work
-5. **Optimize images** - Compress images in `/images/`
-
-### Before Deployment
-
-1. Test all pages load correctly
-2. Verify all components render
-3. Check all tool pages function
-4. Validate all file paths
-5. Run linting/formatting tools
-
-## Support
-
-For questions about file organization or to suggest improvements to this structure, consult:
-- `CLAUDE.md` for development guidance
-- `DEVELOPMENT.md` for development workflows
+1. **Organize new files** into appropriate directories
+2. **Update this documentation** when structure changes
+3. **Verify file references** after reorganization
+4. **Remove deprecated files** regularly
+5. **Optimize images** in `/images/` subdirectories
 
 ---
 
