@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Advanced Premier League fixture analyzer with difficulty ratings, live tracking, team comparisons, and FPL planning tools.">
+    <meta name="keywords" content="fixture difficulty, Premier League fixtures, FPL planning, fixture tracker, FDR, team analysis">
+    <meta name="author" content="EPL News Hub">
+    <title>Fixture Analyzer Pro | EPL News Hub</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="/mobile-master-optimize.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
+    <script src="./fpl-html-data-service.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        
+        .analyzer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .analyzer-header {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analyzer-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #37003c, #00ff87, #37003c);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .analyzer-header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #37003c, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .analyzer-subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .live-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #00ff87;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background: #ff0000;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.02); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .tabs-container {
+            background: white;
+            border-radius: 16px;
+            padding: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            color: #495057;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #37003c, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(55,0,60,0.3);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Fixture Tracker Tab Styles */
+        .gameweek-selector {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .gw-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .gw-btn {
+            padding: 12px 20px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .gw-btn.active {
+            background: #37003c;
+            color: white;
+            border-color: #37003c;
+        }
+
+        .gw-btn.current {
+            border-color: #00ff87;
+            box-shadow: 0 0 10px rgba(0,255,135,0.3);
+        }
+
+        .gw-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .fixtures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .fixture-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fixture-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .fixture-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .fixture-time {
+            background: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .fixture-teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .team-info {
+            flex: 1;
+            text-align: center;
+        }
+
+        .team-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #37003c;
+            margin-bottom: 5px;
+        }
+
+        .team-badge {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 50%;
+            margin: 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #495057;
+        }
+
+        .vs {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #adb5bd;
+            margin: 0 20px;
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .difficulty-1 { background: #00ff87; color: #000; }
+        .difficulty-2 { background: #90EE90; color: #000; }
+        .difficulty-3 { background: #FFD700; color: #000; }
+        .difficulty-4 { background: #FFA500; color: #fff; }
+        .difficulty-5 { background: #FF4500; color: #fff; }
+
+        /* FDR Calculator Tab Styles */
+        .fdr-controls {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .control-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-group select,
+        .control-group input {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: #37003c;
+            box-shadow: 0 0 0 3px rgba(55,0,60,0.1);
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #37003c, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(55,0,60,0.3);
+        }
+
+        .fdr-results {
+            display: grid;
+            gap: 20px;
+        }
+
+        .team-fdr-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .team-fdr-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .team-fdr-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+
+        .team-fdr-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #37003c;
+        }
+
+        .avg-difficulty {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avg-difficulty-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .fixtures-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .fixture-item {
+            display: grid;
+            grid-template-columns: 60px 1fr auto 100px;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .fixture-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .fixture-gw {
+            font-weight: 700;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .fixture-opponent {
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .fixture-venue {
+            background: #e9ecef;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .venue-home { background: #d4edda; color: #155724; }
+        .venue-away { background: #f8d7da; color: #721c24; }
+
+        /* Team Comparison Tab */
+        .comparison-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .team-select-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .team-select-card h3 {
+            color: #37003c;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .team-option {
+            padding: 12px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .team-option:hover {
+            background: #e9ecef;
+            border-color: #37003c;
+            transform: translateY(-2px);
+        }
+
+        .team-option.selected {
+            background: #37003c;
+            color: white;
+            border-color: #37003c;
+        }
+
+        .comparison-results {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .comparison-header {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #f8f9fa;
+        }
+
+        .comparison-team {
+            text-align: center;
+        }
+
+        .comparison-team-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #37003c;
+            margin-bottom: 10px;
+        }
+
+        .comparison-vs {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #adb5bd;
+        }
+
+        .comparison-stats {
+            display: grid;
+            gap: 20px;
+        }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #495057;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .better-value {
+            color: #28a745;
+        }
+
+        .worse-value {
+            color: #dc3545;
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .analyzer-header h1 {
+                font-size: 2rem;
+            }
+
+            .fixtures-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .fixture-teams {
+                flex-direction: column;
+            }
+
+            .vs {
+                margin: 10px 0;
+            }
+
+            .tab-btn {
+                font-size: 0.9rem;
+                padding: 12px 15px;
+            }
+
+            .comparison-header {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/png" href="/eplnewshub_logo.png">
+    <link rel="shortcut icon" href="/eplnewshub_logo.png">
+</head>
+<body>
+    <div class="header" include="../components/header.html"></div>
+
+    <div class="analyzer-container">
+        <div class="analyzer-header">
+            <h1>⚽ Fixture Analyzer Pro</h1>
+            <p class="analyzer-subtitle">Complete fixture analysis, FDR calculations, and live match tracking</p>
+            <div class="live-status">
+                <span class="live-dot"></span>
+                <span id="data-status">LIVE DATA</span>
+                <span id="last-update"></span>
+            </div>
+        </div>
+
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab('tracker')">
+                📅 Fixture Tracker
+            </button>
+            <button class="tab-btn" onclick="switchTab('fdr')">
+                📊 FDR Calculator
+            </button>
+            <button class="tab-btn" onclick="switchTab('comparison')">
+                ⚔️ Team Comparison
+            </button>
+            <button class="tab-btn" onclick="switchTab('upcoming')">
+                🔮 Upcoming Fixtures
+            </button>
+        </div>
+
+        <!-- Fixture Tracker Tab -->
+        <div id="tracker-tab" class="tab-content active">
+            <div class="gameweek-selector">
+                <h3 style="text-align: center; margin-bottom: 20px; color: #37003c;">Select Gameweek</h3>
+                <div class="gw-buttons" id="gameweek-buttons">
+                    <!-- Gameweek buttons will be populated here -->
+                </div>
+            </div>
+
+            <div class="fixtures-grid" id="fixtures-grid">
+                <!-- Fixtures will be populated here -->
+            </div>
+        </div>
+
+        <!-- FDR Calculator Tab -->
+        <div id="fdr-tab" class="tab-content">
+            <div class="fdr-controls">
+                <h3 style="margin-bottom: 20px; color: #37003c;">Calculate Fixture Difficulty</h3>
+                
+                <div class="control-row">
+                    <div class="control-group">
+                        <label>Number of Gameweeks</label>
+                        <input type="number" id="fdr-gameweeks" min="1" max="10" value="5">
+                    </div>
+                    <div class="control-group">
+                        <label>Sort By</label>
+                        <select id="fdr-sort">
+                            <option value="easiest">Easiest Fixtures</option>
+                            <option value="hardest">Hardest Fixtures</option>
+                            <option value="name">Team Name</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="calculate-btn" onclick="calculateFDR()">
+                    Calculate FDR for All Teams
+                </button>
+            </div>
+
+            <div class="fdr-results" id="fdr-results">
+                <!-- FDR results will be populated here -->
+            </div>
+        </div>
+
+        <!-- Team Comparison Tab -->
+        <div id="comparison-tab" class="tab-content">
+            <div class="comparison-container">
+                <div class="team-select-card">
+                    <h3>Select First Team</h3>
+                    <div class="team-grid" id="team1-select">
+                        <!-- Teams will be populated here -->
+                    </div>
+                </div>
+                <div class="team-select-card">
+                    <h3>Select Second Team</h3>
+                    <div class="team-grid" id="team2-select">
+                        <!-- Teams will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison-results" id="comparison-results" style="display: none;">
+                <!-- Comparison results will be populated here -->
+            </div>
+        </div>
+
+        <!-- Upcoming Fixtures Tab -->
+        <div id="upcoming-tab" class="tab-content">
+            <div class="fdr-controls">
+                <h3 style="margin-bottom: 20px; color: #37003c;">Next 5 Gameweeks Overview</h3>
+            </div>
+            
+            <div class="fixtures-grid" id="upcoming-fixtures">
+                <!-- Upcoming fixtures will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="footer" include="../components/footer.html"></div>
+
+    <script src="./index.js"></script>
+    <script>
+        class FixtureAnalyzer {
+            constructor() {
+                this.fplService = new FPLHtmlDataService();
+                this.fixtures = [];
+                this.teams = [];
+                this.currentGameweek = null;
+                this.selectedGameweek = null;
+                this.selectedTeam1 = null;
+                this.selectedTeam2 = null;
+            }
+
+            async initialize() {
+                try {
+                    // Load data
+                    const bootstrap = await this.fplService.getBootstrapData();
+                    this.teams = bootstrap.teams || this.getDefaultTeams();
+                    this.fixtures = await this.fplService.getFixtures();
+                    
+                    // Get current gameweek
+                    this.currentGameweek = await this.fplService.getCurrentGameweek();
+                    if (this.currentGameweek) {
+                        this.selectedGameweek = this.currentGameweek.id;
+                    }
+
+                    // Initialize UI
+                    this.populateGameweeks();
+                    this.populateTeamSelectors();
+                    this.loadGameweekFixtures(this.selectedGameweek);
+                    this.updateLiveStatus();
+
+                    // Auto refresh every 2 minutes
+                    setInterval(() => this.refreshData(), 2 * 60 * 1000);
+                } catch (error) {
+                    console.error('Failed to initialize:', error);
+                    this.showError('Failed to load fixture data. Please refresh the page.');
+                }
+            }
+
+            getDefaultTeams() {
+                return [
+                    { id: 1, name: "Arsenal", short_name: "ARS" },
+                    { id: 2, name: "Aston Villa", short_name: "AVL" },
+                    { id: 3, name: "Bournemouth", short_name: "BOU" },
+                    { id: 4, name: "Brentford", short_name: "BRE" },
+                    { id: 5, name: "Brighton", short_name: "BHA" },
+                    { id: 6, name: "Chelsea", short_name: "CHE" },
+                    { id: 7, name: "Crystal Palace", short_name: "CRY" },
+                    { id: 8, name: "Everton", short_name: "EVE" },
+                    { id: 9, name: "Fulham", short_name: "FUL" },
+                    { id: 10, name: "Ipswich", short_name: "IPS" },
+                    { id: 11, name: "Leicester", short_name: "LEI" },
+                    { id: 12, name: "Liverpool", short_name: "LIV" },
+                    { id: 13, name: "Man City", short_name: "MCI" },
+                    { id: 14, name: "Newcastle", short_name: "NEW" },
+                    { id: 15, name: "Nottingham Forest", short_name: "NFO" },
+                    { id: 16, name: "Southampton", short_name: "SOU" },
+                    { id: 17, name: "Spurs", short_name: "TOT" },
+                    { id: 18, name: "West Ham", short_name: "WHU" },
+                    { id: 19, name: "Wolves", short_name: "WOL" },
+                    { id: 20, name: "Man Utd", short_name: "MUN" }
+                ];
+            }
+
+            populateGameweeks() {
+                const container = document.getElementById('gameweek-buttons');
+                container.innerHTML = '';
+
+                for (let i = 1; i <= 38; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = 'gw-btn';
+                    btn.textContent = `GW${i}`;
+                    
+                    if (i === this.selectedGameweek) {
+                        btn.classList.add('active');
+                    }
+                    
+                    if (this.currentGameweek && i === this.currentGameweek.id) {
+                        btn.classList.add('current');
+                    }
+
+                    btn.onclick = () => this.selectGameweek(i);
+                    container.appendChild(btn);
+                }
+            }
+
+            selectGameweek(gw) {
+                this.selectedGameweek = gw;
+                
+                // Update button states
+                document.querySelectorAll('.gw-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+
+                // Load fixtures for selected gameweek
+                this.loadGameweekFixtures(gw);
+            }
+
+            async loadGameweekFixtures(gameweek) {
+                const container = document.getElementById('fixtures-grid');
+                container.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+
+                try {
+                    const gwFixtures = await this.fplService.getGameweekFixtures(gameweek);
+                    
+                    if (gwFixtures.length === 0) {
+                        container.innerHTML = '<div class="error-message">No fixtures found for this gameweek</div>';
+                        return;
+                    }
+
+                    container.innerHTML = '';
+                    gwFixtures.forEach(fixture => {
+                        container.appendChild(this.createFixtureCard(fixture));
+                    });
+                } catch (error) {
+                    console.error('Failed to load fixtures:', error);
+                    container.innerHTML = '<div class="error-message">Failed to load fixtures</div>';
+                }
+            }
+
+            createFixtureCard(fixture) {
+                const card = document.createElement('div');
+                card.className = 'fixture-card';
+
+                const homeTeam = this.teams.find(t => t.id === fixture.team_h);
+                const awayTeam = this.teams.find(t => t.id === fixture.team_a);
+
+                const kickoffTime = new Date(fixture.kickoff_time);
+                const timeStr = kickoffTime.toLocaleString('en-GB', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                card.innerHTML = `
+                    <div class="fixture-header">
+                        <div class="fixture-time">${timeStr}</div>
+                        ${fixture.finished ? '<span class="fixture-time">FT</span>' : ''}
+                    </div>
+                    
+                    <div class="fixture-teams">
+                        <div class="team-info">
+                            <div class="team-badge">${homeTeam?.short_name || 'TBD'}</div>
+                            <div class="team-name">${homeTeam?.name || 'TBD'}</div>
+                            <div class="difficulty-badge difficulty-${fixture.team_h_difficulty}">
+                                FDR: ${fixture.team_h_difficulty}
+                            </div>
+                        </div>
+                        
+                        <div class="vs">VS</div>
+                        
+                        <div class="team-info">
+                            <div class="team-badge">${awayTeam?.short_name || 'TBD'}</div>
+                            <div class="team-name">${awayTeam?.name || 'TBD'}</div>
+                            <div class="difficulty-badge difficulty-${fixture.team_a_difficulty}">
+                                FDR: ${fixture.team_a_difficulty}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${fixture.finished && (fixture.team_h_score !== null) ? `
+                        <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 2px solid #f8f9fa;">
+                            <div style="font-size: 2rem; font-weight: 700; color: #37003c;">
+                                ${fixture.team_h_score} - ${fixture.team_a_score}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+
+                return card;
+            }
+
+            populateTeamSelectors() {
+                const team1Container = document.getElementById('team1-select');
+                const team2Container = document.getElementById('team2-select');
+
+                team1Container.innerHTML = '';
+                team2Container.innerHTML = '';
+
+                this.teams.forEach(team => {
+                    // Team 1 selector
+                    const option1 = document.createElement('div');
+                    option1.className = 'team-option';
+                    option1.textContent = team.short_name;
+                    option1.onclick = () => this.selectTeam(1, team);
+                    team1Container.appendChild(option1);
+
+                    // Team 2 selector
+                    const option2 = document.createElement('div');
+                    option2.className = 'team-option';
+                    option2.textContent = team.short_name;
+                    option2.onclick = () => this.selectTeam(2, team);
+                    team2Container.appendChild(option2);
+                });
+            }
+
+            selectTeam(teamNum, team) {
+                if (teamNum === 1) {
+                    this.selectedTeam1 = team;
+                    document.querySelectorAll('#team1-select .team-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    event.target.classList.add('selected');
+                } else {
+                    this.selectedTeam2 = team;
+                    document.querySelectorAll('#team2-select .team-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    event.target.classList.add('selected');
+                }
+
+                if (this.selectedTeam1 && this.selectedTeam2) {
+                    this.compareTeams();
+                }
+            }
+
+            async compareTeams() {
+                const container = document.getElementById('comparison-results');
+                container.style.display = 'block';
+
+                const team1FDR = await this.fplService.getTeamFDR(this.selectedTeam1.id, 5);
+                const team2FDR = await this.fplService.getTeamFDR(this.selectedTeam2.id, 5);
+
+                const team1Avg = team1FDR.length > 0 
+                    ? team1FDR.reduce((sum, f) => sum + f.difficulty, 0) / team1FDR.length 
+                    : 0;
+                const team2Avg = team2FDR.length > 0 
+                    ? team2FDR.reduce((sum, f) => sum + f.difficulty, 0) / team2FDR.length 
+                    : 0;
+
+                container.innerHTML = `
+                    <div class="comparison-header">
+                        <div class="comparison-team">
+                            <div class="comparison-team-name">${this.selectedTeam1.name}</div>
+                            <div class="difficulty-badge difficulty-${Math.round(team1Avg)}">
+                                Avg FDR: ${team1Avg.toFixed(2)}
+                            </div>
+                        </div>
+                        <div class="comparison-vs">VS</div>
+                        <div class="comparison-team">
+                            <div class="comparison-team-name">${this.selectedTeam2.name}</div>
+                            <div class="difficulty-badge difficulty-${Math.round(team2Avg)}">
+                                Avg FDR: ${team2Avg.toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="comparison-stats">
+                        <div class="stat-row">
+                            <div class="stat-value ${team1Avg < team2Avg ? 'better-value' : 'worse-value'}">
+                                ${team1Avg.toFixed(2)}
+                            </div>
+                            <div class="stat-label">Average Difficulty</div>
+                            <div class="stat-value ${team2Avg < team1Avg ? 'better-value' : 'worse-value'}">
+                                ${team2Avg.toFixed(2)}
+                            </div>
+                        </div>
+
+                        <div class="stat-row">
+                            <div class="stat-value">${team1FDR.length}</div>
+                            <div class="stat-label">Fixtures</div>
+                            <div class="stat-value">${team2FDR.length}</div>
+                        </div>
+
+                        <div class="stat-row">
+                            <div class="stat-value">
+                                ${team1FDR.filter(f => f.is_home).length}
+                            </div>
+                            <div class="stat-label">Home Games</div>
+                            <div class="stat-value">
+                                ${team2FDR.filter(f => f.is_home).length}
+                            </div>
+                        </div>
+
+                        <div class="stat-row">
+                            <div class="stat-value">
+                                ${team1FDR.filter(f => f.difficulty <= 2).length}
+                            </div>
+                            <div class="stat-label">Easy Fixtures (FDR ≤ 2)</div>
+                            <div class="stat-value">
+                                ${team2FDR.filter(f => f.difficulty <= 2).length}
+                            </div>
+                        </div>
+
+                        <div class="stat-row">
+                            <div class="stat-value">
+                                ${team1FDR.filter(f => f.difficulty >= 4).length}
+                            </div>
+                            <div class="stat-label">Hard Fixtures (FDR ≥ 4)</div>
+                            <div class="stat-value">
+                                ${team2FDR.filter(f => f.difficulty >= 4).length}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            async loadUpcomingFixtures() {
+                const container = document.getElementById('upcoming-fixtures');
+                container.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+
+                try {
+                    const fixtures = await this.fplService.getUpcomingFixtures();
+                    const nextFiveGW = [];
+                    
+                    if (this.currentGameweek) {
+                        for (let i = 0; i < 5; i++) {
+                            const gwFixtures = fixtures.filter(f => f.event === this.currentGameweek.id + i);
+                            if (gwFixtures.length > 0) {
+                                nextFiveGW.push({
+                                    gameweek: this.currentGameweek.id + i,
+                                    fixtures: gwFixtures
+                                });
+                            }
+                        }
+                    }
+
+                    container.innerHTML = '';
+                    nextFiveGW.forEach(gw => {
+                        const gwSection = document.createElement('div');
+                        gwSection.innerHTML = `
+                            <h3 style="color: #37003c; margin: 20px 0;">Gameweek ${gw.gameweek}</h3>
+                            <div class="fixtures-grid">
+                                ${gw.fixtures.slice(0, 3).map(f => {
+                                    const card = this.createFixtureCard(f);
+                                    return card.outerHTML;
+                                }).join('')}
+                            </div>
+                        `;
+                        container.appendChild(gwSection);
+                    });
+                } catch (error) {
+                    console.error('Failed to load upcoming fixtures:', error);
+                    container.innerHTML = '<div class="error-message">Failed to load upcoming fixtures</div>';
+                }
+            }
+
+            async refreshData() {
+                try {
+                    this.fixtures = await this.fplService.getFixtures();
+                    this.currentGameweek = await this.fplService.getCurrentGameweek();
+                    this.updateLiveStatus();
+                    
+                    // Refresh current view
+                    const activeTab = document.querySelector('.tab-content.active').id;
+                    if (activeTab === 'tracker-tab') {
+                        this.loadGameweekFixtures(this.selectedGameweek);
+                    }
+                } catch (error) {
+                    console.error('Failed to refresh data:', error);
+                }
+            }
+
+            updateLiveStatus() {
+                const statusEl = document.getElementById('data-status');
+                const updateEl = document.getElementById('last-update');
+                const dotEl = document.querySelector('.live-dot');
+
+                statusEl.textContent = 'LIVE DATA';
+                dotEl.style.background = '#00ff87';
+                
+                const now = new Date();
+                updateEl.textContent = `Last update: ${now.toLocaleTimeString()}`;
+            }
+
+            showError(message) {
+                const container = document.getElementById('fixtures-grid');
+                container.innerHTML = `<div class="error-message">${message}</div>`;
+            }
+        }
+
+        // Global functions
+        let analyzer = null;
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+
+            // Load content for specific tabs
+            if (tabName === 'upcoming' && analyzer) {
+                analyzer.loadUpcomingFixtures();
+            }
+        }
+
+        async function calculateFDR() {
+            const gameweeks = parseInt(document.getElementById('fdr-gameweeks').value);
+            const sortBy = document.getElementById('fdr-sort').value;
+            const container = document.getElementById('fdr-results');
+            
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+
+            try {
+                const teamsFDR = await analyzer.fplService.getAllTeamsFDR(gameweeks);
+                
+                // Sort based on selection
+                if (sortBy === 'easiest') {
+                    teamsFDR.sort((a, b) => a.avg_difficulty - b.avg_difficulty);
+                } else if (sortBy === 'hardest') {
+                    teamsFDR.sort((a, b) => b.avg_difficulty - a.avg_difficulty);
+                } else {
+                    teamsFDR.sort((a, b) => a.team_name.localeCompare(b.team_name));
+                }
+
+                container.innerHTML = '';
+                teamsFDR.forEach(team => {
+                    const card = document.createElement('div');
+                    card.className = 'team-fdr-card';
+                    
+                    const difficultyClass = `difficulty-${Math.round(team.avg_difficulty)}`;
+                    
+                    card.innerHTML = `
+                        <div class="team-fdr-header">
+                            <div class="team-fdr-name">${team.team_name}</div>
+                            <div class="avg-difficulty">
+                                <span>Avg FDR:</span>
+                                <div class="avg-difficulty-value ${difficultyClass}">
+                                    ${team.avg_difficulty.toFixed(2)}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="fixtures-list">
+                            ${team.fixtures.map(f => {
+                                const opponent = analyzer.teams.find(t => t.id === f.opponent);
+                                return `
+                                    <div class="fixture-item">
+                                        <div class="fixture-gw">GW${f.event}</div>
+                                        <div class="fixture-opponent">${opponent?.name || 'TBD'}</div>
+                                        <div class="fixture-venue ${f.is_home ? 'venue-home' : 'venue-away'}">
+                                            ${f.is_home ? 'H' : 'A'}
+                                        </div>
+                                        <div class="difficulty-badge difficulty-${f.difficulty}">
+                                            FDR: ${f.difficulty}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Failed to calculate FDR:', error);
+                container.innerHTML = '<div class="error-message">Failed to calculate FDR</div>';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            analyzer = new FixtureAnalyzer();
+            analyzer.initialize();
+        });
+    </script>
+
+    <!-- SEO Content Section -->
+    <div style="max-width: 1400px; margin: 40px auto; padding: 0 20px;">
+        <div style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+            <h2 style="font-size: 2.5rem; color: #37003c; margin-bottom: 30px; text-align: center;">📊 Complete Guide to Fixture Difficulty Analysis</h2>
+            
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.8rem; margin-bottom: 20px;">Understanding Fixture Difficulty Rating (FDR)</h3>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">The Fixture Difficulty Rating (FDR) system is a crucial tool for Fantasy Premier League managers and football analysts, providing quantitative assessments of match difficulty based on multiple factors. This sophisticated rating system considers team strength, recent form, home/away dynamics, and historical performance to generate difficulty scores that help predict match outcomes and player performance potential.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Our advanced FDR algorithm goes beyond simple league position comparisons, incorporating dynamic factors such as injury lists, tactical matchups, and even scheduling congestion. Teams facing Champions League fixtures midweek might field weakened sides in the Premier League, affecting the true difficulty of that fixture. Similarly, teams fighting relegation in the final weeks often perform above their season average, making traditionally "easy" fixtures surprisingly challenging.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">The color-coded system provides instant visual feedback – green fixtures (FDR 2 or below) represent favorable matchups, amber fixtures (FDR 3) indicate moderate difficulty, while red fixtures (FDR 4-5) warn of challenging encounters. This intuitive system allows managers to quickly assess upcoming schedules and make informed decisions about transfers, captaincy choices, and chip usage. Understanding these ratings is essential for successful FPL management and tactical football analysis.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.8rem; margin-bottom: 20px;">Advanced Fixture Analysis Strategies</h3>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Successful fixture analysis extends beyond simply identifying easy opponents. The most effective strategies consider fixture runs – sequences of matches that create opportunities for sustained returns from particular players or teams. A team with three consecutive home matches against bottom-half opposition presents an ideal scenario for investing in their attacking assets, while a defender facing a run of clean sheet candidates becomes a priority transfer target.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Rotation patterns significantly impact fixture difficulty assessments. Top teams often rotate heavily during congested periods, particularly when balancing domestic and European commitments. Our analyzer tracks these patterns, adjusting difficulty ratings when key players are likely to be rested. This granular analysis proves invaluable during double gameweeks, when the temptation to chase multiple fixtures must be balanced against rotation risk.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">The concept of fixture proof players – those who consistently perform regardless of opposition – challenges traditional FDR thinking. Premium assets like Mohamed Salah, Erling Haaland, and Bukayo Saka often deliver returns even in difficult fixtures, making their ownership essential despite challenging schedules. Our analyzer identifies these fixture-proof performers through historical data analysis, helping managers decide when to hold premium players through tough runs.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.8rem; margin-bottom: 20px;">Home vs Away Performance Analysis</h3>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Home advantage remains a significant factor in Premier League football, though its impact varies dramatically between teams. Traditional fortress venues like Anfield, Old Trafford, and the Emirates Stadium can transform fixture difficulty, with some teams showing remarkable home/away splits in their performance metrics. Our analyzer quantifies these venue effects, adjusting difficulty ratings based on historical home and away performance differentials.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Certain teams exhibit extreme home/away characteristics that fundamentally alter fixture assessment. Historically, teams like Burnley under Sean Dyche or Newcastle United have shown dramatic home bias, making their away fixtures significantly easier for opponents. Conversely, teams with strong tactical identities often travel well, maintaining consistent performance regardless of venue. Understanding these patterns helps identify value in fixtures that might appear difficult on paper.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Travel distance and scheduling also influence away fixture difficulty. Teams traveling long distances for away matches, particularly after midweek European games, often underperform relative to their usual standards. Our analyzer factors in travel fatigue, rest periods between matches, and even weather conditions that might affect performance. These micro-factors can transform a moderately difficult fixture into an unexpectedly favorable opportunity.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.8rem; margin-bottom: 20px;">Using FDR for Transfer Planning</h3>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Effective transfer planning requires looking beyond immediate fixtures to identify optimal entry and exit points for players. Our fixture analyzer's long-term view helps managers plan transfer strategies weeks in advance, identifying when to target players before favorable runs begin. This forward-thinking approach avoids the common mistake of bringing in players after their best fixtures have passed, ensuring maximum value from each transfer.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">The concept of fixture swings – dramatic changes in difficulty between gameweeks – creates natural transfer opportunities. A player might face three difficult fixtures followed by an extended favorable run, presenting an ideal buy-low opportunity for patient managers. Our analyzer highlights these fixture swings, helping managers time their transfers to capitalize on price drops during difficult periods before fixtures improve.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Differential planning using FDR analysis can provide significant rank gains in FPL. While most managers focus on obvious fixture swings for popular players, our analyzer identifies under-the-radar options with equally favorable schedules but lower ownership. These differential picks, backed by solid fixture analysis, offer the potential for significant green arrows when they deliver returns that few managers capture.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.8rem; margin-bottom: 20px;">Double and Blank Gameweek Strategy</h3>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Double gameweeks (DGWs) and blank gameweeks (BGWs) represent the most complex fixture scenarios in FPL, requiring sophisticated analysis to navigate successfully. Our analyzer provides specialized tools for these periods, evaluating not just the quantity of fixtures but their quality, rotation risk, and chip strategy implications. The temptation to load up on double gameweek players must be balanced against fixture difficulty and realistic point expectations.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Historical analysis shows that double gameweek players don't always outscore those with single fixtures, particularly when facing two difficult opponents or heavy rotation risk. Our analyzer calculates expected points for DGW players considering both fixtures, rotation probability, and historical DGW performance. This nuanced approach prevents the common mistake of blindly targeting all DGW players regardless of their actual potential.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Blank gameweek navigation requires even more strategic planning, as managers must balance having enough players for the blank while maintaining team strength for surrounding gameweeks. Our analyzer helps identify the optimal Free Hit timing, whether to navigate blanks or target doubles, based on your team structure and remaining chips. This strategic guidance proves invaluable during the complex fixture scenarios that typically emerge in the season's final third.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.8rem; margin-bottom: 20px;">Statistical Models and Predictive Analytics</h3>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Modern fixture analysis leverages advanced statistical models that go far beyond simple difficulty ratings. Our analyzer incorporates expected goals (xG) models, defensive strength metrics, and pace-of-play statistics to predict not just match outcomes but the nature of games – whether they'll be high-scoring affairs or defensive battles. This deeper analysis helps identify fixtures favorable for attackers versus those likely to benefit defensive assets.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Machine learning algorithms continuously refine our predictions by analyzing patterns in historical data. The system identifies factors that traditional analysis might miss – such as specific tactical matchup advantages, referee tendencies that favor certain playing styles, or psychological factors like revenge fixtures. These insights, processed from thousands of historical matches, provide an edge in predicting fixture outcomes and player performance.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Predictive modeling extends to individual player performance within fixtures. By analyzing a player's historical output against similar opposition styles, our system forecasts likely point returns with remarkable accuracy. This player-specific analysis considers factors like position changes, role in set pieces, penalty-taking duties, and even partnership dynamics with teammates, providing granular insights that generic FDR ratings cannot capture.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.8rem; margin-bottom: 20px;">Tactical Matchup Analysis</h3>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Beyond basic difficulty ratings, tactical matchups often determine fixture outcomes. Our analyzer examines stylistic clashes – how a high-pressing team might struggle against skilled counter-attackers, or how possession-based sides might dominate defensively organized opponents. These tactical considerations can flip conventional fixture difficulty on its head, creating opportunities for astute managers who understand the nuances.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Formation battles add another layer to fixture analysis. A team playing three at the back might struggle against opponents using wing-backs, while sides employing a high defensive line become vulnerable to pacey strikers. Our system tracks formation tendencies and their success rates against different setups, helping predict which players might thrive in specific tactical scenarios. This analysis proves particularly valuable for identifying differential captain choices.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Individual battles within matches often determine outcomes more than overall team strength. Our analyzer highlights key matchups – such as a pacy winger facing an aging full-back, or a physical striker against a lightweight center-back pairing. These micro-battles create opportunities for specific players to exceed expectations, regardless of overall fixture difficulty. Understanding these individual duels helps managers identify potential explosive performances.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.8rem; margin-bottom: 20px;">Seasonal Trends and Fixture Timing</h3>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Fixture difficulty fluctuates throughout the season based on various contextual factors. Early season fixtures often produce unexpected results as teams adapt to new signings and tactical systems, making traditional FDR less reliable. Our analyzer adjusts for these seasonal variations, reducing confidence in historical data during transition periods while emphasizing current form and preseason indicators.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">The festive period presents unique challenges with congested fixtures testing squad depth. Teams with thinner squads often struggle during this period, making their fixtures easier than their season-long form suggests. Conversely, clubs with strong squad depth can maintain performance levels, making their fixtures remain difficult despite the congestion. Our analyzer factors in squad depth metrics when assessing festive fixture difficulty.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">End-of-season dynamics dramatically alter fixture assessments. Teams with nothing to play for often underperform, while those fighting for survival, European qualification, or records show elevated performance levels. Our system tracks motivation factors, adjusting difficulty ratings as mathematical scenarios clarify. This dynamic adjustment ensures fixture analysis remains relevant as seasonal narratives evolve, particularly crucial for planning end-of-season chip strategies.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.8rem; margin-bottom: 20px;">Integration with FPL Strategy</h3>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Successful FPL management requires seamlessly integrating fixture analysis with other strategic elements. Our analyzer helps balance fixture favorability against player form, ownership levels, and team structure requirements. The tool suggests when fixture difficulty should override other considerations and when factors like form or differential potential might outweigh challenging fixtures.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Captain selection represents the most impactful weekly decision, where fixture analysis proves invaluable. Our system identifies optimal captaincy fixtures beyond obvious choices, considering factors like game state scenarios (teams likely to chase goals), set-piece frequency against vulnerable defenses, and historical captain performance in similar fixtures. This comprehensive analysis helps managers maximize their captain returns throughout the season.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Chip timing optimization relies heavily on fixture analysis. Our analyzer evaluates upcoming fixture difficulty across multiple gameweeks to identify optimal windows for Wildcards, Bench Boosts, and Triple Captains. By simulating different chip strategies based on fixture schedules, the tool helps managers avoid common mistakes like using chips during unfavorable fixtures or missing prime opportunities for maximum returns.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.8rem; margin-bottom: 20px;">Real-Time Adjustments and Live Analysis</h3>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Our fixture analyzer updates in real-time as team news emerges, injuries occur, and tactical setups are revealed. This dynamic adjustment ensures fixture difficulty ratings remain accurate up to kick-off and even during matches. Early team news revealing key absences can transform a difficult fixture into a favorable opportunity, and our system immediately reflects these changes to help managers make last-minute decisions.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">In-game analysis provides live fixture difficulty adjustments based on match events. Red cards, tactical changes, or early goals significantly alter the expected outcome and player performance potential. Our analyzer processes these events instantly, updating predictions for bonus points, clean sheet probability, and likely goal scorers. This live analysis proves particularly valuable for making informed substitution decisions in draft leagues or daily fantasy contests.</p>
+                
+                <p style="color: #555; line-height: 1.8; margin-bottom: 15px; font-size: 1.1rem;">Post-match analysis feeds back into our predictive models, continuously improving accuracy. Every match result, performance metric, and unexpected outcome refines our understanding of true fixture difficulty. This machine learning approach means our analyzer becomes more accurate over time, learning from prediction errors and identifying previously unrecognized patterns that influence match outcomes.</p>
+            </section>
+        </div>
+    </div>
+
+    <script src="./auth-service.js"></script>
+    <script src="./premium-access-control.js"></script>
+    <script src="./membership-popup.js"></script>
+<script src="/ai-assistant-sidebar.js" defer></script>
+</body>
+</html>
