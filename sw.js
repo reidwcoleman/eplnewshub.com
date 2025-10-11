@@ -1,48 +1,42 @@
-// FPL AI Assistant Pro - Service Worker
-const CACHE_NAME = 'fpl-ai-assistant-v1';
+const CACHE_NAME = 'epl-news-hub-v1';
 const urlsToCache = [
   '/',
-  '/fpl-ai-assistant.html',
-  '/styles.css',
-  '/index.js',
-  '/scripts.js',
-  '/manifest.json'
+  '/static/js/bundle.js',
+  '/static/css/main.css',
+  '/manifest.json',
+  '/reidsnbest.webp',
+  '/apple-touch-icon.png'
 ];
 
-// Install Service Worker
-self.addEventListener('install', event => {
+// Install event
+self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
+      .then((cache) => {
         return cache.addAll(urlsToCache);
       })
   );
 });
 
-// Cache and return requests
-self.addEventListener('fetch', event => {
+// Fetch event
+self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
+      .then((response) => {
+        // Return cached version or fetch from network
+        return response || fetch(event.request);
       }
     )
   );
 });
 
-// Update Service Worker
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
+// Activate event
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
         })
