@@ -88,39 +88,20 @@
             padding: 40px 0;
         }
 
-        /* Hero Article - Full Width Top Story */
+        /* Top Section - Main Story + Sidebar */
         .nyt-hero {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 48px;
             margin-bottom: 48px;
             padding-bottom: 48px;
             border-bottom: 1px solid #e5e5e5;
         }
 
-        .nyt-hero-article {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 32px;
-            align-items: start;
-        }
-
-        .nyt-hero-image-wrapper {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .nyt-hero-image {
-            width: 100%;
-            height: auto;
-            aspect-ratio: 3/2;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .nyt-hero-article:hover .nyt-hero-image {
-            transform: scale(1.02);
-        }
-
-        .nyt-hero-content {
-            padding: 8px 0;
+        /* Main Featured Story */
+        .nyt-featured {
+            padding-right: 24px;
+            border-right: 1px solid #e5e5e5;
         }
 
         .nyt-category {
@@ -131,25 +112,27 @@
             text-transform: uppercase;
             color: #666;
             margin-bottom: 12px;
+            display: block;
         }
 
         .nyt-hero-title {
             font-family: 'Noto Serif', Georgia, serif;
-            font-size: 38px;
+            font-size: 28px;
             font-weight: 700;
             line-height: 1.2;
             color: #121212;
             margin-bottom: 16px;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.3px;
         }
 
         .nyt-hero-title:hover {
             color: #666;
             transition: color 0.2s ease;
+            cursor: pointer;
         }
 
         .nyt-hero-summary {
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.6;
             color: #333;
             margin-bottom: 16px;
@@ -157,7 +140,7 @@
         }
 
         .nyt-meta {
-            font-size: 13px;
+            font-size: 12px;
             color: #666;
             font-weight: 400;
         }
@@ -168,7 +151,52 @@
         }
 
         .nyt-meta-separator {
-            margin: 0 8px;
+            margin: 0 6px;
+            color: #999;
+        }
+
+        /* Hero Sidebar - 3 Stories */
+        .nyt-hero-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .nyt-sidebar-story {
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .nyt-sidebar-story:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .nyt-sidebar-story-title {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.3;
+            color: #121212;
+            margin-bottom: 8px;
+            letter-spacing: -0.2px;
+        }
+
+        .nyt-sidebar-story-title:hover {
+            color: #666;
+            transition: color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nyt-sidebar-story-summary {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .nyt-sidebar-story-meta {
+            font-size: 11px;
             color: #999;
         }
 
@@ -339,13 +367,24 @@
 
         /* Responsive */
         @media (max-width: 1024px) {
-            .nyt-hero-article,
+            .nyt-hero {
+                grid-template-columns: 1fr;
+            }
+
+            .nyt-featured {
+                border-right: none;
+                border-bottom: 1px solid #e5e5e5;
+                padding-right: 0;
+                padding-bottom: 32px;
+                margin-bottom: 32px;
+            }
+
             .nyt-two-column {
                 grid-template-columns: 1fr;
             }
 
             .nyt-hero-title {
-                font-size: 32px;
+                font-size: 24px;
             }
 
             .nyt-sidebar {
@@ -362,7 +401,7 @@
             }
 
             .nyt-hero-title {
-                font-size: 28px;
+                font-size: 22px;
             }
 
             .nyt-article-title {
@@ -388,37 +427,46 @@
     <main class="nyt-main-content">
         <div class="nyt-container">
 
-            <!-- Hero Article -->
+            <!-- Top Section: Featured Story + Sidebar -->
             <section class="nyt-hero">
-                <div class="main_headline" include="./main_headline.html"></div>
+                <!-- Main Featured Story -->
+                <div class="nyt-featured">
+                    <div class="main_headline" include="./main_headline.html"></div>
+                </div>
+
+                <!-- Sidebar with 3 Stories -->
+                <div class="nyt-hero-sidebar">
+                    <div class="nyt-sidebar-story">
+                        <div class="main_subheadline1" include="./main_subheadline1.html"></div>
+                    </div>
+                    <div class="nyt-sidebar-story">
+                        <div class="main_subheadline2" include="./main_subheadline2.html"></div>
+                    </div>
+                    <div class="nyt-sidebar-story">
+                        <div class="main_subheadline3" include="./main_subheadline3.html"></div>
+                    </div>
+                </div>
             </section>
 
             <!-- Three Column Grid -->
             <section class="nyt-three-column">
-                <div class="main_subheadline1" include="./main_subheadline1.html"></div>
-                <div class="main_subheadline2" include="./main_subheadline2.html"></div>
-                <div class="main_subheadline3" include="./main_subheadline3.html"></div>
+                <div class="main_subheadline4" include="./main_subheadline4.html"></div>
+                <div class="main_subheadline5" include="./main_subheadline5.html"></div>
+                <div class="main_subheadline6" include="./main_subheadline6.html"></div>
             </section>
 
             <!-- Two Column Layout -->
             <section class="nyt-two-column">
                 <!-- Main Column -->
                 <div class="nyt-main-column">
-                    <div class="main_subheadline4" include="./main_subheadline4.html"></div>
-                    <div class="main_subheadline5" include="./main_subheadline5.html"></div>
-                    <div class="main_subheadline6" include="./main_subheadline6.html"></div>
+                    <div class="secondary_subheadline1" include="./secondary_subheadline1.html"></div>
+                    <div class="secondary_subheadline2" include="./secondary_subheadline2.html"></div>
                 </div>
 
                 <!-- Sidebar -->
                 <aside class="nyt-sidebar">
                     <h2 class="nyt-sidebar-title">More Stories</h2>
                     <ul class="nyt-sidebar-list">
-                        <li class="nyt-sidebar-item">
-                            <div class="secondary_subheadline1" include="./secondary_subheadline1.html"></div>
-                        </li>
-                        <li class="nyt-sidebar-item">
-                            <div class="secondary_subheadline2" include="./secondary_subheadline2.html"></div>
-                        </li>
                         <li class="nyt-sidebar-item">
                             <div class="secondary_subheadline3" include="./secondary_subheadline3.html"></div>
                         </li>
