@@ -44,11 +44,38 @@ Since this is a static site with no package.json, there are no build/lint/test c
 
 ## Content Management
 
-### Adding Articles
-1. Create new HTML file in `/articles/` directory
-2. Follow existing naming convention: `title-with-hyphens-YYYY-MM-DD.html`
-3. Use `.nyt-article` class for consistent typography
-4. Update homepage includes to feature new articles
+### "Create a New Article" Command
+
+When the user says "create a new article", follow this workflow:
+
+1. **Ask for article details:**
+   - Article title
+   - Full article content (introduction, body paragraphs, stats/tables if applicable)
+   - Image filename (must already exist in root directory)
+
+2. **Create article file:**
+   - Create new HTML file: `/articles/[title-with-hyphens-YYYY-MM-DD].html`
+   - Use NYT/Athletic article template structure
+   - Include all content provided by user
+   - Use semantic HTML (`<time>`, `<article>`, etc.)
+
+3. **Update homepage (cascade articles):**
+   - Read current `main_headline.html`
+   - Read `main_subheadline1.html`, `main_subheadline2.html`, `main_subheadline3.html`
+   - Create new `main_headline.html` with the new article
+   - Move previous main headline → `main_subheadline1.html`
+   - Move previous subheadline1 → `main_subheadline2.html`
+   - Move previous subheadline2 → `main_subheadline3.html`
+
+4. **Update sitemap.xml:**
+   - Add new `<url>` entry for the article
+   - Use `<lastmod>` with today's date (YYYY-MM-DD format)
+   - Set `<changefreq>monthly</changefreq>`
+   - Set `<priority>0.6</priority>`
+
+5. **Commit and push:**
+   - Commit all changes with descriptive message
+   - Push to GitHub
 
 ### Article Structure
 Articles should use the established `.nyt-article` styling with:
