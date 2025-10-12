@@ -90,6 +90,7 @@
             margin-bottom: 56px;
             padding-bottom: 56px;
             border-bottom: 1px solid #dfdfdf;
+            align-items: start;
         }
 
         /* Main Featured Story */
@@ -98,13 +99,18 @@
             border-right: 1px solid #dfdfdf;
             display: flex;
             flex-direction: column;
+        }
+
+        .nyt-featured .main_headline {
+            display: flex;
+            flex-direction: column;
             height: 100%;
         }
 
         .nyt-featured a {
             display: flex;
             flex-direction: column;
-            height: 100%;
+            flex: 1;
         }
 
         .nyt-featured img {
@@ -1053,5 +1059,25 @@
 
     <!-- Scripts -->
     <script src="index.js"></script>
+    <script>
+        // Match main headline height to sidebar height
+        function matchHeadlineToSidebar() {
+            const sidebar = document.querySelector('.nyt-hero-sidebar');
+            const featured = document.querySelector('.nyt-featured');
+
+            if (sidebar && featured && window.innerWidth > 1024) {
+                const sidebarHeight = sidebar.offsetHeight;
+                featured.style.height = sidebarHeight + 'px';
+            } else if (featured) {
+                featured.style.height = 'auto';
+            }
+        }
+
+        // Run on load and resize
+        window.addEventListener('load', function() {
+            setTimeout(matchHeadlineToSidebar, 100);
+        });
+        window.addEventListener('resize', matchHeadlineToSidebar);
+    </script>
 </body>
 </html>
