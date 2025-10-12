@@ -99,36 +99,12 @@
             border-right: 1px solid #dfdfdf;
             display: flex;
             flex-direction: column;
-            height: 100%;
         }
 
         .nyt-featured .main_headline {
             display: flex;
             flex-direction: column;
             flex: 1;
-            height: 100%;
-        }
-
-        .nyt-featured a {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            height: 100%;
-        }
-
-        .nyt-featured img {
-            width: 100%;
-            aspect-ratio: 16 / 10;
-            object-fit: cover;
-            margin-bottom: 16px;
-            flex-shrink: 0;
-        }
-
-        .nyt-featured a > div {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            justify-content: space-between;
         }
 
 
@@ -1070,26 +1046,31 @@
     <!-- Scripts -->
     <script src="index.js"></script>
     <script>
-        // Match main headline height to sidebar height exactly
+        // Match main headline card height to sidebar height exactly
         function matchHeadlineToSidebar() {
             const sidebar = document.querySelector('.nyt-hero-sidebar');
-            const featured = document.querySelector('.nyt-featured');
             const mainHeadline = document.querySelector('.nyt-featured .main_headline');
+            const headlineLink = mainHeadline ? mainHeadline.querySelector('a') : null;
 
-            if (sidebar && featured && mainHeadline && window.innerWidth > 1024) {
+            if (sidebar && mainHeadline && headlineLink && window.innerWidth > 1024) {
                 // Reset to auto first to get natural heights
-                featured.style.minHeight = 'auto';
-                mainHeadline.style.minHeight = 'auto';
+                mainHeadline.style.height = 'auto';
+                headlineLink.style.height = 'auto';
+
+                // Force a reflow
+                void sidebar.offsetHeight;
 
                 // Get exact sidebar height
                 const sidebarHeight = sidebar.getBoundingClientRect().height;
 
-                // Set both the featured container and main_headline to match
-                featured.style.minHeight = sidebarHeight + 'px';
-                mainHeadline.style.minHeight = sidebarHeight + 'px';
-            } else if (featured && mainHeadline) {
-                featured.style.minHeight = 'auto';
-                mainHeadline.style.minHeight = 'auto';
+                // Set the main_headline and link to exact sidebar height
+                mainHeadline.style.height = sidebarHeight + 'px';
+                headlineLink.style.height = '100%';
+
+                console.log('Sidebar height:', sidebarHeight, 'px');
+            } else if (mainHeadline && headlineLink) {
+                mainHeadline.style.height = 'auto';
+                headlineLink.style.height = 'auto';
             }
         }
 
@@ -1099,6 +1080,7 @@
             setTimeout(matchHeadlineToSidebar, 100);
             setTimeout(matchHeadlineToSidebar, 300);
             setTimeout(matchHeadlineToSidebar, 500);
+            setTimeout(matchHeadlineToSidebar, 1000);
         });
         window.addEventListener('resize', matchHeadlineToSidebar);
 
