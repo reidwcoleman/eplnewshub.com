@@ -66,6 +66,9 @@ When the user says "create a new article", follow this workflow:
    - Move previous main headline → `main_subheadline1.html`
    - Move previous subheadline1 → `main_subheadline2.html`
    - Move previous subheadline2 → `main_subheadline3.html`
+   - Move previous subheadline3 → `headline1.html`
+   - Cascade headline1 → headline2, headline2 → headline3, ..., headline11 → headline12
+   - The previous headline12 gets removed (last article drops off)
 
 4. **Update sitemap.xml:**
    - Add new `<url>` entry for the article
