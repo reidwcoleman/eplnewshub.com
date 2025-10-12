@@ -90,7 +90,7 @@
             margin-bottom: 56px;
             padding-bottom: 56px;
             border-bottom: 1px solid #dfdfdf;
-            align-items: start;
+            align-items: stretch;
         }
 
         /* Main Featured Story */
@@ -99,11 +99,13 @@
             border-right: 1px solid #dfdfdf;
             display: flex;
             flex-direction: column;
+            height: 100%;
         }
 
         .nyt-featured .main_headline {
             display: flex;
             flex-direction: column;
+            flex: 1;
             height: 100%;
         }
 
@@ -111,6 +113,7 @@
             display: flex;
             flex-direction: column;
             flex: 1;
+            height: 100%;
         }
 
         .nyt-featured img {
@@ -119,6 +122,13 @@
             object-fit: cover;
             margin-bottom: 16px;
             flex-shrink: 0;
+        }
+
+        .nyt-featured a > div {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
         }
 
 
@@ -1060,24 +1070,45 @@
     <!-- Scripts -->
     <script src="index.js"></script>
     <script>
-        // Match main headline height to sidebar height
+        // Match main headline height to sidebar height exactly
         function matchHeadlineToSidebar() {
             const sidebar = document.querySelector('.nyt-hero-sidebar');
             const featured = document.querySelector('.nyt-featured');
+            const mainHeadline = document.querySelector('.nyt-featured .main_headline');
 
-            if (sidebar && featured && window.innerWidth > 1024) {
-                const sidebarHeight = sidebar.offsetHeight;
-                featured.style.height = sidebarHeight + 'px';
-            } else if (featured) {
-                featured.style.height = 'auto';
+            if (sidebar && featured && mainHeadline && window.innerWidth > 1024) {
+                // Reset to auto first to get natural heights
+                featured.style.minHeight = 'auto';
+                mainHeadline.style.minHeight = 'auto';
+
+                // Get exact sidebar height
+                const sidebarHeight = sidebar.getBoundingClientRect().height;
+
+                // Set both the featured container and main_headline to match
+                featured.style.minHeight = sidebarHeight + 'px';
+                mainHeadline.style.minHeight = sidebarHeight + 'px';
+            } else if (featured && mainHeadline) {
+                featured.style.minHeight = 'auto';
+                mainHeadline.style.minHeight = 'auto';
             }
         }
 
-        // Run on load and resize
+        // Run multiple times to ensure content is loaded
         window.addEventListener('load', function() {
+            matchHeadlineToSidebar();
             setTimeout(matchHeadlineToSidebar, 100);
+            setTimeout(matchHeadlineToSidebar, 300);
+            setTimeout(matchHeadlineToSidebar, 500);
         });
         window.addEventListener('resize', matchHeadlineToSidebar);
+
+        // Also run when images load
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('.nyt-hero img');
+            images.forEach(img => {
+                img.addEventListener('load', matchHeadlineToSidebar);
+            });
+        });
     </script>
 </body>
 </html>
