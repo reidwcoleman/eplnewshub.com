@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Create your EPL News Hub account to access exclusive Premier League content and features.">
+    <meta name="keywords" content="EPL News Hub account, register, sign up, Premier League">
+    <title>Create Account | EPL News Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/mobile-master-optimize.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
+    <link rel="apple-touch-icon" href="/eplnewshub_logo.png">
+    <link rel="icon" type="image/png" href="/eplnewshub_logo.png">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyOey0l27yQP68oybpoodMVcvayhIHt2I",
+            authDomain: "epl-news-hub-94c09.firebaseapp.com",
+            projectId: "epl-news-hub-94c09",
+            storageBucket: "epl-news-hub-94c09.firebasestorage.app",
+            messagingSenderId: "674703933278",
+            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf",
+            measurementId: "G-ECM6BCQCS8"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        // Make auth available globally
+        window.auth = auth;
+        window.googleProvider = googleProvider;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithPopup = signInWithPopup;
+        window.updateProfile = updateProfile;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut;
+        
+        // Force sign out when user visits this page to ensure fresh account creation
+        signOut(auth).catch((error) => {
+            console.log('Sign out on page load (if any):', error);
+        });
+        
+        // Add scope for better user info
+        googleProvider.addScope('profile');
+        googleProvider.addScope('email');
+    </script>
+    <style>
+        .auth-container {
+            max-width: 450px;
+            margin: 50px auto;
+            padding: 40px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-header h1 {
+            font-family: Georgia, serif;
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .auth-header p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        
+        .checkbox-group label {
+            font-weight: normal;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .signup-btn {
+            background: #0066cc;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .signup-btn:hover {
+            background: #0052a3;
+        }
+        
+        .signup-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .auth-links {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .auth-links a {
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .social-signin {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .social-btn {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .social-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .google-btn {
+            border-color: #db4437;
+            color: #db4437;
+        }
+        
+        .password-strength {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        
+        .strength-weak {
+            color: #dc3545;
+        }
+        
+        .strength-medium {
+            color: #ffc107;
+        }
+        
+        .strength-strong {
+            color: #28a745;
+        }
+        
+        .team-preferences {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .team-preferences h3 {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .team-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .team-option:hover {
+            background: #f0f0f0;
+        }
+        
+        .team-option input[type="checkbox"] {
+            margin: 0;
+        }
+        
+        .team-option label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        .global-message {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .global-message.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .global-message.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .auth-divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .auth-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #ddd;
+        }
+        
+        .auth-divider span {
+            background: white;
+            padding: 0 15px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header" include="./header.html"></div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>👤 Create Account</h1>
+                <p>Join the EPL News Hub community</p>
+            </div>
+
+            <div id="auth-message" class="global-message" style="display: none;"></div>
+
+            <form class="auth-form" onsubmit="handleCreateAccount(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" name="firstName" placeholder="Enter first name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" placeholder="Enter last name" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a password" required onkeyup="checkPasswordStrength()">
+                    <div id="passwordStrength" class="password-strength"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <select id="country" name="country" required>
+                        <option value="">Select your country</option>
+                        <option value="UK">United Kingdom</option>
+                        <option value="US">United States</option>
+                        <option value="CA">Canada</option>
+                        <option value="AU">Australia</option>
+                        <option value="IE">Ireland</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="team-preferences">
+                    <h3>⚽ Favorite Premier League Teams (Optional)</h3>
+                    <div class="team-grid">
+                        <div class="team-option">
+                            <input type="checkbox" id="arsenal" name="teams" value="Arsenal">
+                            <label for="arsenal">Arsenal</label>
+                        </div>
+                        <div class="team-option">
+                            <input type="checkbox" id="chelsea" name="teams" value="Chelsea">
+                            <label for="chelsea">Chelsea</label>
+                        </div>
+                        <div class="team-option">
+                            <input type="checkbox" id="liverpool" name="teams" value="Liverpool">
+                            <label for="liverpool">Liverpool</label>
+                        </div>
+                        <div class="team-option">
+                            <input type="checkbox" id="mancity" name="teams" value="Manchester City">
+                            <label for="mancity">Man City</label>
+                        </div>
+                        <div class="team-option">
+                            <input type="checkbox" id="manutd" name="teams" value="Manchester United">
+                            <label for="manutd">Man United</label>
+                        </div>
+                        <div class="team-option">
+                            <input type="checkbox" id="tottenham" name="teams" value="Tottenham">
+                            <label for="tottenham">Tottenham</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="newsletter" name="newsletter" checked>
+                    <label for="newsletter">Subscribe to our weekly Premier League newsletter</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a></label>
+                </div>
+
+                <button type="submit" class="signup-btn" id="signupBtn">Create Account</button>
+            </form>
+
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+            
+            <button id="google-signup-btn" class="social-btn google-btn" type="button">
+                <svg style="width: 20px; height: 20px; margin-right: 8px;" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                <span>Sign up with Google</span>
+            </button>
+            
+            <div class="auth-links">
+                <p>Already have an account? <a href="/signin.html">Sign in here</a></p>
+            </div>
+        </div>
+    </main>
+
+    <!-- SEO Content Section -->
+    <div style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
+        <div style="background: white; border-radius: 10px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+            <h2 style="color: #333; font-size: 2rem; margin-bottom: 30px; font-family: Georgia, serif;">📖 Complete Guide to Creating Your EPL News Hub Account</h2>
+            
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #333; font-size: 1.5rem; margin-bottom: 20px;">Why Create an EPL News Hub Account?</h3>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Creating an account with EPL News Hub transforms your Premier League experience from passive consumption to active engagement. As the premier destination for English football content, we've designed our account system to provide personalized, exclusive, and enhanced features that casual visitors simply cannot access. Your account becomes your gateway to a comprehensive ecosystem of Premier League news, analysis, and community interaction.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">The moment you create your account, our intelligent content delivery system begins learning your preferences. Whether you're passionate about Manchester United's transfer strategy, Liverpool's tactical evolution, or Arsenal's youth development, your personalized feed ensures you never miss the stories that matter most to you. This customization extends beyond simple team preferences – our algorithm considers your reading patterns, the types of articles you engage with, and even the times you're most active to deliver a truly personalized experience.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Account holders gain access to our exclusive content vault, featuring in-depth articles from renowned football journalists, former players, and tactical experts. These pieces go beyond surface-level reporting to provide insights you won't find anywhere else. Recent exclusive content has included leaked transfer documents, behind-the-scenes dressing room stories, and advanced tactical breakdowns used by professional coaching staff.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #333; font-size: 1.5rem; margin-bottom: 20px;">The Account Creation Process Explained</h3>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">We've streamlined our account creation process to be as simple and secure as possible. The entire process takes less than two minutes, yet provides comprehensive options for personalizing your experience from day one. Our registration form collects only essential information while offering optional fields that enhance your content recommendations and user experience.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">When you enter your email address, our system immediately checks for existing accounts to prevent duplicates and ensure a smooth registration process. We support all major email providers and have implemented advanced validation to catch common typos that might prevent you from receiving important account notifications. Your email becomes your unique identifier across our platform and is never shared with third parties without your explicit consent.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">The password creation step includes our real-time strength indicator, which helps you create a secure password that protects your account from unauthorized access. We require passwords to be at least eight characters long and recommend including a mix of uppercase letters, lowercase letters, numbers, and special characters. Our system stores passwords using industry-standard encryption, ensuring your credentials remain secure even in the unlikely event of a data breach.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Selecting your favorite Premier League teams during registration immediately customizes your experience. This preference affects everything from your homepage layout to the order of transfer news in your feed. You can select multiple teams if you follow more than one club, and these preferences can be updated at any time through your account settings. The team selection also influences our recommendation engine, ensuring you receive relevant content about rivals, upcoming fixtures, and transfer targets.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #333; font-size: 1.5rem; margin-bottom: 20px;">Google Sign-Up Integration</h3>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">For users who prefer a faster registration process, we offer Google Sign-Up integration. This option allows you to create an account using your existing Google credentials, eliminating the need to remember another password while maintaining the same level of security and functionality as traditional email registration.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">When you choose Google Sign-Up, we request only basic profile information from your Google account – your name, email address, and profile picture if available. This information is used solely to create and personalize your EPL News Hub account. We never post to your Google account, access your contacts, or view any information beyond what's necessary for account creation.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Google Sign-Up offers enhanced security through Google's robust authentication system, including automatic protection against suspicious login attempts and optional two-factor authentication through your Google account settings. This integration also enables seamless sign-in across multiple devices – once you're signed into Google on a device, accessing your EPL News Hub account requires just a single click.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #333; font-size: 1.5rem; margin-bottom: 20px;">Account Security and Privacy Protection</h3>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Security is paramount in our account system design. Every connection between your browser and our servers is encrypted using SSL/TLS protocols, the same technology used by banks and financial institutions. This encryption ensures that your personal information, including passwords and payment details for premium subscriptions, cannot be intercepted by malicious actors.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">We implement multiple layers of account protection beyond basic password security. Our system monitors for suspicious login attempts, automatically blocking access after multiple failed attempts and notifying you via email of any unusual activity. We track login locations and devices, alerting you if your account is accessed from an unfamiliar location or device. These security measures work silently in the background, providing protection without impacting your user experience.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Your privacy rights are fundamental to our platform. We adhere to GDPR requirements and other international privacy regulations, giving you complete control over your personal data. Through your account settings, you can download all data we hold about you, request deletion of your account and associated data, and manage exactly what information we collect and how it's used. Our privacy policy, written in plain English rather than legal jargon, clearly explains our data practices.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #333; font-size: 1.5rem; margin-bottom: 20px;">Newsletter and Communication Preferences</h3>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">During account creation, you have the option to subscribe to our weekly Premier League newsletter – a carefully curated digest of the week's most important stories, exclusive content previews, and expert analysis. Our newsletter has become essential reading for over 100,000 Premier League fans worldwide, consistently praised for its comprehensive coverage and insider insights.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">The newsletter subscription is completely optional and can be managed through your account preferences at any time. We offer granular control over communication frequency and content types. You might choose to receive only breaking transfer news, weekly tactical analyses, or monthly season previews. Our preference center allows you to customize exactly what lands in your inbox and when.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Beyond newsletters, account holders can opt into push notifications for breaking news, match reminders for their favorite teams, and alerts for new content from preferred authors. These notifications are intelligently managed to prevent overwhelming you – our system learns your engagement patterns and adjusts notification frequency accordingly. You can set quiet hours when you don't want to be disturbed and specify different preferences for weekdays versus weekends.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #333; font-size: 1.5rem; margin-bottom: 20px;">Benefits of Account Membership</h3>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Free account membership unlocks numerous features that enhance your EPL News Hub experience. You gain the ability to comment on articles, engaging in discussions with fellow fans and our expert contributors. Our moderated comment sections have become vibrant communities where tactical debates, transfer speculation, and match analysis create some of the most insightful football discussions on the internet.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Account holders can bookmark articles for later reading, creating personalized libraries of content organized by tags and categories. This feature proves invaluable during the season when you want to reference previous tactical analyses, team news, or transfer rumors. Your reading history is also saved, making it easy to find that brilliant article you read last month but can't quite remember the title of.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">The account dashboard provides access to exclusive tools like our FPL Team Analyzer, which uses advanced algorithms to evaluate your Fantasy Premier League squad and suggest optimal transfers. The Transfer Value Calculator helps you understand player market values, while the Match Predictor uses machine learning to forecast match outcomes with remarkable accuracy. These tools alone make account creation worthwhile for serious Premier League fans.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Members receive early access to content before it's publicly available. Premium articles, transfer exclusives, and breaking news often appear in member feeds hours before general publication. This early access has helped thousands of FPL managers make informed decisions before price changes and allowed fans to be first with the latest news in their social circles.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #333; font-size: 1.5rem; margin-bottom: 20px;">Account Verification and Activation</h3>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">After completing the registration form, you'll receive a verification email within minutes. This email contains a secure link that confirms your email address and activates your account. We've designed our verification emails to bypass most spam filters, but we always recommend checking your spam folder if you don't see it in your inbox within five minutes.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">The verification process serves multiple purposes beyond confirming your email address. It ensures you have access to the email account for future password resets and important notifications, prevents automated bot registrations that could compromise our community quality, and triggers the initial setup of your personalized content feed based on your registration preferences.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Once verified, your account is immediately active with full access to member features. There's no waiting period or manual approval process – you can start engaging with content, customizing your preferences, and exploring premium features right away. If you encounter any issues during verification, our support team is available 24/7 to assist with account activation.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #333; font-size: 1.5rem; margin-bottom: 20px;">International User Considerations</h3>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">EPL News Hub serves Premier League fans across the globe, and our account system is designed with international users in mind. The country selection during registration helps us provide localized content when relevant, such as broadcast schedules for Premier League matches in your region, local supporter club information, and time zone-adjusted fixture lists.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">We support multiple currencies for premium subscriptions, automatically detecting your location to display prices in your local currency. Payment methods are also localized, accepting region-specific payment options beyond standard credit cards. This localization extends to content recommendations – international users might see more content about players from their country or Premier League clubs' activities in their region.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Our platform is optimized for global access, with content delivery networks ensuring fast loading times regardless of your location. We also provide customer support in multiple languages during peak hours, recognizing that Premier League fandom transcends linguistic boundaries. The account interface itself will soon support multiple languages, making navigation easier for non-English speakers.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #333; font-size: 1.5rem; margin-bottom: 20px;">Mobile Account Creation</h3>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Creating an account on mobile devices is just as seamless as on desktop. Our responsive design ensures that all form fields are easily accessible on smaller screens, with optimized touch targets and automatic keyboard switching for email and password fields. The mobile experience includes all the same features as desktop registration, with no compromises in functionality or security.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">Mobile users benefit from additional features like biometric authentication setup during registration. If your device supports fingerprint or face recognition, you can enable these features for faster, more secure sign-ins in the future. This biometric data is stored securely on your device and never transmitted to our servers, maintaining your privacy while enhancing convenience.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">The mobile registration process is optimized for one-handed use, with form fields arranged vertically and buttons positioned within easy thumb reach. Auto-fill suggestions for common email domains speed up the process, while our password strength indicator helps you create secure passwords even on mobile keyboards. The entire mobile registration process typically takes less than 90 seconds.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #333; font-size: 1.5rem; margin-bottom: 20px;">Frequently Asked Questions About Account Creation</h3>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;"><strong>Is creating an account free?</strong><br>
+                Yes, creating a basic EPL News Hub account is completely free and always will be. Free accounts include access to commenting, bookmarking, personalized feeds, and many other features. Premium subscriptions are optional upgrades that unlock additional exclusive content and advanced tools.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;"><strong>Can I use a pseudonym instead of my real name?</strong><br>
+                Absolutely. While we request first and last names for personalization, you're welcome to use a pseudonym or nickname. Many of our community members prefer to maintain anonymity while discussing football online. Your chosen display name appears in comments and community features.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;"><strong>What happens if I forget my password?</strong><br>
+                Our password reset process is simple and secure. Click the "Forgot Password" link on the sign-in page, enter your email address, and we'll send a reset link within minutes. For security, reset links expire after 24 hours and can only be used once. If you're signed up with Google, you don't need to remember a separate password.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;"><strong>Can I create multiple accounts?</strong><br>
+                Our terms of service limit users to one account per person to ensure fair use of resources and maintain community integrity. If you need to change your email address or merge accounts, our support team can assist with account transitions while preserving your preferences and history.</p>
+                
+                <p style="color: #666; line-height: 1.8; margin-bottom: 15px;"><strong>How can I delete my account if needed?</strong><br>
+                Account deletion is available through your account settings with immediate effect. When you delete your account, we remove all personal information from our active databases within 24 hours. Some anonymized data may be retained for legal compliance, but this cannot be linked back to you. You can create a new account with the same email address after 30 days.</p>
+            </section>
+        </div>
+    </div>
+
+    <div class="footer" include="./footer.html"></div>
+    <script src="./index.js"></script>
+    
+    <script>
+        // Wait for Firebase to be fully loaded
+        let firebaseReady = false;
+        
+        // Check Firebase initialization
+        function checkFirebase() {
+            if (window.auth && window.signInWithPopup && window.googleProvider) {
+                firebaseReady = true;
+                console.log('Firebase is ready');
+                return true;
+            }
+            console.log('Firebase not ready yet...');
+            return false;
+        }
+        
+        // Wait for Firebase with timeout
+        function waitForFirebase(callback, timeout = 5000) {
+            const startTime = Date.now();
+            const interval = setInterval(() => {
+                if (checkFirebase()) {
+                    clearInterval(interval);
+                    callback(true);
+                } else if (Date.now() - startTime > timeout) {
+                    clearInterval(interval);
+                    callback(false);
+                }
+            }, 100);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const createAccountForm = document.querySelector('.auth-form');
+            const googleSignupBtn = document.getElementById('google-signup-btn');
+            const messageDiv = document.getElementById('auth-message');
+            
+            // Check if user is already signed in
+            if (window.onAuthStateChanged && window.auth) {
+                window.onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        // User is signed in, redirect to homepage
+                        showMessage('You are already signed in! Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1500);
+                    }
+                });
+            }
+            
+            // Email/Password Sign Up
+            createAccountForm.addEventListener('submit', handleCreateAccount);
+            
+            // Google Sign Up with better error handling
+            googleSignupBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                
+                console.log('Google Sign-Up button clicked');
+                
+                // Show loading state
+                googleSignupBtn.disabled = true;
+                const originalContent = googleSignupBtn.innerHTML;
+                googleSignupBtn.innerHTML = '<span>⏳</span> <span>Connecting to Google...</span>';
+                
+                // Wait for Firebase to be ready
+                waitForFirebase(async (isReady) => {
+                    if (!isReady) {
+                        showMessage('⚠️ Firebase is still loading. Please try again in a moment.', 'error');
+                        googleSignupBtn.disabled = false;
+                        googleSignupBtn.innerHTML = originalContent;
+                        return;
+                    }
+                    
+                    try {
+                        console.log('Starting Google Sign-Up popup...');
+                        
+                        // Configure provider
+                        window.googleProvider.setCustomParameters({
+                            prompt: 'select_account'
+                        });
+                        
+                        const result = await window.signInWithPopup(window.auth, window.googleProvider);
+                        const user = result.user;
+                        
+                        console.log('Google sign-up successful:', user);
+                        showMessage('🎉 Google sign up successful! Welcome to EPL News Hub!', 'success');
+                        
+                        // Store user info in localStorage with additional data
+                        const userData = {
+                            uid: user.uid,
+                            email: user.email,
+                            displayName: user.displayName,
+                            photoURL: user.photoURL,
+                            createdAt: new Date().toISOString(),
+                            signedInAt: new Date().toISOString(),
+                            provider: 'google',
+                            newsletter: true // Default to newsletter subscription for Google sign-ups
+                        };
+                        localStorage.setItem('user', JSON.stringify(userData));
+                        
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1500);
+                    } catch (error) {
+                        console.error('Google sign up error:', error);
+                        
+                        let errorMessage = '❌ Google sign up failed. ';
+                        
+                        switch (error.code) {
+                            case 'auth/popup-closed-by-user':
+                                errorMessage = 'Sign-up cancelled. Please try again when ready.';
+                                break;
+                            case 'auth/popup-blocked':
+                                errorMessage = '🚫 Popup was blocked. Please allow popups for this site and try again.';
+                                break;
+                            case 'auth/cancelled-popup-request':
+                                errorMessage = 'Another sign-up popup is already open.';
+                                break;
+                            case 'auth/network-request-failed':
+                                errorMessage = '🌐 Network error. Please check your connection and try again.';
+                                break;
+                            case 'auth/unauthorized-domain':
+                                errorMessage = '⚠️ This domain is not authorized. Please contact support.';
+                                break;
+                            case 'auth/operation-not-allowed':
+                                errorMessage = '⚠️ Google Sign-In is not enabled. Please contact support.';
+                                break;
+                            case 'auth/email-already-in-use':
+                                errorMessage = 'An account with this email already exists. Please sign in instead.';
+                                setTimeout(() => {
+                                    window.location.href = '/signin.html';
+                                }, 2000);
+                                break;
+                            default:
+                                errorMessage += error.message || 'Please try again.';
+                        }
+                        
+                        if (error.code !== 'auth/popup-closed-by-user') {
+                            showMessage(errorMessage, 'error');
+                        }
+                    } finally {
+                        // Reset button state
+                        googleSignupBtn.disabled = false;
+                        googleSignupBtn.innerHTML = originalContent;
+                    }
+                });
+            });
+        });
+        
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            
+            if (password.length === 0) {
+                strengthDiv.textContent = '';
+                return;
+            }
+            
+            let strength = 0;
+            let feedback = [];
+            
+            if (password.length >= 8) strength++;
+            else feedback.push('at least 8 characters');
+            
+            if (/[A-Z]/.test(password)) strength++;
+            else feedback.push('an uppercase letter');
+            
+            if (/[a-z]/.test(password)) strength++;
+            else feedback.push('a lowercase letter');
+            
+            if (/\d/.test(password)) strength++;
+            else feedback.push('a number');
+            
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+            else feedback.push('a special character');
+            
+            if (strength < 3) {
+                strengthDiv.className = 'password-strength strength-weak';
+                strengthDiv.textContent = 'Weak password. Add: ' + feedback.slice(0, 2).join(', ');
+            } else if (strength < 5) {
+                strengthDiv.className = 'password-strength strength-medium';
+                strengthDiv.textContent = 'Medium strength. Consider adding: ' + feedback.slice(0, 1).join(', ');
+            } else {
+                strengthDiv.className = 'password-strength strength-strong';
+                strengthDiv.textContent = 'Strong password!';
+            }
+        }
+        
+        async function handleCreateAccount(event) {
+            event.preventDefault();
+            
+            // Clear any previous error messages
+            clearErrorMessages();
+            
+            // Get form data
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const country = document.getElementById('country').value;
+            const terms = document.getElementById('terms').checked;
+            const newsletter = document.getElementById('newsletter').checked;
+            
+            // Validation
+            let isValid = true;
+            
+            if (!firstName || firstName.length < 2) {
+                showError('firstName', 'First name must be at least 2 characters long');
+                isValid = false;
+            }
+            
+            if (!lastName || lastName.length < 2) {
+                showError('lastName', 'Last name must be at least 2 characters long');
+                isValid = false;
+            }
+            
+            if (!email || !isValidEmail(email)) {
+                showError('email', 'Please enter a valid email address');
+                isValid = false;
+            }
+            
+            if (!password || password.length < 8) {
+                showError('password', 'Password must be at least 8 characters long');
+                isValid = false;
+            }
+            
+            if (!confirmPassword || password !== confirmPassword) {
+                showError('confirmPassword', 'Passwords do not match');
+                isValid = false;
+            }
+            
+            if (!country) {
+                showError('country', 'Please select your country');
+                isValid = false;
+            }
+            
+            if (!terms) {
+                showError('terms', 'You must agree to the Terms of Service and Privacy Policy');
+                isValid = false;
+            }
+            
+            // Check password strength
+            const passwordStrength = getPasswordStrength(password);
+            if (passwordStrength < 3) {
+                showError('password', 'Password is too weak. Please use a stronger password.');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                return;
+            }
+            
+            // Get selected teams
+            const selectedTeams = Array.from(document.querySelectorAll('input[name="teams"]:checked'))
+                .map(cb => cb.value);
+            
+            // Show loading state
+            const submitBtn = document.getElementById('signupBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Creating Account...';
+            submitBtn.disabled = true;
+            
+            try {
+                if (window.createUserWithEmailAndPassword && window.auth && window.updateProfile) {
+                    // Create user with Firebase
+                    const userCredential = await window.createUserWithEmailAndPassword(window.auth, email, password);
+                    const user = userCredential.user;
+                    
+                    // Update user profile with display name
+                    await window.updateProfile(user, {
+                        displayName: `${firstName} ${lastName}`
+                    });
+                    
+                    // Store additional user data in localStorage
+                    const userData = {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: `${firstName} ${lastName}`,
+                        firstName,
+                        lastName,
+                        country,
+                        favoriteTeams: selectedTeams,
+                        newsletter,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    
+                    // Success
+                    showMessage('🎉 Account created successfully! Welcome to EPL News Hub!', 'success');
+                    
+                    // Reset form
+                    event.target.reset();
+                    
+                    // Redirect to homepage after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    // Fallback for when Firebase is not configured
+                    showMessage('⚠️ Firebase authentication not configured. Please set up your Firebase project first.', 'error');
+                }
+            } catch (error) {
+                console.error('Account creation error:', error);
+                let errorMessage = 'Failed to create account. Please try again.';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'An account with this email already exists. Please sign in instead.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password is too weak. Please use a stronger password.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage = 'Email/password accounts are not enabled. Please contact support.';
+                        break;
+                }
+                
+                showMessage(errorMessage, 'error');
+            } finally {
+                // Reset button state
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+        
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        function getPasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+            return strength;
+        }
+        
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('auth-message');
+            messageDiv.textContent = message;
+            messageDiv.className = `global-message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 8000);
+            }
+        }
+        
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            
+            // Remove any existing error message
+            const existingError = field.parentNode.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Add error styling to field
+            field.style.borderColor = '#dc3545';
+            field.parentNode.appendChild(errorDiv);
+        }
+        
+        function clearErrorMessages() {
+            // Remove all error messages
+            document.querySelectorAll('.error-message').forEach(el => el.remove());
+            
+            // Reset field styling
+            document.querySelectorAll('input, select').forEach(field => {
+                field.style.borderColor = '';
+            });
+            
+            // Hide global messages
+            const globalError = document.getElementById('globalError');
+            const globalSuccess = document.getElementById('globalSuccess');
+            if (globalError) globalError.style.display = 'none';
+            if (globalSuccess) globalSuccess.style.display = 'none';
+        }
+        
+        function showGlobalError(message) {
+            let errorDiv = document.getElementById('globalError');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.id = 'globalError';
+                errorDiv.className = 'global-message error';
+                document.querySelector('.auth-container').insertBefore(errorDiv, document.querySelector('.auth-form'));
+            }
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+    </script>
+    <script src="/mobile-enhance.js"></script>
+</body>
+</html>

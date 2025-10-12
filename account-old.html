@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
+         crossorigin="anonymous"></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Manage your EPL News Hub account, view your premium membership status, and access exclusive content.">
+    <meta name="keywords" content="EPL News Hub account, premium membership, exclusive content">
+    <title>My Account | EPL News Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/mobile-master-optimize.css">
+    <link rel="apple-touch-icon" href="/eplnewshub_logo.png">
+    <link rel="icon" type="image/png" href="/eplnewshub_logo.png">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyOey0l27yQP68oybpoodMVcvayhIHt2I",
+            authDomain: "epl-news-hub-94c09.firebaseapp.com",
+            projectId: "epl-news-hub-94c09",
+            storageBucket: "epl-news-hub-94c09.firebasestorage.app",
+            messagingSenderId: "674703933278",
+            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf",
+            measurementId: "G-ECM6BCQCS8"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        window.auth = auth;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut;
+    </script>
+    
+    <style>
+        .account-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .account-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #37003c 0%, #6f42c1 50%, #20c997 100%);
+            color: white;
+            border-radius: 16px;
+        }
+        
+        .account-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .account-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .account-sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        
+        .account-main {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        
+        .user-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px auto;
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .user-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #37003c;
+            margin-bottom: 5px;
+        }
+        
+        .user-email {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .membership-status {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .membership-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .membership-badge.free {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+        
+        .membership-badge.starter {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+        }
+        
+        .membership-badge.pro {
+            background: linear-gradient(135deg, #37003c, #6f42c1, #20c997);
+            color: white;
+        }
+        
+        .membership-details {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .nav-menu li {
+            margin-bottom: 10px;
+        }
+        
+        .nav-menu a {
+            display: block;
+            padding: 12px 16px;
+            color: #333;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: #37003c;
+            color: white;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: #37003c;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .premium-content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .premium-article {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #37003c;
+            transition: all 0.3s ease;
+        }
+        
+        .premium-article:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .premium-article h3 {
+            color: #37003c;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .premium-article p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .premium-article .article-meta {
+            font-size: 0.8rem;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        
+        .read-article-btn {
+            background: #37003c;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s ease;
+        }
+        
+        .read-article-btn:hover {
+            background: #6f42c1;
+        }
+        
+        .upgrade-prompt {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+            border: 1px solid #ffc107;
+        }
+        
+        .upgrade-btn {
+            background: linear-gradient(135deg, #37003c, #6f42c1);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .upgrade-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .sign-out-btn {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .auth-required {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .auth-required h2 {
+            color: #37003c;
+            margin-bottom: 20px;
+        }
+        
+        .auth-links a {
+            color: #37003c;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 10px;
+        }
+        
+        .benefits-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .benefits-list li {
+            padding: 8px 0;
+            color: #28a745;
+            font-weight: 500;
+        }
+        
+        .benefits-list li:before {
+            content: "✓ ";
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .account-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .account-header h1 {
+                font-size: 2rem;
+            }
+            
+            .premium-content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .no-ads-indicator {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header" include="./header.html"></div>
+
+    <div id="loading" class="loading">
+        <h2>Loading your account...</h2>
+        <p>Please wait while we load your account information.</p>
+    </div>
+
+    <div id="auth-required" class="auth-required hidden">
+        <h2>🔐 Sign In Required</h2>
+        <p>Please sign in to access your account dashboard.</p>
+        <div class="auth-links">
+            <a href="/signin.html">Sign In</a>
+            <a href="/create-account.html">Create Account</a>
+        </div>
+    </div>
+
+    <div id="account-content" class="account-container hidden">
+        <div class="account-header">
+            <h1>🏆 My Account</h1>
+            <p id="welcome-message">Welcome to your EPL News Hub dashboard</p>
+        </div>
+
+        <div class="account-grid">
+            <div class="account-sidebar">
+                <div class="user-info">
+                    <div class="user-avatar" id="user-avatar">👤</div>
+                    <div class="user-name" id="user-name">Loading...</div>
+                    <div class="user-email" id="user-email">Loading...</div>
+                </div>
+
+                <div class="membership-status" id="membership-status">
+                    <div class="membership-badge free" id="membership-badge">Free Member</div>
+                    <div class="membership-details" id="membership-details">
+                        Basic access to EPL News Hub
+                    </div>
+                </div>
+
+                <ul class="nav-menu">
+                    <li><a href="#premium-content" class="nav-link active" onclick="showSection('premium-content')">Premium Content</a></li>
+                    <li><a href="#account-settings" class="nav-link" onclick="showSection('account-settings')">Account Settings</a></li>
+                    <li><a href="/manage-subscription.html">Manage Subscription</a></li>
+                    <li><a href="/membership.html">Upgrade Membership</a></li>
+                </ul>
+
+                <button class="sign-out-btn" onclick="signOutUser()">Sign Out</button>
+            </div>
+
+            <div class="account-main">
+                <div id="premium-content-section" class="content-section">
+                    <h2 class="section-title">🎯 Premium Content</h2>
+                    
+                    <div id="no-ads-message" class="no-ads-indicator hidden">
+                        <strong>🚫 Ad-Free Experience Active!</strong><br>
+                        You're enjoying EPL News Hub without any advertisements as a premium member.
+                    </div>
+
+                    <div id="premium-articles-container">
+                        <!-- Premium articles will be loaded here -->
+                    </div>
+
+                    <div id="upgrade-prompt" class="upgrade-prompt">
+                        <h3>🌟 Unlock Premium Content</h3>
+                        <p>Subscribe to our premium membership to access exclusive articles, insider transfer news, and advanced analytics.</p>
+                        <ul class="benefits-list">
+                            <li>Exclusive weekly articles</li>
+                            <li>Transfer insider information</li>
+                            <li>Ad-free browsing experience</li>
+                            <li>FPL pro advice and tips</li>
+                            <li>Early access to content</li>
+                        </ul>
+                        <a href="/membership.html" class="upgrade-btn">Upgrade to Premium</a>
+                    </div>
+                </div>
+
+                <div id="account-settings-section" class="content-section hidden">
+                    <h2 class="section-title">⚙️ Account Settings</h2>
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <h3>Account Information</h3>
+                            <p>Manage your personal information and preferences.</p>
+                            <div class="setting-details">
+                                <p><strong>Email:</strong> <span id="settings-email">Loading...</span></p>
+                                <p><strong>Member Since:</strong> <span id="member-since">Loading...</span></p>
+                                <p><strong>Last Sign In:</strong> <span id="last-signin">Loading...</span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <h3>Membership Details</h3>
+                            <div id="membership-info">
+                                <!-- Membership details will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEO Content Section -->
+    <div class="account-container" style="padding-top: 0; padding-bottom: 60px;">
+        <div class="seo-content" style="background: white; border-radius: 16px; padding: 40px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); margin-top: 40px;">
+            <h2 style="color: #37003c; font-size: 2rem; margin-bottom: 30px;">📚 Complete Guide to Your EPL News Hub Account</h2>
+            
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.5rem; margin-bottom: 20px;">Understanding Your Account Dashboard</h3>
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Your EPL News Hub account dashboard is your personal command center for all things Premier League. This comprehensive platform brings together exclusive content, personalized recommendations, and powerful tools designed to enhance your football experience. Whether you're a casual fan following your favorite team or a dedicated Fantasy Premier League manager seeking an edge, your account dashboard provides everything you need in one centralized location.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">The account system at EPL News Hub has been meticulously designed to provide seamless access to premium content while maintaining the highest standards of security and privacy. Our sophisticated authentication system ensures that your personal information remains protected while giving you instant access to exclusive articles, transfer insights, and tactical analyses that aren't available to general visitors.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Upon signing in, you'll immediately notice how your dashboard adapts to your preferences and viewing history. The intelligent recommendation engine learns from your reading patterns, favorite teams, and interaction history to present the most relevant content front and center. This personalization extends beyond just article recommendations – it influences everything from transfer news priorities to FPL suggestions tailored to your team structure.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.5rem; margin-bottom: 20px;">Premium Membership Benefits Explained</h3>
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Premium membership at EPL News Hub transforms your football content experience entirely. As a premium member, you gain access to an exclusive tier of content that includes insider transfer information, detailed tactical breakdowns from professional analysts, and advanced statistical models that can give you a significant advantage in Fantasy Premier League competitions.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">One of the most valuable aspects of premium membership is the complete removal of advertisements across the entire platform. This ad-free experience allows you to focus entirely on the content without distractions, creating a cleaner, faster, and more enjoyable browsing experience. Premium members report spending 40% more time engaging with content due to this enhanced reading environment.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">The exclusive weekly articles available only to premium members are written by industry insiders, former players, and respected journalists who provide perspectives you won't find anywhere else. These articles often break news before mainstream media, giving you valuable insights for both your football knowledge and Fantasy Premier League decisions. Recent exclusive content has included early team news, injury updates from reliable sources, and transfer negotiations still in their early stages.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Premium members also receive priority access to our advanced tools and calculators. The FPL Team Analyzer, Transfer Planner, and Captain Picker tools all feature enhanced functionality for premium users, including unlimited team comparisons, historical data analysis, and machine learning-powered predictions that have consistently outperformed standard prediction models.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.5rem; margin-bottom: 20px;">Account Security and Privacy</h3>
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">At EPL News Hub, we take your account security extremely seriously. Our authentication system uses industry-standard encryption protocols to protect your login credentials and personal information. Every connection between your device and our servers is secured using SSL/TLS encryption, ensuring that your data remains private and protected from potential threats.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">We've implemented multiple layers of security to protect your account from unauthorized access. This includes automatic session timeouts for inactive accounts, secure password requirements that enforce strong credentials, and optional two-factor authentication for users who want an extra layer of protection. Our security team continuously monitors for suspicious activity and will immediately notify you of any unusual login attempts.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Your privacy is paramount to us. We never share your personal information with third parties without your explicit consent, and all payment information is processed through secure, PCI-compliant payment gateways. Our privacy policy, which is regularly updated to reflect the latest regulations and best practices, clearly outlines how we collect, use, and protect your data. You always maintain full control over your information and can request data deletion at any time.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.5rem; margin-bottom: 20px;">Managing Your Subscription</h3>
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Managing your EPL News Hub subscription is designed to be as straightforward and flexible as possible. Through your account dashboard, you have complete control over your subscription status, payment methods, and billing preferences. You can upgrade, downgrade, or cancel your subscription at any time without hidden fees or complicated procedures.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Our subscription system offers multiple payment options to suit your preferences, including monthly and annual billing cycles. Annual subscribers receive a significant discount – essentially getting two months free compared to monthly billing. You can switch between billing cycles at any time, with prorated adjustments ensuring you never pay twice for the same period.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">The subscription management interface provides clear visibility into your billing history, upcoming charges, and renewal dates. You'll receive email notifications before any renewal charges, giving you the opportunity to make changes if needed. If you decide to cancel, your premium access continues until the end of your current billing period, ensuring you receive the full value of your subscription.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">We also offer subscription pausing for users who might be traveling or taking a break from following football. This feature allows you to temporarily suspend your subscription for up to three months while retaining all your preferences, reading history, and personalized settings for when you return.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.5rem; margin-bottom: 20px;">Personalization and Preferences</h3>
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Your account dashboard offers extensive personalization options that allow you to tailor your EPL News Hub experience to your specific interests. From the moment you create your account, you can select your favorite teams, players, and content categories, immediately customizing the content that appears on your homepage and in your recommendations.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">The preference system goes beyond simple team selection. You can fine-tune your content feed to prioritize certain types of articles – whether you prefer transfer news, tactical analysis, match previews, or FPL advice. These preferences influence not just what content is shown, but also the order in which it appears and the notifications you receive about breaking news.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Notification settings give you granular control over how and when you're informed about new content. You can choose to receive instant notifications for breaking transfer news, daily digests of top stories, weekly FPL tips, or match reminders for your favorite teams. Each notification type can be individually toggled, and you can specify quiet hours when you don't want to be disturbed.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">The reading history feature tracks all articles you've viewed, making it easy to find that tactical analysis you read last week or that transfer rumor you want to share with friends. You can bookmark articles for later reading, create custom reading lists, and even share curated collections of articles with other EPL News Hub members.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.5rem; margin-bottom: 20px;">Exclusive Content Access</h3>
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">As an account holder at EPL News Hub, you gain access to content tiers that casual visitors never see. Even free account holders receive benefits like extended article archives, the ability to comment on articles, and access to basic FPL tools. This members-only content represents hours of additional reading material each week, carefully curated from our network of contributors.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Premium account holders unlock our most exclusive content tier, featuring articles from renowned football journalists, exclusive interviews with players and managers, and detailed scouting reports on emerging talents. These pieces often provide insights that can transform your understanding of the game, offering perspectives from inside dressing rooms and boardrooms across the Premier League.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">The tactical analysis section, available exclusively to account holders, breaks down the strategic elements of recent matches and previews upcoming fixtures with incredible detail. Using advanced statistics and video analysis, our tactical experts explain the nuances of formations, pressing triggers, and attacking patterns that casual observers might miss. This content has become essential reading for coaches, analysts, and serious students of the game.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Transfer insider content provides authenticated information from sources close to clubs, agents, and players. While we maintain strict editorial standards and never publish unverified rumors, our insider network allows us to break stories hours or even days before they appear in mainstream media. Premium members have consistently praised this early access to transfer news as one of the most valuable aspects of their membership.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.5rem; margin-bottom: 20px;">Account Features and Tools</h3>
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Your account unlocks access to a suite of powerful tools designed to enhance your Premier League experience. The FPL Team Analyzer uses advanced algorithms to evaluate your Fantasy Premier League squad, identifying weaknesses, suggesting transfers, and predicting point totals based on upcoming fixtures. This tool alone has helped thousands of users improve their FPL rankings significantly.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">The Match Predictor tool, exclusive to account holders, uses machine learning models trained on years of Premier League data to forecast match outcomes. Unlike simple prediction tools, ours considers form, injuries, head-to-head records, and even weather conditions to generate probability-based predictions that have achieved remarkable accuracy over multiple seasons.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">The Transfer Value Calculator helps you understand the true market value of players based on multiple factors including age, contract length, recent performance, and market demand. This tool has become invaluable for users who enjoy the business side of football, providing insights into why certain transfers happen at specific valuations.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Custom alerts allow you to set up specific triggers for notifications. Want to know immediately when your FPL rival makes a transfer? Set an alert. Interested in any news about a potential signing for your club? Create a custom news alert. These granular notification options ensure you never miss the information that matters most to you.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.5rem; margin-bottom: 20px;">Community and Social Features</h3>
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Your EPL News Hub account connects you to a vibrant community of Premier League fans from around the world. The comments section on articles becomes a forum for intelligent discussion, where account holders can share insights, debate tactics, and exchange FPL tips. Our moderation team ensures discussions remain respectful and on-topic, creating one of the most civilized football communities online.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">The private messaging system allows you to connect directly with other members, perfect for coordinating mini-leagues, discussing articles, or sharing exclusive content discoveries. Many users have formed lasting friendships through these connections, bonding over shared football passions and FPL rivalries.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Premium members gain access to exclusive forums where they can interact with our expert contributors, ask questions during live Q&A sessions, and participate in members-only competitions. These forums have become invaluable resources for tactical discussions, transfer speculation, and FPL strategy sharing.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">The achievement system gamifies your EPL News Hub experience, awarding badges for various activities like reading streaks, accurate predictions, and community contributions. These achievements appear on your profile, showcasing your expertise and engagement to other community members.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.5rem; margin-bottom: 20px;">Mobile Experience and Apps</h3>
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Your account seamlessly synchronizes across all devices, ensuring a consistent experience whether you're browsing on desktop, tablet, or mobile. The mobile-optimized interface adapts perfectly to smaller screens while maintaining full functionality, allowing you to access all your account features on the go.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">The progressive web app (PWA) version of EPL News Hub can be installed directly on your mobile device, providing app-like functionality without requiring a download from app stores. This PWA includes offline reading capabilities, allowing you to download articles while connected and read them later without an internet connection – perfect for commutes or travel.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;">Push notifications on mobile devices ensure you never miss breaking news, with smart notification grouping preventing notification overload. The mobile experience also includes gesture controls for easier navigation, swipe actions for quickly saving or sharing articles, and optimized image loading for faster performance on cellular connections.</p>
+            </section>
+
+            <section style="margin-bottom: 40px;">
+                <h3 style="color: #37003c; font-size: 1.5rem; margin-bottom: 20px;">Frequently Asked Questions</h3>
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;"><strong>How do I upgrade to premium membership?</strong><br>
+                Upgrading is simple – just click the "Upgrade to Premium" button in your account dashboard or visit the membership page. Choose your preferred billing cycle, enter your payment information, and you'll have instant access to all premium features. The upgrade process takes less than two minutes.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;"><strong>Can I share my account with family members?</strong><br>
+                Each EPL News Hub account is intended for individual use to ensure personalized recommendations work correctly. However, we offer family plans at a discounted rate that allow multiple family members to have their own accounts while sharing a single billing arrangement.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;"><strong>What happens to my data if I cancel my subscription?</strong><br>
+                If you cancel your premium subscription, you'll revert to a free account but retain access to your reading history, bookmarks, and preferences. You can reactivate your premium membership at any time and pick up right where you left off. We maintain your data for 12 months after cancellation before permanent deletion.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;"><strong>How often is premium content updated?</strong><br>
+                Premium content is updated continuously throughout the day. We publish at least 5-10 exclusive premium articles daily, with increased coverage during transfer windows and crucial periods of the season. Premium members also get early access to all standard content, typically seeing articles 2-4 hours before they're publicly available.</p>
+                
+                <p style="color: #333; line-height: 1.8; margin-bottom: 15px;"><strong>Can I change my favorite teams after signing up?</strong><br>
+                Absolutely! Your preferences can be updated at any time through your account settings. You can follow multiple teams, adjust your content priorities, and modify notification settings whenever your interests change. The system will immediately adapt to show relevant content based on your new preferences.</p>
+            </section>
+        </div>
+    </div>
+
+    <div class="footer" include="./footer.html"></div>
+    <script src="./index.js"></script>
+    <script>
+        let currentUser = null;
+        let userMembership = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthState();
+        });
+
+        function checkAuthState() {
+            if (window.onAuthStateChanged && window.auth) {
+                window.onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        loadAccountData(user);
+                    } else {
+                        showAuthRequired();
+                    }
+                });
+            } else {
+                // Fallback: check localStorage for user data
+                const userData = localStorage.getItem('user');
+                if (userData) {
+                    try {
+                        currentUser = JSON.parse(userData);
+                        loadAccountData(currentUser);
+                    } catch (error) {
+                        console.error('Error parsing user data:', error);
+                        showAuthRequired();
+                    }
+                } else {
+                    showAuthRequired();
+                }
+            }
+        }
+
+        function showAuthRequired() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('auth-required').classList.remove('hidden');
+            document.getElementById('account-content').classList.add('hidden');
+        }
+
+        function loadAccountData(user) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('auth-required').classList.add('hidden');
+            document.getElementById('account-content').classList.remove('hidden');
+
+            // Update user info
+            updateUserInfo(user);
+            
+            // Load membership data
+            loadMembershipData(user);
+            
+            // Load premium content
+            loadPremiumContent();
+        }
+
+        function updateUserInfo(user) {
+            const displayName = user.displayName || user.email?.split('@')[0] || 'User';
+            const email = user.email || 'No email';
+            
+            document.getElementById('user-name').textContent = displayName;
+            document.getElementById('user-email').textContent = email;
+            document.getElementById('welcome-message').textContent = `Welcome back, ${displayName}!`;
+            document.getElementById('settings-email').textContent = email;
+            
+            // Set avatar
+            const avatar = document.getElementById('user-avatar');
+            if (user.photoURL) {
+                avatar.innerHTML = `<img src="${user.photoURL}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" loading="lazy" width="100" height="100">`;
+            } else {
+                avatar.textContent = displayName.charAt(0).toUpperCase();
+            }
+            
+            // Set member since and last signin
+            const memberSince = user.metadata?.creationTime || user.signedInAt || 'Unknown';
+            const lastSignin = user.metadata?.lastSignInTime || user.signedInAt || 'Now';
+            
+            document.getElementById('member-since').textContent = new Date(memberSince).toLocaleDateString();
+            document.getElementById('last-signin').textContent = new Date(lastSignin).toLocaleDateString();
+        }
+
+        function loadMembershipData(user) {
+            try {
+                // Check for user-specific membership data first
+                const userMembershipKey = `membership_${user.uid}`;
+                let membershipData = localStorage.getItem(userMembershipKey);
+                
+                // Fallback to general membership key
+                if (!membershipData) {
+                    membershipData = localStorage.getItem('membership') || localStorage.getItem('eplMembership');
+                }
+                
+                if (membershipData) {
+                    userMembership = JSON.parse(membershipData);
+                    updateMembershipDisplay(userMembership);
+                    
+                    // Show no-ads message for premium members
+                    if (userMembership.plan && userMembership.plan !== 'free') {
+                        document.getElementById('no-ads-message').classList.remove('hidden');
+                        document.getElementById('upgrade-prompt').style.display = 'none';
+                    }
+                } else {
+                    // No membership found, show as free user
+                    updateMembershipDisplay(null);
+                }
+                
+                // Update membership info in settings
+                updateMembershipInfo(userMembership);
+                
+            } catch (error) {
+                console.error('Error loading membership data:', error);
+                updateMembershipDisplay(null);
+            }
+        }
+
+        function updateMembershipDisplay(membership) {
+            const badge = document.getElementById('membership-badge');
+            const details = document.getElementById('membership-details');
+            
+            if (membership && membership.plan && membership.plan !== 'free') {
+                const planName = membership.plan.charAt(0).toUpperCase() + membership.plan.slice(1);
+                badge.textContent = `${planName} Member`;
+                badge.className = `membership-badge ${membership.plan.toLowerCase()}`;
+                
+                let statusText = `Premium access to EPL News Hub`;
+                if (membership.nextBilling) {
+                    statusText += `<br>Next billing: ${new Date(membership.nextBilling).toLocaleDateString()}`;
+                }
+                if (membership.startDate) {
+                    statusText += `<br>Member since: ${new Date(membership.startDate).toLocaleDateString()}`;
+                }
+                details.innerHTML = statusText;
+            } else {
+                badge.textContent = 'Free Member';
+                badge.className = 'membership-badge free';
+                details.innerHTML = 'Basic access to EPL News Hub<br>Upgrade for premium features';
+            }
+        }
+
+        function updateMembershipInfo(membership) {
+            const membershipInfo = document.getElementById('membership-info');
+            
+            if (membership && membership.plan && membership.plan !== 'free') {
+                membershipInfo.innerHTML = `
+                    <p><strong>Plan:</strong> ${membership.plan.charAt(0).toUpperCase() + membership.plan.slice(1)}</p>
+                    <p><strong>Status:</strong> ${membership.status || 'Active'}</p>
+                    ${membership.startDate ? `<p><strong>Started:</strong> ${new Date(membership.startDate).toLocaleDateString()}</p>` : ''}
+                    ${membership.nextBilling ? `<p><strong>Next Billing:</strong> ${new Date(membership.nextBilling).toLocaleDateString()}</p>` : ''}
+                    <a href="/manage-subscription.html" class="read-article-btn" style="margin-top: 10px;">Manage Subscription</a>
+                `;
+            } else {
+                membershipInfo.innerHTML = `
+                    <p><strong>Plan:</strong> Free</p>
+                    <p><strong>Status:</strong> Active</p>
+                    <p>Upgrade to premium for exclusive content and features.</p>
+                    <a href="/membership.html" class="read-article-btn" style="margin-top: 10px;">View Premium Plans</a>
+                `;
+            }
+        }
+
+        function loadPremiumContent() {
+            const container = document.getElementById('premium-articles-container');
+            
+            // Check if user has premium access
+            const hasPremiumAccess = userMembership && userMembership.plan && userMembership.plan !== 'free';
+            
+            if (hasPremiumAccess) {
+                // Show premium articles for premium users
+                container.innerHTML = `
+                    <div class="premium-article">
+                        <div class="article-meta">Exclusive • Premium Content</div>
+                        <h3>🎯 Arsenal Transfer Insider: Winter Window Targets</h3>
+                        <p>Get the inside scoop on Arsenal's January transfer plans, including exclusive details about their top targets and ongoing negotiations.</p>
+                        <a href="/articles/exclusive-arsenal-transfer-insider-07-25-2025.html" class="read-article-btn">Read Article</a>
+                    </div>
+                    <div class="premium-article">
+                        <div class="article-meta">Premium Analysis • FPL</div>
+                        <h3>📊 FPL Pro Team of the Week</h3>
+                        <p>Our premium FPL analysis with detailed player recommendations, captain picks, and transfer suggestions to maximize your points.</p>
+                        <a href="#" class="read-article-btn">Read Analysis</a>
+                    </div>
+                    <div class="premium-article">
+                        <div class="article-meta">Insider Info • Transfers</div>
+                        <h3>🔥 Premier League Transfer Roundup</h3>
+                        <p>Exclusive transfer news and rumors from our network of Premier League insiders, updated daily with the latest developments.</p>
+                        <a href="#" class="read-article-btn">Read Updates</a>
+                    </div>
+                    <div class="premium-article">
+                        <div class="article-meta">Premium Feature • Tactics</div>
+                        <h3>🧠 Tactical Analysis: Top 6 Formations</h3>
+                        <p>Deep dive into the tactical setups of Premier League's top teams, analyzing formations, pressing triggers, and attacking patterns.</p>
+                        <a href="#" class="read-article-btn">Read Analysis</a>
+                    </div>
+                `;
+            } else {
+                // Show locked premium content for free users
+                container.innerHTML = `
+                    <div class="premium-article" style="opacity: 0.6; position: relative;">
+                        <div style="position: absolute; top: 10px; right: 10px; background: #ffc107; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">🔒 Premium</div>
+                        <div class="article-meta">Exclusive • Premium Content</div>
+                        <h3>🎯 Arsenal Transfer Insider: Winter Window Targets</h3>
+                        <p>Get the inside scoop on Arsenal's January transfer plans, including exclusive details about their top targets...</p>
+                        <a href="/membership.html" class="read-article-btn" style="background: #ffc107; color: #000;">Unlock with Premium</a>
+                    </div>
+                    <div class="premium-article" style="opacity: 0.6; position: relative;">
+                        <div style="position: absolute; top: 10px; right: 10px; background: #ffc107; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">🔒 Premium</div>
+                        <div class="article-meta">Premium Analysis • FPL</div>
+                        <h3>📊 FPL Pro Team of the Week</h3>
+                        <p>Our premium FPL analysis with detailed player recommendations, captain picks, and transfer suggestions...</p>
+                        <a href="/membership.html" class="read-article-btn" style="background: #ffc107; color: #000;">Unlock with Premium</a>
+                    </div>
+                    <div class="premium-article" style="opacity: 0.6; position: relative;">
+                        <div style="position: absolute; top: 10px; right: 10px; background: #ffc107; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">🔒 Premium</div>
+                        <div class="article-meta">Insider Info • Transfers</div>
+                        <h3>🔥 Premier League Transfer Roundup</h3>
+                        <p>Exclusive transfer news and rumors from our network of Premier League insiders...</p>
+                        <a href="/membership.html" class="read-article-btn" style="background: #ffc107; color: #000;">Unlock with Premium</a>
+                    </div>
+                `;
+            }
+        }
+
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
+            
+            // Add active class to clicked nav link
+            event.target.classList.add('active');
+        }
+
+        async function signOutUser() {
+            try {
+                if (window.signOut && window.auth) {
+                    await window.signOut(window.auth);
+                }
+                
+                // Clear user data from localStorage
+                localStorage.removeItem('user');
+                
+                // Redirect to home page
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Error signing out:', error);
+                alert('Error signing out. Please try again.');
+            }
+        }
+
+        // Global function to check if user has membership (for use by other scripts)
+        function hasActiveMembership() {
+            return userMembership && userMembership.plan && userMembership.plan !== 'free';
+        }
+
+        // Global function to get membership level
+        function getMembershipLevel() {
+            if (!userMembership || !userMembership.plan || userMembership.plan === 'free') {
+                return 'free';
+            }
+            return userMembership.plan;
+        }
+
+        // Make functions available globally
+        window.hasActiveMembership = hasActiveMembership;
+        window.getMembershipLevel = getMembershipLevel;
+    </script>
+    <script src="/mobile-enhance.js"></script>
+</body>
+</html>
