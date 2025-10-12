@@ -1,27 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
-         crossorigin="anonymous"></script>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-TVPLGM5QY9');
-    </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Join EPL News Hub Premium for exclusive Premier League content, analysis, and insider access. Choose from our flexible membership plans.">
-    <meta name="keywords" content="EPL News Hub membership, Premium Premier League content, exclusive football analysis, subscription">
-    <meta name="author" content="EPL News Hub">
-    <title>Premium Membership | EPL News Hub - Exclusive Premier League Content</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Membership | EPL News Hub</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="apple-touch-icon" href="/eplnewshub_logo.png">
-    <link rel="icon" type="image/png" href="/eplnewshub_logo.png">
     
     <!-- Firebase SDK -->
     <script type="module">
@@ -34,8 +17,7 @@
             projectId: "epl-news-hub-94c09",
             storageBucket: "epl-news-hub-94c09.firebasestorage.app",
             messagingSenderId: "674703933278",
-            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf",
-            measurementId: "G-ECM6BCQCS8"
+            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf"
         };
         
         const app = initializeApp(firebaseConfig);
@@ -47,1560 +29,404 @@
     
     <!-- Stripe SDK -->
     <script src="https://js.stripe.com/v3/"></script>
-    
-    <!-- Development Configuration -->
     <script src="/dev-config.js"></script>
-</head>
-<body>
-    <!-- Header -->
-    <div class="header" include="./header.html"></div>
-
-    <!-- Membership Hero Section -->
-    <section class="membership-hero">
-        <div class="hero-content">
-            <h1>🏆 Join EPL News Hub Premium</h1>
-            <p class="hero-subtitle">Get exclusive access to in-depth analysis, insider content, and premium Premier League coverage</p>
-            <div class="hero-features">
-                <div class="feature-item">📰 Exclusive Articles</div>
-                <div class="feature-item">🎯 Transfer Insider Info</div>
-                <div class="feature-item">📊 Advanced Analytics</div>
-                <div class="feature-item">🎥 Premium Video Content</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Auth Check Message -->
-    <div id="auth-check" class="auth-check" style="display: none;">
-        <div class="auth-message">
-            <h3>🔐 Sign In Required</h3>
-            <p>Please <a href="/signin.html">sign in</a> or <a href="/create-account.html">create an account</a> to purchase a membership.</p>
-        </div>
-    </div>
-
-    <!-- Membership Plans -->
-    <section class="membership-plans" id="membership-plans" style="display: none;">
-        <div class="plans-container">
-            <div class="section-header">
-                <h2>Choose Your Plan</h2>
-                <p>Select the perfect membership for your Premier League passion</p>
-            </div>
-            
-            <div class="plans-grid">
-                <!-- Starter Plan -->
-                <div class="plan-card starter">
-                    <div class="plan-badge">Most Popular</div>
-                    <div class="plan-header">
-                        <h3>⚽ Starter</h3>
-                        <div class="plan-price">
-                            <span class="currency">$</span>
-                            <span class="amount">2.00</span>
-                            <span class="period">/month</span>
-                        </div>
-                    </div>
-                    
-                    <div class="plan-description">
-                        <p>With the starter membership for EPL News Hub you will get: 5 exclusive articles per week, the latest transfer rumors, weekly team and match analysis, access to all articles, FPL pro advice and suggested teams, and best of all, ad free browsing!</p>
-                    </div>
-                    
-                    <div class="plan-features">
-                        <ul>
-                            <li>✅ 5 exclusive articles per week</li>
-                            <li>✅ Latest transfer rumors</li>
-                            <li>✅ Weekly team and match analysis</li>
-                            <li>✅ Access to all articles</li>
-                            <li>✅ FPL pro advice and suggested teams</li>
-                            <li>✅ Ad-free browsing</li>
-                        </ul>
-                    </div>
-                    
-                    <button class="plan-button" onclick="selectPlan('starter', 'price_1RoaG1R10Q6bz3BHC2hDRKLv')">
-                        Choose Starter
-                    </button>
-                </div>
-                
-                <!-- Pro Plan -->
-                <div class="plan-card pro featured">
-                    <div class="plan-badge premium">Best Value</div>
-                    <div class="plan-header">
-                        <h3>🏆 Pro</h3>
-                        <div class="plan-price">
-                            <span class="currency">$</span>
-                            <span class="amount">7.00</span>
-                            <span class="period">/month</span>
-                        </div>
-                    </div>
-                    
-                    <div class="plan-description">
-                        <p>This subscription includes everything included in starter and, unlimited exclusive articles, premium transfer insider info, early access to content, and fantasy premier league exclusive team of the week to get you the most points possible in fpl.</p>
-                    </div>
-                    
-                    <div class="plan-features">
-                        <ul>
-                            <li>✅ Everything included in Starter</li>
-                            <li>✅ Unlimited exclusive articles</li>
-                            <li>✅ Premium transfer insider info</li>
-                            <li>✅ Early access to content</li>
-                            <li>✅ Fantasy Premier League exclusive team of the week</li>
-                        </ul>
-                    </div>
-                    
-                    <button class="plan-button" onclick="selectPlan('pro', 'price_1Rox4aR10Q6bz3BHxohJtpcO')">
-                        Choose Pro
-                    </button>
-                </div>
-                
-            </div>
-            
-            <!-- Annual Plans -->
-            <div class="annual-plans">
-                <div class="annual-header">
-                    <h3>💰 Save with Annual Plans</h3>
-                    <p>Get 2 months free when you pay annually</p>
-                </div>
-                
-                <div class="annual-grid">
-                    <div class="annual-plan">
-                        <h4>Starter Annual</h4>
-                        <div class="annual-price">$20.00/year <span class="savings">Save $4.00</span></div>
-                        <button class="annual-button" onclick="selectPlan('starter-annual', 'price_1RoxK6R10Q6bz3BHdZkxAn3p')">
-                            Choose Annual
-                        </button>
-                    </div>
-                    
-                    <div class="annual-plan featured">
-                        <h4>Pro Annual</h4>
-                        <div class="annual-price">$70.00/year <span class="savings">Save $14.00</span></div>
-                        <button class="annual-button" onclick="selectPlan('pro-annual', 'price_1RoxmQR10Q6bz3BHQKy7G89g')">
-                            Choose Annual
-                        </button>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Current Membership Status -->
-    <section class="current-membership" id="current-membership" style="display: none;">
-        <div class="membership-status">
-            <h2>Your Current Membership</h2>
-            <div class="status-card">
-                <div class="status-info">
-                    <h3 id="current-plan">Loading...</h3>
-                    <p id="membership-details">Checking membership status...</p>
-                </div>
-                <div class="status-actions">
-                    <button class="manage-button" onclick="manageMembership()">
-                        Manage Subscription
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Showcase -->
-    <section class="features-showcase">
-        <div class="showcase-container">
-            <h2>What You Get with Premium</h2>
-            
-            <div class="features-grid">
-                <div class="feature-showcase">
-                    <div class="feature-icon">📰</div>
-                    <h3>Exclusive Articles</h3>
-                    <p>In-depth analysis and exclusive stories you won't find anywhere else. Our writers have inside access to clubs and players.</p>
-                </div>
-                
-                <div class="feature-showcase">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Transfer Insider</h3>
-                    <p>Get the real story behind transfers before they hit mainstream media. Our network of contacts brings you the inside scoop.</p>
-                </div>
-                
-                <div class="feature-showcase">
-                    <div class="feature-icon">📊</div>
-                    <h3>Advanced Analytics</h3>
-                    <p>Professional-grade statistics and analysis tools that give you deeper insights into team and player performance.</p>
-                </div>
-                
-                <div class="feature-showcase">
-                    <div class="feature-icon">🎥</div>
-                    <h3>Premium Videos</h3>
-                    <p>Tactical breakdowns, match analysis, and exclusive interviews with former players and managers.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- EPL News Hub Membership Benefits -->
-    <section class="membership-benefits-section">
-        <div class="benefits-container">
-            <div class="section-header">
-                <h2>EPL News Hub Membership Benefits</h2>
-                <p>Discover why thousands of Premier League fans choose our premium membership for the ultimate football experience</p>
-            </div>
-            
-            <div class="benefits-content">
-                <div class="benefit-category">
-                    <h3>🏆 Exclusive Content Access</h3>
-                    <p>As an EPL News Hub member, you gain unprecedented access to content that simply isn't available anywhere else. Our team of experienced football journalists and former Premier League players work around the clock to bring you insider stories, detailed tactical analysis, and breaking news before it hits mainstream media. With our premium membership, you'll be among the first to know about transfer developments, injury updates, and team strategies that can give you the edge in your Fantasy Premier League campaigns and football discussions.</p>
-                    
-                    <p>Our exclusive articles dive deep into the tactical nuances that casual fans miss. From analyzing Pep Guardiola's latest formation experiments at Manchester City to breaking down Liverpool's high-pressing system under Jurgen Klopp, our content provides the kind of insight that transforms how you watch and understand the beautiful game. Members regularly tell us that our analysis helps them appreciate football on a completely different level.</p>
-                </div>
-                
-                <div class="benefit-category">
-                    <h3>⚡ Early Access Advantage</h3>
-                    <p>Time is everything in the fast-paced world of Premier League football. That's why EPL News Hub members enjoy early access to all our content, often receiving articles and analysis hours before they become available to the general public. This early access advantage is particularly valuable during transfer windows, when being first to know about potential signings can make all the difference for Fantasy Premier League players and betting enthusiasts.</p>
-                    
-                    <p>Our premium members receive priority notifications for breaking news, ensuring you're always ahead of the curve. Whether it's a last-minute team news update that affects your Fantasy Premier League lineup or insider information about a player's contract negotiations, you'll have the information you need to make informed decisions. This early access has helped countless members gain competitive advantages in their fantasy leagues and stay ahead in football conversations with friends and colleagues.</p>
-                </div>
-                
-                <div class="benefit-category">
-                    <h3>📊 Advanced Analytics & Insights</h3>
-                    <p>Modern football is increasingly driven by data, and EPL News Hub membership provides you with access to the same advanced analytics tools and insights used by professional scouts and analysts. Our statistical breakdowns go far beyond basic goal and assist numbers, diving into expected goals (xG), pass completion rates in different thirds of the pitch, defensive actions per game, and much more sophisticated metrics that reveal the true impact of players and teams.</p>
-                    
-                    <p>These analytics aren't just numbers – they're presented in easy-to-understand formats with clear explanations of what they mean for team performance and individual player value. Our members use these insights to make better Fantasy Premier League decisions, understand why certain players are outperforming expectations, and predict future performance trends before they become obvious to the wider football community.</p>
-                </div>
-                
-                <div class="benefit-category">
-                    <h3>🎯 Fantasy Premier League Mastery</h3>
-                    <p>Fantasy Premier League success requires more than luck – it demands insight, strategy, and timing. EPL News Hub membership includes dedicated FPL content designed to give you a significant advantage over casual players. Our FPL experts, who consistently rank in the top percentiles globally, share their strategies, captain choices, and transfer recommendations based on detailed analysis of upcoming fixtures, player form, and underlying statistics.</p>
-                    
-                    <p>Members receive weekly team suggestions, detailed explanations of why certain players are must-haves or should be avoided, and early warnings about potential rotation risks. Our FPL content has helped thousands of members improve their rankings dramatically, with many reporting their best-ever seasons after implementing our strategies. The combination of statistical analysis and insider knowledge of team news gives our members a substantial edge in their mini-leagues and overall rankings.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Choose Your Perfect Membership Plan -->
-    <section class="plan-comparison-section">
-        <div class="comparison-container">
-            <div class="section-header">
-                <h2>Choose Your Perfect Membership Plan</h2>
-                <p>Find the ideal EPL News Hub membership that matches your passion for Premier League football</p>
-            </div>
-            
-            <div class="plan-details-content">
-                <div class="plan-detail-card">
-                    <h3>⚽ Starter Membership - Perfect for Casual Fans</h3>
-                    <p>Our Starter membership is designed for football fans who want quality content without overwhelming their schedule. At just $2.00 per month, it's an incredibly affordable way to enhance your Premier League experience. This plan provides access to five exclusive articles per week, carefully curated to cover the most important developments in the Premier League world.</p>
-                    
-                    <p>Starter members receive the latest transfer rumors and insider information that often proves accurate days or weeks before official announcements. The weekly team and match analysis helps you understand tactical decisions and predict upcoming performance, while our Fantasy Premier League advice has helped countless Starter members improve their rankings significantly. The ad-free browsing experience alone saves hours of frustration and provides a cleaner, more focused reading experience.</p>
-                    
-                    <p>What makes the Starter plan exceptional value is the quality of content. Despite being our entry-level option, every article maintains the same high standard of journalism and analysis as our premium tiers. Many subscribers tell us that our Starter plan content is superior to what they previously paid much more for elsewhere. The plan is perfect for fans who want reliable, high-quality Premier League content without the commitment of higher-tier memberships.</p>
-                </div>
-                
-                <div class="plan-detail-card featured-plan">
-                    <h3>🏆 Pro Membership - The Ultimate Fan Experience</h3>
-                    <p>Our Pro membership represents the pinnacle of Premier League content and analysis. At $7.00 per month, it delivers everything included in Starter plus unlimited access to our exclusive article library, premium transfer insider information, and the coveted Fantasy Premier League team of the week that has become legendary among serious FPL players.</p>
-                    
-                    <p>Pro members gain access to our most exclusive content, including interviews with former Premier League players, detailed tactical analysis from professional coaches, and insider information from our network of contacts within Premier League clubs. The premium transfer insider info often includes details about negotiations, player preferences, and club strategies that don't appear in mainstream media until much later, if at all.</p>
-                    
-                    <p>The Fantasy Premier League exclusive team of the week is perhaps our most valuable feature for serious FPL players. This carefully researched team selection, based on advanced analytics, fixture analysis, and insider team news, has an exceptional track record of success. Pro members consistently report significant improvements in their FPL rankings, with many achieving their highest-ever finishes. The early access to content means you're making informed decisions while other players are still waiting for information to become public.</p>
-                    
-                    <p>Pro membership also includes access to our premium community features, where you can discuss strategies with other serious football fans and our expert analysts. This community aspect adds tremendous value, as members share insights and learn from each other's perspectives and experiences.</p>
-                </div>
-                
-                <div class="value-proposition">
-                    <h3>💰 Exceptional Value Compared to Alternatives</h3>
-                    <p>When compared to other football content subscriptions, EPL News Hub membership offers unmatched value. Many competitors charge $15-30 per month for content that lacks the depth and insider access we provide. Our pricing strategy reflects our commitment to making high-quality Premier League content accessible to genuine fans rather than creating an exclusive premium product for the wealthy few.</p>
-                    
-                    <p>Consider that a single pint at a Premier League stadium often costs more than a month of our Starter membership, yet provides entertainment for just 90 minutes compared to our content that enhances your football enjoyment throughout the entire season. Our annual plans offer even better value, providing two months free and ensuring you're covered for the entire Premier League season without worrying about monthly renewals.</p>
-                </div>
-                
-                <div class="plan-flexibility">
-                    <h3>🔄 Flexible Membership Options</h3>
-                    <p>We understand that football fans have varying needs throughout the season. Our membership plans are designed with flexibility in mind – you can upgrade, downgrade, or cancel at any time without penalties. During intense periods like transfer windows or the final weeks of the season, you might want Pro access for maximum insight. During quieter summer months, Starter membership might be sufficient.</p>
-                    
-                    <p>Our annual plans offer significant savings for committed fans who want year-round access to premium Premier League content. The annual Starter plan at $20.00 saves you $4.00 compared to monthly billing, while the annual Pro plan at $70.00 saves you $14.00. These savings can be used for other football-related expenses like match tickets or merchandise.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Member Success Stories -->
-    <section class="success-stories-section">
-        <div class="stories-container">
-            <div class="section-header">
-                <h2>Member Success Stories</h2>
-                <p>Real EPL News Hub members share how our premium content transformed their Premier League experience</p>
-            </div>
-            
-            <div class="success-stories-content">
-                <div class="story-category">
-                    <h3>🏅 Fantasy Premier League Champions</h3>
-                    <p>Sarah M. from Manchester credits her best-ever Fantasy Premier League season to EPL News Hub Pro membership: "I'd been playing FPL for six years and never finished in the top 100,000. After subscribing to EPL News Hub Pro in August, I followed their weekly team recommendations and captain suggestions religiously. Their insider team news saved me from disasters like captaining players who were unexpectedly benched, and their differential picks helped me climb the rankings consistently."</p>
-                    
-                    <p>"The turning point was Gameweek 15 when they recommended a triple-captain punt on a relatively unknown midfielder who scored a hat-trick. That single decision, based on their analysis of favorable fixtures and the player's underlying statistics, catapulted me into the top 10,000 for the first time ever. I finished the season ranked 3,847 globally – something I never thought possible. The subscription paid for itself many times over just from the mini-league prizes I won."</p>
-                    
-                    <p>James T. from London shares a similar transformation: "As someone who works in finance, I appreciate data-driven decision making. EPL News Hub's statistical analysis opened my eyes to players I'd completely overlooked. Their expected goals data and fixture difficulty analysis helped me identify value picks weeks before they became popular. I won my office league for the first time in eight years, and more importantly, I finally understand the game at a deeper level."</p>
-                </div>
-                
-                <div class="story-category">
-                    <h3>📈 Improved Football Knowledge</h3>
-                    <p>Michael R., a Liverpool supporter from Ireland, describes how membership enhanced his match-watching experience: "I've supported Liverpool for twenty years, but EPL News Hub's tactical analysis taught me to watch football with completely new eyes. Before subscribing, I could see what was happening but didn't understand why. Now I can spot when Klopp is shifting to a 4-2-3-1 from the usual 4-3-3, and I understand the strategic reasons behind substitutions."</p>
-                    
-                    <p>"The articles about pressing triggers and defensive positioning helped me appreciate players like Jordan Henderson and Fabinho in ways I never had before. When I watch matches now, I'm constantly noticing details that my friends miss entirely. It's made me the go-to person in our group for football analysis, and honestly, it's made watching matches far more enjoyable and intellectually engaging."</p>
-                    
-                    <p>Emma K. from Scotland discovered a new passion through membership: "I started following football more seriously when my daughter joined the local girls' team. EPL News Hub's content helped me understand the tactical side of the game, which improved my ability to coach and support her development. The analysis of female players in the WSL articles also provided excellent role models and playing style examples for young female players."</p>
-                </div>
-                
-                <div class="story-category">
-                    <h3>💡 Professional Development</h3>
-                    <p>David L., an aspiring football journalist, credits EPL News Hub with accelerating his career: "The quality of analysis and writing on EPL News Hub set a benchmark for my own work. Studying their article structure, use of statistics, and interview techniques improved my journalism significantly. The networking opportunities through their premium community features led to freelance opportunities and eventually a position with a local sports publication."</p>
-                    
-                    <p>"What impressed me most was their ability to break complex tactical concepts into accessible explanations without dumbing down the content. This skill has become central to my own writing style, and editors consistently praise my ability to make football analysis engaging for general audiences. The investment in membership has returned many times over through career advancement."</p>
-                    
-                    <p>Tom S., who runs a football podcast, explains how membership improved his content: "Our podcast downloads tripled after I started incorporating insights from EPL News Hub into our discussions. Their unique angle on stories and access to insider information gave us talking points that other podcasts didn't have. Listeners began commenting that our analysis was more insightful and better informed than much larger football shows."</p>
-                </div>
-                
-                <div class="story-category">
-                    <h3>🤝 Community Connection</h3>
-                    <p>Rebecca H. from Birmingham found more than just content through membership: "Moving to a new city where I didn't know any football fans was challenging. The EPL News Hub community became my virtual pub where I could discuss matches and strategies with like-minded fans. The quality of discussion is exceptional because everyone has access to the same high-level analysis, leading to really insightful conversations rather than just arguments about who's better."</p>
-                    
-                    <p>"I've made genuine friendships through the platform, and we've even organized meetups for matches. It's amazing how shared appreciation for detailed football analysis creates such strong connections. The community aspect has become just as valuable as the content itself, providing both football knowledge and social connection."</p>
-                </div>
-                
-                <div class="achievement-stats">
-                    <h3>📊 Member Achievement Statistics</h3>
-                    <p>Our member success isn't just anecdotal – the numbers speak for themselves. Based on surveys of our Pro members: 78% report significant improvement in their Fantasy Premier League rankings, with an average improvement of 156,000 positions. 85% say EPL News Hub content helped them win their main mini-league or achieve their highest-ever finish.</p>
-                    
-                    <p>Beyond Fantasy Premier League, 92% of members report that our content enhanced their enjoyment of watching Premier League matches, while 67% say they've become the "football expert" in their friend group thanks to insights gained from our analysis. These statistics reflect the transformative impact that quality football journalism and analysis can have on the fan experience.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Frequently Asked Questions -->
-    <section class="faq-section">
-        <div class="faq-container">
-            <div class="section-header">
-                <h2>Frequently Asked Questions</h2>
-                <p>Everything you need to know about EPL News Hub membership</p>
-            </div>
-            
-            <div class="faq-content">
-                <div class="faq-category">
-                    <h3>💳 Billing and Payment Questions</h3>
-                    
-                    <div class="faq-item">
-                        <h4>How does billing work for EPL News Hub membership?</h4>
-                        <p>All EPL News Hub memberships are billed monthly or annually, depending on your chosen plan. Monthly plans are charged on the same date each month that you initially subscribed. For example, if you subscribe on the 15th of January, you'll be charged on the 15th of every subsequent month. Annual plans are charged once per year on your subscription anniversary date, providing significant savings compared to monthly billing.</p>
-                        
-                        <p>We use Stripe for all payment processing, ensuring your payment information is handled with bank-level security. You'll receive an email receipt for every charge, and you can view your billing history and update payment methods through your account dashboard at any time. All prices are displayed in USD and include any applicable taxes.</p>
-                    </div>
-                    
-                    <div class="faq-item">
-                        <h4>Can I cancel my membership at any time?</h4>
-                        <p>Absolutely! EPL News Hub memberships can be cancelled at any time without penalty or cancellation fees. You'll continue to have access to all premium features until the end of your current billing period. For monthly subscribers, this means you'll have access until your next scheduled billing date. Annual subscribers maintain access for the remainder of their year-long subscription period.</p>
-                        
-                        <p>To cancel, simply visit your account settings and click the "Cancel Subscription" button. The process is immediate, and you'll receive confirmation that your subscription has been cancelled. We believe in making the cancellation process as straightforward as subscribing, because we're confident in the value of our content and prefer to retain members through quality rather than complicated cancellation procedures.</p>
-                    </div>
-                    
-                    <div class="faq-item">
-                        <h4>Do you offer refunds for memberships?</h4>
-                        <p>We stand behind the quality of our content and offer a satisfaction guarantee for new members. If you're not completely satisfied with your EPL News Hub membership within the first 7 days, we'll provide a full refund, no questions asked. This gives you enough time to explore our exclusive articles, try our Fantasy Premier League recommendations, and experience the difference our premium content makes.</p>
-                        
-                        <p>For members beyond the 7-day period, refunds are handled on a case-by-case basis, particularly in situations involving technical issues that prevented access to content or exceptional circumstances. We encourage members to reach out to our support team if they're experiencing any issues with their membership – we're often able to resolve concerns without requiring cancellation.</p>
-                    </div>
-                </div>
-                
-                <div class="faq-category">
-                    <h3>📱 Access and Technical Questions</h3>
-                    
-                    <div class="faq-item">
-                        <h4>How do I access premium content after subscribing?</h4>
-                        <p>Once your membership is activated, you'll gain immediate access to all premium content through your EPL News Hub account. Simply log in using the same email address and password you used when subscribing, and you'll see premium articles marked with special badges throughout the site. The member dashboard provides easy access to all exclusive content, organized by category and publication date.</p>
-                        
-                        <p>Premium content is accessible across all devices – desktop computers, tablets, and smartphones. Our responsive design ensures that articles, statistics, and Fantasy Premier League recommendations display perfectly regardless of how you prefer to consume content. Many members enjoy reading exclusive articles during their commute or checking Fantasy Premier League updates on their phone throughout the week.</p>
-                    </div>
-                    
-                    <div class="faq-item">
-                        <h4>Can I share my membership with family members?</h4>
-                        <p>EPL News Hub memberships are designed for individual use and are tied to a specific email address and user account. However, we understand that football is often a family passion. While we don't permit password sharing, we do offer family-friendly pricing through our annual plans, which provide substantial savings that make multiple memberships more affordable for households with multiple football fans.</p>
-                        
-                        <p>For families wanting multiple access points, we recommend taking advantage of our annual plans' cost savings to subscribe multiple family members. This ensures everyone has their own account with personalized Fantasy Premier League tracking and content preferences, while supporting the journalism and analysis that makes EPL News Hub possible.</p>
-                    </div>
-                    
-                    <div class="faq-item">
-                        <h4>What if I'm having trouble accessing my account or content?</h4>
-                        <p>Our technical support team is available to help with any access issues you might encounter. The most common solutions include clearing your browser cache, ensuring you're logging in with the correct email address associated with your membership, and checking that your subscription is active and current.</p>
-                        
-                        <p>If you continue experiencing difficulties, our support team responds to inquiries within 24 hours during business days and often much faster. We maintain detailed help documentation covering common technical issues, and our team has successfully resolved access problems for thousands of members. Your membership satisfaction is our priority, and we'll work with you until any technical issues are completely resolved.</p>
-                    </div>
-                </div>
-                
-                <div class="faq-category">
-                    <h3>⚽ Content and Features Questions</h3>
-                    
-                    <div class="faq-item">
-                        <h4>How often is new premium content published?</h4>
-                        <p>EPL News Hub maintains a consistent publishing schedule that aligns with the Premier League calendar. During the active season (August through May), Starter members receive five exclusive articles per week, typically published Tuesday through Saturday to provide fresh analysis after weekend matches and preparation for upcoming fixtures. Pro members enjoy unlimited access to all exclusive content, which often includes additional pieces during busy periods like transfer windows or international breaks.</p>
-                        
-                        <p>Our Fantasy Premier League content follows the gameweek schedule, with team recommendations typically published by Thursday to give members time to make transfers. During transfer windows, we increase our publishing frequency significantly, often providing daily updates on developing stories and their potential impact on Fantasy Premier League selections. Summer months feature reduced frequency but maintain quality with pre-season analysis, transfer evaluations, and preparation content for the upcoming season.</p>
-                    </div>
-                    
-                    <div class="faq-item">
-                        <h4>What makes EPL News Hub analysis different from free content available elsewhere?</h4>
-                        <p>The difference lies in depth, access, and expertise. Our writers include former Premier League professionals, qualified coaches, and journalists with insider access to clubs and players. This network provides information and perspectives that simply aren't available through standard football reporting. While free content typically focuses on what happened, our premium analysis explains why it happened and what it means for future performance.</p>
-                        
-                        <p>Our statistical analysis goes far beyond basic metrics available on free sites. We employ advanced analytics including expected goals, pass completion rates in different thirds, defensive actions per game, and proprietary metrics developed specifically for Fantasy Premier League optimization. This data is presented with clear explanations and actionable insights, making complex analysis accessible to all members regardless of their statistical background.</p>
-                    </div>
-                    
-                    <div class="faq-item">
-                        <h4>How reliable are your Fantasy Premier League recommendations?</h4>
-                        <p>Our Fantasy Premier League recommendations have a proven track record of success, with documented results available to Pro members. Our team of FPL experts consistently rank in the top percentiles globally, and their recommendations are based on a combination of statistical analysis, insider team news, and fixture analysis that goes far deeper than casual FPL content.</p>
-                        
-                        <p>While no Fantasy Premier League advice can guarantee success due to the inherent unpredictability of football, our systematic approach and access to insider information provides significant advantages. Pro members regularly report substantial ranking improvements, with many achieving their best-ever finishes. We track the success rate of our recommendations and share these statistics with members, maintaining transparency about both successful picks and occasional misses.</p>
-                    </div>
-                    
-                    <div class="faq-item">
-                        <h4>Do you cover all Premier League teams equally?</h4>
-                        <p>Yes, EPL News Hub provides comprehensive coverage of all 20 Premier League teams throughout the season. While "Big Six" teams naturally generate more transfer rumors and tactical analysis due to their higher profile, we ensure that every Premier League club receives detailed coverage including player analysis, tactical breakdowns, and Fantasy Premier League implications.</p>
-                        
-                        <p>Our coverage philosophy recognizes that Fantasy Premier League success often comes from identifying value in less popular teams, and some of our most successful recommendations have involved players from newly promoted or mid-table sides. This comprehensive approach ensures that all members, regardless of which team they support, find valuable and relevant content throughout the season.</p>
-                    </div>
-                </div>
-                
-                <div class="faq-category">
-                    <h3>🔄 Membership Management</h3>
-                    
-                    <div class="faq-item">
-                        <h4>Can I upgrade or downgrade my membership plan?</h4>
-                        <p>Absolutely! EPL News Hub makes it easy to change your membership level based on your evolving needs throughout the season. You can upgrade from Starter to Pro at any time, and the change takes effect immediately. When upgrading, you'll only pay the prorated difference for the remainder of your current billing period, ensuring you never pay twice for the same time period.</p>
-                        
-                        <p>Downgrading from Pro to Starter is equally straightforward, though the change takes effect at the start of your next billing cycle to ensure you receive full value from your current Pro membership. This flexibility allows you to adjust your membership based on factors like the intensity of the season, your Fantasy Premier League involvement, or changing financial circumstances.</p>
-                    </div>
-                    
-                    <div class="faq-item">
-                        <h4>What happens to my account if I cancel and later want to resubscribe?</h4>
-                        <p>Your EPL News Hub account remains active even after cancellation, preserving your reading history, preferences, and account settings. When you're ready to resubscribe, simply log in with your existing credentials and select a new membership plan. All your previous settings and preferences will be restored immediately.</p>
-                        
-                        <p>This system makes it easy for members who might take breaks during the summer months or other periods when Premier League activity is reduced. Many members find that seasonal subscriptions work well for their needs, subscribing during the active season and pausing during summer breaks. Your account continuity ensures a seamless experience when you return.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <div class="footer" include="./footer.html"></div>
-
-    <script src="./index.js"></script>
-    
     
     <style>
-        /* Membership Hero Section */
-        .membership-hero {
-            background: linear-gradient(135deg, #37003c 0%, #6f42c1 50%, #20c997 100%);
-            color: white;
-            padding: 80px 20px;
+        body { background: #ffffff; }
+        
+        .membership-page {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+        
+        .page-header {
             text-align: center;
+            border-bottom: 1px solid #dfdfdf;
+            padding-bottom: 48px;
+            margin-bottom: 64px;
         }
         
-        .hero-content h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        .page-title {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: #121212;
+            margin-bottom: 16px;
         }
         
-        .hero-subtitle {
-            font-size: 1.3rem;
-            margin-bottom: 40px;
-            opacity: 0.95;
+        .page-subtitle {
+            font-size: 20px;
+            color: #6c6c6c;
             max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .hero-features {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .feature-item {
-            background: rgba(255,255,255,0.1);
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        /* Auth Check */
-        .auth-check {
-            background: #f8f9fa;
-            padding: 60px 20px;
-            text-align: center;
-        }
-        
-        .auth-message {
-            max-width: 500px;
             margin: 0 auto;
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-        }
-        
-        .auth-message h3 {
-            color: #37003c;
-            margin-bottom: 15px;
-        }
-        
-        .auth-message a {
-            color: #37003c;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .auth-message a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Membership Plans */
-        .membership-plans {
-            padding: 80px 20px;
-            background: #f8f9fa;
-        }
-        
-        .plans-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .section-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        
-        .section-header h2 {
-            font-size: 2.5rem;
-            color: #37003c;
-            margin-bottom: 15px;
-        }
-        
-        .section-header p {
-            font-size: 1.1rem;
-            color: #666;
+            line-height: 1.5;
         }
         
         .plans-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-            margin-bottom: 80px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin-bottom: 64px;
         }
         
         .plan-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            position: relative;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+            border: 1px solid #dfdfdf;
+            border-radius: 4px;
+            padding: 40px 32px;
+            transition: all 0.2s;
         }
         
         .plan-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border-color: #121212;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
         }
         
         .plan-card.featured {
-            border-color: #37003c;
-            transform: scale(1.05);
+            border-color: #121212;
+            border-width: 2px;
+            background: #fafafa;
         }
         
         .plan-badge {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #37003c;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            display: inline-block;
+            padding: 4px 12px;
+            background: #121212;
+            color: #ffffff;
+            font-size: 11px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 2px;
+            margin-bottom: 16px;
         }
         
-        .plan-badge.premium {
-            background: linear-gradient(135deg, #37003c, #6f42c1);
-        }
-        
-        .plan-badge.elite {
-            background: linear-gradient(135deg, #ff6b35, #f7931e);
-        }
-        
-        .plan-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .plan-header h3 {
-            font-size: 1.8rem;
-            color: #37003c;
-            margin-bottom: 15px;
+        .plan-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #121212;
+            margin-bottom: 12px;
         }
         
         .plan-price {
-            display: flex;
-            align-items: baseline;
-            justify-content: center;
-            gap: 5px;
+            font-size: 48px;
+            font-weight: 700;
+            color: #121212;
+            margin-bottom: 8px;
         }
         
-        .currency {
-            font-size: 1.5rem;
-            color: #666;
-        }
-        
-        .amount {
-            font-size: 3rem;
-            font-weight: 800;
-            color: #37003c;
-        }
-        
-        .period {
-            font-size: 1.2rem;
-            color: #666;
+        .plan-price span {
+            font-size: 18px;
+            color: #6c6c6c;
+            font-weight: 400;
         }
         
         .plan-description {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #37003c;
+            font-size: 15px;
+            color: #6c6c6c;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #dfdfdf;
         }
         
-        .plan-description p {
-            margin: 0;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            color: #555;
-            font-style: italic;
-        }
-        
-        .plan-features ul {
+        .plan-features {
             list-style: none;
-            padding: 0;
-            margin: 0 0 40px 0;
+            margin-bottom: 32px;
         }
         
         .plan-features li {
+            font-size: 15px;
+            color: #121212;
             padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-        }
-        
-        .plan-features li:last-child {
-            border-bottom: none;
+            border-bottom: 1px solid #f5f5f5;
         }
         
         .plan-button {
             width: 100%;
-            background: linear-gradient(135deg, #37003c, #6f42c1);
-            color: white;
+            padding: 16px;
+            background: #121212;
+            color: #ffffff;
             border: none;
-            padding: 16px 24px;
-            border-radius: 12px;
-            font-size: 1.1rem;
+            border-radius: 4px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background 0.2s;
         }
         
         .plan-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(55,0,60,0.3);
+            background: #000000;
         }
         
-        /* Annual Plans */
-        .annual-plans {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        .features-section {
+            padding: 64px 0;
+            border-top: 1px solid #dfdfdf;
+            border-bottom: 1px solid #dfdfdf;
         }
         
-        .annual-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .annual-header h3 {
-            color: #37003c;
-            margin-bottom: 10px;
-        }
-        
-        .annual-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        
-        .annual-plan {
-            text-align: center;
-            padding: 30px 20px;
-            border: 2px solid #f0f0f0;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-        
-        .annual-plan:hover {
-            border-color: #37003c;
-        }
-        
-        .annual-plan.featured {
-            border-color: #37003c;
-            background: linear-gradient(135deg, #f8f9ff, #fff);
-        }
-        
-        .annual-price {
-            font-size: 1.5rem;
+        .section-title {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 32px;
             font-weight: 700;
-            color: #37003c;
-            margin: 15px 0;
-        }
-        
-        .savings {
-            display: block;
-            font-size: 0.9rem;
-            color: #28a745;
-            font-weight: 600;
-        }
-        
-        .annual-button {
-            background: #37003c;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .annual-button:hover {
-            background: #6f42c1;
-        }
-        
-        /* Current Membership */
-        .current-membership {
-            padding: 60px 20px;
-            background: white;
-        }
-        
-        .membership-status {
-            max-width: 800px;
-            margin: 0 auto;
+            color: #121212;
             text-align: center;
-        }
-        
-        .status-card {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            padding: 40px;
-            border-radius: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        
-        .manage-button {
-            background: #37003c;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .manage-button:hover {
-            background: #6f42c1;
-        }
-        
-        /* Features Showcase */
-        .features-showcase {
-            padding: 80px 20px;
-            background: white;
-        }
-        
-        .showcase-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        
-        .showcase-container h2 {
-            font-size: 2.5rem;
-            color: #37003c;
-            margin-bottom: 60px;
+            margin-bottom: 48px;
         }
         
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 40px;
         }
         
-        .feature-showcase {
-            padding: 40px 20px;
-            background: #f8f9fa;
-            border-radius: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .feature-showcase:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        .feature {
+            text-align: center;
         }
         
         .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
+            font-size: 48px;
+            margin-bottom: 16px;
         }
         
-        .feature-showcase h3 {
-            color: #37003c;
-            margin-bottom: 15px;
+        .feature-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #121212;
+            margin-bottom: 12px;
         }
         
-        .feature-showcase p {
-            color: #666;
+        .feature-description {
+            font-size: 14px;
+            color: #6c6c6c;
             line-height: 1.6;
         }
         
-        /* New Content Sections Styling */
-        
-        /* Membership Benefits Section */
-        .membership-benefits-section {
-            padding: 80px 20px;
-            background: #f8f9fa;
+        .auth-required {
+            text-align: center;
+            padding: 80px 24px;
         }
         
-        .benefits-container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .auth-required h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #121212;
+            margin-bottom: 16px;
         }
         
-        .benefits-content {
-            display: grid;
-            gap: 40px;
+        .auth-required p {
+            font-size: 16px;
+            color: #6c6c6c;
+            margin-bottom: 32px;
         }
         
-        .benefit-category {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            border-left: 5px solid #37003c;
+        .auth-required a {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #121212;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 0 8px;
         }
         
-        .benefit-category h3 {
-            color: #37003c;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .hidden {
+            display: none;
         }
         
-        .benefit-category p {
-            line-height: 1.7;
-            color: #555;
-            margin-bottom: 20px;
-            font-size: 1.05rem;
-        }
-        
-        .benefit-category p:last-child {
-            margin-bottom: 0;
-        }
-        
-        /* Plan Comparison Section */
-        .plan-comparison-section {
-            padding: 80px 20px;
-            background: white;
-        }
-        
-        .comparison-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .plan-details-content {
-            display: grid;
-            gap: 40px;
-        }
-        
-        .plan-detail-card {
-            background: #f8f9fa;
-            padding: 40px;
-            border-radius: 16px;
-            border: 2px solid #e9ecef;
-            transition: all 0.3s ease;
-        }
-        
-        .plan-detail-card:hover {
-            border-color: #37003c;
-            box-shadow: 0 8px 25px rgba(55,0,60,0.1);
-        }
-        
-        .plan-detail-card.featured-plan {
-            border-color: #37003c;
-            background: linear-gradient(135deg, #ffffff, #f8f9ff);
-            position: relative;
-        }
-        
-        .plan-detail-card.featured-plan::before {
-            content: "⭐ MOST POPULAR";
-            position: absolute;
-            top: -15px;
-            right: 20px;
-            background: #37003c;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .plan-detail-card h3 {
-            color: #37003c;
-            font-size: 1.6rem;
-            margin-bottom: 20px;
-        }
-        
-        .plan-detail-card p {
-            line-height: 1.7;
-            color: #555;
-            margin-bottom: 20px;
-            font-size: 1.05rem;
-        }
-        
-        .value-proposition, .plan-flexibility {
-            background: #e8f4fd;
-            padding: 40px;
-            border-radius: 16px;
-            border-left: 5px solid #007bff;
-        }
-        
-        .value-proposition h3, .plan-flexibility h3 {
-            color: #007bff;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-        }
-        
-        .value-proposition p, .plan-flexibility p {
-            line-height: 1.7;
-            color: #555;
-            margin-bottom: 20px;
-            font-size: 1.05rem;
-        }
-        
-        /* Success Stories Section */
-        .success-stories-section {
-            padding: 80px 20px;
-            background: #f8f9fa;
-        }
-        
-        .stories-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .success-stories-content {
-            display: grid;
-            gap: 40px;
-        }
-        
-        .story-category {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            border-left: 5px solid #28a745;
-        }
-        
-        .story-category h3 {
-            color: #28a745;
-            font-size: 1.5rem;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .story-category p {
-            line-height: 1.7;
-            color: #555;
-            margin-bottom: 20px;
-            font-size: 1.05rem;
-            font-style: italic;
-        }
-        
-        .story-category p:last-child {
-            margin-bottom: 0;
-        }
-        
-        .achievement-stats {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            border-left: none;
-        }
-        
-        .achievement-stats h3 {
-            color: white;
-        }
-        
-        .achievement-stats p {
-            color: rgba(255,255,255,0.95);
-            font-style: normal;
-            font-weight: 500;
-        }
-        
-        /* FAQ Section */
-        .faq-section {
-            padding: 80px 20px;
-            background: white;
-        }
-        
-        .faq-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .faq-content {
-            display: grid;
-            gap: 40px;
-        }
-        
-        .faq-category {
-            background: #f8f9fa;
-            padding: 40px;
-            border-radius: 16px;
-            border-left: 5px solid #6f42c1;
-        }
-        
-        .faq-category h3 {
-            color: #6f42c1;
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .faq-item {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-            border: 1px solid #e9ecef;
-        }
-        
-        .faq-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .faq-item h4 {
-            color: #37003c;
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-        
-        .faq-item p {
-            line-height: 1.7;
-            color: #555;
-            margin-bottom: 15px;
-            font-size: 1.05rem;
-        }
-        
-        .faq-item p:last-child {
-            margin-bottom: 0;
-        }
-        
-        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .hero-content h1 {
-                font-size: 2rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.1rem;
-            }
-            
-            .hero-features {
-                flex-direction: column;
-                align-items: center;
+            .page-title {
+                font-size: 36px;
             }
             
             .plans-grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
             }
             
-            .plan-card.featured {
-                transform: none;
-            }
-            
-            .status-card {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .annual-grid {
+            .features-grid {
                 grid-template-columns: 1fr;
-            }
-            
-            /* Mobile styles for new sections */
-            .membership-benefits-section,
-            .plan-comparison-section,
-            .success-stories-section,
-            .faq-section {
-                padding: 40px 15px;
-            }
-            
-            .benefit-category,
-            .plan-detail-card,
-            .story-category,
-            .faq-category {
-                padding: 25px 20px;
-            }
-            
-            .benefit-category h3,
-            .plan-detail-card h3,
-            .story-category h3,
-            .faq-category h3 {
-                font-size: 1.3rem;
-            }
-            
-            .benefit-category p,
-            .plan-detail-card p,
-            .story-category p,
-            .faq-item p {
-                font-size: 1rem;
-            }
-            
-            .plan-detail-card.featured-plan::before {
-                top: -12px;
-                right: 15px;
-                font-size: 0.7rem;
-                padding: 6px 12px;
-            }
-            
-            .faq-item {
-                padding: 20px;
-            }
-            
-            .faq-item h4 {
-                font-size: 1.1rem;
+                gap: 32px;
             }
         }
     </style>
+</head>
+<body>
+    <div class="header" include="./header.html"></div>
     
+    <div id="auth-required" class="auth-required hidden">
+        <h2>Sign In Required</h2>
+        <p>Please sign in to view membership options</p>
+        <a href="/signin.html">Sign In</a>
+        <a href="/create-account.html" style="background: #ffffff; color: #121212; border: 1px solid #dfdfdf;">Create Account</a>
+    </div>
+    
+    <div id="membership-content" class="membership-page hidden">
+        <div class="page-header">
+            <h1 class="page-title">Premium Membership</h1>
+            <p class="page-subtitle">Get exclusive access to in-depth analysis, insider content, and premium Premier League coverage</p>
+        </div>
+        
+        <div class="plans-grid">
+            <div class="plan-card">
+                <div class="plan-badge">Most Popular</div>
+                <h2 class="plan-title">Starter</h2>
+                <div class="plan-price">$2<span>/month</span></div>
+                <p class="plan-description">Perfect for casual fans who want quality Premier League content and insights.</p>
+                
+                <ul class="plan-features">
+                    <li>5 exclusive articles per week</li>
+                    <li>Transfer rumors and insights</li>
+                    <li>Weekly match analysis</li>
+                    <li>FPL pro advice</li>
+                    <li>Ad-free browsing</li>
+                </ul>
+                
+                <button class="plan-button" onclick="selectPlan('starter', 'price_1RoaG1R10Q6bz3BHC2hDRKLv')">Choose Starter</button>
+            </div>
+            
+            <div class="plan-card featured">
+                <div class="plan-badge">Best Value</div>
+                <h2 class="plan-title">Pro</h2>
+                <div class="plan-price">$7<span>/month</span></div>
+                <p class="plan-description">The ultimate experience for serious fans and FPL managers.</p>
+                
+                <ul class="plan-features">
+                    <li>Everything in Starter</li>
+                    <li>Unlimited exclusive articles</li>
+                    <li>Premium transfer insider info</li>
+                    <li>Early access to all content</li>
+                    <li>FPL team of the week</li>
+                </ul>
+                
+                <button class="plan-button" onclick="selectPlan('pro', 'price_1Rox4aR10Q6bz3BHxohJtpcO')">Choose Pro</button>
+            </div>
+        </div>
+        
+        <div class="features-section">
+            <h2 class="section-title">What You Get with Premium</h2>
+            
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">📰</div>
+                    <h3 class="feature-title">Exclusive Articles</h3>
+                    <p class="feature-description">In-depth analysis and exclusive stories from our network of insiders.</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">Transfer Insights</h3>
+                    <p class="feature-description">Breaking transfer news before it hits mainstream media.</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Advanced Analytics</h3>
+                    <p class="feature-description">Professional-grade statistics and performance analysis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer" include="./footer.html"></div>
+    
+    <script src="./index.js"></script>
     <script>
-        // Initialize Stripe with appropriate key based on environment
         let stripe;
         let stripeConfig;
         
-        // Wait for dev config to load and initialize Stripe properly
         function initializeStripe() {
-            try {
-                if (window.devConfig) {
-                    const config = window.devConfig.getConfig();
-                    stripeConfig = config;
-                    
-                    console.log('Initializing Stripe with dev config...');
-                    console.log('Environment:', config.isDevelopment ? 'DEVELOPMENT' : 'PRODUCTION');
-                    console.log('Stripe key (first 20 chars):', config.stripe.publishableKey.substring(0, 20) + '...');
-                    
-                    stripe = Stripe(config.stripe.publishableKey);
-                    window.devConfig.log('Stripe initialized with:', config.isDevelopment ? 'TEST' : 'LIVE', 'keys');
-                    window.devConfig.log('Available prices:', config.stripe.prices);
-                } else {
-                    // Fallback configuration
-                    console.log('Dev config not available, using fallback configuration');
-                    stripeConfig = {
-                        isDevelopment: false,
-                        stripe: {
-                            publishableKey: 'pk_live_51RSKcBR10Q6bz3BHDJ7b0hniY7eCnnakbMNBlpEVyOVWDiA8A0MI22YMaaSpGaAMIv8NnaK6bLfGdNM0Xt8rpK1200itJbMZNm',
-                            prices: {
-                                starter_monthly: 'price_1RoaG1R10Q6bz3BHC2hDRKLv',
-                                pro_monthly: 'price_1Rox4aR10Q6bz3BHxohJtpcO',
-                                starter_annual: 'price_1RoxK6R10Q6bz3BHdZkxAn3p',
-                                pro_annual: 'price_1RoxmQR10Q6bz3BHQKy7G89g'
-                            }
+            if (window.devConfig) {
+                const config = window.devConfig.getConfig();
+                stripeConfig = config;
+                stripe = Stripe(config.stripe.publishableKey);
+            } else {
+                stripeConfig = {
+                    isDevelopment: false,
+                    stripe: {
+                        publishableKey: 'pk_live_51RSKcBR10Q6bz3BHDJ7b0hniY7eCnnakbMNBlpEVyOVWDiA8A0MI22YMaaSpGaAMIv8NnaK6bLfGdNM0Xt8rpK1200itJbMZNm',
+                        prices: {
+                            starter_monthly: 'price_1RoaG1R10Q6bz3BHC2hDRKLv',
+                            pro_monthly: 'price_1Rox4aR10Q6bz3BHxohJtpcO'
                         }
-                    };
-                    
-                    console.log('Fallback Stripe key (first 20 chars):', stripeConfig.stripe.publishableKey.substring(0, 20) + '...');
-                    stripe = Stripe(stripeConfig.stripe.publishableKey);
-                    console.log('Using fallback Stripe configuration');
-                }
-                
-                // Make stripe accessible globally for debugging
-                window.stripe = stripe;
-                window.stripeConfig = stripeConfig;
-                
-                console.log('Stripe initialization completed successfully');
-                
-            } catch (error) {
-                console.error('Error initializing Stripe:', error);
-                alert('Failed to initialize payment system. Please refresh the page and try again.');
+                    }
+                };
+                stripe = Stripe(stripeConfig.stripe.publishableKey);
             }
+            window.stripe = stripe;
+            window.stripeConfig = stripeConfig;
         }
         
-        // Initialize Stripe when dev config is ready
         if (window.devConfig) {
             initializeStripe();
         } else {
-            // Wait for dev config to load
-            document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(initializeStripe, 100);
-            });
+            document.addEventListener('DOMContentLoaded', () => setTimeout(initializeStripe, 100));
         }
         
         document.addEventListener('DOMContentLoaded', function() {
-            // Enhanced initialization with better error handling
-            setTimeout(() => {
-                checkAuthState();
-                
-                // Debug information for development
-                if (window.devConfig && window.devConfig.getConfig().isDevelopment) {
-                    console.log('=== MEMBERSHIP PAGE DEBUG INFO ===');
-                    console.log('Dev Config:', window.devConfig.getConfig());
-                    console.log('Stripe Config:', window.stripeConfig);
-                    console.log('Stripe Instance:', window.stripe);
-                    console.log('Auth State:', window.auth ? 'Loaded' : 'Not Loaded');
-                    console.log('====================================');
-                }
-            }, 200);
+            setTimeout(checkAuthState, 200);
         });
         
         function checkAuthState() {
             if (window.onAuthStateChanged && window.auth) {
                 window.onAuthStateChanged(window.auth, (user) => {
                     if (user) {
-                        // User is signed in
-                        document.getElementById('auth-check').style.display = 'none';
-                        document.getElementById('membership-plans').style.display = 'block';
-                        
-                        // Check if user has existing membership
-                        checkMembershipStatus(user);
-                        
-                        // Show development mode indicator if applicable
-                        showDevModeIndicator();
+                        document.getElementById('auth-required').classList.add('hidden');
+                        document.getElementById('membership-content').classList.remove('hidden');
                     } else {
-                        // User is not signed in
-                        document.getElementById('auth-check').style.display = 'block';
-                        document.getElementById('membership-plans').style.display = 'none';
-                        document.getElementById('current-membership').style.display = 'none';
-                        
-                        // Still show dev mode indicator for debugging
-                        showDevModeIndicator();
+                        document.getElementById('auth-required').classList.remove('hidden');
+                        document.getElementById('membership-content').classList.add('hidden');
                     }
                 });
             } else {
-                // Firebase not loaded, show auth check
-                document.getElementById('auth-check').style.display = 'block';
-                showDevModeIndicator();
+                document.getElementById('auth-required').classList.remove('hidden');
             }
-        }
-        
-        function showDevModeIndicator() {
-            // Add development mode indicator if in test mode
-            if (stripeConfig && stripeConfig.isDevelopment) {
-                const existingIndicator = document.getElementById('dev-mode-indicator');
-                if (existingIndicator) return; // Already shown
-                
-                const indicator = document.createElement('div');
-                indicator.id = 'dev-mode-indicator';
-                indicator.innerHTML = `
-                    <div style="
-                        position: fixed;
-                        bottom: 20px;
-                        right: 20px;
-                        background: linear-gradient(135deg, #ff6b6b, #ffd93d);
-                        color: #000;
-                        padding: 15px 20px;
-                        border-radius: 10px;
-                        font-size: 14px;
-                        font-weight: bold;
-                        z-index: 1000;
-                        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-                        max-width: 300px;
-                    ">
-                        🧪 TEST MODE ACTIVE<br>
-                        <small>Using test Stripe keys<br>
-                        Payments will be simulated</small>
-                    </div>
-                `;
-                document.body.appendChild(indicator);
-            }
-        }
-        
-        function checkMembershipStatus(user) {
-            // Special admin accounts with Pro membership
-            if (user.email === 'reidwcoleman@gmail.com' || user.email === 'brianpcoleman@gmail.com') {
-                // Grant Pro membership access to admin accounts
-                const adminMembership = {
-                    plan: 'pro',
-                    status: 'active',
-                    startDate: new Date().toISOString(),
-                    nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
-                };
-                localStorage.setItem('membership', JSON.stringify(adminMembership));
-                showCurrentMembership(adminMembership);
-                return;
-            }
-            
-            // Check localStorage for membership info (in production, check with your backend)
-            const membershipInfo = localStorage.getItem('membership');
-            
-            if (membershipInfo) {
-                const membership = JSON.parse(membershipInfo);
-                showCurrentMembership(membership);
-            }
-        }
-        
-        function showCurrentMembership(membership) {
-            document.getElementById('current-membership').style.display = 'block';
-            document.getElementById('current-plan').textContent = `${membership.plan} Member`;
-            document.getElementById('membership-details').textContent = 
-                `Active since ${new Date(membership.startDate).toLocaleDateString()}. Next billing: ${new Date(membership.nextBilling).toLocaleDateString()}`;
         }
         
         async function selectPlan(planType, priceId) {
-            console.log('selectPlan called with:', { planType, priceId });
-            
-            // Ensure Stripe is initialized
             if (!stripe || !stripeConfig) {
-                console.error('Stripe not properly initialized');
-                alert('Payment system not ready. Please refresh the page and try again.');
+                alert('Payment system not ready. Please refresh the page.');
                 return;
-            }
-            
-            // Use appropriate price IDs based on environment and configuration
-            let finalPriceId = priceId;
-            
-            if (stripeConfig.isDevelopment) {
-                console.log('Development mode detected - using test configuration');
-                
-                // Map plan types to price IDs from configuration
-                const planMapping = {
-                    'starter': 'starter_monthly',
-                    'pro': 'pro_monthly', 
-                    'starter-annual': 'starter_annual',
-                    'pro-annual': 'pro_annual'
-                };
-                
-                const configKey = planMapping[planType];
-                if (configKey && stripeConfig.stripe.prices[configKey]) {
-                    finalPriceId = stripeConfig.stripe.prices[configKey];
-                    console.log(`Using configured price ID for ${planType}:`, finalPriceId);
-                } else {
-                    console.warn(`No price ID found for plan type: ${planType}, using original:`, priceId);
-                }
-                
-                if (window.devConfig) {
-                    window.devConfig.log('Using price ID:', finalPriceId);
-                }
             }
             
             if (!window.auth || !window.auth.currentUser) {
-                // Enhanced authentication prompt
-                const userChoice = confirm('You need to create an account or sign in to purchase a membership. Click OK to create an account, or Cancel to sign in with an existing account.');
-                
-                if (userChoice) {
-                    // User chose to create account
-                    window.location.href = '/create-account.html';
-                } else {
-                    // User chose to sign in
-                    window.location.href = '/signin.html';
-                }
+                const userChoice = confirm('Sign in or create account to purchase? OK = Create Account, Cancel = Sign In');
+                window.location.href = userChoice ? '/create-account.html' : '/signin.html';
                 return;
             }
             
-            // Show loading state
             const button = event.target;
             const originalText = button.textContent;
             button.textContent = 'Processing...';
             button.disabled = true;
             
             try {
-                // Get plan name for display
-                const planNames = {
-                    'starter': 'Starter',
-                    'pro': 'Pro',
-                    'starter-annual': 'Starter Annual', 
-                    'pro-annual': 'Pro Annual'
-                };
-                
-                const planName = planNames[planType] || planType;
-                console.log(`Starting Stripe checkout for ${planName} plan with price ID: ${finalPriceId}`);
-                
-                // Check if we're in development mode and should simulate payments
-                if (stripeConfig.isDevelopment && finalPriceId.startsWith('price_test_')) {
-                    // In development mode with test price IDs, simulate successful payment
-                    if (window.devConfig) {
-                        window.devConfig.log('Simulating successful payment for test price:', finalPriceId);
-                        
-                        // Simulate success for development
-                        const simulatedSuccess = confirm(
-                            `🧪 DEVELOPMENT MODE\n\n` +
-                            `This would charge for: ${planName}\n` +
-                            `Price ID: ${finalPriceId}\n\n` +
-                            `Click OK to simulate successful payment, or Cancel to simulate failure.`
-                        );
-                        
-                        if (simulatedSuccess) {
-                            // Redirect to success page with simulated data
-                            window.location.href = `/membership-success.html?plan=${planType}&email=${encodeURIComponent(window.auth.currentUser.email)}&session_id=sim_test_${Date.now()}`;
-                            return;
-                        } else {
-                            throw new Error('Simulated payment failure');
-                        }
-                    }
-                }
-                
-                // Use Netlify function to create Stripe Checkout Session
-                // This bypasses domain whitelisting issues
-                console.log('Creating checkout session via Netlify function...');
-
                 const response = await fetch('/.netlify/functions/create-checkout-session', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        priceId: finalPriceId,
+                        priceId: priceId,
                         customerEmail: window.auth.currentUser.email,
                         planType: planType,
                         userId: window.auth.currentUser.uid
                     })
                 });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to create checkout session');
-                }
-
+                
+                if (!response.ok) throw new Error('Failed to create checkout session');
+                
                 const sessionData = await response.json();
-
                 if (sessionData.success && sessionData.url) {
-                    console.log('Redirecting to Stripe Checkout:', sessionData.url);
-                    // Redirect to Stripe Checkout
                     window.location.href = sessionData.url;
                 } else {
                     throw new Error('Invalid session response');
                 }
-                
             } catch (error) {
-                console.error('Error in selectPlan:', error);
-                console.error('Error details:', {
-                    message: error.message,
-                    type: error.type,
-                    code: error.code,
-                    stripeConfigUsed: stripeConfig,
-                    finalPriceId: finalPriceId
-                });
-                
-                let errorMessage = 'Payment processing failed. ';
-                
-                if (error.message && error.message.includes('Invalid API Key')) {
-                    errorMessage += 'There\'s an issue with the payment system configuration. Please contact support.';
-                } else if (error.message && error.message.includes('401')) {
-                    errorMessage += 'Authentication failed with payment processor. Please contact support.';
-                } else {
-                    errorMessage += 'Please try again. If the problem persists, contact support.';
-                }
-                
-                errorMessage += '\n\nError details: ' + error.message;
-                
-                alert(errorMessage);
+                console.error('Payment error:', error);
+                alert('Payment processing failed. Please try again.');
             } finally {
                 button.textContent = originalText;
                 button.disabled = false;
             }
         }
-        
-        
-        async function manageMembership() {
-            if (!window.auth || !window.auth.currentUser) {
-                alert('Please sign in first to manage your subscription.');
-                window.location.href = '/signin.html';
-                return;
-            }
-
-            const user = window.auth.currentUser;
-            
-            try {
-                // Show loading state
-                const button = document.querySelector('.manage-button');
-                const originalText = button.textContent;
-                button.textContent = 'Loading...';
-                button.disabled = true;
-
-                // For a full implementation, you would create a backend endpoint that:
-                // 1. Finds the customer in Stripe using the user's email
-                // 2. Creates a Stripe Customer Portal session
-                // 3. Returns the portal URL
-
-                // For now, we'll create a simple management page
-                const customerEmail = user.email;
-                const portalUrl = createCustomerPortalUrl(customerEmail);
-                
-                if (portalUrl) {
-                    window.location.href = portalUrl;
-                } else {
-                    // Fallback to basic management
-                    window.location.href = `/manage-subscription.html?email=${encodeURIComponent(customerEmail)}`;
-                }
-
-            } catch (error) {
-                console.error('Error managing membership:', error);
-                alert('Unable to open subscription management. Please contact support.');
-            } finally {
-                // Reset button state
-                const button = document.querySelector('.manage-button');
-                if (button) {
-                    button.textContent = 'Manage Subscription';
-                    button.disabled = false;
-                }
-            }
-        }
-
-        function createCustomerPortalUrl(email) {
-            // In a full implementation, this would call your backend to create a Stripe Customer Portal URL
-            // For now, we'll return null to use the fallback
-            
-            // Example of what your backend endpoint would do:
-            // 1. Call Stripe API to find customer by email
-            // 2. Create a billing portal session
-            // 3. Return the portal URL
-            
-            // Backend code would look like:
-            // const session = await stripe.billingPortal.sessions.create({
-            //     customer: customerId,
-            //     return_url: 'https://eplnewshub.com/membership',
-            // });
-            // return session.url;
-            
-            return null; // Use fallback for now
-        }
     </script>
-    <script src="/mobile-enhance.js"></script>
 </body>
 </html>
