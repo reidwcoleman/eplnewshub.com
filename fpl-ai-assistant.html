@@ -753,14 +753,16 @@
             border: 1px solid #dfdfdf;
         }
         .user-avatar {
-            border: 1px solid #dfdfdf;
-            background: #121212; border: 1px solid #dfdfdf;
+            background: #121212;
             color: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
         .ai-avatar {
-            border: 1px solid #dfdfdf;
-            background: #121212; border-radius: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
         }
         .message-content {
             flex: 1;
@@ -773,19 +775,37 @@
         }
         .message-text {
             background: white;
-            padding: 12px 16px;
-            border-radius: 4px;
-            line-height: 1.6;
+            padding: 16px 20px;
+            border-radius: 12px;
+            line-height: 1.8;
             color: var(--text-color);
-            border: 1px solid #dfdfdf;
+            border: 1px solid #e9ecef;
             max-width: 90%;
             word-wrap: break-word;
             overflow-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            font-size: 15px;
+        }
+        .ai-message .message-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .ai-message .message-text strong {
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .ai-message .message-text em {
+            color: #f0f0f0;
+            font-style: italic;
         }
         .user-message .message-text {
-            border: 1px solid #dfdfdf;
-            background: #121212; border: 1px solid #dfdfdf;
+            background: #121212;
             color: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         /* Enhanced Input */
         .chat-input-container {
@@ -840,11 +860,14 @@
             animation: pulse 1s infinite;
         }
         .send-btn {
-            background: #121212; border-radius: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
         }
         .send-btn:hover {
             transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
         }
         /* Right Panel - Analytics */
         .analytics-panel {
@@ -2327,18 +2350,19 @@ Provide a helpful response:`;
                 }
             }
 
-            // Final fallback to offline mode
+            // If all AI services fail, show error message
             if (!aiResponse) {
-                aiResponse = generateAdvancedFPLResponse(message);
-                serviceUsed = 'offline-enhanced';
+                aiResponse = "⚠️ Unable to connect to AI services. Please check your internet connection and try again.";
+                serviceUsed = 'error';
             }
 
             hideTypingIndicator();
             // Add AI response
             conversationHistory.push({ sender: 'ai', text: aiResponse, timestamp: new Date() });
             addMessage(aiResponse, 'ai');
+
             // Add service indicator for first message
-            if (messageCount === 1) {
+            if (messageCount === 1 && serviceUsed !== 'error') {
                 let statusMessage = "";
                 switch(serviceUsed) {
                     case 'puter-gpt4o':
@@ -2350,9 +2374,6 @@ Provide a helpful response:`;
                     case 'openrouter':
                         statusMessage = "🤖 Connected to AI - Powered by Gemini 2.0";
                         break;
-                    case 'offline-enhanced':
-                        statusMessage = "📱 Using smart offline mode - FPL expertise built-in!";
-                        break;
                     default:
                         statusMessage = "✨ AI Assistant Ready - Ask me anything about FPL!";
                 }
@@ -2362,24 +2383,18 @@ Provide a helpful response:`;
                     }, 500);
                 }
             }
-            // Context-aware follow-up
-            if (messageCount % 7 === 0) {
-                setTimeout(() => {
-                    addMessage(generateContextualTip(), 'ai');
-                }, 2000);
-            }
         }
-        // Format AI response with markdown-like syntax
+        // Format AI response with enhanced markdown-like syntax
         function formatAIResponse(text) {
             // Convert **bold** to HTML
             text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
             // Convert *italic* to HTML
             text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-            // Convert bullet points
+            // Convert bullet points with better styling
             text = text.replace(/^- (.+)$/gm, '• $1');
-            text = text.replace(/^• (.+)$/gm, '<div style="margin-left: 15px;">• $1</div>');
-            // Convert numbered lists
-            text = text.replace(/^(\d+)\. (.+)$/gm, '<div style="margin-left: 15px;">$1. $2</div>');
+            text = text.replace(/^• (.+)$/gm, '<div style="margin: 8px 0 8px 15px; padding-left: 10px; border-left: 3px solid rgba(255,255,255,0.3);">• $1</div>');
+            // Convert numbered lists with better styling
+            text = text.replace(/^(\d+)\. (.+)$/gm, '<div style="margin: 8px 0 8px 15px; padding-left: 10px; border-left: 3px solid rgba(255,255,255,0.3);">$1. $2</div>');
             // Add line breaks
             text = text.replace(/\n\n/g, '<br><br>');
             text = text.replace(/\n/g, '<br>');
