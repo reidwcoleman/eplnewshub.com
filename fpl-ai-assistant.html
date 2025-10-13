@@ -143,7 +143,10 @@
     
     <!-- Tesseract.js for OCR -->
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
-    
+
+    <!-- Puter.js for FREE AI (no API key required) -->
+    <script src="https://js.puter.com/v2/"></script>
+
     <!-- Fixtures Module -->
     <script src="fixtures.js"></script>
     
@@ -2261,33 +2264,75 @@
             showTypingIndicator();
             let aiResponse = null;
             let serviceUsed = 'offline';
-            // Try Netlify function with real AI
+
+            // Try Puter.js FREE AI (no API key required!)
             try {
-                const response = await fetch('/.netlify/functions/fpl-ai-chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        message: message,
-                        conversationHistory: conversationHistory.slice(-10) // Last 10 messages for context
-                    })
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success && data.response) {
-                        aiResponse = data.response;
-                        serviceUsed = data.service || 'api';
-                        // Format markdown-style responses
+                if (typeof puter !== 'undefined' && puter.ai) {
+                    console.log('Using Puter.js free AI...');
+
+                    // Build context from conversation history
+                    const context = conversationHistory
+                        .slice(-6) // Last 3 exchanges (6 messages)
+                        .map(msg => `${msg.sender === 'user' ? 'User' : 'Assistant'}: ${msg.text}`)
+                        .join('\n');
+
+                    // FPL-focused system prompt
+                    const fplPrompt = `You are an expert Fantasy Premier League (FPL) AI assistant with deep knowledge of football tactics, player statistics, and FPL strategy. While you specialize in FPL content, you can answer any question.
+
+For FPL questions, provide detailed, data-driven advice with specific player recommendations. For non-FPL questions, provide helpful accurate responses. Keep responses concise (2-4 paragraphs) and actionable.
+
+Previous conversation:
+${context}
+
+User's current question: ${message}
+
+Provide a helpful response:`;
+
+                    const response = await puter.ai.chat(fplPrompt, {
+                        model: 'gpt-4o',
+                        stream: false
+                    });
+
+                    if (response) {
+                        aiResponse = response;
+                        serviceUsed = 'puter-gpt4o';
                         aiResponse = formatAIResponse(aiResponse);
                     }
                 }
             } catch (error) {
-                console.log('API unavailable, using offline mode:', error);
+                console.log('Puter AI unavailable:', error);
             }
-            // Fallback to offline mode if API fails
+
+            // Fallback to Netlify function if Puter fails
+            if (!aiResponse) {
+                try {
+                    const response = await fetch('/.netlify/functions/fpl-ai-chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: message,
+                            conversationHistory: conversationHistory.slice(-10)
+                        })
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.response) {
+                            aiResponse = data.response;
+                            serviceUsed = data.service || 'api';
+                            aiResponse = formatAIResponse(aiResponse);
+                        }
+                    }
+                } catch (error) {
+                    console.log('Netlify function unavailable:', error);
+                }
+            }
+
+            // Final fallback to offline mode
             if (!aiResponse) {
                 aiResponse = generateAdvancedFPLResponse(message);
                 serviceUsed = 'offline-enhanced';
             }
+
             hideTypingIndicator();
             // Add AI response
             conversationHistory.push({ sender: 'ai', text: aiResponse, timestamp: new Date() });
@@ -2296,6 +2341,9 @@
             if (messageCount === 1) {
                 let statusMessage = "";
                 switch(serviceUsed) {
+                    case 'puter-gpt4o':
+                        statusMessage = "🚀 Connected to FREE AI - Powered by GPT-4o (No API key needed!)";
+                        break;
                     case 'groq':
                         statusMessage = "🤖 Connected to AI - Powered by Llama 3.3 70B";
                         break;
