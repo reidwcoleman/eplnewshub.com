@@ -2317,36 +2317,65 @@
             let aiResponse = null;
             let serviceUsed = 'offline';
 
-            // Perform search if needed
+            // Perform search if needed - CLIENT SIDE (Netlify not working)
             if (needsSearch) {
                 try {
-                    console.log('🚀 STARTING SEARCH REQUEST...');
-                    const searchResponse = await fetch('/.netlify/functions/fpl-search', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ query: message })
-                    });
+                    console.log('🚀 STARTING CLIENT-SIDE SEARCH...');
 
-                    console.log('📡 Search response status:', searchResponse.status);
+                    // Search FPL Official API directly (no backend needed!)
+                    const fplResponse = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
 
-                    if (searchResponse.ok) {
-                        const searchData = await searchResponse.json();
-                        console.log('📊 Search data:', searchData);
+                    console.log('📡 FPL API response status:', fplResponse.status);
 
-                        if (searchData.success && searchData.results.length > 0) {
+                    if (fplResponse.ok) {
+                        const fplData = await fplResponse.json();
+                        console.log('📊 FPL data loaded');
+
+                        const searchResults = [];
+
+                        // Search for injured/news players
+                        if (fplData.elements) {
+                            const relevantPlayers = fplData.elements
+                                .filter(p => p.news && p.news.length > 0)
+                                .slice(0, 5);
+
+                            relevantPlayers.forEach(p => {
+                                searchResults.push({
+                                    title: `${p.web_name} - ${p.news}`,
+                                    description: `Status: ${p.status}. Chance of playing next: ${p.chance_of_playing_next_round || 0}%`,
+                                    source: 'FPL Official API'
+                                });
+                            });
+                        }
+
+                        // Add gameweek info
+                        if (fplData.events) {
+                            const currentGW = fplData.events.find(e => e.is_current) || fplData.events.find(e => e.is_next);
+                            if (currentGW) {
+                                searchResults.push({
+                                    title: `Gameweek ${currentGW.id} - ${currentGW.name}`,
+                                    description: `Deadline: ${new Date(currentGW.deadline_time).toLocaleString()}`,
+                                    source: 'FPL Official API'
+                                });
+                            }
+                        }
+
+                        console.log('📊 Search results found:', searchResults.length);
+
+                        if (searchResults.length > 0) {
                             // Update search indicator with success message
                             const indicator = document.getElementById(searchMessageId);
                             if (indicator) {
                                 const messageText = indicator.querySelector('.message-text');
-                                messageText.innerHTML = `✅ <strong style="color: #00d26a;">FOUND ${searchData.results.length} RESULTS FROM ${searchData.source.toUpperCase()}</strong>`;
+                                messageText.innerHTML = `✅ <strong style="color: #00d26a;">FOUND ${searchResults.length} RESULTS FROM FPL OFFICIAL API</strong>`;
                                 console.log('✅ Updated search indicator to show success');
                             }
 
                             searchContext = '\n\n[LATEST FPL NEWS - Use this current information]:\n';
-                            searchData.results.forEach((result, i) => {
-                                searchContext += `${i + 1}. ${result.title}\n   ${result.description}\n   Source: ${result.date}\n\n`;
+                            searchResults.forEach((result, i) => {
+                                searchContext += `${i + 1}. ${result.title}\n   ${result.description}\n   Source: ${result.source}\n\n`;
                             });
-                            console.log('✅ Search results found:', searchData.results.length);
+                            console.log('✅ Search context created with', searchResults.length, 'results');
 
                             // Keep indicator visible for 5 seconds so user definitely sees it
                             setTimeout(() => {
@@ -2367,7 +2396,7 @@
                             }, 3000);
                         }
                     } else {
-                        console.error('❌ Search API error:', searchResponse.status);
+                        console.error('❌ FPL API error:', fplResponse.status);
                         const indicator = document.getElementById(searchMessageId);
                         if (indicator) {
                             const messageText = indicator.querySelector('.message-text');
@@ -2420,10 +2449,26 @@ Provide a helpful response:`;
                         stream: false
                     });
 
+                    console.log('🤖 Puter response type:', typeof response);
+                    console.log('🤖 Puter response:', response);
+
                     if (response) {
-                        aiResponse = response;
+                        // Extract text from response - Puter may return object or string
+                        if (typeof response === 'string') {
+                            aiResponse = response;
+                        } else if (response.text) {
+                            aiResponse = response.text;
+                        } else if (response.message) {
+                            aiResponse = response.message;
+                        } else if (response.content) {
+                            aiResponse = response.content;
+                        } else {
+                            aiResponse = String(response);
+                        }
+
                         serviceUsed = 'puter-gpt4o';
                         aiResponse = formatAIResponse(aiResponse);
+                        console.log('✅ Puter AI response formatted successfully');
                     }
                 }
             } catch (error) {
@@ -2490,6 +2535,20 @@ Provide a helpful response:`;
         }
         // Format AI response with enhanced markdown-like syntax
         function formatAIResponse(text) {
+            // Handle non-string responses
+            if (typeof text !== 'string') {
+                console.log('⚠️ formatAIResponse received non-string:', typeof text, text);
+                // If it's an object, try to extract text
+                if (text && typeof text === 'object') {
+                    if (text.text) text = text.text;
+                    else if (text.message) text = text.message;
+                    else if (text.content) text = text.content;
+                    else text = JSON.stringify(text);
+                }
+                // Convert to string as fallback
+                text = String(text);
+            }
+
             // Convert **bold** to HTML
             text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
             // Convert *italic* to HTML
