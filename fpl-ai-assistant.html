@@ -2288,44 +2288,28 @@
             let searchMessageId = null;
             const searchKeywords = ['latest', 'recent', 'news', 'today', 'now', 'current',
                                    'injured', 'injury', 'update', 'status', 'lineup',
-                                   'transfer news', 'breaking', 'confirmed', 'rumor'];
+                                   'transfer', 'breaking', 'confirmed', 'rumor', 'deadline'];
             const needsSearch = searchKeywords.some(keyword => message.toLowerCase().includes(keyword));
+
+            console.log('🔍 Message:', message);
+            console.log('🔍 Needs search?', needsSearch);
 
             // Show search indicator BEFORE anything else if search is needed
             if (needsSearch) {
+                console.log('🎯 SHOWING SEARCH INDICATOR NOW!');
                 searchMessageId = 'search-indicator-' + Date.now();
-                const messagesContainer = document.getElementById('chatMessages');
 
-                // Create search indicator message
-                const messageDiv = document.createElement('div');
-                messageDiv.id = searchMessageId;
-                messageDiv.className = 'message ai-message';
-                messageDiv.style.opacity = '0.9';
+                // Use addMessage for guaranteed visibility
+                addMessage('🔍 <strong style="color: #667eea;">SEARCHING GOOGLE FOR LATEST FPL NEWS...</strong>', 'ai');
 
-                const avatarDiv = document.createElement('div');
-                avatarDiv.className = 'message-avatar ai-avatar';
-                avatarDiv.textContent = '🔍';
-
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'message-content';
-
-                const roleDiv = document.createElement('div');
-                roleDiv.className = 'message-role';
-                roleDiv.textContent = 'FPL AI Assistant Pro';
-
-                const textDiv = document.createElement('div');
-                textDiv.className = 'message-text';
-                textDiv.innerHTML = '<strong>🔍 Searching Google for latest FPL news...</strong>';
-
-                contentDiv.appendChild(roleDiv);
-                contentDiv.appendChild(textDiv);
-                messageDiv.appendChild(avatarDiv);
-                messageDiv.appendChild(contentDiv);
-
-                messagesContainer.appendChild(messageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-                console.log('✅ Search indicator displayed with ID:', searchMessageId);
+                // Store the last message as our search indicator
+                const messages = document.getElementById('chatMessages').children;
+                if (messages.length > 0) {
+                    const lastMessage = messages[messages.length - 1];
+                    lastMessage.id = searchMessageId;
+                    lastMessage.style.background = 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)';
+                    console.log('✅ Search indicator CREATED with ID:', searchMessageId);
+                }
             }
 
             // Show typing indicator
@@ -2335,23 +2319,27 @@
 
             // Perform search if needed
             if (needsSearch) {
-
                 try {
-                    console.log('🔍 Searching for latest FPL news...');
+                    console.log('🚀 STARTING SEARCH REQUEST...');
                     const searchResponse = await fetch('/.netlify/functions/fpl-search', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ query: message })
                     });
 
+                    console.log('📡 Search response status:', searchResponse.status);
+
                     if (searchResponse.ok) {
                         const searchData = await searchResponse.json();
+                        console.log('📊 Search data:', searchData);
+
                         if (searchData.success && searchData.results.length > 0) {
                             // Update search indicator with success message
                             const indicator = document.getElementById(searchMessageId);
                             if (indicator) {
                                 const messageText = indicator.querySelector('.message-text');
-                                messageText.innerHTML = `<strong>✅ Found ${searchData.results.length} results from ${searchData.source}</strong>`;
+                                messageText.innerHTML = `✅ <strong style="color: #00d26a;">FOUND ${searchData.results.length} RESULTS FROM ${searchData.source.toUpperCase()}</strong>`;
+                                console.log('✅ Updated search indicator to show success');
                             }
 
                             searchContext = '\n\n[LATEST FPL NEWS - Use this current information]:\n';
@@ -2360,26 +2348,47 @@
                             });
                             console.log('✅ Search results found:', searchData.results.length);
 
-                            // Keep indicator visible for 3 seconds so user sees it
+                            // Keep indicator visible for 5 seconds so user definitely sees it
+                            setTimeout(() => {
+                                const elem = document.getElementById(searchMessageId);
+                                if (elem) elem.remove();
+                                console.log('🗑️ Removed search indicator');
+                            }, 5000);
+                        } else {
+                            console.log('⚠️ No search results found');
+                            const indicator = document.getElementById(searchMessageId);
+                            if (indicator) {
+                                const messageText = indicator.querySelector('.message-text');
+                                messageText.innerHTML = '⚠️ <strong>No recent news found. Using AI knowledge...</strong>';
+                            }
                             setTimeout(() => {
                                 const elem = document.getElementById(searchMessageId);
                                 if (elem) elem.remove();
                             }, 3000);
-                        } else {
-                            // Remove indicator if no results
-                            const elem = document.getElementById(searchMessageId);
-                            if (elem) elem.remove();
                         }
                     } else {
-                        // Remove indicator on error
-                        const elem = document.getElementById(searchMessageId);
-                        if (elem) elem.remove();
+                        console.error('❌ Search API error:', searchResponse.status);
+                        const indicator = document.getElementById(searchMessageId);
+                        if (indicator) {
+                            const messageText = indicator.querySelector('.message-text');
+                            messageText.innerHTML = '❌ <strong>Search unavailable. Using AI knowledge...</strong>';
+                        }
+                        setTimeout(() => {
+                            const elem = document.getElementById(searchMessageId);
+                            if (elem) elem.remove();
+                        }, 3000);
                     }
                 } catch (error) {
-                    console.log('Search unavailable:', error);
-                    // Remove indicator on error
-                    const elem = document.getElementById(searchMessageId);
-                    if (elem) elem.remove();
+                    console.error('❌ Search failed:', error);
+                    const indicator = document.getElementById(searchMessageId);
+                    if (indicator) {
+                        const messageText = indicator.querySelector('.message-text');
+                        messageText.innerHTML = '❌ <strong>Search unavailable. Using AI knowledge...</strong>';
+                    }
+                    setTimeout(() => {
+                        const elem = document.getElementById(searchMessageId);
+                        if (elem) elem.remove();
+                    }, 3000);
                 }
             }
 
