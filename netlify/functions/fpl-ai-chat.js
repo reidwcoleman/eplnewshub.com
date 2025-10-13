@@ -143,6 +143,37 @@ async function callAnthropic(messages) {
     };
 }
 
+// Check if search is needed based on keywords
+function needsSearch(message) {
+    const searchKeywords = [
+        'latest', 'recent', 'news', 'today', 'now', 'current',
+        'injured', 'injury', 'update', 'status', 'lineup',
+        'transfer news', 'breaking', 'confirmed', 'rumor'
+    ];
+    const lowerMessage = message.toLowerCase();
+    return searchKeywords.some(keyword => lowerMessage.includes(keyword));
+}
+
+// Perform FPL search
+async function performFPLSearch(query) {
+    try {
+        // Call our search function
+        const searchModule = require('./fpl-search');
+        const searchResult = await searchModule.handler({
+            httpMethod: 'POST',
+            body: JSON.stringify({ query })
+        }, {});
+
+        if (searchResult.statusCode === 200) {
+            const data = JSON.parse(searchResult.body);
+            return data;
+        }
+    } catch (error) {
+        console.error('Search failed:', error);
+    }
+    return { success: false, results: [] };
+}
+
 // Main handler
 exports.handler = async (event, context) => {
     // Only allow POST requests
@@ -163,6 +194,21 @@ exports.handler = async (event, context) => {
             };
         }
 
+        // Check if we need to search for latest info
+        let searchContext = '';
+        if (needsSearch(message)) {
+            console.log('Search triggered for:', message);
+            const searchResult = await performFPLSearch(message);
+
+            if (searchResult.success && searchResult.results.length > 0) {
+                searchContext = '\n\n[LATEST FPL NEWS - Use this current information]:\n';
+                searchResult.results.forEach((result, i) => {
+                    searchContext += `${i + 1}. ${result.title}\n   ${result.description}\n   Source: ${result.date}\n\n`;
+                });
+                console.log('Search results added to context');
+            }
+        }
+
         // Build messages array with context
         const messages = [
             { role: 'system', content: FPL_SYSTEM_PROMPT }
@@ -179,8 +225,9 @@ exports.handler = async (event, context) => {
             });
         }
 
-        // Add current message
-        messages.push({ role: 'user', content: message });
+        // Add current message with search context if available
+        const userMessage = searchContext ? message + searchContext : message;
+        messages.push({ role: 'user', content: userMessage });
 
         // Try AI providers in order of preference
         let result;

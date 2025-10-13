@@ -2293,13 +2293,44 @@
                 if (typeof puter !== 'undefined' && puter.ai) {
                     console.log('Using Puter.js free AI...');
 
+                    // Check if we need to search for latest FPL news
+                    let searchContext = '';
+                    const searchKeywords = ['latest', 'recent', 'news', 'today', 'now', 'current',
+                                           'injured', 'injury', 'update', 'status', 'lineup',
+                                           'transfer news', 'breaking', 'confirmed', 'rumor'];
+                    const needsSearch = searchKeywords.some(keyword => message.toLowerCase().includes(keyword));
+
+                    if (needsSearch) {
+                        try {
+                            console.log('🔍 Searching for latest FPL news...');
+                            const searchResponse = await fetch('/.netlify/functions/fpl-search', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ query: message })
+                            });
+
+                            if (searchResponse.ok) {
+                                const searchData = await searchResponse.json();
+                                if (searchData.success && searchData.results.length > 0) {
+                                    searchContext = '\n\n[LATEST FPL NEWS - Use this current information]:\n';
+                                    searchData.results.forEach((result, i) => {
+                                        searchContext += `${i + 1}. ${result.title}\n   ${result.description}\n   Source: ${result.date}\n\n`;
+                                    });
+                                    console.log('✅ Search results found:', searchData.results.length);
+                                }
+                            }
+                        } catch (error) {
+                            console.log('Search unavailable:', error);
+                        }
+                    }
+
                     // Build context from conversation history
                     const context = conversationHistory
                         .slice(-6) // Last 3 exchanges (6 messages)
                         .map(msg => `${msg.sender === 'user' ? 'User' : 'Assistant'}: ${msg.text}`)
                         .join('\n');
 
-                    // FPL-focused system prompt
+                    // FPL-focused system prompt with search results
                     const fplPrompt = `You are an expert Fantasy Premier League (FPL) AI assistant with deep knowledge of football tactics, player statistics, and FPL strategy. While you specialize in FPL content, you can answer any question.
 
 For FPL questions, provide detailed, data-driven advice with specific player recommendations. For non-FPL questions, provide helpful accurate responses. Keep responses concise (2-4 paragraphs) and actionable.
@@ -2307,7 +2338,7 @@ For FPL questions, provide detailed, data-driven advice with specific player rec
 Previous conversation:
 ${context}
 
-User's current question: ${message}
+User's current question: ${message}${searchContext}
 
 Provide a helpful response:`;
 
