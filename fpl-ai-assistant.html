@@ -1372,7 +1372,7 @@
         </div>
     </div>
     <div class="header" include="header.html"></div>
-    <div class="container" data-premium="true">
+    <div class="container">
         <!-- Premium Access Check -->
         <div id="premium-access-check" style="display:none;">
             <div style="background: #121212; color: white; padding: 40px; border-radius: 4px; text-align: center; margin: 20px 0;">
@@ -1740,34 +1740,30 @@
     <script src="index.js"></script>
     <script src="user-auth-manager.js"></script>
     <script>
-        // Check premium access
+        // Premium access check disabled - tool is now free for all users
+        /*
         function checkPremiumAccess() {
             if (!window.userAuthManager) {
-                // Auth manager not loaded yet, wait
                 setTimeout(checkPremiumAccess, 100);
                 return;
             }
-            
+
             const hasPremiumAccess = window.userAuthManager.hasToolAccess('fpl-ai-assistant');
             const premiumCheckDiv = document.getElementById('premium-access-check');
             const mainContent = document.querySelector('.ai-header').parentElement;
-            
+
             if (!hasPremiumAccess) {
-                // Show premium access required message
                 if (premiumCheckDiv) {
                     premiumCheckDiv.style.display = 'block';
                 }
-                // Hide main content
                 const contentToHide = document.querySelectorAll('.ai-header, .assistant-layout, .ai-features, .quick-actions, .fpl-insights-dashboard');
                 contentToHide.forEach(el => {
                     if (el) el.style.display = 'none';
                 });
             } else {
-                // User has premium access
                 if (premiumCheckDiv) {
                     premiumCheckDiv.style.display = 'none';
                 }
-                // Show premium badge if user is premium
                 if (window.userAuthManager.isPremiumActive()) {
                     const plan = window.userAuthManager.getCurrentPlan();
                     const badge = document.createElement('span');
@@ -1781,13 +1777,11 @@
                 }
             }
         }
-        
-        // Check on load
+
         document.addEventListener('DOMContentLoaded', checkPremiumAccess);
-        
-        // Also listen for premium features enabled event
         window.addEventListener('premium-features-enabled', checkPremiumAccess);
-        
+        */
+
         // Initialize FPL AI Assistant Pro
         let conversationHistory = [];
         let messageCount = 0;
