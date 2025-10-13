@@ -230,54 +230,63 @@
       }
     }
     </script>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <script src="fpl-data-service-enhanced.js"></script>
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Serif:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafafa;
             min-height: 100vh;
             padding-bottom: 40px;
+            color: #121212;
         }
         
         .analyzer-container {
-            max-width: 1400px;
+            max-width: 1240px;
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         .analyzer-header {
             text-align: center;
-            color: white;
-            margin-bottom: 40px;
-            animation: fadeInDown 0.8s ease;
+            background: #ffffff;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #dfdfdf;
         }
-        
+
         .analyzer-header h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .analyzer-header p {
-            font-size: 1.2rem;
-            opacity: 0.95;
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 48px;
+            font-weight: 700;
             margin-bottom: 15px;
+            color: #121212;
+            line-height: 1.2;
         }
-        
+
+        .analyzer-header p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
         .live-ticker {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            border-radius: 30px;
-            margin-top: 15px;
+            background: #f8f8f8;
+            border: 1px solid #e5e5e5;
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-top: 20px;
             overflow: hidden;
             position: relative;
         }
@@ -304,41 +313,45 @@
         .mode-selector {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             margin-bottom: 30px;
             flex-wrap: wrap;
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 0;
         }
-        
+
         .mode-btn {
-            padding: 15px 30px;
-            background: white;
+            padding: 12px 24px;
+            background: transparent;
             border: none;
-            border-radius: 50px;
-            font-size: 1rem;
+            border-bottom: 3px solid transparent;
+            border-radius: 0;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            color: #666;
+            font-family: 'Inter', sans-serif;
         }
-        
+
         .mode-btn.active {
-            background: linear-gradient(135deg, #00ff87 0%, #00d084 100%);
-            color: white;
-            transform: scale(1.05);
+            background: transparent;
+            color: #121212;
+            border-bottom-color: #121212;
         }
-        
+
         .mode-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            color: #121212;
+            background: #f8f8f8;
         }
         
         /* Main Tool Card */
         .analyzer-card {
             background: white;
-            border-radius: 20px;
+            border-radius: 0;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: fadeInUp 0.8s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e5e5e5;
         }
         
         /* Player Search Section */
@@ -361,17 +374,19 @@
         
         .player-search input {
             width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+            padding: 12px 16px;
+            border: 1px solid #dfdfdf;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+            color: #121212;
         }
-        
+
         .player-search input:focus {
-            border-color: #667eea;
+            border-color: #121212;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            box-shadow: 0 0 0 1px #121212;
         }
         
         .suggestions {
@@ -380,14 +395,14 @@
             left: 0;
             right: 0;
             background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            margin-top: 5px;
+            border: 1px solid #dfdfdf;
+            border-radius: 4px;
+            margin-top: 4px;
             max-height: 300px;
             overflow-y: auto;
             display: none;
             z-index: 100;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .suggestions.active {
@@ -424,7 +439,7 @@
         
         .player-price {
             font-weight: 700;
-            color: #667eea;
+            color: #121212;
             font-size: 1.1rem;
         }
         
@@ -448,11 +463,11 @@
         
         /* Player Profile Card */
         .player-profile {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 20px;
+            background: #f8f8f8;
+            border-radius: 4px;
             padding: 30px;
             margin-bottom: 30px;
-            animation: slideIn 0.5s ease;
+            border: 1px solid #e5e5e5;
         }
         
         .profile-header {
@@ -465,9 +480,11 @@
         }
         
         .profile-info h2 {
-            font-size: 2rem;
-            color: #1a1a1a;
-            margin-bottom: 5px;
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: #121212;
+            margin-bottom: 10px;
         }
         
         .profile-meta {
@@ -485,12 +502,13 @@
         }
         
         .profile-price {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #121212;
             color: white;
-            padding: 15px 25px;
-            border-radius: 15px;
-            font-size: 1.5rem;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 24px;
             font-weight: 700;
+            font-family: 'Inter', sans-serif;
         }
         
         /* Stats Grid */
@@ -504,14 +522,14 @@
         .stat-card {
             background: white;
             padding: 20px;
-            border-radius: 15px;
+            border-radius: 4px;
+            border: 1px solid #e5e5e5;
             text-align: center;
-            transition: transform 0.3s ease;
+            transition: border-color 0.2s ease;
         }
-        
+
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-color: #121212;
         }
         
         .stat-label {
@@ -523,11 +541,10 @@
         }
         
         .stat-value {
-            font-size: 2rem;
+            font-size: 32px;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #121212;
+            font-family: 'Inter', sans-serif;
         }
         
         .stat-change {
@@ -575,10 +592,11 @@
         
         /* Price Predictor */
         .price-predictor {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #f8f8f8;
             padding: 25px;
-            border-radius: 15px;
+            border-radius: 4px;
             margin-bottom: 30px;
+            border: 1px solid #e5e5e5;
         }
         
         .price-chart {
@@ -591,16 +609,15 @@
         
         .price-bar {
             flex: 1;
-            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px 10px 0 0;
+            background: #121212;
+            border-radius: 4px 4px 0 0;
             position: relative;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
-        
+
         .price-bar:hover {
-            opacity: 0.8;
-            transform: scaleY(1.05);
+            background: #333;
         }
         
         /* Team Chemistry */
@@ -622,12 +639,12 @@
         
         .chemistry-strong {
             border-color: #00d084;
-            background: linear-gradient(135deg, #00ff8715 0%, #00d08415 100%);
+            background: #f0fdf4;
         }
-        
+
         .chemistry-weak {
             border-color: #ff4757;
-            background: linear-gradient(135deg, #ff475715 0%, #ff475715 100%);
+            background: #fef2f2;
         }
         
         /* Live Updates Badge */
@@ -685,17 +702,16 @@
         
         .form-bar {
             flex: 1;
-            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px 10px 0 0;
+            background: #121212;
+            border-radius: 4px 4px 0 0;
             position: relative;
             min-height: 20px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             cursor: pointer;
         }
-        
+
         .form-bar:hover {
-            opacity: 0.8;
-            transform: scaleY(1.05);
+            background: #333;
         }
         
         .form-bar-label {
@@ -713,7 +729,7 @@
             left: 50%;
             transform: translateX(-50%);
             font-weight: 700;
-            color: #667eea;
+            color: #121212;
         }
         
         /* Fixtures Section */
@@ -793,7 +809,7 @@
             justify-content: center;
             font-size: 2rem;
             font-weight: 700;
-            color: #667eea;
+            color: #121212;
             padding: 20px;
         }
         
@@ -855,29 +871,33 @@
         .action-btn {
             flex: 1;
             min-width: 200px;
-            padding: 15px 30px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 12px;
-            font-size: 1rem;
+            border-radius: 4px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
         }
-        
+
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #121212;
             color: white;
         }
-        
+
+        .btn-primary:hover {
+            background: #333;
+        }
+
         .btn-secondary {
             background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
+            color: #121212;
+            border: 1px solid #121212;
         }
-        
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+
+        .btn-secondary:hover {
+            background: #f8f8f8;
         }
         
         /* Loading State */
@@ -891,8 +911,8 @@
         .spinner {
             width: 50px;
             height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 4px solid #e5e5e5;
+            border-top: 4px solid #121212;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -902,43 +922,11 @@
             100% { transform: rotate(360deg); }
         }
         
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
         
         /* Responsive Design */
         @media (max-width: 768px) {
             .analyzer-header h1 {
-                font-size: 2rem;
+                font-size: 32px;
             }
             
             .mode-selector {
@@ -998,23 +986,23 @@
         </ol>
     </nav>
     
-    <div class="header" include="../../components/layout/header.html"></div>
+    <div class="header" include="header.html"></div>
     
     <div class="analyzer-container">
         <header class="analyzer-header">
             <h1>⚡ FPL Player Analyzer 2025 - #1 Fantasy Premier League Tool</h1>
             <p>Real-time player stats, AI predictions, heatmaps & price forecasts - Used by 50,000+ FPL managers</p>
             <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin: 15px 0;">
-                <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">
+                <span style="background: #f8f8f8; padding: 6px 16px; border-radius: 4px; font-size: 14px; border: 1px solid #e5e5e5;">
                     ✓ 100% Free
                 </span>
-                <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">
+                <span style="background: #f8f8f8; padding: 6px 16px; border-radius: 4px; font-size: 14px; border: 1px solid #e5e5e5;">
                     ✓ Live Data
                 </span>
-                <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">
+                <span style="background: #f8f8f8; padding: 6px 16px; border-radius: 4px; font-size: 14px; border: 1px solid #e5e5e5;">
                     ✓ No Login Required
                 </span>
-                <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">
+                <span style="background: #f8f8f8; padding: 6px 16px; border-radius: 4px; font-size: 14px; border: 1px solid #e5e5e5;">
                     ✓ Mobile Friendly
                 </span>
             </div>
@@ -1192,24 +1180,24 @@
             <h2 style="font-size: 2rem; margin-bottom: 20px; color: #1a1a1a; text-align: center;">Why FPL Managers Choose Our Player Analyzer</h2>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 40px;">
-                <article style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                    <h3 style="color: #667eea; margin-bottom: 15px;">🏆 Trusted by Top FPL Managers</h3>
-                    <p style="color: #666; line-height: 1.6;">Join 50,000+ Fantasy Premier League managers who use our analyzer weekly. Our tool has helped managers achieve top 10k finishes with data-driven decisions.</p>
+                <article style="background: white; padding: 25px; border-radius: 4px; border: 1px solid #e5e5e5;">
+                    <h3 style="color: #121212; margin-bottom: 15px; font-family: 'Noto Serif', Georgia, serif; font-size: 20px;">🏆 Trusted by Top FPL Managers</h3>
+                    <p style="color: #666; line-height: 1.6; font-size: 16px;">Join 50,000+ Fantasy Premier League managers who use our analyzer weekly. Our tool has helped managers achieve top 10k finishes with data-driven decisions.</p>
                 </article>
-                
-                <article style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                    <h3 style="color: #667eea; margin-bottom: 15px;">🔬 Accurate Predictions</h3>
-                    <p style="color: #666; line-height: 1.6;">Our AI algorithms analyze millions of data points to predict player performance, price changes, and optimal captain picks with 85% accuracy.</p>
+
+                <article style="background: white; padding: 25px; border-radius: 4px; border: 1px solid #e5e5e5;">
+                    <h3 style="color: #121212; margin-bottom: 15px; font-family: 'Noto Serif', Georgia, serif; font-size: 20px;">🔬 Accurate Predictions</h3>
+                    <p style="color: #666; line-height: 1.6; font-size: 16px;">Our AI algorithms analyze millions of data points to predict player performance, price changes, and optimal captain picks with 85% accuracy.</p>
                 </article>
-                
-                <article style="background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                    <h3 style="color: #667eea; margin-bottom: 15px;">⚡ Real-Time Updates</h3>
-                    <p style="color: #666; line-height: 1.6;">Get instant access to live player stats, injury news, and fixture updates. Never miss crucial FPL information that could impact your gameweek rank.</p>
+
+                <article style="background: white; padding: 25px; border-radius: 4px; border: 1px solid #e5e5e5;">
+                    <h3 style="color: #121212; margin-bottom: 15px; font-family: 'Noto Serif', Georgia, serif; font-size: 20px;">⚡ Real-Time Updates</h3>
+                    <p style="color: #666; line-height: 1.6; font-size: 16px;">Get instant access to live player stats, injury news, and fixture updates. Never miss crucial FPL information that could impact your gameweek rank.</p>
                 </article>
             </div>
             
-            <div style="background: white; padding: 30px; border-radius: 15px; margin-bottom: 30px;">
-                <h2 style="font-size: 1.8rem; margin-bottom: 20px; color: #1a1a1a;">Complete FPL Player Analysis Features</h2>
+            <div style="background: white; padding: 30px; border-radius: 4px; margin-bottom: 30px; border: 1px solid #e5e5e5;">
+                <h2 style="font-family: 'Noto Serif', Georgia, serif; font-size: 28px; margin-bottom: 20px; color: #121212;">Complete FPL Player Analysis Features</h2>
                 <p style="color: #666; line-height: 1.8; margin-bottom: 20px;">
                     Our <strong>FPL Player Analyzer</strong> is the most comprehensive <strong>Fantasy Premier League analysis tool</strong> available in 2025. 
                     Whether you're analyzing <strong>Mohamed Salah's FPL stats</strong>, comparing <strong>Erling Haaland vs Darwin Nunez</strong>, or finding 
@@ -1223,25 +1211,25 @@
             </div>
             
             <div style="text-align: center;">
-                <h3 style="font-size: 1.5rem; margin-bottom: 15px; color: #1a1a1a;">Popular Player Searches</h3>
+                <h3 style="font-family: 'Noto Serif', Georgia, serif; font-size: 24px; margin-bottom: 20px; color: #121212;">Popular Player Searches</h3>
                 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
-                    <a href="#" onclick="searchSpecificPlayer('Mohamed Salah'); return false;" style="background: #667eea; color: white; padding: 8px 20px; border-radius: 20px; text-decoration: none; transition: all 0.3s;">Mohamed Salah Stats</a>
-                    <a href="#" onclick="searchSpecificPlayer('Erling Haaland'); return false;" style="background: #667eea; color: white; padding: 8px 20px; border-radius: 20px; text-decoration: none; transition: all 0.3s;">Erling Haaland Analysis</a>
-                    <a href="#" onclick="searchSpecificPlayer('Bukayo Saka'); return false;" style="background: #667eea; color: white; padding: 8px 20px; border-radius: 20px; text-decoration: none; transition: all 0.3s;">Bukayo Saka FPL</a>
-                    <a href="#" onclick="searchSpecificPlayer('Cole Palmer'); return false;" style="background: #667eea; color: white; padding: 8px 20px; border-radius: 20px; text-decoration: none; transition: all 0.3s;">Cole Palmer Stats</a>
-                    <a href="#" onclick="searchSpecificPlayer('Son Heung-min'); return false;" style="background: #667eea; color: white; padding: 8px 20px; border-radius: 20px; text-decoration: none; transition: all 0.3s;">Son Heung-min FPL</a>
+                    <a href="#" onclick="searchSpecificPlayer('Mohamed Salah'); return false;" style="background: #121212; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; transition: all 0.2s; font-size: 14px; font-weight: 600;">Mohamed Salah Stats</a>
+                    <a href="#" onclick="searchSpecificPlayer('Erling Haaland'); return false;" style="background: #121212; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; transition: all 0.2s; font-size: 14px; font-weight: 600;">Erling Haaland Analysis</a>
+                    <a href="#" onclick="searchSpecificPlayer('Bukayo Saka'); return false;" style="background: #121212; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; transition: all 0.2s; font-size: 14px; font-weight: 600;">Bukayo Saka FPL</a>
+                    <a href="#" onclick="searchSpecificPlayer('Cole Palmer'); return false;" style="background: #121212; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; transition: all 0.2s; font-size: 14px; font-weight: 600;">Cole Palmer Stats</a>
+                    <a href="#" onclick="searchSpecificPlayer('Son Heung-min'); return false;" style="background: #121212; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; transition: all 0.2s; font-size: 14px; font-weight: 600;">Son Heung-min FPL</a>
                 </div>
             </div>
         </div>
     </section>
     
-    <div class="footer" include="../../components/layout/footer.html"></div>
+    <div class="footer" include="footer.html"></div>
     
     <script src="index.js"></script>
     <script src="user-auth-manager.js"></script>
     
     <!-- Preload critical resources for better Core Web Vitals -->
-    <link rel="preload" href="../css/styles.css" as="style">
+    <link rel="preload" href="styles.css" as="style">
     <link rel="preload" href="fpl-data-service-enhanced.js" as="script">
     <link rel="preconnect" href="https://www.googletagmanager.com">
     <link rel="dns-prefetch" href="https://www.google-analytics.com">
@@ -1557,8 +1545,8 @@
                         `).join('')}
                     </div>
                     
-                    <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 12px;">
-                        <h4 style="margin-bottom: 10px; color: #1a1a1a;">Price Prediction</h4>
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f8f8; border-radius: 4px; border: 1px solid #e5e5e5;">
+                        <h4 style="margin-bottom: 10px; color: #121212; font-family: 'Noto Serif', Georgia, serif; font-size: 18px;">Price Prediction</h4>
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <div style="font-size: 1.2rem; font-weight: 700; color: ${pricePredict.prediction === 'RISING' ? '#00d084' : pricePredict.prediction === 'FALLING' ? '#ff4757' : '#666'};">
@@ -1718,12 +1706,12 @@
                     </div>
                 </div>
                 
-                <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 25px; border-radius: 15px; margin-top: 30px; text-align: center;">
-                    <h3 style="font-size: 1.5rem; margin-bottom: 15px; color: #1a1a1a;">
+                <div style="background: #f8f8f8; padding: 25px; border-radius: 4px; margin-top: 30px; text-align: center; border: 1px solid #e5e5e5;">
+                    <h3 style="font-family: 'Noto Serif', Georgia, serif; font-size: 24px; margin-bottom: 15px; color: #121212;">
                         ${player1.points > player2.points ? '🏆 ' + player1.name + ' Wins!' : '🏆 ' + player2.name + ' Wins!'}
                     </h3>
-                    <p style="color: #666; font-size: 1.1rem;">
-                        Based on overall statistics, ${player1.points > player2.points ? player1.name : player2.name} 
+                    <p style="color: #666; font-size: 16px; line-height: 1.5;">
+                        Based on overall statistics, ${player1.points > player2.points ? player1.name : player2.name}
                         appears to be the better FPL option with ${Math.abs(player1.points - player2.points)} more total points.
                     </p>
                 </div>
@@ -1835,7 +1823,7 @@
                     <h3 style="margin-bottom: 20px; color: #1a1a1a;">${player.name} - Position Heatmap</h3>
                     
                     <!-- Pitch Heatmap -->
-                    <div style="background: linear-gradient(180deg, #2ecc71 0%, #27ae60 100%); border-radius: 12px; padding: 20px; position: relative; max-width: 600px; margin: 0 auto;">
+                    <div style="background: #27ae60; border-radius: 4px; padding: 20px; position: relative; max-width: 600px; margin: 0 auto;">
                         <div style="border: 3px solid white; border-radius: 8px; padding: 20px; position: relative;">
                             <!-- Pitch markings -->
                             <div style="border: 2px solid white; height: 400px; position: relative;">
@@ -1935,10 +1923,10 @@
         }
         
         function getHeatColor(intensity) {
-            if (intensity < 30) return 'rgba(52, 152, 219, 0.7)';
-            if (intensity < 50) return 'rgba(241, 196, 15, 0.7)';
-            if (intensity < 70) return 'rgba(230, 126, 34, 0.7)';
-            return 'rgba(231, 76, 60, 0.9)';
+            if (intensity < 30) return '#3498db';
+            if (intensity < 50) return '#f1c40f';
+            if (intensity < 70) return '#e67e22';
+            return '#e74c3c';
         }
         
         // Fixtures and Table functionality
@@ -1952,16 +1940,16 @@
                     <div style="overflow-x: auto;">
                         <table style="width: 100%; background: white; border-radius: 12px; overflow: hidden;">
                             <thead>
-                                <tr style="background: linear-gradient(135deg, #37003c 0%, #00ff87 100%); color: white;">
-                                    <th style="padding: 12px; text-align: left;">Pos</th>
-                                    <th style="padding: 12px; text-align: left;">Team</th>
-                                    <th style="padding: 12px;">P</th>
-                                    <th style="padding: 12px;">W</th>
-                                    <th style="padding: 12px;">D</th>
-                                    <th style="padding: 12px;">L</th>
-                                    <th style="padding: 12px;">GD</th>
-                                    <th style="padding: 12px;">Pts</th>
-                                    <th style="padding: 12px;">Form</th>
+                                <tr style="background: #f8f8f8; color: #121212; border-bottom: 1px solid #dfdfdf;">
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Pos</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Team</th>
+                                    <th style="padding: 12px; font-weight: 600;">P</th>
+                                    <th style="padding: 12px; font-weight: 600;">W</th>
+                                    <th style="padding: 12px; font-weight: 600;">D</th>
+                                    <th style="padding: 12px; font-weight: 600;">L</th>
+                                    <th style="padding: 12px; font-weight: 600;">GD</th>
+                                    <th style="padding: 12px; font-weight: 600;">Pts</th>
+                                    <th style="padding: 12px; font-weight: 600;">Form</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2030,8 +2018,8 @@
                 <div style="padding: 20px;">
                     <h3 style="margin-bottom: 20px; color: #1a1a1a;">${player.name} - Price Analysis</h3>
                     
-                    <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 25px; border-radius: 15px; margin-bottom: 20px;">
-                        <h4 style="margin-bottom: 15px;">Price Prediction</h4>
+                    <div style="background: #f8f8f8; padding: 25px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #e5e5e5;">
+                        <h4 style="margin-bottom: 15px; font-family: 'Noto Serif', Georgia, serif; font-size: 20px; color: #121212;">Price Prediction</h4>
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <div style="font-size: 2rem; font-weight: 700; color: ${pricePredict.prediction === 'RISING' ? '#00d084' : pricePredict.prediction === 'FALLING' ? '#ff4757' : '#666'};">
@@ -2045,7 +2033,7 @@
                             </div>
                         </div>
                         
-                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);">
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
                             <h5 style="margin-bottom: 10px;">Key Factors</h5>
                             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
                                 <div>
