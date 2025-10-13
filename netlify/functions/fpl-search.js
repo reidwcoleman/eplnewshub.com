@@ -9,28 +9,38 @@ async function searchFPLNews(query) {
         try {
             const braveResults = await searchWithBrave(query);
             if (braveResults.length > 0) {
-                return { success: true, results: braveResults, source: 'brave' };
+                return { success: true, results: braveResults, source: 'Brave Search' };
             }
         } catch (error) {
             console.error('Brave Search failed:', error.message);
         }
     }
 
-    // Strategy 2: Scrape specific FPL news sites (free, no key required)
+    // Strategy 2: Google Search (free, no key required - works from server side)
+    try {
+        const googleResults = await searchWithGoogle(query);
+        if (googleResults.length > 0) {
+            return { success: true, results: googleResults, source: 'Google Search' };
+        }
+    } catch (error) {
+        console.error('Google Search failed:', error.message);
+    }
+
+    // Strategy 3: Scrape specific FPL news sites (free, no key required)
     try {
         const scrapedResults = await scrapeFPLSites(query);
         if (scrapedResults.length > 0) {
-            return { success: true, results: scrapedResults, source: 'scraper' };
+            return { success: true, results: scrapedResults, source: 'FPL Official API' };
         }
     } catch (error) {
-        console.error('Scraping failed:', error.message);
+        console.error('FPL scraping failed:', error.message);
     }
 
-    // Strategy 3: Use DuckDuckGo for general FPL queries
+    // Strategy 4: Use DuckDuckGo for general FPL queries
     try {
         const ddgResults = await searchWithDuckDuckGo(query);
         if (ddgResults.length > 0) {
-            return { success: true, results: ddgResults, source: 'duckduckgo' };
+            return { success: true, results: ddgResults, source: 'DuckDuckGo' };
         }
     } catch (error) {
         console.error('DuckDuckGo failed:', error.message);
@@ -59,6 +69,83 @@ async function searchWithBrave(query) {
         url: r.url,
         date: r.age || 'Recent'
     })) || [];
+}
+
+// Google Search (free, works from server-side, no CORS issues)
+async function searchWithGoogle(query) {
+    const searchQuery = encodeURIComponent(`FPL ${query} site:reddit.com OR site:fantasy.premierleague.com OR site:premierleague.com`);
+    const url = `https://www.google.com/search?q=${searchQuery}&num=5`;
+
+    const response = await fetch(url, {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1'
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Google search error: ${response.status}`);
+    }
+
+    const html = await response.text();
+    const results = parseGoogleResults(html);
+    return results;
+}
+
+// Parse Google HTML results
+function parseGoogleResults(html) {
+    const results = [];
+
+    // Simple regex-based parsing (works without external dependencies)
+    // Match Google search result divs
+    const resultPattern = /<div class="[^"]*g[^"]*"[^>]*>[\s\S]*?<h3[^>]*>([\s\S]*?)<\/h3>[\s\S]*?<cite[^>]*>([\s\S]*?)<\/cite>[\s\S]*?<div[^>]*>([\s\S]*?)<\/div>/gi;
+
+    let match;
+    let count = 0;
+    while ((match = resultPattern.exec(html)) && count < 5) {
+        const title = match[1].replace(/<[^>]+>/g, '').trim();
+        const url = match[2].replace(/<[^>]+>/g, '').trim();
+        const description = match[3].replace(/<[^>]+>/g, '').trim();
+
+        if (title && url) {
+            results.push({
+                title: title.substring(0, 150),
+                description: description.substring(0, 300) || 'No description available',
+                url: url.startsWith('http') ? url : `https://${url}`,
+                date: 'From Google Search'
+            });
+            count++;
+        }
+    }
+
+    // Fallback: simpler pattern if the above doesn't work
+    if (results.length === 0) {
+        const simplePattern = /<a[^>]*href="\/url\?q=([^"&]+)"[^>]*>([\s\S]*?)<\/a>/gi;
+        let simpleMatch;
+        let simpleCount = 0;
+
+        while ((simpleMatch = simplePattern.exec(html)) && simpleCount < 5) {
+            const url = decodeURIComponent(simpleMatch[1]);
+            const title = simpleMatch[2].replace(/<[^>]+>/g, '').trim();
+
+            if (url.startsWith('http') && !url.includes('google.com') && title.length > 10) {
+                results.push({
+                    title: title.substring(0, 150),
+                    description: 'Latest FPL news from Google',
+                    url: url,
+                    date: 'From Google Search'
+                });
+                simpleCount++;
+            }
+        }
+    }
+
+    return results;
 }
 
 // Scrape FPL-specific sites
