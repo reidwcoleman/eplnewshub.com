@@ -2294,17 +2294,38 @@
             // Show search indicator BEFORE anything else if search is needed
             if (needsSearch) {
                 searchMessageId = 'search-indicator-' + Date.now();
-                const searchIndicatorHTML = `<div id="${searchMessageId}" class="message ai-message" style="opacity: 0.9;">
-                    <div class="message-avatar ai-avatar">🔍</div>
-                    <div class="message-content">
-                        <div class="message-text" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                            <strong>🔍 Searching Google for latest FPL news...</strong>
-                        </div>
-                    </div>
-                </div>`;
-                const chatMessages = document.getElementById('chatMessages');
-                chatMessages.insertAdjacentHTML('beforeend', searchIndicatorHTML);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+                const messagesContainer = document.getElementById('chatMessages');
+
+                // Create search indicator message
+                const messageDiv = document.createElement('div');
+                messageDiv.id = searchMessageId;
+                messageDiv.className = 'message ai-message';
+                messageDiv.style.opacity = '0.9';
+
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'message-avatar ai-avatar';
+                avatarDiv.textContent = '🔍';
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+
+                const roleDiv = document.createElement('div');
+                roleDiv.className = 'message-role';
+                roleDiv.textContent = 'FPL AI Assistant Pro';
+
+                const textDiv = document.createElement('div');
+                textDiv.className = 'message-text';
+                textDiv.innerHTML = '<strong>🔍 Searching Google for latest FPL news...</strong>';
+
+                contentDiv.appendChild(roleDiv);
+                contentDiv.appendChild(textDiv);
+                messageDiv.appendChild(avatarDiv);
+                messageDiv.appendChild(contentDiv);
+
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                console.log('✅ Search indicator displayed with ID:', searchMessageId);
             }
 
             // Show typing indicator
