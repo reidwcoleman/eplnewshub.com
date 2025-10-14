@@ -2322,8 +2322,8 @@
                 try {
                     console.log('🚀 STARTING CLIENT-SIDE SEARCH...');
 
-                    // Search FPL Official API directly (no backend needed!)
-                    const fplResponse = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
+                    // Use CORS proxy to access FPL API (avoids CORS error)
+                    const fplResponse = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://fantasy.premierleague.com/api/bootstrap-static/'));
 
                     console.log('📡 FPL API response status:', fplResponse.status);
 
@@ -2453,15 +2453,18 @@ Provide a helpful response:`;
                     console.log('🤖 Puter response:', response);
 
                     if (response) {
-                        // Extract text from response - Puter may return object or string
+                        // Extract text from response - Puter returns OpenAI-style format
                         if (typeof response === 'string') {
                             aiResponse = response;
+                        } else if (response.message && response.message.content) {
+                            // OpenAI-style: {message: {content: "text"}}
+                            aiResponse = response.message.content;
+                        } else if (response.content) {
+                            aiResponse = response.content;
                         } else if (response.text) {
                             aiResponse = response.text;
                         } else if (response.message) {
                             aiResponse = response.message;
-                        } else if (response.content) {
-                            aiResponse = response.content;
                         } else {
                             aiResponse = String(response);
                         }
