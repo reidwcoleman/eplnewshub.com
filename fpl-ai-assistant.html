@@ -2291,16 +2291,13 @@
             addMessage(message, 'user');
             // Clear input
             input.value = '';
-            // Check if we need to search for latest FPL news
+            // ALWAYS search for FPL data on EVERY question
             let searchContext = '';
             let searchMessageId = null;
-            const searchKeywords = ['latest', 'recent', 'news', 'today', 'now', 'current',
-                                   'injured', 'injury', 'update', 'status', 'lineup',
-                                   'transfer', 'breaking', 'confirmed', 'rumor', 'deadline'];
-            const needsSearch = searchKeywords.some(keyword => message.toLowerCase().includes(keyword));
+            const needsSearch = true; // Search enabled for ALL questions!
 
             console.log('🔍 Message:', message);
-            console.log('🔍 Needs search?', needsSearch);
+            console.log('🔍 Searching for current FPL data...');
 
             // Show search indicator BEFORE anything else if search is needed
             if (needsSearch) {
@@ -2308,7 +2305,7 @@
                 searchMessageId = 'search-indicator-' + Date.now();
 
                 // Use addMessage for guaranteed visibility
-                addMessage('🔍 <strong style="color: #667eea;">SEARCHING GOOGLE FOR LATEST FPL NEWS...</strong>', 'ai');
+                addMessage('🔍 <strong style="color: #667eea;">SEARCHING FOR CURRENT FPL DATA...</strong>', 'ai');
 
                 // Store the last message as our search indicator
                 const messages = document.getElementById('chatMessages').children;
