@@ -2321,83 +2321,99 @@
             let aiResponse = null;
             let serviceUsed = 'offline';
 
-            // Perform search if needed - CLIENT SIDE (Netlify not working)
+            // Perform search if needed - CLIENT SIDE with DuckDuckGo Instant Answer API
             if (needsSearch) {
                 try {
-                    console.log('🚀 STARTING WEB SEARCH FOR:', message);
+                    console.log('🚀 STARTING SEARCH FOR:', message);
 
                     const searchResults = [];
 
-                    // SEARCH 1: Google/Web search for the actual question
+                    // SEARCH 1: DuckDuckGo Instant Answer API (CORS-friendly, no key needed)
                     try {
-                        console.log('🌐 Searching Google for:', message);
-                        const searchQuery = `FPL ${message} site:reddit.com OR site:fantasy.premierleague.com OR site:premierleague.com`;
-                        const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}&num=3`;
+                        console.log('🦆 Searching DuckDuckGo for:', message);
+                        const ddgUrl = `https://api.duckduckgo.com/?q=FPL ${encodeURIComponent(message)}&format=json&no_html=1`;
 
-                        const googleResponse = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(googleUrl));
+                        const ddgResponse = await fetch(ddgUrl);
 
-                        if (googleResponse.ok) {
-                            const data = await googleResponse.json();
-                            const html = data.contents;
+                        if (ddgResponse.ok) {
+                            const data = await ddgResponse.json();
+                            console.log('🦆 DuckDuckGo response:', data);
 
-                            // Simple regex to extract search results
-                            const titleRegex = /<h3[^>]*>(.*?)<\/h3>/gi;
-                            const matches = [...html.matchAll(titleRegex)].slice(0, 3);
-
-                            matches.forEach((match, i) => {
-                                const title = match[1].replace(/<[^>]+>/g, '').trim();
-                                if (title && title.length > 10) {
-                                    searchResults.push({
-                                        title: title,
-                                        description: `Web search result ${i + 1} for: ${message}`,
-                                        source: 'Google Search'
-                                    });
-                                }
-                            });
-
-                            console.log('✅ Google search found', matches.length, 'results');
-                        }
-                    } catch (error) {
-                        console.log('⚠️ Google search failed:', error);
-                    }
-
-                    // SEARCH 2: FPL Official API for injuries/gameweek
-                    try {
-                        const fplResponse = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://fantasy.premierleague.com/api/bootstrap-static/'));
-
-                        if (fplResponse.ok) {
-                            const fplData = await fplResponse.json();
-                            console.log('📊 FPL data loaded');
-
-                            // Get injured players
-                            if (fplData.elements) {
-                                const injuredPlayers = fplData.elements
-                                    .filter(p => p.news && p.news.length > 0)
-                                    .slice(0, 3);
-
-                                injuredPlayers.forEach(p => {
-                                    searchResults.push({
-                                        title: `${p.web_name} - ${p.news}`,
-                                        description: `Status: ${p.status}. Chance of playing: ${p.chance_of_playing_next_round || 0}%`,
-                                        source: 'FPL Official API'
-                                    });
+                            // Get abstract
+                            if (data.Abstract && data.Abstract.length > 0) {
+                                searchResults.push({
+                                    title: data.Heading || 'FPL Information',
+                                    description: data.Abstract,
+                                    source: 'DuckDuckGo'
                                 });
                             }
 
-                            // Get gameweek info
+                            // Get related topics
+                            if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+                                data.RelatedTopics.slice(0, 2).forEach(topic => {
+                                    if (topic.Text) {
+                                        searchResults.push({
+                                            title: topic.Text.substring(0, 100),
+                                            description: topic.Text,
+                                            source: 'DuckDuckGo Related'
+                                        });
+                                    }
+                                });
+                            }
+
+                            console.log('✅ DuckDuckGo found', searchResults.length, 'results');
+                        }
+                    } catch (error) {
+                        console.log('⚠️ DuckDuckGo search failed:', error);
+                    }
+
+                    // SEARCH 2: FPL Official API (ALWAYS works - direct API access)
+                    try {
+                        console.log('⚽ Fetching FPL Official API...');
+                        // Try direct first, then CORS proxy if needed
+                        let fplResponse = await fetch('https://fantasy.premierleague.com/api/bootstrap-static/');
+
+                        if (!fplResponse.ok) {
+                            console.log('🔄 Direct FPL API failed, trying CORS proxy...');
+                            fplResponse = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://fantasy.premierleague.com/api/bootstrap-static/'));
+                        }
+
+                        if (fplResponse.ok) {
+                            const fplData = await fplResponse.json();
+                            console.log('📊 FPL data loaded successfully!');
+
+                            // Get injured/news players
+                            if (fplData.elements) {
+                                const newsPlayers = fplData.elements
+                                    .filter(p => p.news && p.news.length > 0)
+                                    .slice(0, 5);
+
+                                newsPlayers.forEach(p => {
+                                    const teamName = fplData.teams.find(t => t.id === p.team)?.name || 'Unknown';
+                                    searchResults.push({
+                                        title: `${p.web_name} (${teamName}) - ${p.news}`,
+                                        description: `Status: ${p.status}. Chance of playing next: ${p.chance_of_playing_next_round || 0}%. Price: £${(p.now_cost / 10).toFixed(1)}m`,
+                                        source: 'FPL Official API'
+                                    });
+                                });
+                                console.log('✅ Found', newsPlayers.length, 'players with news');
+                            }
+
+                            // Get current gameweek
                             if (fplData.events) {
                                 const currentGW = fplData.events.find(e => e.is_current) || fplData.events.find(e => e.is_next);
                                 if (currentGW) {
+                                    const deadline = new Date(currentGW.deadline_time);
                                     searchResults.push({
-                                        title: `Gameweek ${currentGW.id} - ${currentGW.name}`,
-                                        description: `Deadline: ${new Date(currentGW.deadline_time).toLocaleString()}`,
+                                        title: `⏰ Gameweek ${currentGW.id} - ${currentGW.name}`,
+                                        description: `Deadline: ${deadline.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`,
                                         source: 'FPL Official API'
                                     });
                                 }
                             }
                         }
                     } catch (error) {
-                        console.log('⚠️ FPL API failed:', error);
+                        console.error('❌ FPL API failed:', error);
                     }
 
                     console.log('📊 Total search results:', searchResults.length);
