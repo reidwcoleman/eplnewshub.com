@@ -2328,40 +2328,55 @@
 
                     const searchResults = [];
 
-                    // SEARCH 1: DuckDuckGo Instant Answer API (CORS-friendly, no key needed)
+                    // SEARCH 1: DuckDuckGo HTML Search (actual web results)
                     try {
-                        console.log('🦆 Searching DuckDuckGo for:', message);
-                        const ddgUrl = `https://api.duckduckgo.com/?q=FPL ${encodeURIComponent(message)}&format=json&no_html=1`;
+                        console.log('🦆 Searching DuckDuckGo web for:', message);
+                        const searchQuery = `FPL ${message}`;
+                        const ddgUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery)}`;
 
-                        const ddgResponse = await fetch(ddgUrl);
+                        // Use CORS proxy to fetch DuckDuckGo HTML
+                        const ddgResponse = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(ddgUrl));
 
                         if (ddgResponse.ok) {
                             const data = await ddgResponse.json();
-                            console.log('🦆 DuckDuckGo response:', data);
+                            const html = data.contents;
+                            console.log('🦆 DuckDuckGo HTML received');
 
-                            // Get abstract
-                            if (data.Abstract && data.Abstract.length > 0) {
-                                searchResults.push({
-                                    title: data.Heading || 'FPL Information',
-                                    description: data.Abstract,
-                                    source: 'DuckDuckGo'
-                                });
+                            // Parse DuckDuckGo results - they use specific HTML structure
+                            // Look for result divs with class "result"
+                            const resultRegex = /<a class="result__a"[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>[\s\S]*?<a class="result__snippet"[^>]*>([^<]+)<\/a>/gi;
+                            let match;
+                            let count = 0;
+
+                            while ((match = resultRegex.exec(html)) && count < 3) {
+                                const url = match[1];
+                                const title = match[2].trim();
+                                const snippet = match[3].trim();
+
+                                if (title && snippet && url.startsWith('http')) {
+                                    searchResults.push({
+                                        title: title.substring(0, 150),
+                                        description: snippet.substring(0, 300),
+                                        source: `Web: ${new URL(url).hostname}`
+                                    });
+                                    count++;
+                                }
                             }
 
-                            // Get related topics
-                            if (data.RelatedTopics && data.RelatedTopics.length > 0) {
-                                data.RelatedTopics.slice(0, 2).forEach(topic => {
-                                    if (topic.Text) {
-                                        searchResults.push({
-                                            title: topic.Text.substring(0, 100),
-                                            description: topic.Text,
-                                            source: 'DuckDuckGo Related'
-                                        });
-                                    }
-                                });
+                            // Fallback: simpler pattern if above doesn't work
+                            if (count === 0) {
+                                const simpleRegex = /<div class="result__body">[\s\S]*?<a[^>]*>([^<]+)<\/a>[\s\S]*?<a[^>]*class="result__snippet"[^>]*>([^<]+)<\/a>/gi;
+                                let simpleMatch;
+                                while ((simpleMatch = simpleRegex.exec(html)) && searchResults.length < 3) {
+                                    searchResults.push({
+                                        title: simpleMatch[1].trim().substring(0, 150),
+                                        description: simpleMatch[2].trim().substring(0, 300),
+                                        source: 'DuckDuckGo Web'
+                                    });
+                                }
                             }
 
-                            console.log('✅ DuckDuckGo found', searchResults.length, 'results');
+                            console.log('✅ DuckDuckGo found', searchResults.length, 'web results');
                         }
                     } catch (error) {
                         console.log('⚠️ DuckDuckGo search failed:', error);
