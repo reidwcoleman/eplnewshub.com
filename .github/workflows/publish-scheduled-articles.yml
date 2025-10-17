@@ -1,0 +1,35 @@
+name: Publish Scheduled Articles
+
+on:
+  schedule:
+    # Runs every day at 9:00 AM UTC (4:00 AM EST / 1:00 AM PST)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Check and publish scheduled articles
+        run: node .github/scripts/publish-scheduled.js
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No articles to publish today"
+          else
+            git commit -m "Publish scheduled articles for $(date +'%Y-%m-%d')"
+            git push
+          fi
