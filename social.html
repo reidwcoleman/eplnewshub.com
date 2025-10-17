@@ -1,7 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-    <!-- Google tag (gtag.js) -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Follow Premier League social media, latest tweets, and fan reactions at EPL News Hub.">
+    <meta name="keywords" content="Premier League social media, EPL Twitter, football social, soccer social media">
+    <title>Social Feed | EPL News Hub</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/eplnewshubnewlogo.png">
+    <link rel="apple-touch-icon" href="/eplnewshubnewlogo.png">
+
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -9,552 +20,441 @@
       gtag('js', new Date());
       gtag('config', 'G-TVPLGM5QY9');
     </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Follow Premier League social media, latest tweets, and fan reactions at EPL News Hub.">
-    <meta name="keywords" content="Premier League social media, EPL Twitter, football social, soccer social media">
-    <title>Premier League Social Media | EPL News Hub</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="/mobile-master-optimize.css">
-    <link rel="stylesheet" href="responsive.css">
+
+    <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
-    <link rel="apple-touch-icon" href="/eplnewshub_logo.png">
-    <link rel="icon" type="image/png" href="/eplnewshub_logo.png">
-    
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+
     <style>
-        /* Enhanced Social Page Styles */
-        .social-hero {
-            background: linear-gradient(135deg, #37003c 0%, #6f42c1 50%, #20c997 100%);
-            color: white;
-            padding: 40px 20px;
-            margin-bottom: 30px;
-            text-align: center;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .social-hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            font-weight: 800;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .social-hero p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
+        html, body {
+            background: #ffffff;
+            color: #121212;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        .live-updates-bar {
-            background: rgba(255,255,255,0.1);
-            padding: 12px 20px;
-            border-radius: 25px;
-            margin-top: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
+        /* Page Header */
+        .social-header {
+            max-width: 1000px;
+            margin: 80px auto 60px;
+            padding: 0 24px;
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 40px;
         }
 
-        .live-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            background: #22c55e;
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: pulse 2s infinite;
+        .social-header h1 {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 52px;
+            font-weight: 700;
+            line-height: 1.1;
+            color: #121212;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.1); }
+        .social-header .subtitle {
+            font-family: 'Georgia', serif;
+            font-size: 20px;
+            line-height: 1.5;
+            color: #666;
+            margin-bottom: 28px;
         }
 
+        .social-stats {
+            display: flex;
+            gap: 32px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #121212;
+            font-family: 'Noto Serif', Georgia, serif;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #767676;
+            margin-top: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Main Container */
         .social-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 25px;
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .social-card {
-            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            border: 1px solid rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-
-        .social-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-        }
-
-        .social-card h3 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #37003c;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-icon {
-            font-size: 1.6rem;
-        }
-
-        .social-links {
+            padding: 0 24px 100px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
+            grid-template-columns: 1fr 300px;
+            gap: 60px;
         }
 
-        .social-link {
+        /* Feed Column */
+        .feed-column {
+            min-width: 0;
+        }
+
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .feed-title {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #121212;
+            letter-spacing: -0.5px;
+        }
+
+        .refresh-btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #121212;
+            background: transparent;
+            border: 1px solid #e5e5e5;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .refresh-btn:hover {
+            border-color: #121212;
+            background: #f8f8f8;
+        }
+
+        /* Feed Item */
+        .feed-item {
+            padding: 32px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .feed-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-header {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 15px 20px;
-            border-radius: 12px;
-            text-decoration: none;
+            margin-bottom: 16px;
+        }
+
+        .item-source {
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
             font-weight: 600;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
+            color: #121212;
         }
 
-        .social-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
+        .item-verified {
+            color: #1DA1F2;
         }
 
-        .social-link:hover::before {
-            left: 100%;
+        .item-time {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #767676;
         }
 
-        .social-link.twitter {
-            background: linear-gradient(135deg, #1da1f2, #0d8bd9);
-            color: white;
-            box-shadow: 0 4px 15px rgba(29, 161, 242, 0.3);
-        }
-
-        .social-link.instagram {
-            background: linear-gradient(135deg, #e1306c, #fd1d1d, #f77737, #fcaf45);
-            color: white;
-            box-shadow: 0 4px 15px rgba(225, 48, 108, 0.3);
-        }
-
-        .social-link.facebook {
-            background: linear-gradient(135deg, #1877f2, #0d5ebd);
-            color: white;
-            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
-        }
-
-        .social-link:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-        }
-
-        .social-icon {
-            font-size: 1.4rem;
-        }
-
-        .trending-topics {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .topic-tag {
-            background: linear-gradient(135deg, #37003c, #6f42c1);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+        .item-category {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
             font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 2px solid transparent;
-        }
-
-        .topic-tag:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(55, 0, 60, 0.3);
-            border-color: rgba(255,255,255,0.3);
-        }
-
-        .tweets-container {
-            display: grid;
-            gap: 20px;
-        }
-
-        .tweet-card {
-            background: rgba(55, 0, 60, 0.02);
-            border: 1px solid rgba(55, 0, 60, 0.1);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .tweet-card:hover {
-            background: rgba(55, 0, 60, 0.05);
-            transform: translateX(5px);
-            border-color: rgba(55, 0, 60, 0.2);
-        }
-
-        .tweet-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .tweet-header strong {
-            color: #37003c;
-            font-weight: 700;
-        }
-
-        .tweet-time {
-            color: #666;
-            font-size: 0.9rem;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: #121212;
             background: #f0f0f0;
-            padding: 4px 8px;
-            border-radius: 8px;
+            padding: 4px 10px;
+            border-radius: 2px;
+            margin-left: auto;
         }
 
-        .tweet-text {
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .tweet-stats {
-            display: flex;
-            gap: 20px;
-            font-size: 0.9rem;
-            color: #666;
-            padding-top: 10px;
-            border-top: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .tweet-stats span {
-            transition: color 0.3s ease;
-            cursor: pointer;
-        }
-
-        .tweet-stats span:hover {
-            color: #37003c;
-        }
-
-        .fan-reactions {
-            display: grid;
-            gap: 15px;
-        }
-
-        .reaction-item {
-            background: rgba(55, 0, 60, 0.02);
-            border-left: 4px solid #37003c;
-            padding: 15px 20px;
-            border-radius: 0 12px 12px 0;
-            transition: all 0.3s ease;
-        }
-
-        .reaction-item:hover {
-            background: rgba(55, 0, 60, 0.05);
-            transform: translateX(5px);
-        }
-
-        .reaction-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #37003c;
-        }
-
-        .team-badge {
-            font-size: 1.2rem;
-        }
-
-        .club-social-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .club-social-link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 20px;
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            text-decoration: none;
-            color: #333;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .club-social-link:hover {
-            border-color: #37003c;
-            background: #f8f9ff;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(55, 0, 60, 0.15);
-        }
-
-        .refresh-button {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-        }
-
-        .refresh-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-        }
-
-        /* News Feed Styles */
-        .news-container {
-            display: grid;
-            gap: 20px;
-        }
-
-        .news-item {
-            background: rgba(55, 0, 60, 0.02);
-            border: 1px solid rgba(55, 0, 60, 0.1);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .news-item:hover {
-            background: rgba(55, 0, 60, 0.05);
-            transform: translateY(-3px);
-            border-color: rgba(55, 0, 60, 0.2);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-
-        .news-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-
-        .news-category {
-            background: linear-gradient(135deg, #37003c, #6f42c1);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .news-time {
-            color: #666;
-            font-size: 0.9rem;
-            background: #f0f0f0;
-            padding: 4px 8px;
-            border-radius: 8px;
-        }
-
-        .news-title {
-            font-size: 1.2rem;
+        .item-title {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 22px;
             font-weight: 700;
-            color: #37003c;
-            margin-bottom: 10px;
-            line-height: 1.4;
+            line-height: 1.3;
+            color: #121212;
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+            cursor: pointer;
+            transition: color 0.2s ease;
         }
 
-        .news-excerpt {
-            font-size: 1rem;
+        .item-title:hover {
+            color: #666;
+        }
+
+        .item-excerpt {
+            font-family: 'Georgia', serif;
+            font-size: 16px;
             line-height: 1.6;
             color: #555;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
-        .news-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 10px;
-            border-top: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .news-tags {
+        .item-tags {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
+            margin-bottom: 16px;
         }
 
-        .news-tag {
-            background: rgba(55, 0, 60, 0.1);
-            color: #37003c;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .news-stats {
-            display: flex;
-            gap: 15px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .news-stats span {
-            transition: color 0.3s ease;
+        .item-tag {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: #767676;
+            background: #f8f8f8;
+            padding: 4px 10px;
+            border-radius: 2px;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        .news-stats span:hover {
-            color: #37003c;
+        .item-tag:hover {
+            background: #121212;
+            color: #ffffff;
         }
 
+        .item-stats {
+            display: flex;
+            gap: 24px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #767676;
+        }
+
+        .item-stat {
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .item-stat:hover {
+            color: #121212;
+        }
+
+        /* Sidebar Column */
+        .sidebar-column {
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+        }
+
+        .sidebar-section {
+            margin-bottom: 48px;
+        }
+
+        .sidebar-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #121212;
+            margin-bottom: 20px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Trending Topics */
+        .trending-list {
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .trending-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .trending-item:hover {
+            padding-left: 8px;
+            margin-left: -8px;
+        }
+
+        .trending-rank {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .trending-topic {
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #121212;
+            margin-bottom: 4px;
+        }
+
+        .trending-count {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: #767676;
+        }
+
+        /* Follow Links */
+        .follow-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .follow-link {
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            color: #121212;
+            text-decoration: none;
+            padding: 12px;
+            background: #f8f8f8;
+            border-left: 3px solid #121212;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .follow-link:hover {
+            background: #121212;
+            color: #ffffff;
+        }
+
+        .follow-arrow {
+            transition: transform 0.2s ease;
+        }
+
+        .follow-link:hover .follow-arrow {
+            transform: translateX(4px);
+        }
+
+        /* Load More */
         .load-more-container {
             text-align: center;
-            margin-top: 20px;
+            padding: 40px 0;
+            border-top: 1px solid #e5e5e5;
+            margin-top: 40px;
         }
 
         .load-more-btn {
-            background: linear-gradient(135deg, #37003c, #6f42c1);
-            color: white;
+            font-family: 'Inter', sans-serif;
+            background: #121212;
+            color: #ffffff;
             border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
+            padding: 14px 32px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
         }
 
         .load-more-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(55, 0, 60, 0.3);
+            background: #333;
         }
 
         .load-more-btn:disabled {
-            opacity: 0.6;
+            background: #e5e5e5;
+            color: #999;
             cursor: not-allowed;
-            transform: none;
         }
 
-        /* Mobile Responsiveness */
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .social-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .sidebar-column {
+                position: static;
+                border-top: 1px solid #e5e5e5;
+                padding-top: 40px;
+            }
+        }
+
         @media (max-width: 768px) {
-            .social-hero {
-                padding: 30px 15px;
-                margin-bottom: 20px;
+            .social-header {
+                margin: 60px auto 40px;
+                padding: 0 20px;
+                padding-bottom: 32px;
             }
 
-            .social-hero h1 {
-                font-size: 2rem;
+            .social-header h1 {
+                font-size: 40px;
             }
 
-            .social-hero p {
-                font-size: 1rem;
+            .social-header .subtitle {
+                font-size: 18px;
+            }
+
+            .social-stats {
+                gap: 24px;
+                flex-wrap: wrap;
+            }
+
+            .stat-number {
+                font-size: 28px;
             }
 
             .social-container {
-                gap: 20px;
-                padding: 0 15px;
+                padding: 0 20px 80px;
             }
 
-            .social-card {
-                padding: 20px;
+            .feed-title {
+                font-size: 24px;
             }
 
-            .social-card h3 {
-                font-size: 1.2rem;
+            .item-title {
+                font-size: 20px;
             }
 
-            .social-links {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .social-link {
-                padding: 12px 16px;
-                font-size: 0.9rem;
-            }
-
-            .trending-topics {
-                gap: 8px;
-            }
-
-            .topic-tag {
-                padding: 6px 12px;
-                font-size: 0.8rem;
-            }
-
-            .tweet-card {
-                padding: 15px;
-            }
-
-            .tweet-stats {
-                gap: 15px;
-                font-size: 0.8rem;
-            }
-
-            .club-social-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .club-social-link {
-                padding: 12px 16px;
+            .item-excerpt {
+                font-size: 15px;
             }
         }
 
         @media (max-width: 480px) {
-            .social-hero h1 {
-                font-size: 1.8rem;
+            .social-header h1 {
+                font-size: 34px;
             }
 
-            .social-card {
-                padding: 15px;
-            }
-
-            .social-link {
-                flex-direction: column;
-                text-align: center;
-                gap: 8px;
-                padding: 15px;
-            }
-
-            .tweet-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
-
-            .tweet-stats {
+            .item-header {
                 flex-wrap: wrap;
-                gap: 10px;
+            }
+
+            .item-category {
+                margin-left: 0;
+            }
+
+            .item-stats {
+                flex-wrap: wrap;
+                gap: 16px;
             }
         }
     </style>
@@ -562,505 +462,428 @@
 <body>
     <div class="header" include="./header.html"></div>
 
-    <!-- Hero Section -->
-    <section class="social-hero">
-        <h1>💬 Premier League Social Hub</h1>
-        <p>Stay connected with the latest Premier League buzz, trending topics, and fan reactions from across the footballing world</p>
-        <div class="live-updates-bar">
-            <span class="live-indicator"></span>
-            <strong>Live Updates</strong> • Real-time social media feeds and trending discussions
+    <!-- Page Header -->
+    <header class="social-header">
+        <h1>Social Feed</h1>
+        <p class="subtitle">The latest Premier League news, updates, and community reactions in one central hub.</p>
+
+        <div class="social-stats">
+            <div class="stat-item">
+                <span class="stat-number" id="total-articles">13</span>
+                <span class="stat-label">Articles published</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">248K</span>
+                <span class="stat-label">Total views</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">12.5K</span>
+                <span class="stat-label">Engaged readers</span>
+            </div>
         </div>
-    </section>
+    </header>
 
-    <!-- Main Content Area -->
-    <main class="main-content">
-        <div class="content-wrapper">
-            <!-- Social Media Section -->
-            <section class="social-section">
-                <div class="social-container">
-                    <!-- Follow Us -->
-                    <div class="social-card">
-                        <h3><span class="card-icon">📱</span>Follow EPL News Hub</h3>
-                        <button class="refresh-button" onclick="refreshSocialFeeds()">🔄 Refresh Feeds</button>
-                        <div class="social-links">
-                            <a href="https://twitter.com/coleman_re19092" class="social-link twitter" target="_blank">
-                                <span class="social-icon">🐦</span>
-                                <span>Follow on Twitter</span>
-                                <span>12.5K followers</span>
-                            </a>
-                            <a href="#" class="social-link instagram" target="_blank">
-                                <span class="social-icon">📷</span>
-                                <span>Follow on Instagram</span>
-                                <span>8.7K followers</span>
-                            </a>
-                            <a href="#" class="social-link facebook" target="_blank">
-                                <span class="social-icon">👍</span>
-                                <span>Like on Facebook</span>
-                                <span>15.2K likes</span>
-                            </a>
-                        </div>
+    <!-- Main Container -->
+    <main class="social-container">
+
+        <!-- Feed Column -->
+        <div class="feed-column">
+            <div class="feed-header">
+                <h2 class="feed-title">Latest Updates</h2>
+                <button class="refresh-btn" onclick="refreshFeed()">Refresh</button>
+            </div>
+
+            <div id="feed-content">
+                <!-- Feed items will be inserted here -->
+            </div>
+
+            <div class="load-more-container">
+                <button class="load-more-btn" id="load-more-btn" onclick="loadMore()">Load More</button>
+            </div>
+        </div>
+
+        <!-- Sidebar Column -->
+        <aside class="sidebar-column">
+
+            <!-- Trending Topics -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-title">Trending Now</h3>
+                <div class="trending-list">
+                    <div class="trending-item" onclick="filterByTopic('Transfers')">
+                        <div class="trending-rank">1 · Trending</div>
+                        <div class="trending-topic">#TransferNews</div>
+                        <div class="trending-count">5,234 mentions</div>
                     </div>
-
-                    <!-- Trending Topics -->
-                    <div class="social-card">
-                        <h3><span class="card-icon">🔥</span>Trending Topics</h3>
-                        <div class="trending-topics">
-                            <span class="topic-tag" onclick="searchTopic('#PremierLeague')">#PremierLeague</span>
-                            <span class="topic-tag" onclick="searchTopic('#TransferNews')">#TransferNews</span>
-                            <span class="topic-tag" onclick="searchTopic('#Kvaratskhelia')">#Kvaratskhelia</span>
-                            <span class="topic-tag" onclick="searchTopic('#Arsenal')">#Arsenal</span>
-                            <span class="topic-tag" onclick="searchTopic('#ManUnited')">#ManUnited</span>
-                            <span class="topic-tag" onclick="searchTopic('#TitleRace')">#TitleRace</span>
-                            <span class="topic-tag" onclick="searchTopic('#Gyokeres')">#Gyokeres</span>
-                            <span class="topic-tag" onclick="searchTopic('#EPL2025')">#EPL2025</span>
-                        </div>
+                    <div class="trending-item" onclick="filterByTopic('Arsenal')">
+                        <div class="trending-rank">2 · Trending</div>
+                        <div class="trending-topic">#Arsenal</div>
+                        <div class="trending-count">4,891 mentions</div>
                     </div>
-
-                    <!-- Latest EPL News Feed -->
-                    <div class="social-card">
-                        <h3><span class="card-icon">📰</span>Latest EPL News from Our Hub</h3>
-                        <div class="news-container" id="news-feed">
-                            <!-- News items will be loaded here dynamically -->
-                        </div>
-                        <div class="load-more-container">
-                            <button class="load-more-btn" onclick="loadMoreNews()">📖 Load More News</button>
-                        </div>
+                    <div class="trending-item" onclick="filterByTopic('Gyökeres')">
+                        <div class="trending-rank">3 · Trending</div>
+                        <div class="trending-topic">#Gyökeres</div>
+                        <div class="trending-count">3,672 mentions</div>
                     </div>
-
-                    <!-- Fan Reactions -->
-                    <div class="social-card">
-                        <h3>Fan Reactions</h3>
-                        <div class="fan-reactions">
-                            <div class="reaction-item">
-                                <div class="reaction-header">
-                                    <strong>@MUFCFan2025</strong>
-                                    <span class="team-badge">🔴</span>
-                                </div>
-                                <p>"Finally! Kvaratskhelia is exactly what we needed. This could be the signing that gets us back to the top! 🔥"</p>
-                            </div>
-
-                            <div class="reaction-item">
-                                <div class="reaction-header">
-                                    <strong>@ArsenalTill_I_Die</strong>
-                                    <span class="team-badge">🔴</span>
-                                </div>
-                                <p>"If United get Kvara and we don't get Gyokeres, I'm not sure how we compete for the title this season..."</p>
-                            </div>
-
-                            <div class="reaction-item">
-                                <div class="reaction-header">
-                                    <strong>@LFC_Supporter</strong>
-                                    <span class="team-badge">🔴</span>
-                                </div>
-                                <p>"While everyone's focusing on transfers, we're quietly building something special. Trust the process! YNWA"</p>
-                            </div>
-                        </div>
+                    <div class="trending-item" onclick="filterByTopic('TitleRace')">
+                        <div class="trending-rank">4 · Trending</div>
+                        <div class="trending-topic">#TitleRace</div>
+                        <div class="trending-count">2,945 mentions</div>
                     </div>
-
-                    <!-- Social Media Feeds -->
-                    <div class="social-card">
-                        <h3>Official Club Social Media</h3>
-                        <div class="club-social-grid">
-                            <a href="https://twitter.com/Arsenal" class="club-social-link" target="_blank">
-                                <span class="club-name">Arsenal</span>
-                                <span class="social-icon">🐦</span>
-                            </a>
-                            <a href="https://twitter.com/ChelseaFC" class="club-social-link" target="_blank">
-                                <span class="club-name">Chelsea</span>
-                                <span class="social-icon">🐦</span>
-                            </a>
-                            <a href="https://twitter.com/LFC" class="club-social-link" target="_blank">
-                                <span class="club-name">Liverpool</span>
-                                <span class="social-icon">🐦</span>
-                            </a>
-                            <a href="https://twitter.com/ManCity" class="club-social-link" target="_blank">
-                                <span class="club-name">Man City</span>
-                                <span class="social-icon">🐦</span>
-                            </a>
-                            <a href="https://twitter.com/ManUtd" class="club-social-link" target="_blank">
-                                <span class="club-name">Man United</span>
-                                <span class="social-icon">🐦</span>
-                            </a>
-                            <a href="https://twitter.com/SpursOfficial" class="club-social-link" target="_blank">
-                                <span class="club-name">Tottenham</span>
-                                <span class="social-icon">🐦</span>
-                            </a>
-                        </div>
+                    <div class="trending-item" onclick="filterByTopic('ManUnited')">
+                        <div class="trending-rank">5 · Trending</div>
+                        <div class="trending-topic">#ManUnited</div>
+                        <div class="trending-count">2,103 mentions</div>
                     </div>
                 </div>
             </section>
-        </div>
+
+            <!-- Follow Us -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-title">Follow EPL News Hub</h3>
+                <div class="follow-list">
+                    <a href="https://twitter.com/coleman_re19092" class="follow-link" target="_blank">
+                        <span>Twitter</span>
+                        <span class="follow-arrow">→</span>
+                    </a>
+                    <a href="#" class="follow-link" target="_blank">
+                        <span>Instagram</span>
+                        <span class="follow-arrow">→</span>
+                    </a>
+                    <a href="#" class="follow-link" target="_blank">
+                        <span>Facebook</span>
+                        <span class="follow-arrow">→</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Official Clubs -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-title">Official Club Accounts</h3>
+                <div class="follow-list">
+                    <a href="https://twitter.com/Arsenal" class="follow-link" target="_blank">
+                        <span>Arsenal</span>
+                        <span class="follow-arrow">→</span>
+                    </a>
+                    <a href="https://twitter.com/ChelseaFC" class="follow-link" target="_blank">
+                        <span>Chelsea</span>
+                        <span class="follow-arrow">→</span>
+                    </a>
+                    <a href="https://twitter.com/LFC" class="follow-link" target="_blank">
+                        <span>Liverpool</span>
+                        <span class="follow-arrow">→</span>
+                    </a>
+                    <a href="https://twitter.com/ManCity" class="follow-link" target="_blank">
+                        <span>Man City</span>
+                        <span class="follow-arrow">→</span>
+                    </a>
+                    <a href="https://twitter.com/ManUtd" class="follow-link" target="_blank">
+                        <span>Man United</span>
+                        <span class="follow-arrow">→</span>
+                    </a>
+                </div>
+            </section>
+
+        </aside>
+
     </main>
 
     <div class="footer" include="./footer.html"></div>
     <script src="./index.js"></script>
-    
+
     <script>
-        // Real EPL News Articles Database - Generated from actual articles
-        const eplNewsArticles = [
+        // Feed data from actual EPL News Hub articles
+        const feedData = [
             {
-                title: "Marcus Rashford's Barcelona Move Shakes Premier League Transfer Window",
-                excerpt: "Marcus Rashford's loan move to Barcelona headlines the 2025/26 transfer window, alongside key Premier League signings like Wirtz, Mbeumo, and Gyökeres. Comprehensive analysis of the biggest transfers shaping the new season.",
-                url: "articles/marcus-rashford-barcelona-transfer-and-premier-league-updates-07-26-2025.html",
+                source: "EPL News Hub",
+                verified: true,
+                time: "2h ago",
                 category: "Transfer News",
-                time: "2h",
+                title: "Marcus Rashford's Barcelona Move Shakes Premier League Transfer Window",
+                excerpt: "Marcus Rashford's loan move to Barcelona headlines the 2025/26 transfer window, alongside key Premier League signings like Wirtz, Mbeumo, and Gyökeres. The deal includes a €30m option to buy.",
+                url: "articles/marcus-rashford-barcelona-transfer-and-premier-league-updates-07-26-2025.html",
                 tags: ["Marcus Rashford", "Barcelona", "Transfers"],
                 views: "15.2K",
                 shares: "3.4K",
                 comments: "892"
             },
             {
-                title: "Premier League 2025/26 Season Preview",
-                excerpt: "An in-depth preview of the 2025/26 Premier League season, covering title contenders, promoted teams, key transfers, and bold predictions for an exciting campaign.",
-                url: "articles/premier-league-2025-26-season-preview-07-23-2025.html",
+                source: "EPL News Hub",
+                verified: true,
+                time: "5h ago",
                 category: "Season Preview",
-                time: "3d",
-                tags: ["Season Preview", "Premier League", "Football"],
+                title: "Premier League 2025/26 Season Preview: Title Contenders and Key Transfers",
+                excerpt: "Liverpool enter as defending champions with marquee signings Florian Wirtz and Milos Kerkez. Arsenal remain strong challengers after finishing second with 74 points last season.",
+                url: "articles/premier-league-2025-26-season-preview-07-23-2025.html",
+                tags: ["Season Preview", "Liverpool", "Arsenal"],
                 views: "22.8K",
                 shares: "5.1K",
                 comments: "1.2K"
             },
             {
-                title: "🔒 EXCLUSIVE: Arsenal's €90M Secret Signing Revealed",
-                excerpt: "EXCLUSIVE: Arsenal's secret negotiations for a €90M summer signing revealed. Premium members only content with insider transfer details.",
-                url: "articles/exclusive-arsenal-transfer-insider-07-25-2025.html",
-                category: "Premium Exclusive",
-                time: "1d",
-                tags: ["Arsenal", "Exclusive", "Premium"],
-                views: "18.5K",
-                shares: "4.2K",
-                comments: "756"
-            },
-            {
-                title: "Premier League Transfer Window: Latest Rumors & Breaking News",
-                excerpt: "The Premier League transfer window is in full swing with clubs across England making moves to strengthen their squads for the 2025-26 season.",
-                url: "articles/premier-league-transfer-window-latest-rumors-07-20-2025.html",
+                source: "EPL News Hub",
+                verified: true,
+                time: "1d ago",
                 category: "Transfer News",
-                time: "6d",
-                tags: ["Transfers", "Premier League", "Rumors"],
+                title: "Premier League Transfer Window: Latest Rumors & Breaking News",
+                excerpt: "The Premier League transfer window is in full swing with clubs across England making strategic moves. Manchester United target Vanja Milinković-Savić, while Arsenal eye midfield depth.",
+                url: "articles/premier-league-transfer-window-latest-rumors-07-20-2025.html",
+                tags: ["Transfers", "Manchester United", "Arsenal"],
                 views: "24.1K",
                 shares: "6.8K",
                 comments: "1.5K"
             },
             {
-                title: "Victor Gyökeres: Premier League Giants in Hot Pursuit",
-                excerpt: "Sporting CP striker Viktor Gyökeres has emerged as the most sought-after player in European football, with Arsenal, Manchester United, and Chelsea all preparing substantial bids.",
+                source: "EPL News Hub",
+                verified: true,
+                time: "2d ago",
+                category: "Transfer Analysis",
+                title: "Viktor Gyökeres: Premier League Giants in Hot Pursuit",
+                excerpt: "Sporting CP striker Viktor Gyökeres has emerged as the most sought-after player in European football, delivering 40 goals and 7 assists in just 34 matches this season.",
                 url: "articles/victor-gyokeres-premier-league-giants-in-hot-pursuit-05-25-25.html",
-                category: "Transfer News",
-                time: "2 months",
-                tags: ["Gyökeres", "Arsenal", "Transfers"],
+                tags: ["Gyökeres", "Arsenal", "Man United", "Chelsea"],
                 views: "19.3K",
                 shares: "4.7K",
                 comments: "923"
             },
             {
-                title: "Latest EPL News - February 2025 Edition",
-                excerpt: "Stay updated with the latest Premier League news, transfer rumors, match highlights, and standings as we dive into the heart of the 2024-25 season.",
-                url: "articles/latest-epl-news-2025-02-07.html",
-                category: "News Round-up",
-                time: "5 months",
-                tags: ["EPL News", "February", "Updates"],
-                views: "14.7K",
-                shares: "2.8K",
-                comments: "567"
-            },
-            {
-                title: "Liverpool Triumph Over Bournemouth in Premier League Clash",
-                excerpt: "Liverpool continued their impressive Premier League form with a commanding victory over Bournemouth, showcasing the tactical brilliance that has defined their season.",
-                url: "articles/liverpool-triumph-over-bournemouth-2025-02-02.html",
+                source: "EPL News Hub",
+                verified: true,
+                time: "3d ago",
                 category: "Match Report",
-                time: "5 months",
+                title: "Liverpool Triumph Over Bournemouth in Premier League Clash",
+                excerpt: "Liverpool continued their impressive Premier League form with a commanding victory over Bournemouth, showcasing the tactical brilliance under Arne Slot.",
+                url: "articles/liverpool-triumph-over-bournemouth-2025-02-02.html",
                 tags: ["Liverpool", "Bournemouth", "Match Report"],
                 views: "16.3K",
                 shares: "3.5K",
                 comments: "789"
             },
             {
-                title: "Bournemouth vs Liverpool: Heavily Anticipated Match Preview",
-                excerpt: "As Liverpool prepare to face Bournemouth in what promises to be an enthralling Premier League encounter, both teams bring unique strengths to this compelling fixture.",
-                url: "articles/bournmouth-vs-liverpool-heavily-anticipated-match-preview-2025-01-31.html",
-                category: "Match Preview",
-                time: "5 months",
-                tags: ["Liverpool", "Bournemouth", "Preview"],
-                views: "12.1K",
-                shares: "2.2K",
-                comments: "445"
-            },
-            {
-                title: "Michael Oliver Banned from Reffing Arsenal Games",
-                excerpt: "Premier League referee Michael Oliver faces restrictions on officiating Arsenal matches following controversial decisions that have sparked debate across the football community.",
-                url: "articles/michal-oliver-banned-from-reffing-arsenal-games-01-27-2025.html",
+                source: "EPL News Hub",
+                verified: true,
+                time: "4d ago",
                 category: "News",
-                time: "6 months",
-                tags: ["Arsenal", "Referee", "Michael Oliver"],
+                title: "Michael Oliver Banned from Reffing Arsenal Games",
+                excerpt: "Premier League referee Michael Oliver faces restrictions on officiating Arsenal matches following controversial decisions that have sparked debate.",
+                url: "articles/michal-oliver-banned-from-reffing-arsenal-games-01-27-2025.html",
+                tags: ["Arsenal", "Referee", "Controversy"],
                 views: "21.4K",
                 shares: "5.7K",
                 comments: "1.3K"
             },
             {
-                title: "Manchester United's Worst Team in Years",
-                excerpt: "Analyzing Manchester United's struggles this season and examining what has led to their disappointing performances under current management.",
-                url: "articles/Manchester-Uniteds-worst-team-in-years-20-01-2025.html",
+                source: "EPL News Hub",
+                verified: true,
+                time: "5d ago",
                 category: "Analysis",
-                time: "6 months",
+                title: "Manchester United's Worst Team in Years: What Went Wrong?",
+                excerpt: "Analyzing Manchester United's struggles this season and examining the factors that have led to their disappointing performances under current management.",
+                url: "articles/Manchester-Uniteds-worst-team-in-years-20-01-2025.html",
                 tags: ["Manchester United", "Analysis", "Crisis"],
                 views: "28.9K",
                 shares: "7.1K",
                 comments: "2.4K"
             },
             {
+                source: "EPL News Hub",
+                verified: true,
+                time: "6d ago",
+                category: "News",
                 title: "Nottingham Forest Rises to Third in EPL Standings",
                 excerpt: "Nottingham Forest's remarkable journey to third place in the Premier League standings represents one of the most surprising stories of the season.",
                 url: "articles/nottingham-forest-rises-to-an-incredible-third-in-the-epl-standings-01-06-2025.html",
-                category: "News",
-                time: "6 months",
-                tags: ["Nottingham Forest", "Standings", "Success"],
+                tags: ["Nottingham Forest", "Success", "Standings"],
                 views: "19.7K",
                 shares: "4.3K",
                 comments: "891"
             },
             {
+                source: "EPL News Hub",
+                verified: true,
+                time: "1w ago",
+                category: "Standings",
                 title: "Latest Premier League Standings and Highlights - 2025 Edition",
                 excerpt: "Comprehensive coverage of the latest Premier League standings, key match highlights, and analysis of the ongoing title race and relegation battles.",
                 url: "articles/latest-premier-league-standings-and-highlights-2025-edition-01-05-2025.html",
-                category: "Standings",
-                time: "6 months",
                 tags: ["Standings", "Highlights", "Premier League"],
                 views: "17.2K",
                 shares: "3.1K",
                 comments: "623"
             },
             {
+                source: "EPL News Hub",
+                verified: true,
+                time: "1w ago",
+                category: "Analysis",
                 title: "A New Year, A New Football - 2025 Edition",
                 excerpt: "Looking ahead to what 2025 holds for football, with predictions, transfer expectations, and analysis of upcoming seasons across major leagues.",
                 url: "articles/a-new-year-a-new-football-2025-edition-01-05-2025.html",
-                category: "Analysis",
-                time: "6 months",
                 tags: ["2025", "Preview", "Football"],
                 views: "13.8K",
                 shares: "2.6K",
                 comments: "534"
+            },
+            {
+                source: "EPL News Hub",
+                verified: true,
+                time: "2w ago",
+                category: "Match Preview",
+                title: "Bournemouth vs Liverpool: Heavily Anticipated Match Preview",
+                excerpt: "As Liverpool prepare to face Bournemouth, both teams bring unique strengths to this compelling Premier League fixture.",
+                url: "articles/bournmouth-vs-liverpool-heavily-anticipated-match-preview-2025-01-31.html",
+                tags: ["Liverpool", "Bournemouth", "Preview"],
+                views: "12.1K",
+                shares: "2.2K",
+                comments: "445"
+            },
+            {
+                source: "EPL News Hub",
+                verified: true,
+                time: "3w ago",
+                category: "News Round-up",
+                title: "Latest EPL News - February 2025 Edition",
+                excerpt: "Stay updated with the latest Premier League news, transfer rumors, match highlights, and standings as we dive into the heart of the 2024-25 season.",
+                url: "articles/latest-epl-news-2025-02-07.html",
+                tags: ["EPL News", "February", "Updates"],
+                views: "14.7K",
+                shares: "2.8K",
+                comments: "567"
             }
         ];
 
-        let currentNewsIndex = 0;
-        const newsPerLoad = 3;
+        let currentIndex = 0;
+        const itemsPerLoad = 4;
 
-        // Enhanced Social Page Functionality
-        function refreshSocialFeeds() {
-            const button = event.target;
-            const originalText = button.textContent;
-            
-            // Show loading state
-            button.textContent = '⏳ Refreshing...';
-            button.disabled = true;
-            
-            // Refresh the news feed
+        // Create feed item HTML
+        function createFeedItem(item) {
+            return `
+                <article class="feed-item">
+                    <div class="item-header">
+                        <span class="item-source">${item.source}</span>
+                        ${item.verified ? '<span class="item-verified">✓</span>' : ''}
+                        <span class="item-time">${item.time}</span>
+                        <span class="item-category">${item.category}</span>
+                    </div>
+                    <h3 class="item-title" onclick="window.open('${item.url}', '_blank')">${item.title}</h3>
+                    <p class="item-excerpt">${item.excerpt}</p>
+                    <div class="item-tags">
+                        ${item.tags.map(tag => `<span class="item-tag">#${tag}</span>`).join('')}
+                    </div>
+                    <div class="item-stats">
+                        <span class="item-stat" onclick="incrementStat(this, event)">👁 ${item.views}</span>
+                        <span class="item-stat" onclick="incrementStat(this, event)">↗ ${item.shares}</span>
+                        <span class="item-stat" onclick="incrementStat(this, event)">💬 ${item.comments}</span>
+                    </div>
+                </article>
+            `;
+        }
+
+        // Load initial feed
+        function loadFeed() {
+            const feedContent = document.getElementById('feed-content');
+            const endIndex = Math.min(currentIndex + itemsPerLoad, feedData.length);
+
+            for (let i = currentIndex; i < endIndex; i++) {
+                feedContent.innerHTML += createFeedItem(feedData[i]);
+            }
+
+            currentIndex = endIndex;
+
+            // Update load more button
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            if (currentIndex >= feedData.length) {
+                loadMoreBtn.disabled = true;
+                loadMoreBtn.textContent = 'All Articles Loaded';
+            }
+        }
+
+        // Load more items
+        function loadMore() {
+            const btn = document.getElementById('load-more-btn');
+            btn.textContent = 'Loading...';
+            btn.disabled = true;
+
             setTimeout(() => {
-                currentNewsIndex = 0;
-                loadNews();
-                
-                button.textContent = '✅ Updated!';
-                
-                // Show brief success message
+                loadFeed();
+                btn.textContent = 'Load More';
+                btn.disabled = currentIndex >= feedData.length;
+            }, 800);
+        }
+
+        // Refresh feed
+        function refreshFeed() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+
+            btn.textContent = 'Refreshing...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                currentIndex = 0;
+                document.getElementById('feed-content').innerHTML = '';
+                loadFeed();
+
+                btn.textContent = 'Refreshed';
                 setTimeout(() => {
-                    button.textContent = originalText;
-                    button.disabled = false;
-                }, 1500);
-                
-                // Add visual feedback to social cards
-                document.querySelectorAll('.social-card').forEach(card => {
-                    card.style.transform = 'scale(1.02)';
-                    card.style.transition = 'transform 0.3s ease';
-                    setTimeout(() => {
-                        card.style.transform = 'scale(1)';
-                    }, 300);
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }, 1000);
+            }, 1000);
+        }
+
+        // Increment stat on click
+        function incrementStat(element, event) {
+            event.stopPropagation();
+
+            const match = element.textContent.match(/(👁|↗|💬)\s*([\d.]+)([K]?)/);
+            if (!match) return;
+
+            const icon = match[1];
+            let value = parseFloat(match[2]);
+            const suffix = match[3];
+
+            if (suffix === 'K') value *= 1000;
+
+            value += Math.floor(Math.random() * 50) + 10;
+
+            const newValue = value >= 1000 ? (value / 1000).toFixed(1) + 'K' : value;
+            element.textContent = `${icon} ${newValue}`;
+
+            element.style.color = '#121212';
+            element.style.fontWeight = '700';
+
+            setTimeout(() => {
+                element.style.color = '#767676';
+                element.style.fontWeight = '400';
+            }, 500);
+        }
+
+        // Filter by topic
+        function filterByTopic(topic) {
+            const items = document.querySelectorAll('.trending-item');
+            items.forEach(item => {
+                item.style.background = '#f8f8f8';
+            });
+
+            event.currentTarget.style.background = '#121212';
+            event.currentTarget.style.color = '#ffffff';
+            event.currentTarget.querySelectorAll('div').forEach(div => {
+                div.style.color = '#ffffff';
+            });
+
+            setTimeout(() => {
+                event.currentTarget.style.background = 'transparent';
+                event.currentTarget.style.color = '#121212';
+                event.currentTarget.querySelectorAll('div').forEach(div => {
+                    div.style.color = '';
                 });
             }, 2000);
         }
 
-        function loadNews() {
-            const newsContainer = document.getElementById('news-feed');
-            const loadMoreBtn = document.querySelector('.load-more-btn');
-            
-            // Clear existing news on refresh
-            if (currentNewsIndex === 0) {
-                newsContainer.innerHTML = '';
-            }
-            
-            // Load next batch of news
-            const endIndex = Math.min(currentNewsIndex + newsPerLoad, eplNewsArticles.length);
-            const newsToLoad = eplNewsArticles.slice(currentNewsIndex, endIndex);
-            
-            newsToLoad.forEach(article => {
-                const newsItem = createNewsItem(article);
-                newsContainer.appendChild(newsItem);
-            });
-            
-            currentNewsIndex = endIndex;
-            
-            // Hide load more button if all news loaded
-            if (currentNewsIndex >= eplNewsArticles.length) {
-                loadMoreBtn.style.display = 'none';
-            } else {
-                loadMoreBtn.style.display = 'block';
-            }
-        }
-
-        function createNewsItem(article) {
-            const newsItem = document.createElement('div');
-            newsItem.className = 'news-item';
-            newsItem.onclick = () => window.open(article.url, '_blank');
-            
-            newsItem.innerHTML = `
-                <div class="news-header">
-                    <span class="news-category">${article.category}</span>
-                    <span class="news-time">${article.time}</span>
-                </div>
-                <div class="news-title">${article.title}</div>
-                <div class="news-excerpt">${article.excerpt}</div>
-                <div class="news-meta">
-                    <div class="news-tags">
-                        ${article.tags.map(tag => `<span class="news-tag">#${tag}</span>`).join('')}
-                    </div>
-                    <div class="news-stats">
-                        <span onclick="event.stopPropagation(); updateStat(this, 'views')">👁️ ${article.views}</span>
-                        <span onclick="event.stopPropagation(); updateStat(this, 'shares')">🔗 ${article.shares}</span>
-                        <span onclick="event.stopPropagation(); updateStat(this, 'comments')">💬 ${article.comments}</span>
-                    </div>
-                </div>
-            `;
-            
-            return newsItem;
-        }
-
-        function loadMoreNews() {
-            const button = event.target;
-            const originalText = button.textContent;
-            
-            button.textContent = '⏳ Loading...';
-            button.disabled = true;
-            
-            setTimeout(() => {
-                loadNews();
-                button.textContent = originalText;
-                button.disabled = false;
-            }, 1000);
-        }
-
-        function updateStat(element, type) {
-            const currentValue = element.textContent.match(/[\d,\.]+[K]?/)[0];
-            let number = parseFloat(currentValue.replace(/[K,]/g, ''));
-            if (currentValue.includes('K')) {
-                number *= 1000;
-            }
-            
-            const increment = Math.floor(Math.random() * 50) + 10;
-            const newNumber = number + increment;
-            const emoji = element.textContent.match(/[👁️🔗💬]/)[0];
-            
-            const formattedNumber = newNumber >= 1000 ? (newNumber/1000).toFixed(1) + 'K' : newNumber;
-            element.textContent = `${emoji} ${formattedNumber}`;
-            
-            // Visual feedback
-            element.style.color = '#28a745';
-            element.style.transform = 'scale(1.2)';
-            
-            setTimeout(() => {
-                element.style.color = '#37003c';
-                element.style.transform = 'scale(1)';
-            }, 500);
-        }
-
-        // Initialize news feed on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadNews();
-        });
-        
-        function searchTopic(topic) {
-            // Visual feedback for clicked topic
-            event.target.style.transform = 'scale(1.1)';
-            event.target.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
-            
-            setTimeout(() => {
-                event.target.style.transform = 'scale(1)';
-                event.target.style.background = 'linear-gradient(135deg, #37003c, #6f42c1)';
-            }, 200);
-            
-            // Show search message
-            const message = document.createElement('div');
-            message.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: linear-gradient(135deg, #37003c, #6f42c1);
-                color: white;
-                padding: 20px 30px;
-                border-radius: 15px;
-                box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-                z-index: 10000;
-                font-weight: 600;
-                text-align: center;
-            `;
-            message.innerHTML = `🔍 Searching for ${topic}...<br><small>This would normally open search results</small>`;
-            document.body.appendChild(message);
-            
-            setTimeout(() => {
-                message.remove();
-            }, 3000);
-        }
-        
-        // Add interactive tweet statistics
-        document.addEventListener('DOMContentLoaded', function() {
-            const tweetStats = document.querySelectorAll('.tweet-stats span');
-            
-            tweetStats.forEach(stat => {
-                stat.addEventListener('click', function() {
-                    // Simulate interaction
-                    const currentValue = this.textContent.match(/\d+[\d,.]*/);
-                    if (currentValue) {
-                        const number = parseFloat(currentValue[0].replace(/,/g, ''));
-                        const emoji = this.textContent.match(/[❤️🔁💬]/)[0];
-                        const newNumber = number + Math.floor(Math.random() * 10) + 1;
-                        
-                        this.textContent = `${emoji} ${newNumber >= 1000 ? (newNumber/1000).toFixed(1) + 'K' : newNumber}`;
-                        
-                        // Visual feedback
-                        this.style.color = '#28a745';
-                        this.style.transform = 'scale(1.2)';
-                        
-                        setTimeout(() => {
-                            this.style.color = '#37003c';
-                            this.style.transform = 'scale(1)';
-                        }, 500);
-                    }
-                });
-            });
-            
-            // Auto-refresh feeds every 30 seconds
-            setInterval(() => {
-                const indicator = document.querySelector('.live-indicator');
-                if (indicator) {
-                    indicator.style.background = '#ffc107';
-                    setTimeout(() => {
-                        indicator.style.background = '#22c55e';
-                    }, 1000);
-                }
-            }, 30000);
-        });
-        
-        // Enhanced club social links
-        document.querySelectorAll('.club-social-link').forEach(link => {
-            link.addEventListener('mouseenter', function() {
-                this.style.background = 'linear-gradient(135deg, #f8f9ff, #e3f2fd)';
-            });
-            
-            link.addEventListener('mouseleave', function() {
-                this.style.background = 'white';
-            });
+        // Initialize feed on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFeed();
         });
     </script>
-    <script src="/mobile-enhance.js"></script>
 </body>
 </html>
