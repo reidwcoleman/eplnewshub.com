@@ -2,34 +2,23 @@
 
 This directory contains articles scheduled for future publication.
 
-## How to Schedule an Article
+## How It Works
 
-1. **Create your article** in this directory with the full HTML content
-   - Example: `my-new-article-2025-10-20.html`
+When Claude creates an article for you with a future date:
+1. The article and metadata files are placed in this directory
+2. They are committed and pushed to GitHub
+3. Every time files in this directory change (via push), GitHub Actions checks if any articles should be published
+4. If an article's date has arrived (today >= publishDate), it automatically publishes
 
-2. **Create a metadata file** named `YYYY-MM-DD-article-name.json` with:
+## What Claude Does When You Say "Create a New Article for [DATE]"
 
-```json
-{
-  "publishDate": "2025-10-20",
-  "articleFile": "articles/my-new-article-2025-10-20.html",
-  "headlineHtml": "<a href=\"/articles/my-new-article-2025-10-20.html\">\n    <img src=\"/image.jpg\" alt=\"Article\" style=\"width: 100%; aspect-ratio: 16/10; object-fit: cover; margin-bottom: 24px;\">\n    <div>\n        <h2 style=\"font-family: 'Noto Serif', Georgia, serif; font-size: 48px; font-weight: 700; line-height: 1.1; color: #121212; margin: 0 0 24px 0;\">Article Title</h2>\n        <p style=\"font-size: 18px; line-height: 1.6; color: #555; margin: 0;\">Article summary here.</p>\n        <div style=\"font-size: 13px; color: #767676; margin-top: 16px;\">October 20, 2025</div>\n    </div>\n</a>"
-}
-```
-
-3. **Commit and push both files** to GitHub
-
-4. **The article will auto-publish** when the date arrives (checked daily at 9:00 AM UTC)
-
-## Manual Trigger
-
-You can manually trigger publishing from GitHub:
-1. Go to the "Actions" tab
-2. Select "Publish Scheduled Articles"
-3. Click "Run workflow"
+1. Creates the article HTML file
+2. Creates the metadata JSON file with your specified date
+3. Commits both files to this directory
+4. Pushes to GitHub
+5. The workflow automatically checks and publishes if the date matches
 
 ## Date Format
 
-- Metadata filename: `YYYY-MM-DD-article-name.json`
 - Articles publish when: `today >= publishDate`
-- This means an article dated 2025-10-20 will publish on October 20, 2025 at 9:00 AM UTC
+- An article dated 2025-10-20 will publish on October 20, 2025 when pushed
