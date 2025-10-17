@@ -123,103 +123,123 @@
     }
     </script>
     
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <script src="fpl-data-service.js"></script>
-    
+    <script src="index.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #ffffff;
             min-height: 100vh;
-            padding-bottom: 40px;
         }
-        
+
+
         .predictor-container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 40px 20px;
         }
-        
+
         .predictor-header {
             text-align: center;
-            color: white;
-            margin-bottom: 40px;
-            animation: fadeInDown 0.8s ease;
+            color: #121212;
+            margin-bottom: 50px;
+            padding: 40px 20px 0;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 40px;
         }
-        
+
         .predictor-header h1 {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 2.75rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+            color: #121212;
         }
-        
+
         .predictor-header p {
-            font-size: 1.2rem;
-            opacity: 0.95;
-            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
         }
-        
+
+
         .ai-badges {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 12px;
             flex-wrap: wrap;
-            margin-top: 15px;
+            margin-top: 20px;
         }
-        
+
         .ai-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            backdrop-filter: blur(10px);
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 500;
         }
-        
+
         /* Mode Selector */
         .mode-selector {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 10px;
+            margin-bottom: 40px;
             flex-wrap: wrap;
         }
-        
+
         .mode-btn {
-            padding: 15px 35px;
+            padding: 12px 28px;
             background: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.05rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            color: #666;
         }
-        
+
         .mode-btn.active {
-            background: linear-gradient(135deg, #00ff87 0%, #00d084 100%);
+            background: #121212;
             color: white;
-            transform: scale(1.05);
+            border-color: #121212;
         }
-        
+
         .mode-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            border-color: #121212;
+            color: #121212;
         }
-        
+
+        .mode-btn.active:hover {
+            background: #000000;
+            color: white;
+        }
+
+
         /* Main Tool Card */
         .predictor-card {
             background: white;
-            border-radius: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: fadeInUp 0.8s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
         
         /* Player Search Section */
@@ -242,17 +262,17 @@
         
         .player-search input {
             width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
+            padding: 14px 18px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
             font-size: 1rem;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
-        
+
         .player-search input:focus {
-            border-color: #667eea;
+            border-color: #121212;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            box-shadow: 0 0 0 2px rgba(18,18,18,0.1);
         }
         
         .suggestions {
@@ -311,32 +331,35 @@
         
         /* Prediction Results */
         .prediction-result {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 20px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            color: #121212;
+            padding: 40px;
+            border-radius: 8px;
             margin-bottom: 30px;
             text-align: center;
         }
-        
+
         .prediction-score {
+            font-family: 'Noto Serif', Georgia, serif;
             font-size: 4rem;
             font-weight: 700;
             margin: 20px 0;
+            color: #121212;
         }
-        
+
         .confidence-meter {
             width: 100%;
-            height: 30px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 15px;
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
             overflow: hidden;
             margin: 20px 0;
         }
-        
+
         .confidence-fill {
             height: 100%;
-            background: linear-gradient(90deg, #00ff87 0%, #00d084 100%);
+            background: #121212;
             transition: width 1s ease;
         }
         
@@ -350,37 +373,37 @@
         
         .stat-card {
             background: white;
-            padding: 20px;
-            border-radius: 15px;
+            padding: 24px;
+            border-radius: 6px;
             text-align: center;
-            transition: transform 0.3s ease;
-            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            border: 1px solid #e0e0e0;
         }
-        
+
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #121212;
         }
-        
+
         .stat-card.highlight {
-            border: 2px solid #667eea;
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #121212;
+            background: #f8f9fa;
         }
-        
+
         .stat-label {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #666;
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 600;
         }
-        
+
         .stat-value {
-            font-size: 2rem;
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 2.25rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #121212;
         }
         
         .stat-change {
@@ -576,8 +599,8 @@
     </style>
 </head>
 <body>
-    <div class="header" include="../../components/layout/header.html"></div>
-    
+    <div class="header" include="./header.html"></div>
+
     <main class="predictor-container">
         <header class="predictor-header">
             <h1>🧠 FPL Player Predictor</h1>
@@ -905,9 +928,12 @@
                 };
             }
         }
-        
+
         const ultraPredictor = new UltraPredictor();
-        
+
+        // Initialize data service
+        const dataService = typeof FPLDataServiceEnhanced !== 'undefined' ? new FPLDataServiceEnhanced() : null;
+
         // Load player data on page load
         async function loadPlayers() {
             try {
@@ -1168,21 +1194,21 @@
                     </div>
                 </div>
                 
-                <div style="background: white; padding: 30px; border-radius: 20px; margin-top: 30px;">
-                    <h3 style="font-size: 1.5rem; margin-bottom: 20px; color: #1a1a1a;">📊 5-Week Projection</h3>
-                    
-                    <div style="display: flex; gap: 15px; justify-content: space-between; margin-bottom: 30px;">
+                <div style="background: #f8f9fa; border: 1px solid #e0e0e0; padding: 30px; border-radius: 8px; margin-top: 30px;">
+                    <h3 style="font-family: 'Noto Serif', Georgia, serif; font-size: 1.5rem; margin-bottom: 20px; color: #121212;">📊 5-Week Projection</h3>
+
+                    <div style="display: flex; gap: 12px; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap;">
                         ${gwPredictions.map((pts, i) => `
-                            <div style="flex: 1; text-align: center; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 20px; border-radius: 15px;">
-                                <div style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">GW${25+i}</div>
-                                <div style="font-size: 2rem; font-weight: 700; color: #667eea;">${pts}</div>
+                            <div style="flex: 1; min-width: 80px; text-align: center; background: white; border: 1px solid #e0e0e0; padding: 20px; border-radius: 6px;">
+                                <div style="font-size: 0.75rem; color: #666; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">GW${25+i}</div>
+                                <div style="font-family: 'Noto Serif', Georgia, serif; font-size: 2rem; font-weight: 700; color: #121212;">${pts}</div>
                             </div>
                         `).join('')}
                     </div>
-                    
-                    <div style="background: linear-gradient(135deg, ${trend.trend === 'Hot' ? '#00ff8715' : trend.trend === 'Stable' ? '#667eea15' : '#ff475715'} 0%, ${trend.trend === 'Hot' ? '#00d08415' : trend.trend === 'Stable' ? '#764ba215' : '#ff475715'} 100%); padding: 20px; border-radius: 15px; border: 2px solid ${trend.trend === 'Hot' ? '#00d084' : trend.trend === 'Stable' ? '#667eea' : '#ff4757'};">
-                        <h4 style="margin-bottom: 10px; color: #1a1a1a;">🎯 AI Recommendation</h4>
-                        <p style="color: #333; line-height: 1.6;">
+
+                    <div style="background: ${trend.trend === 'Hot' ? '#e8f5e9' : trend.trend === 'Stable' ? '#fff3e0' : '#ffebee'}; padding: 24px; border-radius: 6px; border-left: 4px solid ${trend.trend === 'Hot' ? '#2e7d32' : trend.trend === 'Stable' ? '#f57c00' : '#c62828'};">
+                        <h4 style="margin-bottom: 10px; color: #121212; font-weight: 700;">🎯 AI Recommendation</h4>
+                        <p style="color: #121212; line-height: 1.7;">
                             ${trend.trend === 'Hot' 
                                 ? `Strong BUY signal! ${player.name} is in exceptional form. Expected ${gwPredictions.reduce((sum, pts) => sum + parseFloat(pts), 0).toFixed(1)} points over next 5 gameweeks. Transfer in immediately.`
                                 : trend.trend === 'Stable'
@@ -1461,5 +1487,7 @@
             }
         });
     </script>
+
+    <div class="footer" include="./footer.html"></div>
 </body>
 </html>
