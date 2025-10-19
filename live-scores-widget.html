@@ -272,71 +272,118 @@
 
 <script>
 (function() {
-    // API-Football free tier endpoint (requires API key)
-    const API_KEY = 'YOUR_API_KEY_HERE'; // User needs to get free key from api-football.com
-    const LEAGUE_ID = 39; // Premier League ID
-    const SEASON = new Date().getFullYear();
+    // Using TheSportsDB free API (no key required)
+    const LEAGUE_ID = '4328'; // Premier League ID in TheSportsDB
+
+    // Team name to logo mapping (using TheSportsDB CDN)
+    const teamLogos = {
+        'Arsenal': 'https://www.thesportsdb.com/images/media/team/badge/vrtrtp1448813175.png',
+        'Aston Villa': 'https://www.thesportsdb.com/images/media/team/badge/hhtryn1612208804.png',
+        'Bournemouth': 'https://www.thesportsdb.com/images/media/team/badge/xqwpup1420747992.png',
+        'Brentford': 'https://www.thesportsdb.com/images/media/team/badge/020nnk1624366247.png',
+        'Brighton': 'https://www.thesportsdb.com/images/media/team/badge/c5gpcr1624879121.png',
+        'Chelsea': 'https://www.thesportsdb.com/images/media/team/badge/yvwvtu1448813215.png',
+        'Crystal Palace': 'https://www.thesportsdb.com/images/media/team/badge/vwpvry1467462651.png',
+        'Everton': 'https://www.thesportsdb.com/images/media/team/badge/c1io2i1624879749.png',
+        'Fulham': 'https://www.thesportsdb.com/images/media/team/badge/0ww9qh1624880577.png',
+        'Ipswich Town': 'https://www.thesportsdb.com/images/media/team/badge/v8x8491594416405.png',
+        'Leicester': 'https://www.thesportsdb.com/images/media/team/badge/020nnk1624366247.png',
+        'Liverpool': 'https://www.thesportsdb.com/images/media/team/badge/uvxhrq1448813372.png',
+        'Man City': 'https://www.thesportsdb.com/images/media/team/badge/vwpvty1467462651.png',
+        'Man Utd': 'https://www.thesportsdb.com/images/media/team/badge/xzqdr11517475998.png',
+        'Manchester United': 'https://www.thesportsdb.com/images/media/team/badge/xzqdr11517475998.png',
+        'Manchester City': 'https://www.thesportsdb.com/images/media/team/badge/vwpvty1467462651.png',
+        'Newcastle': 'https://www.thesportsdb.com/images/media/team/badge/mlcjdu1624880305.png',
+        'Nott\'m Forest': 'https://www.thesportsdb.com/images/media/team/badge/1xmgey1624880420.png',
+        'Nottingham Forest': 'https://www.thesportsdb.com/images/media/team/badge/1xmgey1624880420.png',
+        'Southampton': 'https://www.thesportsdb.com/images/media/team/badge/5i4exq1624880849.png',
+        'Tottenham': 'https://www.thesportsdb.com/images/media/team/badge/yyuypw1448813224.png',
+        'West Ham': 'https://www.thesportsdb.com/images/media/team/badge/tswthw1448813272.png',
+        'Wolves': 'https://www.thesportsdb.com/images/media/team/badge/l5bqz31624880920.png'
+    };
 
     async function fetchLiveScores() {
         const container = document.getElementById('live-scores-container');
 
         try {
-            // Using API-Football free tier (100 requests/day)
-            const response = await fetch(`https://v3.football.api-sports.io/fixtures?league=${LEAGUE_ID}&season=${SEASON}&status=NS-LIVE-1H-HT-2H-ET-P-FT&last=10`, {
-                method: 'GET',
-                headers: {
-                    'x-apisports-key': API_KEY
-                }
-            });
+            // Get current round/gameweek
+            const today = new Date();
+            const seasonStart = new Date(today.getFullYear(), 7, 1); // August 1st
+            const daysSinceStart = Math.floor((today - seasonStart) / (1000 * 60 * 60 * 24));
+            const currentRound = Math.min(Math.max(Math.floor(daysSinceStart / 7) + 1, 1), 38);
+
+            // Fetch next 15 events for Premier League
+            const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=${LEAGUE_ID}`);
 
             if (!response.ok) {
                 throw new Error('API request failed');
             }
 
             const data = await response.json();
-            const fixtures = data.response || [];
+            let events = data.events || [];
 
-            if (fixtures.length === 0) {
-                container.innerHTML = '<div class="no-matches">No live or upcoming matches at the moment.</div>';
+            // Also try to get recent events (for live/recently finished)
+            const pastResponse = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventspastleague.php?id=${LEAGUE_ID}`);
+            if (pastResponse.ok) {
+                const pastData = await pastResponse.json();
+                const recentEvents = (pastData.events || []).slice(0, 10);
+                events = [...recentEvents, ...events];
+            }
+
+            if (events.length === 0) {
+                container.innerHTML = '<div class="no-matches">No upcoming matches at the moment.</div>';
                 return;
             }
 
-            // Sort: live matches first, then by date
-            fixtures.sort((a, b) => {
-                const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'P'];
-                const aIsLive = liveStatuses.includes(a.fixture.status.short);
-                const bIsLive = liveStatuses.includes(b.fixture.status.short);
+            // Filter and sort events
+            const now = new Date();
+            const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-                if (aIsLive && !bIsLive) return -1;
-                if (!aIsLive && bIsLive) return 1;
-                return new Date(a.fixture.date) - new Date(b.fixture.date);
+            events = events.filter(event => {
+                const eventDate = new Date(event.dateEvent + ' ' + event.strTime);
+                return eventDate >= twentyFourHoursAgo && eventDate <= sevenDaysFromNow;
             });
 
-            const html = fixtures.slice(0, 6).map(match => {
-                const isLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'P'].includes(match.fixture.status.short);
-                const status = formatStatus(match.fixture.status);
-                const homeTeam = match.teams.home;
-                const awayTeam = match.teams.away;
-                const score = match.goals;
+            // Sort by date
+            events.sort((a, b) => {
+                const dateA = new Date(a.dateEvent + ' ' + a.strTime);
+                const dateB = new Date(b.dateEvent + ' ' + b.strTime);
+                return dateA - dateB;
+            });
+
+            const html = events.slice(0, 6).map(match => {
+                const matchDate = new Date(match.dateEvent + ' ' + match.strTime);
+                const isPast = matchDate < now;
+                const isToday = matchDate.toDateString() === now.toDateString();
+                const isSoon = matchDate - now < 2 * 60 * 60 * 1000; // Within 2 hours
+
+                const homeTeam = match.strHomeTeam;
+                const awayTeam = match.strAwayTeam;
+                const homeScore = match.intHomeScore;
+                const awayScore = match.intAwayScore;
+
+                const status = isPast ? 'Full Time' : (isSoon ? 'Starting Soon' : 'Upcoming');
+                const isLive = false; // TheSportsDB doesn't provide live status in free tier
 
                 return `
                     <div class="match-card ${isLive ? 'live' : ''}">
                         <div class="team home">
-                            <span class="team-name">${homeTeam.name}</span>
-                            <img src="${homeTeam.logo}" alt="${homeTeam.name}" class="team-logo" onerror="this.style.display='none'">
+                            <span class="team-name">${homeTeam}</span>
+                            <img src="${teamLogos[homeTeam] || ''}" alt="${homeTeam}" class="team-logo" onerror="this.style.display='none'">
                         </div>
 
                         <div class="match-center">
                             <div class="match-status ${isLive ? 'live' : ''}">${status}</div>
-                            ${score.home !== null ?
-                                `<div class="score">${score.home} - ${score.away}</div>` :
-                                `<div class="match-time">${formatTime(match.fixture.date)}</div>`
+                            ${homeScore !== null && homeScore !== '' ?
+                                `<div class="score">${homeScore} - ${awayScore}</div>` :
+                                `<div class="match-time">${formatTime(matchDate)}</div>`
                             }
                         </div>
 
                         <div class="team away">
-                            <img src="${awayTeam.logo}" alt="${awayTeam.name}" class="team-logo" onerror="this.style.display='none'">
-                            <span class="team-name">${awayTeam.name}</span>
+                            <img src="${teamLogos[awayTeam] || ''}" alt="${awayTeam}" class="team-logo" onerror="this.style.display='none'">
+                            <span class="team-name">${awayTeam}</span>
                         </div>
                     </div>
                 `;
@@ -348,31 +395,14 @@
             console.error('Error fetching live scores:', error);
             container.innerHTML = `
                 <div class="no-matches">
-                    <p>Unable to load live scores. Using free API requires setup.</p>
-                    <p style="margin-top: 12px; font-size: 12px;">Get your free API key at <a href="https://www.api-football.com" target="_blank" style="color: #121212; text-decoration: underline;">api-football.com</a></p>
+                    <p>Unable to load live scores at the moment.</p>
+                    <p style="margin-top: 12px;"><a href="/epl_fixtures.html" style="color: #121212; text-decoration: underline;">View full fixtures →</a></p>
                 </div>
             `;
         }
     }
 
-    function formatStatus(status) {
-        const statusMap = {
-            'NS': 'Upcoming',
-            'LIVE': 'Live',
-            '1H': '1st Half',
-            'HT': 'Half Time',
-            '2H': '2nd Half',
-            'ET': 'Extra Time',
-            'P': 'Penalties',
-            'FT': 'Full Time',
-            'AET': 'FT (AET)',
-            'PEN': 'FT (Pens)'
-        };
-        return statusMap[status.short] || status.long;
-    }
-
-    function formatTime(dateString) {
-        const date = new Date(dateString);
+    function formatTime(date) {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const matchDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -395,7 +425,7 @@
     // Initial load
     fetchLiveScores();
 
-    // Refresh every 30 seconds if there are live matches
-    setInterval(fetchLiveScores, 30000);
+    // Refresh every 2 minutes
+    setInterval(fetchLiveScores, 120000);
 })();
 </script>
