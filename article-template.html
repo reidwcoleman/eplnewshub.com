@@ -41,65 +41,87 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html {
+            font-size: 18px;
+        }
+
+        body {
             background: #ffffff;
             color: #121212;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.65;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            font-feature-settings: "kern" 1;
+            font-kerning: normal;
+        }
+
+        /* Reading Progress Bar */
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: linear-gradient(90deg, #121212 0%, #333 100%);
+            z-index: 9999;
+            transition: width 0.1s ease-out;
         }
 
         /* Article Container */
         .article-container {
             max-width: 680px;
             margin: 0 auto;
-            padding: 64px 24px 80px;
+            padding: 80px 32px 100px;
         }
 
         /* Article Header */
         .article-category {
             font-family: 'Inter', sans-serif;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
-            letter-spacing: 1.2px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            color: #ffffff;
-            background: #121212;
-            padding: 6px 14px;
+            color: #121212;
             display: inline-block;
-            margin-bottom: 20px;
-            border-radius: 2px;
+            margin-bottom: 24px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #121212;
         }
 
         .article-headline {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 48px;
+            font-family: 'Noto Serif', Georgia, 'Times New Roman', serif;
+            font-size: 52px;
             font-weight: 700;
-            line-height: 1.08;
+            line-height: 1.05;
             color: #121212;
-            margin-bottom: 20px;
-            letter-spacing: -0.8px;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+            word-spacing: 0.05em;
+            hyphens: manual;
         }
 
         .article-dek {
-            font-family: 'Georgia', serif;
-            font-size: 20px;
-            line-height: 1.5;
-            color: #595959;
-            margin-bottom: 32px;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 21px;
+            line-height: 1.55;
+            color: #555;
+            margin-bottom: 40px;
             font-weight: 400;
+            letter-spacing: -0.01em;
         }
 
         /* Byline */
         .article-byline {
             display: flex;
             align-items: center;
-            gap: 20px;
-            padding: 28px 0;
-            border-top: 1px solid #e5e5e5;
-            border-bottom: 1px solid #e5e5e5;
-            margin-bottom: 40px;
+            justify-content: space-between;
+            gap: 24px;
+            padding: 32px 0;
+            border-top: 1px solid #dfdfdf;
+            border-bottom: 1px solid #dfdfdf;
+            margin-bottom: 48px;
         }
 
         .byline-content {
@@ -108,52 +130,77 @@
 
         .byline-author {
             font-family: 'Inter', sans-serif;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             color: #121212;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            letter-spacing: 0.01em;
         }
 
         .byline-meta {
             font-family: 'Inter', sans-serif;
             font-size: 13px;
             color: #767676;
-            line-height: 1.4;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .byline-meta time {
+            font-variant-numeric: lining-nums;
         }
 
         .byline-meta-separator {
-            margin: 0 8px;
-            opacity: 0.5;
+            margin: 0 6px;
+            opacity: 0.4;
         }
 
         .share-tools {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            align-items: center;
         }
 
         .share-button {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            border: 1px solid #e5e5e5;
+            border: 1px solid #dfdfdf;
             background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 15px;
             color: #121212;
+            text-decoration: none;
         }
 
         .share-button:hover {
-            background: #f8f8f8;
+            background: #fafafa;
             border-color: #121212;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         .share-button:active {
             transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .save-button {
+            width: auto;
+            padding: 0 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            gap: 6px;
+        }
+
+        .save-button span {
+            font-size: 13px;
         }
 
         /* Hero Image */
@@ -196,65 +243,90 @@
         /* Article Body */
         .article-body {
             font-family: 'Georgia', 'Times New Roman', serif;
-            font-size: 21px;
-            line-height: 1.75;
-            color: #2b2b2b;
-            letter-spacing: -0.002em;
+            font-size: 1.17rem;
+            line-height: 1.8;
+            color: #121212;
+            letter-spacing: -0.003em;
+            word-spacing: 0.01em;
         }
 
         .article-body p {
-            margin-bottom: 28px;
+            margin-bottom: 1.5em;
+            text-align: justify;
+            text-justify: inter-word;
+            hyphens: auto;
+        }
+
+        .article-body p:first-child {
+            text-align: left;
         }
 
         .article-body p:first-child::first-letter {
             font-family: 'Noto Serif', Georgia, serif;
-            font-size: 82px;
-            font-weight: 700;
-            line-height: 0.75;
+            font-size: 5.2em;
+            font-weight: 400;
+            line-height: 0.68;
             float: left;
-            margin: 10px 10px 0 -3px;
+            margin: 0.08em 0.12em 0 -0.02em;
             color: #121212;
         }
 
         .article-body h2 {
             font-family: 'Noto Serif', Georgia, serif;
-            font-size: 32px;
+            font-size: 1.85rem;
             font-weight: 700;
-            line-height: 1.2;
+            line-height: 1.15;
             color: #121212;
-            margin: 52px 0 24px;
-            letter-spacing: -0.5px;
+            margin: 2.8em 0 0.85em;
+            letter-spacing: -0.02em;
+            scroll-margin-top: 2em;
         }
 
         .article-body h3 {
             font-family: 'Noto Serif', Georgia, serif;
-            font-size: 24px;
+            font-size: 1.45rem;
             font-weight: 700;
-            line-height: 1.3;
+            line-height: 1.25;
             color: #121212;
-            margin: 44px 0 20px;
-            letter-spacing: -0.3px;
+            margin: 2.4em 0 0.7em;
+            letter-spacing: -0.015em;
+            scroll-margin-top: 2em;
         }
 
         .article-body strong {
             font-weight: 700;
-            color: #121212;
+            color: #000000;
         }
 
         .article-body em {
             font-style: italic;
+            font-feature-settings: "kern" 1, "liga" 1;
         }
 
         .article-body blockquote {
             font-family: 'Georgia', serif;
-            font-size: 22px;
+            font-size: 1.2rem;
             font-weight: 400;
             font-style: italic;
-            line-height: 1.5;
-            color: #2b2b2b;
-            margin: 40px 0;
-            padding-left: 28px;
-            border-left: 4px solid #121212;
+            line-height: 1.6;
+            color: #333;
+            margin: 2.2em 0;
+            padding-left: 1.6em;
+            border-left: 3px solid #dfdfdf;
+            position: relative;
+        }
+
+        .article-body blockquote::before {
+            content: '"';
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 3.5em;
+            font-weight: 700;
+            line-height: 0;
+            position: absolute;
+            left: -0.15em;
+            top: 0.4em;
+            color: #e5e5e5;
+            z-index: -1;
         }
 
         .article-body ul, .article-body ol {
@@ -282,17 +354,38 @@
         /* Pull Quote */
         .pull-quote {
             font-family: 'Noto Serif', Georgia, serif;
-            font-size: 28px;
+            font-size: 1.65rem;
             font-weight: 400;
             font-style: italic;
-            line-height: 1.4;
+            line-height: 1.45;
             color: #121212;
             text-align: center;
-            margin: 56px auto;
-            padding: 40px 0;
-            border-top: 1px solid #e5e5e5;
-            border-bottom: 1px solid #e5e5e5;
-            max-width: 560px;
+            margin: 3em auto;
+            padding: 2.2em 0;
+            border-top: 1px solid #dfdfdf;
+            border-bottom: 1px solid #dfdfdf;
+            max-width: 540px;
+            position: relative;
+            letter-spacing: -0.01em;
+        }
+
+        .pull-quote::before,
+        .pull-quote::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 1px;
+            background: #121212;
+        }
+
+        .pull-quote::before {
+            top: 0;
+        }
+
+        .pull-quote::after {
+            bottom: 0;
         }
 
         /* Tables */
@@ -503,6 +596,9 @@
     </style>
 </head>
 <body>
+    <!-- Reading Progress Bar -->
+    <div class="reading-progress"></div>
+
     <!-- Header -->
     <div class="header" include="./header.html"></div>
 
@@ -525,9 +621,13 @@
                     </div>
                 </div>
                 <div class="share-tools">
-                    <button class="share-button" onclick="shareArticle('twitter')" title="Share on Twitter">𝕏</button>
-                    <button class="share-button" onclick="shareArticle('facebook')" title="Share on Facebook">f</button>
-                    <button class="share-button" onclick="shareArticle('copy')" title="Copy link">🔗</button>
+                    <button class="share-button" onclick="shareArticle('twitter')" title="Share on X" aria-label="Share on X">𝕏</button>
+                    <button class="share-button" onclick="shareArticle('facebook')" title="Share on Facebook" aria-label="Share on Facebook">f</button>
+                    <button class="share-button" onclick="shareArticle('copy')" title="Copy link" aria-label="Copy link">🔗</button>
+                    <button class="share-button save-button" onclick="saveArticle()" title="Save article" aria-label="Save article">
+                        <span>📑</span>
+                        <span>Save</span>
+                    </button>
                 </div>
             </div>
         </header>
@@ -626,24 +726,106 @@
     <!-- Scripts -->
     <script src="/index.js"></script>
     <script>
+        // Reading Progress Bar
+        function updateReadingProgress() {
+            const article = document.querySelector('.article-body');
+            const progressBar = document.querySelector('.reading-progress');
+
+            if (!article || !progressBar) return;
+
+            const articleRect = article.getBoundingClientRect();
+            const articleHeight = article.offsetHeight;
+            const windowHeight = window.innerHeight;
+            const scrollDistance = -articleRect.top;
+            const scrollableDistance = articleHeight - windowHeight;
+            const scrollPercentage = Math.min(Math.max((scrollDistance / scrollableDistance) * 100, 0), 100);
+
+            progressBar.style.width = `${scrollPercentage}%`;
+        }
+
+        window.addEventListener('scroll', updateReadingProgress);
+        window.addEventListener('resize', updateReadingProgress);
+        document.addEventListener('DOMContentLoaded', updateReadingProgress);
+
+        // Share Article
         function shareArticle(platform) {
             const url = window.location.href;
             const title = document.querySelector('.article-headline').textContent;
 
             switch(platform) {
                 case 'twitter':
-                    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
+                    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank', 'width=550,height=420');
                     break;
                 case 'facebook':
-                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=550,height=420');
                     break;
                 case 'copy':
                     navigator.clipboard.writeText(url).then(() => {
-                        alert('Link copied to clipboard!');
+                        showNotification('Link copied to clipboard!');
+                    }).catch(() => {
+                        prompt('Copy this link:', url);
                     });
                     break;
             }
         }
+
+        // Save Article
+        function saveArticle() {
+            const title = document.querySelector('.article-headline').textContent;
+            const url = window.location.href;
+            const savedArticles = JSON.parse(localStorage.getItem('savedArticles') || '[]');
+
+            const article = { title, url, savedAt: new Date().toISOString() };
+
+            if (savedArticles.some(a => a.url === url)) {
+                showNotification('Article already saved!');
+            } else {
+                savedArticles.push(article);
+                localStorage.setItem('savedArticles', JSON.stringify(savedArticles));
+                showNotification('Article saved!');
+            }
+        }
+
+        // Notification Toast
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 32px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #121212;
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+                animation: slideUp 0.3s ease-out;
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'slideDown 0.3s ease-in';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideUp {
+                from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+            @keyframes slideDown {
+                from { transform: translateX(-50%) translateY(0); opacity: 1; }
+                to { transform: translateX(-50%) translateY(20px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
