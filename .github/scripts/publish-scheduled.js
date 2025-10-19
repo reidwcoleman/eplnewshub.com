@@ -95,14 +95,66 @@ function cascadeArticles(metadata) {
     // Write new main_headline
     fs.writeFileSync('./main_headline.html', metadata.headlineHtml);
 
-    // Cascade down
+    // Cascade down and fix sidebar styling
     for (let i = 0; i < components.length - 1; i++) {
         if (currentContent[components[i]]) {
-            fs.writeFileSync(`./${components[i + 1]}`, currentContent[components[i]]);
+            let content = currentContent[components[i]];
+
+            // Fix sidebar articles (main_subheadline1-3) to use proper CSS classes
+            if (components[i + 1].startsWith('main_subheadline')) {
+                content = convertToSidebarStyle(content);
+            }
+
+            fs.writeFileSync(`./${components[i + 1]}`, content);
         }
     }
 
     console.log('    ✓ Updated homepage headlines');
+}
+
+function convertToSidebarStyle(html) {
+    // If it already uses the correct classes, return as-is
+    if (html.includes('class="nyt-sidebar-story-image"')) {
+        return html;
+    }
+
+    // Extract components using regex
+    const urlMatch = html.match(/href="([^"]+)"/);
+    const imgMatch = html.match(/src="([^"]+)"/);
+    const altMatch = html.match(/alt="([^"]+)"/);
+    const titleMatch = html.match(/<h[1-3][^>]*>(.+?)<\/h[1-3]>/);
+    const summaryMatch = html.match(/<p[^>]*>(.+?)<\/p>/);
+    const dateMatch = html.match(/<time[^>]*>(.+?)<\/time>/);
+
+    if (!urlMatch || !imgMatch || !titleMatch) {
+        return html; // Can't parse, return original
+    }
+
+    const url = urlMatch[1];
+    const img = imgMatch[1];
+    const alt = altMatch ? altMatch[1] : '';
+    const title = titleMatch[1];
+    const summary = summaryMatch ? summaryMatch[1] : '';
+    const date = dateMatch ? dateMatch[1] : '';
+
+    // Determine category from URL or default
+    let category = 'PREMIER LEAGUE';
+    if (url.includes('manchester-city')) category = 'MANCHESTER CITY';
+    else if (url.includes('liverpool')) category = 'LIVERPOOL';
+    else if (url.includes('arsenal')) category = 'ARSENAL';
+    else if (url.includes('transfer')) category = 'TRANSFERS';
+    else if (url.includes('fpl') || url.includes('fantasy')) category = 'FPL';
+
+    // Build properly styled sidebar HTML
+    return `<a href="${url}">
+    <img src="${img}" alt="${alt}" class="nyt-sidebar-story-image" loading="lazy">
+    <div class="nyt-sidebar-story-content">
+        <span class="nyt-category">${category}</span>
+        <h3 class="nyt-sidebar-story-title">${title}</h3>
+        <p class="nyt-sidebar-story-summary">${summary}</p>
+        <div class="nyt-sidebar-story-meta">${date}</div>
+    </div>
+</a>`;
 }
 
 function updateSitemap(metadata) {
