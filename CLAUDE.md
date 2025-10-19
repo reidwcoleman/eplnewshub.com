@@ -61,12 +61,13 @@ When the user says "create a new article", follow this workflow:
 
 3. **Update homepage (cascade articles):**
    - Read current `main_headline.html`
-   - Read `main_subheadline1.html`, `main_subheadline2.html`, `main_subheadline3.html`
+   - Read `main_subheadline1.html`, `main_subheadline2.html`, `main_subheadline3.html`, `main_subheadline4.html`
    - Create new `main_headline.html` with the new article
    - Move previous main headline → `main_subheadline1.html`
    - Move previous subheadline1 → `main_subheadline2.html`
    - Move previous subheadline2 → `main_subheadline3.html`
-   - Move previous subheadline3 → `headline1.html`
+   - Move previous subheadline3 → `main_subheadline4.html`
+   - Move previous subheadline4 → `headline1.html`
    - Cascade headline1 → headline2, headline2 → headline3, ..., headline11 → headline12
    - The previous headline12 gets removed (last article drops off)
 
