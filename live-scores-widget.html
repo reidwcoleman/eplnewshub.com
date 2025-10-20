@@ -210,6 +210,18 @@
         font-size: 14px;
     }
 
+    .section-header {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: #999;
+        margin: 24px 0 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
         .live-scores-widget {
@@ -272,29 +284,30 @@
 
 <script>
 (function() {
-    // Using TheSportsDB free API (no key required)
-    const LEAGUE_ID = '4328'; // Premier League ID in TheSportsDB
-    const SEASON = '2025-2026'; // Current season
+    // Premier League ID for TheSportsDB API
+    const LEAGUE_ID = '4328';
 
-    // Team name to logo mapping (using TheSportsDB CDN)
+    // Team name to logo mapping
     const teamLogos = {
         'Arsenal': 'https://www.thesportsdb.com/images/media/team/badge/vrtrtp1448813175.png',
         'Aston Villa': 'https://www.thesportsdb.com/images/media/team/badge/hhtryn1612208804.png',
         'Bournemouth': 'https://www.thesportsdb.com/images/media/team/badge/xqwpup1420747992.png',
         'Brentford': 'https://www.thesportsdb.com/images/media/team/badge/020nnk1624366247.png',
         'Brighton': 'https://www.thesportsdb.com/images/media/team/badge/c5gpcr1624879121.png',
+        'Burnley': 'https://www.thesportsdb.com/images/media/team/badge/1xmgey1624880420.png',
         'Chelsea': 'https://www.thesportsdb.com/images/media/team/badge/yvwvtu1448813215.png',
         'Crystal Palace': 'https://www.thesportsdb.com/images/media/team/badge/vwpvry1467462651.png',
         'Everton': 'https://www.thesportsdb.com/images/media/team/badge/c1io2i1624879749.png',
         'Fulham': 'https://www.thesportsdb.com/images/media/team/badge/0ww9qh1624880577.png',
         'Ipswich Town': 'https://www.thesportsdb.com/images/media/team/badge/v8x8491594416405.png',
-        'Leicester': 'https://www.thesportsdb.com/images/media/team/badge/020nnk1624366247.png',
+        'Leicester': 'https://www.thesportsdb.com/images/media/team/badge/xqwpup1420748005.png',
         'Liverpool': 'https://www.thesportsdb.com/images/media/team/badge/uvxhrq1448813372.png',
         'Man City': 'https://www.thesportsdb.com/images/media/team/badge/vwpvty1467462651.png',
         'Man Utd': 'https://www.thesportsdb.com/images/media/team/badge/xzqdr11517475998.png',
         'Manchester United': 'https://www.thesportsdb.com/images/media/team/badge/xzqdr11517475998.png',
         'Manchester City': 'https://www.thesportsdb.com/images/media/team/badge/vwpvty1467462651.png',
         'Newcastle': 'https://www.thesportsdb.com/images/media/team/badge/mlcjdu1624880305.png',
+        'Newcastle United': 'https://www.thesportsdb.com/images/media/team/badge/mlcjdu1624880305.png',
         'Nott\'m Forest': 'https://www.thesportsdb.com/images/media/team/badge/1xmgey1624880420.png',
         'Nottingham Forest': 'https://www.thesportsdb.com/images/media/team/badge/1xmgey1624880420.png',
         'Southampton': 'https://www.thesportsdb.com/images/media/team/badge/5i4exq1624880849.png',
@@ -307,101 +320,91 @@
         const container = document.getElementById('live-scores-container');
 
         try {
-            // Get current round/gameweek
-            const today = new Date();
-            const seasonStart = new Date(today.getFullYear(), 7, 1); // August 1st
-            const daysSinceStart = Math.floor((today - seasonStart) / (1000 * 60 * 60 * 24));
-            const currentRound = Math.min(Math.max(Math.floor(daysSinceStart / 7) + 1, 1), 38);
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-            // Fetch next 15 events for Premier League specifically
-            const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=${LEAGUE_ID}`);
+            // Fetch upcoming and recent events
+            const [nextResponse, pastResponse] = await Promise.all([
+                fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=${LEAGUE_ID}`),
+                fetch(`https://www.thesportsdb.com/api/v1/json/3/eventspastleague.php?id=${LEAGUE_ID}`)
+            ]);
 
-            if (!response.ok) {
+            if (!nextResponse.ok && !pastResponse.ok) {
                 throw new Error('API request failed');
             }
 
-            const data = await response.json();
-            let events = data.events || [];
+            let allEvents = [];
 
-            // Filter to only Premier League matches (English Premier League)
-            events = events.filter(event =>
-                event.strLeague === 'English Premier League' ||
-                event.idLeague === LEAGUE_ID
-            );
-
-            // Also try to get recent events (for live/recently finished)
-            const pastResponse = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventspastleague.php?id=${LEAGUE_ID}`);
+            // Get past events (for today's completed matches)
             if (pastResponse.ok) {
                 const pastData = await pastResponse.json();
-                let recentEvents = (pastData.events || []).slice(0, 10);
-
-                // Filter recent events to Premier League only
-                recentEvents = recentEvents.filter(event =>
-                    event.strLeague === 'English Premier League' ||
-                    event.idLeague === LEAGUE_ID
+                let recentEvents = (pastData.events || []).filter(event =>
+                    event.strLeague === 'English Premier League' || event.idLeague === LEAGUE_ID
                 );
-
-                events = [...recentEvents, ...events];
+                allEvents = [...allEvents, ...recentEvents.slice(0, 10)];
             }
 
-            if (events.length === 0) {
-                container.innerHTML = '<div class="no-matches">No upcoming matches at the moment.</div>';
+            // Get upcoming events
+            if (nextResponse.ok) {
+                const nextData = await nextResponse.json();
+                let upcomingEvents = (nextData.events || []).filter(event =>
+                    event.strLeague === 'English Premier League' || event.idLeague === LEAGUE_ID
+                );
+                allEvents = [...allEvents, ...upcomingEvents];
+            }
+
+            if (allEvents.length === 0) {
+                container.innerHTML = '<div class="no-matches">No upcoming Premier League matches at the moment.</div>';
                 return;
             }
 
-            // Filter and sort events
-            const now = new Date();
-            const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-            const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            // Group matches by category
+            const todayMatches = [];
+            const upcomingMatches = [];
 
-            events = events.filter(event => {
-                const eventDate = new Date(event.dateEvent + ' ' + event.strTime);
-                return eventDate >= twentyFourHoursAgo && eventDate <= sevenDaysFromNow;
+            allEvents.forEach(match => {
+                const matchDate = new Date(match.dateEvent + 'T' + (match.strTime || '00:00:00'));
+                const matchDay = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
+
+                if (matchDay.getTime() === today.getTime()) {
+                    todayMatches.push(match);
+                } else if (matchDate > now) {
+                    upcomingMatches.push(match);
+                }
             });
 
-            // Sort by date
-            events.sort((a, b) => {
-                const dateA = new Date(a.dateEvent + ' ' + a.strTime);
-                const dateB = new Date(b.dateEvent + ' ' + b.strTime);
+            // Sort matches by date
+            const sortByDate = (a, b) => {
+                const dateA = new Date(a.dateEvent + 'T' + (a.strTime || '00:00:00'));
+                const dateB = new Date(b.dateEvent + 'T' + (b.strTime || '00:00:00'));
                 return dateA - dateB;
-            });
+            };
 
-            const html = events.slice(0, 6).map(match => {
-                const matchDate = new Date(match.dateEvent + ' ' + match.strTime);
-                const isPast = matchDate < now;
-                const isToday = matchDate.toDateString() === now.toDateString();
-                const isSoon = matchDate - now < 2 * 60 * 60 * 1000; // Within 2 hours
+            todayMatches.sort(sortByDate);
+            upcomingMatches.sort(sortByDate);
 
-                const homeTeam = match.strHomeTeam;
-                const awayTeam = match.strAwayTeam;
-                const homeScore = match.intHomeScore;
-                const awayScore = match.intAwayScore;
+            let html = '';
 
-                const status = isPast ? 'Full Time' : (isSoon ? 'Starting Soon' : 'Upcoming');
-                const isLive = false; // TheSportsDB doesn't provide live status in free tier
+            // Show today's matches if any
+            if (todayMatches.length > 0) {
+                html += '<div class="section-header">Today\'s Matches</div>';
+                html += todayMatches.slice(0, 6).map(match => renderMatch(match, now)).join('');
+            }
 
-                return `
-                    <div class="match-card ${isLive ? 'live' : ''}">
-                        <div class="team home">
-                            <span class="team-name">${homeTeam}</span>
-                            <img src="${teamLogos[homeTeam] || ''}" alt="${homeTeam}" class="team-logo" onerror="this.style.display='none'">
-                        </div>
+            // Show upcoming matches if no matches today OR as additional section
+            if (todayMatches.length === 0 || upcomingMatches.length > 0) {
+                if (todayMatches.length === 0) {
+                    html += '<div class="section-header">Next Matches</div>';
+                    html += upcomingMatches.slice(0, 6).map(match => renderMatch(match, now)).join('');
+                } else if (upcomingMatches.length > 0) {
+                    html += '<div class="section-header">Upcoming Matches</div>';
+                    html += upcomingMatches.slice(0, 3).map(match => renderMatch(match, now)).join('');
+                }
+            }
 
-                        <div class="match-center">
-                            <div class="match-status ${isLive ? 'live' : ''}">${status}</div>
-                            ${homeScore !== null && homeScore !== '' ?
-                                `<div class="score">${homeScore} - ${awayScore}</div>` :
-                                `<div class="match-time">${formatTime(matchDate)}</div>`
-                            }
-                        </div>
-
-                        <div class="team away">
-                            <img src="${teamLogos[awayTeam] || ''}" alt="${awayTeam}" class="team-logo" onerror="this.style.display='none'">
-                            <span class="team-name">${awayTeam}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            if (html === '') {
+                html = '<div class="no-matches">No upcoming Premier League matches at the moment.</div>';
+            }
 
             container.innerHTML = html;
 
@@ -414,6 +417,52 @@
                 </div>
             `;
         }
+    }
+
+    function renderMatch(match, now) {
+        const matchDate = new Date(match.dateEvent + 'T' + (match.strTime || '00:00:00'));
+        const isPast = matchDate < now;
+        const isToday = matchDate.toDateString() === now.toDateString();
+        const minutesDiff = Math.floor((now - matchDate) / (1000 * 60));
+
+        // Check if match is potentially live (within 2 hours of start time)
+        const isLive = isToday && minutesDiff >= 0 && minutesDiff <= 120;
+
+        const homeTeam = match.strHomeTeam;
+        const awayTeam = match.strAwayTeam;
+        const homeScore = match.intHomeScore;
+        const awayScore = match.intAwayScore;
+
+        let status = 'Upcoming';
+        if (homeScore !== null && homeScore !== '') {
+            status = 'Full Time';
+        } else if (isLive) {
+            status = 'Live';
+        } else if (isPast) {
+            status = 'Full Time';
+        }
+
+        return `
+            <div class="match-card ${isLive ? 'live' : ''}">
+                <div class="team home">
+                    <span class="team-name">${homeTeam}</span>
+                    <img src="${teamLogos[homeTeam] || ''}" alt="${homeTeam}" class="team-logo" onerror="this.style.display='none'">
+                </div>
+
+                <div class="match-center">
+                    <div class="match-status ${isLive ? 'live' : ''}">${status}</div>
+                    ${homeScore !== null && homeScore !== '' ?
+                        `<div class="score">${homeScore} - ${awayScore}</div>` :
+                        `<div class="match-time">${formatTime(matchDate)}</div>`
+                    }
+                </div>
+
+                <div class="team away">
+                    <img src="${teamLogos[awayTeam] || ''}" alt="${awayTeam}" class="team-logo" onerror="this.style.display='none'">
+                    <span class="team-name">${awayTeam}</span>
+                </div>
+            </div>
+        `;
     }
 
     function formatTime(date) {
@@ -430,9 +479,9 @@
         } else if (matchDay.getTime() === today.getTime() + 86400000) {
             return `Tomorrow ${time}`;
         } else {
-            const day = date.getDate();
-            const month = date.toLocaleString('en-US', { month: 'short' });
-            return `${day} ${month} ${time}`;
+            const options = { month: 'short', day: 'numeric' };
+            const dateStr = date.toLocaleDateString('en-US', options);
+            return `${dateStr} ${time}`;
         }
     }
 
