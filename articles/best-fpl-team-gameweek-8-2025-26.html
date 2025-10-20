@@ -185,6 +185,53 @@
             opacity: 0.4;
         }
 
+        .share-tools {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .share-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #dfdfdf;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 15px;
+            color: #121212;
+            text-decoration: none;
+        }
+
+        .share-button:hover {
+            background: #fafafa;
+            border-color: #121212;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .share-button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .save-button {
+            width: auto;
+            padding: 0 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            gap: 6px;
+        }
+
+        .save-button span {
+            font-size: 13px;
+        }
+
         .article-hero {
             margin: 0 -24px 32px;
             max-width: 100vw;
@@ -331,6 +378,42 @@
             text-decoration-color: rgba(18, 18, 18, 0.7);
         }
 
+        .pull-quote {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 1.65rem;
+            font-weight: 400;
+            font-style: italic;
+            line-height: 1.45;
+            color: #121212;
+            text-align: center;
+            margin: 3em auto;
+            padding: 2.2em 0;
+            border-top: 1px solid #dfdfdf;
+            border-bottom: 1px solid #dfdfdf;
+            max-width: 540px;
+            position: relative;
+            letter-spacing: -0.01em;
+        }
+
+        .pull-quote::before,
+        .pull-quote::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 1px;
+            background: #121212;
+        }
+
+        .pull-quote::before {
+            top: 0;
+        }
+
+        .pull-quote::after {
+            bottom: 0;
+        }
+
         .article-body table {
             width: 100%;
             border-collapse: collapse;
@@ -391,6 +474,81 @@
             margin: 16px 0 0 20px;
         }
 
+        .inline-image {
+            margin: 48px 0;
+        }
+
+        .inline-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .inline-image-caption {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #767676;
+            margin-top: 16px;
+        }
+
+        .related-articles {
+            margin: 80px 0 0;
+            padding: 48px 0 0;
+            border-top: 2px solid #e5e5e5;
+        }
+
+        .related-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: #121212;
+            margin-bottom: 28px;
+        }
+
+        .related-item {
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.15s ease;
+        }
+
+        .related-item:last-child {
+            border-bottom: none;
+        }
+
+        .related-item:hover {
+            background: #fafafa;
+            margin: 0 -16px;
+            padding: 20px 16px;
+        }
+
+        .related-item a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .related-item-title {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 19px;
+            font-weight: 700;
+            line-height: 1.35;
+            color: #121212;
+            margin-bottom: 8px;
+            transition: color 0.15s ease;
+        }
+
+        .related-item:hover .related-item-title {
+            color: #666;
+        }
+
+        .related-item-meta {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: #767676;
+        }
+
         @media (max-width: 768px) {
             .article-container {
                 padding: 48px 20px 60px;
@@ -418,6 +576,16 @@
 
             .article-body h3 {
                 font-size: 22px;
+            }
+
+            .pull-quote {
+                font-size: 24px;
+                margin: 48px auto;
+                padding: 36px 0;
+            }
+
+            .share-tools {
+                display: none;
             }
 
             .article-byline {
@@ -461,6 +629,17 @@
             .article-body h2 {
                 font-size: 26px;
                 margin: 40px 0 18px;
+            }
+
+            .pull-quote {
+                font-size: 22px;
+                padding: 32px 0;
+                margin: 44px auto;
+            }
+
+            .related-item:hover {
+                margin: 0 -12px;
+                padding: 20px 12px;
             }
         }
     </style>
@@ -576,6 +755,15 @@
                         <span class="byline-meta-separator">·</span>
                         <span>9 min read</span>
                     </div>
+                </div>
+                <div class="share-tools">
+                    <button class="share-button" onclick="shareArticle('twitter')" title="Share on X" aria-label="Share on X">𝕏</button>
+                    <button class="share-button" onclick="shareArticle('facebook')" title="Share on Facebook" aria-label="Share on Facebook">f</button>
+                    <button class="share-button" onclick="shareArticle('copy')" title="Copy link" aria-label="Copy link">🔗</button>
+                    <button class="share-button save-button" onclick="saveArticle()" title="Save article" aria-label="Save article">
+                        <span>📑</span>
+                        <span>Save</span>
+                    </button>
                 </div>
             </div>
         </header>
@@ -883,6 +1071,33 @@
 
             <p>For Gameweek 9, maintaining strong captaincy choices (Haaland/Saka), consolidating Arsenal assets, and integrating in-form mid-priced stars like Semenyo and Mateta could ensure another successful round.</p>
         </div>
+
+        <!-- Related Articles -->
+        <aside class="related-articles">
+            <h2 class="related-title">Related Articles</h2>
+
+            <article class="related-item">
+                <a href="/articles/arsenal-tops-premier-league-table-2025-10-19.html">
+                    <h3 class="related-item-title">Arsenal Tops the Premier League Table 2025/26: Tactical Dominance and Title Credentials</h3>
+                    <div class="related-item-meta">October 19, 2025 · 8 min read</div>
+                </a>
+            </article>
+
+            <article class="related-item">
+                <a href="/articles/tottenham-aston-villa-match-analysis-2025-10-19.html">
+                    <h3 class="related-item-title">Tottenham 4-1 Aston Villa: Spurs Dominate as Villa's Struggles Continue</h3>
+                    <div class="related-item-meta">October 19, 2025 · 7 min read</div>
+                </a>
+            </article>
+
+            <article class="related-item">
+                <a href="/articles/liverpool-fall-from-greatness-2025-10-19.html">
+                    <h3 class="related-item-title">Liverpool's Fall from Greatness: Why the Reds No Longer Dominate the Premier League</h3>
+                    <div class="related-item-meta">October 19, 2025 · 9 min read</div>
+                </a>
+            </article>
+        </aside>
+
     </article>
 
     <div class="footer" include="../footer.html"></div>
@@ -907,6 +1122,86 @@
         window.addEventListener('scroll', updateReadingProgress);
         window.addEventListener('resize', updateReadingProgress);
         document.addEventListener('DOMContentLoaded', updateReadingProgress);
+
+        // Share Article
+        function shareArticle(platform) {
+            const url = window.location.href;
+            const title = document.querySelector('.article-headline').textContent;
+
+            switch(platform) {
+                case 'twitter':
+                    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank', 'width=550,height=420');
+                    break;
+                case 'facebook':
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'width=550,height=420');
+                    break;
+                case 'copy':
+                    navigator.clipboard.writeText(url).then(() => {
+                        showNotification('Link copied to clipboard!');
+                    }).catch(() => {
+                        prompt('Copy this link:', url);
+                    });
+                    break;
+            }
+        }
+
+        // Save Article
+        function saveArticle() {
+            const title = document.querySelector('.article-headline').textContent;
+            const url = window.location.href;
+            const savedArticles = JSON.parse(localStorage.getItem('savedArticles') || '[]');
+
+            const article = { title, url, savedAt: new Date().toISOString() };
+
+            if (savedArticles.some(a => a.url === url)) {
+                showNotification('Article already saved!');
+            } else {
+                savedArticles.push(article);
+                localStorage.setItem('savedArticles', JSON.stringify(savedArticles));
+                showNotification('Article saved!');
+            }
+        }
+
+        // Notification Toast
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 32px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #121212;
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+                animation: slideUp 0.3s ease-out;
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.animation = 'slideDown 0.3s ease-in';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideUp {
+                from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+            @keyframes slideDown {
+                from { transform: translateX(-50%) translateY(0); opacity: 1; }
+                to { transform: translateX(-50%) translateY(20px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
