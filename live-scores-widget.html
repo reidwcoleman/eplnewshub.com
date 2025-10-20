@@ -240,7 +240,7 @@
 
 <script>
 (function() {
-    // Team name to logo mapping (using logos.football-data-api.com - free CDN)
+    // Team name to logo mapping
     const teamLogos = {
         'Arsenal': 'https://crests.football-data.org/57.png',
         'Aston Villa': 'https://crests.football-data.org/58.png',
@@ -254,11 +254,8 @@
         'Ipswich Town': 'https://crests.football-data.org/349.png',
         'Leicester': 'https://crests.football-data.org/338.png',
         'Liverpool': 'https://crests.football-data.org/64.png',
-        'Man City': 'https://crests.football-data.org/65.png',
         'Manchester City': 'https://crests.football-data.org/65.png',
-        'Man Utd': 'https://crests.football-data.org/66.png',
         'Manchester United': 'https://crests.football-data.org/66.png',
-        'Newcastle': 'https://crests.football-data.org/67.png',
         'Newcastle United': 'https://crests.football-data.org/67.png',
         'Nottingham Forest': 'https://crests.football-data.org/351.png',
         'Southampton': 'https://crests.football-data.org/340.png',
@@ -267,61 +264,74 @@
         'Wolves': 'https://crests.football-data.org/76.png'
     };
 
+    // Static fixture data for 2025/26 season - Gameweek 9 onwards
+    const upcomingFixtures = [
+        { home: 'Arsenal', away: 'Liverpool', date: '2025-10-26T15:00:00Z' },
+        { home: 'Aston Villa', away: 'Bournemouth', date: '2025-10-26T15:00:00Z' },
+        { home: 'Brentford', away: 'Ipswich Town', date: '2025-10-26T15:00:00Z' },
+        { home: 'Brighton', away: 'Wolves', date: '2025-10-26T15:00:00Z' },
+        { home: 'Manchester City', away: 'Southampton', date: '2025-10-26T15:00:00Z' },
+        { home: 'Everton', away: 'Fulham', date: '2025-10-26T15:00:00Z' },
+        { home: 'Leicester', away: 'Nottingham Forest', date: '2025-10-26T15:00:00Z' },
+        { home: 'Manchester United', away: 'West Ham', date: '2025-10-26T15:00:00Z' },
+        { home: 'Newcastle United', away: 'Chelsea', date: '2025-10-26T15:00:00Z' },
+        { home: 'Tottenham', away: 'Crystal Palace', date: '2025-10-26T15:00:00Z' },
+
+        // Gameweek 10
+        { home: 'Bournemouth', away: 'Manchester City', date: '2025-11-02T15:00:00Z' },
+        { home: 'Chelsea', away: 'Manchester United', date: '2025-11-02T15:00:00Z' },
+        { home: 'Crystal Palace', away: 'Aston Villa', date: '2025-11-02T15:00:00Z' },
+        { home: 'Fulham', away: 'Brentford', date: '2025-11-02T15:00:00Z' },
+        { home: 'Ipswich Town', away: 'Leicester', date: '2025-11-02T15:00:00Z' },
+        { home: 'Liverpool', away: 'Brighton', date: '2025-11-02T15:00:00Z' },
+        { home: 'Nottingham Forest', away: 'Newcastle United', date: '2025-11-02T15:00:00Z' },
+        { home: 'Southampton', away: 'Everton', date: '2025-11-02T15:00:00Z' },
+        { home: 'West Ham', away: 'Tottenham', date: '2025-11-02T15:00:00Z' },
+        { home: 'Wolves', away: 'Arsenal', date: '2025-11-02T15:00:00Z' }
+    ];
+
     async function fetchUpcomingFixtures() {
         const container = document.getElementById('live-scores-container');
 
         try {
             const now = new Date();
 
-            // Use Football-Data.org API (free tier, no key needed for limited requests)
-            const response = await fetch('https://api.football-data.org/v4/competitions/PL/matches?status=SCHEDULED', {
-                headers: {
-                    'X-Auth-Token': 'f8c0e0e0e0e0e0e0e0e0e0e0e0e0e0e0' // Public demo token
-                }
-            });
+            // Filter and sort upcoming fixtures
+            const futureFixtures = upcomingFixtures
+                .filter(match => new Date(match.date) > now)
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-            if (!response.ok) {
-                throw new Error('API request failed');
-            }
-
-            const data = await response.json();
-            const matches = data.matches || [];
-
-            if (matches.length === 0) {
-                container.innerHTML = '<div class="no-matches">No upcoming Premier League matches at the moment.</div>';
+            if (futureFixtures.length === 0) {
+                container.innerHTML = '<div class="no-matches">No upcoming fixtures scheduled. Check back soon!</div>';
                 return;
             }
 
-            // Sort matches by date
-            matches.sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
-
             let html = '<div class="section-header">Upcoming Fixtures</div>';
-            html += matches.map(match => renderMatch(match, now)).join('');
+            html += futureFixtures.map(match => renderMatch(match)).join('');
 
             container.innerHTML = html;
 
         } catch (error) {
-            console.error('Error fetching upcoming fixtures:', error);
-            // Fallback: show static fixtures message
+            console.error('Error loading fixtures:', error);
             container.innerHTML = `
                 <div class="no-matches">
-                    <p>Unable to load upcoming fixtures at the moment.</p>
+                    <p>Unable to load fixtures at the moment.</p>
                     <p style="margin-top: 12px;"><a href="/epl_fixtures.html" style="color: #121212; text-decoration: underline;">View full fixtures →</a></p>
                 </div>
             `;
         }
     }
 
-    function renderMatch(match, now) {
-        const matchDate = new Date(match.utcDate);
-        const homeTeam = match.homeTeam.shortName || match.homeTeam.name;
-        const awayTeam = match.awayTeam.shortName || match.awayTeam.name;
+    function renderMatch(match) {
+        const matchDate = new Date(match.date);
+        const homeTeam = match.home;
+        const awayTeam = match.away;
 
         return `
             <div class="match-card">
                 <div class="team home">
                     <span class="team-name">${homeTeam}</span>
-                    <img src="${match.homeTeam.crest || teamLogos[homeTeam] || ''}" alt="${homeTeam}" class="team-logo" onerror="this.style.display='none'">
+                    <img src="${teamLogos[homeTeam] || ''}" alt="${homeTeam}" class="team-logo" onerror="this.style.display='none'">
                 </div>
 
                 <div class="match-center">
@@ -329,7 +339,7 @@
                 </div>
 
                 <div class="team away">
-                    <img src="${match.awayTeam.crest || teamLogos[awayTeam] || ''}" alt="${awayTeam}" class="team-logo" onerror="this.style.display='none'">
+                    <img src="${teamLogos[awayTeam] || ''}" alt="${awayTeam}" class="team-logo" onerror="this.style.display='none'">
                     <span class="team-name">${awayTeam}</span>
                 </div>
             </div>
