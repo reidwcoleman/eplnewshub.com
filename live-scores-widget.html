@@ -341,15 +341,13 @@
             // Show today's matches if any
             if (todayMatches.length > 0) {
                 html += '<div class="section-header">Today\'s Matches</div>';
-                html += todayMatches.slice(0, 6).map(match => renderMatch(match, now)).join('');
+                html += todayMatches.map(match => renderMatch(match, now)).join('');
             }
 
-            // Show upcoming matches if no matches today OR as additional section
-            if (todayMatches.length === 0 && upcomingMatches.length > 0) {
-                html += upcomingMatches.slice(0, 6).map(match => renderMatch(match, now)).join('');
-            } else if (upcomingMatches.length > 0) {
+            // Show all upcoming matches
+            if (upcomingMatches.length > 0) {
                 html += '<div class="section-header" style="margin-top: 16px;">Upcoming Matches</div>';
-                html += upcomingMatches.slice(0, 3).map(match => renderMatch(match, now)).join('');
+                html += upcomingMatches.map(match => renderMatch(match, now)).join('');
             }
 
             if (html === '') {
