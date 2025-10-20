@@ -247,72 +247,76 @@
         'Bournemouth': 'https://crests.football-data.org/1044.png',
         'Brentford': 'https://crests.football-data.org/402.png',
         'Brighton': 'https://crests.football-data.org/397.png',
+        'Brighton & Hove Albion': 'https://crests.football-data.org/397.png',
         'Chelsea': 'https://crests.football-data.org/61.png',
         'Crystal Palace': 'https://crests.football-data.org/354.png',
         'Everton': 'https://crests.football-data.org/62.png',
         'Fulham': 'https://crests.football-data.org/63.png',
         'Ipswich Town': 'https://crests.football-data.org/349.png',
         'Leicester': 'https://crests.football-data.org/338.png',
+        'Leicester City': 'https://crests.football-data.org/338.png',
         'Liverpool': 'https://crests.football-data.org/64.png',
         'Manchester City': 'https://crests.football-data.org/65.png',
         'Manchester United': 'https://crests.football-data.org/66.png',
+        'Newcastle': 'https://crests.football-data.org/67.png',
         'Newcastle United': 'https://crests.football-data.org/67.png',
         'Nottingham Forest': 'https://crests.football-data.org/351.png',
         'Southampton': 'https://crests.football-data.org/340.png',
         'Tottenham': 'https://crests.football-data.org/73.png',
+        'Tottenham Hotspur': 'https://crests.football-data.org/73.png',
         'West Ham': 'https://crests.football-data.org/563.png',
-        'Wolves': 'https://crests.football-data.org/76.png'
+        'West Ham United': 'https://crests.football-data.org/563.png',
+        'Wolves': 'https://crests.football-data.org/76.png',
+        'Wolverhampton Wanderers': 'https://crests.football-data.org/76.png'
     };
-
-    // Static fixture data for 2025/26 season - Gameweek 9 onwards
-    const upcomingFixtures = [
-        { home: 'Arsenal', away: 'Liverpool', date: '2025-10-26T15:00:00Z' },
-        { home: 'Aston Villa', away: 'Bournemouth', date: '2025-10-26T15:00:00Z' },
-        { home: 'Brentford', away: 'Ipswich Town', date: '2025-10-26T15:00:00Z' },
-        { home: 'Brighton', away: 'Wolves', date: '2025-10-26T15:00:00Z' },
-        { home: 'Manchester City', away: 'Southampton', date: '2025-10-26T15:00:00Z' },
-        { home: 'Everton', away: 'Fulham', date: '2025-10-26T15:00:00Z' },
-        { home: 'Leicester', away: 'Nottingham Forest', date: '2025-10-26T15:00:00Z' },
-        { home: 'Manchester United', away: 'West Ham', date: '2025-10-26T15:00:00Z' },
-        { home: 'Newcastle United', away: 'Chelsea', date: '2025-10-26T15:00:00Z' },
-        { home: 'Tottenham', away: 'Crystal Palace', date: '2025-10-26T15:00:00Z' },
-
-        // Gameweek 10
-        { home: 'Bournemouth', away: 'Manchester City', date: '2025-11-02T15:00:00Z' },
-        { home: 'Chelsea', away: 'Manchester United', date: '2025-11-02T15:00:00Z' },
-        { home: 'Crystal Palace', away: 'Aston Villa', date: '2025-11-02T15:00:00Z' },
-        { home: 'Fulham', away: 'Brentford', date: '2025-11-02T15:00:00Z' },
-        { home: 'Ipswich Town', away: 'Leicester', date: '2025-11-02T15:00:00Z' },
-        { home: 'Liverpool', away: 'Brighton', date: '2025-11-02T15:00:00Z' },
-        { home: 'Nottingham Forest', away: 'Newcastle United', date: '2025-11-02T15:00:00Z' },
-        { home: 'Southampton', away: 'Everton', date: '2025-11-02T15:00:00Z' },
-        { home: 'West Ham', away: 'Tottenham', date: '2025-11-02T15:00:00Z' },
-        { home: 'Wolves', away: 'Arsenal', date: '2025-11-02T15:00:00Z' }
-    ];
 
     async function fetchUpcomingFixtures() {
         const container = document.getElementById('live-scores-container');
 
         try {
+            // Try TheSportsDB API first (free, no key required)
+            const leagueId = '4328'; // Premier League
+            const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=${leagueId}`);
+
+            if (!response.ok) throw new Error('API request failed');
+
+            const data = await response.json();
+
+            if (!data.events || data.events.length === 0) {
+                container.innerHTML = '<div class="no-matches">No upcoming fixtures available at the moment.</div>';
+                return;
+            }
+
             const now = new Date();
 
-            // Filter and sort upcoming fixtures
-            const futureFixtures = upcomingFixtures
+            // Filter for Premier League matches and sort by date
+            const matches = data.events
+                .filter(event => {
+                    const leagueName = (event.strLeague || '').toLowerCase();
+                    return leagueName.includes('premier league') ||
+                           leagueName.includes('english premier');
+                })
+                .map(event => ({
+                    home: event.strHomeTeam,
+                    away: event.strAwayTeam,
+                    date: event.dateEvent + 'T' + (event.strTime || '15:00:00'),
+                    timestamp: event.strTimestamp || event.dateEvent
+                }))
                 .filter(match => new Date(match.date) > now)
                 .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-            if (futureFixtures.length === 0) {
+            if (matches.length === 0) {
                 container.innerHTML = '<div class="no-matches">No upcoming fixtures scheduled. Check back soon!</div>';
                 return;
             }
 
             let html = '<div class="section-header">Upcoming Fixtures</div>';
-            html += futureFixtures.map(match => renderMatch(match)).join('');
+            html += matches.map(match => renderMatch(match)).join('');
 
             container.innerHTML = html;
 
         } catch (error) {
-            console.error('Error loading fixtures:', error);
+            console.error('Error fetching fixtures:', error);
             container.innerHTML = `
                 <div class="no-matches">
                     <p>Unable to load fixtures at the moment.</p>
