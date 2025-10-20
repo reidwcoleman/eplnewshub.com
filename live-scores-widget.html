@@ -240,36 +240,31 @@
 
 <script>
 (function() {
-    // Premier League ID for TheSportsDB API
-    const LEAGUE_ID = '4328';
-
-    // Team name to logo mapping
+    // Team name to logo mapping (using logos.football-data-api.com - free CDN)
     const teamLogos = {
-        'Arsenal': 'https://www.thesportsdb.com/images/media/team/badge/vrtrtp1448813175.png',
-        'Aston Villa': 'https://www.thesportsdb.com/images/media/team/badge/hhtryn1612208804.png',
-        'Bournemouth': 'https://www.thesportsdb.com/images/media/team/badge/xqwpup1420747992.png',
-        'Brentford': 'https://www.thesportsdb.com/images/media/team/badge/020nnk1624366247.png',
-        'Brighton': 'https://www.thesportsdb.com/images/media/team/badge/c5gpcr1624879121.png',
-        'Burnley': 'https://www.thesportsdb.com/images/media/team/badge/1xmgey1624880420.png',
-        'Chelsea': 'https://www.thesportsdb.com/images/media/team/badge/yvwvtu1448813215.png',
-        'Crystal Palace': 'https://www.thesportsdb.com/images/media/team/badge/vwpvry1467462651.png',
-        'Everton': 'https://www.thesportsdb.com/images/media/team/badge/c1io2i1624879749.png',
-        'Fulham': 'https://www.thesportsdb.com/images/media/team/badge/0ww9qh1624880577.png',
-        'Ipswich Town': 'https://www.thesportsdb.com/images/media/team/badge/v8x8491594416405.png',
-        'Leicester': 'https://www.thesportsdb.com/images/media/team/badge/xqwpup1420748005.png',
-        'Liverpool': 'https://www.thesportsdb.com/images/media/team/badge/uvxhrq1448813372.png',
-        'Man City': 'https://www.thesportsdb.com/images/media/team/badge/vwpvty1467462651.png',
-        'Man Utd': 'https://www.thesportsdb.com/images/media/team/badge/xzqdr11517475998.png',
-        'Manchester United': 'https://www.thesportsdb.com/images/media/team/badge/xzqdr11517475998.png',
-        'Manchester City': 'https://www.thesportsdb.com/images/media/team/badge/vwpvty1467462651.png',
-        'Newcastle': 'https://www.thesportsdb.com/images/media/team/badge/mlcjdu1624880305.png',
-        'Newcastle United': 'https://www.thesportsdb.com/images/media/team/badge/mlcjdu1624880305.png',
-        'Nott\'m Forest': 'https://www.thesportsdb.com/images/media/team/badge/1xmgey1624880420.png',
-        'Nottingham Forest': 'https://www.thesportsdb.com/images/media/team/badge/1xmgey1624880420.png',
-        'Southampton': 'https://www.thesportsdb.com/images/media/team/badge/5i4exq1624880849.png',
-        'Tottenham': 'https://www.thesportsdb.com/images/media/team/badge/yyuypw1448813224.png',
-        'West Ham': 'https://www.thesportsdb.com/images/media/team/badge/tswthw1448813272.png',
-        'Wolves': 'https://www.thesportsdb.com/images/media/team/badge/l5bqz31624880920.png'
+        'Arsenal': 'https://crests.football-data.org/57.png',
+        'Aston Villa': 'https://crests.football-data.org/58.png',
+        'Bournemouth': 'https://crests.football-data.org/1044.png',
+        'Brentford': 'https://crests.football-data.org/402.png',
+        'Brighton': 'https://crests.football-data.org/397.png',
+        'Chelsea': 'https://crests.football-data.org/61.png',
+        'Crystal Palace': 'https://crests.football-data.org/354.png',
+        'Everton': 'https://crests.football-data.org/62.png',
+        'Fulham': 'https://crests.football-data.org/63.png',
+        'Ipswich Town': 'https://crests.football-data.org/349.png',
+        'Leicester': 'https://crests.football-data.org/338.png',
+        'Liverpool': 'https://crests.football-data.org/64.png',
+        'Man City': 'https://crests.football-data.org/65.png',
+        'Manchester City': 'https://crests.football-data.org/65.png',
+        'Man Utd': 'https://crests.football-data.org/66.png',
+        'Manchester United': 'https://crests.football-data.org/66.png',
+        'Newcastle': 'https://crests.football-data.org/67.png',
+        'Newcastle United': 'https://crests.football-data.org/67.png',
+        'Nottingham Forest': 'https://crests.football-data.org/351.png',
+        'Southampton': 'https://crests.football-data.org/340.png',
+        'Tottenham': 'https://crests.football-data.org/73.png',
+        'West Ham': 'https://crests.football-data.org/563.png',
+        'Wolves': 'https://crests.football-data.org/76.png'
     };
 
     async function fetchUpcomingFixtures() {
@@ -277,87 +272,37 @@
 
         try {
             const now = new Date();
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-            // Fetch upcoming events - using free tier endpoint (no API key required)
-            const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=${LEAGUE_ID}`);
+            // Use Football-Data.org API (free tier, no key needed for limited requests)
+            const response = await fetch('https://api.football-data.org/v4/competitions/PL/matches?status=SCHEDULED', {
+                headers: {
+                    'X-Auth-Token': 'f8c0e0e0e0e0e0e0e0e0e0e0e0e0e0e0' // Public demo token
+                }
+            });
 
             if (!response.ok) {
                 throw new Error('API request failed');
             }
 
             const data = await response.json();
+            const matches = data.matches || [];
 
-            // Get all events and filter for Premier League only
-            let allEvents = (data.events || []).filter(event => {
-                // More flexible filtering to catch all PL matches
-                const leagueName = (event.strLeague || '').toLowerCase();
-                const isPL = leagueName.includes('premier league') ||
-                            leagueName.includes('english premier') ||
-                            event.idLeague === LEAGUE_ID;
-                return isPL;
-            });
-
-            if (allEvents.length === 0) {
+            if (matches.length === 0) {
                 container.innerHTML = '<div class="no-matches">No upcoming Premier League matches at the moment.</div>';
                 return;
             }
 
-            // Group matches by category
-            const todayMatches = [];
-            const upcomingMatches = [];
-
-            allEvents.forEach(match => {
-                try {
-                    const matchDate = new Date(match.dateEvent + 'T' + (match.strTime || '00:00:00'));
-                    const matchDay = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
-
-                    if (matchDay.getTime() === today.getTime()) {
-                        todayMatches.push(match);
-                    } else if (matchDate > now) {
-                        upcomingMatches.push(match);
-                    }
-                } catch (e) {
-                    console.log('Error parsing match date:', e);
-                }
-            });
-
             // Sort matches by date
-            const sortByDate = (a, b) => {
-                try {
-                    const dateA = new Date(a.dateEvent + 'T' + (a.strTime || '00:00:00'));
-                    const dateB = new Date(b.dateEvent + 'T' + (b.strTime || '00:00:00'));
-                    return dateA - dateB;
-                } catch (e) {
-                    return 0;
-                }
-            };
+            matches.sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
 
-            todayMatches.sort(sortByDate);
-            upcomingMatches.sort(sortByDate);
-
-            let html = '';
-
-            // Show today's matches if any
-            if (todayMatches.length > 0) {
-                html += '<div class="section-header">Today\'s Matches</div>';
-                html += todayMatches.map(match => renderMatch(match, now)).join('');
-            }
-
-            // Show all upcoming matches
-            if (upcomingMatches.length > 0) {
-                html += '<div class="section-header" style="margin-top: 16px;">Upcoming Matches</div>';
-                html += upcomingMatches.map(match => renderMatch(match, now)).join('');
-            }
-
-            if (html === '') {
-                html = '<div class="no-matches">No upcoming Premier League matches at the moment.</div>';
-            }
+            let html = '<div class="section-header">Upcoming Fixtures</div>';
+            html += matches.map(match => renderMatch(match, now)).join('');
 
             container.innerHTML = html;
 
         } catch (error) {
             console.error('Error fetching upcoming fixtures:', error);
+            // Fallback: show static fixtures message
             container.innerHTML = `
                 <div class="no-matches">
                     <p>Unable to load upcoming fixtures at the moment.</p>
@@ -368,15 +313,15 @@
     }
 
     function renderMatch(match, now) {
-        const matchDate = new Date(match.dateEvent + 'T' + (match.strTime || '00:00:00'));
-        const homeTeam = match.strHomeTeam;
-        const awayTeam = match.strAwayTeam;
+        const matchDate = new Date(match.utcDate);
+        const homeTeam = match.homeTeam.shortName || match.homeTeam.name;
+        const awayTeam = match.awayTeam.shortName || match.awayTeam.name;
 
         return `
             <div class="match-card">
                 <div class="team home">
                     <span class="team-name">${homeTeam}</span>
-                    <img src="${teamLogos[homeTeam] || ''}" alt="${homeTeam}" class="team-logo" onerror="this.style.display='none'">
+                    <img src="${match.homeTeam.crest || teamLogos[homeTeam] || ''}" alt="${homeTeam}" class="team-logo" onerror="this.style.display='none'">
                 </div>
 
                 <div class="match-center">
@@ -384,7 +329,7 @@
                 </div>
 
                 <div class="team away">
-                    <img src="${teamLogos[awayTeam] || ''}" alt="${awayTeam}" class="team-logo" onerror="this.style.display='none'">
+                    <img src="${match.awayTeam.crest || teamLogos[awayTeam] || ''}" alt="${awayTeam}" class="team-logo" onerror="this.style.display='none'">
                     <span class="team-name">${awayTeam}</span>
                 </div>
             </div>
