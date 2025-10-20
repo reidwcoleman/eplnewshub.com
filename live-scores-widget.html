@@ -275,7 +275,14 @@
 
         try {
             const leagueId = '4328'; // Premier League
-            const season = '2025-2026';
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+
+            // Premier League season runs Aug-May, so if we're in Aug-Dec use current year, otherwise previous year
+            const seasonStartYear = currentMonth >= 7 ? currentYear : currentYear - 1;
+            const season = `${seasonStartYear}-${seasonStartYear + 1}`;
+
             const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${leagueId}&s=${season}`);
 
             if (!response.ok) throw new Error('API request failed');
@@ -287,13 +294,15 @@
                 return;
             }
 
-            const now = new Date();
-
             // Filter for upcoming matches only and sort by date
             const matches = data.events
                 .filter(event => {
-                    const matchDate = new Date(event.dateEvent + 'T' + (event.strTime || '15:00:00'));
-                    return matchDate > now && event.strStatus === 'Not Started';
+                    try {
+                        const matchDate = new Date(event.dateEvent + 'T' + (event.strTime || '15:00:00'));
+                        return matchDate > now && event.strStatus === 'Not Started';
+                    } catch (e) {
+                        return false;
+                    }
                 })
                 .map(event => ({
                     home: event.strHomeTeam,
