@@ -274,9 +274,9 @@
         const container = document.getElementById('live-scores-container');
 
         try {
-            // Try TheSportsDB API first (free, no key required)
             const leagueId = '4328'; // Premier League
-            const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=${leagueId}`);
+            const season = '2025-2026';
+            const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${leagueId}&s=${season}`);
 
             if (!response.ok) throw new Error('API request failed');
 
@@ -289,20 +289,18 @@
 
             const now = new Date();
 
-            // Filter for Premier League matches and sort by date
+            // Filter for upcoming matches only and sort by date
             const matches = data.events
                 .filter(event => {
-                    const leagueName = (event.strLeague || '').toLowerCase();
-                    return leagueName.includes('premier league') ||
-                           leagueName.includes('english premier');
+                    const matchDate = new Date(event.dateEvent + 'T' + (event.strTime || '15:00:00'));
+                    return matchDate > now && event.strStatus === 'Not Started';
                 })
                 .map(event => ({
                     home: event.strHomeTeam,
                     away: event.strAwayTeam,
                     date: event.dateEvent + 'T' + (event.strTime || '15:00:00'),
-                    timestamp: event.strTimestamp || event.dateEvent
+                    round: event.intRound
                 }))
-                .filter(match => new Date(match.date) > now)
                 .sort((a, b) => new Date(a.date) - new Date(b.date));
 
             if (matches.length === 0) {
