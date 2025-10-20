@@ -1,15 +1,29 @@
 [build]
+  publish = "."
   functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "18"
 
 [functions]
   directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
 
 [[redirects]]
   from = "/.netlify/functions/*"
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Environment variables needed:
+# Environment variables needed (set in Netlify UI):
+#
+# STRIPE_SECRET_KEY - Required for payment processing
 # GITHUB_TOKEN - Personal access token with repo permissions
 # GITHUB_REPO_OWNER - Repository owner (default: reidwcoleman)
 # GITHUB_REPO_NAME - Repository name (default: eplnewshub.com)
+# GROQ_API_KEY - Optional, for AI assistant
+# BRAVE_SEARCH_API_KEY - Optional, for enhanced search
