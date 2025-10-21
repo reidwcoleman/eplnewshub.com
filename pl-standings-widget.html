@@ -192,7 +192,15 @@
 
             const data = await response.json();
 
-            if (!data.table || data.table.length === 0) {
+            // If we don't have all 20 teams, calculate from match results
+            let tableData = data.table || [];
+
+            if (tableData.length < 20) {
+                console.log(`Only ${tableData.length} teams in table, calculating from matches...`);
+                tableData = await calculateStandingsFromMatches(leagueId, season);
+            }
+
+            if (!tableData || tableData.length === 0) {
                 container.innerHTML = '<div class="no-matches">No standings available at the moment.</div>';
                 return;
             }
@@ -251,21 +259,89 @@
         }
     }
 
+    async function calculateStandingsFromMatches(leagueId, season) {
+        try {
+            const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${leagueId}&s=${season}`);
+            if (!response.ok) return [];
+
+            const data = await response.json();
+            const events = data.events || [];
+            const standings = {};
+
+            events.forEach(match => {
+                if (match.intHomeScore === null || match.intAwayScore === null) return;
+
+                const homeTeam = match.strHomeTeam;
+                const awayTeam = match.strAwayTeam;
+                const homeScore = parseInt(match.intHomeScore);
+                const awayScore = parseInt(match.intAwayScore);
+
+                [homeTeam, awayTeam].forEach(team => {
+                    if (!standings[team]) {
+                        standings[team] = {
+                            strTeam: team,
+                            strBadge: match.strHomeTeam === team ? match.strHomeTeamBadge : match.strAwayTeamBadge,
+                            intPlayed: 0, intWin: 0, intDraw: 0, intLoss: 0,
+                            intGoalsFor: 0, intGoalsAgainst: 0, intGoalDifference: 0,
+                            intPoints: 0, results: []
+                        };
+                    }
+                });
+
+                standings[homeTeam].intPlayed++;
+                standings[homeTeam].intGoalsFor += homeScore;
+                standings[homeTeam].intGoalsAgainst += awayScore;
+                standings[awayTeam].intPlayed++;
+                standings[awayTeam].intGoalsFor += awayScore;
+                standings[awayTeam].intGoalsAgainst += homeScore;
+
+                if (homeScore > awayScore) {
+                    standings[homeTeam].intWin++; standings[homeTeam].intPoints += 3; standings[homeTeam].results.push('W');
+                    standings[awayTeam].intLoss++; standings[awayTeam].results.push('L');
+                } else if (homeScore < awayScore) {
+                    standings[awayTeam].intWin++; standings[awayTeam].intPoints += 3; standings[awayTeam].results.push('W');
+                    standings[homeTeam].intLoss++; standings[homeTeam].results.push('L');
+                } else {
+                    standings[homeTeam].intDraw++; standings[homeTeam].intPoints++; standings[homeTeam].results.push('D');
+                    standings[awayTeam].intDraw++; standings[awayTeam].intPoints++; standings[awayTeam].results.push('D');
+                }
+            });
+
+            const tableArray = Object.values(standings).map(team => {
+                team.intGoalDifference = team.intGoalsFor - team.intGoalsAgainst;
+                team.strForm = team.results.slice(-5).reverse().join('');
+                return team;
+            });
+
+            tableArray.sort((a, b) => {
+                if (b.intPoints !== a.intPoints) return b.intPoints - a.intPoints;
+                if (b.intGoalDifference !== a.intGoalDifference) return b.intGoalDifference - a.intGoalDifference;
+                return b.intGoalsFor - a.intGoalsFor;
+            });
+
+            tableArray.forEach((team, index) => team.intRank = (index + 1).toString());
+            return tableArray;
+        } catch (error) {
+            console.error('Error calculating standings:', error);
+            return [];
+        }
+    }
+
     function renderForm(form) {
         if (!form) return '';
-        
+
         const formArray = form.split('').slice(0, 5);
         let html = '<div class="form-indicator">';
-        
+
         formArray.forEach(result => {
             let className = 'form-dot ';
             if (result === 'W') className += 'win';
             else if (result === 'D') className += 'draw';
             else if (result === 'L') className += 'loss';
-            
+
             html += `<span class="${className}"></span>`;
         });
-        
+
         html += '</div>';
         return html;
     }
