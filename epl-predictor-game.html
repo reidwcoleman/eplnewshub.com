@@ -939,12 +939,31 @@
                         document.getElementById('usernameInput').value = this.userStats.username;
                         document.getElementById('usernameSection').innerHTML = `
                             <p style="font-size: 16px; color: #121212; font-weight: 600;">Welcome back, ${this.userStats.username}!</p>
+                            <p style="font-size: 13px; color: #999; margin-top: 8px;">You're on the global leaderboard</p>
                         `;
+
+                        // Ensure username mapping exists in Firebase for existing users
+                        this.ensureUsernameMapping();
                     }
                 }
 
                 if (!this.userStats.userId) {
                     this.userStats.userId = 'user_' + Math.random().toString(36).substr(2, 9);
+                }
+            },
+
+            async ensureUsernameMapping() {
+                if (!this.userStats.username) return;
+
+                try {
+                    const snapshot = await database.ref('usernames/' + this.userStats.username.toLowerCase()).once('value');
+                    if (!snapshot.val()) {
+                        // Username mapping doesn't exist, create it
+                        await database.ref('usernames/' + this.userStats.username.toLowerCase()).set(this.userStats.userId);
+                        console.log('Created username mapping for existing user');
+                    }
+                } catch (error) {
+                    console.error('Error ensuring username mapping:', error);
                 }
             },
 
@@ -957,8 +976,10 @@
                 localStorage.setItem('eplPredictorUserData', JSON.stringify(data));
             },
 
-            setUsername() {
+            async setUsername() {
                 const username = document.getElementById('usernameInput').value.trim();
+                const btn = document.querySelector('.username-btn');
+
                 if (!username) {
                     this.showToast('Please enter a username', 'error');
                     return;
@@ -969,15 +990,83 @@
                     return;
                 }
 
-                this.userStats.username = username;
-                this.saveUserData();
-                this.syncToFirebase();
+                if (username.length > 20) {
+                    this.showToast('Username must be 20 characters or less', 'error');
+                    return;
+                }
 
-                document.getElementById('usernameSection').innerHTML = `
-                    <p style="font-size: 16px; color: #121212; font-weight: 600;">Welcome, ${username}!</p>
-                `;
+                // Check for valid characters (alphanumeric, underscores, hyphens)
+                if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+                    this.showToast('Username can only contain letters, numbers, underscores, and hyphens', 'error');
+                    return;
+                }
 
-                this.showToast('Username saved successfully!', 'success');
+                // Show loading state
+                const originalText = btn.textContent;
+                btn.textContent = 'Checking...';
+                btn.disabled = true;
+
+                try {
+                    // Check if username is already taken
+                    const isAvailable = await this.checkUsernameAvailability(username);
+                    if (!isAvailable) {
+                        this.showToast('Username already taken. Please choose another.', 'error');
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    btn.textContent = 'Saving...';
+
+                    // If user already has a username, remove old username mapping
+                    if (this.userStats.username && this.userStats.username !== username) {
+                        await database.ref('usernames/' + this.userStats.username.toLowerCase()).remove();
+                    }
+
+                    this.userStats.username = username;
+                    this.saveUserData();
+
+                    // Save username mapping and user data
+                    await this.syncUsernameAndData(username);
+
+                    document.getElementById('usernameSection').innerHTML = `
+                        <p style="font-size: 16px; color: #121212; font-weight: 600;">Welcome, ${username}!</p>
+                        <p style="font-size: 13px; color: #999; margin-top: 8px;">You're now on the global leaderboard</p>
+                    `;
+
+                    this.showToast('Username saved successfully!', 'success');
+                } catch (error) {
+                    console.error('Error setting username:', error);
+                    this.showToast('Error saving username. Please try again.', 'error');
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            },
+
+            async checkUsernameAvailability(username) {
+                try {
+                    const snapshot = await database.ref('usernames/' + username.toLowerCase()).once('value');
+                    const existingUserId = snapshot.val();
+
+                    // Username is available if it doesn't exist, or if it belongs to current user
+                    return !existingUserId || existingUserId === this.userStats.userId;
+                } catch (error) {
+                    console.error('Error checking username:', error);
+                    return false;
+                }
+            },
+
+            async syncUsernameAndData(username) {
+                try {
+                    // Save username mapping (lowercase for case-insensitive checking)
+                    await database.ref('usernames/' + username.toLowerCase()).set(this.userStats.userId);
+
+                    // Save user data
+                    await this.syncToFirebase();
+                } catch (error) {
+                    console.error('Error syncing username:', error);
+                    this.showToast('Error saving username. Please try again.', 'error');
+                }
             },
 
             async syncToFirebase() {
@@ -1062,9 +1151,18 @@
                 const container = document.getElementById('leaderboardBody');
 
                 if (this.leaderboardData.length === 0) {
-                    container.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">No players yet. Be the first!</div>';
+                    container.innerHTML = `
+                        <div style="padding: 40px; text-align: center; color: #666;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🏆</div>
+                            <div style="font-size: 18px; font-weight: 600; color: #121212; margin-bottom: 8px;">No players yet</div>
+                            <div style="font-size: 14px;">Be the first to join the leaderboard!</div>
+                        </div>
+                    `;
                     return;
                 }
+
+                const totalPlayers = this.leaderboardData.length;
+                const playersWithPoints = this.leaderboardData.filter(p => p.totalPoints > 0).length;
 
                 container.innerHTML = this.leaderboardData.slice(0, 50).map((player, index) => {
                     const rank = index + 1;
@@ -1073,13 +1171,32 @@
                     return `
                         <div class="leaderboard-row ${isCurrentUser ? 'current-user' : ''}">
                             <div class="rank-number rank-${rank}">${rank}</div>
-                            <div class="player-name">${player.username}${isCurrentUser ? ' (You)' : ''}</div>
+                            <div class="player-name">${this.escapeHtml(player.username)}${isCurrentUser ? ' (You)' : ''}</div>
                             <div class="stat-number">${player.totalPoints}</div>
                             <div class="stat-number">${player.streak > 0 ? '🔥 ' + player.streak : '—'}</div>
                             <div class="stat-number">${player.accuracy}%</div>
                         </div>
                     `;
                 }).join('');
+
+                // Add footer with stats
+                container.innerHTML += `
+                    <div style="padding: 20px 28px; background: #f8f9fa; border-top: 2px solid #dfdfdf; text-align: center; font-size: 13px; color: #666;">
+                        <strong>${totalPlayers}</strong> total players · <strong>${playersWithPoints}</strong> with points
+                        ${totalPlayers > 50 ? ` · Showing top 50` : ''}
+                    </div>
+                `;
+            },
+
+            escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, m => map[m]);
             },
 
             async fetchFixtures() {
