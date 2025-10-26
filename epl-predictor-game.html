@@ -1788,14 +1788,30 @@
 
                 // Add footer with stats
                 const lastUpdate = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                const playersWithZero = totalPlayers - playersWithPoints;
+
+                let statsMessage = `<strong>${totalPlayers}</strong> total player${totalPlayers !== 1 ? 's' : ''}`;
+
+                if (playersWithPoints > 0) {
+                    statsMessage += ` · <strong>${playersWithPoints}</strong> with points`;
+                    if (playersWithZero > 0) {
+                        statsMessage += ` · <strong>${playersWithZero}</strong> awaiting points`;
+                    }
+                } else {
+                    statsMessage += ` · All players awaiting points (make predictions on matches!)`;
+                }
+
+                if (totalPlayers > 100) {
+                    statsMessage += ` · Showing top 100`;
+                }
+
                 container.innerHTML += `
                     <div style="padding: 20px 28px; background: #f8f9fa; border-top: 2px solid #dfdfdf; text-align: center; font-size: 13px; color: #666;">
                         <div style="margin-bottom: 8px;">
-                            <strong>${totalPlayers}</strong> total players · <strong>${playersWithPoints}</strong> with points
-                            ${totalPlayers > 100 ? ` · Showing top 100` : ''}
+                            ${statsMessage}
                         </div>
                         <div style="font-size: 11px; color: #999;">
-                            Last updated: ${lastUpdate} · Auto-refreshes when data changes
+                            Last updated: ${lastUpdate} · Shows all players with usernames
                         </div>
                     </div>
                 `;
