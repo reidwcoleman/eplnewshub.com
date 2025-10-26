@@ -903,10 +903,43 @@
                     });
 
                     users.sort((a, b) => b.totalPoints - a.totalPoints);
+
+                    // Show visual feedback if leaderboard data changed
+                    const hasChanged = JSON.stringify(this.leaderboardData) !== JSON.stringify(users);
+                    if (hasChanged && this.leaderboardData.length > 0) {
+                        this.showLeaderboardUpdate();
+                    }
+
                     this.leaderboardData = users;
                     this.renderLeaderboard();
                     this.updateUserRank();
                 });
+            },
+
+            showLeaderboardUpdate() {
+                const leaderboardTab = document.querySelector('[onclick*="leaderboard"]');
+                if (leaderboardTab && !leaderboardTab.classList.contains('active')) {
+                    // Add a subtle pulse animation to the leaderboard tab
+                    leaderboardTab.style.position = 'relative';
+                    const badge = document.createElement('span');
+                    badge.style.cssText = `
+                        position: absolute;
+                        top: 8px;
+                        right: 8px;
+                        width: 8px;
+                        height: 8px;
+                        background: #e74c3c;
+                        border-radius: 50%;
+                        animation: pulse 2s infinite;
+                    `;
+                    badge.className = 'update-badge';
+
+                    // Remove existing badge if any
+                    const existingBadge = leaderboardTab.querySelector('.update-badge');
+                    if (existingBadge) existingBadge.remove();
+
+                    leaderboardTab.appendChild(badge);
+                }
             },
 
             updateUserRank() {
@@ -1225,10 +1258,19 @@
                 let correctPredictions = 0;
                 let currentStreak = 0;
                 let incorrectHappened = false;
+                let pointsChanged = false;
+
+                const previousPoints = this.userStats.totalPoints;
 
                 this.fixtures.forEach(match => {
                     if (this.isFinished(match) && this.predictions[match.id]) {
                         const points = this.calculatePoints(this.predictions[match.id], match);
+
+                        // Check if points were just calculated for this match
+                        if (!this.predictions[match.id].points || this.predictions[match.id].points !== points) {
+                            pointsChanged = true;
+                        }
+
                         this.predictions[match.id].points = points;
 
                         totalPoints += points;
@@ -1253,7 +1295,12 @@
                 this.userStats.level = Math.floor(totalPoints / 100) + 1;
 
                 this.saveUserData();
-                this.syncToFirebase();
+
+                // If points changed, sync immediately to Firebase for live leaderboard updates
+                if (pointsChanged || previousPoints !== totalPoints) {
+                    this.syncToFirebase();
+                    console.log('🔥 Points updated! Syncing to leaderboard...');
+                }
             },
 
             renderResults() {
@@ -1433,6 +1480,12 @@
                 document.getElementById(tabName).classList.add('active');
                 document.getElementById(tabName).style.display = 'block';
                 event.target.classList.add('active');
+
+                // Remove update badge when switching to leaderboard
+                if (tabName === 'leaderboard') {
+                    const badge = event.target.querySelector('.update-badge');
+                    if (badge) badge.remove();
+                }
             },
 
             showSection(section) {
