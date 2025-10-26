@@ -44,41 +44,78 @@
             padding: 60px 24px;
         }
 
-        /* Header Section - NYT/Athletic Style */
+        /* Header Section - Compact Athletic Style */
         .predictor-header {
-            max-width: 700px;
-            margin: 0 auto 60px;
-            padding: 60px 0 40px;
-            border-bottom: 2px solid #121212;
-            background: #ffffff;
-            padding: 60px 40px 40px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+            border: 2px solid #dfdfdf;
+            border-radius: 8px;
+            padding: 32px 40px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 40px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header-content {
+            flex: 1;
         }
 
         .predictor-title {
             font-family: 'Noto Serif', Georgia, serif;
-            font-size: 56px;
+            font-size: 42px;
             font-weight: 800;
             color: #121212;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
             line-height: 1.1;
-            letter-spacing: -1.5px;
+            letter-spacing: -1.2px;
         }
 
         .predictor-subtitle {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            font-size: 21px;
-            color: #555;
-            line-height: 1.7;
-            margin-bottom: 30px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 15px;
+            color: #666;
+            line-height: 1.5;
             font-weight: 400;
-            letter-spacing: -0.01em;
+        }
+
+        .welcome-box {
+            background: linear-gradient(135deg, #121212 0%, #000 100%);
+            color: #fff;
+            padding: 20px 24px;
+            border-radius: 6px;
+            min-width: 240px;
+            text-align: center;
+        }
+
+        .welcome-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .welcome-subtitle {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .user-section {
-            border-top: 1px solid #e0e0e0;
-            padding-top: 25px;
-            margin-top: 25px;
+            display: none; /* Hidden when user is logged in */
+        }
+
+        .user-section.show {
+            display: block;
         }
 
         .username-input-container {
@@ -129,39 +166,44 @@
         }
 
         .user-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 24px;
-            margin-top: 32px;
+            display: flex;
+            gap: 32px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .stat-box {
-            background: #f8f9fa;
-            border-left: 4px solid #121212;
-            padding: 20px 20px 20px 24px;
-            transition: all 0.2s ease;
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 0;
         }
 
-        .stat-box:hover {
-            background: #f0f2f4;
-            transform: translateX(2px);
+        .stat-box:hover .stat-value {
+            color: #000;
         }
 
         .stat-label {
-            font-size: 11px;
+            font-size: 13px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             color: #767676;
-            margin-bottom: 8px;
             font-weight: 600;
         }
 
         .stat-value {
             font-family: 'Noto Serif', Georgia, serif;
-            font-size: 36px;
+            font-size: 28px;
             font-weight: 800;
             color: #121212;
             line-height: 1;
+            transition: color 0.2s ease;
+        }
+
+        .stat-separator {
+            width: 1px;
+            height: 32px;
+            background: #dfdfdf;
         }
 
         /* Navigation Tabs - Athletic Style */
@@ -639,8 +681,54 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            .predictor-header {
+                padding: 24px 20px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .welcome-box {
+                min-width: auto;
+                width: 100%;
+            }
+
             .predictor-title {
                 font-size: 32px;
+                letter-spacing: -0.8px;
+            }
+
+            .predictor-subtitle {
+                font-size: 14px;
+            }
+
+            .user-stats {
+                gap: 20px;
+                justify-content: space-between;
+            }
+
+            .stat-separator {
+                display: none;
+            }
+
+            .stat-label {
+                font-size: 11px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+
+            .username-input {
+                max-width: 100%;
+                margin-bottom: 12px;
+            }
+
+            .username-btn {
+                margin-left: 0;
+                width: 100%;
             }
 
             .teams-row {
@@ -656,6 +744,7 @@
             .leaderboard-row {
                 grid-template-columns: 50px 1fr 80px;
                 font-size: 13px;
+                padding: 14px 16px;
             }
 
             .leaderboard-row > :nth-child(4),
@@ -672,14 +761,19 @@
     <div class="predictor-container">
         <!-- Main Header -->
         <div class="predictor-header">
-            <h1 class="predictor-title">Premier League Score Predictor</h1>
-            <p class="predictor-subtitle">
-                Predict match scores, compete on the global leaderboard, and track your accuracy.
-                All statistics are calculated in real-time from actual user predictions.
-            </p>
+            <div class="header-top">
+                <div class="header-content">
+                    <h1 class="predictor-title">Premier League Score Predictor</h1>
+                    <p class="predictor-subtitle">Predict scores, compete globally, track your accuracy in real-time</p>
+                </div>
+                <div id="welcomeBox" class="welcome-box" style="display: none;">
+                    <div class="welcome-name" id="welcomeName">—</div>
+                    <div class="welcome-subtitle">On the Leaderboard</div>
+                </div>
+            </div>
 
-            <div class="user-section">
-                <div class="username-input-container" id="usernameSection">
+            <div class="user-section" id="usernameSection">
+                <div class="username-input-container">
                     <input
                         type="text"
                         class="username-input"
@@ -687,27 +781,29 @@
                         placeholder="Choose your username"
                         maxlength="20"
                     >
-                    <button class="username-btn" onclick="PredictorGame.setUsername()">Save Username</button>
-                    <p style="font-size: 13px; color: #999; margin-top: 8px;">Your username will appear on the leaderboard</p>
+                    <button class="username-btn" onclick="PredictorGame.setUsername()">Join Leaderboard</button>
                 </div>
+            </div>
 
-                <div class="user-stats">
-                    <div class="stat-box">
-                        <div class="stat-label">Points</div>
-                        <div class="stat-value" id="userPoints">0</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Rank</div>
-                        <div class="stat-value" id="userRank">—</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Accuracy</div>
-                        <div class="stat-value" id="userAccuracy">0%</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Streak</div>
-                        <div class="stat-value" id="userStreak">0</div>
-                    </div>
+            <div class="user-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Points</div>
+                    <div class="stat-value" id="userPoints">0</div>
+                </div>
+                <div class="stat-separator"></div>
+                <div class="stat-box">
+                    <div class="stat-label">Rank</div>
+                    <div class="stat-value" id="userRank">—</div>
+                </div>
+                <div class="stat-separator"></div>
+                <div class="stat-box">
+                    <div class="stat-label">Accuracy</div>
+                    <div class="stat-value" id="userAccuracy">0%</div>
+                </div>
+                <div class="stat-separator"></div>
+                <div class="stat-box">
+                    <div class="stat-label">Streak</div>
+                    <div class="stat-value" id="userStreak">0</div>
                 </div>
             </div>
         </div>
@@ -936,11 +1032,9 @@
                     this.userStats = { ...this.userStats, ...data.stats };
 
                     if (this.userStats.username) {
-                        document.getElementById('usernameInput').value = this.userStats.username;
-                        document.getElementById('usernameSection').innerHTML = `
-                            <p style="font-size: 16px; color: #121212; font-weight: 600;">Welcome back, ${this.userStats.username}!</p>
-                            <p style="font-size: 13px; color: #999; margin-top: 8px;">You're on the global leaderboard</p>
-                        `;
+                        document.getElementById('usernameSection').style.display = 'none';
+                        document.getElementById('welcomeBox').style.display = 'block';
+                        document.getElementById('welcomeName').textContent = this.userStats.username;
 
                         // Ensure username mapping exists in Firebase for existing users
                         this.ensureUsernameMapping();
@@ -1029,10 +1123,9 @@
                     // Save username mapping and user data
                     await this.syncUsernameAndData(username);
 
-                    document.getElementById('usernameSection').innerHTML = `
-                        <p style="font-size: 16px; color: #121212; font-weight: 600;">Welcome, ${username}!</p>
-                        <p style="font-size: 13px; color: #999; margin-top: 8px;">You're now on the global leaderboard</p>
-                    `;
+                    document.getElementById('usernameSection').style.display = 'none';
+                    document.getElementById('welcomeBox').style.display = 'block';
+                    document.getElementById('welcomeName').textContent = username;
 
                     this.showToast('Username saved successfully!', 'success');
                 } catch (error) {
