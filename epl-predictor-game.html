@@ -860,7 +860,21 @@
         <!-- Leaderboard Tab -->
         <div id="leaderboard" class="content-section">
             <div class="section-header">
-                <h2 class="section-title">Global Leaderboard</h2>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <h2 class="section-title" style="margin-bottom: 0;">Global Leaderboard</h2>
+                    <button onclick="PredictorGame.refreshLeaderboard()" style="
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                        font-size: 14px;
+                        font-weight: 600;
+                        padding: 10px 20px;
+                        background: #121212;
+                        color: #fff;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                    ">🔄 Refresh</button>
+                </div>
                 <p class="section-description">Real-time rankings based on actual user predictions</p>
             </div>
 
@@ -1163,50 +1177,106 @@
             },
 
             async syncToFirebase() {
-                if (!this.userStats.username) return;
+                if (!this.userStats.username) {
+                    console.log('⚠️ Cannot sync to Firebase: No username set');
+                    return;
+                }
 
-                const userRef = database.ref('users/' + this.userStats.userId);
-                await userRef.set({
-                    username: this.userStats.username,
-                    totalPoints: this.userStats.totalPoints,
-                    streak: this.userStats.streak,
-                    totalPredictions: this.userStats.totalPredictions,
-                    correctPredictions: this.userStats.correctPredictions,
-                    accuracy: this.userStats.totalPredictions > 0 ?
-                        Math.round((this.userStats.correctPredictions / this.userStats.totalPredictions) * 100) : 0,
-                    lastActive: firebase.database.ServerValue.TIMESTAMP
-                });
+                try {
+                    const userData = {
+                        username: this.userStats.username,
+                        totalPoints: this.userStats.totalPoints || 0,
+                        streak: this.userStats.streak || 0,
+                        totalPredictions: this.userStats.totalPredictions || 0,
+                        correctPredictions: this.userStats.correctPredictions || 0,
+                        accuracy: this.userStats.totalPredictions > 0 ?
+                            Math.round((this.userStats.correctPredictions / this.userStats.totalPredictions) * 100) : 0,
+                        lastActive: firebase.database.ServerValue.TIMESTAMP
+                    };
+
+                    const userRef = database.ref('users/' + this.userStats.userId);
+                    await userRef.set(userData);
+
+                    console.log('✅ Synced to Firebase:', {
+                        userId: this.userStats.userId,
+                        username: userData.username,
+                        totalPoints: userData.totalPoints,
+                        accuracy: userData.accuracy
+                    });
+                } catch (error) {
+                    console.error('❌ Error syncing to Firebase:', error);
+                    throw error;
+                }
             },
 
             async loadLeaderboard() {
-                const usersRef = database.ref('users').orderByChild('totalPoints').limitToLast(100);
+                try {
+                    console.log('📊 Loading leaderboard from Firebase...');
 
-                usersRef.on('value', (snapshot) => {
-                    const users = [];
-                    snapshot.forEach((childSnapshot) => {
-                        const userData = childSnapshot.val();
-                        users.push({
-                            userId: childSnapshot.key,
-                            username: userData.username,
-                            totalPoints: userData.totalPoints || 0,
-                            streak: userData.streak || 0,
-                            accuracy: userData.accuracy || 0,
-                            predictions: userData.totalPredictions || 0
+                    // Get all users, we'll sort and filter client-side for better control
+                    const usersRef = database.ref('users');
+
+                    usersRef.on('value', (snapshot) => {
+                        const users = [];
+                        let totalUsers = 0;
+
+                        snapshot.forEach((childSnapshot) => {
+                            totalUsers++;
+                            const userData = childSnapshot.val();
+
+                            // Only include users with usernames
+                            if (userData && userData.username) {
+                                users.push({
+                                    userId: childSnapshot.key,
+                                    username: userData.username,
+                                    totalPoints: userData.totalPoints || 0,
+                                    streak: userData.streak || 0,
+                                    accuracy: userData.accuracy || 0,
+                                    predictions: userData.totalPredictions || 0
+                                });
+                            }
                         });
+
+                        // Sort by totalPoints descending (highest first)
+                        users.sort((a, b) => {
+                            if (b.totalPoints !== a.totalPoints) {
+                                return b.totalPoints - a.totalPoints;
+                            }
+                            // Tiebreaker: accuracy
+                            if (b.accuracy !== a.accuracy) {
+                                return b.accuracy - a.accuracy;
+                            }
+                            // Tiebreaker: streak
+                            return b.streak - a.streak;
+                        });
+
+                        console.log(`✅ Leaderboard loaded: ${users.length} players (${totalUsers} total users)`, {
+                            topPlayer: users[0]?.username,
+                            topPoints: users[0]?.totalPoints
+                        });
+
+                        // Show visual feedback if leaderboard data changed
+                        const hasChanged = JSON.stringify(this.leaderboardData) !== JSON.stringify(users);
+                        if (hasChanged && this.leaderboardData.length > 0) {
+                            this.showLeaderboardUpdate();
+                        }
+
+                        this.leaderboardData = users;
+                        this.renderLeaderboard();
+                        this.updateUserRank();
+                    }, (error) => {
+                        console.error('❌ Error loading leaderboard:', error);
+                        this.showToast('Error loading leaderboard', 'error');
                     });
+                } catch (error) {
+                    console.error('❌ Failed to initialize leaderboard:', error);
+                }
+            },
 
-                    users.sort((a, b) => b.totalPoints - a.totalPoints);
-
-                    // Show visual feedback if leaderboard data changed
-                    const hasChanged = JSON.stringify(this.leaderboardData) !== JSON.stringify(users);
-                    if (hasChanged && this.leaderboardData.length > 0) {
-                        this.showLeaderboardUpdate();
-                    }
-
-                    this.leaderboardData = users;
-                    this.renderLeaderboard();
-                    this.updateUserRank();
-                });
+            refreshLeaderboard() {
+                console.log('🔄 Manually refreshing leaderboard...');
+                this.loadLeaderboard();
+                this.showToast('Leaderboard refreshed', 'success');
             },
 
             showLeaderboardUpdate() {
@@ -1257,15 +1327,22 @@
                 const totalPlayers = this.leaderboardData.length;
                 const playersWithPoints = this.leaderboardData.filter(p => p.totalPoints > 0).length;
 
-                container.innerHTML = this.leaderboardData.slice(0, 50).map((player, index) => {
+                // Show top 100 players
+                container.innerHTML = this.leaderboardData.slice(0, 100).map((player, index) => {
                     const rank = index + 1;
                     const isCurrentUser = player.userId === this.userStats.userId;
 
+                    // Medal icons for top 3
+                    let rankDisplay = rank;
+                    if (rank === 1) rankDisplay = '🥇';
+                    else if (rank === 2) rankDisplay = '🥈';
+                    else if (rank === 3) rankDisplay = '🥉';
+
                     return `
                         <div class="leaderboard-row ${isCurrentUser ? 'current-user' : ''}">
-                            <div class="rank-number rank-${rank}">${rank}</div>
-                            <div class="player-name">${this.escapeHtml(player.username)}${isCurrentUser ? ' (You)' : ''}</div>
-                            <div class="stat-number">${player.totalPoints}</div>
+                            <div class="rank-number rank-${rank}">${rankDisplay}</div>
+                            <div class="player-name">${this.escapeHtml(player.username)}${isCurrentUser ? ' <strong style="color: #f4c430;">(You)</strong>' : ''}</div>
+                            <div class="stat-number"><strong>${player.totalPoints}</strong></div>
                             <div class="stat-number">${player.streak > 0 ? '🔥 ' + player.streak : '—'}</div>
                             <div class="stat-number">${player.accuracy}%</div>
                         </div>
@@ -1273,10 +1350,16 @@
                 }).join('');
 
                 // Add footer with stats
+                const lastUpdate = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
                 container.innerHTML += `
                     <div style="padding: 20px 28px; background: #f8f9fa; border-top: 2px solid #dfdfdf; text-align: center; font-size: 13px; color: #666;">
-                        <strong>${totalPlayers}</strong> total players · <strong>${playersWithPoints}</strong> with points
-                        ${totalPlayers > 50 ? ` · Showing top 50` : ''}
+                        <div style="margin-bottom: 8px;">
+                            <strong>${totalPlayers}</strong> total players · <strong>${playersWithPoints}</strong> with points
+                            ${totalPlayers > 100 ? ` · Showing top 100` : ''}
+                        </div>
+                        <div style="font-size: 11px; color: #999;">
+                            Last updated: ${lastUpdate} · Auto-refreshes when data changes
+                        </div>
                     </div>
                 `;
             },
