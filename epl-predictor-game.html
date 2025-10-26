@@ -814,6 +814,7 @@
             <button class="tab-link" onclick="PredictorGame.switchTab('leaderboard')">Leaderboard</button>
             <button class="tab-link" onclick="PredictorGame.switchTab('achievements')">Achievements</button>
             <button class="tab-link" onclick="PredictorGame.switchTab('results')">Results</button>
+            <button class="tab-link" onclick="PredictorGame.switchTab('debug')">🔧 Debug</button>
             <button class="tab-link" onclick="PredictorGame.switchTab('guide')">How to Play</button>
         </nav>
 
@@ -908,6 +909,33 @@
             </div>
 
             <div class="matches-grid" id="resultsMatches"></div>
+        </div>
+
+        <!-- Debug Tab -->
+        <div id="debug" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Debug Panel</h2>
+                <p class="section-description">Troubleshoot leaderboard and sync issues</p>
+            </div>
+
+            <div style="max-width: 900px; margin: 0 auto;">
+                <div style="background: #fff; border: 2px solid #dfdfdf; border-radius: 8px; padding: 30px; margin-bottom: 24px;">
+                    <h3 style="font-size: 18px; margin-bottom: 20px; font-weight: 600;">🔍 Your Data</h3>
+                    <div id="debugUserData" style="font-family: monospace; font-size: 13px; background: #f8f9fa; padding: 20px; border-radius: 4px; overflow-x: auto;"></div>
+                </div>
+
+                <div style="background: #fff; border: 2px solid #dfdfdf; border-radius: 8px; padding: 30px; margin-bottom: 24px;">
+                    <h3 style="font-size: 18px; margin-bottom: 20px; font-weight: 600;">🔥 Firebase Connection</h3>
+                    <div id="debugFirebase" style="font-family: monospace; font-size: 13px; background: #f8f9fa; padding: 20px; border-radius: 4px;"></div>
+                    <button onclick="PredictorGame.testFirebaseConnection()" style="margin-top: 15px; padding: 10px 20px; background: #121212; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Test Connection</button>
+                    <button onclick="PredictorGame.forceSync()" style="margin-top: 15px; margin-left: 10px; padding: 10px 20px; background: #dc3545; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Force Sync Now</button>
+                </div>
+
+                <div style="background: #fff; border: 2px solid #dfdfdf; border-radius: 8px; padding: 30px;">
+                    <h3 style="font-size: 18px; margin-bottom: 20px; font-weight: 600;">📊 Leaderboard Raw Data</h3>
+                    <div id="debugLeaderboard" style="font-family: monospace; font-size: 13px; background: #f8f9fa; padding: 20px; border-radius: 4px; max-height: 400px; overflow-y: auto;"></div>
+                </div>
+            </div>
         </div>
 
         <!-- Guide Tab -->
@@ -1277,6 +1305,95 @@
                 console.log('🔄 Manually refreshing leaderboard...');
                 this.loadLeaderboard();
                 this.showToast('Leaderboard refreshed', 'success');
+            },
+
+            async forceSync() {
+                console.log('🚀 Force syncing to Firebase...');
+                try {
+                    if (!this.userStats.username) {
+                        this.showToast('Please set a username first', 'error');
+                        return;
+                    }
+
+                    await this.syncToFirebase();
+                    this.showToast('✅ Synced successfully!', 'success');
+                    this.updateDebugPanel();
+                } catch (error) {
+                    console.error('Force sync error:', error);
+                    this.showToast('❌ Sync failed: ' + error.message, 'error');
+                }
+            },
+
+            async testFirebaseConnection() {
+                console.log('🧪 Testing Firebase connection...');
+                const debugDiv = document.getElementById('debugFirebase');
+
+                try {
+                    debugDiv.innerHTML = 'Testing connection...';
+
+                    // Test write
+                    const testRef = database.ref('test/' + Date.now());
+                    await testRef.set({ test: true, timestamp: Date.now() });
+
+                    // Test read
+                    const snapshot = await testRef.once('value');
+                    const data = snapshot.val();
+
+                    // Clean up
+                    await testRef.remove();
+
+                    if (data && data.test) {
+                        debugDiv.innerHTML = `
+                            <div style="color: #28a745; margin-bottom: 10px;">✅ Firebase Connected Successfully!</div>
+                            <div>• Write test: PASSED</div>
+                            <div>• Read test: PASSED</div>
+                            <div>• Database URL: ${firebaseConfig.databaseURL}</div>
+                        `;
+                        this.showToast('Firebase connection successful', 'success');
+                    } else {
+                        throw new Error('Read test failed');
+                    }
+                } catch (error) {
+                    debugDiv.innerHTML = `
+                        <div style="color: #dc3545; margin-bottom: 10px;">❌ Firebase Connection Failed</div>
+                        <div>Error: ${error.message}</div>
+                        <div style="margin-top: 10px;">Check browser console for details</div>
+                    `;
+                    console.error('Firebase test failed:', error);
+                    this.showToast('Firebase connection failed', 'error');
+                }
+            },
+
+            updateDebugPanel() {
+                // Update user data
+                const userData = document.getElementById('debugUserData');
+                if (userData) {
+                    userData.innerHTML = `<pre>${JSON.stringify({
+                        userId: this.userStats.userId,
+                        username: this.userStats.username,
+                        totalPoints: this.userStats.totalPoints,
+                        totalPredictions: this.userStats.totalPredictions,
+                        correctPredictions: this.userStats.correctPredictions,
+                        accuracy: this.userStats.totalPredictions > 0
+                            ? Math.round((this.userStats.correctPredictions / this.userStats.totalPredictions) * 100)
+                            : 0,
+                        streak: this.userStats.streak,
+                        level: this.userStats.level,
+                        predictionCount: Object.keys(this.predictions).length,
+                        finishedMatches: this.fixtures.filter(m => this.isFinished(m)).length
+                    }, null, 2)}</pre>`;
+                }
+
+                // Update leaderboard data
+                const leaderboardDebug = document.getElementById('debugLeaderboard');
+                if (leaderboardDebug) {
+                    leaderboardDebug.innerHTML = `
+                        <div style="margin-bottom: 10px;"><strong>Total Players:</strong> ${this.leaderboardData.length}</div>
+                        <div style="margin-bottom: 10px;"><strong>Players with Points:</strong> ${this.leaderboardData.filter(p => p.totalPoints > 0).length}</div>
+                        <div style="margin-bottom: 15px;"><strong>Your Rank:</strong> ${this.leaderboardData.findIndex(u => u.userId === this.userStats.userId) + 1 || 'Not ranked'}</div>
+                        <pre>${JSON.stringify(this.leaderboardData.slice(0, 10), null, 2)}</pre>
+                    `;
+                }
             },
 
             showLeaderboardUpdate() {
@@ -1889,6 +2006,11 @@
                 if (tabName === 'leaderboard') {
                     const badge = event.target.querySelector('.update-badge');
                     if (badge) badge.remove();
+                }
+
+                // Update debug panel when switching to debug tab
+                if (tabName === 'debug') {
+                    this.updateDebugPanel();
                 }
             },
 
