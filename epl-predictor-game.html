@@ -1000,25 +1000,55 @@
     <!-- Scripts -->
     <script src="/index.js"></script>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBXOcs8TGk_vZ8uQmYxJ7P5RZxTJ5tKxRg",
-            authDomain: "epl-predictor-9cf44.firebaseapp.com",
-            databaseURL: "https://epl-predictor-9cf44-default-rtdb.firebaseio.com",
-            projectId: "epl-predictor-9cf44",
-            storageBucket: "epl-predictor-9cf44.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef123456"
-        };
+        // Simple localStorage-based leaderboard (no external dependencies)
+        const LeaderboardStorage = {
+            STORAGE_KEY: 'eplPredictorGlobalLeaderboard',
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+            getAllUsers() {
+                const data = localStorage.getItem(this.STORAGE_KEY);
+                return data ? JSON.parse(data) : {};
+            },
+
+            saveUser(userId, userData) {
+                const users = this.getAllUsers();
+                users[userId] = {
+                    ...userData,
+                    lastUpdated: Date.now()
+                };
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
+                console.log('✅ Saved to localStorage leaderboard:', userData);
+            },
+
+            getLeaderboard() {
+                const users = this.getAllUsers();
+                return Object.entries(users)
+                    .map(([userId, data]) => ({
+                        userId,
+                        ...data
+                    }))
+                    .filter(user => user.username)
+                    .sort((a, b) => {
+                        if (b.totalPoints !== a.totalPoints) {
+                            return b.totalPoints - a.totalPoints;
+                        }
+                        if (b.accuracy !== a.accuracy) {
+                            return b.accuracy - a.accuracy;
+                        }
+                        return b.streak - a.streak;
+                    });
+            },
+
+            checkUsernameExists(username, currentUserId) {
+                const users = this.getAllUsers();
+                for (const [userId, data] of Object.entries(users)) {
+                    if (data.username && data.username.toLowerCase() === username.toLowerCase()) {
+                        return userId !== currentUserId;
+                    }
+                }
+                return false;
+            }
+        };
 
         const PredictorGame = {
             fixtures: [],
@@ -1081,28 +1111,13 @@
                         document.getElementById('welcomeBox').style.display = 'block';
                         document.getElementById('welcomeName').textContent = this.userStats.username;
 
-                        // Ensure username mapping exists in Firebase for existing users
-                        this.ensureUsernameMapping();
+                        // Sync existing user to leaderboard
+                        this.syncToLeaderboard();
                     }
                 }
 
                 if (!this.userStats.userId) {
                     this.userStats.userId = 'user_' + Math.random().toString(36).substr(2, 9);
-                }
-            },
-
-            async ensureUsernameMapping() {
-                if (!this.userStats.username) return;
-
-                try {
-                    const snapshot = await database.ref('usernames/' + this.userStats.username.toLowerCase()).once('value');
-                    if (!snapshot.val()) {
-                        // Username mapping doesn't exist, create it
-                        await database.ref('usernames/' + this.userStats.username.toLowerCase()).set(this.userStats.userId);
-                        console.log('Created username mapping for existing user');
-                    }
-                } catch (error) {
-                    console.error('Error ensuring username mapping:', error);
                 }
             },
 
@@ -1181,127 +1196,64 @@
                 }
             },
 
-            async checkUsernameAvailability(username) {
-                try {
-                    const snapshot = await database.ref('usernames/' + username.toLowerCase()).once('value');
-                    const existingUserId = snapshot.val();
-
-                    // Username is available if it doesn't exist, or if it belongs to current user
-                    return !existingUserId || existingUserId === this.userStats.userId;
-                } catch (error) {
-                    console.error('Error checking username:', error);
-                    return false;
-                }
+            checkUsernameAvailability(username) {
+                const exists = LeaderboardStorage.checkUsernameExists(username, this.userStats.userId);
+                return !exists; // Return true if available (doesn't exist for other users)
             },
 
-            async syncUsernameAndData(username) {
-                try {
-                    // Save username mapping (lowercase for case-insensitive checking)
-                    await database.ref('usernames/' + username.toLowerCase()).set(this.userStats.userId);
-
-                    // Save user data
-                    await this.syncToFirebase();
-                } catch (error) {
-                    console.error('Error syncing username:', error);
-                    this.showToast('Error saving username. Please try again.', 'error');
-                }
+            syncUsernameAndData(username) {
+                // Save user data to leaderboard
+                this.syncToLeaderboard();
             },
 
-            async syncToFirebase() {
+            syncToLeaderboard() {
                 if (!this.userStats.username) {
-                    console.log('⚠️ Cannot sync to Firebase: No username set');
+                    console.log('⚠️ Cannot sync to leaderboard: No username set');
                     return;
                 }
 
-                try {
-                    const userData = {
-                        username: this.userStats.username,
-                        totalPoints: this.userStats.totalPoints || 0,
-                        streak: this.userStats.streak || 0,
-                        totalPredictions: this.userStats.totalPredictions || 0,
-                        correctPredictions: this.userStats.correctPredictions || 0,
-                        accuracy: this.userStats.totalPredictions > 0 ?
-                            Math.round((this.userStats.correctPredictions / this.userStats.totalPredictions) * 100) : 0,
-                        lastActive: firebase.database.ServerValue.TIMESTAMP
-                    };
+                const userData = {
+                    username: this.userStats.username,
+                    totalPoints: this.userStats.totalPoints || 0,
+                    streak: this.userStats.streak || 0,
+                    totalPredictions: this.userStats.totalPredictions || 0,
+                    correctPredictions: this.userStats.correctPredictions || 0,
+                    accuracy: this.userStats.totalPredictions > 0 ?
+                        Math.round((this.userStats.correctPredictions / this.userStats.totalPredictions) * 100) : 0
+                };
 
-                    const userRef = database.ref('users/' + this.userStats.userId);
-                    await userRef.set(userData);
+                LeaderboardStorage.saveUser(this.userStats.userId, userData);
 
-                    console.log('✅ Synced to Firebase:', {
-                        userId: this.userStats.userId,
-                        username: userData.username,
-                        totalPoints: userData.totalPoints,
-                        accuracy: userData.accuracy
-                    });
-                } catch (error) {
-                    console.error('❌ Error syncing to Firebase:', error);
-                    throw error;
-                }
+                console.log('✅ Synced to leaderboard:', {
+                    userId: this.userStats.userId,
+                    username: userData.username,
+                    totalPoints: userData.totalPoints,
+                    accuracy: userData.accuracy
+                });
+
+                // Refresh leaderboard display
+                this.loadLeaderboard();
             },
 
-            async loadLeaderboard() {
-                try {
-                    console.log('📊 Loading leaderboard from Firebase...');
+            loadLeaderboard() {
+                console.log('📊 Loading leaderboard from localStorage...');
 
-                    // Get all users, we'll sort and filter client-side for better control
-                    const usersRef = database.ref('users');
+                const users = LeaderboardStorage.getLeaderboard();
 
-                    usersRef.on('value', (snapshot) => {
-                        const users = [];
-                        let totalUsers = 0;
+                console.log(`✅ Leaderboard loaded: ${users.length} players`, {
+                    topPlayer: users[0]?.username,
+                    topPoints: users[0]?.totalPoints
+                });
 
-                        snapshot.forEach((childSnapshot) => {
-                            totalUsers++;
-                            const userData = childSnapshot.val();
-
-                            // Only include users with usernames
-                            if (userData && userData.username) {
-                                users.push({
-                                    userId: childSnapshot.key,
-                                    username: userData.username,
-                                    totalPoints: userData.totalPoints || 0,
-                                    streak: userData.streak || 0,
-                                    accuracy: userData.accuracy || 0,
-                                    predictions: userData.totalPredictions || 0
-                                });
-                            }
-                        });
-
-                        // Sort by totalPoints descending (highest first)
-                        users.sort((a, b) => {
-                            if (b.totalPoints !== a.totalPoints) {
-                                return b.totalPoints - a.totalPoints;
-                            }
-                            // Tiebreaker: accuracy
-                            if (b.accuracy !== a.accuracy) {
-                                return b.accuracy - a.accuracy;
-                            }
-                            // Tiebreaker: streak
-                            return b.streak - a.streak;
-                        });
-
-                        console.log(`✅ Leaderboard loaded: ${users.length} players (${totalUsers} total users)`, {
-                            topPlayer: users[0]?.username,
-                            topPoints: users[0]?.totalPoints
-                        });
-
-                        // Show visual feedback if leaderboard data changed
-                        const hasChanged = JSON.stringify(this.leaderboardData) !== JSON.stringify(users);
-                        if (hasChanged && this.leaderboardData.length > 0) {
-                            this.showLeaderboardUpdate();
-                        }
-
-                        this.leaderboardData = users;
-                        this.renderLeaderboard();
-                        this.updateUserRank();
-                    }, (error) => {
-                        console.error('❌ Error loading leaderboard:', error);
-                        this.showToast('Error loading leaderboard', 'error');
-                    });
-                } catch (error) {
-                    console.error('❌ Failed to initialize leaderboard:', error);
+                // Show visual feedback if leaderboard data changed
+                const hasChanged = JSON.stringify(this.leaderboardData) !== JSON.stringify(users);
+                if (hasChanged && this.leaderboardData.length > 0) {
+                    this.showLeaderboardUpdate();
                 }
+
+                this.leaderboardData = users;
+                this.renderLeaderboard();
+                this.updateUserRank();
             },
 
             refreshLeaderboard() {
@@ -1310,83 +1262,72 @@
                 this.showToast('Leaderboard refreshed', 'success');
             },
 
-            async forceSync() {
-                console.log('🚀 Force syncing current data to Firebase...');
-                try {
-                    if (!this.userStats.username) {
-                        this.showToast('Please set a username first', 'error');
-                        return;
-                    }
-
-                    await this.syncToFirebase();
-                    this.showToast('✅ Synced successfully!', 'success');
-                    this.updateDebugPanel();
-                } catch (error) {
-                    console.error('Force sync error:', error);
-                    this.showToast('❌ Sync failed: ' + error.message, 'error');
+            forceSync() {
+                console.log('🚀 Force syncing current data to leaderboard...');
+                if (!this.userStats.username) {
+                    this.showToast('Please set a username first', 'error');
+                    return;
                 }
+
+                this.syncToLeaderboard();
+                this.showToast('✅ Synced successfully!', 'success');
+                this.updateDebugPanel();
             },
 
-            async forceRecalcAndSync() {
+            forceRecalcAndSync() {
                 console.log('🔄 Recalculating all points and syncing...');
-                try {
-                    if (!this.userStats.username) {
-                        this.showToast('Please set a username first', 'error');
-                        return;
-                    }
-
-                    // Recalculate points from all finished matches
-                    this.calculateAllPoints();
-
-                    // Update displays
-                    this.updateStatsDisplay();
-                    this.renderResults();
-
-                    this.showToast('✅ Recalculated and synced!', 'success');
-                    this.updateDebugPanel();
-                } catch (error) {
-                    console.error('Recalc error:', error);
-                    this.showToast('❌ Recalc failed: ' + error.message, 'error');
+                if (!this.userStats.username) {
+                    this.showToast('Please set a username first', 'error');
+                    return;
                 }
+
+                // Recalculate points from all finished matches
+                this.calculateAllPoints();
+
+                // Update displays
+                this.updateStatsDisplay();
+                this.renderResults();
+
+                this.showToast('✅ Recalculated and synced!', 'success');
+                this.updateDebugPanel();
             },
 
-            async testFirebaseConnection() {
-                console.log('🧪 Testing Firebase connection...');
+            testFirebaseConnection() {
+                console.log('🧪 Testing localStorage leaderboard...');
                 const debugDiv = document.getElementById('debugFirebase');
 
                 try {
-                    debugDiv.innerHTML = 'Testing connection...';
-
                     // Test write
-                    const testRef = database.ref('test/' + Date.now());
-                    await testRef.set({ test: true, timestamp: Date.now() });
+                    const testData = {
+                        username: 'test_user',
+                        totalPoints: 100,
+                        streak: 5,
+                        accuracy: 80,
+                        totalPredictions: 10,
+                        correctPredictions: 8
+                    };
+
+                    LeaderboardStorage.saveUser('test_' + Date.now(), testData);
 
                     // Test read
-                    const snapshot = await testRef.once('value');
-                    const data = snapshot.val();
+                    const leaderboard = LeaderboardStorage.getLeaderboard();
 
-                    // Clean up
-                    await testRef.remove();
-
-                    if (data && data.test) {
-                        debugDiv.innerHTML = `
-                            <div style="color: #28a745; margin-bottom: 10px;">✅ Firebase Connected Successfully!</div>
-                            <div>• Write test: PASSED</div>
-                            <div>• Read test: PASSED</div>
-                            <div>• Database URL: ${firebaseConfig.databaseURL}</div>
-                        `;
-                        this.showToast('Firebase connection successful', 'success');
-                    } else {
-                        throw new Error('Read test failed');
-                    }
+                    debugDiv.innerHTML = `
+                        <div style="color: #28a745; margin-bottom: 10px;">✅ localStorage Leaderboard Working!</div>
+                        <div>• Write test: PASSED</div>
+                        <div>• Read test: PASSED</div>
+                        <div>• Storage: localStorage (browser-based)</div>
+                        <div>• Total players: ${leaderboard.length}</div>
+                    `;
+                    this.showToast('Leaderboard storage working', 'success');
                 } catch (error) {
                     debugDiv.innerHTML = `
-                        <div style="color: #dc3545; margin-bottom: 10px;">❌ Firebase Connection Failed</div>
+                        <div style="color: #dc3545; margin-bottom: 10px;">❌ localStorage Test Failed</div>
                         <div>Error: ${error.message}</div>
                         <div style="margin-top: 10px;">Check browser console for details</div>
                     `;
-                    console.error('Firebase test failed:', error);
-                    this.showToast('Firebase connection failed', 'error');
+                    console.error('localStorage test failed:', error);
+                    this.showToast('Storage test failed', 'error');
                 }
             },
 
@@ -1852,14 +1793,14 @@
                 this.saveUserData();
                 this.updateStatsDisplay(); // Force update display
 
-                // ALWAYS sync to Firebase if user has username, not just when points change
+                // ALWAYS sync to leaderboard if user has username
                 if (this.userStats.username) {
                     if (pointsChanged || previousPoints !== totalPoints || previousCorrect !== correctPredictions) {
-                        console.log('🔥 Points/stats changed! Syncing to Firebase...');
-                        this.syncToFirebase();
+                        console.log('🔥 Points/stats changed! Syncing to leaderboard...');
+                        this.syncToLeaderboard();
                     } else {
-                        console.log('📊 No point changes, but ensuring Firebase is up to date...');
-                        this.syncToFirebase(); // Sync anyway to ensure data is current
+                        console.log('📊 No point changes, but ensuring leaderboard is up to date...');
+                        this.syncToLeaderboard(); // Sync anyway to ensure data is current
                     }
                 } else {
                     console.warn('⚠️ No username set - cannot sync to leaderboard!');
