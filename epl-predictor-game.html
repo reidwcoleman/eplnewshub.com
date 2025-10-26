@@ -925,10 +925,13 @@
                 </div>
 
                 <div style="background: #fff; border: 2px solid #dfdfdf; border-radius: 8px; padding: 30px; margin-bottom: 24px;">
-                    <h3 style="font-size: 18px; margin-bottom: 20px; font-weight: 600;">🔥 Firebase Connection</h3>
-                    <div id="debugFirebase" style="font-family: monospace; font-size: 13px; background: #f8f9fa; padding: 20px; border-radius: 4px;"></div>
-                    <button onclick="PredictorGame.testFirebaseConnection()" style="margin-top: 15px; padding: 10px 20px; background: #121212; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Test Connection</button>
-                    <button onclick="PredictorGame.forceSync()" style="margin-top: 15px; margin-left: 10px; padding: 10px 20px; background: #dc3545; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Force Sync Now</button>
+                    <h3 style="font-size: 18px; margin-bottom: 20px; font-weight: 600;">🔥 Firebase Connection & Sync</h3>
+                    <div id="debugFirebase" style="font-family: monospace; font-size: 13px; background: #f8f9fa; padding: 20px; border-radius: 4px; margin-bottom: 15px;"></div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="PredictorGame.testFirebaseConnection()" style="padding: 10px 20px; background: #121212; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Test Connection</button>
+                        <button onclick="PredictorGame.forceRecalcAndSync()" style="padding: 10px 20px; background: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Recalculate Points & Sync</button>
+                        <button onclick="PredictorGame.forceSync()" style="padding: 10px 20px; background: #dc3545; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Force Sync Current Data</button>
+                    </div>
                 </div>
 
                 <div style="background: #fff; border: 2px solid #dfdfdf; border-radius: 8px; padding: 30px;">
@@ -1308,7 +1311,7 @@
             },
 
             async forceSync() {
-                console.log('🚀 Force syncing to Firebase...');
+                console.log('🚀 Force syncing current data to Firebase...');
                 try {
                     if (!this.userStats.username) {
                         this.showToast('Please set a username first', 'error');
@@ -1321,6 +1324,29 @@
                 } catch (error) {
                     console.error('Force sync error:', error);
                     this.showToast('❌ Sync failed: ' + error.message, 'error');
+                }
+            },
+
+            async forceRecalcAndSync() {
+                console.log('🔄 Recalculating all points and syncing...');
+                try {
+                    if (!this.userStats.username) {
+                        this.showToast('Please set a username first', 'error');
+                        return;
+                    }
+
+                    // Recalculate points from all finished matches
+                    this.calculateAllPoints();
+
+                    // Update displays
+                    this.updateStatsDisplay();
+                    this.renderResults();
+
+                    this.showToast('✅ Recalculated and synced!', 'success');
+                    this.updateDebugPanel();
+                } catch (error) {
+                    console.error('Recalc error:', error);
+                    this.showToast('❌ Recalc failed: ' + error.message, 'error');
                 }
             },
 
@@ -1782,6 +1808,9 @@
                 let pointsChanged = false;
 
                 const previousPoints = this.userStats.totalPoints;
+                const previousCorrect = this.userStats.correctPredictions;
+
+                console.log('📊 Calculating points from finished matches...');
 
                 this.fixtures.forEach(match => {
                     if (this.isFinished(match) && this.predictions[match.id]) {
@@ -1790,6 +1819,7 @@
                         // Check if points were just calculated for this match
                         if (!this.predictions[match.id].points || this.predictions[match.id].points !== points) {
                             pointsChanged = true;
+                            console.log(`  ✨ New points for ${match.homeTeam} vs ${match.awayTeam}: ${points}pts`);
                         }
 
                         this.predictions[match.id].points = points;
@@ -1805,6 +1835,10 @@
                     }
                 });
 
+                console.log(`📈 Total Points: ${totalPoints} (was ${previousPoints})`);
+                console.log(`✅ Correct: ${correctPredictions} (was ${previousCorrect})`);
+                console.log(`🔥 Streak: ${currentStreak}`);
+
                 this.userStats.totalPoints = totalPoints;
                 this.userStats.exactScores = exactScores;
                 this.userStats.correctPredictions = correctPredictions;
@@ -1816,11 +1850,19 @@
                 this.userStats.level = Math.floor(totalPoints / 100) + 1;
 
                 this.saveUserData();
+                this.updateStatsDisplay(); // Force update display
 
-                // If points changed, sync immediately to Firebase for live leaderboard updates
-                if (pointsChanged || previousPoints !== totalPoints) {
-                    this.syncToFirebase();
-                    console.log('🔥 Points updated! Syncing to leaderboard...');
+                // ALWAYS sync to Firebase if user has username, not just when points change
+                if (this.userStats.username) {
+                    if (pointsChanged || previousPoints !== totalPoints || previousCorrect !== correctPredictions) {
+                        console.log('🔥 Points/stats changed! Syncing to Firebase...');
+                        this.syncToFirebase();
+                    } else {
+                        console.log('📊 No point changes, but ensuring Firebase is up to date...');
+                        this.syncToFirebase(); // Sync anyway to ensure data is current
+                    }
+                } else {
+                    console.warn('⚠️ No username set - cannot sync to leaderboard!');
                 }
             },
 
