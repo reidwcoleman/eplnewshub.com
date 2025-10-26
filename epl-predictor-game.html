@@ -245,6 +245,23 @@
         .difficulty-hard { background: #dc3545; }
         .difficulty-medium { background: #ffc107; color: #000; }
         .difficulty-easy { background: #28a745; }
+        .live-badge { background: #dc3545; animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .live-match {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 10px rgba(220, 53, 69, 0.2);
+        }
+
+        .score-input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
 
         .teams-row {
             display: grid;
@@ -793,6 +810,11 @@
                 this.renderAchievements();
                 this.loadLeaderboard();
                 this.showSection('predict');
+
+                // Auto-refresh fixtures every 60 seconds to get live updates
+                setInterval(() => {
+                    this.fetchFixtures();
+                }, 60000);
             },
 
             loadUserData() {
@@ -976,13 +998,26 @@
                 return matchDate > now && match.homeScore === null;
             },
 
+            isLive(match) {
+                const matchDate = new Date(match.dateTime);
+                const now = new Date();
+                const matchEndTime = new Date(matchDate.getTime() + 120 * 60000); // 2 hours after kickoff
+                return now >= matchDate && now <= matchEndTime && match.homeScore === null;
+            },
+
+            hasMatchStarted(match) {
+                const matchDate = new Date(match.dateTime);
+                const now = new Date();
+                return now >= matchDate;
+            },
+
             isFinished(match) {
                 return match.homeScore !== null && match.awayScore !== null;
             },
 
             renderUpcoming() {
                 const container = document.getElementById('upcomingMatches');
-                const upcoming = this.fixtures.filter(m => this.isUpcoming(m)).slice(0, 20);
+                const upcoming = this.fixtures.filter(m => this.isUpcoming(m) || this.isLive(m)).slice(0, 20);
 
                 if (upcoming.length === 0) {
                     container.innerHTML = '<p style="text-align: center; color: #666;">No upcoming matches</p>';
@@ -993,9 +1028,12 @@
                     const prediction = this.predictions[match.id];
                     const hasPrediction = prediction && prediction.homeScore !== undefined;
                     const multiplier = this.getDifficultyMultiplier(match.difficulty);
+                    const matchStarted = this.hasMatchStarted(match);
+                    const isLive = this.isLive(match);
+                    const isLocked = matchStarted || hasPrediction;
 
                     return `
-                        <div class="match-card ${hasPrediction ? 'predicted' : ''}">
+                        <div class="match-card ${hasPrediction ? 'predicted' : ''} ${isLive ? 'live-match' : ''}">
                             <div class="match-info">
                                 <span>${new Date(match.dateTime).toLocaleDateString('en-GB', {
                                     weekday: 'short',
@@ -1004,10 +1042,22 @@
                                     hour: '2-digit',
                                     minute: '2-digit'
                                 })}</span>
-                                <span class="match-badge difficulty-${match.difficulty}">
-                                    ${match.difficulty} ${multiplier}×
+                                <span class="match-badge ${isLive ? 'live-badge' : `difficulty-${match.difficulty}`}">
+                                    ${isLive ? '🔴 LIVE' : `${match.difficulty} ${multiplier}×`}
                                 </span>
                             </div>
+
+                            ${isLive ? `
+                                <div style="background: #fff3cd; padding: 10px; margin-bottom: 15px; border-left: 3px solid #ffc107; font-size: 14px; color: #856404;">
+                                    <strong>Match in Progress</strong> — Predictions are locked
+                                </div>
+                            ` : ''}
+
+                            ${matchStarted && !hasPrediction ? `
+                                <div style="background: #f8d7da; padding: 10px; margin-bottom: 15px; border-left: 3px solid #dc3545; font-size: 14px; color: #721c24;">
+                                    <strong>Match Started</strong> — Cannot make prediction
+                                </div>
+                            ` : ''}
 
                             <div class="teams-row">
                                 <div class="team-box">
@@ -1020,6 +1070,7 @@
                                         max="10"
                                         value="${prediction?.homeScore ?? ''}"
                                         placeholder="—"
+                                        ${isLocked ? 'disabled' : ''}
                                     >
                                 </div>
 
@@ -1035,22 +1086,34 @@
                                         max="10"
                                         value="${prediction?.awayScore ?? ''}"
                                         placeholder="—"
+                                        ${isLocked ? 'disabled' : ''}
                                     >
                                 </div>
                             </div>
 
                             <div class="match-actions">
-                                <button class="predict-btn" onclick="PredictorGame.savePrediction('${match.id}', '${match.difficulty}')">
-                                    ${hasPrediction ? 'Update Prediction' : 'Save Prediction'}
-                                </button>
+                                ${!matchStarted ? `
+                                    <button class="predict-btn" onclick="PredictorGame.savePrediction('${match.id}', '${match.difficulty}')">
+                                        ${hasPrediction ? 'Update Prediction' : 'Save Prediction'}
+                                    </button>
 
-                                <div class="points-info">
-                                    <strong>Potential:</strong>
-                                    Exact ${Math.round(10 * multiplier)}pts,
-                                    Result+GD ${Math.round(7 * multiplier)}pts,
-                                    Result ${Math.round(5 * multiplier)}pts
-                                    ${this.userStats.streak >= 3 ? ` + ${this.getStreakBonus()} streak bonus` : ''}
-                                </div>
+                                    <div class="points-info">
+                                        <strong>Potential:</strong>
+                                        Exact ${Math.round(10 * multiplier)}pts,
+                                        Result+GD ${Math.round(7 * multiplier)}pts,
+                                        Result ${Math.round(5 * multiplier)}pts
+                                        ${this.userStats.streak >= 3 ? ` + ${this.getStreakBonus()} streak bonus` : ''}
+                                    </div>
+                                ` : hasPrediction ? `
+                                    <div class="points-info" style="background: #e7f3ff; border-left-color: #007bff;">
+                                        <strong>Your Prediction:</strong> ${prediction.homeScore}–${prediction.awayScore}
+                                        ${isLive ? ' — Waiting for final result...' : ''}
+                                    </div>
+                                ` : `
+                                    <div class="points-info" style="background: #f8d7da; border-left-color: #dc3545; color: #721c24;">
+                                        <strong>Missed Opportunity</strong> — Match has already started
+                                    </div>
+                                `}
                             </div>
                         </div>
                     `;
@@ -1071,6 +1134,20 @@
                     return;
                 }
 
+                // Check if match has started
+                const match = this.fixtures.find(m => m.id === matchId);
+                if (match && this.hasMatchStarted(match)) {
+                    this.showToast('Cannot predict - match has already started', 'error');
+                    return;
+                }
+
+                // Check if prediction already exists
+                const existingPrediction = this.predictions[matchId];
+                if (existingPrediction && existingPrediction.homeScore !== undefined) {
+                    this.showToast('Cannot change prediction - already submitted', 'error');
+                    return;
+                }
+
                 const homeInput = document.getElementById(`home_${matchId}`);
                 const awayInput = document.getElementById(`away_${matchId}`);
 
@@ -1087,7 +1164,8 @@
                     awayScore,
                     difficulty,
                     timestamp: new Date().toISOString(),
-                    doublePowerup: this.userStats.activePowerup === 'double'
+                    doublePowerup: this.userStats.activePowerup === 'double',
+                    locked: true
                 };
 
                 if (this.userStats.activePowerup === 'double') {
