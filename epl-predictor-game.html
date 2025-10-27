@@ -2008,6 +2008,7 @@
                                         value="${prediction?.homeScore ?? ''}"
                                         placeholder="—"
                                         ${isLocked ? 'disabled' : ''}
+                                        onchange="PredictorGame.autoSavePrediction('${match.id}', '${match.difficulty}')"
                                     >
                                 </div>
 
@@ -2025,16 +2026,16 @@
                                         value="${prediction?.awayScore ?? ''}"
                                         placeholder="—"
                                         ${isLocked ? 'disabled' : ''}
+                                        onchange="PredictorGame.autoSavePrediction('${match.id}', '${match.difficulty}')"
                                     >
                                 </div>
                             </div>
 
                             <div class="match-actions">
-                                ${!matchStarted ? `
-                                    <button class="predict-btn" onclick="PredictorGame.savePrediction('${match.id}', '${match.difficulty}')">
-                                        ${hasPrediction ? 'Update Prediction' : 'Save Prediction'}
-                                    </button>
-
+                                ${!matchStarted && !hasPrediction ? `
+                                    <div class="points-info" style="background: #fff8e1; border-left-color: #ffc107;">
+                                        <strong>💡 Enter both scores</strong> — Auto-saves when complete
+                                    </div>
                                     <div class="points-info">
                                         <strong>Potential:</strong>
                                         Exact ${Math.round(10 * multiplier)}pts,
@@ -2069,6 +2070,23 @@
                 if (streak >= 5) return 5;
                 if (streak >= 3) return 2;
                 return 0;
+            },
+
+            autoSavePrediction(matchId, difficulty) {
+                // Check if both inputs have values
+                const homeInput = document.getElementById(`home_${matchId}`);
+                const awayInput = document.getElementById(`away_${matchId}`);
+
+                if (!homeInput || !awayInput) return;
+
+                const homeScore = parseInt(homeInput.value);
+                const awayScore = parseInt(awayInput.value);
+
+                // Only auto-save if both scores are valid numbers
+                if (!isNaN(homeScore) && !isNaN(awayScore) && homeScore >= 0 && awayScore >= 0) {
+                    console.log('⚡ Auto-saving prediction:', { matchId, homeScore, awayScore });
+                    this.savePrediction(matchId, difficulty);
+                }
             },
 
             savePrediction(matchId, difficulty) {
