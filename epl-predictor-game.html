@@ -1347,54 +1347,104 @@
     <script src="/index.js"></script>
 
     <script>
-        // Leaderboard storage using localStorage (static site - shows players on this device)
-        const LeaderboardStorage = {
-            STORAGE_KEY: 'eplPredictorLeaderboard',
+        // GLOBAL LEADERBOARD using Supabase (truly global across all users and devices!)
+        // TODO: Replace these with YOUR Supabase credentials from https://supabase.com
+        const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL'; // Replace with your project URL
+        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your anon/public key
 
+        const LeaderboardStorage = {
             async getAllUsers() {
                 try {
-                    console.log('📊 Loading leaderboard...');
-                    const data = localStorage.getItem(this.STORAGE_KEY);
-                    const users = data ? JSON.parse(data) : {};
-                    console.log('✅ Leaderboard loaded:', Object.keys(users).length, 'players');
+                    console.log('🌐 Fetching GLOBAL leaderboard from Supabase...');
+
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=*`, {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        console.error('❌ Supabase fetch failed:', response.status);
+                        return {};
+                    }
+
+                    const data = await response.json();
+                    console.log('✅ Global leaderboard loaded:', data.length, 'players worldwide');
+
+                    // Convert array to object keyed by user_id
+                    const users = {};
+                    data.forEach(user => {
+                        users[user.user_id] = {
+                            username: user.username,
+                            totalPoints: user.total_points,
+                            streak: user.streak,
+                            totalPredictions: user.total_predictions,
+                            correctPredictions: user.correct_predictions,
+                            accuracy: user.accuracy,
+                            lastUpdated: user.last_updated
+                        };
+                    });
+
                     return users;
                 } catch (error) {
-                    console.error('❌ Error loading leaderboard:', error);
+                    console.error('❌ Error fetching global leaderboard:', error);
                     return {};
                 }
             },
 
             async saveUser(userId, userData) {
                 try {
-                    console.log('💾 Saving to leaderboard...', { userId, userData });
-                    const users = await this.getAllUsers();
-                    users[userId] = {
-                        ...userData,
-                        lastUpdated: Date.now()
+                    console.log('💾 Saving to GLOBAL leaderboard...', { userId, userData });
+
+                    const payload = {
+                        user_id: userId,
+                        username: userData.username,
+                        total_points: userData.totalPoints || 0,
+                        streak: userData.streak || 0,
+                        total_predictions: userData.totalPredictions || 0,
+                        correct_predictions: userData.correctPredictions || 0,
+                        accuracy: userData.accuracy || 0
                     };
 
-                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
-                    console.log('✅ Saved to leaderboard:', Object.keys(users).length, 'total players');
-                    console.log('👤 Your data saved:', userData);
-                    return true;
+                    // Upsert (insert or update if exists)
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'resolution=merge-duplicates'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok || response.status === 201) {
+                        console.log('✅ Saved to GLOBAL leaderboard - visible to ALL users!');
+                        console.log('👤 Your data:', userData);
+                        return true;
+                    } else {
+                        console.error('❌ Failed to save:', response.status, await response.text());
+                        return false;
+                    }
                 } catch (error) {
-                    console.error('❌ Error saving:', error);
+                    console.error('❌ Error saving to global leaderboard:', error);
                     return false;
                 }
             },
 
             async getLeaderboard() {
                 const users = await this.getAllUsers();
-                console.log('🏆 Processing leaderboard from users:', users);
+                console.log('🏆 Processing GLOBAL leaderboard:', Object.keys(users).length, 'players');
 
                 const leaderboard = Object.entries(users)
                     .map(([userId, data]) => ({
                         userId,
                         ...data
                     }))
-                    .filter(user => user.username) // Include ALL users with usernames, even 0 points
+                    .filter(user => user.username) // Include ALL users with usernames
                     .sort((a, b) => {
-                        // Sort by total points (descending) - players with 0 points will be at bottom
+                        // Sort by total points (descending)
                         if (b.totalPoints !== a.totalPoints) {
                             return b.totalPoints - a.totalPoints;
                         }
@@ -1406,22 +1456,35 @@
                         if (b.streak !== a.streak) {
                             return b.streak - a.streak;
                         }
-                        // If everything same, sort by username alphabetically
+                        // Alphabetical tiebreaker
                         return a.username.localeCompare(b.username);
                     });
 
-                console.log('📊 Final leaderboard array:', leaderboard);
+                console.log('📊 Final GLOBAL leaderboard:', leaderboard.length, 'players ranked');
                 return leaderboard;
             },
 
             async checkUsernameExists(username, currentUserId) {
-                const users = await this.getAllUsers();
-                for (const [userId, data] of Object.entries(users)) {
-                    if (data.username && data.username.toLowerCase() === username.toLowerCase()) {
-                        return userId !== currentUserId;
-                    }
+                try {
+                    const response = await fetch(
+                        `${SUPABASE_URL}/rest/v1/leaderboard?username=eq.${encodeURIComponent(username)}&select=user_id`,
+                        {
+                            headers: {
+                                'apikey': SUPABASE_KEY,
+                                'Authorization': `Bearer ${SUPABASE_KEY}`
+                            }
+                        }
+                    );
+
+                    if (!response.ok) return false;
+
+                    const data = await response.json();
+                    // Username exists if we find a different user with same name
+                    return data.some(user => user.user_id !== currentUserId);
+                } catch (error) {
+                    console.error('❌ Error checking username:', error);
+                    return false;
                 }
-                return false;
             }
         };
 

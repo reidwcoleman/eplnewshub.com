@@ -1,0 +1,68 @@
+🚀 GLOBAL LEADERBOARD SETUP - FOLLOW THESE STEPS:
+
+1. Create Supabase Account (FREE)
+   - Go to: https://supabase.com
+   - Sign up (it's free!)
+   - Create a new project
+   - Choose any name, set a password, pick a region
+
+2. Create the Database Table
+   - In Supabase dashboard, go to "Table Editor"
+   - Click "New Table"
+   - Table name: leaderboard
+   - Add these columns:
+     * user_id (text, primary key) ← CHECK THE PRIMARY KEY BOX
+     * username (text)
+     * total_points (int8, default: 0)
+     * streak (int8, default: 0)
+     * total_predictions (int8, default: 0)
+     * correct_predictions (int8, default: 0)
+     * accuracy (int8, default: 0)
+     * last_updated (timestamptz, default: now())
+   - Click Save
+
+3. Enable Public Access (IMPORTANT!)
+   - Go to "Authentication" → "Policies"
+   - For the "leaderboard" table:
+
+   CREATE POLICY 1:
+   - Name: Enable read access for all users
+   - Policy: SELECT
+   - Target roles: public
+   - USING expression: true
+
+   CREATE POLICY 2:
+   - Name: Enable insert/update for all users
+   - Policy: INSERT, UPDATE
+   - Target roles: public
+   - WITH CHECK expression: true
+
+4. Get Your API Credentials
+   - Go to "Settings" → "API"
+   - Copy TWO things:
+     a) Project URL (looks like: https://xxxxx.supabase.co)
+     b) anon public key (long string starting with eyJ...)
+
+5. Update epl-predictor-game.html
+   - Open the file
+   - Find lines 1352-1353 (near the top of the <script> section)
+   - Replace:
+     const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+     const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+   - With YOUR actual values:
+     const SUPABASE_URL = 'https://xxxxx.supabase.co';
+     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+
+6. Commit and Push
+   - git add epl-predictor-game.html
+   - git commit -m "Add Supabase credentials"
+   - git push
+
+7. DONE! 🎉
+   - Your leaderboard is now TRULY GLOBAL
+   - All users see the same rankings
+   - Works across ALL devices
+   - Updates in real-time
+
+Need help? Check SUPABASE_SETUP.md for detailed instructions with screenshots.
