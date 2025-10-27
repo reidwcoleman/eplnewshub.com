@@ -1347,61 +1347,36 @@
     <script src="/index.js"></script>
 
     <script>
-        // Global leaderboard using PHP backend API (same for all users)
+        // Global leaderboard using localStorage (static site - no backend)
         const LeaderboardStorage = {
-            API_URL: '/leaderboard-api.php',
+            STORAGE_KEY: 'eplPredictorGlobalLeaderboard',
 
             async getAllUsers() {
                 try {
-                    console.log('🌐 Fetching global leaderboard from server...');
-                    const response = await fetch(this.API_URL + '?t=' + Date.now(), {
-                        method: 'GET'
-                    });
-
-                    if (!response.ok) {
-                        console.error('❌ Fetch failed:', response.status, response.statusText);
-                        return {};
-                    }
-
-                    const data = await response.json();
-                    console.log('✅ Server response:', data);
-                    console.log('📦 User data from server:', data);
-                    return data || {};
+                    console.log('🌐 Loading leaderboard from localStorage...');
+                    const data = localStorage.getItem(this.STORAGE_KEY);
+                    const users = data ? JSON.parse(data) : {};
+                    console.log('✅ Leaderboard loaded:', Object.keys(users).length, 'users');
+                    return users;
                 } catch (error) {
-                    console.error('❌ Error fetching leaderboard:', error);
+                    console.error('❌ Error loading leaderboard:', error);
                     return {};
                 }
             },
 
             async saveUser(userId, userData) {
                 try {
-                    console.log('💾 Saving user to global leaderboard...', { userId, userData });
+                    console.log('💾 Saving user to leaderboard...', { userId, userData });
                     const users = await this.getAllUsers();
                     users[userId] = {
                         ...userData,
                         lastUpdated: Date.now()
                     };
 
-                    console.log('📤 Uploading to server:', users);
-
-                    const response = await fetch(this.API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(users)
-                    });
-
-                    if (response.ok) {
-                        const result = await response.json();
-                        console.log('✅ Saved to GLOBAL leaderboard:', result);
-                        console.log('👤 User data saved:', userData);
-                        return true;
-                    } else {
-                        const errorText = await response.text();
-                        console.error('❌ Failed to save:', response.status, errorText);
-                        return false;
-                    }
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
+                    console.log('✅ Saved to leaderboard:', Object.keys(users).length, 'total users');
+                    console.log('👤 User data saved:', userData);
+                    return true;
                 } catch (error) {
                     console.error('❌ Error saving to leaderboard:', error);
                     return false;
@@ -1881,7 +1856,7 @@
                     document.getElementById('loadingState').style.display = 'block';
 
                     const response = await fetch(
-                        `https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${this.leagueId}&s=${this.currentSeason}`
+                        `https://api.allorigins.win/raw?url=https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${this.leagueId}&s=${this.currentSeason}`
                     );
 
                     if (!response.ok) {
@@ -2473,7 +2448,7 @@
             async fetchTeamForm(teamId, teamName) {
                 try {
                     // Fetch last 5 events for this team
-                    const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=${teamId}`);
+                    const response = await fetch(`https://api.allorigins.win/raw?url=https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=${teamId}`);
                     const data = await response.json();
 
                     if (!data.results || data.results.length === 0) {
