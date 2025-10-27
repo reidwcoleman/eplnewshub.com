@@ -1458,6 +1458,7 @@
         const PredictorGame = {
             fixtures: [],
             predictions: {},
+            teamFormCache: {},
             userStats: {
                 username: '',
                 userId: '',
@@ -1912,6 +1913,8 @@
                     id: event.idEvent,
                     homeTeam: event.strHomeTeam,
                     awayTeam: event.strAwayTeam,
+                    homeTeamId: event.idHomeTeam,
+                    awayTeamId: event.idAwayTeam,
                     homeScore: event.intHomeScore ? parseInt(event.intHomeScore) : null,
                     awayScore: event.intAwayScore ? parseInt(event.intAwayScore) : null,
                     dateTime: event.strTimestamp || `${event.dateEvent} ${event.strTime}`,
@@ -1975,8 +1978,8 @@
                     const isLive = this.isLive(match);
                     const isLocked = matchStarted || hasPrediction;
                     const countdown = this.getCountdown(match.dateTime);
-                    const homeForm = this.getTeamForm(match.homeTeam);
-                    const awayForm = this.getTeamForm(match.awayTeam);
+                    const homeForm = this.getTeamForm(match.homeTeam, match.homeTeamId);
+                    const awayForm = this.getTeamForm(match.awayTeam, match.awayTeamId);
 
                     return `
                         <div class="match-card ${hasPrediction ? 'predicted' : ''} ${isLive ? 'live-match' : ''}" style="position: relative;">
@@ -2458,15 +2461,71 @@
                 return `${hours}h ${minutes}m`;
             },
 
-            getTeamForm(teamName) {
-                // Generate random form for demonstration (would fetch real data in production)
-                const forms = ['W', 'D', 'L'];
-                const formResults = [];
-                for (let i = 0; i < 5; i++) {
-                    const result = forms[Math.floor(Math.random() * forms.length)];
-                    formResults.push(`<div class="form-result ${result}">${result}</div>`);
+            async fetchTeamForm(teamId, teamName) {
+                try {
+                    // Fetch last 5 events for this team
+                    const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventslast.php?id=${teamId}`);
+                    const data = await response.json();
+
+                    if (!data.results || data.results.length === 0) {
+                        return null;
+                    }
+
+                    // Filter to only Premier League matches that are finished
+                    const eplMatches = data.results
+                        .filter(match =>
+                            match.idLeague === '4328' &&
+                            match.intHomeScore !== null &&
+                            match.intAwayScore !== null
+                        )
+                        .slice(0, 5);
+
+                    const formResults = [];
+                    for (const match of eplMatches) {
+                        const homeScore = parseInt(match.intHomeScore);
+                        const awayScore = parseInt(match.intAwayScore);
+                        const isHome = match.strHomeTeam === teamName;
+
+                        let result;
+                        if (homeScore === awayScore) {
+                            result = 'D';
+                        } else if ((isHome && homeScore > awayScore) || (!isHome && awayScore > homeScore)) {
+                            result = 'W';
+                        } else {
+                            result = 'L';
+                        }
+
+                        formResults.push(`<div class="form-result ${result}">${result}</div>`);
+                    }
+
+                    return formResults.join('');
+                } catch (error) {
+                    console.error('Error fetching team form:', error);
+                    return null;
                 }
-                return formResults.join('');
+            },
+
+            getTeamForm(teamName, teamId) {
+                // Return cached form if available and less than 1 hour old
+                const cached = this.teamFormCache[teamId];
+                if (cached && Date.now() - cached.timestamp < 3600000) {
+                    return cached.form;
+                }
+
+                // Fetch form asynchronously and cache it
+                this.fetchTeamForm(teamId, teamName).then(form => {
+                    if (form) {
+                        this.teamFormCache[teamId] = {
+                            form: form,
+                            timestamp: Date.now()
+                        };
+                        // Re-render to show the updated form
+                        this.renderUpcoming();
+                    }
+                });
+
+                // Return cached form or empty string while loading
+                return cached?.form || '';
             },
 
             renderLiveTicker() {
