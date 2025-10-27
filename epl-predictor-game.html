@@ -1347,30 +1347,25 @@
     <script src="/index.js"></script>
 
     <script>
-        // Global leaderboard using jsonstorage.net (free cloud storage - same for all users)
+        // Global leaderboard using PHP backend API (same for all users)
         const LeaderboardStorage = {
-            STORAGE_ID: 'epl-predictor-leaderboard-v1', // Unique ID for our leaderboard
-            BASE_URL: 'https://api.jsonstorage.net/v1/json',
+            API_URL: '/leaderboard-api.php',
 
             async getAllUsers() {
                 try {
-                    console.log('🌐 Fetching global leaderboard from cloud...');
-                    const response = await fetch(`${this.BASE_URL}/${this.STORAGE_ID}`, {
+                    console.log('🌐 Fetching global leaderboard from server...');
+                    const response = await fetch(this.API_URL + '?t=' + Date.now(), {
                         method: 'GET'
                     });
 
                     if (!response.ok) {
-                        if (response.status === 404) {
-                            console.log('📝 No leaderboard data yet, starting fresh');
-                            return {};
-                        }
                         console.error('❌ Fetch failed:', response.status, response.statusText);
                         return {};
                     }
 
                     const data = await response.json();
-                    console.log('✅ Cloud response:', data);
-                    console.log('📦 User data from cloud:', data);
+                    console.log('✅ Server response:', data);
+                    console.log('📦 User data from server:', data);
                     return data || {};
                 } catch (error) {
                     console.error('❌ Error fetching leaderboard:', error);
@@ -1387,9 +1382,9 @@
                         lastUpdated: Date.now()
                     };
 
-                    console.log('📤 Uploading to cloud:', users);
+                    console.log('📤 Uploading to server:', users);
 
-                    const response = await fetch(`${this.BASE_URL}/${this.STORAGE_ID}`, {
+                    const response = await fetch(this.API_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
