@@ -1355,26 +1355,38 @@
 
             async getAllUsers() {
                 try {
+                    console.log('🌐 Fetching global leaderboard from JSONBin...');
                     const response = await fetch(`${this.BASE_URL}/b/${this.BIN_ID}/latest`, {
                         headers: {
                             'X-Access-Key': this.API_KEY
                         }
                     });
+
+                    if (!response.ok) {
+                        console.error('❌ JSONBin fetch failed:', response.status, response.statusText);
+                        return {};
+                    }
+
                     const data = await response.json();
+                    console.log('✅ JSONBin response:', data);
+                    console.log('📦 User data from cloud:', data.record);
                     return data.record || {};
                 } catch (error) {
-                    console.error('Error fetching leaderboard:', error);
+                    console.error('❌ Error fetching leaderboard:', error);
                     return {};
                 }
             },
 
             async saveUser(userId, userData) {
                 try {
+                    console.log('💾 Saving user to global leaderboard...', { userId, userData });
                     const users = await this.getAllUsers();
                     users[userId] = {
                         ...userData,
                         lastUpdated: Date.now()
                     };
+
+                    console.log('📤 Uploading to JSONBin:', users);
 
                     const response = await fetch(`${this.BASE_URL}/b/${this.BIN_ID}`, {
                         method: 'PUT',
@@ -1386,21 +1398,26 @@
                     });
 
                     if (response.ok) {
-                        console.log('✅ Saved to GLOBAL leaderboard:', userData);
+                        const result = await response.json();
+                        console.log('✅ Saved to GLOBAL leaderboard:', result);
+                        console.log('👤 User data saved:', userData);
                         return true;
                     } else {
-                        console.error('Failed to save:', response.status);
+                        const errorText = await response.text();
+                        console.error('❌ Failed to save:', response.status, errorText);
                         return false;
                     }
                 } catch (error) {
-                    console.error('Error saving to leaderboard:', error);
+                    console.error('❌ Error saving to leaderboard:', error);
                     return false;
                 }
             },
 
             async getLeaderboard() {
                 const users = await this.getAllUsers();
-                return Object.entries(users)
+                console.log('🏆 Processing leaderboard from users:', users);
+
+                const leaderboard = Object.entries(users)
                     .map(([userId, data]) => ({
                         userId,
                         ...data
@@ -1422,6 +1439,9 @@
                         // If everything same, sort by username alphabetically
                         return a.username.localeCompare(b.username);
                     });
+
+                console.log('📊 Final leaderboard array:', leaderboard);
+                return leaderboard;
             },
 
             async checkUsernameExists(username, currentUserId) {
