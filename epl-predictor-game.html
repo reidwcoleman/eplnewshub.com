@@ -1347,27 +1347,59 @@
     <script src="/index.js"></script>
 
     <script>
-        // Simple localStorage-based leaderboard (no external dependencies)
+        // Global leaderboard using JSONBin.io (free cloud storage - same for all users)
         const LeaderboardStorage = {
-            STORAGE_KEY: 'eplPredictorGlobalLeaderboard',
+            BIN_ID: '679ddc1ce41b4d34e476f3f2', // JSONBin bin ID
+            API_KEY: '$2a$10$KxFqPzJ9dLJrH7YvZ8hFueqC9T3XjYpOYBj5xR8pN6kL4wM2zHzKu', // Read-write API key
+            BASE_URL: 'https://api.jsonbin.io/v3',
 
-            getAllUsers() {
-                const data = localStorage.getItem(this.STORAGE_KEY);
-                return data ? JSON.parse(data) : {};
+            async getAllUsers() {
+                try {
+                    const response = await fetch(`${this.BASE_URL}/b/${this.BIN_ID}/latest`, {
+                        headers: {
+                            'X-Access-Key': this.API_KEY
+                        }
+                    });
+                    const data = await response.json();
+                    return data.record || {};
+                } catch (error) {
+                    console.error('Error fetching leaderboard:', error);
+                    return {};
+                }
             },
 
-            saveUser(userId, userData) {
-                const users = this.getAllUsers();
-                users[userId] = {
-                    ...userData,
-                    lastUpdated: Date.now()
-                };
-                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
-                console.log('✅ Saved to localStorage leaderboard:', userData);
+            async saveUser(userId, userData) {
+                try {
+                    const users = await this.getAllUsers();
+                    users[userId] = {
+                        ...userData,
+                        lastUpdated: Date.now()
+                    };
+
+                    const response = await fetch(`${this.BASE_URL}/b/${this.BIN_ID}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Access-Key': this.API_KEY
+                        },
+                        body: JSON.stringify(users)
+                    });
+
+                    if (response.ok) {
+                        console.log('✅ Saved to GLOBAL leaderboard:', userData);
+                        return true;
+                    } else {
+                        console.error('Failed to save:', response.status);
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Error saving to leaderboard:', error);
+                    return false;
+                }
             },
 
-            getLeaderboard() {
-                const users = this.getAllUsers();
+            async getLeaderboard() {
+                const users = await this.getAllUsers();
                 return Object.entries(users)
                     .map(([userId, data]) => ({
                         userId,
@@ -1392,8 +1424,8 @@
                     });
             },
 
-            checkUsernameExists(username, currentUserId) {
-                const users = this.getAllUsers();
+            async checkUsernameExists(username, currentUserId) {
+                const users = await this.getAllUsers();
                 for (const [userId, data] of Object.entries(users)) {
                     if (data.username && data.username.toLowerCase() === username.toLowerCase()) {
                         return userId !== currentUserId;
@@ -1439,11 +1471,11 @@
             ],
 
             async init() {
-                this.loadUserData();
+                await this.loadUserData();
                 await this.fetchFixtures();
                 this.updateStatsDisplay();
                 this.renderAchievements();
-                this.loadLeaderboard();
+                await this.loadLeaderboard();
                 this.showSection('predict');
 
                 // Auto-refresh fixtures every 60 seconds to get live updates
@@ -1452,7 +1484,7 @@
                 }, 60000);
             },
 
-            loadUserData() {
+            async loadUserData() {
                 const saved = localStorage.getItem('eplPredictorUserData');
                 if (saved) {
                     const data = JSON.parse(saved);
@@ -1465,7 +1497,7 @@
                         document.getElementById('welcomeName').textContent = this.userStats.username;
 
                         // Sync existing user to leaderboard
-                        this.syncToLeaderboard();
+                        await this.syncToLeaderboard();
                     }
                 }
 
@@ -1549,17 +1581,17 @@
                 }
             },
 
-            checkUsernameAvailability(username) {
-                const exists = LeaderboardStorage.checkUsernameExists(username, this.userStats.userId);
+            async checkUsernameAvailability(username) {
+                const exists = await LeaderboardStorage.checkUsernameExists(username, this.userStats.userId);
                 return !exists; // Return true if available (doesn't exist for other users)
             },
 
-            syncUsernameAndData(username) {
+            async syncUsernameAndData(username) {
                 // Save user data to leaderboard
-                this.syncToLeaderboard();
+                await this.syncToLeaderboard();
             },
 
-            syncToLeaderboard() {
+            async syncToLeaderboard() {
                 if (!this.userStats.username) {
                     console.log('⚠️ Cannot sync to leaderboard: No username set');
                     return;
@@ -1575,9 +1607,9 @@
                         Math.round((this.userStats.correctPredictions / this.userStats.totalPredictions) * 100) : 0
                 };
 
-                LeaderboardStorage.saveUser(this.userStats.userId, userData);
+                await LeaderboardStorage.saveUser(this.userStats.userId, userData);
 
-                console.log('✅ Synced to leaderboard:', {
+                console.log('✅ Synced to GLOBAL leaderboard (visible to all users!):', {
                     userId: this.userStats.userId,
                     username: userData.username,
                     totalPoints: userData.totalPoints,
@@ -1585,15 +1617,15 @@
                 });
 
                 // Refresh leaderboard display
-                this.loadLeaderboard();
+                await this.loadLeaderboard();
             },
 
-            loadLeaderboard() {
-                console.log('📊 Loading leaderboard from localStorage...');
+            async loadLeaderboard() {
+                console.log('📊 Loading GLOBAL leaderboard from cloud...');
 
-                const users = LeaderboardStorage.getLeaderboard();
+                const users = await LeaderboardStorage.getLeaderboard();
 
-                console.log(`✅ Leaderboard loaded: ${users.length} players`, {
+                console.log(`✅ Global leaderboard loaded: ${users.length} players worldwide`, {
                     topPlayer: users[0]?.username,
                     topPoints: users[0]?.totalPoints
                 });
@@ -1609,25 +1641,25 @@
                 this.updateUserRank();
             },
 
-            refreshLeaderboard() {
+            async refreshLeaderboard() {
                 console.log('🔄 Manually refreshing leaderboard...');
-                this.loadLeaderboard();
+                await this.loadLeaderboard();
                 this.showToast('Leaderboard refreshed', 'success');
             },
 
-            forceSync() {
+            async forceSync() {
                 console.log('🚀 Force syncing current data to leaderboard...');
                 if (!this.userStats.username) {
                     this.showToast('Please set a username first', 'error');
                     return;
                 }
 
-                this.syncToLeaderboard();
+                await this.syncToLeaderboard();
                 this.showToast('✅ Synced successfully!', 'success');
                 this.updateDebugPanel();
             },
 
-            forceRecalcAndSync() {
+            async forceRecalcAndSync() {
                 console.log('🔄 Recalculating all points and syncing...');
                 if (!this.userStats.username) {
                     this.showToast('Please set a username first', 'error');
@@ -1635,7 +1667,7 @@
                 }
 
                 // Recalculate points from all finished matches
-                this.calculateAllPoints();
+                await this.calculateAllPoints();
 
                 // Update displays
                 this.updateStatsDisplay();
@@ -1842,7 +1874,7 @@
                             .map(event => this.parseEvent(event))
                             .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
 
-                        this.calculateAllPoints();
+                        await this.calculateAllPoints();
                         this.renderUpcoming();
                         this.renderResults();
                         this.renderLiveTicker();
@@ -2123,7 +2155,7 @@
                 return finalPoints;
             },
 
-            calculateAllPoints() {
+            async calculateAllPoints() {
                 let totalPoints = 0;
                 let exactScores = 0;
                 let correctPredictions = 0;
@@ -2180,10 +2212,10 @@
                 if (this.userStats.username) {
                     if (pointsChanged || previousPoints !== totalPoints || previousCorrect !== correctPredictions) {
                         console.log('🔥 Points/stats changed! Syncing to leaderboard...');
-                        this.syncToLeaderboard();
+                        await this.syncToLeaderboard();
                     } else {
                         console.log('📊 No point changes, but ensuring leaderboard is up to date...');
-                        this.syncToLeaderboard(); // Sync anyway to ensure data is current
+                        await this.syncToLeaderboard(); // Sync anyway to ensure data is current
                     }
                 } else {
                     console.warn('⚠️ No username set - cannot sync to leaderboard!');
