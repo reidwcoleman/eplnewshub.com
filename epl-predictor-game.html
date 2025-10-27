@@ -1347,30 +1347,31 @@
     <script src="/index.js"></script>
 
     <script>
-        // Global leaderboard using JSONBin.io (free cloud storage - same for all users)
+        // Global leaderboard using jsonstorage.net (free cloud storage - same for all users)
         const LeaderboardStorage = {
-            BIN_ID: '679ddc1ce41b4d34e476f3f2', // JSONBin bin ID
-            API_KEY: '$2a$10$KxFqPzJ9dLJrH7YvZ8hFueqC9T3XjYpOYBj5xR8pN6kL4wM2zHzKu', // Read-write API key
-            BASE_URL: 'https://api.jsonbin.io/v3',
+            STORAGE_ID: 'epl-predictor-leaderboard-v1', // Unique ID for our leaderboard
+            BASE_URL: 'https://api.jsonstorage.net/v1/json',
 
             async getAllUsers() {
                 try {
-                    console.log('🌐 Fetching global leaderboard from JSONBin...');
-                    const response = await fetch(`${this.BASE_URL}/b/${this.BIN_ID}/latest`, {
-                        headers: {
-                            'X-Access-Key': this.API_KEY
-                        }
+                    console.log('🌐 Fetching global leaderboard from cloud...');
+                    const response = await fetch(`${this.BASE_URL}/${this.STORAGE_ID}`, {
+                        method: 'GET'
                     });
 
                     if (!response.ok) {
-                        console.error('❌ JSONBin fetch failed:', response.status, response.statusText);
+                        if (response.status === 404) {
+                            console.log('📝 No leaderboard data yet, starting fresh');
+                            return {};
+                        }
+                        console.error('❌ Fetch failed:', response.status, response.statusText);
                         return {};
                     }
 
                     const data = await response.json();
-                    console.log('✅ JSONBin response:', data);
-                    console.log('📦 User data from cloud:', data.record);
-                    return data.record || {};
+                    console.log('✅ Cloud response:', data);
+                    console.log('📦 User data from cloud:', data);
+                    return data || {};
                 } catch (error) {
                     console.error('❌ Error fetching leaderboard:', error);
                     return {};
@@ -1386,13 +1387,12 @@
                         lastUpdated: Date.now()
                     };
 
-                    console.log('📤 Uploading to JSONBin:', users);
+                    console.log('📤 Uploading to cloud:', users);
 
-                    const response = await fetch(`${this.BASE_URL}/b/${this.BIN_ID}`, {
-                        method: 'PUT',
+                    const response = await fetch(`${this.BASE_URL}/${this.STORAGE_ID}`, {
+                        method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'X-Access-Key': this.API_KEY
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify(users)
                     });
