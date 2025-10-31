@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
@@ -9,7 +11,6 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createPushNotificationRouter } = require('./push-notification-server');
-require('dotenv').config();
 
 const app = express();
 const PORT = 3000;
@@ -691,6 +692,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         }
 
         // Create Stripe checkout session
+        const baseUrl = req.headers.origin || `http://localhost:${PORT}`;
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [
@@ -700,8 +702,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
                 },
             ],
             mode: 'payment',
-            success_url: `${req.headers.origin}/family-success.html?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${req.headers.origin}/family-join.html`,
+            success_url: `${baseUrl}/family-success.html?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${baseUrl}/family-join.html`,
             customer_email: email,
             client_reference_id: userId || email,
             metadata: {
