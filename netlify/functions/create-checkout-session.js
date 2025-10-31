@@ -1,96 +1,74 @@
-// Netlify function to create Stripe Checkout Sessions
-// This bypasses domain whitelisting issues
-
+require('dotenv').config();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 exports.handler = async (event, context) => {
-    const headers = {
+  // Only allow POST
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ message: 'Method Not Allowed' })
+    };
+  }
+
+  try {
+    const { email, userId } = JSON.parse(event.body);
+
+    if (!email || !email.includes('@')) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          success: false,
+          message: 'Please provide a valid email address'
+        })
+      };
+    }
+
+    // Get the origin from headers
+    const origin = event.headers.origin || event.headers.referer?.replace(/\/$/, '') || 'https://eplnewshub.com';
+
+    // Create Stripe checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: process.env.STRIPE_PRICE_ID,
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${origin}/family-success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/family-join.html`,
+      customer_email: email,
+      client_reference_id: userId || email,
+      metadata: {
+        email: email,
+        userId: userId || '',
+        accessType: 'family'
+      }
+    });
+
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Content-Type': 'application/json'
+        'Access-Control-Allow-Headers': 'Content-Type'
+      },
+      body: JSON.stringify({
+        success: true,
+        sessionId: session.id,
+        url: session.url
+      })
     };
 
-    // Handle preflight
-    if (event.httpMethod === 'OPTIONS') {
-        return { statusCode: 200, headers, body: '' };
-    }
-
-    if (event.httpMethod !== 'POST') {
-        return {
-            statusCode: 405,
-            headers,
-            body: JSON.stringify({ error: 'Method not allowed' })
-        };
-    }
-
-    try {
-        const { priceId, customerEmail, planType, userId } = JSON.parse(event.body);
-
-        if (!priceId) {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({ error: 'Price ID is required' })
-            };
-        }
-
-        // Determine the domain dynamically
-        const origin = event.headers.origin || 'https://eplnewshub.com';
-        const protocol = origin.startsWith('https') ? 'https' : 'http';
-        const host = origin.replace(/^https?:\/\//, '');
-
-        const successUrl = `${protocol}://${host}/membership-success.html?plan=${planType}&email=${encodeURIComponent(customerEmail)}&session_id={CHECKOUT_SESSION_ID}`;
-        const cancelUrl = `${protocol}://${host}/membership.html`;
-
-        console.log('Creating checkout session for:', {
-            priceId,
-            customerEmail,
-            planType,
-            successUrl,
-            cancelUrl
-        });
-
-        // Create Stripe Checkout Session
-        const session = await stripe.checkout.sessions.create({
-            line_items: [
-                {
-                    price: priceId,
-                    quantity: 1,
-                },
-            ],
-            mode: 'subscription',
-            success_url: successUrl,
-            cancel_url: cancelUrl,
-            customer_email: customerEmail,
-            client_reference_id: userId, // For tracking
-            metadata: {
-                planType: planType,
-                userId: userId
-            },
-            allow_promotion_codes: true, // Allow discount codes
-            billing_address_collection: 'auto',
-        });
-
-        return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({
-                success: true,
-                sessionId: session.id,
-                url: session.url
-            })
-        };
-
-    } catch (error) {
-        console.error('Stripe Checkout Session Error:', error);
-        return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({
-                error: 'Failed to create checkout session',
-                message: error.message
-            })
-        };
-    }
+  } catch (error) {
+    console.error('Stripe checkout error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        success: false,
+        message: 'Failed to create checkout session. Please try again.'
+      })
+    };
+  }
 };
