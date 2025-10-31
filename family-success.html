@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the Family! - EPL News Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 90%;
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 80px;
+            color: #27ae60;
+            margin-bottom: 20px;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        h1 {
+            color: #333;
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .access-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .access-card h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .access-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: left;
+            border-radius: 5px;
+        }
+
+        .info-box h3 {
+            color: #333;
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .info-box p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        .email-display {
+            background: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            color: #333;
+            margin: 15px 0;
+            font-size: 16px;
+        }
+
+        .loading {
+            color: #666;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+
+        .error-box {
+            background: #fee;
+            border-left: 4px solid #e74c3c;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: left;
+            border-radius: 5px;
+        }
+
+        .error-box h3 {
+            color: #e74c3c;
+            margin-top: 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading-state">
+            <div class="spinner"></div>
+            <p class="loading">Verifying your payment...</p>
+        </div>
+
+        <div id="success-state" style="display: none;">
+            <div class="success-icon">🎉</div>
+            <h1>Welcome to the Family!</h1>
+            <p class="subtitle">
+                Your payment was successful! You now have lifetime access to both Family Public and Family Private content.
+            </p>
+
+            <div class="email-display" id="user-email"></div>
+
+            <div class="access-card">
+                <h2>Access Your Content</h2>
+                <div class="access-links">
+                    <a href="family-public.html" class="btn">Family Public</a>
+                    <a href="family-private.html" class="btn">Family Private</a>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>What's Next?</h3>
+                <p>
+                    Save this email address - you'll use it to access your family content anytime.
+                    Simply visit the family pages and enter your email to verify access.
+                </p>
+            </div>
+
+            <a href="index.html" class="btn" style="margin-top: 20px;">Back to Home</a>
+        </div>
+
+        <div id="error-state" style="display: none;">
+            <div class="error-box">
+                <h3>⚠️ Payment Verification Failed</h3>
+                <p id="error-message"></p>
+            </div>
+            <a href="family-join.html" class="btn">Try Again</a>
+        </div>
+    </div>
+
+    <script>
+        async function verifyPayment() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+
+            if (!sessionId) {
+                showError('No payment session found. Please try again.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/verify-payment/${sessionId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess(data.user.email);
+
+                    // Store email in localStorage for future access
+                    localStorage.setItem('familyAccessEmail', data.user.email);
+                } else {
+                    showError(data.message || 'Payment verification failed');
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                showError('An error occurred while verifying your payment. Please contact support.');
+            }
+        }
+
+        function showSuccess(email) {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('success-state').style.display = 'block';
+            document.getElementById('user-email').textContent = email;
+        }
+
+        function showError(message) {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('error-state').style.display = 'block';
+            document.getElementById('error-message').textContent = message;
+        }
+
+        // Verify payment when page loads
+        window.addEventListener('DOMContentLoaded', verifyPayment);
+    </script>
+</body>
+</html>

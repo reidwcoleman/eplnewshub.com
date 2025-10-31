@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Private - EPL News Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Georgia, serif;
+            background: #1a1a1a;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c003e 0%, #1a001a 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #764ba2;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .access-gate {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 40px;
+            text-align: center;
+            background: #2a2a2a;
+            border-radius: 10px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+            border: 2px solid #764ba2;
+        }
+
+        .access-gate h2 {
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .access-gate p {
+            color: #ccc;
+        }
+
+        .access-gate input {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #764ba2;
+            background: #1a1a1a;
+            color: #fff;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        .access-gate button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .access-gate button:hover {
+            opacity: 0.9;
+        }
+
+        .error {
+            color: #ff6b6b;
+            margin-top: 15px;
+        }
+
+        .join-link {
+            margin-top: 20px;
+            color: #999;
+        }
+
+        .join-link a {
+            color: #764ba2;
+            font-weight: bold;
+        }
+
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content h1 {
+            font-size: 36px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .byline {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #444;
+        }
+
+        .content p {
+            font-size: 18px;
+            line-height: 1.7;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .content h2 {
+            color: #fff;
+            margin-top: 40px;
+            font-size: 28px;
+        }
+
+        .content img {
+            width: 100%;
+            height: auto;
+            margin: 30px 0;
+            border-radius: 8px;
+            border: 2px solid #764ba2;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-link:hover {
+            opacity: 0.9;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .private-notice {
+            background: linear-gradient(135deg, #2c003e 0%, #1a001a 100%);
+            border: 2px solid #764ba2;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .private-notice strong {
+            color: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔐 Family Private</h1>
+    </div>
+
+    <!-- Access Gate (shown initially) -->
+    <div id="access-gate" class="access-gate">
+        <h2>🔒 Verify Your Access</h2>
+        <p>Enter your email to access Family Private content</p>
+
+        <input type="email" id="verify-email" placeholder="Your email address">
+        <button id="verify-btn" onclick="verifyAccess()">Verify Access</button>
+
+        <div id="error-message" class="error"></div>
+
+        <div class="join-link">
+            Don't have access? <a href="family-join.html">Join for $5</a>
+        </div>
+    </div>
+
+    <!-- Content (shown after verification) -->
+    <div id="content" style="display: none;">
+        <div class="content">
+            <h1>Welcome to Family Private</h1>
+            <div class="byline">
+                Private content for family members only • <span id="access-date"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div class="private-notice">
+                <strong>🔐 PRIVATE CONTENT</strong><br>
+                This section is for sensitive family matters, personal updates, and private discussions.
+                Please respect the privacy of all content shared here.
+            </div>
+
+            <p>
+                Welcome to the Family Private section - a secure space for more personal and sensitive
+                family content that requires an extra level of privacy and discretion.
+            </p>
+
+            <h2>What This Section Is For</h2>
+
+            <p>
+                <strong>Sensitive Family Matters:</strong> Discuss private family issues, decisions,
+                and matters that require discretion and confidentiality.
+            </p>
+
+            <p>
+                <strong>Personal Updates:</strong> Share health updates, financial matters, legal issues,
+                or other personal information that shouldn't be public.
+            </p>
+
+            <p>
+                <strong>Private Documents:</strong> Access to important family documents, records,
+                and information that needs to be kept secure.
+            </p>
+
+            <p>
+                <strong>Confidential Discussions:</strong> A safe space for family members to discuss
+                sensitive topics and make important decisions together.
+            </p>
+
+            <h2>Privacy Guidelines</h2>
+
+            <p>
+                <strong>Keep It Private:</strong> Do not share content from this section outside of
+                the family without explicit permission from all involved parties.
+            </p>
+
+            <p>
+                <strong>Respect Boundaries:</strong> Be mindful of what you share and how it might
+                affect other family members.
+            </p>
+
+            <p>
+                <strong>Secure Access:</strong> Keep your access email safe and do not share it with
+                non-family members.
+            </p>
+
+            <h2>Additional Content Coming Soon</h2>
+
+            <p>
+                This section will be regularly updated with private family content. Check back often
+                for new updates, documents, and discussions.
+            </p>
+
+            <div style="background: #2a2a2a; padding: 20px; border-radius: 8px; margin: 30px 0; border: 1px solid #444;">
+                <strong>💡 Note:</strong> Your access is verified each time you visit using your email.
+                Make sure to use the same email you used during payment.
+            </div>
+
+            <a href="index.html" class="back-link">← Back to Home</a>
+            <a href="family-public.html" class="back-link">← Family Public</a>
+        </div>
+    </div>
+
+    <script>
+        let userEmail = '';
+
+        // Check if user is already logged in
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedEmail = localStorage.getItem('familyAccessEmail');
+            if (savedEmail) {
+                document.getElementById('verify-email').value = savedEmail;
+            }
+        });
+
+        async function verifyAccess() {
+            const email = document.getElementById('verify-email').value.trim();
+            const errorMessage = document.getElementById('error-message');
+            const verifyBtn = document.getElementById('verify-btn');
+
+            if (!email) {
+                errorMessage.textContent = 'Please enter your email address';
+                return;
+            }
+
+            verifyBtn.disabled = true;
+            verifyBtn.textContent = 'Verifying...';
+            errorMessage.textContent = '';
+
+            try {
+                const response = await fetch(`/api/family-access/${encodeURIComponent(email)}`);
+                const data = await response.json();
+
+                if (data.success && data.hasAccess) {
+                    // Store email and show content
+                    userEmail = email;
+                    localStorage.setItem('familyAccessEmail', email);
+
+                    showContent(data.grantedAt);
+                } else {
+                    errorMessage.textContent = 'Access denied. Please check your email or join the family.';
+                    verifyBtn.disabled = false;
+                    verifyBtn.textContent = 'Verify Access';
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                errorMessage.textContent = 'An error occurred. Please try again.';
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = 'Verify Access';
+            }
+        }
+
+        function showContent(grantedAt) {
+            document.getElementById('access-gate').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+
+            if (grantedAt) {
+                const date = new Date(grantedAt);
+                document.getElementById('access-date').textContent =
+                    `Member since ${date.toLocaleDateString()}`;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('familyAccessEmail');
+            location.reload();
+        }
+
+        // Allow Enter key to verify
+        document.getElementById('verify-email')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                verifyAccess();
+            }
+        });
+    </script>
+</body>
+</html>

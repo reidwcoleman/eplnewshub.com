@@ -667,6 +667,170 @@ app.get('/logout', (req, res) => {
     });
 });
 
+// Stripe checkout session endpoint for $5 family access
+app.post('/api/create-checkout-session', async (req, res) => {
+    try {
+        const { email, userId } = req.body;
+
+        if (!email || !isValidEmail(email)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide a valid email address'
+            });
+        }
+
+        // Check if user already has family access
+        const users = readUsers();
+        const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+        if (user && user.familyAccess) {
+            return res.status(400).json({
+                success: false,
+                message: 'You already have family access'
+            });
+        }
+
+        // Create Stripe checkout session
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price: process.env.STRIPE_PRICE_ID,
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            success_url: `${req.headers.origin}/family-success.html?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${req.headers.origin}/family-join.html`,
+            customer_email: email,
+            client_reference_id: userId || email,
+            metadata: {
+                email: email,
+                userId: userId || '',
+                accessType: 'family'
+            }
+        });
+
+        res.json({
+            success: true,
+            sessionId: session.id,
+            url: session.url
+        });
+
+    } catch (error) {
+        console.error('Stripe checkout error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to create checkout session. Please try again.'
+        });
+    }
+});
+
+// Verify payment and grant family access
+app.get('/api/verify-payment/:sessionId', async (req, res) => {
+    try {
+        const session = await stripe.checkout.sessions.retrieve(req.params.sessionId);
+
+        if (session.payment_status === 'paid') {
+            const email = session.customer_email || session.metadata.email;
+
+            // Grant family access
+            const users = readUsers();
+            let user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+            if (!user) {
+                // Create new user with family access
+                user = {
+                    id: generateUserId(),
+                    firstName: '',
+                    lastName: '',
+                    email: email.toLowerCase().trim(),
+                    password: null,
+                    country: 'Unknown',
+                    favoriteTeams: [],
+                    newsletter: false,
+                    createdAt: new Date().toISOString(),
+                    verified: true,
+                    verificationToken: null,
+                    lastLogin: new Date().toISOString(),
+                    isActive: true,
+                    familyAccess: true,
+                    familyAccessGrantedAt: new Date().toISOString(),
+                    stripeSessionId: session.id,
+                    subscription: {
+                        tier: 'free',
+                        status: 'inactive'
+                    }
+                };
+                users.push(user);
+            } else {
+                // Update existing user
+                user.familyAccess = true;
+                user.familyAccessGrantedAt = new Date().toISOString();
+                user.stripeSessionId = session.id;
+            }
+
+            writeUsers(users);
+
+            res.json({
+                success: true,
+                message: 'Family access granted!',
+                user: {
+                    email: user.email,
+                    familyAccess: true
+                }
+            });
+        } else {
+            res.status(400).json({
+                success: false,
+                message: 'Payment not completed'
+            });
+        }
+    } catch (error) {
+        console.error('Payment verification error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to verify payment'
+        });
+    }
+});
+
+// Check family access status
+app.get('/api/family-access/:email', (req, res) => {
+    const email = req.params.email;
+
+    if (!email || !isValidEmail(email)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Please provide a valid email address'
+        });
+    }
+
+    try {
+        const users = readUsers();
+        const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+        if (!user) {
+            return res.json({
+                success: true,
+                hasAccess: false
+            });
+        }
+
+        res.json({
+            success: true,
+            hasAccess: !!user.familyAccess,
+            grantedAt: user.familyAccessGrantedAt || null
+        });
+    } catch (error) {
+        console.error('Family access check error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'An error occurred while checking access'
+        });
+    }
+});
+
 // Push notification routes
 app.use('/api/push-notification', createPushNotificationRouter());
 

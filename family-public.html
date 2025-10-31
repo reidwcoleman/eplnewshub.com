@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Public - EPL News Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Georgia, serif;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: #262627;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .access-gate {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 40px;
+            text-align: center;
+            background: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .access-gate h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .access-gate input {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        .access-gate button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .access-gate button:hover {
+            background: #5568d3;
+        }
+
+        .error {
+            color: #e74c3c;
+            margin-top: 15px;
+        }
+
+        .join-link {
+            margin-top: 20px;
+            color: #667eea;
+        }
+
+        .join-link a {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content h1 {
+            font-size: 36px;
+            color: #000;
+            margin-bottom: 10px;
+        }
+
+        .byline {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .content p {
+            font-size: 18px;
+            line-height: 1.7;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .content img {
+            width: 100%;
+            height: auto;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 24px;
+            background: #262627;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .back-link:hover {
+            background: #3a3a3b;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>👨‍👩‍👧‍👦 Family Public</h1>
+    </div>
+
+    <!-- Access Gate (shown initially) -->
+    <div id="access-gate" class="access-gate">
+        <h2>🔒 Verify Your Access</h2>
+        <p>Enter your email to access Family Public content</p>
+
+        <input type="email" id="verify-email" placeholder="Your email address">
+        <button id="verify-btn" onclick="verifyAccess()">Verify Access</button>
+
+        <div id="error-message" class="error"></div>
+
+        <div class="join-link">
+            Don't have access? <a href="family-join.html">Join for $5</a>
+        </div>
+    </div>
+
+    <!-- Content (shown after verification) -->
+    <div id="content" style="display: none;">
+        <div class="content">
+            <h1>Welcome to Family Public</h1>
+            <div class="byline">
+                Exclusive content for family members • <span id="access-date"></span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <p>
+                Welcome to the Family Public section! This is exclusive content available to all family members
+                who have joined with the $5 one-time payment.
+            </p>
+
+            <p>
+                This section is for sharing general family updates, photos, news, and stories that all family
+                members can enjoy together.
+            </p>
+
+            <h2>What You'll Find Here</h2>
+
+            <p>
+                <strong>Family Updates:</strong> Stay connected with what's happening in the family.
+                From celebrations and achievements to everyday moments worth sharing.
+            </p>
+
+            <p>
+                <strong>Photo Galleries:</strong> Browse through family photo collections from events,
+                holidays, and special occasions.
+            </p>
+
+            <p>
+                <strong>Announcements:</strong> Important family news, upcoming events, and celebrations
+                will be posted here for everyone to see.
+            </p>
+
+            <p>
+                <strong>Shared Memories:</strong> Stories, anecdotes, and memories from family members
+                that everyone can enjoy and contribute to.
+            </p>
+
+            <h2>Getting Started</h2>
+
+            <p>
+                Feel free to explore the content here. You also have access to the
+                <a href="family-private.html">Family Private</a> section for more personal content.
+            </p>
+
+            <p>
+                Remember to save your email address - you'll need it each time you visit to verify your access.
+            </p>
+
+            <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin: 30px 0;">
+                <strong>💡 Tip:</strong> Bookmark this page for easy access. Your email is saved in your
+                browser, so you won't need to re-enter it each time.
+            </div>
+
+            <a href="index.html" class="back-link">← Back to Home</a>
+            <a href="family-private.html" class="back-link" style="background: #667eea;">Family Private →</a>
+        </div>
+    </div>
+
+    <script>
+        let userEmail = '';
+
+        // Check if user is already logged in
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedEmail = localStorage.getItem('familyAccessEmail');
+            if (savedEmail) {
+                document.getElementById('verify-email').value = savedEmail;
+            }
+        });
+
+        async function verifyAccess() {
+            const email = document.getElementById('verify-email').value.trim();
+            const errorMessage = document.getElementById('error-message');
+            const verifyBtn = document.getElementById('verify-btn');
+
+            if (!email) {
+                errorMessage.textContent = 'Please enter your email address';
+                return;
+            }
+
+            verifyBtn.disabled = true;
+            verifyBtn.textContent = 'Verifying...';
+            errorMessage.textContent = '';
+
+            try {
+                const response = await fetch(`/api/family-access/${encodeURIComponent(email)}`);
+                const data = await response.json();
+
+                if (data.success && data.hasAccess) {
+                    // Store email and show content
+                    userEmail = email;
+                    localStorage.setItem('familyAccessEmail', email);
+
+                    showContent(data.grantedAt);
+                } else {
+                    errorMessage.textContent = 'Access denied. Please check your email or join the family.';
+                    verifyBtn.disabled = false;
+                    verifyBtn.textContent = 'Verify Access';
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                errorMessage.textContent = 'An error occurred. Please try again.';
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = 'Verify Access';
+            }
+        }
+
+        function showContent(grantedAt) {
+            document.getElementById('access-gate').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+
+            if (grantedAt) {
+                const date = new Date(grantedAt);
+                document.getElementById('access-date').textContent =
+                    `Member since ${date.toLocaleDateString()}`;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('familyAccessEmail');
+            location.reload();
+        }
+
+        // Allow Enter key to verify
+        document.getElementById('verify-email')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                verifyAccess();
+            }
+        });
+    </script>
+</body>
+</html>
