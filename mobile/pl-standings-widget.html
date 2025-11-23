@@ -1,0 +1,355 @@
+<!-- Premier League Standings Widget -->
+<div class="standings-widget">
+    <div class="widget-header">
+        <h2 class="widget-title">Premier League Standings</h2>
+        <a href="/epl-table.html" class="view-all-link">Full Table →</a>
+    </div>
+
+    <div class="standings-container" id="standings-container">
+        <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading standings...</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .standings-widget {
+        background: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 2px;
+        padding: 32px;
+        margin: 56px 0;
+    }
+
+    .standings-container {
+        overflow-x: auto;
+    }
+
+    .standings-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+    }
+
+    .standings-table thead {
+        background: #fafafa;
+        border-bottom: 2px solid #121212;
+    }
+
+    .standings-table th {
+        padding: 12px 8px;
+        text-align: left;
+        font-weight: 700;
+        font-size: 11px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: #666;
+    }
+
+    .standings-table th:first-child {
+        width: 40px;
+        text-align: center;
+    }
+
+    .standings-table td {
+        padding: 12px 8px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .standings-table tbody tr:hover {
+        background: #fafafa;
+    }
+
+    .standings-rank {
+        text-align: center;
+        font-weight: 700;
+        color: #121212;
+    }
+
+    .standings-team {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 600;
+        color: #121212;
+    }
+
+    .team-badge {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+    }
+
+    .standings-stat {
+        text-align: center;
+        color: #666;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .standings-points {
+        text-align: center;
+        font-weight: 700;
+        color: #121212;
+        font-size: 15px;
+    }
+
+    .form-indicator {
+        display: flex;
+        gap: 2px;
+        justify-content: center;
+    }
+
+    .form-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
+
+    .form-dot.win {
+        background: #10b981;
+    }
+
+    .form-dot.draw {
+        background: #f59e0b;
+    }
+
+    .form-dot.loss {
+        background: #ef4444;
+    }
+
+    .champions-league {
+        border-left: 3px solid #0066cc;
+    }
+
+    .europa-league {
+        border-left: 3px solid #ff6600;
+    }
+
+    .relegation {
+        border-left: 3px solid #dc2626;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .standings-widget {
+            padding: 24px 16px;
+            margin: 40px -20px;
+            border-left: none;
+            border-right: none;
+            border-radius: 0;
+        }
+
+        .standings-table {
+            font-size: 12px;
+        }
+
+        .standings-table th,
+        .standings-table td {
+            padding: 8px 4px;
+        }
+
+        .standings-table th:first-child {
+            width: 30px;
+        }
+
+        .team-badge {
+            width: 20px;
+            height: 20px;
+        }
+
+        .standings-team {
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        /* Hide some columns on mobile */
+        .hide-mobile {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+(function() {
+    async function fetchStandings() {
+        const container = document.getElementById('standings-container');
+
+        try {
+            const leagueId = '4328'; // Premier League
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+
+            // Premier League season runs Aug-May
+            const seasonStartYear = currentMonth >= 7 ? currentYear : currentYear - 1;
+            const season = `${seasonStartYear}-${seasonStartYear + 1}`;
+
+            const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=${leagueId}&s=${season}`);
+
+            if (!response.ok) throw new Error('API request failed');
+
+            const data = await response.json();
+
+            // If we don't have all 20 teams, calculate from match results
+            let tableData = data.table || [];
+
+            if (tableData.length < 20) {
+                console.log(`Only ${tableData.length} teams in table, calculating from matches...`);
+                tableData = await calculateStandingsFromMatches(leagueId, season);
+            }
+
+            if (!tableData || tableData.length === 0) {
+                container.innerHTML = '<div class="no-matches">No standings available at the moment.</div>';
+                return;
+            }
+
+            let html = '<table class="standings-table"><thead><tr>';
+            html += '<th>Pos</th>';
+            html += '<th>Team</th>';
+            html += '<th class="hide-mobile">P</th>';
+            html += '<th class="hide-mobile">W</th>';
+            html += '<th class="hide-mobile">D</th>';
+            html += '<th class="hide-mobile">L</th>';
+            html += '<th>GD</th>';
+            html += '<th>Pts</th>';
+            html += '<th class="hide-mobile">Form</th>';
+            html += '</tr></thead><tbody>';
+
+            data.table.forEach((team, index) => {
+                const rank = parseInt(team.intRank);
+                let rowClass = '';
+                
+                if (rank <= 4) {
+                    rowClass = 'champions-league';
+                } else if (rank === 5) {
+                    rowClass = 'europa-league';
+                } else if (rank >= 18) {
+                    rowClass = 'relegation';
+                }
+
+                html += `<tr class="${rowClass}">`;
+                html += `<td class="standings-rank">${team.intRank}</td>`;
+                html += `<td><div class="standings-team">`;
+                html += `<img src="${team.strBadge.replace('/tiny', '/preview')}" alt="${team.strTeam}" class="team-badge" onerror="this.style.display='none'">`;
+                html += `<span>${team.strTeam}</span>`;
+                html += `</div></td>`;
+                html += `<td class="standings-stat hide-mobile">${team.intPlayed}</td>`;
+                html += `<td class="standings-stat hide-mobile">${team.intWin}</td>`;
+                html += `<td class="standings-stat hide-mobile">${team.intDraw}</td>`;
+                html += `<td class="standings-stat hide-mobile">${team.intLoss}</td>`;
+                html += `<td class="standings-stat">${team.intGoalDifference > 0 ? '+' : ''}${team.intGoalDifference}</td>`;
+                html += `<td class="standings-points">${team.intPoints}</td>`;
+                html += `<td class="hide-mobile">${renderForm(team.strForm)}</td>`;
+                html += `</tr>`;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+
+        } catch (error) {
+            console.error('Error fetching standings:', error);
+            container.innerHTML = `
+                <div class="no-matches">
+                    <p>Unable to load standings at the moment.</p>
+                    <p style="margin-top: 12px;"><a href="/epl-table.html" style="color: #121212; text-decoration: underline;">View full table →</a></p>
+                </div>
+            `;
+        }
+    }
+
+    async function calculateStandingsFromMatches(leagueId, season) {
+        try {
+            const response = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=${leagueId}&s=${season}`);
+            if (!response.ok) return [];
+
+            const data = await response.json();
+            const events = data.events || [];
+            const standings = {};
+
+            events.forEach(match => {
+                if (match.intHomeScore === null || match.intAwayScore === null) return;
+
+                const homeTeam = match.strHomeTeam;
+                const awayTeam = match.strAwayTeam;
+                const homeScore = parseInt(match.intHomeScore);
+                const awayScore = parseInt(match.intAwayScore);
+
+                [homeTeam, awayTeam].forEach(team => {
+                    if (!standings[team]) {
+                        standings[team] = {
+                            strTeam: team,
+                            strBadge: match.strHomeTeam === team ? match.strHomeTeamBadge : match.strAwayTeamBadge,
+                            intPlayed: 0, intWin: 0, intDraw: 0, intLoss: 0,
+                            intGoalsFor: 0, intGoalsAgainst: 0, intGoalDifference: 0,
+                            intPoints: 0, results: []
+                        };
+                    }
+                });
+
+                standings[homeTeam].intPlayed++;
+                standings[homeTeam].intGoalsFor += homeScore;
+                standings[homeTeam].intGoalsAgainst += awayScore;
+                standings[awayTeam].intPlayed++;
+                standings[awayTeam].intGoalsFor += awayScore;
+                standings[awayTeam].intGoalsAgainst += homeScore;
+
+                if (homeScore > awayScore) {
+                    standings[homeTeam].intWin++; standings[homeTeam].intPoints += 3; standings[homeTeam].results.push('W');
+                    standings[awayTeam].intLoss++; standings[awayTeam].results.push('L');
+                } else if (homeScore < awayScore) {
+                    standings[awayTeam].intWin++; standings[awayTeam].intPoints += 3; standings[awayTeam].results.push('W');
+                    standings[homeTeam].intLoss++; standings[homeTeam].results.push('L');
+                } else {
+                    standings[homeTeam].intDraw++; standings[homeTeam].intPoints++; standings[homeTeam].results.push('D');
+                    standings[awayTeam].intDraw++; standings[awayTeam].intPoints++; standings[awayTeam].results.push('D');
+                }
+            });
+
+            const tableArray = Object.values(standings).map(team => {
+                team.intGoalDifference = team.intGoalsFor - team.intGoalsAgainst;
+                team.strForm = team.results.slice(-5).reverse().join('');
+                return team;
+            });
+
+            tableArray.sort((a, b) => {
+                if (b.intPoints !== a.intPoints) return b.intPoints - a.intPoints;
+                if (b.intGoalDifference !== a.intGoalDifference) return b.intGoalDifference - a.intGoalDifference;
+                return b.intGoalsFor - a.intGoalsFor;
+            });
+
+            tableArray.forEach((team, index) => team.intRank = (index + 1).toString());
+            return tableArray;
+        } catch (error) {
+            console.error('Error calculating standings:', error);
+            return [];
+        }
+    }
+
+    function renderForm(form) {
+        if (!form) return '';
+
+        const formArray = form.split('').slice(0, 5);
+        let html = '<div class="form-indicator">';
+
+        formArray.forEach(result => {
+            let className = 'form-dot ';
+            if (result === 'W') className += 'win';
+            else if (result === 'D') className += 'draw';
+            else if (result === 'L') className += 'loss';
+
+            html += `<span class="${className}"></span>`;
+        });
+
+        html += '</div>';
+        return html;
+    }
+
+    // Initial load
+    fetchStandings();
+
+    // Refresh every 10 minutes
+    setInterval(fetchStandings, 600000);
+})();
+</script>
