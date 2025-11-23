@@ -86,7 +86,7 @@
             width: 100%;
         }
 
-        /* Enhanced Mobile Header */
+        /* Enhanced Mobile Header - Auto-Scaling */
         .nyt-header-mobile {
             position: fixed;
             top: 0;
@@ -96,21 +96,25 @@
             background: rgba(15, 15, 15, 0.98);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
+            width: 100%;
         }
 
         .mobile-header-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
-            height: 56px;
+            padding: clamp(8px, 2.5vw, 12px) clamp(8px, 3vw, 16px);
+            height: clamp(48px, 14vw, 56px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        /* Hamburger Menu Button */
+        /* Responsive Hamburger Menu Button */
         .mobile-menu-btn {
-            width: 40px;
-            height: 40px;
+            width: clamp(32px, 10vw, 40px);
+            height: clamp(32px, 10vw, 40px);
+            min-width: 32px;
             background: transparent;
             border: none;
             display: flex;
@@ -119,7 +123,8 @@
             align-items: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            border-radius: 8px;
+            border-radius: 6px;
+            flex-shrink: 0;
         }
 
         .mobile-menu-btn:active {
@@ -127,10 +132,10 @@
         }
 
         .hamburger-line {
-            width: 22px;
+            width: clamp(18px, 5vw, 22px);
             height: 2px;
             background: #e8e8e8;
-            margin: 3px 0;
+            margin: 2.5px 0;
             transition: all 0.3s ease;
             border-radius: 2px;
         }
@@ -147,23 +152,28 @@
             transform: rotate(-45deg) translate(5px, -5px);
         }
 
-        /* Mobile Logo */
+        /* Responsive Mobile Logo */
         .mobile-logo {
             flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 0 8px;
+            max-width: 60%;
         }
 
         .mobile-logo-img {
-            height: 32px;
+            height: clamp(24px, 8vw, 32px);
             width: auto;
+            max-width: 100%;
+            object-fit: contain;
         }
 
-        /* Search Button */
+        /* Responsive Search Button */
         .mobile-search-btn {
-            width: 40px;
-            height: 40px;
+            width: clamp(32px, 10vw, 40px);
+            height: clamp(32px, 10vw, 40px);
+            min-width: 32px;
             background: transparent;
             border: none;
             display: flex;
@@ -171,21 +181,28 @@
             justify-content: center;
             color: #e8e8e8;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 6px;
             transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .mobile-search-btn svg {
+            width: clamp(16px, 5vw, 20px);
+            height: clamp(16px, 5vw, 20px);
         }
 
         .mobile-search-btn:active {
             background: rgba(255, 255, 255, 0.1);
         }
 
-        /* Horizontal Scrollable Quick Nav */
+        /* Responsive Horizontal Quick Nav */
         .mobile-quick-nav {
             background: rgba(20, 20, 20, 0.95);
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
+            width: 100%;
         }
 
         .mobile-quick-nav::-webkit-scrollbar {
@@ -194,22 +211,23 @@
 
         .quick-nav-scroll {
             display: flex;
-            padding: 8px 12px;
-            gap: 8px;
+            padding: clamp(6px, 2vw, 8px) clamp(8px, 3vw, 12px);
+            gap: clamp(4px, 1.5vw, 8px);
             min-width: max-content;
         }
 
         .quick-nav-item {
-            padding: 8px 16px;
+            padding: clamp(6px, 2vw, 8px) clamp(10px, 3vw, 16px);
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
             color: #b0b0b0;
-            font-size: 13px;
+            font-size: clamp(11px, 3.5vw, 13px);
             font-weight: 500;
             white-space: nowrap;
             transition: all 0.3s ease;
             text-decoration: none;
+            flex-shrink: 0;
         }
 
         .quick-nav-item:active {
@@ -446,9 +464,41 @@
             visibility: visible;
         }
 
-        /* Adjust main content for fixed header */
+        /* Responsive main content padding for fixed header */
         .nyt-main-content {
-            padding-top: 112px; /* Height of header + quick nav */
+            padding-top: calc(clamp(48px, 14vw, 56px) + clamp(32px, 10vw, 40px) + 8px); /* Header + Quick Nav + spacing */
+        }
+
+        /* Very small screens adjustment */
+        @media (max-width: 320px) {
+            .mobile-header-bar {
+                padding: 6px 8px;
+                height: 44px;
+            }
+
+            .mobile-menu-btn,
+            .mobile-search-btn {
+                width: 30px;
+                height: 30px;
+                min-width: 30px;
+            }
+
+            .hamburger-line {
+                width: 16px;
+            }
+
+            .mobile-logo-img {
+                height: 22px;
+            }
+
+            .quick-nav-item {
+                padding: 5px 8px;
+                font-size: 11px;
+            }
+
+            .nyt-main-content {
+                padding-top: 88px;
+            }
         }
 
         /* Optimized gradient background for mobile */
