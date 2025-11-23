@@ -177,37 +177,56 @@ function toggleMobileMenu() {
 // Search Bar Toggle
 function toggleSearch() {
     const searchBar = document.getElementById('mobile-search-bar');
+    if (!searchBar) return;
+
     const isVisible = searchBar.classList.contains('active');
 
     if (isVisible) {
         searchBar.classList.remove('active');
     } else {
         searchBar.classList.add('active');
-        searchBar.querySelector('.mobile-search-input').focus();
+        // Safely try to focus the input
+        try {
+            const searchInput = searchBar.querySelector('.mobile-search-input');
+            if (searchInput) {
+                searchInput.focus();
+            }
+        } catch (e) {
+            // Ignore focus errors on mobile
+        }
     }
 }
 
-// Close search when clicking outside
-document.addEventListener('click', function(event) {
-    const searchBar = document.getElementById('mobile-search-bar');
-    const searchBtn = document.querySelector('.mobile-search-btn');
-
-    if (searchBar && !searchBar.contains(event.target) && !searchBtn.contains(event.target)) {
-        searchBar.classList.remove('active');
-    }
-});
-
-// Add active state to current page in quick nav
+// Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
-    const currentPath = window.location.pathname;
-    const quickNavItems = document.querySelectorAll('.quick-nav-item');
+    // Close search when clicking outside
+    document.addEventListener('click', function(event) {
+        const searchBar = document.getElementById('mobile-search-bar');
+        const searchBtn = document.querySelector('.mobile-search-btn');
 
-    quickNavItems.forEach(item => {
-        if (item.getAttribute('href') === currentPath) {
-            item.classList.add('active');
-        } else {
-            item.classList.remove('active');
+        if (searchBar && searchBtn && event.target) {
+            if (!searchBar.contains(event.target) && !searchBtn.contains(event.target)) {
+                searchBar.classList.remove('active');
+            }
         }
     });
+
+    // Add active state to current page in quick nav
+    try {
+        const currentPath = window.location.pathname;
+        const quickNavItems = document.querySelectorAll('.quick-nav-item');
+
+        if (quickNavItems && quickNavItems.length > 0) {
+            quickNavItems.forEach(item => {
+                if (item && item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
+                } else if (item) {
+                    item.classList.remove('active');
+                }
+            });
+        }
+    } catch (e) {
+        console.log('Navigation highlighting error:', e);
+    }
 });
 </script>
