@@ -56,17 +56,17 @@
     // Perform redirect if on desktop
     function redirectToDesktop() {
         if (hasMobileOverride()) {
-            console.log('[Desktop Redirect] Mobile view forced by user');
+            console.log('[EPL Desktop Redirect] Mobile view forced by user');
             return;
         }
 
         if (isDesktopDevice()) {
             const desktopURL = getDesktopURL();
-            console.log('[Desktop Redirect] Desktop device detected, redirecting to:', desktopURL);
+            console.log('[EPL Desktop Redirect] Desktop device detected, redirecting to:', desktopURL);
 
             window.location.replace(desktopURL);
         } else {
-            console.log('[Desktop Redirect] Mobile device detected, staying on mobile version');
+            console.log('[EPL Desktop Redirect] Mobile device detected, staying on mobile version');
         }
     }
 
