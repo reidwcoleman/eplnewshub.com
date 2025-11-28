@@ -1352,8 +1352,21 @@
         const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL'; // Replace with your project URL
         const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your anon/public key
 
+        // Check if Supabase is configured
+        const isSupabaseConfigured = () => {
+            return SUPABASE_URL && SUPABASE_KEY &&
+                   !SUPABASE_URL.includes('YOUR_') &&
+                   !SUPABASE_KEY.includes('YOUR_');
+        };
+
         const LeaderboardStorage = {
             async getAllUsers() {
+                // Return empty if Supabase not configured
+                if (!isSupabaseConfigured()) {
+                    console.log('ℹ️ Global leaderboard disabled - Supabase not configured');
+                    return {};
+                }
+
                 try {
                     console.log('🌐 Fetching GLOBAL leaderboard from Supabase...');
 
@@ -1394,6 +1407,12 @@
             },
 
             async saveUser(userId, userData) {
+                // Skip if Supabase not configured
+                if (!isSupabaseConfigured()) {
+                    console.log('ℹ️ Global leaderboard save skipped - Supabase not configured');
+                    return false;
+                }
+
                 try {
                     console.log('💾 Saving to GLOBAL leaderboard...', { userId, userData });
 
@@ -1465,6 +1484,11 @@
             },
 
             async checkUsernameExists(username, currentUserId) {
+                // Skip if Supabase not configured
+                if (!isSupabaseConfigured()) {
+                    return false;
+                }
+
                 try {
                     const response = await fetch(
                         `${SUPABASE_URL}/rest/v1/leaderboard?username=eq.${encodeURIComponent(username)}&select=user_id`,
