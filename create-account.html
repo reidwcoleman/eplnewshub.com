@@ -4,61 +4,657 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Create Account - EPL News Hub</title>
-    <meta name="description" content="Create your EPL News Hub account.">
+    <meta name="description" content="Create your EPL News Hub account to access premium features, save articles, and get personalized Premier League content.">
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./supabase-config.js"></script>
+
     <style>
-        .placeholder-page {
-            min-height: 60vh;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #37003c 0%, #2d0032 50%, #1a001d 100%);
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            min-height: calc(100vh - 140px);
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .auth-card {
             background: #ffffff;
-            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            animation: slideUp 0.5s ease;
         }
-        .placeholder-content {
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
             text-align: center;
-            max-width: 600px;
+            margin-bottom: 32px;
         }
-        .placeholder-content h1 {
+
+        .auth-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #00ff87, #37003c);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+        }
+
+        .auth-header h1 {
             font-family: 'Noto Serif', Georgia, serif;
-            font-size: 2.5rem;
+            font-size: 1.75rem;
             color: #121212;
-            margin-bottom: 1rem;
+            margin-bottom: 8px;
         }
-        .placeholder-content p {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.125rem;
+
+        .auth-header p {
             color: #666;
-            margin-bottom: 2rem;
+            font-size: 0.95rem;
         }
-        .btn-primary {
-            display: inline-block;
-            background: #38003c;
-            color: #ffffff;
-            padding: 12px 32px;
-            border-radius: 4px;
-            text-decoration: none;
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
             font-weight: 600;
-            transition: background 0.3s ease;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
         }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #37003c;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(55, 0, 60, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .form-group input.error {
+            border-color: #dc2626;
+        }
+
+        .form-group input.success {
+            border-color: #16a34a;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .password-requirements {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .password-requirements ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 8px;
+        }
+
+        .password-requirements li {
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .password-requirements li::before {
+            content: '○';
+            color: #ccc;
+        }
+
+        .password-requirements li.valid::before {
+            content: '✓';
+            color: #16a34a;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #00ff87, #00cc6a);
+            color: #37003c;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
         .btn-primary:hover {
-            background: #00ff87;
-            color: #38003c;
+            background: linear-gradient(135deg, #37003c, #5a0050);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(55, 0, 60, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 28px 0;
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .divider span {
+            padding: 0 16px;
+        }
+
+        .btn-google {
+            width: 100%;
+            padding: 14px 24px;
+            background: #ffffff;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-google:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+
+        .btn-google svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .auth-footer p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .auth-footer a {
+            color: #37003c;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .auth-footer a:hover {
+            color: #00ff87;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #16a34a;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .terms-checkbox input {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .terms-checkbox label {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .terms-checkbox a {
+            color: #37003c;
+            text-decoration: none;
+        }
+
+        .terms-checkbox a:hover {
+            text-decoration: underline;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .benefits-list {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .benefits-list h3 {
+            font-size: 0.9rem;
+            color: #37003c;
+            margin-bottom: 12px;
+        }
+
+        .benefits-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .benefits-list li {
+            font-size: 0.85rem;
+            color: #555;
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .benefits-list li::before {
+            content: '✓';
+            color: #00cc6a;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 30px 24px;
+            }
+
+            .auth-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header" include="./header.html"></div>
 
-    <main class="placeholder-page">
-        <div class="placeholder-content">
-            <h1>✍️ Create Account</h1>
-            <p>Account registration is coming soon. Join us to get personalized Premier League news, save your favorite articles, and connect with other fans.</p>
-            <a href="/" class="btn-primary">Back to Home</a>
+    <main class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">⚽</div>
+                <h1>Create Account</h1>
+                <p>Join EPL News Hub for the ultimate Premier League experience</p>
+            </div>
+
+            <div class="benefits-list">
+                <h3>Why create an account?</h3>
+                <ul>
+                    <li>Access premium FPL tools and analysis</li>
+                    <li>Save your favorite articles</li>
+                    <li>Get personalized news updates</li>
+                    <li>Join the community discussions</li>
+                </ul>
+            </div>
+
+            <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
+
+            <form id="signup-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first-name">First Name</label>
+                        <input type="text" id="first-name" name="first-name" placeholder="John" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last-name">Last Name</label>
+                        <input type="text" id="last-name" name="last-name" placeholder="Doe" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a strong password" required>
+                    <div class="password-requirements">
+                        <ul>
+                            <li id="req-length">At least 8 characters</li>
+                            <li id="req-uppercase">One uppercase letter</li>
+                            <li id="req-number">One number</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm your password" required>
+                </div>
+
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">
+                        I agree to the <a href="/terms.html">Terms of Service</a> and <a href="/privacy.html">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-primary" id="signup-btn">
+                    Create Account
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>or sign up with</span>
+            </div>
+
+            <button class="btn-google" id="google-signup-btn">
+                <svg viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </button>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="signin.html">Sign in</a></p>
+            </div>
         </div>
     </main>
 
     <div class="footer" include="./footer.html"></div>
     <script src="index.js"></script>
+
+    <script>
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // DOM Elements
+        const signupForm = document.getElementById('signup-form');
+        const signupBtn = document.getElementById('signup-btn');
+        const googleSignupBtn = document.getElementById('google-signup-btn');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+
+        // Password requirement elements
+        const reqLength = document.getElementById('req-length');
+        const reqUppercase = document.getElementById('req-uppercase');
+        const reqNumber = document.getElementById('req-number');
+
+        // Check if user is already logged in
+        async function checkUser() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                window.location.href = 'account.html';
+            }
+        }
+        checkUser();
+
+        // Password validation
+        passwordInput.addEventListener('input', () => {
+            const password = passwordInput.value;
+
+            // Check length
+            if (password.length >= 8) {
+                reqLength.classList.add('valid');
+            } else {
+                reqLength.classList.remove('valid');
+            }
+
+            // Check uppercase
+            if (/[A-Z]/.test(password)) {
+                reqUppercase.classList.add('valid');
+            } else {
+                reqUppercase.classList.remove('valid');
+            }
+
+            // Check number
+            if (/[0-9]/.test(password)) {
+                reqNumber.classList.add('valid');
+            } else {
+                reqNumber.classList.remove('valid');
+            }
+        });
+
+        // Confirm password validation
+        confirmPasswordInput.addEventListener('input', () => {
+            if (confirmPasswordInput.value === passwordInput.value && confirmPasswordInput.value !== '') {
+                confirmPasswordInput.classList.remove('error');
+                confirmPasswordInput.classList.add('success');
+            } else if (confirmPasswordInput.value !== '') {
+                confirmPasswordInput.classList.add('error');
+                confirmPasswordInput.classList.remove('success');
+            }
+        });
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        // Set loading state
+        function setLoading(isLoading) {
+            if (isLoading) {
+                signupBtn.disabled = true;
+                signupBtn.innerHTML = '<span class="loading-spinner"></span>Creating account...';
+            } else {
+                signupBtn.disabled = false;
+                signupBtn.innerHTML = 'Create Account';
+            }
+        }
+
+        // Validate password
+        function validatePassword(password) {
+            if (password.length < 8) {
+                return 'Password must be at least 8 characters long';
+            }
+            if (!/[A-Z]/.test(password)) {
+                return 'Password must contain at least one uppercase letter';
+            }
+            if (!/[0-9]/.test(password)) {
+                return 'Password must contain at least one number';
+            }
+            return null;
+        }
+
+        // Email/Password Sign Up
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const firstName = document.getElementById('first-name').value;
+            const lastName = document.getElementById('last-name').value;
+            const email = document.getElementById('email').value;
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            const termsAccepted = document.getElementById('terms').checked;
+
+            // Validate inputs
+            if (!termsAccepted) {
+                showError('Please accept the Terms of Service and Privacy Policy');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            const passwordError = validatePassword(password);
+            if (passwordError) {
+                showError(passwordError);
+                return;
+            }
+
+            setLoading(true);
+            errorMessage.style.display = 'none';
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: `${firstName} ${lastName}`,
+                            first_name: firstName,
+                            last_name: lastName
+                        },
+                        emailRedirectTo: window.location.origin + '/account.html'
+                    }
+                });
+
+                if (error) throw error;
+
+                // Check if email confirmation is required
+                if (data?.user?.identities?.length === 0) {
+                    showError('An account with this email already exists.');
+                } else if (data?.user && !data?.session) {
+                    showSuccess('Account created! Please check your email to verify your account.');
+                    signupForm.reset();
+                } else {
+                    showSuccess('Account created successfully! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'account.html';
+                    }, 1500);
+                }
+
+            } catch (error) {
+                showError(error.message || 'Failed to create account. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Google Sign Up
+        googleSignupBtn.addEventListener('click', async () => {
+            try {
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/account.html'
+                    }
+                });
+
+                if (error) throw error;
+
+            } catch (error) {
+                showError(error.message || 'Failed to sign up with Google.');
+            }
+        });
+
+        // Listen for auth state changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                window.location.href = 'account.html';
+            }
+        });
+    </script>
 </body>
 </html>

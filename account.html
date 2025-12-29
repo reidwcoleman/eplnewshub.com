@@ -6,59 +6,682 @@
     <title>My Account - EPL News Hub</title>
     <meta name="description" content="Manage your EPL News Hub account settings and preferences.">
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./supabase-config.js"></script>
+
     <style>
-        .placeholder-page {
-            min-height: 60vh;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .account-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .account-header {
+            background: linear-gradient(135deg, #37003c 0%, #5a0050 100%);
+            border-radius: 16px;
+            padding: 40px;
+            color: white;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            box-shadow: 0 10px 40px rgba(55, 0, 60, 0.3);
+        }
+
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #00ff87, #00cc6a);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #ffffff;
-            padding: 2rem;
-        }
-        .placeholder-content {
-            text-align: center;
-            max-width: 600px;
-        }
-        .placeholder-content h1 {
-            font-family: 'Noto Serif', Georgia, serif;
             font-size: 2.5rem;
-            color: #121212;
-            margin-bottom: 1rem;
+            font-weight: bold;
+            color: #37003c;
+            border: 4px solid white;
         }
-        .placeholder-content p {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.125rem;
-            color: #666;
-            margin-bottom: 2rem;
+
+        .user-info h1 {
+            font-size: 1.75rem;
+            margin-bottom: 8px;
         }
-        .btn-primary {
-            display: inline-block;
-            background: #38003c;
-            color: #ffffff;
-            padding: 12px 32px;
-            border-radius: 4px;
-            text-decoration: none;
+
+        .user-info p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .user-info .member-since {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .account-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        .account-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .account-card h2 {
+            font-size: 1.25rem;
+            color: #37003c;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
             font-weight: 600;
-            transition: background 0.3s ease;
+            color: #333;
         }
+
+        .form-group input {
+            padding: 12px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #37003c;
+            box-shadow: 0 0 0 4px rgba(55, 0, 60, 0.1);
+        }
+
+        .form-group input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #37003c, #5a0050);
+            color: white;
+        }
+
         .btn-primary:hover {
-            background: #00ff87;
-            color: #38003c;
+            background: linear-gradient(135deg, #00ff87, #00cc6a);
+            color: #37003c;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #37003c;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .quick-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .quick-link:hover {
+            background: #37003c;
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .quick-link-icon {
+            font-size: 1.25rem;
+        }
+
+        .membership-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #ffd700, #ffb700);
+            color: #333;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .membership-free {
+            background: #e0e0e0;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .message.success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e0e0e0;
+            border-top-color: #37003c;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Saved Articles */
+        .saved-articles-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .saved-article-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            gap: 12px;
+        }
+
+        .saved-article-item:last-child {
+            border-bottom: none;
+        }
+
+        .saved-article-item a {
+            color: #333;
+            text-decoration: none;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .saved-article-item a:hover {
+            color: #37003c;
+        }
+
+        .saved-article-date {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .remove-article-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .remove-article-btn:hover {
+            color: #dc2626;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: #888;
+        }
+
+        .empty-state-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .account-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 30px 20px;
+            }
+
+            .user-avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .account-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header" include="./header.html"></div>
 
-    <main class="placeholder-page">
-        <div class="placeholder-content">
-            <h1>👤 My Account</h1>
-            <p>Account management features are coming soon. You'll be able to customize your EPL News Hub experience, save favorite articles, and more.</p>
-            <a href="/" class="btn-primary">Back to Home</a>
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <main class="account-container hidden" id="account-content">
+        <!-- Account Header -->
+        <div class="account-header">
+            <div class="user-avatar" id="user-avatar">?</div>
+            <div class="user-info">
+                <h1 id="user-name">Loading...</h1>
+                <p id="user-email">Loading...</p>
+                <p class="member-since" id="member-since"></p>
+                <div class="membership-badge membership-free" id="membership-badge">
+                    <span>⭐</span> Free Member
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Grid -->
+        <div class="account-grid">
+            <!-- Profile Settings -->
+            <div class="account-card">
+                <h2>👤 Profile Settings</h2>
+                <div id="profile-message" class="message"></div>
+                <form id="profile-form" class="profile-form">
+                    <div class="form-group">
+                        <label for="profile-name">Full Name</label>
+                        <input type="text" id="profile-name" placeholder="Your full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-email">Email Address</label>
+                        <input type="email" id="profile-email" disabled>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+
+            <!-- Account Stats -->
+            <div class="account-card">
+                <h2>📊 Your Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-articles">0</div>
+                        <div class="stat-label">Articles Read</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-saved">0</div>
+                        <div class="stat-label">Saved Articles</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-days">0</div>
+                        <div class="stat-label">Days Active</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-fpl">0</div>
+                        <div class="stat-label">FPL Tools Used</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Articles -->
+            <div class="account-card">
+                <h2>📑 Saved Articles</h2>
+                <div id="saved-articles-list" class="saved-articles-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="account-card">
+                <h2>🔗 Quick Links</h2>
+                <div class="quick-links">
+                    <a href="fpl-premium-hub.html" class="quick-link">
+                        <span class="quick-link-icon">⚽</span>
+                        <span>FPL Premium Hub</span>
+                    </a>
+                    <a href="news.html" class="quick-link">
+                        <span class="quick-link-icon">📰</span>
+                        <span>Latest News</span>
+                    </a>
+                    <a href="transfer-center.html" class="quick-link">
+                        <span class="quick-link-icon">🔄</span>
+                        <span>Transfer Center</span>
+                    </a>
+                    <a href="membership.html" class="quick-link">
+                        <span class="quick-link-icon">⭐</span>
+                        <span>Upgrade to Premium</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Account Actions -->
+            <div class="account-card">
+                <h2>⚙️ Account Actions</h2>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button class="btn btn-secondary" id="change-password-btn">
+                        🔐 Change Password
+                    </button>
+                    <button class="btn btn-danger" id="signout-btn">
+                        🚪 Sign Out
+                    </button>
+                </div>
+                <div id="password-message" class="message" style="margin-top: 16px;"></div>
+            </div>
         </div>
     </main>
 
     <div class="footer" include="./footer.html"></div>
     <script src="index.js"></script>
+
+    <script>
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // DOM Elements
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const accountContent = document.getElementById('account-content');
+        const userAvatar = document.getElementById('user-avatar');
+        const userName = document.getElementById('user-name');
+        const userEmail = document.getElementById('user-email');
+        const memberSince = document.getElementById('member-since');
+        const profileForm = document.getElementById('profile-form');
+        const profileName = document.getElementById('profile-name');
+        const profileEmail = document.getElementById('profile-email');
+        const signoutBtn = document.getElementById('signout-btn');
+        const changePasswordBtn = document.getElementById('change-password-btn');
+        const profileMessage = document.getElementById('profile-message');
+        const passwordMessage = document.getElementById('password-message');
+
+        // Current user data
+        let currentUser = null;
+
+        // Check authentication and load user data
+        async function initializePage() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+
+                if (!session) {
+                    window.location.href = 'signin.html';
+                    return;
+                }
+
+                currentUser = session.user;
+                await loadUserProfile();
+
+                loadingOverlay.classList.add('hidden');
+                accountContent.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error initializing page:', error);
+                window.location.href = 'signin.html';
+            }
+        }
+
+        // Load user profile data
+        async function loadUserProfile() {
+            const user = currentUser;
+            const metadata = user.user_metadata || {};
+
+            // Set avatar (first letter of name or email)
+            const displayName = metadata.full_name || metadata.name || user.email.split('@')[0];
+            userAvatar.textContent = displayName.charAt(0).toUpperCase();
+
+            // Set user info
+            userName.textContent = displayName;
+            userEmail.textContent = user.email;
+
+            // Calculate member since
+            const createdAt = new Date(user.created_at);
+            const now = new Date();
+            const daysDiff = Math.floor((now - createdAt) / (1000 * 60 * 60 * 24));
+            memberSince.textContent = `Member since ${createdAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+
+            // Update stats
+            document.getElementById('stat-days').textContent = daysDiff;
+
+            // Set form values
+            profileName.value = displayName;
+            profileEmail.value = user.email;
+
+            // Load additional stats from localStorage (simple implementation)
+            document.getElementById('stat-articles').textContent = localStorage.getItem('articlesRead') || '0';
+            const savedArticles = JSON.parse(localStorage.getItem('savedArticles') || '[]');
+            document.getElementById('stat-saved').textContent = savedArticles.length;
+            document.getElementById('stat-fpl').textContent = localStorage.getItem('fplToolsUsed') || '0';
+
+            // Load saved articles list
+            loadSavedArticles();
+        }
+
+        // Load and display saved articles
+        function loadSavedArticles() {
+            const savedArticlesList = document.getElementById('saved-articles-list');
+            const savedArticles = JSON.parse(localStorage.getItem('savedArticles') || '[]');
+
+            if (savedArticles.length === 0) {
+                savedArticlesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📚</div>
+                        <p>No saved articles yet.<br>Save articles while reading to find them here.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            savedArticlesList.innerHTML = savedArticles.map((article, index) => `
+                <div class="saved-article-item">
+                    <div>
+                        <a href="${article.url}">${article.title}</a>
+                        <div class="saved-article-date">Saved ${new Date(article.savedAt).toLocaleDateString('en-GB')}</div>
+                    </div>
+                    <button class="remove-article-btn" onclick="removeArticle(${index})" title="Remove">×</button>
+                </div>
+            `).join('');
+        }
+
+        // Remove saved article
+        function removeArticle(index) {
+            const savedArticles = JSON.parse(localStorage.getItem('savedArticles') || '[]');
+            savedArticles.splice(index, 1);
+            localStorage.setItem('savedArticles', JSON.stringify(savedArticles));
+            loadSavedArticles();
+            document.getElementById('stat-saved').textContent = savedArticles.length;
+        }
+
+        // Show message
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // Update profile
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const newName = profileName.value.trim();
+
+            if (!newName) {
+                showMessage(profileMessage, 'Please enter your name', 'error');
+                return;
+            }
+
+            try {
+                const { error } = await supabase.auth.updateUser({
+                    data: { full_name: newName }
+                });
+
+                if (error) throw error;
+
+                // Update UI
+                userName.textContent = newName;
+                userAvatar.textContent = newName.charAt(0).toUpperCase();
+
+                showMessage(profileMessage, 'Profile updated successfully!', 'success');
+
+            } catch (error) {
+                showMessage(profileMessage, error.message || 'Failed to update profile', 'error');
+            }
+        });
+
+        // Change password
+        changePasswordBtn.addEventListener('click', async () => {
+            try {
+                const { error } = await supabase.auth.resetPasswordForEmail(currentUser.email, {
+                    redirectTo: window.location.origin + '/reset-password.html'
+                });
+
+                if (error) throw error;
+
+                showMessage(passwordMessage, 'Password reset link sent to your email!', 'success');
+
+            } catch (error) {
+                showMessage(passwordMessage, error.message || 'Failed to send reset email', 'error');
+            }
+        });
+
+        // Sign out
+        signoutBtn.addEventListener('click', async () => {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+
+                window.location.href = 'signin.html';
+
+            } catch (error) {
+                console.error('Sign out error:', error);
+                window.location.href = 'signin.html';
+            }
+        });
+
+        // Listen for auth state changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT') {
+                window.location.href = 'signin.html';
+            }
+        });
+
+        // Initialize page
+        initializePage();
+    </script>
 </body>
 </html>
