@@ -89,6 +89,7 @@
 <!-- Mobile Overlay -->
 <div id="mobile-sidebar-overlay" class="nyt-mobile-overlay" onclick="toggleMobileMenu()"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 function toggleMobileMenu() {
     const sidebar = document.getElementById('mobile-sidebar');
@@ -105,4 +106,27 @@ function toggleMobileMenu() {
         document.body.style.overflow = 'hidden';
     }
 }
+
+// Check auth state and update nav
+(async function updateAuthNav() {
+    try {
+        const SUPABASE_URL = 'https://rqtdnlpgrmanzxqrimxr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxdGRubHBncm1hbnp4cXJpbXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwNDE5NDgsImV4cCI6MjA4MjYxNzk0OH0.JgVRenqB2XX0pDVevOrU2LMVX_Y_11EZepGKO8Jfd_E';
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data: { session } } = await supabaseClient.auth.getSession();
+
+        if (session) {
+            // User is logged in - show My Account, hide Sign In/Sign Up
+            document.getElementById('nav-signin')?.style.setProperty('display', 'none');
+            document.getElementById('nav-signup')?.style.setProperty('display', 'none');
+            document.getElementById('nav-account')?.style.setProperty('display', 'block');
+            document.getElementById('mobile-nav-signin')?.style.setProperty('display', 'none');
+            document.getElementById('mobile-nav-signup')?.style.setProperty('display', 'none');
+            document.getElementById('mobile-nav-account')?.style.setProperty('display', 'block');
+        }
+    } catch (e) {
+        console.log('Auth check skipped');
+    }
+})();
 </script>
