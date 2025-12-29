@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Vote on Premier League polls - Who will win the title? Best player? Join the EPL News Hub community and share your opinion.">
+    <title>Premier League Polls | EPL News Hub</title>
+
+    <link rel="icon" type="image/png" href="/eplnewshubnewlogo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+            color: #e8e8e8;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            padding: 48px 0 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .page-header p {
+            font-size: 16px;
+            color: rgba(255,255,255,0.5);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Back Link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 24px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #00ff87;
+        }
+
+        /* Poll Card */
+        .poll-card {
+            background: linear-gradient(145deg, rgba(30,30,35,0.9) 0%, rgba(20,20,25,0.95) 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .poll-card:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .poll-question {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .poll-meta {
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .poll-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Poll Options */
+        .poll-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .poll-option {
+            position: relative;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 14px 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .poll-option:hover:not(.voted) {
+            border-color: rgba(139, 92, 246, 0.5);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .poll-option.selected {
+            border-color: #00ff87;
+            background: rgba(0, 255, 135, 0.1);
+        }
+
+        .poll-option.voted {
+            cursor: default;
+        }
+
+        .poll-option-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .poll-option-text {
+            font-size: 15px;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .poll-option-percent {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.7);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .poll-option.voted .poll-option-percent {
+            opacity: 1;
+        }
+
+        /* Progress Bar */
+        .poll-option-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+            border-radius: 10px;
+            width: 0;
+            transition: width 0.5s ease;
+            z-index: 1;
+        }
+
+        .poll-option.selected .poll-option-bar {
+            background: linear-gradient(90deg, rgba(0, 255, 135, 0.2) 0%, rgba(0, 200, 100, 0.2) 100%);
+        }
+
+        /* Vote Button */
+        .vote-btn {
+            display: none;
+            width: 100%;
+            padding: 14px;
+            margin-top: 16px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .vote-btn.show {
+            display: block;
+        }
+
+        .vote-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Voted Message */
+        .voted-message {
+            display: none;
+            text-align: center;
+            padding: 12px;
+            margin-top: 16px;
+            background: rgba(0, 255, 135, 0.1);
+            border: 1px solid rgba(0, 255, 135, 0.2);
+            border-radius: 10px;
+            color: #00ff87;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .voted-message.show {
+            display: block;
+        }
+
+        /* Total Votes */
+        .total-votes {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* Loading State */
+        .poll-loading {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .page-header {
+                padding: 32px 0;
+            }
+
+            .page-header h1 {
+                font-size: 26px;
+            }
+
+            .poll-card {
+                padding: 20px;
+            }
+
+            .poll-question {
+                font-size: 18px;
+            }
+
+            .poll-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/index.html" class="back-link">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Home
+        </a>
+
+        <header class="page-header">
+            <h1>Premier League Polls</h1>
+            <p>Share your opinion on the biggest questions in English football</p>
+        </header>
+
+        <div id="polls-container">
+            <div class="poll-loading">Loading polls...</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer" include="./footer.html"></div>
+
+    <script src="index.js"></script>
+    <script>
+        // Initialize Supabase
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Default polls data (used if Supabase tables don't exist yet)
+        const defaultPolls = [
+            {
+                id: 'pl-title-2025',
+                question: 'Who will win the 2025/26 Premier League title?',
+                category: 'Title Race',
+                options: [
+                    { id: 'arsenal', text: 'Arsenal', votes: 0 },
+                    { id: 'man-city', text: 'Manchester City', votes: 0 },
+                    { id: 'liverpool', text: 'Liverpool', votes: 0 },
+                    { id: 'chelsea', text: 'Chelsea', votes: 0 }
+                ]
+            },
+            {
+                id: 'best-player-2025',
+                question: 'Who is the best player in the Premier League right now?',
+                category: 'Player Rankings',
+                options: [
+                    { id: 'haaland', text: 'Erling Haaland', votes: 0 },
+                    { id: 'saka', text: 'Bukayo Saka', votes: 0 },
+                    { id: 'salah', text: 'Mohamed Salah', votes: 0 },
+                    { id: 'palmer', text: 'Cole Palmer', votes: 0 }
+                ]
+            },
+            {
+                id: 'relegation-2025',
+                question: 'Which team will be relegated this season?',
+                category: 'Relegation Battle',
+                options: [
+                    { id: 'leicester', text: 'Leicester City', votes: 0 },
+                    { id: 'ipswich', text: 'Ipswich Town', votes: 0 },
+                    { id: 'southampton', text: 'Southampton', votes: 0 },
+                    { id: 'wolves', text: 'Wolverhampton', votes: 0 }
+                ]
+            },
+            {
+                id: 'best-signing-2025',
+                question: 'Best summer signing of 2025?',
+                category: 'Transfers',
+                options: [
+                    { id: 'gyokeres', text: 'Viktor Gyokeres (Arsenal)', votes: 0 },
+                    { id: 'ekitike', text: 'Hugo Ekitike (Liverpool)', votes: 0 },
+                    { id: 'musiala', text: 'Jamal Musiala (Man City)', votes: 0 },
+                    { id: 'other', text: 'Other', votes: 0 }
+                ]
+            },
+            {
+                id: 'best-manager-2025',
+                question: 'Who is the best manager in the Premier League?',
+                category: 'Managers',
+                options: [
+                    { id: 'arteta', text: 'Mikel Arteta', votes: 0 },
+                    { id: 'guardiola', text: 'Pep Guardiola', votes: 0 },
+                    { id: 'slot', text: 'Arne Slot', votes: 0 },
+                    { id: 'postecoglou', text: 'Ange Postecoglou', votes: 0 }
+                ]
+            }
+        ];
+
+        // Store votes in localStorage and Supabase
+        const votedPolls = JSON.parse(localStorage.getItem('votedPolls') || '{}');
+        let pollsData = [...defaultPolls];
+
+        // Try to load polls from Supabase, fall back to localStorage
+        async function loadPolls() {
+            try {
+                // Try to get votes from Supabase
+                const { data: votes, error } = await supabaseClient
+                    .from('poll_votes')
+                    .select('poll_id, option_id');
+
+                if (!error && votes) {
+                    // Count votes for each option
+                    const voteCounts = {};
+                    votes.forEach(vote => {
+                        const key = `${vote.poll_id}-${vote.option_id}`;
+                        voteCounts[key] = (voteCounts[key] || 0) + 1;
+                    });
+
+                    // Update polls data with vote counts
+                    pollsData = defaultPolls.map(poll => ({
+                        ...poll,
+                        options: poll.options.map(opt => ({
+                            ...opt,
+                            votes: voteCounts[`${poll.id}-${opt.id}`] || 0
+                        }))
+                    }));
+                }
+            } catch (e) {
+                console.log('Using local storage for votes');
+                // Load from localStorage as fallback
+                const savedVotes = JSON.parse(localStorage.getItem('pollVotes') || '{}');
+                pollsData = defaultPolls.map(poll => ({
+                    ...poll,
+                    options: poll.options.map(opt => ({
+                        ...opt,
+                        votes: savedVotes[`${poll.id}-${opt.id}`] || 0
+                    }))
+                }));
+            }
+
+            renderPolls();
+        }
+
+        function renderPolls() {
+            const container = document.getElementById('polls-container');
+            container.innerHTML = pollsData.map(poll => {
+                const totalVotes = poll.options.reduce((sum, opt) => sum + opt.votes, 0);
+                const hasVoted = votedPolls[poll.id];
+
+                return `
+                    <div class="poll-card" data-poll-id="${poll.id}">
+                        <h2 class="poll-question">${poll.question}</h2>
+                        <div class="poll-meta">
+                            <span>
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M7 7h.01M7 12h.01M7 17h.01M12 7h5M12 12h5M12 17h5"/>
+                                </svg>
+                                ${poll.category}
+                            </span>
+                            <span>
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                ${totalVotes} votes
+                            </span>
+                        </div>
+                        <div class="poll-options">
+                            ${poll.options.map(opt => {
+                                const percent = totalVotes > 0 ? Math.round((opt.votes / totalVotes) * 100) : 0;
+                                const isSelected = hasVoted === opt.id;
+                                return `
+                                    <div class="poll-option ${hasVoted ? 'voted' : ''} ${isSelected ? 'selected' : ''}"
+                                         data-option-id="${opt.id}"
+                                         onclick="selectOption('${poll.id}', '${opt.id}')">
+                                        <div class="poll-option-bar" style="width: ${hasVoted ? percent : 0}%"></div>
+                                        <div class="poll-option-content">
+                                            <span class="poll-option-text">${opt.text}</span>
+                                            <span class="poll-option-percent">${percent}%</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        <button class="vote-btn" data-poll-id="${poll.id}" onclick="submitVote('${poll.id}')">
+                            Submit Vote
+                        </button>
+                        <div class="voted-message ${hasVoted ? 'show' : ''}" data-poll-id="${poll.id}">
+                            Thanks for voting!
+                        </div>
+                        <div class="total-votes">${totalVotes} total votes</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        let selectedOptions = {};
+
+        function selectOption(pollId, optionId) {
+            if (votedPolls[pollId]) return; // Already voted
+
+            selectedOptions[pollId] = optionId;
+
+            // Update UI
+            const pollCard = document.querySelector(`.poll-card[data-poll-id="${pollId}"]`);
+            pollCard.querySelectorAll('.poll-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.dataset.optionId === optionId) {
+                    opt.classList.add('selected');
+                }
+            });
+
+            // Show vote button
+            pollCard.querySelector('.vote-btn').classList.add('show');
+        }
+
+        async function submitVote(pollId) {
+            const optionId = selectedOptions[pollId];
+            if (!optionId || votedPolls[pollId]) return;
+
+            const btn = document.querySelector(`.vote-btn[data-poll-id="${pollId}"]`);
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            try {
+                // Try to save to Supabase
+                const { error } = await supabaseClient
+                    .from('poll_votes')
+                    .insert({
+                        poll_id: pollId,
+                        option_id: optionId,
+                        voted_at: new Date().toISOString()
+                    });
+
+                if (error) throw error;
+            } catch (e) {
+                console.log('Saving vote locally');
+                // Save to localStorage as fallback
+                const savedVotes = JSON.parse(localStorage.getItem('pollVotes') || '{}');
+                const key = `${pollId}-${optionId}`;
+                savedVotes[key] = (savedVotes[key] || 0) + 1;
+                localStorage.setItem('pollVotes', JSON.stringify(savedVotes));
+            }
+
+            // Mark as voted
+            votedPolls[pollId] = optionId;
+            localStorage.setItem('votedPolls', JSON.stringify(votedPolls));
+
+            // Update local data
+            const poll = pollsData.find(p => p.id === pollId);
+            const option = poll.options.find(o => o.id === optionId);
+            option.votes++;
+
+            // Re-render
+            renderPolls();
+        }
+
+        // Load polls on page load
+        loadPolls();
+    </script>
+</body>
+</html>
