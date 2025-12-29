@@ -163,21 +163,34 @@
         text-align: right;
     }
 
-    .team-badge {
-        width: 28px;
-        height: 28px;
+    .team-logo {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+        flex-shrink: 0;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    .team.home .team-logo {
+        order: 1;
+    }
+
+    .team-badge-fallback {
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 700;
         color: #fff;
         flex-shrink: 0;
         text-transform: uppercase;
+        background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
     }
 
-    .team.home .team-badge {
+    .team.home .team-badge-fallback {
         order: 1;
     }
 
@@ -255,10 +268,15 @@
             font-size: 13px;
         }
 
-        .team-badge {
-            width: 24px;
-            height: 24px;
-            font-size: 10px;
+        .team-logo {
+            width: 26px;
+            height: 26px;
+        }
+
+        .team-badge-fallback {
+            width: 26px;
+            height: 26px;
+            font-size: 9px;
         }
 
         .match-center {
@@ -276,9 +294,14 @@
             display: none;
         }
 
-        .team-badge {
-            width: 32px;
-            height: 32px;
+        .team-logo {
+            width: 36px;
+            height: 36px;
+        }
+
+        .team-badge-fallback {
+            width: 36px;
+            height: 36px;
             font-size: 11px;
         }
 
@@ -290,59 +313,70 @@
 
 <script>
 (function() {
-    // Team colors for badges
-    const teamColors = {
-        "Arsenal": "#EF0107",
-        "Aston Villa": "#95BFE5",
-        "Bournemouth": "#DA291C",
-        "Brentford": "#E30613",
-        "Brighton": "#0057B8",
-        "Chelsea": "#034694",
-        "Crystal Palace": "#1B458F",
-        "Everton": "#003399",
-        "Fulham": "#000000",
-        "Ipswich": "#0044AA",
-        "Leeds": "#FFCD00",
-        "Leicester": "#003090",
-        "Liverpool": "#C8102E",
-        "Man City": "#6CABDD",
-        "Man Utd": "#DA291C",
-        "Newcastle": "#241F20",
-        "Nott'm Forest": "#DD0000",
-        "Southampton": "#D71920",
-        "Spurs": "#132257",
-        "West Ham": "#7A263A",
-        "Wolves": "#FDB913"
+    // Team logo URLs from Premier League resources
+    const teamLogos = {
+        "Arsenal": "https://resources.premierleague.com/premierleague/badges/50/t3.png",
+        "Aston Villa": "https://resources.premierleague.com/premierleague/badges/50/t7.png",
+        "Bournemouth": "https://resources.premierleague.com/premierleague/badges/50/t91.png",
+        "Brentford": "https://resources.premierleague.com/premierleague/badges/50/t94.png",
+        "Brighton": "https://resources.premierleague.com/premierleague/badges/50/t36.png",
+        "Chelsea": "https://resources.premierleague.com/premierleague/badges/50/t8.png",
+        "Crystal Palace": "https://resources.premierleague.com/premierleague/badges/50/t31.png",
+        "Everton": "https://resources.premierleague.com/premierleague/badges/50/t11.png",
+        "Fulham": "https://resources.premierleague.com/premierleague/badges/50/t54.png",
+        "Ipswich": "https://resources.premierleague.com/premierleague/badges/50/t40.png",
+        "Leeds": "https://resources.premierleague.com/premierleague/badges/50/t2.png",
+        "Leicester": "https://resources.premierleague.com/premierleague/badges/50/t13.png",
+        "Liverpool": "https://resources.premierleague.com/premierleague/badges/50/t14.png",
+        "Man City": "https://resources.premierleague.com/premierleague/badges/50/t43.png",
+        "Man Utd": "https://resources.premierleague.com/premierleague/badges/50/t1.png",
+        "Newcastle": "https://resources.premierleague.com/premierleague/badges/50/t4.png",
+        "Nott'm Forest": "https://resources.premierleague.com/premierleague/badges/50/t17.png",
+        "Southampton": "https://resources.premierleague.com/premierleague/badges/50/t20.png",
+        "Spurs": "https://resources.premierleague.com/premierleague/badges/50/t6.png",
+        "West Ham": "https://resources.premierleague.com/premierleague/badges/50/t21.png",
+        "Wolves": "https://resources.premierleague.com/premierleague/badges/50/t39.png"
     };
 
-    // Team abbreviations for badges
-    const teamAbbrev = {
-        "Arsenal": "ARS",
-        "Aston Villa": "AVL",
-        "Bournemouth": "BOU",
-        "Brentford": "BRE",
-        "Brighton": "BHA",
-        "Chelsea": "CHE",
-        "Crystal Palace": "CRY",
-        "Everton": "EVE",
-        "Fulham": "FUL",
-        "Ipswich": "IPS",
-        "Leeds": "LEE",
-        "Leicester": "LEI",
-        "Liverpool": "LIV",
-        "Man City": "MCI",
-        "Man Utd": "MUN",
-        "Newcastle": "NEW",
-        "Nott'm Forest": "NFO",
-        "Southampton": "SOU",
-        "Spurs": "TOT",
-        "West Ham": "WHU",
-        "Wolves": "WOL"
+    // Team name mapping for API responses
+    const teamNameMap = {
+        "Arsenal": "Arsenal",
+        "Aston Villa": "Aston Villa",
+        "AFC Bournemouth": "Bournemouth",
+        "Bournemouth": "Bournemouth",
+        "Brentford": "Brentford",
+        "Brighton and Hove Albion": "Brighton",
+        "Brighton": "Brighton",
+        "Chelsea": "Chelsea",
+        "Crystal Palace": "Crystal Palace",
+        "Everton": "Everton",
+        "Fulham": "Fulham",
+        "Ipswich Town": "Ipswich",
+        "Ipswich": "Ipswich",
+        "Leeds United": "Leeds",
+        "Leeds": "Leeds",
+        "Leicester City": "Leicester",
+        "Leicester": "Leicester",
+        "Liverpool": "Liverpool",
+        "Manchester City": "Man City",
+        "Man City": "Man City",
+        "Manchester United": "Man Utd",
+        "Man Utd": "Man Utd",
+        "Newcastle United": "Newcastle",
+        "Newcastle": "Newcastle",
+        "Nottingham Forest": "Nott'm Forest",
+        "Nott'm Forest": "Nott'm Forest",
+        "Southampton": "Southampton",
+        "Tottenham Hotspur": "Spurs",
+        "Spurs": "Spurs",
+        "West Ham United": "West Ham",
+        "West Ham": "West Ham",
+        "Wolverhampton Wanderers": "Wolves",
+        "Wolves": "Wolves"
     };
 
-    // Static fixture data - Updated from official Premier League API
-    // 2025/26 Season Gameweek 19
-    const upcomingFixtures = [
+    // Fallback fixture data
+    const fallbackFixtures = [
         { home: "Arsenal", away: "Aston Villa", date: "Dec 30", time: "20:15" },
         { home: "Chelsea", away: "Bournemouth", date: "Dec 30", time: "19:30" },
         { home: "Man Utd", away: "Wolves", date: "Dec 30", time: "20:15" },
@@ -351,18 +385,44 @@
         { home: "Brentford", away: "Spurs", date: "Jan 1", time: "20:00" }
     ];
 
-    function getTeamBadge(team) {
-        const color = teamColors[team] || "#666";
-        const abbrev = teamAbbrev[team] || team.substring(0, 3).toUpperCase();
-        return `<div class="team-badge" style="background: ${color};">${abbrev}</div>`;
+    function convertTo12Hour(time24) {
+        const [hours, minutes] = time24.split(':');
+        const hour = parseInt(hours, 10);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const hour12 = hour % 12 || 12;
+        return `${hour12}:${minutes} ${ampm}`;
     }
 
-    function renderFixtures() {
+    function normalizeTeamName(name) {
+        return teamNameMap[name] || name;
+    }
+
+    function getTeamLogo(team) {
+        const normalizedTeam = normalizeTeamName(team);
+        const logoUrl = teamLogos[normalizedTeam];
+        if (logoUrl) {
+            return `<img class="team-logo" src="${logoUrl}" alt="${normalizedTeam}" onerror="this.style.display='none'">`;
+        }
+        return `<div class="team-badge-fallback">${team.substring(0, 3).toUpperCase()}</div>`;
+    }
+
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        const options = { month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    function renderFixtures(fixtures) {
         const container = document.getElementById('live-scores-container');
+
+        if (!fixtures || fixtures.length === 0) {
+            container.innerHTML = '<div class="no-matches">No upcoming fixtures available</div>';
+            return;
+        }
 
         // Group fixtures by date
         const grouped = {};
-        upcomingFixtures.forEach(match => {
+        fixtures.forEach(match => {
             if (!grouped[match.date]) {
                 grouped[match.date] = [];
             }
@@ -377,15 +437,15 @@
             html += grouped[date].map(match => `
                 <div class="match-card">
                     <div class="team home">
-                        <span class="team-name">${match.home}</span>
-                        ${getTeamBadge(match.home)}
+                        <span class="team-name">${normalizeTeamName(match.home)}</span>
+                        ${getTeamLogo(match.home)}
                     </div>
                     <div class="match-center">
-                        <div class="match-time">${match.time}</div>
+                        <div class="match-time">${convertTo12Hour(match.time)}</div>
                     </div>
                     <div class="team away">
-                        ${getTeamBadge(match.away)}
-                        <span class="team-name">${match.away}</span>
+                        ${getTeamLogo(match.away)}
+                        <span class="team-name">${normalizeTeamName(match.away)}</span>
                     </div>
                 </div>
             `).join('');
@@ -395,7 +455,51 @@
         container.innerHTML = html;
     }
 
-    // Render fixtures immediately
-    renderFixtures();
+    async function fetchLiveFixtures() {
+        try {
+            // Try football-data.org API (free tier, CORS enabled)
+            const response = await fetch('https://api.football-data.org/v4/competitions/PL/matches?status=SCHEDULED', {
+                headers: {
+                    'X-Auth-Token': '93f2d554c4294dc3b5c0e36c68fa53d8'
+                }
+            });
+
+            if (!response.ok) throw new Error('API request failed');
+
+            const data = await response.json();
+
+            if (data.matches && data.matches.length > 0) {
+                // Take first 6 upcoming matches
+                const upcomingMatches = data.matches.slice(0, 6).map(match => {
+                    const matchDate = new Date(match.utcDate);
+                    return {
+                        home: match.homeTeam.shortName || match.homeTeam.name,
+                        away: match.awayTeam.shortName || match.awayTeam.name,
+                        date: formatDate(matchDate),
+                        time: matchDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+                    };
+                });
+                return upcomingMatches;
+            }
+        } catch (error) {
+            console.log('Live data fetch failed, using fallback:', error.message);
+        }
+        return null;
+    }
+
+    async function init() {
+        // Try to fetch live data first
+        const liveFixtures = await fetchLiveFixtures();
+
+        if (liveFixtures && liveFixtures.length > 0) {
+            renderFixtures(liveFixtures);
+        } else {
+            // Use fallback data
+            renderFixtures(fallbackFixtures);
+        }
+    }
+
+    // Initialize
+    init();
 })();
 </script>
