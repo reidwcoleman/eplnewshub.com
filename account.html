@@ -490,7 +490,7 @@
 
     <script>
         // Initialize Supabase client
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // DOM Elements
         const loadingOverlay = document.getElementById('loading-overlay');
@@ -513,7 +513,7 @@
         // Check authentication and load user data
         async function initializePage() {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session } } = await supabaseClient.auth.getSession();
 
                 if (!session) {
                     window.location.href = 'signin.html';
@@ -626,7 +626,7 @@
             }
 
             try {
-                const { error } = await supabase.auth.updateUser({
+                const { error } = await supabaseClient.auth.updateUser({
                     data: { full_name: newName }
                 });
 
@@ -646,7 +646,7 @@
         // Change password
         changePasswordBtn.addEventListener('click', async () => {
             try {
-                const { error } = await supabase.auth.resetPasswordForEmail(currentUser.email, {
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(currentUser.email, {
                     redirectTo: window.location.origin + '/reset-password.html'
                 });
 
@@ -662,7 +662,7 @@
         // Sign out
         signoutBtn.addEventListener('click', async () => {
             try {
-                const { error } = await supabase.auth.signOut();
+                const { error } = await supabaseClient.auth.signOut();
                 if (error) throw error;
 
                 window.location.href = 'signin.html';
@@ -674,7 +674,7 @@
         });
 
         // Listen for auth state changes
-        supabase.auth.onAuthStateChange((event, session) => {
+        supabaseClient.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_OUT') {
                 window.location.href = 'signin.html';
             }
