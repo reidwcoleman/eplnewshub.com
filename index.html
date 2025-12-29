@@ -136,7 +136,7 @@
         /* Main Content */
         .nyt-main-content {
             background: transparent;
-            padding: 64px 0 0 0;
+            padding: 32px 0 0 0;
             min-height: 100vh;
         }
 
@@ -164,18 +164,18 @@
             margin-bottom: 40px;
             padding-bottom: 32px;
             border-bottom: 1px solid rgba(255,255,255,0.08);
-            align-items: stretch;
+            align-items: start;
         }
 
         /* Main Featured Story */
         .nyt-featured {
-            padding-right: 20px;
+            padding-right: 16px;
             border-right: 1px solid rgba(255,255,255,0.08);
             display: flex;
             flex-direction: column;
             background: rgba(255,255,255,0.02);
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 16px;
             border: 1px solid rgba(255,255,255,0.06);
             box-shadow: 0 8px 24px rgba(0,0,0,0.3);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -190,7 +190,6 @@
         .nyt-featured .main_headline {
             display: flex;
             flex-direction: column;
-            flex: 1;
         }
 
         .nyt-featured .main_headline img {
@@ -1248,52 +1247,5 @@
 
     <!-- Scripts -->
     <script src="index.js"></script>
-    <script>
-        // Match main headline card height to sidebar height exactly
-        function matchHeadlineToSidebar() {
-            const sidebar = document.querySelector('.nyt-hero-sidebar');
-            const mainHeadline = document.querySelector('.nyt-featured .main_headline');
-            const headlineLink = mainHeadline ? mainHeadline.querySelector('a') : null;
-
-            if (sidebar && mainHeadline && headlineLink && window.innerWidth > 1024) {
-                // Reset to auto first to get natural heights
-                mainHeadline.style.height = 'auto';
-                headlineLink.style.height = 'auto';
-
-                // Force a reflow
-                void sidebar.offsetHeight;
-
-                // Get exact sidebar height
-                const sidebarHeight = sidebar.getBoundingClientRect().height;
-
-                // Set the main_headline and link to exact sidebar height
-                mainHeadline.style.height = sidebarHeight + 'px';
-                headlineLink.style.height = '100%';
-
-                console.log('Sidebar height:', sidebarHeight, 'px');
-            } else if (mainHeadline && headlineLink) {
-                mainHeadline.style.height = 'auto';
-                headlineLink.style.height = 'auto';
-            }
-        }
-
-        // Run multiple times to ensure content is loaded
-        window.addEventListener('load', function() {
-            matchHeadlineToSidebar();
-            setTimeout(matchHeadlineToSidebar, 100);
-            setTimeout(matchHeadlineToSidebar, 300);
-            setTimeout(matchHeadlineToSidebar, 500);
-            setTimeout(matchHeadlineToSidebar, 1000);
-        });
-        window.addEventListener('resize', matchHeadlineToSidebar);
-
-        // Also run when images load
-        document.addEventListener('DOMContentLoaded', function() {
-            const images = document.querySelectorAll('.nyt-hero img');
-            images.forEach(img => {
-                img.addEventListener('load', matchHeadlineToSidebar);
-            });
-        });
-    </script>
 </body>
 </html>

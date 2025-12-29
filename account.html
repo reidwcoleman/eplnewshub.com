@@ -6,6 +6,7 @@
     <title>My Account - EPL News Hub</title>
     <meta name="description" content="Manage your EPL News Hub account settings and preferences.">
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -20,157 +21,242 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #252525;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
             min-height: 100vh;
+            color: #ffffff;
+            position: relative;
+        }
+
+        /* Animated mesh background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 135, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(55, 0, 60, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(0, 255, 135, 0.02) 0%, transparent 30%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .account-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 40px 20px 60px;
+            position: relative;
+            z-index: 1;
         }
 
+        /* Account Header */
         .account-header {
-            background: linear-gradient(135deg, #37003c 0%, #5a0050 100%);
-            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(55, 0, 60, 0.4) 0%, rgba(90, 0, 80, 0.3) 100%);
+            border: 1px solid rgba(0, 255, 135, 0.2);
+            border-radius: 20px;
             padding: 40px;
-            color: white;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
             display: flex;
             align-items: center;
-            gap: 24px;
-            box-shadow: 0 10px 40px rgba(55, 0, 60, 0.3);
+            gap: 28px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
         }
 
         .user-avatar {
             width: 100px;
             height: 100px;
-            background: linear-gradient(135deg, #00ff87, #00cc6a);
+            background: linear-gradient(135deg, #00ff87 0%, #00cc6a 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 2.5rem;
-            font-weight: bold;
-            color: #37003c;
-            border: 4px solid white;
+            font-weight: 700;
+            color: #0f0f0f;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 255, 135, 0.3);
+            flex-shrink: 0;
         }
 
         .user-info h1 {
             font-size: 1.75rem;
-            margin-bottom: 8px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
         }
 
-        .user-info p {
-            opacity: 0.9;
+        .user-info .user-email-display {
+            color: rgba(255, 255, 255, 0.7);
             font-size: 1rem;
+            margin-bottom: 6px;
         }
 
         .user-info .member-since {
-            margin-top: 8px;
             font-size: 0.85rem;
-            opacity: 0.7;
+            color: rgba(255, 255, 255, 0.5);
         }
 
+        .membership-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(0, 255, 135, 0.2) 0%, rgba(0, 204, 106, 0.2) 100%);
+            border: 1px solid rgba(0, 255, 135, 0.3);
+            color: #00ff87;
+            border-radius: 24px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .membership-badge.premium {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 183, 0, 0.2) 100%);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #ffd700;
+        }
+
+        /* Account Grid */
         .account-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 24px;
         }
 
+        /* Account Cards */
         .account-card {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 28px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .account-card:hover {
+            border-color: rgba(0, 255, 135, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
         .account-card h2 {
-            font-size: 1.25rem;
-            color: #37003c;
-            margin-bottom: 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 24px;
             display: flex;
             align-items: center;
             gap: 10px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, rgba(0, 255, 135, 0.2) 0%, rgba(0, 204, 106, 0.1) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        /* Form Styles */
         .profile-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
 
         .form-group label {
             font-size: 0.85rem;
-            font-weight: 600;
-            color: #e0e0e0;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .form-group input {
-            padding: 12px 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 14px 16px;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
             font-size: 0.95rem;
+            color: #ffffff;
             transition: all 0.3s ease;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #37003c;
-            box-shadow: 0 0 0 4px rgba(55, 0, 60, 0.1);
+            border-color: #00ff87;
+            box-shadow: 0 0 0 3px rgba(0, 255, 135, 0.1);
         }
 
         .form-group input:disabled {
-            background: #252525;
+            background: rgba(15, 15, 15, 0.8);
+            color: rgba(255, 255, 255, 0.5);
             cursor: not-allowed;
         }
 
+        /* Buttons */
         .btn {
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 24px;
+            border-radius: 10px;
             font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #37003c, #5a0050);
-            color: white;
+            background: linear-gradient(135deg, #00ff87 0%, #00cc6a 100%);
+            color: #0f0f0f;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #00ff87, #00cc6a);
-            color: #37003c;
-        }
-
-        .btn-danger {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 135, 0.3);
         }
 
         .btn-secondary {
-            background: #252525;
-            color: #e0e0e0;
-            border: 2px solid #e0e0e0;
+            background: rgba(40, 40, 40, 0.8);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .btn-secondary:hover {
-            background: #e0e0e0;
+            background: rgba(50, 50, 50, 0.8);
+            border-color: rgba(0, 255, 135, 0.3);
         }
 
+        .btn-danger {
+            background: rgba(220, 38, 38, 0.15);
+            color: #ff6b6b;
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(220, 38, 38, 0.25);
+            border-color: rgba(220, 38, 38, 0.5);
+        }
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -178,24 +264,34 @@
         }
 
         .stat-item {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 16px;
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            border-color: rgba(0, 255, 135, 0.2);
+            background: rgba(25, 25, 25, 0.8);
         }
 
         .stat-value {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 700;
-            color: #37003c;
+            color: #00ff87;
+            margin-bottom: 4px;
         }
 
         .stat-label {
             font-size: 0.8rem;
-            color: #a0a0a0;
-            margin-top: 4px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
+        /* Quick Links */
         .quick-links {
             display: flex;
             flex-direction: column;
@@ -205,80 +301,174 @@
         .quick-link {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 14px;
-            background: #f8f9fa;
-            border-radius: 8px;
+            gap: 14px;
+            padding: 16px;
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
             text-decoration: none;
-            color: #e0e0e0;
+            color: #ffffff;
             transition: all 0.3s ease;
         }
 
         .quick-link:hover {
-            background: #37003c;
-            color: white;
+            background: rgba(0, 255, 135, 0.1);
+            border-color: rgba(0, 255, 135, 0.2);
             transform: translateX(4px);
         }
 
         .quick-link-icon {
-            font-size: 1.25rem;
-        }
-
-        .membership-badge {
-            display: inline-flex;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 255, 135, 0.1);
+            border-radius: 10px;
+            display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: linear-gradient(135deg, #ffd700, #ffb700);
-            color: #e0e0e0;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 12px;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
         }
 
-        .membership-free {
-            background: #e0e0e0;
+        .quick-link-text {
+            font-weight: 500;
+            font-size: 0.95rem;
         }
 
-        .message {
-            padding: 12px 16px;
-            border-radius: 8px;
+        /* Saved Articles */
+        .saved-articles-list {
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .saved-articles-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .saved-articles-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .saved-articles-list::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 135, 0.3);
+            border-radius: 3px;
+        }
+
+        .saved-article-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            gap: 12px;
+        }
+
+        .saved-article-item:last-child {
+            border-bottom: none;
+        }
+
+        .saved-article-item a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            flex: 1;
+            transition: color 0.2s ease;
+        }
+
+        .saved-article-item a:hover {
+            color: #00ff87;
+        }
+
+        .saved-article-date {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 6px;
+        }
+
+        .remove-article-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .remove-article-btn:hover {
+            background: rgba(220, 38, 38, 0.2);
+            color: #ff6b6b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
             margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Messages */
+        .message {
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
             font-size: 0.9rem;
             display: none;
         }
 
         .message.error {
-            background: #fee2e2;
-            color: #dc2626;
+            background: rgba(220, 38, 38, 0.15);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            color: #ff6b6b;
         }
 
         .message.success {
-            background: #dcfce7;
-            color: #16a34a;
+            background: rgba(0, 255, 135, 0.1);
+            border: 1px solid rgba(0, 255, 135, 0.3);
+            color: #00ff87;
         }
 
+        /* Loading Overlay */
         .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(15, 15, 15, 0.95);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            gap: 20px;
         }
 
         .loading-spinner {
             width: 50px;
             height: 50px;
-            border: 4px solid #e0e0e0;
-            border-top-color: #37003c;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #00ff87;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
+        }
+
+        .loading-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
         }
 
         @keyframes spin {
@@ -289,73 +479,24 @@
             display: none !important;
         }
 
-        /* Saved Articles */
-        .saved-articles-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .saved-article-item {
+        /* Account Actions */
+        .account-actions {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 12px 0;
-            border-bottom: 1px solid #2a2a2a;
+            flex-direction: column;
             gap: 12px;
         }
 
-        .saved-article-item:last-child {
-            border-bottom: none;
-        }
-
-        .saved-article-item a {
-            color: #e0e0e0;
-            text-decoration: none;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            flex: 1;
-        }
-
-        .saved-article-item a:hover {
-            color: #37003c;
-        }
-
-        .saved-article-date {
-            font-size: 0.75rem;
-            color: #888;
-            margin-top: 4px;
-        }
-
-        .remove-article-btn {
-            background: none;
-            border: none;
-            color: #ccc;
-            cursor: pointer;
-            font-size: 1.25rem;
-            padding: 0;
-            transition: color 0.2s;
-        }
-
-        .remove-article-btn:hover {
-            color: #dc2626;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 30px 20px;
-            color: #888;
-        }
-
-        .empty-state-icon {
-            font-size: 2.5rem;
-            margin-bottom: 12px;
-        }
-
+        /* Responsive Design */
         @media (max-width: 768px) {
+            .account-container {
+                padding: 24px 16px 40px;
+            }
+
             .account-header {
                 flex-direction: column;
                 text-align: center;
-                padding: 30px 20px;
+                padding: 32px 24px;
+                gap: 20px;
             }
 
             .user-avatar {
@@ -364,12 +505,29 @@
                 font-size: 2rem;
             }
 
+            .user-info h1 {
+                font-size: 1.5rem;
+            }
+
             .account-grid {
                 grid-template-columns: 1fr;
             }
 
+            .account-card {
+                padding: 24px 20px;
+            }
+
             .stats-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-item {
+                padding: 16px;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -380,6 +538,7 @@
     <!-- Loading overlay -->
     <div id="loading-overlay" class="loading-overlay">
         <div class="loading-spinner"></div>
+        <div class="loading-text">Loading your account...</div>
     </div>
 
     <main class="account-container hidden" id="account-content">
@@ -388,10 +547,10 @@
             <div class="user-avatar" id="user-avatar">?</div>
             <div class="user-info">
                 <h1 id="user-name">Loading...</h1>
-                <p id="user-email">Loading...</p>
+                <p class="user-email-display" id="user-email">Loading...</p>
                 <p class="member-since" id="member-since"></p>
-                <div class="membership-badge membership-free" id="membership-badge">
-                    <span>⭐</span> Free Member
+                <div class="membership-badge" id="membership-badge">
+                    Free Member
                 </div>
             </div>
         </div>
@@ -400,7 +559,10 @@
         <div class="account-grid">
             <!-- Profile Settings -->
             <div class="account-card">
-                <h2>👤 Profile Settings</h2>
+                <h2>
+                    <span class="card-icon">@</span>
+                    Profile Settings
+                </h2>
                 <div id="profile-message" class="message"></div>
                 <form id="profile-form" class="profile-form">
                     <div class="form-group">
@@ -417,7 +579,10 @@
 
             <!-- Account Stats -->
             <div class="account-card">
-                <h2>📊 Your Stats</h2>
+                <h2>
+                    <span class="card-icon">#</span>
+                    Your Stats
+                </h2>
                 <div class="stats-grid">
                     <div class="stat-item">
                         <div class="stat-value" id="stat-articles">0</div>
@@ -425,7 +590,7 @@
                     </div>
                     <div class="stat-item">
                         <div class="stat-value" id="stat-saved">0</div>
-                        <div class="stat-label">Saved Articles</div>
+                        <div class="stat-label">Saved</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-value" id="stat-days">0</div>
@@ -433,14 +598,17 @@
                     </div>
                     <div class="stat-item">
                         <div class="stat-value" id="stat-fpl">0</div>
-                        <div class="stat-label">FPL Tools Used</div>
+                        <div class="stat-label">FPL Tools</div>
                     </div>
                 </div>
             </div>
 
             <!-- Saved Articles -->
             <div class="account-card">
-                <h2>📑 Saved Articles</h2>
+                <h2>
+                    <span class="card-icon">*</span>
+                    Saved Articles
+                </h2>
                 <div id="saved-articles-list" class="saved-articles-list">
                     <!-- Populated by JavaScript -->
                 </div>
@@ -448,36 +616,42 @@
 
             <!-- Quick Links -->
             <div class="account-card">
-                <h2>🔗 Quick Links</h2>
+                <h2>
+                    <span class="card-icon">></span>
+                    Quick Links
+                </h2>
                 <div class="quick-links">
                     <a href="fpl-premium-hub.html" class="quick-link">
-                        <span class="quick-link-icon">⚽</span>
-                        <span>FPL Premium Hub</span>
+                        <span class="quick-link-icon">*</span>
+                        <span class="quick-link-text">FPL Premium Hub</span>
                     </a>
                     <a href="news.html" class="quick-link">
-                        <span class="quick-link-icon">📰</span>
-                        <span>Latest News</span>
+                        <span class="quick-link-icon">!</span>
+                        <span class="quick-link-text">Latest News</span>
                     </a>
                     <a href="transfer-center.html" class="quick-link">
-                        <span class="quick-link-icon">🔄</span>
-                        <span>Transfer Center</span>
+                        <span class="quick-link-icon">~</span>
+                        <span class="quick-link-text">Transfer Center</span>
                     </a>
                     <a href="membership.html" class="quick-link">
-                        <span class="quick-link-icon">⭐</span>
-                        <span>Upgrade to Premium</span>
+                        <span class="quick-link-icon">+</span>
+                        <span class="quick-link-text">Upgrade to Premium</span>
                     </a>
                 </div>
             </div>
 
             <!-- Account Actions -->
             <div class="account-card">
-                <h2>⚙️ Account Actions</h2>
-                <div style="display: flex; flex-direction: column; gap: 12px;">
+                <h2>
+                    <span class="card-icon">=</span>
+                    Account Actions
+                </h2>
+                <div class="account-actions">
                     <button class="btn btn-secondary" id="change-password-btn">
-                        🔐 Change Password
+                        Change Password
                     </button>
                     <button class="btn btn-danger" id="signout-btn">
-                        🚪 Sign Out
+                        Sign Out
                     </button>
                 </div>
                 <div id="password-message" class="message" style="margin-top: 16px;"></div>
@@ -576,7 +750,7 @@
             if (savedArticles.length === 0) {
                 savedArticlesList.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">📚</div>
+                        <div class="empty-state-icon">*</div>
                         <p>No saved articles yet.<br>Save articles while reading to find them here.</p>
                     </div>
                 `;
@@ -589,7 +763,7 @@
                         <a href="${article.url}">${article.title}</a>
                         <div class="saved-article-date">Saved ${new Date(article.savedAt).toLocaleDateString('en-GB')}</div>
                     </div>
-                    <button class="remove-article-btn" onclick="removeArticle(${index})" title="Remove">×</button>
+                    <button class="remove-article-btn" onclick="removeArticle(${index})" title="Remove">x</button>
                 </div>
             `).join('');
         }
@@ -685,4 +859,3 @@
     </script>
 </body>
 </html>
-<!-- Rebuilt Mon Dec 29 16:24:55 EST 2025 -->
