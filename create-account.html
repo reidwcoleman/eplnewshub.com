@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Create Account - EPL News Hub</title>
     <meta name="description" content="Create your EPL News Hub account to access premium features, save articles, and get personalized Premier League content.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="styles.css">
 
     <!-- Supabase JS -->
@@ -12,40 +18,67 @@
     <script src="./supabase-config.js"></script>
 
     <style>
-        * {
+        html, body {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+            min-height: 100vh;
             margin: 0;
             padding: 0;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(56, 0, 60, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 255, 135, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+            animation: meshFloat 20s ease-in-out infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes meshFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(2%, -2%) rotate(1deg); }
+            66% { transform: translate(-2%, 2%) rotate(-1deg); }
+        }
+
+        * {
+            position: relative;
+            z-index: 1;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #37003c 0%, #2d0032 50%, #1a001d 100%);
-            min-height: 100vh;
-        }
-
         .auth-container {
-            min-height: calc(100vh - 140px);
+            min-height: calc(100vh - 160px);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
+            padding: 60px 20px;
         }
 
         .auth-card {
-            background: #1a1a1a;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(145deg, #1e1e1e 0%, #252525 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
             width: 100%;
-            max-width: 420px;
-            padding: 40px;
-            animation: slideUp 0.5s ease;
+            max-width: 480px;
+            padding: 48px 40px;
+            animation: slideUp 0.6s ease;
         }
 
         @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -59,27 +92,76 @@
         }
 
         .auth-logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #00ff87, #37003c);
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #00ff87 0%, #00cc6a 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
+            margin: 0 auto 24px;
             font-size: 2rem;
+            box-shadow:
+                0 10px 30px rgba(0, 255, 135, 0.3),
+                0 0 60px rgba(0, 255, 135, 0.1);
         }
 
         .auth-header h1 {
             font-family: 'Noto Serif', Georgia, serif;
-            font-size: 1.75rem;
-            color: #f5f5f5;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
             margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
 
         .auth-header p {
             color: #a0a0a0;
-            font-size: 0.95rem;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .benefits-list {
+            background: rgba(0, 255, 135, 0.05);
+            border: 1px solid rgba(0, 255, 135, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 28px;
+        }
+
+        .benefits-list h3 {
+            font-size: 0.9rem;
+            color: #00ff87;
+            margin-bottom: 14px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .benefits-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .benefits-list li {
+            font-size: 0.85rem;
+            color: #c0c0c0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .benefits-list li::before {
+            content: '✓';
+            color: #00ff87;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
 
         .form-group {
@@ -90,37 +172,41 @@
             display: block;
             font-weight: 600;
             color: #e0e0e0;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.3px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 16px 18px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             font-size: 1rem;
+            font-family: 'Inter', sans-serif;
             transition: all 0.3s ease;
-            background: #252525;
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #37003c;
-            background: #1a1a1a;
-            box-shadow: 0 0 0 4px rgba(55, 0, 60, 0.1);
+            border-color: #00ff87;
+            background: rgba(0, 255, 135, 0.05);
+            box-shadow: 0 0 0 4px rgba(0, 255, 135, 0.1);
         }
 
         .form-group input::placeholder {
-            color: #999;
+            color: #666;
         }
 
         .form-group input.error {
-            border-color: #dc2626;
+            border-color: #ef4444;
         }
 
         .form-group input.success {
-            border-color: #16a34a;
+            border-color: #00ff87;
         }
 
         .form-row {
@@ -130,57 +216,75 @@
         }
 
         .password-requirements {
-            margin-top: 8px;
-            font-size: 0.8rem;
-            color: #a0a0a0;
+            margin-top: 12px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .password-requirements ul {
             list-style: none;
             padding: 0;
-            margin-top: 8px;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
         }
 
         .password-requirements li {
-            padding: 4px 0;
+            font-size: 0.8rem;
+            color: #666;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            font-family: 'Inter', sans-serif;
+            transition: color 0.3s ease;
         }
 
         .password-requirements li::before {
             content: '○';
-            color: #ccc;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+        }
+
+        .password-requirements li.valid {
+            color: #00ff87;
         }
 
         .password-requirements li.valid::before {
-            content: '✓';
-            color: #16a34a;
+            content: '●';
+            color: #00ff87;
         }
 
         .btn-primary {
             width: 100%;
-            padding: 14px 24px;
-            background: linear-gradient(135deg, #00ff87, #00cc6a);
-            color: #37003c;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #00ff87 0%, #00cc6a 100%);
+            color: #0a0a0a;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
             cursor: pointer;
             transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             margin-top: 8px;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #37003c, #5a0050);
-            color: #ffffff;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(55, 0, 60, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 255, 135, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
         }
 
         .btn-primary:disabled {
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
@@ -189,8 +293,9 @@
             display: flex;
             align-items: center;
             margin: 28px 0;
-            color: #999;
+            color: #666;
             font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
         }
 
         .divider::before,
@@ -198,22 +303,25 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: #e0e0e0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
         }
 
         .divider span {
-            padding: 0 16px;
+            padding: 0 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn-google {
             width: 100%;
-            padding: 14px 24px;
-            background: #1a1a1a;
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.05);
             color: #e0e0e0;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             font-size: 1rem;
             font-weight: 600;
+            font-family: 'Inter', sans-serif;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
@@ -223,8 +331,9 @@
         }
 
         .btn-google:hover {
-            background: #252525;
-            border-color: #ccc;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
 
         .btn-google svg {
@@ -236,42 +345,48 @@
             text-align: center;
             margin-top: 28px;
             padding-top: 24px;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .auth-footer p {
-            color: #a0a0a0;
-            font-size: 0.95rem;
+            color: #888;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
         }
 
         .auth-footer a {
-            color: #37003c;
+            color: #00ff87;
             font-weight: 600;
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .auth-footer a:hover {
-            color: #00ff87;
+            color: #00cc6a;
+            text-decoration: underline;
         }
 
         .error-message {
-            background: #fee2e2;
-            color: #dc2626;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 24px;
             font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
             display: none;
         }
 
         .success-message {
-            background: #dcfce7;
-            color: #16a34a;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: rgba(0, 255, 135, 0.1);
+            border: 1px solid rgba(0, 255, 135, 0.3);
+            color: #00ff87;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 24px;
             font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
             display: none;
         }
 
@@ -280,23 +395,26 @@
             align-items: flex-start;
             gap: 12px;
             margin-bottom: 20px;
+            margin-top: 8px;
         }
 
-        .terms-checkbox input {
-            width: 18px;
-            height: 18px;
+        .terms-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
             margin-top: 2px;
             cursor: pointer;
+            accent-color: #00ff87;
         }
 
         .terms-checkbox label {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #a0a0a0;
-            line-height: 1.4;
+            line-height: 1.5;
+            font-family: 'Inter', sans-serif;
         }
 
         .terms-checkbox a {
-            color: #37003c;
+            color: #00ff87;
             text-decoration: none;
         }
 
@@ -312,57 +430,34 @@
             border-top-color: currentColor;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
-            margin-right: 8px;
+            margin-right: 10px;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .benefits-list {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-
-        .benefits-list h3 {
-            font-size: 0.9rem;
-            color: #37003c;
-            margin-bottom: 12px;
-        }
-
-        .benefits-list ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .benefits-list li {
-            font-size: 0.85rem;
-            color: #c0c0c0;
-            padding: 6px 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .benefits-list li::before {
-            content: '✓';
-            color: #00cc6a;
-            font-weight: bold;
-        }
-
-        @media (max-width: 480px) {
+        @media (max-width: 520px) {
             .auth-card {
-                padding: 30px 24px;
+                padding: 36px 24px;
+                margin: 0 10px;
             }
 
             .auth-header h1 {
-                font-size: 1.5rem;
+                font-size: 1.75rem;
+            }
+
+            .auth-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 1.75rem;
             }
 
             .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .benefits-list ul {
                 grid-template-columns: 1fr;
             }
         }
@@ -375,17 +470,17 @@
         <div class="auth-card">
             <div class="auth-header">
                 <div class="auth-logo">⚽</div>
-                <h1>Create Account</h1>
-                <p>Join EPL News Hub for the ultimate Premier League experience</p>
+                <h1>Join EPL News Hub</h1>
+                <p>Get the ultimate Premier League experience</p>
             </div>
 
             <div class="benefits-list">
-                <h3>Why create an account?</h3>
+                <h3>Member Benefits</h3>
                 <ul>
-                    <li>Access premium FPL tools and analysis</li>
-                    <li>Save your favorite articles</li>
-                    <li>Get personalized news updates</li>
-                    <li>Join the community discussions</li>
+                    <li>Premium FPL tools</li>
+                    <li>Save favorite articles</li>
+                    <li>Personalized news</li>
+                    <li>Community access</li>
                 </ul>
             </div>
 
@@ -407,7 +502,7 @@
 
                 <div class="form-group">
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required>
                 </div>
 
                 <div class="form-group">
@@ -415,9 +510,9 @@
                     <input type="password" id="password" name="password" placeholder="Create a strong password" required>
                     <div class="password-requirements">
                         <ul>
-                            <li id="req-length">At least 8 characters</li>
-                            <li id="req-uppercase">One uppercase letter</li>
-                            <li id="req-number">One number</li>
+                            <li id="req-length">8+ characters</li>
+                            <li id="req-uppercase">Uppercase</li>
+                            <li id="req-number">Number</li>
                         </ul>
                     </div>
                 </div>
@@ -440,7 +535,7 @@
             </form>
 
             <div class="divider">
-                <span>or sign up with</span>
+                <span>or</span>
             </div>
 
             <button class="btn-google" id="google-signup-btn">
@@ -655,4 +750,3 @@
     </script>
 </body>
 </html>
-<!-- Rebuilt Mon Dec 29 16:24:55 EST 2025 -->
