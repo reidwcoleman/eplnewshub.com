@@ -612,16 +612,13 @@
 
                 if (error) throw error;
 
-                // Check if email confirmation is required
+                // Check if account already exists
                 if (data?.user?.identities?.length === 0) {
                     showError('An account with this email already exists.');
-                } else if (data?.user && !data?.session) {
-                    showSuccess('Account created! Please check your email to verify your account.');
-                    signupForm.reset();
                 } else {
-                    showSuccess('Account created successfully! Redirecting...');
+                    showSuccess('Account created successfully! Redirecting to homepage...');
                     setTimeout(() => {
-                        window.location.href = 'account.html';
+                        window.location.href = 'index.html';
                     }, 1500);
                 }
 
