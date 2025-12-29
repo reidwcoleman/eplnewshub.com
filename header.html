@@ -51,7 +51,7 @@
                 <li><a href="/membership.html" class="nyt-nav-premium">Premium</a></li>
                 <li id="nav-signin"><a href="/signin.html" class="nyt-nav-account">Sign In</a></li>
                 <li id="nav-signup"><a href="/create-account.html" class="nyt-nav-account nyt-nav-signup">Create Account</a></li>
-                <li id="nav-account" style="display: none;"><a href="/account.html" class="nyt-nav-account">My Account</a></li>
+                <li><a href="/account.html" class="nyt-nav-account">My Account</a></li>
             </ul>
         </div>
     </nav>
@@ -81,7 +81,7 @@
             <li><a href="/membership.html">Premium</a></li>
             <li id="mobile-nav-signin"><a href="/signin.html">Sign In</a></li>
             <li id="mobile-nav-signup"><a href="/create-account.html">Create Account</a></li>
-            <li id="mobile-nav-account" style="display: none;"><a href="/account.html">My Account</a></li>
+            <li><a href="/account.html">My Account</a></li>
         </ul>
     </nav>
 </div>
@@ -117,13 +117,11 @@ function toggleMobileMenu() {
         const { data: { session } } = await supabaseClient.auth.getSession();
 
         if (session) {
-            // User is logged in - show My Account, hide Sign In/Sign Up
+            // User is logged in - hide Sign In/Sign Up
             document.getElementById('nav-signin')?.style.setProperty('display', 'none');
             document.getElementById('nav-signup')?.style.setProperty('display', 'none');
-            document.getElementById('nav-account')?.style.setProperty('display', 'block');
             document.getElementById('mobile-nav-signin')?.style.setProperty('display', 'none');
             document.getElementById('mobile-nav-signup')?.style.setProperty('display', 'none');
-            document.getElementById('mobile-nav-account')?.style.setProperty('display', 'block');
         }
     } catch (e) {
         console.log('Auth check skipped');
