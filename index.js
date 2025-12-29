@@ -513,7 +513,7 @@ function addVisualEnhancements() {
         }
     });
 
-    // Add intersection observer for scroll animations
+    // Add intersection observer for scroll animations (one-time only)
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -525,14 +525,24 @@ function addVisualEnhancements() {
                 entry.target.style.opacity = '1';
                 entry.target.style.transform = 'translateY(0)';
                 entry.target.classList.add('animate-in');
+                // Stop observing once animated - prevents re-triggering
+                observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
 
-    // Observe elements for scroll animations
+    // Observe elements for scroll animations (skip elements already visible)
     const animatedElements = document.querySelectorAll('.main_headline, .main_subheadline, .main_subheadline2, .main_subheadline3, .story-card, .featured-main');
     animatedElements.forEach(el => {
-        if (!el.classList.contains('animate-in')) {
+        // Skip if already in view or already animated
+        const rect = el.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+
+        if (isVisible || el.classList.contains('animate-in')) {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+            el.classList.add('animate-in');
+        } else {
             el.style.opacity = '0.3';
             el.style.transform = 'translateY(30px)';
             el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
