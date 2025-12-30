@@ -134,165 +134,226 @@
             flex-direction: column;
         }
 
-        /* Pitch View - FPL Official Style */
+        /* Pitch View - Official FPL Style */
         .pitch-container {
-            background: linear-gradient(180deg, #02894e 0%, #037b47 100%);
-            border-radius: 12px;
-            padding: 20px 16px;
+            background: linear-gradient(180deg, #03a855 0%, #02984c 40%, #028544 100%);
+            border-radius: 16px;
+            padding: 0;
             position: relative;
             overflow: hidden;
         }
 
-        /* Bench Section */
-        .bench-section {
-            background: #2d2d3a;
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 12px;
+        /* Pitch markings */
+        .pitch-markings {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
         }
 
-        .bench-label {
-            text-align: center;
+        /* Goal box */
+        .pitch-markings::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 18%;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        /* Center circle */
+        .pitch-markings::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 120px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+        }
+
+        /* Purple header banner */
+        .pitch-header {
+            background: linear-gradient(90deg, #37003c 0%, #963cff 50%, #37003c 100%);
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pitch-header-logo {
+            color: #00ff87;
+            font-weight: 800;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pitch-header-logo::before {
+            content: '⚽';
             font-size: 12px;
-            font-weight: 600;
-            color: #888;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .formation {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px;
             position: relative;
             z-index: 1;
+            padding: 16px 8px 20px;
         }
 
         .formation-row {
             display: flex;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
         }
 
         .player-slot {
-            width: 68px;
+            width: 72px;
             text-align: center;
             cursor: pointer;
             transition: transform 0.15s ease;
+            position: relative;
         }
 
         .player-slot:hover {
             transform: scale(1.05);
         }
 
-        /* FPL-style jersey */
-        .player-shirt {
-            width: 46px;
-            height: 46px;
-            margin: 0 auto 4px;
+        /* Jersey image container */
+        .player-jersey {
+            width: 56px;
+            height: 70px;
+            margin: 0 auto;
             position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .player-jersey img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* Fallback jersey shape when no image */
+        .player-jersey-fallback {
+            width: 48px;
+            height: 58px;
+            margin: 0 auto;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 11px;
+            font-size: 12px;
             color: #fff;
+            position: relative;
         }
 
-        .player-shirt::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: #37003c;
-            clip-path: polygon(20% 0%, 80% 0%, 100% 15%, 100% 100%, 0% 100%, 0% 15%);
-            border-radius: 4px 4px 8px 8px;
+        .player-slot.empty .player-jersey-fallback {
+            background: rgba(255,255,255,0.15);
+            border: 2px dashed rgba(255,255,255,0.4);
+            border-radius: 8px;
+            color: rgba(255,255,255,0.5);
         }
 
-        .player-shirt::after {
-            content: '';
+        /* Captain/VC badges */
+        .player-badge {
             position: absolute;
             top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 8px;
-            background: inherit;
-            border-radius: 0 0 4px 4px;
+            left: 0;
+            width: 18px;
+            height: 18px;
+            background: #37003c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            border: 2px solid #00ff87;
+            z-index: 3;
         }
 
-        .player-shirt span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .player-slot.empty .player-shirt::before {
-            background: rgba(255,255,255,0.15);
-            border: 2px dashed rgba(255,255,255,0.3);
-        }
-
-        .player-slot.gk .player-shirt::before {
-            background: linear-gradient(180deg, #ebff00 0%, #c8d900 100%);
-        }
-        .player-slot.gk .player-shirt {
-            color: #000;
-        }
-
-        .player-slot.def .player-shirt::before {
-            background: linear-gradient(180deg, #00ff87 0%, #00d970 100%);
-        }
-        .player-slot.def .player-shirt {
-            color: #000;
-        }
-
-        .player-slot.mid .player-shirt::before {
-            background: linear-gradient(180deg, #05f0ff 0%, #00c8d4 100%);
-        }
-        .player-slot.mid .player-shirt {
-            color: #000;
-        }
-
-        .player-slot.fwd .player-shirt::before {
-            background: linear-gradient(180deg, #e90052 0%, #c70046 100%);
+        /* White name card - FPL style */
+        .player-info-card {
+            background: #fff;
+            border-radius: 4px;
+            padding: 4px 6px;
+            margin-top: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            min-width: 60px;
         }
 
         .player-name {
             font-size: 10px;
             font-weight: 700;
-            color: #fff;
-            background: #37003c;
-            padding: 3px 6px;
-            border-radius: 3px;
+            color: #37003c;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 100%;
-            display: inline-block;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .player-fixture {
+            font-size: 9px;
+            color: #666;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .player-slot.empty .player-info-card {
+            background: rgba(255,255,255,0.8);
         }
 
         .player-slot.empty .player-name {
-            background: rgba(55, 0, 60, 0.6);
-            color: rgba(255,255,255,0.6);
+            color: #999;
         }
 
-        .player-price {
-            font-size: 9px;
-            color: rgba(255,255,255,0.8);
-            margin-top: 2px;
+        /* Bench Section */
+        .bench-section {
+            background: #1a1a2e;
+            border-radius: 0 0 16px 16px;
+            padding: 16px;
         }
 
-        .player-points {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            background: #37003c;
-            color: #00ff87;
-            font-size: 9px;
-            font-weight: 700;
-            padding: 2px 5px;
-            border-radius: 8px;
-            z-index: 2;
+        .bench-label {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #888;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .bench-section .formation-row {
+            gap: 8px;
+        }
+
+        .bench-section .player-slot {
+            width: 68px;
+        }
+
+        .bench-section .player-jersey-fallback {
+            width: 42px;
+            height: 50px;
         }
 
         /* Right Panel (renamed from sidebar to avoid ads) */
@@ -869,61 +930,71 @@
             <div class="main-layout">
                 <div class="pitch-area">
                     <div class="pitch-container">
+                        <!-- Purple header banner -->
+                        <div class="pitch-header">
+                            <span class="pitch-header-logo">Fantasy</span>
+                            <span class="pitch-header-logo">Fantasy</span>
+                        </div>
+                        <div class="pitch-markings"></div>
                         <div class="formation" id="formation">
                             <!-- Goalkeeper -->
                             <div class="formation-row" data-position="gk">
                                 <div class="player-slot empty gk" data-slot="0" onclick="openPlayerSelect(this, 'GK')">
-                                    <div class="player-shirt"><span>GK</span></div>
-                                    <div class="player-name">Select GK</div>
+                                    <div class="player-jersey">
+                                        <div class="player-jersey-fallback">GK</div>
+                                    </div>
+                                    <div class="player-info-card">
+                                        <div class="player-name">Select GK</div>
+                                    </div>
                                 </div>
                             </div>
                             <!-- Defenders -->
                             <div class="formation-row" data-position="def">
                                 <div class="player-slot empty def" data-slot="1" onclick="openPlayerSelect(this, 'DEF')">
-                                    <div class="player-shirt"><span>DEF</span></div>
-                                    <div class="player-name">Select DEF</div>
+                                    <div class="player-jersey"><div class="player-jersey-fallback">DEF</div></div>
+                                    <div class="player-info-card"><div class="player-name">Select DEF</div></div>
                                 </div>
                                 <div class="player-slot empty def" data-slot="2" onclick="openPlayerSelect(this, 'DEF')">
-                                    <div class="player-shirt"><span>DEF</span></div>
-                                    <div class="player-name">Select DEF</div>
+                                    <div class="player-jersey"><div class="player-jersey-fallback">DEF</div></div>
+                                    <div class="player-info-card"><div class="player-name">Select DEF</div></div>
                                 </div>
                                 <div class="player-slot empty def" data-slot="3" onclick="openPlayerSelect(this, 'DEF')">
-                                    <div class="player-shirt"><span>DEF</span></div>
-                                    <div class="player-name">Select DEF</div>
+                                    <div class="player-jersey"><div class="player-jersey-fallback">DEF</div></div>
+                                    <div class="player-info-card"><div class="player-name">Select DEF</div></div>
                                 </div>
                                 <div class="player-slot empty def" data-slot="4" onclick="openPlayerSelect(this, 'DEF')">
-                                    <div class="player-shirt"><span>DEF</span></div>
-                                    <div class="player-name">Select DEF</div>
+                                    <div class="player-jersey"><div class="player-jersey-fallback">DEF</div></div>
+                                    <div class="player-info-card"><div class="player-name">Select DEF</div></div>
+                                </div>
+                                <div class="player-slot empty def" data-slot="5" onclick="openPlayerSelect(this, 'DEF')">
+                                    <div class="player-jersey"><div class="player-jersey-fallback">DEF</div></div>
+                                    <div class="player-info-card"><div class="player-name">Select DEF</div></div>
                                 </div>
                             </div>
                             <!-- Midfielders -->
                             <div class="formation-row" data-position="mid">
-                                <div class="player-slot empty mid" data-slot="5" onclick="openPlayerSelect(this, 'MID')">
-                                    <div class="player-shirt"><span>MID</span></div>
-                                    <div class="player-name">Select MID</div>
-                                </div>
                                 <div class="player-slot empty mid" data-slot="6" onclick="openPlayerSelect(this, 'MID')">
-                                    <div class="player-shirt"><span>MID</span></div>
-                                    <div class="player-name">Select MID</div>
+                                    <div class="player-jersey"><div class="player-jersey-fallback">MID</div></div>
+                                    <div class="player-info-card"><div class="player-name">Select MID</div></div>
                                 </div>
                                 <div class="player-slot empty mid" data-slot="7" onclick="openPlayerSelect(this, 'MID')">
-                                    <div class="player-shirt"><span>MID</span></div>
-                                    <div class="player-name">Select MID</div>
+                                    <div class="player-jersey"><div class="player-jersey-fallback">MID</div></div>
+                                    <div class="player-info-card"><div class="player-name">Select MID</div></div>
                                 </div>
                                 <div class="player-slot empty mid" data-slot="8" onclick="openPlayerSelect(this, 'MID')">
-                                    <div class="player-shirt"><span>MID</span></div>
-                                    <div class="player-name">Select MID</div>
+                                    <div class="player-jersey"><div class="player-jersey-fallback">MID</div></div>
+                                    <div class="player-info-card"><div class="player-name">Select MID</div></div>
                                 </div>
                             </div>
                             <!-- Forwards -->
                             <div class="formation-row" data-position="fwd">
                                 <div class="player-slot empty fwd" data-slot="9" onclick="openPlayerSelect(this, 'FWD')">
-                                    <div class="player-shirt"><span>FWD</span></div>
-                                    <div class="player-name">Select FWD</div>
+                                    <div class="player-jersey"><div class="player-jersey-fallback">FWD</div></div>
+                                    <div class="player-info-card"><div class="player-name">Select FWD</div></div>
                                 </div>
                                 <div class="player-slot empty fwd" data-slot="10" onclick="openPlayerSelect(this, 'FWD')">
-                                    <div class="player-shirt"><span>FWD</span></div>
-                                    <div class="player-name">Select FWD</div>
+                                    <div class="player-jersey"><div class="player-jersey-fallback">FWD</div></div>
+                                    <div class="player-info-card"><div class="player-name">Select FWD</div></div>
                                 </div>
                             </div>
                         </div>
@@ -934,20 +1005,20 @@
                         <div class="bench-label">Substitutes</div>
                         <div class="formation-row">
                             <div class="player-slot empty gk" data-slot="11" onclick="openPlayerSelect(this, 'GK')">
-                                <div class="player-shirt"><span>GK</span></div>
-                                <div class="player-name">Sub GK</div>
+                                <div class="player-jersey"><div class="player-jersey-fallback">GK</div></div>
+                                <div class="player-info-card"><div class="player-name">Sub GK</div></div>
                             </div>
                             <div class="player-slot empty def" data-slot="12" onclick="openPlayerSelect(this, 'DEF')">
-                                <div class="player-shirt"><span>DEF</span></div>
-                                <div class="player-name">Sub 1</div>
+                                <div class="player-jersey"><div class="player-jersey-fallback">DEF</div></div>
+                                <div class="player-info-card"><div class="player-name">Sub 1</div></div>
                             </div>
                             <div class="player-slot empty mid" data-slot="13" onclick="openPlayerSelect(this, 'MID')">
-                                <div class="player-shirt"><span>MID</span></div>
-                                <div class="player-name">Sub 2</div>
+                                <div class="player-jersey"><div class="player-jersey-fallback">MID</div></div>
+                                <div class="player-info-card"><div class="player-name">Sub 2</div></div>
                             </div>
                             <div class="player-slot empty fwd" data-slot="14" onclick="openPlayerSelect(this, 'FWD')">
-                                <div class="player-shirt"><span>FWD</span></div>
-                                <div class="player-name">Sub 3</div>
+                                <div class="player-jersey"><div class="player-jersey-fallback">FWD</div></div>
+                                <div class="player-info-card"><div class="player-name">Sub 3</div></div>
                             </div>
                         </div>
                     </div>
@@ -1139,51 +1210,120 @@
             'FWD': 'fwd'
         };
 
-        // Fetch FPL data
+        // Team shirt URLs - FPL official shirt images
+        const teamShirts = {
+            1: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_1-110.webp',    // Arsenal
+            2: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_2-110.webp',    // Aston Villa
+            3: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_3-110.webp',    // Bournemouth
+            4: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_4-110.webp',    // Brentford
+            5: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_5-110.webp',    // Brighton
+            6: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_6-110.webp',    // Chelsea
+            7: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_7-110.webp',    // Crystal Palace
+            8: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_8-110.webp',    // Everton
+            9: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_9-110.webp',    // Fulham
+            10: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_10-110.webp',  // Ipswich
+            11: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_11-110.webp',  // Leicester
+            12: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_12-110.webp',  // Liverpool
+            13: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_13-110.webp',  // Man City
+            14: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_14-110.webp',  // Man Utd
+            15: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_15-110.webp',  // Newcastle
+            16: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_16-110.webp',  // Nottm Forest
+            17: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_17-110.webp',  // Southampton
+            18: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_18-110.webp',  // Spurs
+            19: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_19-110.webp',  // West Ham
+            20: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_20-110.webp',  // Wolves
+        };
+
+        // GK shirts
+        const teamGKShirts = {
+            1: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_1_1-110.webp',
+            2: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_2_1-110.webp',
+            3: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_3_1-110.webp',
+            4: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_4_1-110.webp',
+            5: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_5_1-110.webp',
+            6: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_6_1-110.webp',
+            7: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_7_1-110.webp',
+            8: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_8_1-110.webp',
+            9: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_9_1-110.webp',
+            10: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_10_1-110.webp',
+            11: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_11_1-110.webp',
+            12: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_12_1-110.webp',
+            13: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_13_1-110.webp',
+            14: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_14_1-110.webp',
+            15: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_15_1-110.webp',
+            16: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_16_1-110.webp',
+            17: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_17_1-110.webp',
+            18: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_18_1-110.webp',
+            19: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_19_1-110.webp',
+            20: 'https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_20_1-110.webp',
+        };
+
+        // Fetch FPL data with multiple proxy fallbacks
         async function fetchFPLData() {
-            try {
-                // Use CORS proxy for FPL API
-                const proxyUrl = 'https://corsproxy.io/?';
-                const fplUrl = 'https://fantasy.premierleague.com/api/bootstrap-static/';
+            const fplUrl = 'https://fantasy.premierleague.com/api/bootstrap-static/';
+            const proxies = [
+                'https://api.allorigins.win/raw?url=',
+                'https://corsproxy.io/?',
+                'https://api.codetabs.com/v1/proxy?quest='
+            ];
 
-                const response = await fetch(proxyUrl + encodeURIComponent(fplUrl));
-                const data = await response.json();
+            let data = null;
+            let lastError = null;
 
-                teams = data.teams || [];
-                allPlayers = (data.elements || []).map(player => ({
-                    id: player.id,
-                    name: player.web_name,
-                    fullName: player.first_name + ' ' + player.second_name,
-                    team: teams.find(t => t.id === player.team)?.short_name || 'N/A',
-                    teamId: player.team,
-                    position: positionMap[player.element_type],
-                    price: player.now_cost / 10,
-                    points: player.total_points,
-                    form: parseFloat(player.form),
-                    selectedBy: parseFloat(player.selected_by_percent),
-                    goals: player.goals_scored,
-                    assists: player.assists,
-                    cleanSheets: player.clean_sheets,
-                    minutes: player.minutes,
-                    bonus: player.bonus,
-                    xG: parseFloat(player.expected_goals) || 0,
-                    xA: parseFloat(player.expected_assists) || 0,
-                    ict: parseFloat(player.ict_index) || 0
-                })).sort((a, b) => b.points - a.points);
+            for (const proxy of proxies) {
+                try {
+                    console.log(`Trying proxy: ${proxy}`);
+                    const response = await fetch(proxy + encodeURIComponent(fplUrl));
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    data = await response.json();
+                    if (data && data.elements) {
+                        console.log(`Success with proxy: ${proxy}`);
+                        break;
+                    }
+                } catch (error) {
+                    console.warn(`Proxy ${proxy} failed:`, error.message);
+                    lastError = error;
+                }
+            }
 
-                renderPlayerList(allPlayers);
-                populateComparisonSelects();
-                console.log(`Loaded ${allPlayers.length} players from FPL API`);
-
-            } catch (error) {
-                console.error('Failed to fetch FPL data:', error);
+            if (!data || !data.elements) {
+                console.error('All proxies failed:', lastError);
                 document.getElementById('player-list').innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">⚠️</div>
                         <p>Failed to load player data. Please refresh the page.</p>
                     </div>
                 `;
+                return;
             }
+
+            teams = data.teams || [];
+            allPlayers = (data.elements || []).map(player => ({
+                id: player.id,
+                name: player.web_name,
+                fullName: player.first_name + ' ' + player.second_name,
+                team: teams.find(t => t.id === player.team)?.short_name || 'N/A',
+                teamId: player.team,
+                teamCode: player.team_code,
+                position: positionMap[player.element_type],
+                price: player.now_cost / 10,
+                points: player.total_points,
+                form: parseFloat(player.form) || 0,
+                selectedBy: parseFloat(player.selected_by_percent) || 0,
+                goals: player.goals_scored,
+                assists: player.assists,
+                cleanSheets: player.clean_sheets,
+                minutes: player.minutes,
+                bonus: player.bonus,
+                xG: parseFloat(player.expected_goals) || 0,
+                xA: parseFloat(player.expected_assists) || 0,
+                ict: parseFloat(player.ict_index) || 0,
+                photo: player.photo
+            })).sort((a, b) => b.points - a.points);
+
+            renderPlayerList(allPlayers);
+            populateComparisonSelects();
+            console.log(`Loaded ${allPlayers.length} players from FPL API`);
         }
 
         // Render player list
@@ -1336,11 +1476,12 @@
                 return;
             }
 
-            // Find empty slot for this position
+            // Find empty slot for this position (5-3-2 formation)
+            // Slots: 0=GK, 1-5=DEF, 6-8=MID, 9-10=FWD, 11=SubGK, 12-14=Subs
             const positionSlots = {
                 'GK': [0, 11],
-                'DEF': [1, 2, 3, 4, 12],
-                'MID': [5, 6, 7, 8, 13],
+                'DEF': [1, 2, 3, 4, 5, 12],
+                'MID': [6, 7, 8, 13],
                 'FWD': [9, 10, 14]
             };
 
@@ -1362,19 +1503,29 @@
 
             slots.forEach((slot, index) => {
                 const player = selectedTeam[index];
-                const shirt = slot.querySelector('.player-shirt');
+                const jersey = slot.querySelector('.player-jersey');
+                const nameEl = slot.querySelector('.player-name');
+                const pos = slot.classList.contains('gk') ? 'GK' :
+                           slot.classList.contains('def') ? 'DEF' :
+                           slot.classList.contains('mid') ? 'MID' : 'FWD';
 
                 if (player) {
                     slot.classList.remove('empty');
-                    shirt.innerHTML = `<span>${player.points}</span>`;
-                    slot.querySelector('.player-name').textContent = player.name;
+                    // Use team shirt image
+                    const shirtUrl = player.position === 'GK' ?
+                        teamGKShirts[player.teamId] : teamShirts[player.teamId];
+                    jersey.innerHTML = `<img src="${shirtUrl}" alt="${player.team}" onerror="this.parentElement.innerHTML='<div class=player-jersey-fallback>${player.points}</div>'">`;
+                    nameEl.textContent = player.name;
+
+                    // Add fixture info if available
+                    const fixtureEl = slot.querySelector('.player-fixture');
+                    if (fixtureEl) {
+                        fixtureEl.textContent = `${player.team}`;
+                    }
                 } else {
                     slot.classList.add('empty');
-                    const pos = slot.classList.contains('gk') ? 'GK' :
-                               slot.classList.contains('def') ? 'DEF' :
-                               slot.classList.contains('mid') ? 'MID' : 'FWD';
-                    shirt.innerHTML = `<span>${pos}</span>`;
-                    slot.querySelector('.player-name').textContent = `Select ${pos}`;
+                    jersey.innerHTML = `<div class="player-jersey-fallback">${pos}</div>`;
+                    nameEl.textContent = `Select ${pos}`;
                 }
             });
 
