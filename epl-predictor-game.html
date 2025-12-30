@@ -1289,8 +1289,12 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // Initialize Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Initialize Supabase (use supabaseClient to avoid conflict with CDN global)
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // API-Football RapidAPI config
+        const RAPIDAPI_KEY = '015c3572fdmsh9f6f6598e6ec003p1fb385jsn529d908dcb43';
+        const RAPIDAPI_HOST = 'api-football-v1.p.rapidapi.com';
 
         // App State
         let currentUser = null;
@@ -1337,7 +1341,7 @@
 
         // Check Authentication
         async function checkAuth() {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await supabaseClientClient.auth.getUser();
             currentUser = user;
 
             if (user) {
@@ -1356,7 +1360,7 @@
 
         // Load or Create User Wallet
         async function loadOrCreateWallet() {
-            const { data: wallet, error } = await supabase
+            const { data: wallet, error } = await supabaseClient
                 .from('user_wallets')
                 .select('*')
                 .eq('user_id', currentUser.id)
@@ -1364,7 +1368,7 @@
 
             if (error && error.code === 'PGRST116') {
                 // Wallet doesn't exist, create one
-                const { data: newWallet, error: createError } = await supabase
+                const { data: newWallet, error: createError } = await supabaseClient
                     .from('user_wallets')
                     .insert({ user_id: currentUser.id, coins: 5000 })
                     .select()
@@ -1404,67 +1408,57 @@
         // Load League Standings for Odds Calculation
         async function loadStandings() {
             try {
-                const response = await fetch('https://www.thesportsdb.com/api/v1/json/3/lookuptable.php?l=4328&s=2024-2025');
+                const response = await fetch('https://api-football-v1.p.rapidapi.com/v3/standings?league=39&season=2024', {
+                    headers: {
+                        'x-rapidapi-host': RAPIDAPI_HOST,
+                        'x-rapidapi-key': RAPIDAPI_KEY
+                    }
+                });
                 const data = await response.json();
-                standings = data.table || [];
+                if (data.response && data.response[0] && data.response[0].league) {
+                    standings = data.response[0].league.standings[0] || [];
+                }
             } catch (error) {
                 console.error('Error loading standings:', error);
             }
         }
 
-        // Load Upcoming Matches
+        // Load Upcoming Matches using API-Football
         async function loadMatches() {
             try {
-                // Fetch multiple rounds to get upcoming fixtures
-                const now = new Date();
-                const allMatches = [];
-
-                // Calculate current round (roughly - EPL season starts mid-August)
-                const seasonStart = new Date('2024-08-16');
-                const weeksElapsed = Math.floor((now - seasonStart) / (7 * 24 * 60 * 60 * 1000));
-                const estimatedRound = Math.min(38, Math.max(1, weeksElapsed + 1));
-
-                // Fetch current and next few rounds
-                const roundsToFetch = [estimatedRound, estimatedRound + 1, estimatedRound + 2].filter(r => r <= 38);
-
-                for (const round of roundsToFetch) {
-                    try {
-                        const response = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventsround.php?id=4328&r=' + round + '&s=2024-2025');
-                        const data = await response.json();
-                        if (data.events) {
-                            allMatches.push(...data.events);
-                        }
-                    } catch (e) {
-                        console.log('Error fetching round ' + round);
+                // Fetch next 15 Premier League fixtures from API-Football
+                const response = await fetch('https://api-football-v1.p.rapidapi.com/v3/fixtures?league=39&season=2024&next=15', {
+                    headers: {
+                        'x-rapidapi-host': RAPIDAPI_HOST,
+                        'x-rapidapi-key': RAPIDAPI_KEY
                     }
-                }
-
-                // Filter for upcoming matches (date in future)
-                matches = allMatches.filter(event => {
-                    const matchDate = new Date(event.strTimestamp || event.dateEvent);
-                    // Match is in the future (at least 1 hour from now)
-                    return matchDate > new Date(now.getTime() + 60 * 60 * 1000);
                 });
+                const data = await response.json();
 
-                // Sort by date
-                matches.sort((a, b) => {
-                    const dateA = new Date(a.strTimestamp || a.dateEvent);
-                    const dateB = new Date(b.strTimestamp || b.dateEvent);
-                    return dateA - dateB;
-                });
-
-                // Limit to 15 matches
-                matches = matches.slice(0, 15);
-
-                // If no matches found, use sample EPL fixtures
-                if (matches.length === 0) {
+                if (data.response && data.response.length > 0) {
+                    // Transform API-Football data to our format
+                    matches = data.response.map(fixture => ({
+                        idEvent: String(fixture.fixture.id),
+                        strHomeTeam: fixture.teams.home.name,
+                        strAwayTeam: fixture.teams.away.name,
+                        strHomeTeamBadge: fixture.teams.home.logo,
+                        strAwayTeamBadge: fixture.teams.away.logo,
+                        strTimestamp: fixture.fixture.date,
+                        dateEvent: fixture.fixture.date.split('T')[0],
+                        intHomeScore: fixture.goals.home,
+                        intAwayScore: fixture.goals.away,
+                        strVenue: fixture.fixture.venue ? fixture.fixture.venue.name : '',
+                        strStatus: fixture.fixture.status.short
+                    }));
+                } else {
+                    // Fallback to sample matches if API fails
                     matches = generateSampleMatches();
                 }
 
                 // Get user's existing bets
                 if (currentUser) {
                     try {
-                        const { data: bets } = await supabase
+                        const { data: bets } = await supabaseClient
                             .from('bets')
                             .select('match_id')
                             .eq('user_id', currentUser.id)
@@ -1555,8 +1549,25 @@
 
         // Calculate Odds Based on Standings
         function calculateOdds(homeTeam, awayTeam) {
-            const homePos = standings.findIndex(t => t.strTeam === homeTeam) + 1 || 10;
-            const awayPos = standings.findIndex(t => t.strTeam === awayTeam) + 1 || 10;
+            // API-Football uses team.name, TheSportsDB uses strTeam
+            let homePos = 10, awayPos = 10;
+
+            if (standings.length > 0) {
+                // Check API-Football format first
+                const homeTeamData = standings.find(t =>
+                    (t.team && t.team.name === homeTeam) || t.strTeam === homeTeam
+                );
+                const awayTeamData = standings.find(t =>
+                    (t.team && t.team.name === awayTeam) || t.strTeam === awayTeam
+                );
+
+                if (homeTeamData) {
+                    homePos = homeTeamData.rank || standings.indexOf(homeTeamData) + 1;
+                }
+                if (awayTeamData) {
+                    awayPos = awayTeamData.rank || standings.indexOf(awayTeamData) + 1;
+                }
+            }
 
             // Base odds calculation
             const homeStrength = (21 - homePos) / 20;
@@ -1737,7 +1748,7 @@
             const betAwayTeam = selectedBet.awayTeam;
 
             // Deduct coins from wallet
-            const { error: walletError } = await supabase
+            const { error: walletError } = await supabaseClient
                 .from('user_wallets')
                 .update({
                     coins: userWallet.coins - stake,
@@ -1751,7 +1762,7 @@
             }
 
             // Create bet record
-            const { error: betError } = await supabase
+            const { error: betError } = await supabaseClient
                 .from('bets')
                 .insert({
                     user_id: currentUser.id,
@@ -1768,7 +1779,7 @@
 
             if (betError) {
                 // Refund coins
-                await supabase
+                await supabaseClient
                     .from('user_wallets')
                     .update({ coins: userWallet.coins })
                     .eq('user_id', currentUser.id);
@@ -1804,7 +1815,7 @@
         async function loadUserBets() {
             if (!currentUser) return;
 
-            const { data: bets, error } = await supabase
+            const { data: bets, error } = await supabaseClient
                 .from('bets')
                 .select('*')
                 .eq('user_id', currentUser.id)
@@ -1856,7 +1867,7 @@
 
         // Load Leaderboard
         async function loadLeaderboard() {
-            const { data: leaders, error } = await supabase
+            const { data: leaders, error } = await supabaseClient
                 .from('betting_leaderboard')
                 .select('*')
                 .order('profit', { ascending: false })
@@ -1912,7 +1923,7 @@
             bonusModal.classList.add('active');
 
             document.getElementById('claimBonus').onclick = async () => {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('user_wallets')
                     .update({
                         coins: userWallet.coins + bonusAmount,
@@ -1937,7 +1948,7 @@
         async function settleBets() {
             if (!currentUser) return;
 
-            const { data: pendingBets } = await supabase
+            const { data: pendingBets } = await supabaseClient
                 .from('bets')
                 .select('*')
                 .eq('user_id', currentUser.id)
@@ -1950,13 +1961,19 @@
                 // Check if match should be finished (3 hours after start)
                 if (matchDate < new Date(Date.now() - 3 * 60 * 60 * 1000)) {
                     try {
-                        const response = await fetch('https://www.thesportsdb.com/api/v1/json/3/lookupevent.php?id=' + bet.match_id);
+                        // Use API-Football to get fixture result
+                        const response = await fetch('https://api-football-v1.p.rapidapi.com/v3/fixtures?id=' + bet.match_id, {
+                            headers: {
+                                'x-rapidapi-host': RAPIDAPI_HOST,
+                                'x-rapidapi-key': RAPIDAPI_KEY
+                            }
+                        });
                         const data = await response.json();
-                        const event = data.events && data.events[0];
+                        const fixture = data.response && data.response[0];
 
-                        if (event && event.intHomeScore !== null && event.intAwayScore !== null) {
-                            const homeScore = parseInt(event.intHomeScore);
-                            const awayScore = parseInt(event.intAwayScore);
+                        if (fixture && fixture.fixture.status.short === 'FT' && fixture.goals.home !== null) {
+                            const homeScore = fixture.goals.home;
+                            const awayScore = fixture.goals.away;
 
                             let actualResult;
                             if (homeScore > awayScore) actualResult = 'home';
@@ -1967,7 +1984,7 @@
                             const payout = won ? bet.potential_win : 0;
 
                             // Update bet
-                            await supabase
+                            await supabaseClient
                                 .from('bets')
                                 .update({
                                     status: won ? 'won' : 'lost',
@@ -1983,7 +2000,7 @@
                                                    userWallet.current_streak >= 3 ? 0.10 : 0;
                                 const totalPayout = Math.floor(payout * (1 + streakBonus));
 
-                                await supabase
+                                await supabaseClient
                                     .from('user_wallets')
                                     .update({
                                         coins: userWallet.coins + totalPayout,
@@ -2000,7 +2017,7 @@
 
                                 showToast('Won ' + totalPayout + ' coins!' + (streakBonus > 0 ? ' (Streak bonus!)' : ''), 'success');
                             } else {
-                                await supabase
+                                await supabaseClient
                                     .from('user_wallets')
                                     .update({ current_streak: 0 })
                                     .eq('user_id', currentUser.id);
