@@ -742,44 +742,47 @@
         // Configuration
         const CONFIG = {
             STORAGE_KEY: 'fpl-ai-history',
-            GROQ_MODEL: 'llama-3.3-70b-versatile'
+            GROQ_MODEL: 'llama-3.3-70b-versatile',
+            FPL_API: 'https://fantasy.premierleague.com/api',
+            CACHE_DURATION: 15 * 60 * 1000 // 15 minutes
         };
 
         let GROQ_API_KEY = null;
         let conversationHistory = [];
         let isTyping = false;
+        let fplData = null;
+        let fplDataTimestamp = null;
 
-        // FPL Context
-        const FPL_CONTEXT = `You are an expert Fantasy Premier League (FPL) assistant with deep knowledge of the 2024/25 Premier League season.
+        // Base FPL Context (will be enhanced with real-time data)
+        const BASE_CONTEXT = `You are an elite Fantasy Premier League (FPL) expert and analyst. You have deep expertise in:
+- Player statistics, form, and underlying metrics (xG, xA, xGI, ICT Index)
+- Fixture analysis and difficulty ratings (FDR)
+- Team rotation patterns and manager tendencies
+- Set-piece takers, penalty takers, and bonus point magnets
+- Optimal chip strategies (Wildcard, Bench Boost, Triple Captain, Free Hit)
+- Price change predictions and team value management
+- Differential picks and template avoidance strategies
 
-Key current season data (2024/25):
-- Top performers: Mohamed Salah (Liverpool, £13.0m, top scorer), Erling Haaland (Man City, £15.0m), Cole Palmer (Chelsea, £10.5m), Bryan Mbeumo (Brentford, £7.5m)
-- Value picks: Chris Wood (Nottingham Forest, £6.5m), Anthony Gordon (Newcastle, £7.5m), Alexander Isak (Newcastle, £8.5m)
-- Teams with good fixtures: Newcastle, Arsenal, Brighton, Bournemouth
-- Teams with tough fixtures: Chelsea, Liverpool (European commitments), Man City
+You provide specific, actionable advice backed by data. Never give vague suggestions.
 
-Your role:
-1. Provide specific, actionable FPL advice
-2. Use real player data and current form
-3. Consider fixture difficulty and rotation risks
-4. Give captain recommendations with reasoning
-5. Suggest transfers based on value and upcoming games
-6. Explain advanced metrics (xG, xA, ICT) when relevant
-7. Be concise but thorough
-
-Format responses with:
-- Clear headers using **bold text**
-- Bullet points for lists
-- Player prices in brackets
-- Specific recommendations, not vague suggestions
-
-Always stay focused on FPL and Premier League topics.`;
+IMPORTANT GUIDELINES:
+- Always reference specific stats when recommending players
+- Consider ownership% when discussing captaincy (high ownership = safe, low = differential)
+- Factor in fixture difficulty for the next 5+ gameweeks
+- Mention injury/rotation risks where relevant
+- Use exact prices in brackets like (£7.5m)
+- Bold **key recommendations** and player names
+- Be conversational but data-driven`;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
-            await initSupabase();
+            await Promise.all([
+                initSupabase(),
+                fetchFPLData()
+            ]);
             bindEventListeners();
             loadHistory();
+            updateDataStatus();
         });
 
         async function initSupabase() {
@@ -801,6 +804,226 @@ Always stay focused on FPL and Premier League topics.`;
                 }
             } catch (err) {
                 console.error('Supabase error:', err);
+            }
+        }
+
+        // Fetch real-time FPL data
+        async function fetchFPLData() {
+            // Check cache
+            if (fplData && fplDataTimestamp && (Date.now() - fplDataTimestamp < CONFIG.CACHE_DURATION)) {
+                console.log('Using cached FPL data');
+                return fplData;
+            }
+
+            try {
+                console.log('Fetching live FPL data...');
+
+                // Fetch bootstrap data (all players, teams, gameweeks)
+                const bootstrapRes = await fetch(`${CONFIG.FPL_API}/bootstrap-static/`);
+                const bootstrap = await bootstrapRes.json();
+
+                // Fetch fixtures
+                const fixturesRes = await fetch(`${CONFIG.FPL_API}/fixtures/`);
+                const fixtures = await fixturesRes.json();
+
+                fplData = processFFPLData(bootstrap, fixtures);
+                fplDataTimestamp = Date.now();
+
+                console.log('FPL data loaded:', fplData);
+                return fplData;
+            } catch (err) {
+                console.error('Error fetching FPL data:', err);
+                return null;
+            }
+        }
+
+        function processFFPLData(bootstrap, fixtures) {
+            const teams = {};
+            bootstrap.teams.forEach(t => {
+                teams[t.id] = { name: t.name, short: t.short_name, strength: t.strength };
+            });
+
+            const positions = { 1: 'GKP', 2: 'DEF', 3: 'MID', 4: 'FWD' };
+
+            // Current gameweek
+            const currentGW = bootstrap.events.find(e => e.is_current) || bootstrap.events.find(e => e.is_next);
+            const nextGW = bootstrap.events.find(e => e.is_next);
+
+            // Process players
+            const players = bootstrap.elements.map(p => ({
+                id: p.id,
+                name: p.web_name,
+                fullName: `${p.first_name} ${p.second_name}`,
+                team: teams[p.team].name,
+                teamShort: teams[p.team].short,
+                position: positions[p.element_type],
+                price: p.now_cost / 10,
+                totalPoints: p.total_points,
+                pointsPerGame: parseFloat(p.points_per_game),
+                form: parseFloat(p.form),
+                selectedBy: parseFloat(p.selected_by_percent),
+                transfersIn: p.transfers_in_event,
+                transfersOut: p.transfers_out_event,
+                minutes: p.minutes,
+                goals: p.goals_scored,
+                assists: p.assists,
+                cleanSheets: p.clean_sheets,
+                bonus: p.bonus,
+                bps: p.bps,
+                ictIndex: parseFloat(p.ict_index),
+                influence: parseFloat(p.influence),
+                creativity: parseFloat(p.creativity),
+                threat: parseFloat(p.threat),
+                xG: parseFloat(p.expected_goals || 0),
+                xA: parseFloat(p.expected_assists || 0),
+                xGI: parseFloat(p.expected_goal_involvements || 0),
+                xGC: parseFloat(p.expected_goals_conceded || 0),
+                news: p.news,
+                chanceOfPlaying: p.chance_of_playing_next_round,
+                status: p.status // a=available, d=doubtful, i=injured, s=suspended, u=unavailable
+            }));
+
+            // Top players by various metrics
+            const topByPoints = [...players].sort((a, b) => b.totalPoints - a.totalPoints).slice(0, 15);
+            const topByForm = [...players].filter(p => p.minutes > 300).sort((a, b) => b.form - a.form).slice(0, 15);
+            const topByxGI = [...players].filter(p => p.minutes > 300).sort((a, b) => b.xGI - a.xGI).slice(0, 15);
+            const topByICT = [...players].filter(p => p.minutes > 300).sort((a, b) => b.ictIndex - a.ictIndex).slice(0, 15);
+            const mostTransferredIn = [...players].sort((a, b) => b.transfersIn - a.transfersIn).slice(0, 10);
+            const mostTransferredOut = [...players].sort((a, b) => b.transfersOut - a.transfersOut).slice(0, 10);
+
+            // Value picks (points per million)
+            const valuePicks = [...players]
+                .filter(p => p.minutes > 300 && p.price <= 8)
+                .map(p => ({ ...p, valueScore: p.totalPoints / p.price }))
+                .sort((a, b) => b.valueScore - a.valueScore)
+                .slice(0, 15);
+
+            // Differentials (low ownership, good form)
+            const differentials = [...players]
+                .filter(p => p.selectedBy < 10 && p.form >= 4 && p.minutes > 200)
+                .sort((a, b) => b.form - a.form)
+                .slice(0, 10);
+
+            // Upcoming fixtures (next 5 gameweeks)
+            const upcomingFixtures = fixtures
+                .filter(f => !f.finished && f.event && f.event >= (currentGW?.id || 1) && f.event <= (currentGW?.id || 1) + 5)
+                .map(f => ({
+                    gameweek: f.event,
+                    home: teams[f.team_h]?.name,
+                    away: teams[f.team_a]?.name,
+                    homeShort: teams[f.team_h]?.short,
+                    awayShort: teams[f.team_a]?.short,
+                    homeDifficulty: f.team_h_difficulty,
+                    awayDifficulty: f.team_a_difficulty,
+                    kickoff: f.kickoff_time
+                }));
+
+            // Team fixture difficulty for next 5
+            const teamFixtures = {};
+            Object.keys(teams).forEach(teamId => {
+                const teamName = teams[teamId].name;
+                const nextFixtures = upcomingFixtures.filter(f =>
+                    f.home === teamName || f.away === teamName
+                ).slice(0, 5);
+
+                const totalDifficulty = nextFixtures.reduce((sum, f) => {
+                    return sum + (f.home === teamName ? f.homeDifficulty : f.awayDifficulty);
+                }, 0);
+
+                teamFixtures[teamName] = {
+                    fixtures: nextFixtures.map(f => ({
+                        opponent: f.home === teamName ? f.awayShort : f.homeShort,
+                        isHome: f.home === teamName,
+                        difficulty: f.home === teamName ? f.homeDifficulty : f.awayDifficulty,
+                        gw: f.gameweek
+                    })),
+                    avgDifficulty: nextFixtures.length ? (totalDifficulty / nextFixtures.length).toFixed(2) : 'N/A'
+                };
+            });
+
+            // Sort teams by easiest fixtures
+            const easiestFixtures = Object.entries(teamFixtures)
+                .filter(([_, data]) => data.avgDifficulty !== 'N/A')
+                .sort((a, b) => parseFloat(a[1].avgDifficulty) - parseFloat(b[1].avgDifficulty))
+                .slice(0, 10);
+
+            // Injured/doubtful players
+            const injuredPlayers = players
+                .filter(p => p.status !== 'a' && p.selectedBy > 5)
+                .sort((a, b) => b.selectedBy - a.selectedBy)
+                .slice(0, 10);
+
+            return {
+                currentGameweek: currentGW?.id || 'Unknown',
+                nextGameweek: nextGW?.id || 'Unknown',
+                nextDeadline: nextGW?.deadline_time || 'Unknown',
+                totalPlayers: players.length,
+                topByPoints,
+                topByForm,
+                topByxGI,
+                topByICT,
+                valuePicks,
+                differentials,
+                mostTransferredIn,
+                mostTransferredOut,
+                easiestFixtures,
+                injuredPlayers,
+                teamFixtures,
+                allPlayers: players,
+                lastUpdated: new Date().toISOString()
+            };
+        }
+
+        function buildDynamicContext() {
+            if (!fplData) return BASE_CONTEXT;
+
+            const formatPlayer = (p) => `${p.name} (${p.teamShort}, £${p.price}m, ${p.totalPoints}pts, ${p.form} form, ${p.selectedBy}% owned)`;
+            const formatPlayerShort = (p) => `${p.name} (£${p.price}m, ${p.form} form)`;
+
+            return `${BASE_CONTEXT}
+
+=== LIVE FPL DATA (Updated: ${new Date(fplData.lastUpdated).toLocaleString()}) ===
+
+**CURRENT GAMEWEEK:** ${fplData.currentGameweek}
+**NEXT DEADLINE:** ${fplData.nextDeadline ? new Date(fplData.nextDeadline).toLocaleString() : 'TBD'}
+
+**TOP 10 BY TOTAL POINTS:**
+${fplData.topByPoints.slice(0, 10).map((p, i) => `${i+1}. ${formatPlayer(p)}`).join('\n')}
+
+**TOP 10 BY CURRENT FORM:**
+${fplData.topByForm.slice(0, 10).map((p, i) => `${i+1}. ${formatPlayer(p)}`).join('\n')}
+
+**TOP 10 BY xGI (Expected Goal Involvements):**
+${fplData.topByxGI.slice(0, 10).map((p, i) => `${i+1}. ${p.name} (${p.teamShort}, £${p.price}m, xGI: ${p.xGI.toFixed(2)})`).join('\n')}
+
+**BEST VALUE PICKS (Points per £1m):**
+${fplData.valuePicks.slice(0, 8).map((p, i) => `${i+1}. ${p.name} (${p.teamShort}, £${p.price}m, ${p.totalPoints}pts, ${p.valueScore.toFixed(1)} pts/£m)`).join('\n')}
+
+**DIFFERENTIAL PICKS (<10% ownership, good form):**
+${fplData.differentials.slice(0, 6).map((p, i) => `${i+1}. ${p.name} (${p.teamShort}, £${p.price}m, ${p.form} form, only ${p.selectedBy}% owned)`).join('\n')}
+
+**MOST TRANSFERRED IN THIS WEEK:**
+${fplData.mostTransferredIn.slice(0, 5).map((p, i) => `${i+1}. ${p.name} (+${p.transfersIn.toLocaleString()} transfers)`).join('\n')}
+
+**MOST TRANSFERRED OUT THIS WEEK:**
+${fplData.mostTransferredOut.slice(0, 5).map((p, i) => `${i+1}. ${p.name} (-${p.transfersOut.toLocaleString()} transfers)`).join('\n')}
+
+**TEAMS WITH EASIEST FIXTURES (Next 5 GWs):**
+${fplData.easiestFixtures.slice(0, 6).map(([team, data], i) =>
+    `${i+1}. ${team} (Avg FDR: ${data.avgDifficulty}) - ${data.fixtures.map(f => `${f.opponent}(${f.isHome ? 'H' : 'A'})`).join(', ')}`
+).join('\n')}
+
+**INJURY CONCERNS (High ownership players):**
+${fplData.injuredPlayers.slice(0, 5).map(p => `- ${p.name} (${p.selectedBy}% owned): ${p.news || 'Status uncertain'} - ${p.chanceOfPlaying !== null ? p.chanceOfPlaying + '% chance' : 'Unknown'}`).join('\n')}
+
+Use this real-time data to provide accurate, specific advice. Reference actual stats, prices, and ownership figures.`;
+        }
+
+        function updateDataStatus() {
+            const badge = document.querySelector('.model-badge');
+            if (badge && fplData) {
+                badge.innerHTML = `<span style="color: #22c55e;">●</span> Live Data GW${fplData.currentGameweek}`;
+                badge.title = `Last updated: ${new Date(fplData.lastUpdated).toLocaleString()}`;
             }
         }
 
@@ -868,8 +1091,11 @@ Always stay focused on FPL and Premier League topics.`;
                 return getFallbackResponse(userMessage);
             }
 
+            // Build dynamic context with real-time FPL data
+            const systemContext = buildDynamicContext();
+
             const messages = [
-                { role: 'system', content: FPL_CONTEXT },
+                { role: 'system', content: systemContext },
                 ...conversationHistory.slice(-6).map(msg => ({
                     role: msg.role,
                     content: msg.content
@@ -911,46 +1137,64 @@ Always stay focused on FPL and Premier League topics.`;
         function getFallbackResponse(query) {
             const lowerQuery = query.toLowerCase();
 
-            if (lowerQuery.includes('captain')) {
-                return `**Captain Recommendations This Week:**
+            // Use real data if available
+            if (fplData) {
+                if (lowerQuery.includes('captain')) {
+                    const top3 = fplData.topByForm.slice(0, 3);
+                    const diff = fplData.differentials[0];
+                    return `**Captain Recommendations for GW${fplData.currentGameweek}:**
 
-Based on current form and fixtures:
+Based on current form and live data:
 
-1. **Mohamed Salah (£13.0m)** - Liverpool's talisman remains the top pick with excellent home fixtures. Penalty taker and in tremendous form.
+${top3.map((p, i) => `${i+1}. **${p.name}** (£${p.price}m) - ${p.form} form, ${p.totalPoints} total points, ${p.selectedBy}% owned`).join('\n\n')}
 
-2. **Erling Haaland (£15.0m)** - Man City's goal machine. High ownership makes him a safe pick.
+**Differential Option:** ${diff ? `${diff.name} (£${diff.price}m) - ${diff.form} form but only ${diff.selectedBy}% owned` : 'Check differentials section'}
 
-3. **Cole Palmer (£10.5m)** - Chelsea's main man, on penalties and free kicks.
+*Data updated: ${new Date(fplData.lastUpdated).toLocaleString()}*`;
+                }
 
-**Differential Option:** Bryan Mbeumo (£7.5m) - Brentford's standout performer with great underlying numbers.`;
+                if (lowerQuery.includes('transfer')) {
+                    const trending = fplData.mostTransferredIn.slice(0, 3);
+                    const value = fplData.valuePicks.slice(0, 3);
+                    return `**Transfer Recommendations:**
+
+**Most Transferred In:**
+${trending.map((p, i) => `${i+1}. ${p.name} (£${p.price}m) - +${p.transfersIn.toLocaleString()} transfers`).join('\n')}
+
+**Best Value Picks:**
+${value.map((p, i) => `${i+1}. ${p.name} (£${p.price}m) - ${p.valueScore.toFixed(1)} pts per £m`).join('\n')}
+
+**Teams with Best Fixtures:**
+${fplData.easiestFixtures.slice(0, 3).map(([team, data]) => `• ${team} (FDR: ${data.avgDifficulty})`).join('\n')}`;
+                }
+
+                if (lowerQuery.includes('differential')) {
+                    return `**Differential Picks (<10% ownership):**
+
+${fplData.differentials.slice(0, 6).map((p, i) => `${i+1}. **${p.name}** (${p.teamShort}, £${p.price}m)\n   Form: ${p.form} | Points: ${p.totalPoints} | Owned: ${p.selectedBy}%`).join('\n\n')}`;
+                }
+
+                if (lowerQuery.includes('fixture')) {
+                    return `**Teams with Easiest Fixtures (Next 5 GWs):**
+
+${fplData.easiestFixtures.slice(0, 8).map(([team, data], i) =>
+    `${i+1}. **${team}** (Avg FDR: ${data.avgDifficulty})\n   ${data.fixtures.map(f => `${f.opponent}(${f.isHome ? 'H' : 'A'})`).join(' → ')}`
+).join('\n\n')}`;
+                }
             }
 
-            if (lowerQuery.includes('transfer')) {
-                return `**Transfer Recommendations:**
+            return `**Welcome to FPL AI Assistant!** ${fplData ? `(Live data: GW${fplData.currentGameweek})` : ''}
 
-**Must-Have Players:**
-• Mohamed Salah (£13.0m) - Essential if you don't have him
-• Alexander Isak (£8.5m) - Newcastle's main striker, great fixtures
+I'm your expert Fantasy Premier League advisor with real-time data.
 
-**Value Picks:**
-• Chris Wood (£6.5m) - Great budget forward option
-• Anthony Gordon (£7.5m) - Newcastle's form player
+**Ask me about:**
+• Captain picks - based on form & fixtures
+• Transfer advice - best players to buy/sell
+• Differentials - low ownership gems
+• Fixture analysis - easy/hard fixture runs
+• Value picks - best points per million
 
-**Sell Candidates:**
-• Players from teams with tough fixtures
-• Underperforming premiums`;
-            }
-
-            return `Thanks for your question! I'm here to help with all things FPL.
-
-**I can help you with:**
-• Captain picks and recommendations
-• Transfer suggestions and planning
-• Player comparisons and analysis
-• Chip strategy (Wildcard, Bench Boost, Triple Captain)
-• Fixture analysis and differential picks
-
-Try asking something specific like "Who should I captain?" or "Best budget midfielders?"`;
+Try: "Who should I captain?" or "Best budget midfielders?"`;
         }
 
         function addMessage(content, role) {
