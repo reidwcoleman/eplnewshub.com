@@ -1415,9 +1415,27 @@
         // Load Upcoming Matches
         async function loadMatches() {
             try {
-                const response = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=4328');
+                // Fetch full season schedule and filter for upcoming matches
+                const response = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4328&s=2024-2025');
                 const data = await response.json();
-                matches = data.events || [];
+                const allEvents = data.events || [];
+
+                // Filter for upcoming matches (not yet played)
+                const now = new Date();
+                matches = allEvents.filter(event => {
+                    // Match hasn't been played yet (no score)
+                    if (event.intHomeScore !== null && event.intHomeScore !== '') return false;
+                    // Match date is in the future or today
+                    const matchDate = new Date(event.strTimestamp || event.dateEvent);
+                    return matchDate >= new Date(now.getTime() - 24 * 60 * 60 * 1000); // Include matches from last 24 hours
+                }).slice(0, 20); // Limit to next 20 matches
+
+                // Sort by date
+                matches.sort((a, b) => {
+                    const dateA = new Date(a.strTimestamp || a.dateEvent);
+                    const dateB = new Date(b.strTimestamp || b.dateEvent);
+                    return dateA - dateB;
+                });
 
                 // Get user's existing bets
                 if (currentUser) {
