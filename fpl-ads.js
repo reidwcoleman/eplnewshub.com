@@ -716,10 +716,15 @@
 
     // Insert ads into sidebar
     function insertSidebarAds() {
+        // Skip predictor game page - it has its own layout
+        if (window.location.pathname.includes('predictor-game')) {
+            return;
+        }
+
         // Check if we're on an article page or main page
         const isArticlePage = window.location.pathname.includes('/articles/');
         const sidebar = document.querySelector('.sidebar, .article-sidebar, aside');
-        
+
         if (sidebar) {
             // Select 2 random ads to show
             const selectedAds = fplAds.sort(() => 0.5 - Math.random()).slice(0, 2);
