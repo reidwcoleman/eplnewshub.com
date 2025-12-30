@@ -1333,27 +1333,52 @@
         // Fetch FPL data with multiple proxy fallbacks
         async function fetchFPLData() {
             const fplUrl = 'https://fantasy.premierleague.com/api/bootstrap-static/';
-            const proxies = [
-                'https://api.allorigins.win/raw?url=',
-                'https://corsproxy.io/?',
-                'https://api.codetabs.com/v1/proxy?quest='
+
+            // Define proxies with their URL construction methods
+            const proxyConfigs = [
+                {
+                    name: 'corsproxy.io',
+                    buildUrl: (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
+                },
+                {
+                    name: 'allorigins',
+                    buildUrl: (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+                },
+                {
+                    name: 'cors-anywhere-alt',
+                    buildUrl: (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+                },
+                {
+                    name: 'corsproxy.org',
+                    buildUrl: (url) => `https://corsproxy.org/?${encodeURIComponent(url)}`
+                },
+                {
+                    name: 'cors.sh',
+                    buildUrl: (url) => `https://proxy.cors.sh/${url}`
+                }
             ];
 
             let data = null;
             let lastError = null;
 
-            for (const proxy of proxies) {
+            for (const proxyConfig of proxyConfigs) {
                 try {
-                    console.log(`Trying proxy: ${proxy}`);
-                    const response = await fetch(proxy + encodeURIComponent(fplUrl));
+                    const proxyUrl = proxyConfig.buildUrl(fplUrl);
+                    console.log(`Trying proxy: ${proxyConfig.name}`);
+                    const response = await fetch(proxyUrl, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    data = await response.json();
+                    const text = await response.text();
+                    data = JSON.parse(text);
                     if (data && data.elements) {
-                        console.log(`Success with proxy: ${proxy}`);
+                        console.log(`Success with proxy: ${proxyConfig.name}, loaded ${data.elements.length} players`);
                         break;
                     }
                 } catch (error) {
-                    console.warn(`Proxy ${proxy} failed:`, error.message);
+                    console.warn(`Proxy ${proxyConfig.name} failed:`, error.message);
                     lastError = error;
                 }
             }
