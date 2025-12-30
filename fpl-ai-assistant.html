@@ -785,13 +785,19 @@ IMPORTANT GUIDELINES:
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
-            await Promise.all([
-                initSupabase(),
-                fetchFPLData()
-            ]);
+            // Bind event listeners immediately so UI is responsive
             bindEventListeners();
             loadHistory();
-            updateDataStatus();
+
+            // Fetch data in background (don't block UI)
+            Promise.all([
+                initSupabase(),
+                fetchFPLData()
+            ]).then(() => {
+                updateDataStatus();
+            }).catch(err => {
+                console.error('Data fetch error:', err);
+            });
         });
 
         async function initSupabase() {
