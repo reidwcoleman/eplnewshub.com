@@ -34,7 +34,7 @@
             cta: 'Play Now',
             link: '/epl-predictor-game.html',
             color: 'linear-gradient(135deg, #4facfe, #00f2fe)',
-            features: ['5 GWs ahead', 'Captain picks', '85% accuracy'],
+            features: ['Combo Bets', 'Leaderboard', 'Free Coins'],
             priority: 3
         },
         {
@@ -120,9 +120,9 @@
                                     <span class="feature-icon">🔄</span>
                                     <span class="feature-text">Transfer Simulator</span>
                                 </a>
-                                <a href="/fpl-player-analyzer.html" class="feature-item feature-link">
-                                    <span class="feature-icon">🔮</span>
-                                    <span class="feature-text">Points Predictor</span>
+                                <a href="/epl-predictor-game.html" class="feature-item feature-link">
+                                    <span class="feature-icon">🎮</span>
+                                    <span class="feature-text">Predictor Game</span>
                                 </a>
                                 <a href="/fixture-analyzer-pro.html" class="feature-item feature-link">
                                     <span class="feature-icon">📊</span>
