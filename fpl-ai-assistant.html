@@ -978,45 +978,100 @@ IMPORTANT GUIDELINES:
             if (!fplData) return BASE_CONTEXT;
 
             const formatPlayer = (p) => `${p.name} (${p.teamShort}, £${p.price}m, ${p.totalPoints}pts, ${p.form} form, ${p.selectedBy}% owned)`;
-            const formatPlayerShort = (p) => `${p.name} (£${p.price}m, ${p.form} form)`;
+            const formatCompact = (p) => `${p.name}|${p.teamShort}|£${p.price}m|${p.totalPoints}pts|${p.form}f|${p.selectedBy}%`;
+
+            // Group players by position
+            const goalkeepers = fplData.allPlayers.filter(p => p.position === 'GKP').sort((a,b) => b.totalPoints - a.totalPoints);
+            const defenders = fplData.allPlayers.filter(p => p.position === 'DEF').sort((a,b) => b.totalPoints - a.totalPoints);
+            const midfielders = fplData.allPlayers.filter(p => p.position === 'MID').sort((a,b) => b.totalPoints - a.totalPoints);
+            const forwards = fplData.allPlayers.filter(p => p.position === 'FWD').sort((a,b) => b.totalPoints - a.totalPoints);
+
+            // All team FDRs
+            const allTeamFDRs = Object.entries(fplData.teamFixtures)
+                .sort((a, b) => parseFloat(a[1].avgDifficulty || 5) - parseFloat(b[1].avgDifficulty || 5))
+                .map(([team, data]) => {
+                    const fixtures = data.fixtures.map(f => `${f.opponent}(${f.isHome ? 'H' : 'A'},FDR${f.difficulty})`).join(', ');
+                    return `${team}: AvgFDR ${data.avgDifficulty} | ${fixtures}`;
+                });
 
             return `${BASE_CONTEXT}
 
-=== LIVE FPL DATA (Updated: ${new Date(fplData.lastUpdated).toLocaleString()}) ===
+=== LIVE FPL DATA - GAMEWEEK ${fplData.currentGameweek} ===
+Data Updated: ${new Date(fplData.lastUpdated).toLocaleString()}
+Next Deadline: ${fplData.nextDeadline ? new Date(fplData.nextDeadline).toLocaleString() : 'TBD'}
+Total Players in Database: ${fplData.allPlayers.length}
 
-**CURRENT GAMEWEEK:** ${fplData.currentGameweek}
-**NEXT DEADLINE:** ${fplData.nextDeadline ? new Date(fplData.nextDeadline).toLocaleString() : 'TBD'}
+══════════════════════════════════════
+COMPLETE FIXTURE DIFFICULTY RATINGS (FDR 1-5, lower=easier)
+══════════════════════════════════════
+${allTeamFDRs.join('\n')}
 
-**TOP 10 BY TOTAL POINTS:**
-${fplData.topByPoints.slice(0, 10).map((p, i) => `${i+1}. ${formatPlayer(p)}`).join('\n')}
+══════════════════════════════════════
+TOP GOALKEEPERS (All ${goalkeepers.length} GKPs, sorted by points)
+══════════════════════════════════════
+${goalkeepers.slice(0, 20).map((p, i) => `${i+1}. ${p.name}|${p.teamShort}|£${p.price}m|${p.totalPoints}pts|${p.cleanSheets}CS|${p.form}form|${p.selectedBy}%`).join('\n')}
 
-**TOP 10 BY CURRENT FORM:**
-${fplData.topByForm.slice(0, 10).map((p, i) => `${i+1}. ${formatPlayer(p)}`).join('\n')}
+══════════════════════════════════════
+TOP DEFENDERS (Top 40 of ${defenders.length} DEFs)
+══════════════════════════════════════
+${defenders.slice(0, 40).map((p, i) => `${i+1}. ${p.name}|${p.teamShort}|£${p.price}m|${p.totalPoints}pts|${p.goals}G ${p.assists}A|${p.cleanSheets}CS|${p.form}form|${p.selectedBy}%`).join('\n')}
 
-**TOP 10 BY xGI (Expected Goal Involvements):**
-${fplData.topByxGI.slice(0, 10).map((p, i) => `${i+1}. ${p.name} (${p.teamShort}, £${p.price}m, xGI: ${p.xGI.toFixed(2)})`).join('\n')}
+══════════════════════════════════════
+TOP MIDFIELDERS (Top 50 of ${midfielders.length} MIDs)
+══════════════════════════════════════
+${midfielders.slice(0, 50).map((p, i) => `${i+1}. ${p.name}|${p.teamShort}|£${p.price}m|${p.totalPoints}pts|${p.goals}G ${p.assists}A|xGI:${p.xGI.toFixed(1)}|${p.form}form|${p.selectedBy}%`).join('\n')}
 
-**BEST VALUE PICKS (Points per £1m):**
-${fplData.valuePicks.slice(0, 8).map((p, i) => `${i+1}. ${p.name} (${p.teamShort}, £${p.price}m, ${p.totalPoints}pts, ${p.valueScore.toFixed(1)} pts/£m)`).join('\n')}
+══════════════════════════════════════
+TOP FORWARDS (All ${forwards.length} FWDs)
+══════════════════════════════════════
+${forwards.slice(0, 30).map((p, i) => `${i+1}. ${p.name}|${p.teamShort}|£${p.price}m|${p.totalPoints}pts|${p.goals}G ${p.assists}A|xGI:${p.xGI.toFixed(1)}|${p.form}form|${p.selectedBy}%`).join('\n')}
 
-**DIFFERENTIAL PICKS (<10% ownership, good form):**
-${fplData.differentials.slice(0, 6).map((p, i) => `${i+1}. ${p.name} (${p.teamShort}, £${p.price}m, ${p.form} form, only ${p.selectedBy}% owned)`).join('\n')}
+══════════════════════════════════════
+BUDGET OPTIONS BY POSITION (Under £5.5m)
+══════════════════════════════════════
+**Budget GKPs:** ${goalkeepers.filter(p => p.price <= 5.0).slice(0, 8).map(p => `${p.name}(£${p.price}m,${p.totalPoints}pts)`).join(', ')}
+**Budget DEFs:** ${defenders.filter(p => p.price <= 5.0).slice(0, 10).map(p => `${p.name}(£${p.price}m,${p.totalPoints}pts)`).join(', ')}
+**Budget MIDs:** ${midfielders.filter(p => p.price <= 5.5).slice(0, 10).map(p => `${p.name}(£${p.price}m,${p.totalPoints}pts)`).join(', ')}
+**Budget FWDs:** ${forwards.filter(p => p.price <= 6.0).slice(0, 8).map(p => `${p.name}(£${p.price}m,${p.totalPoints}pts)`).join(', ')}
 
-**MOST TRANSFERRED IN THIS WEEK:**
-${fplData.mostTransferredIn.slice(0, 5).map((p, i) => `${i+1}. ${p.name} (+${p.transfersIn.toLocaleString()} transfers)`).join('\n')}
+══════════════════════════════════════
+PREMIUM OPTIONS BY POSITION (£10m+)
+══════════════════════════════════════
+**Premium MIDs:** ${midfielders.filter(p => p.price >= 10).map(p => `${p.name}(${p.teamShort},£${p.price}m,${p.totalPoints}pts,${p.form}form)`).join(', ')}
+**Premium FWDs:** ${forwards.filter(p => p.price >= 10).map(p => `${p.name}(${p.teamShort},£${p.price}m,${p.totalPoints}pts,${p.form}form)`).join(', ')}
 
-**MOST TRANSFERRED OUT THIS WEEK:**
-${fplData.mostTransferredOut.slice(0, 5).map((p, i) => `${i+1}. ${p.name} (-${p.transfersOut.toLocaleString()} transfers)`).join('\n')}
+══════════════════════════════════════
+FORM PLAYERS (Last 5 GWs, form >= 6.0)
+══════════════════════════════════════
+${fplData.allPlayers.filter(p => p.form >= 6.0 && p.minutes > 200).sort((a,b) => b.form - a.form).slice(0, 20).map(p => `${p.name}(${p.position},${p.teamShort},£${p.price}m) - ${p.form} form`).join('\n')}
 
-**TEAMS WITH EASIEST FIXTURES (Next 5 GWs):**
-${fplData.easiestFixtures.slice(0, 6).map(([team, data], i) =>
-    `${i+1}. ${team} (Avg FDR: ${data.avgDifficulty}) - ${data.fixtures.map(f => `${f.opponent}(${f.isHome ? 'H' : 'A'})`).join(', ')}`
-).join('\n')}
+══════════════════════════════════════
+DIFFERENTIALS (<5% ownership, good form)
+══════════════════════════════════════
+${fplData.allPlayers.filter(p => p.selectedBy < 5 && p.form >= 4 && p.minutes > 200).sort((a,b) => b.form - a.form).slice(0, 15).map(p => `${p.name}(${p.position},${p.teamShort},£${p.price}m) - ${p.form}form, only ${p.selectedBy}% owned`).join('\n')}
 
-**INJURY CONCERNS (High ownership players):**
-${fplData.injuredPlayers.slice(0, 5).map(p => `- ${p.name} (${p.selectedBy}% owned): ${p.news || 'Status uncertain'} - ${p.chanceOfPlaying !== null ? p.chanceOfPlaying + '% chance' : 'Unknown'}`).join('\n')}
+══════════════════════════════════════
+TRANSFER TRENDS THIS GAMEWEEK
+══════════════════════════════════════
+**Most Transferred IN:**
+${fplData.mostTransferredIn.slice(0, 8).map((p, i) => `${i+1}. ${p.name} (${p.teamShort}) +${p.transfersIn.toLocaleString()}`).join('\n')}
 
-Use this real-time data to provide accurate, specific advice. Reference actual stats, prices, and ownership figures.`;
+**Most Transferred OUT:**
+${fplData.mostTransferredOut.slice(0, 8).map((p, i) => `${i+1}. ${p.name} (${p.teamShort}) -${p.transfersOut.toLocaleString()}`).join('\n')}
+
+══════════════════════════════════════
+INJURY & AVAILABILITY FLAGS
+══════════════════════════════════════
+${fplData.allPlayers.filter(p => p.status !== 'a' && p.selectedBy > 2).sort((a,b) => b.selectedBy - a.selectedBy).slice(0, 15).map(p => `${p.name}(${p.teamShort},${p.selectedBy}%): ${p.news || 'Flagged'} ${p.chanceOfPlaying !== null ? '- ' + p.chanceOfPlaying + '% chance' : ''}`).join('\n')}
+
+══════════════════════════════════════
+INSTRUCTIONS
+══════════════════════════════════════
+You have access to the COMPLETE FPL database above. When users ask about ANY player, search this data.
+- Use exact prices, points, and ownership figures
+- Reference FDR when discussing fixtures
+- Current gameweek is GW${fplData.currentGameweek}
+- Always be specific with stats, never guess`;
         }
 
         function updateDataStatus() {
