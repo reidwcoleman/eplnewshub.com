@@ -254,6 +254,76 @@
             color: #888;
         }
 
+        .section-header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .refresh-odds-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 255, 135, 0.1);
+            border: 1px solid rgba(0, 255, 135, 0.3);
+            color: #00ff87;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .refresh-odds-btn:hover {
+            background: rgba(0, 255, 135, 0.2);
+            border-color: rgba(0, 255, 135, 0.5);
+        }
+
+        .refresh-odds-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .refresh-odds-btn.loading svg {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .odds-updated {
+            font-size: 11px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .odds-updated.live {
+            color: #00ff87;
+        }
+
+        .odds-updated::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #666;
+        }
+
+        .odds-updated.live::before {
+            background: #00ff87;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
         .matches-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -1217,7 +1287,17 @@
         <section class="matches-section" id="matchesSection">
             <div class="section-header">
                 <h2 class="section-title">Upcoming Matches</h2>
-                <span class="match-count" id="matchCount">Loading...</span>
+                <div class="section-header-right">
+                    <span class="odds-updated" id="oddsUpdated"></span>
+                    <button class="refresh-odds-btn" id="refreshOddsBtn" title="Refresh odds">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <path d="M23 4v6h-6M1 20v-6h6"/>
+                            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                        </svg>
+                        <span>Refresh</span>
+                    </button>
+                    <span class="match-count" id="matchCount">Loading...</span>
+                </div>
             </div>
             <div class="matches-grid" id="matchesGrid">
                 <div class="loading-spinner">
@@ -1362,7 +1442,14 @@
         let oddsCache = {
             data: {},
             lastFetched: null,
-            expiresIn: 30 * 60 * 1000 // Cache for 30 minutes
+            expiresIn: 15 * 60 * 1000 // Cache for 15 minutes (reduced for fresher odds)
+        };
+
+        // Match Results Cache (for settling bets with real results)
+        let resultsCache = {
+            data: {},
+            lastFetched: null,
+            expiresIn: 5 * 60 * 1000 // Cache for 5 minutes (check frequently for results)
         };
 
         // App State
@@ -1502,6 +1589,141 @@
             return oddsCache.data[matchKey] || null;
         }
 
+        // Fetch real match results from The Odds API
+        async function fetchMatchResults() {
+            // Check if cache is still valid
+            if (resultsCache.lastFetched && (Date.now() - resultsCache.lastFetched) < resultsCache.expiresIn) {
+                console.log('Using cached match results');
+                return resultsCache.data;
+            }
+
+            // Skip if no API key configured
+            if (ODDS_API_KEY === 'YOUR_ODDS_API_KEY' || !ODDS_API_KEY) {
+                console.log('No Odds API key configured, cannot fetch results');
+                return {};
+            }
+
+            try {
+                console.log('Fetching real match results from The Odds API...');
+                // daysFrom=3 gets completed games from the past 3 days (costs 2 credits)
+                const response = await fetch(
+                    `https://api.the-odds-api.com/v4/sports/soccer_epl/scores?apiKey=${ODDS_API_KEY}&daysFrom=3`
+                );
+
+                if (!response.ok) {
+                    const remaining = response.headers.get('x-requests-remaining');
+                    console.log(`API requests remaining: ${remaining}`);
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Fetched scores for', data.length, 'matches');
+
+                // Process and cache the results
+                const processedResults = {};
+                data.forEach(match => {
+                    if (match.completed && match.scores && match.scores.length === 2) {
+                        const homeKey = normalizeTeamName(match.home_team);
+                        const awayKey = normalizeTeamName(match.away_team);
+                        const matchKey = `${homeKey}_vs_${awayKey}`;
+
+                        // Extract scores
+                        const homeScore = match.scores.find(s => s.name === match.home_team);
+                        const awayScore = match.scores.find(s => s.name === match.away_team);
+
+                        if (homeScore && awayScore) {
+                            const homeGoals = parseInt(homeScore.score);
+                            const awayGoals = parseInt(awayScore.score);
+
+                            // Determine result
+                            let result;
+                            if (homeGoals > awayGoals) {
+                                result = 'home';
+                            } else if (awayGoals > homeGoals) {
+                                result = 'away';
+                            } else {
+                                result = 'draw';
+                            }
+
+                            processedResults[matchKey] = {
+                                homeTeam: match.home_team,
+                                awayTeam: match.away_team,
+                                homeScore: homeGoals,
+                                awayScore: awayGoals,
+                                result: result,
+                                completed: true,
+                                commenceTime: match.commence_time,
+                                lastUpdate: match.last_update
+                            };
+
+                            console.log(`Match result: ${homeKey} ${homeGoals} - ${awayGoals} ${awayKey} (${result})`);
+                        }
+                    }
+                });
+
+                // Update cache
+                resultsCache.data = processedResults;
+                resultsCache.lastFetched = Date.now();
+
+                // Show remaining API calls
+                const remaining = response.headers.get('x-requests-remaining');
+                console.log('Results cached. API calls remaining:', remaining);
+
+                return processedResults;
+            } catch (error) {
+                console.error('Error fetching match results:', error);
+                return resultsCache.data || {}; // Return cached data or empty
+            }
+        }
+
+        // Get match result for a specific game
+        function getMatchResult(homeTeam, awayTeam) {
+            const homeKey = normalizeTeamName(homeTeam);
+            const awayKey = normalizeTeamName(awayTeam);
+            const matchKey = `${homeKey}_vs_${awayKey}`;
+            return resultsCache.data[matchKey] || null;
+        }
+
+        // Force refresh odds (can be called manually or on a timer)
+        async function refreshOdds() {
+            oddsCache.lastFetched = null; // Invalidate cache
+            await fetchRealOdds();
+            await loadMatches(); // Re-render matches with new odds
+            updateOddsStatus();
+            showToast('Odds updated!', 'info');
+        }
+
+        // Update the odds status indicator
+        function updateOddsStatus() {
+            const oddsUpdatedEl = document.getElementById('oddsUpdated');
+            if (!oddsUpdatedEl) return;
+
+            const hasRealOdds = oddsCache.lastFetched && Object.keys(oddsCache.data).length > 0;
+
+            if (hasRealOdds) {
+                const now = new Date();
+                const lastUpdate = new Date(oddsCache.lastFetched);
+                const diffMins = Math.round((now - lastUpdate) / 60000);
+
+                let timeText;
+                if (diffMins < 1) {
+                    timeText = 'Just now';
+                } else if (diffMins === 1) {
+                    timeText = '1 min ago';
+                } else if (diffMins < 60) {
+                    timeText = diffMins + ' mins ago';
+                } else {
+                    timeText = Math.round(diffMins / 60) + ' hours ago';
+                }
+
+                oddsUpdatedEl.textContent = 'Live odds: ' + timeText;
+                oddsUpdatedEl.classList.add('live');
+            } else {
+                oddsUpdatedEl.textContent = 'Using calculated odds';
+                oddsUpdatedEl.classList.remove('live');
+            }
+        }
+
         // DOM Elements
         const coinBalanceEl = document.getElementById('coinBalance');
         const streakCountEl = document.getElementById('streakCount');
@@ -1525,13 +1747,15 @@
             await checkAuth();
             setupEventListeners();
 
-            // Fetch real odds and standings in parallel for faster loading
+            // Fetch real odds, standings, and match results in parallel for faster loading
             await Promise.all([
                 fetchRealOdds(),
-                loadStandings()
+                loadStandings(),
+                fetchMatchResults()
             ]);
 
             await loadMatches();
+            updateOddsStatus(); // Show initial odds status
 
             if (currentUser) {
                 await loadUserBets();
@@ -1539,6 +1763,24 @@
                 await checkDailyBonus();
                 startSettlementPolling();
             }
+
+            // Start automatic odds refresh (every 15 minutes)
+            startOddsRefreshPolling();
+        }
+
+        // Automatically refresh odds periodically
+        function startOddsRefreshPolling() {
+            // Refresh odds every 15 minutes to keep them current
+            setInterval(async () => {
+                console.log('Auto-refreshing odds...');
+                oddsCache.lastFetched = null; // Invalidate cache
+                await fetchRealOdds();
+                await loadMatches(); // Re-render with new odds
+                updateOddsStatus();
+            }, 15 * 60 * 1000);
+
+            // Also update the status display every minute (to show "2 mins ago", "3 mins ago", etc.)
+            setInterval(updateOddsStatus, 60 * 1000);
         }
 
         // Check or Create User Profile
@@ -1766,26 +2008,36 @@
             }
         }
 
-        // Load Upcoming Matches (using free TheSportsDB with sample fallback)
+        // Load Upcoming Matches (using real fixtures from The Odds API)
         async function loadMatches() {
             try {
-                // Use sample matches directly for reliable demo
-                // TheSportsDB free tier has limited/unreliable fixture data
-                matches = generateSampleMatches();
+                // Try to use real fixtures from The Odds API (already fetched in oddsCache)
+                const realMatches = generateMatchesFromOddsAPI();
+
+                if (realMatches.length > 0) {
+                    console.log('Using real fixtures from The Odds API');
+                    matches = realMatches;
+                } else {
+                    console.log('No real fixtures available, using sample matches');
+                    matches = generateSampleMatches();
+                }
 
                 // Check for existing bets from Supabase
                 if (currentUser) {
                     const { data: bets } = await supabaseClient
                         .from('user_bets')
-                        .select('match_id')
+                        .select('match_id, home_team, away_team')
                         .eq('user_id', currentUser.id)
                         .eq('status', 'pending');
 
                     if (bets && bets.length > 0) {
-                        const betMatchIds = new Set(bets.map(b => b.match_id));
+                        // Match by team names since IDs can vary
+                        const betKeys = new Set(bets.map(b =>
+                            `${normalizeTeamName(b.home_team)}_vs_${normalizeTeamName(b.away_team)}`
+                        ));
                         matches = matches.map(m => ({
                             ...m,
-                            hasBet: betMatchIds.has(m.idEvent)
+                            hasBet: betKeys.has(`${normalizeTeamName(m.strHomeTeam)}_vs_${normalizeTeamName(m.strAwayTeam)}`)
                         }));
                     }
                 }
@@ -1796,6 +2048,67 @@
                 matches = generateSampleMatches();
                 renderMatches();
             }
+        }
+
+        // Generate matches from The Odds API data (uses cached odds data)
+        function generateMatchesFromOddsAPI() {
+            const oddsData = oddsCache.data;
+            if (!oddsData || Object.keys(oddsData).length === 0) {
+                return [];
+            }
+
+            // Team badge URLs
+            const teamBadges = {
+                'Arsenal': 'https://r2.thesportsdb.com/images/media/team/badge/uyhbfe1612467038.png',
+                'Liverpool': 'https://r2.thesportsdb.com/images/media/team/badge/kfaher1737969724.png',
+                'Manchester City': 'https://r2.thesportsdb.com/images/media/team/badge/vwpvry1467462651.png',
+                'Chelsea': 'https://r2.thesportsdb.com/images/media/team/badge/yvwvtu1448813215.png',
+                'Manchester United': 'https://r2.thesportsdb.com/images/media/team/badge/xzqdr11517660252.png',
+                'Tottenham': 'https://r2.thesportsdb.com/images/media/team/badge/dfyfhl1604094109.png',
+                'Newcastle': 'https://r2.thesportsdb.com/images/media/team/badge/lhwuiz1621593302.png',
+                'Aston Villa': 'https://r2.thesportsdb.com/images/media/team/badge/jykrpv1717309891.png',
+                'Brighton': 'https://r2.thesportsdb.com/images/media/team/badge/ywypts1448810904.png',
+                'West Ham': 'https://r2.thesportsdb.com/images/media/team/badge/yutyxs1467459956.png',
+                'Nottingham Forest': 'https://r2.thesportsdb.com/images/media/team/badge/bk4qjs1546440351.png',
+                'Bournemouth': 'https://r2.thesportsdb.com/images/media/team/badge/y08nak1534071116.png',
+                'Fulham': 'https://r2.thesportsdb.com/images/media/team/badge/xwwvyt1448811086.png',
+                'Crystal Palace': 'https://r2.thesportsdb.com/images/media/team/badge/ia6i3m1656014992.png',
+                'Brentford': 'https://r2.thesportsdb.com/images/media/team/badge/grv1aw1546453779.png',
+                'Wolves': 'https://r2.thesportsdb.com/images/media/team/badge/u9qr031621593327.png',
+                'Everton': 'https://r2.thesportsdb.com/images/media/team/badge/eqayrf1523184794.png',
+                'Leicester': 'https://r2.thesportsdb.com/images/media/team/badge/xtxwtu1448813356.png',
+                'Ipswich': 'https://r2.thesportsdb.com/images/media/team/badge/mdj1ey1634670785.png',
+                'Southampton': 'https://r2.thesportsdb.com/images/media/team/badge/ggqtd01621593274.png'
+            };
+
+            const defaultBadge = 'https://r2.thesportsdb.com/images/media/team/badge/placeholder.png';
+
+            const realMatches = [];
+            for (const [matchKey, odds] of Object.entries(oddsData)) {
+                const [homeNorm, , awayNorm] = matchKey.split('_');
+                const commenceTime = new Date(odds.commenceTime);
+
+                // Only include future matches (not already started)
+                if (commenceTime > new Date()) {
+                    realMatches.push({
+                        idEvent: matchKey, // Use matchKey as unique ID
+                        strHomeTeam: homeNorm,
+                        strAwayTeam: awayNorm,
+                        strHomeTeamBadge: teamBadges[homeNorm] || defaultBadge,
+                        strAwayTeamBadge: teamBadges[awayNorm] || defaultBadge,
+                        strTimestamp: odds.commenceTime,
+                        dateEvent: commenceTime.toISOString().split('T')[0],
+                        intHomeScore: null,
+                        intAwayScore: null,
+                        isRealFixture: true
+                    });
+                }
+            }
+
+            // Sort by kick-off time
+            realMatches.sort((a, b) => new Date(a.strTimestamp) - new Date(b.strTimestamp));
+
+            return realMatches;
         }
 
         // Generate sample EPL matches for demo/fallback
@@ -2141,6 +2454,9 @@
             userWallet.total_bets = (userWallet.total_bets || 0) + 1;
             updateWalletDisplay();
 
+            // Update leaderboard entry
+            await updateLeaderboardEntry();
+
             showToast('Bet placed! ' + stake + ' coins on ' + betHomeTeam + ' vs ' + betAwayTeam, 'success');
 
             // Clear bet slip
@@ -2424,9 +2740,12 @@
             };
         }
 
-        // Settlement Polling (using Supabase, simulates results for demo)
+        // Settlement Polling (using real match results from The Odds API)
         async function settleBets() {
             if (!currentUser || !userWallet) return;
+
+            // Fetch latest match results
+            await fetchMatchResults();
 
             // Get pending bets from Supabase
             const { data: pendingBets, error } = await supabaseClient
@@ -2440,46 +2759,58 @@
             let updated = false;
             for (const bet of pendingBets) {
                 const matchDate = new Date(bet.match_date);
-                // Settle bets 2 hours after match time (demo simulation)
+                // Only try to settle bets that are at least 2 hours past match time
                 if (matchDate < new Date(Date.now() - 2 * 60 * 60 * 1000)) {
-                    // Simulate result based on odds (higher odds = less likely to win)
-                    const winChance = 1 / bet.odds;
-                    const random = Math.random();
-                    const won = random < winChance;
+                    // Try to get real match result
+                    const matchResult = getMatchResult(bet.home_team, bet.away_team);
 
-                    // Calculate payout
-                    const payout = won ? bet.potential_win : 0;
+                    if (matchResult && matchResult.completed) {
+                        // We have a real result! Compare with bet
+                        const won = bet.bet_type === matchResult.result;
+                        const scoreDisplay = `${matchResult.homeScore}-${matchResult.awayScore}`;
 
-                    // Update bet status in Supabase
-                    await supabaseClient
-                        .from('user_bets')
-                        .update({
-                            status: won ? 'won' : 'lost',
-                            settled_at: new Date().toISOString(),
-                            payout: payout
-                        })
-                        .eq('id', bet.id);
+                        console.log(`Settling bet: ${bet.home_team} vs ${bet.away_team}`);
+                        console.log(`  Result: ${scoreDisplay} (${matchResult.result})`);
+                        console.log(`  Bet on: ${bet.bet_type}, Won: ${won}`);
 
-                    if (won) {
-                        const streakBonus = userWallet.current_streak >= 5 ? 0.25 :
-                                           userWallet.current_streak >= 3 ? 0.10 : 0;
-                        const totalPayout = Math.floor(bet.potential_win * (1 + streakBonus));
+                        // Calculate payout
+                        const payout = won ? bet.potential_win : 0;
 
-                        userWallet.coins += totalPayout;
-                        userWallet.lifetime_winnings = (userWallet.lifetime_winnings || 0) + totalPayout - bet.stake;
-                        userWallet.won_bets = (userWallet.won_bets || 0) + 1;
-                        userWallet.current_streak = (userWallet.current_streak || 0) + 1;
-                        userWallet.best_streak = Math.max(userWallet.best_streak || 0, userWallet.current_streak);
+                        // Update bet status in Supabase with the actual score
+                        await supabaseClient
+                            .from('user_bets')
+                            .update({
+                                status: won ? 'won' : 'lost',
+                                settled_at: new Date().toISOString(),
+                                payout: payout
+                            })
+                            .eq('id', bet.id);
 
-                        showToast('Won ' + totalPayout + ' coins!' + (streakBonus > 0 ? ' (Streak bonus!)' : ''), 'success');
+                        if (won) {
+                            const streakBonus = userWallet.current_streak >= 5 ? 0.25 :
+                                               userWallet.current_streak >= 3 ? 0.10 : 0;
+                            const totalPayout = Math.floor(bet.potential_win * (1 + streakBonus));
+
+                            userWallet.coins += totalPayout;
+                            userWallet.lifetime_winnings = (userWallet.lifetime_winnings || 0) + totalPayout - bet.stake;
+                            userWallet.won_bets = (userWallet.won_bets || 0) + 1;
+                            userWallet.current_streak = (userWallet.current_streak || 0) + 1;
+                            userWallet.best_streak = Math.max(userWallet.best_streak || 0, userWallet.current_streak);
+
+                            showToast(`Won ${totalPayout} coins! ${bet.home_team} ${scoreDisplay} ${bet.away_team}` + (streakBonus > 0 ? ' (Streak bonus!)' : ''), 'success');
+                        } else {
+                            userWallet.current_streak = 0;
+                            userWallet.lost_bets = (userWallet.lost_bets || 0) + 1;
+                            userWallet.lifetime_winnings = (userWallet.lifetime_winnings || 0) - bet.stake;
+                            showToast(`Bet lost: ${bet.home_team} ${scoreDisplay} ${bet.away_team}`, 'error');
+                        }
+
+                        updated = true;
                     } else {
-                        userWallet.current_streak = 0;
-                        userWallet.lost_bets = (userWallet.lost_bets || 0) + 1;
-                        userWallet.lifetime_winnings = (userWallet.lifetime_winnings || 0) - bet.stake;
-                        showToast('Bet lost: ' + bet.home_team + ' vs ' + bet.away_team, 'error');
+                        // No real result available yet - match might not be finished
+                        // or not in the API's 3-day window
+                        console.log(`Waiting for result: ${bet.home_team} vs ${bet.away_team}`);
                     }
-
-                    updated = true;
                 }
             }
 
@@ -2507,7 +2838,8 @@
 
         function startSettlementPolling() {
             settleBets();
-            setInterval(settleBets, 60 * 1000); // Every minute for demo
+            // Check every 2 minutes for new results (reduced frequency to save API calls)
+            setInterval(settleBets, 2 * 60 * 1000);
         }
 
         // Show Toast Notification
@@ -2549,6 +2881,21 @@
                     if (tab === 'leaderboard') loadLeaderboard();
                 });
             });
+
+            // Refresh Odds Button
+            const refreshOddsBtn = document.getElementById('refreshOddsBtn');
+            if (refreshOddsBtn) {
+                refreshOddsBtn.addEventListener('click', async () => {
+                    refreshOddsBtn.disabled = true;
+                    refreshOddsBtn.classList.add('loading');
+                    try {
+                        await refreshOdds();
+                    } finally {
+                        refreshOddsBtn.disabled = false;
+                        refreshOddsBtn.classList.remove('loading');
+                    }
+                });
+            }
 
             // Bets Filter Tabs
             document.querySelectorAll('.bets-tab').forEach(btn => {
