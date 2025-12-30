@@ -20,6 +20,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tesseract.js for OCR screenshot reading -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
     <style>
         * {
@@ -555,6 +557,21 @@
         .player-item-points {
             font-size: 11px;
             color: #888;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #00ff87;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Screenshot Upload */
@@ -1562,28 +1579,210 @@
             }
         });
 
-        function handleScreenshot(file) {
+        async function handleScreenshot(file) {
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = async (e) => {
                 const preview = document.getElementById('screenshot-preview');
                 const img = document.getElementById('preview-image');
                 img.src = e.target.result;
                 preview.style.display = 'block';
 
-                // Show detected players section with instructions
+                // Show detected players section
                 const detectedSection = document.getElementById('detected-players');
                 detectedSection.style.display = 'block';
 
                 document.getElementById('detected-list').innerHTML = `
-                    <p style="color: #888; font-size: 13px;">
-                        We cannot automatically read your screenshot, but you can manually search and add your players using the Team Builder tab.
-                    </p>
-                    <button class="btn btn-primary" style="margin-top: 15px;" onclick="document.querySelector('[data-tab=build]').click();">
-                        Go to Team Builder
-                    </button>
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="loading-spinner"></div>
+                        <p style="color: #00ff87; margin-top: 10px;">Reading screenshot...</p>
+                        <p style="color: #888; font-size: 12px;">This may take a few seconds</p>
+                    </div>
                 `;
+
+                try {
+                    // Use Tesseract.js to read text from the image
+                    const result = await Tesseract.recognize(e.target.result, 'eng', {
+                        logger: m => {
+                            if (m.status === 'recognizing text') {
+                                const progress = Math.round(m.progress * 100);
+                                document.getElementById('detected-list').innerHTML = `
+                                    <div style="text-align: center; padding: 20px;">
+                                        <div class="loading-spinner"></div>
+                                        <p style="color: #00ff87; margin-top: 10px;">Reading screenshot... ${progress}%</p>
+                                    </div>
+                                `;
+                            }
+                        }
+                    });
+
+                    const text = result.data.text;
+                    console.log('OCR Result:', text);
+
+                    // Find player names in the text
+                    const detectedPlayers = findPlayersInText(text);
+
+                    if (detectedPlayers.length > 0) {
+                        renderDetectedPlayers(detectedPlayers);
+                    } else {
+                        document.getElementById('detected-list').innerHTML = `
+                            <p style="color: #f59e0b; font-size: 13px;">
+                                No players detected. Try a clearer screenshot or manually search below.
+                            </p>
+                            <div style="margin-top: 15px;">
+                                <input type="text" id="manual-player-search" placeholder="Search player name..."
+                                       style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #1a1a2e; color: #fff;">
+                                <div id="manual-search-results" style="margin-top: 10px; max-height: 200px; overflow-y: auto;"></div>
+                            </div>
+                            <button class="btn btn-primary" style="margin-top: 15px; width: 100%;" onclick="document.querySelector('[data-tab=build]').click();">
+                                Go to Team Builder
+                            </button>
+                        `;
+                        setupManualSearch();
+                    }
+                } catch (error) {
+                    console.error('OCR Error:', error);
+                    document.getElementById('detected-list').innerHTML = `
+                        <p style="color: #ef4444; font-size: 13px;">
+                            Error reading screenshot. Please try again or use manual search.
+                        </p>
+                        <button class="btn btn-primary" style="margin-top: 15px;" onclick="document.querySelector('[data-tab=build]').click();">
+                            Go to Team Builder
+                        </button>
+                    `;
+                }
             };
             reader.readAsDataURL(file);
+        }
+
+        // Find player names in OCR text
+        function findPlayersInText(text) {
+            const detectedPlayers = [];
+            const words = text.split(/[\s\n]+/).filter(w => w.length > 2);
+
+            // Try to match each word/phrase against player names
+            allPlayers.forEach(player => {
+                const name = player.name.toLowerCase();
+                const fullName = player.fullName.toLowerCase();
+
+                // Check if player name appears in text
+                if (text.toLowerCase().includes(name) ||
+                    text.toLowerCase().includes(fullName) ||
+                    words.some(w => levenshteinDistance(w.toLowerCase(), name) <= 2)) {
+                    if (!detectedPlayers.find(p => p.id === player.id)) {
+                        detectedPlayers.push(player);
+                    }
+                }
+            });
+
+            // Sort by points (most likely to be in team)
+            return detectedPlayers.sort((a, b) => b.points - a.points).slice(0, 15);
+        }
+
+        // Levenshtein distance for fuzzy matching
+        function levenshteinDistance(a, b) {
+            if (a.length === 0) return b.length;
+            if (b.length === 0) return a.length;
+
+            const matrix = [];
+            for (let i = 0; i <= b.length; i++) {
+                matrix[i] = [i];
+            }
+            for (let j = 0; j <= a.length; j++) {
+                matrix[0][j] = j;
+            }
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            matrix[i][j - 1] + 1,
+                            matrix[i - 1][j] + 1
+                        );
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        // Render detected players
+        function renderDetectedPlayers(players) {
+            const html = `
+                <p style="color: #00ff87; font-size: 13px; margin-bottom: 15px;">
+                    Found ${players.length} potential players. Click to add to your team:
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
+                    ${players.map(p => `
+                        <div class="detected-player-item" onclick="addDetectedPlayer(${p.id})" style="
+                            display: flex; justify-content: space-between; align-items: center;
+                            padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;
+                            cursor: pointer; transition: background 0.2s;
+                        " onmouseover="this.style.background='rgba(0,255,135,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                            <div>
+                                <div style="font-weight: 600; color: #fff;">${p.name}</div>
+                                <div style="font-size: 11px; color: #888;">${p.team} • ${p.position}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: #00ff87; font-weight: 600;">£${p.price.toFixed(1)}m</div>
+                                <div style="font-size: 11px; color: #888;">${p.points} pts</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="btn btn-primary" style="margin-top: 15px; width: 100%;" onclick="addAllDetectedPlayers()">
+                    Add All to Team
+                </button>
+            `;
+            document.getElementById('detected-list').innerHTML = html;
+            window.detectedPlayers = players;
+        }
+
+        // Add single detected player
+        function addDetectedPlayer(playerId) {
+            selectPlayer(playerId);
+            // Remove from list
+            const item = document.querySelector(`[onclick="addDetectedPlayer(${playerId})"]`);
+            if (item) item.remove();
+        }
+
+        // Add all detected players
+        function addAllDetectedPlayers() {
+            if (!window.detectedPlayers) return;
+            window.detectedPlayers.forEach(p => {
+                if (!selectedTeam.some(t => t && t.id === p.id)) {
+                    selectPlayer(p.id);
+                }
+            });
+        }
+
+        // Setup manual search in upload tab
+        function setupManualSearch() {
+            const input = document.getElementById('manual-player-search');
+            if (!input) return;
+
+            input.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                if (query.length < 2) {
+                    document.getElementById('manual-search-results').innerHTML = '';
+                    return;
+                }
+
+                const matches = allPlayers.filter(p =>
+                    p.name.toLowerCase().includes(query) ||
+                    p.fullName.toLowerCase().includes(query)
+                ).slice(0, 10);
+
+                document.getElementById('manual-search-results').innerHTML = matches.map(p => `
+                    <div onclick="selectPlayer(${p.id}); this.remove();" style="
+                        padding: 8px; margin: 4px 0; background: rgba(255,255,255,0.05);
+                        border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between;
+                    " onmouseover="this.style.background='rgba(0,255,135,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                        <span>${p.name} (${p.team})</span>
+                        <span style="color: #00ff87;">£${p.price.toFixed(1)}m</span>
+                    </div>
+                `).join('');
+            });
         }
 
         // Player comparison
