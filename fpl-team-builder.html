@@ -1958,7 +1958,7 @@
             'wol': 'Wolves', 'wolves': 'Wolves'
         };
 
-        // High-accuracy player name matching - focuses on text accuracy only
+        // Improved player name matching with balanced accuracy
         function findPlayersInText(text) {
             const playerScores = new Map();
             const foundPlayerIds = new Set(); // Prevent duplicates
@@ -1986,7 +1986,7 @@
 
                 for (const name of nameVariations) {
                     const nameLower = name.toLowerCase();
-                    if (nameLower.length < 3) continue; // Minimum 3 chars for accuracy
+                    if (nameLower.length < 2) continue;
 
                     // 1. Exact match (100 points)
                     if (cleanText.includes(nameLower) || correctedText.includes(nameLower)) {
@@ -2001,27 +2001,45 @@
                     }
 
                     // 3. Phrase match for multi-word names (95 points)
-                    if (phrases.some(p => p === nameLower)) {
+                    if (phrases.some(p => p === nameLower || p.includes(nameLower))) {
                         bestScore = Math.max(bestScore, 95);
                         continue;
                     }
 
-                    // 4. Jaro-Winkler similarity (threshold raised to 0.90 for accuracy)
+                    // 4. Jaro-Winkler similarity (balanced threshold of 0.85)
                     for (const word of words) {
                         if (word.length < 3) continue;
 
                         const jwScore = jaroWinklerSimilarity(word, nameLower);
-                        if (jwScore >= 0.90) {
+                        if (jwScore >= 0.85) {
                             const matchScore = Math.round(jwScore * 100);
                             bestScore = Math.max(bestScore, matchScore);
                         }
 
-                        // 5. Levenshtein - strict threshold (max 2 edits for short names)
-                        const maxDist = nameLower.length <= 5 ? 1 : 2;
+                        // 5. Levenshtein with dynamic threshold
+                        const maxDist = Math.max(1, Math.floor(nameLower.length * 0.3));
                         const dist = levenshteinDistance(word, nameLower);
-                        if (dist <= maxDist && dist > 0) {
+                        if (dist <= maxDist) {
                             const matchScore = 88 - (dist * 6);
                             bestScore = Math.max(bestScore, matchScore);
+                        }
+
+                        // 6. Prefix match (player name starts with OCR word)
+                        if (nameLower.startsWith(word) && word.length >= 4) {
+                            bestScore = Math.max(bestScore, 75);
+                        }
+
+                        // 7. OCR word starts with player name
+                        if (word.startsWith(nameLower) && nameLower.length >= 4) {
+                            bestScore = Math.max(bestScore, 73);
+                        }
+
+                        // 8. Substring match for longer strings
+                        if (word.length >= 5 && nameLower.includes(word)) {
+                            bestScore = Math.max(bestScore, 70);
+                        }
+                        if (nameLower.length >= 5 && word.includes(nameLower)) {
+                            bestScore = Math.max(bestScore, 70);
                         }
                     }
 
@@ -2030,17 +2048,20 @@
                         if (word.length < 3) continue;
 
                         const jwScore = jaroWinklerSimilarity(word, nameLower);
-                        if (jwScore >= 0.90) {
+                        if (jwScore >= 0.85) {
                             const matchScore = Math.round(jwScore * 100);
                             bestScore = Math.max(bestScore, matchScore);
                         }
                     }
                 }
 
-                // NO popularity boost - accuracy based on text match only
+                // Small boost for popular players (they're more likely in teams)
+                if (bestScore > 0) {
+                    bestScore += Math.min(5, player.selectedBy / 15);
+                }
 
-                // Store if above high threshold (75)
-                if (bestScore >= 75) {
+                // Store if above threshold (60 - balanced for OCR imperfections)
+                if (bestScore >= 60) {
                     playerScores.set(player.id, { player, score: bestScore });
                     foundPlayerIds.add(player.id);
                 }
