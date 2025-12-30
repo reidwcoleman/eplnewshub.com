@@ -594,17 +594,6 @@ p {
     position: relative;
 }
 
-/* Invisible hover bridge to prevent gap issues */
-.nyt-nav-dropdown::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    height: 20px;
-    background: transparent;
-}
-
 .nyt-nav-dropdown > a {
     display: flex;
     align-items: center;
@@ -624,9 +613,9 @@ p {
 
 .nyt-dropdown-content {
     position: absolute;
-    top: 100%;
+    top: calc(100% - 2px);
     left: 50%;
-    transform: translateX(-50%) translateY(10px);
+    transform: translateX(-50%);
     min-width: 220px;
     background: #1a1a1a;
     border: 1px solid rgba(255, 255, 255, 0.15);
@@ -636,7 +625,7 @@ p {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
     z-index: 9999;
 }
 
@@ -645,7 +634,6 @@ p {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translateX(-50%) translateY(0);
 }
 
 .nyt-dropdown-content::before {
