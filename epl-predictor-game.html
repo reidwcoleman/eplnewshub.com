@@ -536,22 +536,49 @@
             gap: 6px;
         }
 
-        /* Bet Slip Sidebar */
-        .bet-slip-container {
-            position: sticky;
-            top: 100px;
+        /* Bet Slip Popup Modal */
+        .bet-slip-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
         }
 
-        .bet-slip {
-            background: rgba(30, 30, 30, 0.95);
-            border-radius: 16px;
+        .bet-slip-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .bet-slip-popup {
+            background: linear-gradient(180deg, #1e1e1e 0%, #141414 100%);
+            border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 420px;
+            max-height: 85vh;
             overflow: hidden;
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .bet-slip-overlay.active .bet-slip-popup {
+            transform: scale(1) translateY(0);
         }
 
         .bet-slip-header {
-            padding: 16px 20px;
-            background: rgba(0, 255, 135, 0.1);
+            padding: 18px 20px;
+            background: linear-gradient(135deg, rgba(0, 255, 135, 0.15), rgba(0, 255, 135, 0.05));
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: space-between;
@@ -559,53 +586,113 @@
         }
 
         .bet-slip-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
             color: #00ff87;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .clear-slip-btn {
-            background: none;
+        .bet-count-badge {
+            background: #00ff87;
+            color: #000;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .close-slip-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.1);
             border: none;
+            border-radius: 50%;
             color: #888;
-            font-size: 13px;
+            font-size: 20px;
             cursor: pointer;
-            transition: color 0.2s;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .clear-slip-btn:hover {
+        .close-slip-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
             color: #ef4444;
         }
 
-        .bet-slip-empty {
-            padding: 40px 20px;
-            text-align: center;
-            color: #666;
-        }
-
-        .bet-slip-empty svg {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 12px;
-            opacity: 0.3;
-        }
-
-        .bet-slip-content {
+        .bet-slip-body {
+            max-height: 40vh;
+            overflow-y: auto;
             padding: 16px;
         }
 
-        .slip-match {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 14px;
+        .bet-slip-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .bet-slip-body::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+
+        .combo-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             margin-bottom: 12px;
+        }
+
+        .slip-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.2s;
+        }
+
+        .slip-item:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .slip-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
         }
 
         .slip-match-teams {
             font-size: 14px;
             font-weight: 600;
             color: #fff;
-            margin-bottom: 8px;
+        }
+
+        .remove-bet-btn {
+            width: 24px;
+            height: 24px;
+            background: rgba(239, 68, 68, 0.15);
+            border: none;
+            border-radius: 50%;
+            color: #ef4444;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .remove-bet-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            transform: scale(1.1);
         }
 
         .slip-selection {
@@ -623,6 +710,54 @@
             font-size: 16px;
             font-weight: 700;
             color: #00ff87;
+        }
+
+        .combo-odds-section {
+            background: linear-gradient(135deg, rgba(0, 255, 135, 0.1), rgba(0, 200, 100, 0.05));
+            border: 1px solid rgba(0, 255, 135, 0.2);
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .combo-odds-label {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .combo-odds-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: #00ff87;
+        }
+
+        .add-more-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #888;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .add-more-btn:hover {
+            border-color: #00ff87;
+            color: #00ff87;
+            background: rgba(0, 255, 135, 0.05);
+        }
+
+        .bet-slip-footer {
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
         }
 
         .stake-input-section {
@@ -1174,20 +1309,16 @@
             .main-content {
                 grid-template-columns: 1fr;
             }
+        }
 
-            .bet-slip-container {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                z-index: 99;
-                padding: 0;
+        @media (max-width: 480px) {
+            .bet-slip-popup {
+                width: 95%;
+                max-height: 90vh;
             }
 
-            .bet-slip {
-                border-radius: 20px 20px 0 0;
-                max-height: 60vh;
-                overflow-y: auto;
+            .bet-slip-body {
+                max-height: 35vh;
             }
         }
 
@@ -1354,51 +1485,47 @@
             </div>
         </section>
 
-        <!-- Bet Slip -->
-        <aside class="bet-slip-container" id="betSlipContainer">
-            <div class="bet-slip">
-                <div class="bet-slip-header">
-                    <span class="bet-slip-title">Bet Slip</span>
-                    <button class="clear-slip-btn" id="clearSlip">Clear</button>
-                </div>
-                <div class="bet-slip-empty" id="betSlipEmpty">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="2" y="3" width="20" height="14" rx="2"/>
-                        <line x1="8" y1="21" x2="16" y2="21"/>
-                        <line x1="12" y1="17" x2="12" y2="21"/>
-                    </svg>
-                    <p>Select a match outcome to place a bet</p>
-                </div>
-                <div class="bet-slip-content hidden" id="betSlipContent">
-                    <div class="slip-match">
-                        <div class="slip-match-teams" id="slipTeams">-</div>
-                        <div class="slip-selection">
-                            <span class="slip-bet-type" id="slipBetType">-</span>
-                            <span class="slip-odds" id="slipOdds">-</span>
-                        </div>
-                    </div>
-                    <div class="stake-input-section">
-                        <div class="stake-label">Stake Amount</div>
-                        <div class="stake-input-wrapper">
-                            <div class="stake-coin-icon">C</div>
-                            <input type="number" class="stake-input" id="stakeInput" placeholder="0" min="1">
-                        </div>
-                        <div class="quick-stakes">
-                            <button class="quick-stake-btn" data-amount="100">100</button>
-                            <button class="quick-stake-btn" data-amount="500">500</button>
-                            <button class="quick-stake-btn" data-amount="1000">1K</button>
-                            <button class="quick-stake-btn all-in" data-amount="all">ALL</button>
-                        </div>
-                        <div class="potential-return">
-                            <span class="return-label">Potential Return</span>
-                            <span class="return-amount" id="potentialReturn">0</span>
-                        </div>
-                        <button class="place-bet-btn" id="placeBetBtn" disabled>Place Bet</button>
-                    </div>
-                </div>
-            </div>
-        </aside>
     </main>
+
+    <!-- Bet Slip Popup Modal -->
+    <div class="bet-slip-overlay" id="betSlipOverlay">
+        <div class="bet-slip-popup">
+            <div class="bet-slip-header">
+                <div class="bet-slip-title">
+                    Bet Slip
+                    <span class="bet-count-badge" id="betCountBadge">0</span>
+                </div>
+                <button class="close-slip-btn" id="closeSlipBtn">&times;</button>
+            </div>
+            <div class="bet-slip-body" id="betSlipBody">
+                <div class="combo-label" id="comboLabel">Single Bet</div>
+                <div id="slipItemsContainer"></div>
+                <div class="combo-odds-section" id="comboOddsSection">
+                    <span class="combo-odds-label">Combined Odds</span>
+                    <span class="combo-odds-value" id="comboOddsValue">0.00</span>
+                </div>
+                <button class="add-more-btn" id="addMoreBtn">+ Add Another Selection</button>
+            </div>
+            <div class="bet-slip-footer">
+                <div class="stake-label">Stake Amount</div>
+                <div class="stake-input-wrapper">
+                    <div class="stake-coin-icon">C</div>
+                    <input type="number" class="stake-input" id="stakeInput" placeholder="0" min="1">
+                </div>
+                <div class="quick-stakes">
+                    <button class="quick-stake-btn" data-amount="100">100</button>
+                    <button class="quick-stake-btn" data-amount="500">500</button>
+                    <button class="quick-stake-btn" data-amount="1000">1K</button>
+                    <button class="quick-stake-btn all-in" data-amount="all">ALL</button>
+                </div>
+                <div class="potential-return">
+                    <span class="return-label">Potential Return</span>
+                    <span class="return-amount" id="potentialReturn">0</span>
+                </div>
+                <button class="place-bet-btn" id="placeBetBtn" disabled>Place Bet</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Daily Bonus Modal -->
     <div class="modal-overlay" id="bonusModal">
@@ -1458,7 +1585,7 @@
         let currentUser = null;
         let userWallet = null;
         let userProfile = null;
-        let selectedBet = null;
+        let selectedBets = []; // Array for combo betting
         let matches = [];
         let standings = [];
         let userBets = [];
@@ -1732,17 +1859,23 @@
         const streakBadgeEl = document.getElementById('streakBadge');
         const matchesGridEl = document.getElementById('matchesGrid');
         const matchCountEl = document.getElementById('matchCount');
-        const betSlipEmpty = document.getElementById('betSlipEmpty');
-        const betSlipContent = document.getElementById('betSlipContent');
         const stakeInput = document.getElementById('stakeInput');
         const potentialReturnEl = document.getElementById('potentialReturn');
         const placeBetBtn = document.getElementById('placeBetBtn');
         const authBtn = document.getElementById('authBtn');
         const authRequired = document.getElementById('authRequired');
         const matchesSection = document.getElementById('matchesSection');
-        const betSlipContainer = document.getElementById('betSlipContainer');
         const bonusModal = document.getElementById('bonusModal');
         const toastContainer = document.getElementById('toastContainer');
+        // Bet slip popup elements
+        const betSlipOverlay = document.getElementById('betSlipOverlay');
+        const betCountBadge = document.getElementById('betCountBadge');
+        const slipItemsContainer = document.getElementById('slipItemsContainer');
+        const comboLabel = document.getElementById('comboLabel');
+        const comboOddsSection = document.getElementById('comboOddsSection');
+        const comboOddsValue = document.getElementById('comboOddsValue');
+        const closeSlipBtn = document.getElementById('closeSlipBtn');
+        const addMoreBtn = document.getElementById('addMoreBtn');
 
         // Initialize App
         async function init() {
@@ -2319,43 +2452,116 @@
             const betType = option.dataset.betType;
             const odds = parseFloat(option.dataset.odds);
 
-            // Remove previous selection
+            // Check if this match is already in the slip
+            const existingIndex = selectedBets.findIndex(b => b.matchId === match.id);
+            if (existingIndex !== -1) {
+                // Update the existing bet for this match
+                selectedBets[existingIndex] = {
+                    matchId: match.id,
+                    homeTeam: match.home,
+                    awayTeam: match.away,
+                    matchDate: match.date,
+                    betType,
+                    odds
+                };
+            } else {
+                // Add new bet to slip
+                selectedBets.push({
+                    matchId: match.id,
+                    homeTeam: match.home,
+                    awayTeam: match.away,
+                    matchDate: match.date,
+                    betType,
+                    odds
+                });
+            }
+
+            // Update visual selection
+            updateSelectionVisuals();
+            updateBetSlip();
+            openBetSlip();
+        }
+
+        // Update visual selection states on match cards
+        function updateSelectionVisuals() {
+            // Remove all selections first
             document.querySelectorAll('.bet-option.selected').forEach(el => {
                 el.classList.remove('selected');
             });
+            // Add selection for each bet in slip
+            selectedBets.forEach(bet => {
+                const matchCard = document.querySelector(`[data-match-id="${bet.matchId}"]`);
+                if (matchCard) {
+                    const option = matchCard.querySelector(`.bet-option[data-bet-type="${bet.betType}"]`);
+                    if (option) option.classList.add('selected');
+                }
+            });
+        }
 
-            // Add selection to clicked option
-            option.classList.add('selected');
+        // Open bet slip popup
+        function openBetSlip() {
+            betSlipOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
 
-            // Update bet slip
-            selectedBet = {
-                matchId: match.id,
-                homeTeam: match.home,
-                awayTeam: match.away,
-                matchDate: match.date,
-                betType,
-                odds
-            };
+        // Close bet slip popup
+        function closeBetSlip() {
+            betSlipOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
 
+        // Remove bet from slip
+        function removeBetFromSlip(matchId) {
+            selectedBets = selectedBets.filter(b => b.matchId !== matchId);
+            updateSelectionVisuals();
             updateBetSlip();
+            if (selectedBets.length === 0) {
+                closeBetSlip();
+            }
+        }
+
+        // Calculate combined odds
+        function getCombinedOdds() {
+            if (selectedBets.length === 0) return 0;
+            return selectedBets.reduce((acc, bet) => acc * bet.odds, 1);
         }
 
         // Update Bet Slip
         function updateBetSlip() {
-            if (!selectedBet) {
-                betSlipEmpty.classList.remove('hidden');
-                betSlipContent.classList.add('hidden');
-                return;
+            const betTypeLabels = { home: 'Home Win', draw: 'Draw', away: 'Away Win' };
+
+            // Update badge count
+            betCountBadge.textContent = selectedBets.length;
+
+            // Update combo label
+            if (selectedBets.length === 0) {
+                comboLabel.textContent = 'No Selections';
+            } else if (selectedBets.length === 1) {
+                comboLabel.textContent = 'Single Bet';
+            } else {
+                comboLabel.textContent = selectedBets.length + '-Fold Combo';
             }
 
-            betSlipEmpty.classList.add('hidden');
-            betSlipContent.classList.remove('hidden');
+            // Render slip items
+            slipItemsContainer.innerHTML = selectedBets.map(bet => {
+                return '<div class="slip-item" data-match-id="' + bet.matchId + '">' +
+                    '<div class="slip-item-header">' +
+                        '<div class="slip-match-teams">' + bet.homeTeam + ' vs ' + bet.awayTeam + '</div>' +
+                        '<button class="remove-bet-btn" onclick="removeBetFromSlip(\'' + bet.matchId + '\')">&times;</button>' +
+                    '</div>' +
+                    '<div class="slip-selection">' +
+                        '<span class="slip-bet-type">' + betTypeLabels[bet.betType] + '</span>' +
+                        '<span class="slip-odds">' + bet.odds.toFixed(2) + '</span>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
 
-            document.getElementById('slipTeams').textContent = selectedBet.homeTeam + ' vs ' + selectedBet.awayTeam;
+            // Update combined odds
+            const combinedOdds = getCombinedOdds();
+            comboOddsValue.textContent = combinedOdds.toFixed(2);
 
-            const betTypeLabels = { home: 'Home Win', draw: 'Draw', away: 'Away Win' };
-            document.getElementById('slipBetType').textContent = betTypeLabels[selectedBet.betType];
-            document.getElementById('slipOdds').textContent = selectedBet.odds.toFixed(2);
+            // Show/hide combo odds section
+            comboOddsSection.style.display = selectedBets.length > 1 ? 'flex' : 'none';
 
             updatePotentialReturn();
         }
@@ -2363,26 +2569,30 @@
         // Update Potential Return
         function updatePotentialReturn() {
             const stake = parseInt(stakeInput.value) || 0;
+            const combinedOdds = getCombinedOdds();
 
-            if (stake > 0 && selectedBet) {
-                const potentialReturn = Math.floor(stake * selectedBet.odds);
+            if (stake > 0 && selectedBets.length > 0) {
+                const potentialReturn = Math.floor(stake * combinedOdds);
                 potentialReturnEl.textContent = potentialReturn.toLocaleString();
                 placeBetBtn.disabled = stake > userWallet.coins;
 
                 if (stake > userWallet.coins) {
                     placeBetBtn.textContent = 'Insufficient Coins';
+                } else if (selectedBets.length > 1) {
+                    placeBetBtn.textContent = 'Place Combo Bet';
                 } else {
                     placeBetBtn.textContent = 'Place Bet';
                 }
             } else {
                 potentialReturnEl.textContent = '0';
                 placeBetBtn.disabled = true;
+                placeBetBtn.textContent = 'Place Bet';
             }
         }
 
-        // Place Bet (saves to Supabase)
+        // Place Bet (saves to Supabase) - supports single and combo bets
         async function placeBet() {
-            if (!selectedBet || !currentUser || !userWallet) return;
+            if (selectedBets.length === 0 || !currentUser || !userWallet) return;
 
             const stake = parseInt(stakeInput.value);
 
@@ -2396,41 +2606,47 @@
                 return;
             }
 
-            const potentialWin = Math.floor(stake * selectedBet.odds);
-            const betHomeTeam = selectedBet.homeTeam;
-            const betAwayTeam = selectedBet.awayTeam;
+            const combinedOdds = getCombinedOdds();
+            const potentialWin = Math.floor(stake * combinedOdds);
+            const isCombo = selectedBets.length > 1;
+            const comboId = isCombo ? 'combo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9) : null;
 
-            // Check if already bet on this match (from Supabase)
-            const { data: existingBet } = await supabaseClient
-                .from('user_bets')
-                .select('id')
-                .eq('user_id', currentUser.id)
-                .eq('match_id', selectedBet.matchId)
-                .eq('status', 'pending')
-                .single();
+            // Check if already bet on any of these matches
+            for (const bet of selectedBets) {
+                const { data: existingBet } = await supabaseClient
+                    .from('user_bets')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .eq('match_id', bet.matchId)
+                    .eq('status', 'pending')
+                    .single();
 
-            if (existingBet) {
-                showToast('You already have a bet on this match', 'error');
-                return;
+                if (existingBet) {
+                    showToast('You already have a bet on ' + bet.homeTeam + ' vs ' + bet.awayTeam, 'error');
+                    return;
+                }
             }
 
-            // Create bet record in Supabase
-            const { data: newBet, error: betError } = await supabaseClient
+            // Create bet records in Supabase (one for each selection in combo)
+            const betsToInsert = selectedBets.map((bet, index) => ({
+                user_id: currentUser.id,
+                match_id: bet.matchId,
+                match_date: bet.matchDate,
+                home_team: bet.homeTeam,
+                away_team: bet.awayTeam,
+                bet_type: bet.betType,
+                stake: index === 0 ? stake : 0, // Only first bet holds the stake
+                odds: bet.odds,
+                potential_win: index === 0 ? potentialWin : 0,
+                status: 'pending',
+                combo_id: comboId,
+                combo_odds: isCombo ? combinedOdds : null,
+                combo_size: isCombo ? selectedBets.length : null
+            }));
+
+            const { error: betError } = await supabaseClient
                 .from('user_bets')
-                .insert({
-                    user_id: currentUser.id,
-                    match_id: selectedBet.matchId,
-                    match_date: selectedBet.matchDate,
-                    home_team: selectedBet.homeTeam,
-                    away_team: selectedBet.awayTeam,
-                    bet_type: selectedBet.betType,
-                    stake: stake,
-                    odds: selectedBet.odds,
-                    potential_win: potentialWin,
-                    status: 'pending'
-                })
-                .select()
-                .single();
+                .insert(betsToInsert);
 
             if (betError) {
                 console.error('Error saving bet:', betError);
@@ -2459,15 +2675,19 @@
             // Update leaderboard entry
             await updateLeaderboardEntry();
 
-            showToast('Bet placed! ' + stake + ' coins on ' + betHomeTeam + ' vs ' + betAwayTeam, 'success');
+            // Show success message
+            if (isCombo) {
+                showToast(selectedBets.length + '-fold combo placed! ' + stake + ' coins at ' + combinedOdds.toFixed(2) + 'x odds', 'success');
+            } else {
+                showToast('Bet placed! ' + stake + ' coins on ' + selectedBets[0].homeTeam + ' vs ' + selectedBets[0].awayTeam, 'success');
+            }
 
-            // Clear bet slip
-            selectedBet = null;
+            // Clear bet slip and close popup
+            selectedBets = [];
             stakeInput.value = '';
             updateBetSlip();
-            document.querySelectorAll('.bet-option.selected').forEach(el => {
-                el.classList.remove('selected');
-            });
+            updateSelectionVisuals();
+            closeBetSlip();
 
             // Reload matches to show bet placed
             await loadMatches();
@@ -2877,7 +3097,6 @@
                     matchesSection.classList.toggle('hidden', tab !== 'matches');
                     document.getElementById('myBetsSection').classList.toggle('active', tab === 'mybets');
                     document.getElementById('leaderboardSection').classList.toggle('active', tab === 'leaderboard');
-                    betSlipContainer.classList.toggle('hidden', tab !== 'matches');
 
                     if (tab === 'mybets') loadUserBets();
                     if (tab === 'leaderboard') loadLeaderboard();
@@ -2927,15 +3146,18 @@
             // Place Bet Button
             placeBetBtn.addEventListener('click', placeBet);
 
-            // Clear Slip
-            document.getElementById('clearSlip').addEventListener('click', () => {
-                selectedBet = null;
-                stakeInput.value = '';
-                updateBetSlip();
-                document.querySelectorAll('.bet-option.selected').forEach(el => {
-                    el.classList.remove('selected');
-                });
+            // Close Bet Slip Popup
+            closeSlipBtn.addEventListener('click', closeBetSlip);
+
+            // Click overlay to close
+            betSlipOverlay.addEventListener('click', (e) => {
+                if (e.target === betSlipOverlay) {
+                    closeBetSlip();
+                }
             });
+
+            // Add More button - just closes popup to allow more selections
+            addMoreBtn.addEventListener('click', closeBetSlip);
         }
 
         // Initialize
