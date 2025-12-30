@@ -22,6 +22,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Tesseract.js for OCR screenshot reading -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- Supabase for team storage -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/supabase-config.js"></script>
 
     <style>
         * {
@@ -1303,6 +1306,13 @@
     </div>
 
     <script>
+        // Initialize Supabase client
+        const supabaseClient = window.supabase.createClient(
+            window.SUPABASE_URL || 'https://rqtdnlpgrmanzxqrimxr.supabase.co',
+            window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxdGRubHBncm1hbnp4cXJpbXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwNDE5NDgsImV4cCI6MjA4MjYxNzk0OH0.JgVRenqB2XX0pDVevOrU2LMVX_Y_11EZepGKO8Jfd_E'
+        );
+        let currentUser = null;
+
         // Global state
         let allPlayers = [];
         let teams = [];
@@ -1421,6 +1431,10 @@
             renderPlayerList(allPlayers);
             populateComparisonSelects();
             console.log(`Loaded ${allPlayers.length} players from FPL API`);
+
+            // Check auth and load saved team after players are loaded
+            await checkAuth();
+            await loadSavedTeam();
         }
 
         // Render player list
@@ -1698,26 +1712,116 @@
             updateTeamDisplay();
         }
 
-        // Save team
-        function saveTeam() {
+        // Save team to Supabase (or localStorage as fallback)
+        async function saveTeam() {
             const teamData = {
                 players: selectedTeam.filter(p => p !== null).map(p => p.id),
                 savedAt: new Date().toISOString()
             };
+
+            // Always save to localStorage as backup
             localStorage.setItem('fplTeam', JSON.stringify(teamData));
-            alert('Team saved successfully!');
+
+            // If user is logged in, save to Supabase
+            if (currentUser) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('fpl_teams')
+                        .upsert({
+                            user_id: currentUser.id,
+                            player_ids: teamData.players,
+                            updated_at: new Date().toISOString()
+                        }, { onConflict: 'user_id' });
+
+                    if (error) {
+                        console.error('Error saving team to Supabase:', error);
+                        alert('Team saved locally! (Cloud sync failed)');
+                    } else {
+                        alert('Team saved to your account!');
+                    }
+                } catch (e) {
+                    console.error('Failed to save team:', e);
+                    alert('Team saved locally!');
+                }
+            } else {
+                alert('Team saved locally! Sign in to sync across devices.');
+            }
         }
 
-        // Load saved team
-        function loadSavedTeam() {
+        // Load saved team from Supabase (or localStorage as fallback)
+        async function loadSavedTeam() {
+            // If user is logged in, try loading from Supabase first
+            if (currentUser) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('fpl_teams')
+                        .select('player_ids')
+                        .eq('user_id', currentUser.id)
+                        .single();
+
+                    if (!error && data && data.player_ids && data.player_ids.length > 0) {
+                        // Wait for players to load
+                        if (allPlayers.length === 0) {
+                            console.log('Waiting for players to load before restoring team...');
+                            return; // Will be called again after players load
+                        }
+
+                        // Restore team from player IDs
+                        restoreTeamFromIds(data.player_ids);
+                        console.log('Team loaded from Supabase');
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Error loading team from Supabase:', e);
+                }
+            }
+
+            // Fallback to localStorage
             const saved = localStorage.getItem('fplTeam');
             if (saved) {
                 try {
                     const teamData = JSON.parse(saved);
-                    // Would need to match IDs to players after data loads
+                    if (teamData.players && teamData.players.length > 0) {
+                        if (allPlayers.length === 0) {
+                            console.log('Waiting for players to load...');
+                            return;
+                        }
+                        restoreTeamFromIds(teamData.players);
+                        console.log('Team loaded from localStorage');
+                    }
                 } catch (e) {
-                    console.error('Failed to load saved team');
+                    console.error('Failed to load saved team:', e);
                 }
+            }
+        }
+
+        // Restore team from player IDs
+        function restoreTeamFromIds(playerIds) {
+            selectedTeam = new Array(15).fill(null);
+
+            playerIds.forEach(playerId => {
+                const player = allPlayers.find(p => p.id === playerId);
+                if (player) {
+                    // Find appropriate slot based on position
+                    const slots = positionSlots[player.position];
+                    if (slots) {
+                        const emptySlot = slots.find(s => selectedTeam[s] === null);
+                        if (emptySlot !== undefined) {
+                            selectedTeam[emptySlot] = player;
+                        }
+                    }
+                }
+            });
+
+            updateTeamDisplay();
+        }
+
+        // Check authentication and load user
+        async function checkAuth() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            currentUser = user;
+            if (user) {
+                console.log('User logged in:', user.email);
             }
         }
 
