@@ -816,6 +816,48 @@ IMPORTANT GUIDELINES:
             }
         }
 
+        // CORS proxy configuration
+        const proxyConfigs = [
+            {
+                name: 'allorigins-get',
+                buildUrl: (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+                parseResponse: (text) => JSON.parse(JSON.parse(text).contents)
+            },
+            {
+                name: 'corsproxy.io',
+                buildUrl: (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
+            },
+            {
+                name: 'cors-anywhere-alt',
+                buildUrl: (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+            },
+            {
+                name: 'jsonp-afeld',
+                buildUrl: (url) => `https://jsonp.afeld.me/?url=${encodeURIComponent(url)}`
+            }
+        ];
+
+        // Fetch with CORS proxy fallback
+        async function fetchWithProxy(url) {
+            for (const proxyConfig of proxyConfigs) {
+                try {
+                    const proxyUrl = proxyConfig.buildUrl(url);
+                    console.log(`Trying proxy: ${proxyConfig.name}`);
+                    const response = await fetch(proxyUrl, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const text = await response.text();
+                    const data = proxyConfig.parseResponse ? proxyConfig.parseResponse(text) : JSON.parse(text);
+                    console.log(`Success with proxy: ${proxyConfig.name}`);
+                    return data;
+                } catch (error) {
+                    console.warn(`Proxy ${proxyConfig.name} failed:`, error.message);
+                }
+            }
+            throw new Error('All proxies failed');
+        }
+
         // Fetch real-time FPL data
         async function fetchFPLData() {
             // Check cache
@@ -827,13 +869,11 @@ IMPORTANT GUIDELINES:
             try {
                 console.log('Fetching live FPL data...');
 
-                // Fetch bootstrap data (all players, teams, gameweeks)
-                const bootstrapRes = await fetch(`${CONFIG.FPL_API}/bootstrap-static/`);
-                const bootstrap = await bootstrapRes.json();
+                // Fetch bootstrap data (all players, teams, gameweeks) via proxy
+                const bootstrap = await fetchWithProxy(`${CONFIG.FPL_API}/bootstrap-static/`);
 
-                // Fetch fixtures
-                const fixturesRes = await fetch(`${CONFIG.FPL_API}/fixtures/`);
-                const fixtures = await fixturesRes.json();
+                // Fetch fixtures via proxy
+                const fixtures = await fetchWithProxy(`${CONFIG.FPL_API}/fixtures/`);
 
                 fplData = processFFPLData(bootstrap, fixtures);
                 fplDataTimestamp = Date.now();
