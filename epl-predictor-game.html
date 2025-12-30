@@ -1463,11 +1463,15 @@
                 // TheSportsDB free tier has limited/unreliable fixture data
                 matches = generateSampleMatches();
 
-                // Try to get local bets
+                // Check for existing bets from Supabase
                 if (currentUser) {
-                    const savedBets = localStorage.getItem('epl_betting_bets_' + currentUser.id);
-                    if (savedBets) {
-                        const bets = JSON.parse(savedBets).filter(b => b.status === 'pending');
+                    const { data: bets } = await supabaseClient
+                        .from('user_bets')
+                        .select('match_id')
+                        .eq('user_id', currentUser.id)
+                        .eq('status', 'pending');
+
+                    if (bets && bets.length > 0) {
                         const betMatchIds = new Set(bets.map(b => b.match_id));
                         matches = matches.map(m => ({
                             ...m,
@@ -1728,7 +1732,7 @@
             }
         }
 
-        // Place Bet (with localStorage fallback)
+        // Place Bet (saves to Supabase)
         async function placeBet() {
             if (!selectedBet || !currentUser || !userWallet) return;
 
@@ -1748,37 +1752,60 @@
             const betHomeTeam = selectedBet.homeTeam;
             const betAwayTeam = selectedBet.awayTeam;
 
-            // Check if already bet on this match
-            const existingBets = JSON.parse(localStorage.getItem('epl_betting_bets_' + currentUser.id) || '[]');
-            if (existingBets.some(b => b.match_id === selectedBet.matchId && b.status === 'pending')) {
+            // Check if already bet on this match (from Supabase)
+            const { data: existingBet } = await supabaseClient
+                .from('user_bets')
+                .select('id')
+                .eq('user_id', currentUser.id)
+                .eq('match_id', selectedBet.matchId)
+                .eq('status', 'pending')
+                .single();
+
+            if (existingBet) {
                 showToast('You already have a bet on this match', 'error');
                 return;
             }
 
-            // Create bet record
-            const newBet = {
-                id: 'bet_' + Date.now(),
-                user_id: currentUser.id,
-                match_id: selectedBet.matchId,
-                match_date: selectedBet.matchDate,
-                home_team: selectedBet.homeTeam,
-                away_team: selectedBet.awayTeam,
-                bet_type: selectedBet.betType,
-                stake: stake,
-                odds: selectedBet.odds,
-                potential_win: potentialWin,
-                status: 'pending',
-                placed_at: new Date().toISOString()
-            };
+            // Create bet record in Supabase
+            const { data: newBet, error: betError } = await supabaseClient
+                .from('user_bets')
+                .insert({
+                    user_id: currentUser.id,
+                    match_id: selectedBet.matchId,
+                    match_date: selectedBet.matchDate,
+                    home_team: selectedBet.homeTeam,
+                    away_team: selectedBet.awayTeam,
+                    bet_type: selectedBet.betType,
+                    stake: stake,
+                    odds: selectedBet.odds,
+                    potential_win: potentialWin,
+                    status: 'pending'
+                })
+                .select()
+                .single();
 
-            // Save bet to localStorage
-            existingBets.push(newBet);
-            localStorage.setItem('epl_betting_bets_' + currentUser.id, JSON.stringify(existingBets));
+            if (betError) {
+                console.error('Error saving bet:', betError);
+                showToast('Error placing bet. Please try again.', 'error');
+                return;
+            }
 
-            // Update wallet
+            // Update wallet in Supabase
+            const { error: walletError } = await supabaseClient
+                .from('user_wallets')
+                .update({
+                    coins: userWallet.coins - stake,
+                    total_bets: (userWallet.total_bets || 0) + 1
+                })
+                .eq('user_id', currentUser.id);
+
+            if (walletError) {
+                console.error('Error updating wallet:', walletError);
+            }
+
+            // Update local wallet state
             userWallet.coins -= stake;
-            userWallet.total_bets += 1;
-            saveLocalWallet();
+            userWallet.total_bets = (userWallet.total_bets || 0) + 1;
             updateWalletDisplay();
 
             showToast('Bet placed! ' + stake + ' coins on ' + betHomeTeam + ' vs ' + betAwayTeam, 'success');
@@ -1795,15 +1822,22 @@
             await loadMatches();
         }
 
-        // Load User Bets (from localStorage)
+        // Load User Bets (from Supabase)
         async function loadUserBets() {
             if (!currentUser) return;
 
-            const savedBets = localStorage.getItem('epl_betting_bets_' + currentUser.id);
-            userBets = savedBets ? JSON.parse(savedBets) : [];
+            const { data: bets, error } = await supabaseClient
+                .from('user_bets')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
 
-            // Sort by placed_at descending
-            userBets.sort((a, b) => new Date(b.placed_at) - new Date(a.placed_at));
+            if (error) {
+                console.error('Error loading bets:', error);
+                userBets = [];
+            } else {
+                userBets = bets || [];
+            }
 
             renderUserBets('pending');
         }
@@ -1875,7 +1909,7 @@
             }).join('');
         }
 
-        // Check Daily Bonus (using localStorage)
+        // Check Daily Bonus (using Supabase)
         async function checkDailyBonus() {
             if (!userWallet) return;
 
@@ -1900,28 +1934,39 @@
 
             bonusModal.classList.add('active');
 
-            document.getElementById('claimBonus').onclick = () => {
+            document.getElementById('claimBonus').onclick = async () => {
                 userWallet.coins += bonusAmount;
                 userWallet.last_daily_bonus = today;
                 userWallet.daily_bonus_day = bonusDay;
-                saveLocalWallet();
+
+                // Save to Supabase
+                await supabaseClient
+                    .from('user_wallets')
+                    .update({
+                        coins: userWallet.coins,
+                        last_daily_bonus: today,
+                        daily_bonus_day: bonusDay
+                    })
+                    .eq('user_id', currentUser.id);
+
                 updateWalletDisplay();
                 showToast('Claimed ' + bonusAmount + ' coins!', 'success');
                 bonusModal.classList.remove('active');
             };
         }
 
-        // Settlement Polling (using localStorage, simulates results for demo)
+        // Settlement Polling (using Supabase, simulates results for demo)
         async function settleBets() {
             if (!currentUser || !userWallet) return;
 
-            const savedBets = localStorage.getItem('epl_betting_bets_' + currentUser.id);
-            if (!savedBets) return;
+            // Get pending bets from Supabase
+            const { data: pendingBets, error } = await supabaseClient
+                .from('user_bets')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .eq('status', 'pending');
 
-            let bets = JSON.parse(savedBets);
-            const pendingBets = bets.filter(b => b.status === 'pending');
-
-            if (pendingBets.length === 0) return;
+            if (error || !pendingBets || pendingBets.length === 0) return;
 
             let updated = false;
             for (const bet of pendingBets) {
@@ -1933,10 +1978,18 @@
                     const random = Math.random();
                     const won = random < winChance;
 
-                    // Update bet status
-                    bet.status = won ? 'won' : 'lost';
-                    bet.settled_at = new Date().toISOString();
-                    bet.payout = won ? bet.potential_win : 0;
+                    // Calculate payout
+                    const payout = won ? bet.potential_win : 0;
+
+                    // Update bet status in Supabase
+                    await supabaseClient
+                        .from('user_bets')
+                        .update({
+                            status: won ? 'won' : 'lost',
+                            settled_at: new Date().toISOString(),
+                            payout: payout
+                        })
+                        .eq('id', bet.id);
 
                     if (won) {
                         const streakBonus = userWallet.current_streak >= 5 ? 0.25 :
@@ -1944,10 +1997,10 @@
                         const totalPayout = Math.floor(bet.potential_win * (1 + streakBonus));
 
                         userWallet.coins += totalPayout;
-                        userWallet.lifetime_winnings += totalPayout - bet.stake;
-                        userWallet.won_bets += 1;
-                        userWallet.current_streak += 1;
-                        userWallet.best_streak = Math.max(userWallet.best_streak, userWallet.current_streak);
+                        userWallet.lifetime_winnings = (userWallet.lifetime_winnings || 0) + totalPayout - bet.stake;
+                        userWallet.won_bets = (userWallet.won_bets || 0) + 1;
+                        userWallet.current_streak = (userWallet.current_streak || 0) + 1;
+                        userWallet.best_streak = Math.max(userWallet.best_streak || 0, userWallet.current_streak);
 
                         showToast('Won ' + totalPayout + ' coins!' + (streakBonus > 0 ? ' (Streak bonus!)' : ''), 'success');
                     } else {
@@ -1960,8 +2013,18 @@
             }
 
             if (updated) {
-                localStorage.setItem('epl_betting_bets_' + currentUser.id, JSON.stringify(bets));
-                saveLocalWallet();
+                // Update wallet in Supabase
+                await supabaseClient
+                    .from('user_wallets')
+                    .update({
+                        coins: userWallet.coins,
+                        lifetime_winnings: userWallet.lifetime_winnings,
+                        won_bets: userWallet.won_bets,
+                        current_streak: userWallet.current_streak,
+                        best_streak: userWallet.best_streak
+                    })
+                    .eq('user_id', currentUser.id);
+
                 updateWalletDisplay();
                 loadUserBets();
             }

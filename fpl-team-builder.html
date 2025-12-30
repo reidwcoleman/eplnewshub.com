@@ -559,6 +559,103 @@
             color: #888;
         }
 
+        /* Budget Warning Modal */
+        .budget-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .budget-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .budget-modal {
+            background: linear-gradient(145deg, #1a1a2e 0%, #16162a 100%);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.2);
+        }
+
+        .budget-modal-overlay.active .budget-modal {
+            transform: scale(1);
+        }
+
+        .budget-modal-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            border: 2px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .budget-modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ef4444;
+            margin-bottom: 12px;
+        }
+
+        .budget-modal-amount {
+            font-size: 48px;
+            font-weight: 800;
+            color: #fff;
+            margin: 16px 0;
+            text-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);
+        }
+
+        .budget-modal-amount span {
+            font-size: 24px;
+            color: #ef4444;
+        }
+
+        .budget-modal-text {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .budget-modal-btn {
+            background: linear-gradient(145deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .budget-modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+
         /* Loading Spinner */
         .loading-spinner {
             width: 40px;
@@ -2157,6 +2254,23 @@
     </main>
 
     <!-- Footer -->
+    <!-- Budget Warning Modal -->
+    <div class="budget-modal-overlay" id="budget-modal">
+        <div class="budget-modal">
+            <div class="budget-modal-icon">💰</div>
+            <h2 class="budget-modal-title">Over Budget!</h2>
+            <div class="budget-modal-amount">
+                <span>-£</span><span id="over-budget-amount">0.0</span><span>m</span>
+            </div>
+            <p class="budget-modal-text">
+                Your team exceeds the £100m budget. Remove or replace some players to get back within budget.
+            </p>
+            <button class="budget-modal-btn" onclick="closeBudgetModal()">
+                Got it
+            </button>
+        </div>
+    </div>
+
     <div class="footer" include="./footer.html"></div>
 
     <script src="index.js"></script>
