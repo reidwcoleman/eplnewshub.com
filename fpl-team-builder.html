@@ -1956,9 +1956,23 @@
 
                     if (playerNames && playerNames.length > 0) {
                         // Match extracted names to FPL players
-                        const detectedPlayers = matchExtractedPlayers(playerNames);
+                        const matchedPlayers = matchExtractedPlayers(playerNames);
+                        console.log('Matched players:', matchedPlayers);
 
-                        if (detectedPlayers.length > 0) {
+                        if (matchedPlayers.length > 0) {
+                            // Transform to format expected by renderDetectedPlayers
+                            const detectedPlayers = matchedPlayers.map(m => {
+                                const p = m.player;
+                                const team = teams.find(t => t.id === p.team);
+                                return {
+                                    id: p.id,
+                                    name: p.web_name,
+                                    team: team ? team.short_name : 'Unknown',
+                                    position: positionMap[p.element_type],
+                                    price: p.now_cost / 10,
+                                    points: p.total_points
+                                };
+                            });
                             renderDetectedPlayers(detectedPlayers);
                         } else {
                             showNoPlayersFound();
