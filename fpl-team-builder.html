@@ -1641,6 +1641,9 @@
 
             updateTeamStats();
             updateSuggestions();
+
+            // Auto-save after team changes
+            scheduleAutoSave();
         }
 
         // Track if we've shown the budget warning for this session
@@ -1710,14 +1713,48 @@
         function clearTeam() {
             selectedTeam = new Array(15).fill(null);
             updateTeamDisplay();
+            // Clear saved team data
+            localStorage.removeItem('fplTeam');
+            if (currentUser) {
+                supabaseClient
+                    .from('fpl_teams')
+                    .delete()
+                    .eq('user_id', currentUser.id)
+                    .then(() => console.log('Saved team cleared'));
+            }
+        }
+
+        // Auto-save debounce timer
+        let autoSaveTimeout = null;
+        let isRestoringTeam = false;
+
+        // Debounced auto-save function
+        function scheduleAutoSave() {
+            // Don't auto-save while restoring team from storage
+            if (isRestoringTeam) return;
+
+            // Clear previous timeout
+            if (autoSaveTimeout) {
+                clearTimeout(autoSaveTimeout);
+            }
+
+            // Schedule save after 1 second of inactivity
+            autoSaveTimeout = setTimeout(() => {
+                saveTeam(true); // silent save
+            }, 1000);
         }
 
         // Save team to Supabase (or localStorage as fallback)
-        async function saveTeam() {
+        async function saveTeam(silent = false) {
             const teamData = {
                 players: selectedTeam.filter(p => p !== null).map(p => p.id),
                 savedAt: new Date().toISOString()
             };
+
+            // Don't save empty teams
+            if (teamData.players.length === 0) {
+                return;
+            }
 
             // Always save to localStorage as backup
             localStorage.setItem('fplTeam', JSON.stringify(teamData));
@@ -1735,16 +1772,18 @@
 
                     if (error) {
                         console.error('Error saving team to Supabase:', error);
-                        alert('Team saved locally! (Cloud sync failed)');
+                        if (!silent) alert('Team saved locally! (Cloud sync failed)');
                     } else {
-                        alert('Team saved to your account!');
+                        console.log('Team auto-saved to cloud');
+                        if (!silent) alert('Team saved to your account!');
                     }
                 } catch (e) {
                     console.error('Failed to save team:', e);
-                    alert('Team saved locally!');
+                    if (!silent) alert('Team saved locally!');
                 }
             } else {
-                alert('Team saved locally! Sign in to sync across devices.');
+                console.log('Team auto-saved locally');
+                if (!silent) alert('Team saved locally! Sign in to sync across devices.');
             }
         }
 
@@ -1797,6 +1836,9 @@
 
         // Restore team from player IDs
         function restoreTeamFromIds(playerIds) {
+            // Prevent auto-save during team restoration
+            isRestoringTeam = true;
+
             selectedTeam = new Array(15).fill(null);
 
             playerIds.forEach(playerId => {
@@ -1814,6 +1856,9 @@
             });
 
             updateTeamDisplay();
+
+            // Re-enable auto-save after restoration complete
+            isRestoringTeam = false;
         }
 
         // Check authentication and load user
