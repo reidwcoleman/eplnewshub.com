@@ -28,11 +28,11 @@
         },
         {
             id: 'predictor-ad',
-            title: '🔮 Points Predictor',
-            subtitle: 'ML-Powered Predictions',
-            description: 'Know who will score big before the gameweek starts',
-            cta: 'Predict Points',
-            link: '/fpl-player-analyzer.html',
+            title: '🎮 Predictor Game',
+            subtitle: 'Bet on EPL Matches',
+            description: 'Predict match outcomes and climb the leaderboard',
+            cta: 'Play Now',
+            link: '/epl-predictor-game.html',
             color: 'linear-gradient(135deg, #4facfe, #00f2fe)',
             features: ['5 GWs ahead', 'Captain picks', '85% accuracy'],
             priority: 3
