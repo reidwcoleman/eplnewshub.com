@@ -1314,16 +1314,16 @@
         // Groq API key will be fetched from Supabase
         let GROQ_API_KEY = null;
 
-        // Fetch Groq API key from Supabase config table
+        // Fetch Groq API key from Supabase api_keys table
         async function getGroqApiKey() {
             if (GROQ_API_KEY) return GROQ_API_KEY;
             try {
                 const { data, error } = await supabaseClient
-                    .from('app_config')
-                    .select('value')
-                    .eq('key', 'groq_api_key')
+                    .from('api_keys')
+                    .select('key_value')
+                    .eq('key_name', 'groq_api_key')
                     .single();
-                if (data) GROQ_API_KEY = data.value;
+                if (data) GROQ_API_KEY = data.key_value;
             } catch (e) {
                 console.error('Failed to fetch API key:', e);
             }
