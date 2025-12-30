@@ -279,10 +279,40 @@
             background: rgba(0, 255, 135, 0.05);
         }
 
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .live-odds-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: linear-gradient(135deg, #00ff87 0%, #00d4ff 100%);
+            color: #000;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .live-odds-badge svg {
+            color: #000;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 255, 135, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(0, 255, 135, 0.6); }
+        }
+
         .match-date {
             font-size: 12px;
             color: #888;
-            margin-bottom: 16px;
+            margin-bottom: 0;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -1292,9 +1322,17 @@
         // Initialize Supabase (use supabaseClient to avoid conflict with CDN global)
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // API-Football RapidAPI config
-        const RAPIDAPI_KEY = '015c3572fdmsh9f6f6598e6ec003p1fb385jsn529d908dcb43';
-        const RAPIDAPI_HOST = 'api-football-v1.p.rapidapi.com';
+        // The Odds API Configuration (Free tier: 500 requests/month)
+        // Get your free API key at: https://the-odds-api.com/
+        const ODDS_API_KEY = 'YOUR_ODDS_API_KEY'; // Replace with your API key
+        const ODDS_API_BASE = 'https://api.the-odds-api.com/v4/sports/soccer_epl/odds';
+
+        // Odds Cache (to minimize API calls)
+        let oddsCache = {
+            data: {},
+            lastFetched: null,
+            expiresIn: 30 * 60 * 1000 // Cache for 30 minutes
+        };
 
         // App State
         let currentUser = null;
@@ -1306,6 +1344,130 @@
 
         // Daily Bonus Amounts
         const DAILY_BONUSES = [100, 150, 200, 300, 400, 500, 750];
+
+        // Team name normalization map (API names -> our names)
+        const TEAM_NAME_MAP = {
+            'Arsenal': ['Arsenal', 'Arsenal FC'],
+            'Aston Villa': ['Aston Villa', 'Aston Villa FC'],
+            'Bournemouth': ['Bournemouth', 'AFC Bournemouth'],
+            'Brentford': ['Brentford', 'Brentford FC'],
+            'Brighton': ['Brighton', 'Brighton and Hove Albion', 'Brighton & Hove Albion'],
+            'Chelsea': ['Chelsea', 'Chelsea FC'],
+            'Crystal Palace': ['Crystal Palace', 'Crystal Palace FC'],
+            'Everton': ['Everton', 'Everton FC'],
+            'Fulham': ['Fulham', 'Fulham FC'],
+            'Ipswich': ['Ipswich', 'Ipswich Town'],
+            'Leicester': ['Leicester', 'Leicester City'],
+            'Liverpool': ['Liverpool', 'Liverpool FC'],
+            'Manchester City': ['Manchester City', 'Man City'],
+            'Manchester United': ['Manchester United', 'Man United', 'Man Utd'],
+            'Newcastle': ['Newcastle', 'Newcastle United'],
+            'Nottingham Forest': ['Nottingham Forest', "Nott'm Forest"],
+            'Southampton': ['Southampton', 'Southampton FC'],
+            'Tottenham': ['Tottenham', 'Tottenham Hotspur', 'Spurs'],
+            'West Ham': ['West Ham', 'West Ham United'],
+            'Wolves': ['Wolves', 'Wolverhampton Wanderers', 'Wolverhampton']
+        };
+
+        // Fetch real odds from The Odds API
+        async function fetchRealOdds() {
+            // Check if cache is still valid
+            if (oddsCache.lastFetched && (Date.now() - oddsCache.lastFetched) < oddsCache.expiresIn) {
+                console.log('Using cached odds data');
+                return oddsCache.data;
+            }
+
+            // Skip if no API key configured
+            if (ODDS_API_KEY === 'YOUR_ODDS_API_KEY' || !ODDS_API_KEY) {
+                console.log('No Odds API key configured, using calculated odds');
+                return {};
+            }
+
+            try {
+                console.log('Fetching real odds from The Odds API...');
+                const response = await fetch(
+                    `${ODDS_API_BASE}?apiKey=${ODDS_API_KEY}&regions=uk,eu&markets=h2h&oddsFormat=decimal`
+                );
+
+                if (!response.ok) {
+                    const remaining = response.headers.get('x-requests-remaining');
+                    console.log(`API requests remaining: ${remaining}`);
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Fetched odds for', data.length, 'matches');
+
+                // Process and cache the odds
+                const processedOdds = {};
+                data.forEach(match => {
+                    // Find best odds from bookmakers
+                    let bestHomeOdds = 1.01, bestDrawOdds = 1.01, bestAwayOdds = 1.01;
+
+                    match.bookmakers.forEach(bookmaker => {
+                        const h2hMarket = bookmaker.markets.find(m => m.key === 'h2h');
+                        if (h2hMarket) {
+                            h2hMarket.outcomes.forEach(outcome => {
+                                if (outcome.name === match.home_team) {
+                                    bestHomeOdds = Math.max(bestHomeOdds, outcome.price);
+                                } else if (outcome.name === match.away_team) {
+                                    bestAwayOdds = Math.max(bestAwayOdds, outcome.price);
+                                } else if (outcome.name === 'Draw') {
+                                    bestDrawOdds = Math.max(bestDrawOdds, outcome.price);
+                                }
+                            });
+                        }
+                    });
+
+                    // Normalize team names and store
+                    const homeKey = normalizeTeamName(match.home_team);
+                    const awayKey = normalizeTeamName(match.away_team);
+                    const matchKey = `${homeKey}_vs_${awayKey}`;
+
+                    processedOdds[matchKey] = {
+                        home: parseFloat(bestHomeOdds.toFixed(2)),
+                        draw: parseFloat(bestDrawOdds.toFixed(2)),
+                        away: parseFloat(bestAwayOdds.toFixed(2)),
+                        homeTeam: match.home_team,
+                        awayTeam: match.away_team,
+                        commenceTime: match.commence_time,
+                        bookmakerCount: match.bookmakers.length
+                    };
+                });
+
+                // Update cache
+                oddsCache.data = processedOdds;
+                oddsCache.lastFetched = Date.now();
+
+                // Show remaining API calls
+                const remaining = data.headers?.get('x-requests-remaining') || 'unknown';
+                console.log('Odds cached. API calls remaining:', remaining);
+
+                return processedOdds;
+            } catch (error) {
+                console.error('Error fetching real odds:', error);
+                return oddsCache.data || {}; // Return cached data or empty
+            }
+        }
+
+        // Normalize team names for matching
+        function normalizeTeamName(name) {
+            for (const [normalized, variations] of Object.entries(TEAM_NAME_MAP)) {
+                if (variations.some(v => name.toLowerCase().includes(v.toLowerCase()) ||
+                    v.toLowerCase().includes(name.toLowerCase()))) {
+                    return normalized;
+                }
+            }
+            return name;
+        }
+
+        // Get real odds for a specific match
+        function getRealOdds(homeTeam, awayTeam) {
+            const homeKey = normalizeTeamName(homeTeam);
+            const awayKey = normalizeTeamName(awayTeam);
+            const matchKey = `${homeKey}_vs_${awayKey}`;
+            return oddsCache.data[matchKey] || null;
+        }
 
         // DOM Elements
         const coinBalanceEl = document.getElementById('coinBalance');
@@ -1329,7 +1491,13 @@
         async function init() {
             await checkAuth();
             setupEventListeners();
-            await loadStandings();
+
+            // Fetch real odds and standings in parallel for faster loading
+            await Promise.all([
+                fetchRealOdds(),
+                loadStandings()
+            ]);
+
             await loadMatches();
 
             if (currentUser) {
@@ -1554,27 +1722,43 @@
 
         // Calculate Odds Based on Standings
         function calculateOdds(homeTeam, awayTeam) {
-            // API-Football uses team.name, TheSportsDB uses strTeam
+            // First, check for real odds from The Odds API
+            const realOdds = getRealOdds(homeTeam, awayTeam);
+            if (realOdds) {
+                console.log(`Using real bookmaker odds for ${homeTeam} vs ${awayTeam}`);
+                return {
+                    home: realOdds.home,
+                    draw: realOdds.draw,
+                    away: realOdds.away,
+                    isRealOdds: true,
+                    bookmakerCount: realOdds.bookmakerCount
+                };
+            }
+
+            // Fallback: Calculate odds based on league standings
+            console.log(`Calculating odds for ${homeTeam} vs ${awayTeam} (no API odds available)`);
             let homePos = 10, awayPos = 10;
 
             if (standings.length > 0) {
-                // Check API-Football format first
-                const homeTeamData = standings.find(t =>
-                    (t.team && t.team.name === homeTeam) || t.strTeam === homeTeam
-                );
-                const awayTeamData = standings.find(t =>
-                    (t.team && t.team.name === awayTeam) || t.strTeam === awayTeam
-                );
+                // Check TheSportsDB format
+                const homeTeamData = standings.find(t => {
+                    const teamName = t.strTeam || (t.team && t.team.name);
+                    return normalizeTeamName(teamName) === normalizeTeamName(homeTeam);
+                });
+                const awayTeamData = standings.find(t => {
+                    const teamName = t.strTeam || (t.team && t.team.name);
+                    return normalizeTeamName(teamName) === normalizeTeamName(awayTeam);
+                });
 
                 if (homeTeamData) {
-                    homePos = homeTeamData.rank || standings.indexOf(homeTeamData) + 1;
+                    homePos = homeTeamData.intRank || homeTeamData.rank || standings.indexOf(homeTeamData) + 1;
                 }
                 if (awayTeamData) {
-                    awayPos = awayTeamData.rank || standings.indexOf(awayTeamData) + 1;
+                    awayPos = awayTeamData.intRank || awayTeamData.rank || standings.indexOf(awayTeamData) + 1;
                 }
             }
 
-            // Base odds calculation
+            // Base odds calculation with home advantage
             const homeStrength = (21 - homePos) / 20;
             const awayStrength = (21 - awayPos) / 20;
             const homeAdvantage = 0.12;
@@ -1584,7 +1768,7 @@
             const awayWinProb = awayStrength / totalStrength;
             const drawProb = 1 - homeWinProb - awayWinProb + 0.25;
 
-            // Convert to decimal odds (with margin)
+            // Convert to decimal odds (with bookmaker margin)
             const margin = 1.08;
             let homeOdds = (1 / homeWinProb) * margin;
             let drawOdds = (1 / drawProb) * margin;
@@ -1598,7 +1782,8 @@
             return {
                 home: parseFloat(homeOdds.toFixed(2)),
                 draw: parseFloat(drawOdds.toFixed(2)),
-                away: parseFloat(awayOdds.toFixed(2))
+                away: parseFloat(awayOdds.toFixed(2)),
+                isRealOdds: false
             };
         }
 
@@ -1610,18 +1795,24 @@
                 return;
             }
 
-            matchCountEl.textContent = matches.length + ' matches';
+            // Count how many matches have real odds
+            const realOddsCount = matches.filter(m => getRealOdds(m.strHomeTeam, m.strAwayTeam)).length;
+            matchCountEl.textContent = matches.length + ' matches' + (realOddsCount > 0 ? ' (' + realOddsCount + ' with live odds)' : '');
 
             matchesGridEl.innerHTML = matches.map(match => {
                 const matchDate = new Date(match.strTimestamp || match.dateEvent);
                 const odds = calculateOdds(match.strHomeTeam, match.strAwayTeam);
                 const isLocked = matchDate < new Date(Date.now() + 5 * 60 * 1000);
                 const matchData = JSON.stringify({id: match.idEvent, home: match.strHomeTeam, away: match.strAwayTeam, date: match.strTimestamp || match.dateEvent}).replace(/"/g, '&quot;');
+                const hasRealOdds = odds.isRealOdds === true;
 
                 return '<div class="match-card ' + (match.hasBet ? 'has-bet' : '') + '" data-match-id="' + match.idEvent + '">' +
-                    '<div class="match-date">' +
-                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
-                        matchDate.toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' }) + ' at ' + matchDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) +
+                    '<div class="match-header">' +
+                        '<div class="match-date">' +
+                            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
+                            matchDate.toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' }) + ' at ' + matchDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) +
+                        '</div>' +
+                        (hasRealOdds ? '<div class="live-odds-badge" title="Real-time odds from ' + odds.bookmakerCount + ' bookmakers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="3" fill="currentColor"/><circle cx="12" cy="12" r="8"/></svg> LIVE ODDS</div>' : '') +
                     '</div>' +
                     '<div class="match-teams">' +
                         '<div class="team">' +
