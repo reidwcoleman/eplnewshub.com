@@ -18,6 +18,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/supabase-config.js"></script>
     <style>
@@ -1161,19 +1162,20 @@
             display: none !important;
         }
     </style>
+    <script src="/index.js" defer></script>
 </head>
 <body>
-    <!-- Header -->
-    <header class="betting-header">
+    <!-- Site Header -->
+    <div class="header" include="./header.html"></div>
+
+    <!-- Game Header with Wallet -->
+    <div class="betting-header">
         <div class="header-content">
             <div class="header-left">
-                <a href="/index.html" class="logo-section">
-                    <img src="/eplnewshubnewlogo.png" alt="EPL News Hub">
-                    <div class="logo-text">
-                        <h1>Betting Game</h1>
-                        <span>Premier League</span>
-                    </div>
-                </a>
+                <div class="logo-text">
+                    <h1>Predictor Game</h1>
+                    <span>Premier League</span>
+                </div>
                 <div class="wallet-display" id="walletDisplay">
                     <div class="coin-balance">
                         <div class="coin-icon">C</div>
@@ -1186,11 +1188,10 @@
                 </div>
             </div>
             <div class="header-right">
-                <a href="/index.html" class="nav-btn secondary">Back to News</a>
                 <a href="/signin.html" class="nav-btn primary" id="authBtn">Sign In</a>
             </div>
         </div>
-    </header>
+    </div>
 
     <!-- Tab Navigation -->
     <nav class="tab-nav">
@@ -1241,12 +1242,26 @@
 
         <!-- Leaderboard Section -->
         <section class="leaderboard-section" id="leaderboardSection">
+            <div class="leaderboard-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                <div style="background: rgba(30,30,30,0.8); border-radius: 12px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: #00ff87;" id="statTotalPlayers">-</div>
+                    <div style="font-size: 12px; color: #888; margin-top: 4px;">Total Players</div>
+                </div>
+                <div style="background: rgba(30,30,30,0.8); border-radius: 12px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: #ffd700;" id="statTotalBets">-</div>
+                    <div style="font-size: 12px; color: #888; margin-top: 4px;">Total Bets Placed</div>
+                </div>
+                <div style="background: rgba(30,30,30,0.8); border-radius: 12px; padding: 16px; border: 1px solid rgba(255,255,255,0.08); text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700; color: #ff6432;" id="statTopStreak">-</div>
+                    <div style="font-size: 12px; color: #888; margin-top: 4px;">Best Win Streak</div>
+                </div>
+            </div>
             <div class="leaderboard-card">
                 <div class="leaderboard-header-row">
                     <span>Rank</span>
                     <span>Player</span>
                     <span>Profit</span>
-                    <span>Bets</span>
+                    <span>Wins</span>
                     <span>Win %</span>
                 </div>
                 <div id="leaderboardRows">
@@ -1315,6 +1330,22 @@
         </div>
     </div>
 
+    <!-- Username Setup Modal -->
+    <div class="modal-overlay" id="usernameModal">
+        <div class="modal">
+            <div class="modal-icon" style="background: linear-gradient(135deg, #00ff87, #00dd75);">&#128100;</div>
+            <h2 class="modal-title">Set Your Username</h2>
+            <p class="modal-subtitle">Choose a display name for the leaderboard</p>
+            <div style="margin: 20px 0;">
+                <input type="text" id="usernameInput" placeholder="Enter username" maxlength="20"
+                    style="width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 16px; text-align: center;">
+                <p id="usernameError" style="color: #ef4444; font-size: 12px; margin-top: 8px; display: none;"></p>
+            </div>
+            <button class="claim-btn" id="saveUsername">Save Username</button>
+            <button class="nav-btn secondary" id="skipUsername" style="width: 100%; margin-top: 10px;">Skip for Now</button>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
@@ -1337,10 +1368,12 @@
         // App State
         let currentUser = null;
         let userWallet = null;
+        let userProfile = null;
         let selectedBet = null;
         let matches = [];
         let standings = [];
         let userBets = [];
+        let leaderboardData = [];
 
         // Daily Bonus Amounts
         const DAILY_BONUSES = [100, 150, 200, 300, 400, 500, 750];
@@ -1502,9 +1535,118 @@
 
             if (currentUser) {
                 await loadUserBets();
+                await checkOrCreateProfile();
                 await checkDailyBonus();
                 startSettlementPolling();
             }
+        }
+
+        // Check or Create User Profile
+        async function checkOrCreateProfile() {
+            if (!currentUser) return;
+
+            try {
+                // Try to get existing profile
+                const { data: profile, error } = await supabaseClient
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .single();
+
+                if (error && error.code === 'PGRST116') {
+                    // No profile exists, show username modal
+                    showUsernameModal();
+                } else if (profile) {
+                    userProfile = profile;
+                }
+            } catch (e) {
+                console.error('Error checking profile:', e);
+            }
+        }
+
+        // Show Username Modal
+        function showUsernameModal() {
+            const modal = document.getElementById('usernameModal');
+            const input = document.getElementById('usernameInput');
+            const error = document.getElementById('usernameError');
+            const saveBtn = document.getElementById('saveUsername');
+            const skipBtn = document.getElementById('skipUsername');
+
+            modal.classList.add('active');
+
+            saveBtn.onclick = async () => {
+                const username = input.value.trim();
+
+                if (username.length < 3) {
+                    error.textContent = 'Username must be at least 3 characters';
+                    error.style.display = 'block';
+                    return;
+                }
+
+                if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                    error.textContent = 'Only letters, numbers, and underscores allowed';
+                    error.style.display = 'block';
+                    return;
+                }
+
+                // Check if username is taken
+                const { data: existing } = await supabaseClient
+                    .from('user_profiles')
+                    .select('id')
+                    .eq('username', username)
+                    .single();
+
+                if (existing) {
+                    error.textContent = 'Username is already taken';
+                    error.style.display = 'block';
+                    return;
+                }
+
+                // Create profile
+                const { data: newProfile, error: createError } = await supabaseClient
+                    .from('user_profiles')
+                    .insert({
+                        user_id: currentUser.id,
+                        username: username
+                    })
+                    .select()
+                    .single();
+
+                if (createError) {
+                    error.textContent = 'Error saving username. Try again.';
+                    error.style.display = 'block';
+                    return;
+                }
+
+                userProfile = newProfile;
+                modal.classList.remove('active');
+                showToast('Username set to ' + username + '!', 'success');
+            };
+
+            skipBtn.onclick = async () => {
+                // Create profile with default username
+                const defaultUsername = 'Player_' + currentUser.id.substring(0, 8);
+                const { data: newProfile } = await supabaseClient
+                    .from('user_profiles')
+                    .insert({
+                        user_id: currentUser.id,
+                        username: defaultUsername
+                    })
+                    .select()
+                    .single();
+
+                if (newProfile) {
+                    userProfile = newProfile;
+                }
+                modal.classList.remove('active');
+            };
+
+            // Enter key to save
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    saveBtn.click();
+                }
+            });
         }
 
         // Check Authentication
@@ -2068,36 +2210,172 @@
             }).join('');
         }
 
+        // Update leaderboard entry for current user
+        async function updateLeaderboardEntry() {
+            if (!currentUser || !userWallet) return;
+
+            try {
+                // Get user's display name from profiles
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                const username = profile?.full_name || 'Player_' + currentUser.id.substring(0, 8);
+
+                // Upsert leaderboard entry
+                await supabaseClient
+                    .from('betting_leaderboard')
+                    .upsert({
+                        user_id: currentUser.id,
+                        username: username,
+                        profit: userWallet.lifetime_winnings || 0,
+                        total_bets: userWallet.total_bets || 0,
+                        won_bets: userWallet.won_bets || 0,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'user_id' });
+            } catch (e) {
+                console.error('Error updating leaderboard:', e);
+            }
+        }
+
         // Load Leaderboard
         async function loadLeaderboard() {
-            const { data: leaders, error } = await supabaseClient
-                .from('betting_leaderboard')
-                .select('*')
-                .order('profit', { ascending: false })
-                .limit(20);
+            const container = document.getElementById('leaderboardRows');
+            container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
 
-            if (error) {
-                console.error('Error loading leaderboard:', error);
-                return;
+            try {
+                const { data: leaders, error } = await supabaseClient
+                    .from('betting_leaderboard')
+                    .select('*')
+                    .order('profit', { ascending: false })
+                    .limit(50);
+
+                if (error) {
+                    console.error('Error loading leaderboard:', error);
+                    // Try fallback to direct wallet query
+                    await loadLeaderboardFallback();
+                    return;
+                }
+
+                leaderboardData = leaders || [];
+                renderLeaderboard();
+            } catch (e) {
+                console.error('Leaderboard error:', e);
+                await loadLeaderboardFallback();
             }
+        }
 
+        // Fallback leaderboard loading (if view doesn't exist yet)
+        async function loadLeaderboardFallback() {
+            try {
+                const { data: wallets, error } = await supabaseClient
+                    .from('user_wallets')
+                    .select('user_id, coins, lifetime_winnings, total_bets, won_bets, current_streak, best_streak')
+                    .gt('total_bets', 0)
+                    .order('lifetime_winnings', { ascending: false })
+                    .limit(50);
+
+                if (error || !wallets) {
+                    renderLeaderboard();
+                    return;
+                }
+
+                // Get profiles for these users
+                const userIds = wallets.map(w => w.user_id);
+                const { data: profiles } = await supabaseClient
+                    .from('profiles')
+                    .select('id, full_name')
+                    .in('id', userIds);
+
+                const profileMap = {};
+                if (profiles) {
+                    profiles.forEach(p => { profileMap[p.id] = p.full_name; });
+                }
+
+                leaderboardData = wallets.map(w => ({
+                    user_id: w.user_id,
+                    username: profileMap[w.user_id] || 'Player_' + w.user_id.substring(0, 8),
+                    coins: w.coins,
+                    profit: w.lifetime_winnings || 0,
+                    total_bets: w.total_bets || 0,
+                    won_bets: w.won_bets || 0,
+                    current_streak: w.current_streak || 0,
+                    best_streak: w.best_streak || 0,
+                    win_rate: w.total_bets > 0 ? Math.round((w.won_bets / w.total_bets) * 100) : 0
+                }));
+
+                renderLeaderboard();
+            } catch (e) {
+                console.error('Fallback leaderboard error:', e);
+                renderLeaderboard();
+            }
+        }
+
+        // Render Leaderboard
+        function renderLeaderboard() {
             const container = document.getElementById('leaderboardRows');
 
-            if (!leaders || leaders.length === 0) {
-                container.innerHTML = '<div class="no-matches" style="border-radius: 0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8m-4-4v4M3 11h18M5 11V7a2 2 0 012-2h10a2 2 0 012 2v4M7 21a2 2 0 01-2-2v-4h14v4a2 2 0 01-2 2H7z"/></svg><h3>Leaderboard Coming Soon</h3><p>Be the first to climb the ranks!</p></div>';
+            // Update stats
+            const totalPlayers = leaderboardData.length;
+            const totalBets = leaderboardData.reduce((sum, l) => sum + (l.total_bets || 0), 0);
+            const topStreak = Math.max(...leaderboardData.map(l => l.best_streak || l.current_streak || 0), 0);
+
+            document.getElementById('statTotalPlayers').textContent = totalPlayers.toLocaleString();
+            document.getElementById('statTotalBets').textContent = totalBets.toLocaleString();
+            document.getElementById('statTopStreak').textContent = topStreak;
+
+            if (!leaderboardData || leaderboardData.length === 0) {
+                container.innerHTML = '<div class="no-matches" style="border-radius: 0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8m-4-4v4M3 11h18M5 11V7a2 2 0 012-2h10a2 2 0 012 2v4M7 21a2 2 0 01-2-2v-4h14v4a2 2 0 01-2 2H7z"/></svg><h3>No Rankings Yet</h3><p>Place bets to appear on the leaderboard!</p></div>';
                 return;
             }
 
-            container.innerHTML = leaders.map((leader, index) => {
-                const winRate = leader.total_bets > 0 ? Math.round((leader.won_bets / leader.total_bets) * 100) : 0;
-                return '<div class="leaderboard-row">' +
-                    '<span class="leaderboard-rank">#' + (index + 1) + '</span>' +
-                    '<span class="leaderboard-user">' + leader.username + '</span>' +
-                    '<span class="leaderboard-profit ' + (leader.profit < 0 ? 'negative' : '') + '">' + (leader.profit >= 0 ? '+' : '') + leader.profit.toLocaleString() + '</span>' +
-                    '<span class="leaderboard-bets">' + leader.total_bets + '</span>' +
+            // Find current user's rank
+            let userRank = -1;
+            if (currentUser) {
+                userRank = leaderboardData.findIndex(l => l.user_id === currentUser.id);
+            }
+
+            let html = '';
+
+            // Show user's rank banner if they're on the leaderboard
+            if (userRank >= 0) {
+                const userData = leaderboardData[userRank];
+                html += '<div class="user-rank-banner" style="background: linear-gradient(135deg, rgba(0,255,135,0.15), rgba(0,255,135,0.05)); padding: 16px 20px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,255,135,0.2);">' +
+                    '<div style="display: flex; align-items: center; gap: 12px;">' +
+                        '<span style="font-size: 24px; font-weight: 700; color: #00ff87;">#' + (userRank + 1) + '</span>' +
+                        '<div>' +
+                            '<div style="font-size: 14px; color: #888;">Your Rank</div>' +
+                            '<div style="font-size: 16px; font-weight: 600; color: #fff;">' + userData.username + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="text-align: right;">' +
+                        '<div style="font-size: 20px; font-weight: 700; color: ' + (userData.profit >= 0 ? '#00ff87' : '#ef4444') + ';">' + (userData.profit >= 0 ? '+' : '') + (userData.profit || 0).toLocaleString() + '</div>' +
+                        '<div style="font-size: 12px; color: #888;">' + userData.won_bets + ' wins / ' + userData.total_bets + ' bets</div>' +
+                    '</div>' +
+                '</div>';
+            }
+
+            // Render all leaderboard rows
+            html += leaderboardData.map((leader, index) => {
+                const winRate = leader.win_rate || (leader.total_bets > 0 ? Math.round((leader.won_bets / leader.total_bets) * 100) : 0);
+                const isCurrentUser = currentUser && leader.user_id === currentUser.id;
+                const rankEmoji = index === 0 ? '&#129351;' : index === 1 ? '&#129352;' : index === 2 ? '&#129353;' : '';
+
+                return '<div class="leaderboard-row' + (isCurrentUser ? ' current-user' : '') + '" style="' + (isCurrentUser ? 'background: rgba(0,255,135,0.08);' : '') + '">' +
+                    '<span class="leaderboard-rank">' + (rankEmoji || '#' + (index + 1)) + '</span>' +
+                    '<span class="leaderboard-user">' +
+                        '<span style="' + (isCurrentUser ? 'color: #00ff87;' : '') + '">' + leader.username + '</span>' +
+                        (leader.current_streak >= 3 ? ' <span style="font-size: 12px;" title="Win streak: ' + leader.current_streak + '">&#128293;' + leader.current_streak + '</span>' : '') +
+                    '</span>' +
+                    '<span class="leaderboard-profit ' + ((leader.profit || 0) < 0 ? 'negative' : '') + '">' + ((leader.profit || 0) >= 0 ? '+' : '') + (leader.profit || 0).toLocaleString() + '</span>' +
+                    '<span class="leaderboard-bets">' + (leader.won_bets || 0) + '/' + (leader.total_bets || 0) + '</span>' +
                     '<span class="leaderboard-winrate">' + winRate + '%</span>' +
                 '</div>';
             }).join('');
+
+            container.innerHTML = html;
         }
 
         // Check Daily Bonus (using Supabase)
@@ -2196,6 +2474,8 @@
                         showToast('Won ' + totalPayout + ' coins!' + (streakBonus > 0 ? ' (Streak bonus!)' : ''), 'success');
                     } else {
                         userWallet.current_streak = 0;
+                        userWallet.lost_bets = (userWallet.lost_bets || 0) + 1;
+                        userWallet.lifetime_winnings = (userWallet.lifetime_winnings || 0) - bet.stake;
                         showToast('Bet lost: ' + bet.home_team + ' vs ' + bet.away_team, 'error');
                     }
 
@@ -2211,10 +2491,14 @@
                         coins: userWallet.coins,
                         lifetime_winnings: userWallet.lifetime_winnings,
                         won_bets: userWallet.won_bets,
+                        lost_bets: userWallet.lost_bets,
                         current_streak: userWallet.current_streak,
                         best_streak: userWallet.best_streak
                     })
                     .eq('user_id', currentUser.id);
+
+                // Update leaderboard table
+                await updateLeaderboardEntry();
 
                 updateWalletDisplay();
                 loadUserBets();
@@ -2308,5 +2592,8 @@
         // Initialize
         init();
     </script>
+
+    <!-- Site Footer -->
+    <div class="footer" include="./footer.html"></div>
 </body>
 </html>
