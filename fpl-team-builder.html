@@ -1860,11 +1860,20 @@
 
             selectedTeam = new Array(15).fill(null);
 
+            // Position to slot mapping
+            const positionSlots = {
+                'GK': [0, 11],
+                'DEF': [1, 2, 3, 4, 12],
+                'MID': [5, 6, 7, 8, 13],
+                'FWD': [9, 10, 14]
+            };
+
             playerIds.forEach(playerId => {
                 const player = allPlayers.find(p => p.id === playerId);
                 if (player) {
                     // Find appropriate slot based on position
-                    const slots = positionSlots[player.position];
+                    const position = positionMap[player.element_type];
+                    const slots = positionSlots[position];
                     if (slots) {
                         const emptySlot = slots.find(s => selectedTeam[s] === null);
                         if (emptySlot !== undefined) {
@@ -2026,7 +2035,7 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'llama-3.2-11b-vision-preview',
+                    model: 'llama-3.2-90b-vision-preview',
                     messages: [{
                         role: 'user',
                         content: [
