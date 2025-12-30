@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899"
+         crossorigin="anonymous"></script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="FPL AI Assistant - Get personalized Fantasy Premier League advice powered by advanced AI. Captain picks, transfer recommendations, and expert strategies.">
+    <meta name="keywords" content="FPL AI, fantasy premier league AI, FPL assistant, fantasy football AI, FPL tips, FPL captain picks, FPL transfers">
+    <meta name="author" content="EPL News Hub">
+    <meta name="robots" content="index, follow">
+    <title>FPL AI Assistant - Fantasy Premier League AI Advisor | EPL News Hub</title>
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.eplnewshub.com/fpl-ai-assistant.html">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="EPL News Hub">
+    <meta property="og:title" content="FPL AI Assistant - Your Personal Fantasy Premier League Advisor">
+    <meta property="og:description" content="Get AI-powered FPL advice including captain picks, transfer recommendations, and winning strategies">
+    <meta property="og:url" content="https://www.eplnewshub.com/fpl-ai-assistant.html">
+    <meta property="og:image" content="https://www.eplnewshub.com/images/fpl-ai-assistant-og.jpg">
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/mobile-master-optimize.css">
+    <link rel="stylesheet" href="fpl-mobile-optimize.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCyOey0l27yQP68oybpoodMVcvayhIHt2I",
+            authDomain: "epl-news-hub-94c09.firebaseapp.com",
+            projectId: "epl-news-hub-94c09",
+            storageBucket: "epl-news-hub-94c09.firebasestorage.app",
+            messagingSenderId: "674703933278",
+            appId: "1:674703933278:web:90c6dd4aa9f1ace73099cf",
+            measurementId: "G-ECM6BCQCS8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.auth = auth;
+        window.onAuthStateChanged = onAuthStateChanged;
+    </script>
+
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+        }
+
+        .ai-assistant-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: calc(100vh - 200px);
+        }
+
+        .ai-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 15s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ai-hero h1 {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 36px;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ai-hero p {
+            font-size: 16px;
+            opacity: 0.95;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ai-status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ai-status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #51cf66;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chat-container {
+            background: #202020;
+            border: 1px solid #333;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-header {
+            background: #252525;
+            padding: 15px 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-header-icon {
+            font-size: 28px;
+        }
+
+        .chat-header-text h2 {
+            margin: 0;
+            font-size: 16px;
+            color: #f5f5f5;
+            font-weight: 600;
+        }
+
+        .chat-header-text span {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .message-counter {
+            background: #333;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #f5f5f5;
+        }
+
+        .message-counter.premium {
+            background: linear-gradient(135deg, rgba(111, 66, 193, 0.3), rgba(32, 201, 151, 0.3));
+            color: #a78bfa;
+        }
+
+        .message-counter.warning {
+            background: rgba(255, 170, 0, 0.2);
+            color: #ffa500;
+        }
+
+        .message-counter.danger {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+        }
+
+        .quick-actions {
+            padding: 12px 15px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: #252525;
+            border: 1px solid #383838;
+            border-radius: 20px;
+            color: #f5f5f5;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            transform: translateY(-1px);
+        }
+
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .messages-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .messages-area::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        .messages-area::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
+
+        .message {
+            max-width: 85%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .message.user .bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 18px 18px 4px 18px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.assistant {
+            align-self: flex-start;
+        }
+
+        .message.assistant .bubble {
+            background: #2a2a2a;
+            color: #f5f5f5;
+            padding: 14px 18px;
+            border-radius: 18px 18px 18px 4px;
+            font-size: 14px;
+            line-height: 1.7;
+            border: 1px solid #383838;
+        }
+
+        .message.assistant .bubble strong {
+            color: #a78bfa;
+        }
+
+        .message.assistant .bubble em {
+            color: #888;
+            font-style: italic;
+        }
+
+        .message.assistant .bubble ul, .message.assistant .bubble ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .message.assistant .bubble li {
+            margin: 6px 0;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 18px;
+            background: #2a2a2a;
+            border-radius: 18px;
+            width: fit-content;
+            border: 1px solid #383838;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #666;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        .input-area {
+            display: flex;
+            gap: 12px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-top: 1px solid #333;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 18px;
+            background: #252525;
+            border: 1px solid #383838;
+            border-radius: 24px;
+            color: #f5f5f5;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            min-height: 48px;
+            max-height: 120px;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .chat-input::placeholder {
+            color: #666;
+        }
+
+        .chat-input:disabled {
+            background: #1a1a1a;
+            cursor: not-allowed;
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .upgrade-banner {
+            display: none;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 15px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .upgrade-banner p {
+            margin: 0 0 10px 0;
+            color: #2d3436;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .upgrade-btn {
+            padding: 10px 24px;
+            background: #2d3436;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .welcome-message .emoji {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .welcome-message h3 {
+            color: #f5f5f5;
+            font-size: 20px;
+            margin: 0 0 10px 0;
+        }
+
+        .welcome-message p {
+            color: #888;
+            font-size: 14px;
+            margin: 0;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: #252525;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .feature-card h4 {
+            color: #f5f5f5;
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-card p {
+            color: #888;
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .ai-assistant-container {
+                padding: 10px;
+            }
+
+            .ai-hero {
+                padding: 25px 20px;
+            }
+
+            .ai-hero h1 {
+                font-size: 26px;
+            }
+
+            .ai-status-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .chat-container {
+                height: calc(100vh - 280px);
+                min-height: 450px;
+            }
+
+            .quick-actions {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 10px;
+            }
+
+            .quick-btn {
+                white-space: nowrap;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Error message styling */
+        .error-message {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            color: #ff6b6b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header" include="header.html"></div>
+
+    <main class="main-content">
+        <div class="ai-assistant-container">
+            <!-- Hero Section -->
+            <div class="ai-hero">
+                <h1>FPL AI Assistant</h1>
+                <p>Your personal Fantasy Premier League advisor powered by advanced AI</p>
+                <div class="ai-status-bar">
+                    <div class="ai-status-item">
+                        <span class="status-dot"></span>
+                        AI Online
+                    </div>
+                    <div class="ai-status-item" id="user-status">
+                        Loading...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Container -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-header-left">
+                        <span class="chat-header-icon">🤖</span>
+                        <div class="chat-header-text">
+                            <h2>FPL Assistant</h2>
+                            <span>Powered by Gemini AI</span>
+                        </div>
+                    </div>
+                    <div class="message-counter" id="message-counter">
+                        Loading...
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <button class="quick-btn" data-question="Who should I captain this gameweek?">
+                        <span>©️</span> Captain Pick
+                    </button>
+                    <button class="quick-btn" data-question="What transfers should I make?">
+                        <span>🔄</span> Transfers
+                    </button>
+                    <button class="quick-btn" data-question="Who are the best value picks right now?">
+                        <span>💰</span> Value Picks
+                    </button>
+                    <button class="quick-btn" data-question="Which teams have the best fixtures?">
+                        <span>📅</span> Fixtures
+                    </button>
+                    <button class="quick-btn" data-question="Who are the best differential picks?">
+                        <span>🎯</span> Differentials
+                    </button>
+                </div>
+
+                <div class="messages-area" id="messages-area">
+                    <div class="welcome-message" id="welcome-message">
+                        <div class="emoji">🤖</div>
+                        <h3>Welcome to FPL AI Assistant!</h3>
+                        <p>Ask me anything about Fantasy Premier League - captain picks, transfers, player analysis, and winning strategies.</p>
+                    </div>
+                </div>
+
+                <div class="typing-indicator" id="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+
+                <div class="input-area">
+                    <textarea
+                        class="chat-input"
+                        id="chat-input"
+                        placeholder="Ask about captain picks, transfers, or any FPL strategy..."
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" id="send-btn" title="Send message">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" stroke-width="2"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="upgrade-banner" id="upgrade-banner">
+                    <p>You've reached your daily limit. Upgrade for unlimited AI assistance!</p>
+                    <button class="upgrade-btn" onclick="window.location.href='/fpl-premium-hub.html'">
+                        Upgrade to Premium
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>🎯 Captain Recommendations</h4>
+                    <p>Get AI-powered captain picks based on form, fixtures, and expected performance data.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔄 Transfer Analysis</h4>
+                    <p>Smart transfer suggestions with value analysis and fixture considerations.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Player Insights</h4>
+                    <p>Deep dive into any player's stats, form, and future potential.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>💡 Strategy Advice</h4>
+                    <p>Chip timing, wildcard templates, and advanced FPL strategies.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="footer" include="footer.html"></div>
+    <script src="./index.js"></script>
+    <script src="./premium-access-control.js"></script>
+
+    <script>
+        // FPL AI Assistant with Gemini API Integration
+        const CONFIG = {
+            FREE_LIMIT: 5,
+            STARTER_LIMIT: 50,
+            STORAGE_KEY: 'fpl-ai-history',
+            COUNT_KEY: 'fpl-ai-count-' + new Date().toDateString(),
+            // Gemini API endpoint via Google Cloud
+            GEMINI_API_KEY: 'AIzaSyDlF2UWv1bIpknKqxLXJ10HpBm1d5VCgqY'
+        };
+
+        // FPL Context for AI
+        const FPL_CONTEXT = `You are an expert Fantasy Premier League (FPL) assistant with deep knowledge of the 2024/25 Premier League season.
+
+Key current season data (2024/25):
+- Top performers: Mohamed Salah (Liverpool, 13.0m, top scorer), Erling Haaland (Man City, 15.0m), Cole Palmer (Chelsea, 10.5m), Bryan Mbeumo (Brentford, 7.5m)
+- Value picks: Chris Wood (Nottingham Forest, 6.5m), Anthony Gordon (Newcastle, 7.5m), Alexander Isak (Newcastle, 8.5m)
+- Teams with good fixtures: Newcastle, Arsenal, Brighton, Bournemouth
+- Teams with tough fixtures: Chelsea, Liverpool (European commitments), Man City
+
+Your role:
+1. Provide specific, actionable FPL advice
+2. Use real player data and current form
+3. Consider fixture difficulty and rotation risks
+4. Give captain recommendations with reasoning
+5. Suggest transfers based on value and upcoming games
+6. Explain advanced metrics (xG, xA, ICT) when relevant
+7. Be concise but thorough
+
+Format responses with:
+- Clear headers using **bold text**
+- Bullet points for lists
+- Player prices in brackets
+- Specific recommendations, not vague suggestions
+
+Always stay focused on FPL and Premier League topics.`;
+
+        class FPLAssistant {
+            constructor() {
+                this.messages = [];
+                this.messageCount = parseInt(localStorage.getItem(CONFIG.COUNT_KEY) || '0');
+                this.userType = 'free';
+                this.isTyping = false;
+                this.conversationHistory = [];
+
+                this.init();
+            }
+
+            init() {
+                this.bindElements();
+                this.attachEventListeners();
+                this.checkUserStatus();
+                this.loadHistory();
+                this.updateCounter();
+            }
+
+            bindElements() {
+                this.messagesArea = document.getElementById('messages-area');
+                this.chatInput = document.getElementById('chat-input');
+                this.sendBtn = document.getElementById('send-btn');
+                this.typingIndicator = document.getElementById('typing-indicator');
+                this.messageCounter = document.getElementById('message-counter');
+                this.userStatus = document.getElementById('user-status');
+                this.welcomeMessage = document.getElementById('welcome-message');
+                this.upgradeBanner = document.getElementById('upgrade-banner');
+            }
+
+            attachEventListeners() {
+                // Send button
+                this.sendBtn.addEventListener('click', () => this.sendMessage());
+
+                // Enter key
+                this.chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // Auto-resize textarea
+                this.chatInput.addEventListener('input', () => {
+                    this.chatInput.style.height = 'auto';
+                    this.chatInput.style.height = Math.min(this.chatInput.scrollHeight, 120) + 'px';
+                });
+
+                // Quick action buttons
+                document.querySelectorAll('.quick-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const question = btn.getAttribute('data-question');
+                        if (question) {
+                            this.chatInput.value = question;
+                            this.sendMessage();
+                        }
+                    });
+                });
+            }
+
+            async checkUserStatus() {
+                // Wait for Firebase auth
+                setTimeout(() => {
+                    if (window.premiumAccessControl) {
+                        const status = window.premiumAccessControl.getUserStatus();
+
+                        if (status.membershipLevel === 'pro' && status.isActive) {
+                            this.userType = 'pro';
+                            this.userStatus.textContent = 'Pro Member - Unlimited';
+                        } else if (status.membershipLevel === 'starter' && status.isActive) {
+                            this.userType = 'starter';
+                            this.userStatus.textContent = 'Starter Member';
+                        } else if (status.isLoggedIn) {
+                            this.userType = 'free';
+                            this.userStatus.textContent = 'Free Tier';
+                        } else {
+                            this.userType = 'free';
+                            this.userStatus.innerHTML = '<a href="/signin.html" style="color: white; text-decoration: underline;">Sign In</a>';
+                        }
+
+                        this.updateCounter();
+                    } else {
+                        this.userStatus.textContent = 'Free Tier';
+                    }
+                }, 1000);
+            }
+
+            getMessageLimit() {
+                if (this.userType === 'pro') return -1; // Unlimited
+                if (this.userType === 'starter') return CONFIG.STARTER_LIMIT;
+                return CONFIG.FREE_LIMIT;
+            }
+
+            getRemainingMessages() {
+                const limit = this.getMessageLimit();
+                if (limit === -1) return -1;
+                return Math.max(0, limit - this.messageCount);
+            }
+
+            updateCounter() {
+                const remaining = this.getRemainingMessages();
+
+                if (remaining === -1) {
+                    this.messageCounter.textContent = 'Unlimited';
+                    this.messageCounter.className = 'message-counter premium';
+                } else {
+                    const limit = this.getMessageLimit();
+                    this.messageCounter.textContent = `${remaining}/${limit} remaining`;
+
+                    if (remaining === 0) {
+                        this.messageCounter.className = 'message-counter danger';
+                    } else if (remaining <= 2) {
+                        this.messageCounter.className = 'message-counter warning';
+                    } else {
+                        this.messageCounter.className = 'message-counter';
+                    }
+                }
+            }
+
+            canSendMessage() {
+                const remaining = this.getRemainingMessages();
+                return remaining === -1 || remaining > 0;
+            }
+
+            async sendMessage() {
+                const message = this.chatInput.value.trim();
+
+                if (!message || this.isTyping) return;
+
+                // Check limit
+                if (!this.canSendMessage()) {
+                    this.showUpgradeBanner();
+                    return;
+                }
+
+                // Hide welcome message
+                if (this.welcomeMessage) {
+                    this.welcomeMessage.style.display = 'none';
+                }
+
+                // Add user message
+                this.addMessage(message, 'user');
+
+                // Clear input
+                this.chatInput.value = '';
+                this.chatInput.style.height = 'auto';
+
+                // Increment counter
+                this.messageCount++;
+                localStorage.setItem(CONFIG.COUNT_KEY, this.messageCount.toString());
+                this.updateCounter();
+
+                // Update premium access control if available
+                if (window.premiumAccessControl) {
+                    window.premiumAccessControl.updateDailyUsage('ai-assistant');
+                }
+
+                // Show typing
+                this.showTyping();
+
+                try {
+                    // Get AI response from Gemini
+                    const response = await this.getGeminiResponse(message);
+                    this.hideTyping();
+                    this.addMessage(response, 'assistant');
+
+                    // Save to history
+                    this.saveHistory();
+
+                } catch (error) {
+                    console.error('Error getting AI response:', error);
+                    this.hideTyping();
+                    this.addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+                }
+            }
+
+            async getGeminiResponse(userMessage) {
+                // Build conversation context
+                const conversationContext = this.conversationHistory.slice(-6).map(msg => ({
+                    role: msg.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: msg.content }]
+                }));
+
+                // Add current message
+                conversationContext.push({
+                    role: 'user',
+                    parts: [{ text: userMessage }]
+                });
+
+                // Store in history
+                this.conversationHistory.push({
+                    role: 'user',
+                    content: userMessage
+                });
+
+                try {
+                    const response = await fetch(
+                        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${CONFIG.GEMINI_API_KEY}`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                contents: [
+                                    {
+                                        role: 'user',
+                                        parts: [{ text: FPL_CONTEXT }]
+                                    },
+                                    {
+                                        role: 'model',
+                                        parts: [{ text: 'I understand. I am your expert FPL assistant ready to help with captain picks, transfers, player analysis, and strategy advice for the 2024/25 season. How can I help you today?' }]
+                                    },
+                                    ...conversationContext
+                                ],
+                                generationConfig: {
+                                    temperature: 0.7,
+                                    topK: 40,
+                                    topP: 0.95,
+                                    maxOutputTokens: 1024
+                                },
+                                safetySettings: [
+                                    {
+                                        category: 'HARM_CATEGORY_HARASSMENT',
+                                        threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+                                    },
+                                    {
+                                        category: 'HARM_CATEGORY_HATE_SPEECH',
+                                        threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+                                    }
+                                ]
+                            })
+                        }
+                    );
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error('Gemini API error:', errorData);
+                        throw new Error('API request failed');
+                    }
+
+                    const data = await response.json();
+
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        const aiResponse = data.candidates[0].content.parts[0].text;
+
+                        // Store AI response in history
+                        this.conversationHistory.push({
+                            role: 'assistant',
+                            content: aiResponse
+                        });
+
+                        return aiResponse;
+                    } else {
+                        throw new Error('Invalid response format');
+                    }
+
+                } catch (error) {
+                    console.error('Gemini API error:', error);
+
+                    // Fallback to intelligent response if API fails
+                    return this.getFallbackResponse(userMessage);
+                }
+            }
+
+            getFallbackResponse(query) {
+                const lowerQuery = query.toLowerCase();
+
+                if (lowerQuery.includes('captain')) {
+                    return `**Captain Recommendations This Week:**
+
+Based on current form and fixtures:
+
+1. **Mohamed Salah (£13.0m)** - Liverpool's talisman remains the top pick with excellent home fixtures. Penalty taker and in tremendous form.
+
+2. **Erling Haaland (£15.0m)** - Man City's goal machine. High ownership makes him a safe pick.
+
+3. **Cole Palmer (£10.5m)** - Chelsea's main man, on penalties and free kicks.
+
+**Differential Option:** Bryan Mbeumo (£7.5m) - Brentford's standout performer.
+
+*Tip: Check team news closer to the deadline for any late injury updates!*`;
+                }
+
+                if (lowerQuery.includes('transfer')) {
+                    return `**Transfer Recommendations:**
+
+**Must-Have Players:**
+- Mohamed Salah (£13.0m) - Essential if you don't have him
+- Alexander Isak (£8.5m) - Newcastle's main striker, great fixtures
+
+**Value Picks:**
+- Chris Wood (£6.5m) - Great budget forward option
+- Anthony Gordon (£7.5m) - Newcastle's form player
+
+**Sell Candidates:**
+- Players from teams with tough fixtures
+- Underperforming premiums
+- Injured or rotation risks
+
+*Tip: Bank transfers when possible for flexibility!*`;
+                }
+
+                if (lowerQuery.includes('value') || lowerQuery.includes('cheap') || lowerQuery.includes('budget')) {
+                    return `**Best Value Picks (Points per Million):**
+
+**Forwards:**
+- Chris Wood (£6.5m) - Exceptional value, consistent returns
+- Dominic Solanke (£7.5m) - Spurs' main striker
+
+**Midfielders:**
+- Bryan Mbeumo (£7.5m) - Outstanding season
+- Anthony Gordon (£7.5m) - Great fixtures ahead
+
+**Defenders:**
+- Antonee Robinson (£5.0m) - Attacking returns from defense
+- Trent Alexander-Arnold (£7.0m) - Premium assists potential
+
+**Goalkeepers:**
+- Dean Henderson (£4.5m) - Save points specialist
+
+*Value = Points ÷ Price. Focus on players who outperform their price bracket!*`;
+                }
+
+                return `Thanks for your question! I'm here to help with all things FPL.
+
+**I can help you with:**
+- Captain picks and recommendations
+- Transfer suggestions and planning
+- Player comparisons and analysis
+- Chip strategy (Wildcard, Bench Boost, Triple Captain)
+- Fixture analysis and differential picks
+
+Try asking something more specific like:
+- "Who should I captain this week?"
+- "Is Haaland worth the price?"
+- "What's the best wildcard template?"
+
+Let me know what you need help with!`;
+            }
+
+            addMessage(content, role) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${role}`;
+
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+
+                // Format content for assistant messages
+                if (role === 'assistant') {
+                    content = content
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/\n/g, '<br>');
+                    bubble.innerHTML = content;
+                } else {
+                    bubble.textContent = content;
+                }
+
+                messageDiv.appendChild(bubble);
+                this.messagesArea.appendChild(messageDiv);
+
+                // Scroll to bottom
+                this.messagesArea.scrollTop = this.messagesArea.scrollHeight;
+
+                // Store message
+                this.messages.push({ content, role, timestamp: Date.now() });
+            }
+
+            showTyping() {
+                this.isTyping = true;
+                this.typingIndicator.classList.add('active');
+                this.messagesArea.scrollTop = this.messagesArea.scrollHeight;
+            }
+
+            hideTyping() {
+                this.isTyping = false;
+                this.typingIndicator.classList.remove('active');
+            }
+
+            showUpgradeBanner() {
+                this.upgradeBanner.style.display = 'block';
+                this.chatInput.disabled = true;
+                this.chatInput.placeholder = 'Upgrade to continue chatting...';
+                this.sendBtn.disabled = true;
+            }
+
+            loadHistory() {
+                const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
+                if (saved) {
+                    try {
+                        const data = JSON.parse(saved);
+                        if (data.date === new Date().toDateString() && data.messages.length > 0) {
+                            // Restore recent messages
+                            this.welcomeMessage.style.display = 'none';
+                            data.messages.slice(-10).forEach(msg => {
+                                this.addMessage(msg.content, msg.role);
+                            });
+                            this.conversationHistory = data.messages.slice(-10);
+                        }
+                    } catch (e) {
+                        console.error('Error loading history:', e);
+                    }
+                }
+            }
+
+            saveHistory() {
+                const data = {
+                    date: new Date().toDateString(),
+                    messages: this.messages.slice(-20)
+                };
+                localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(data));
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            window.fplAssistant = new FPLAssistant();
+        });
+    </script>
+</body>
+</html>
