@@ -156,24 +156,37 @@
             align-items: center;
             position: relative;
             z-index: 2;
+            gap: 16px;
         }
 
         .poll-option-text {
             font-size: 15px;
             font-weight: 500;
             color: #fff;
+            flex: 1;
         }
 
         .poll-option-percent {
-            font-size: 14px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            background: rgba(139, 92, 246, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            min-width: 52px;
+            text-align: center;
             opacity: 0;
             transition: opacity 0.3s;
+            flex-shrink: 0;
         }
 
         .poll-option.voted .poll-option-percent {
             opacity: 1;
+        }
+
+        .poll-option.selected .poll-option-percent {
+            background: rgba(0, 255, 135, 0.3);
+            color: #00ff87;
         }
 
         /* Progress Bar */
@@ -318,14 +331,25 @@
         // Default polls data (used if Supabase tables don't exist yet)
         const defaultPolls = [
             {
-                id: 'pl-title-2025',
+                id: 'pl-title-2025-26',
                 question: 'Who will win the 2025/26 Premier League title?',
                 category: 'Title Race',
                 options: [
+                    { id: 'liverpool', text: 'Liverpool', votes: 0 },
                     { id: 'arsenal', text: 'Arsenal', votes: 0 },
                     { id: 'man-city', text: 'Manchester City', votes: 0 },
-                    { id: 'liverpool', text: 'Liverpool', votes: 0 },
                     { id: 'chelsea', text: 'Chelsea', votes: 0 }
+                ]
+            },
+            {
+                id: 'golden-boot-2025-26',
+                question: 'Who will win the 2025/26 Golden Boot?',
+                category: 'Golden Boot',
+                options: [
+                    { id: 'haaland', text: 'Erling Haaland (Man City)', votes: 0 },
+                    { id: 'salah', text: 'Mohamed Salah (Liverpool)', votes: 0 },
+                    { id: 'isak', text: 'Alexander Isak (Newcastle)', votes: 0 },
+                    { id: 'palmer', text: 'Cole Palmer (Chelsea)', votes: 0 }
                 ]
             },
             {
@@ -333,32 +357,22 @@
                 question: 'Who is the best player in the Premier League right now?',
                 category: 'Player Rankings',
                 options: [
-                    { id: 'haaland', text: 'Erling Haaland', votes: 0 },
-                    { id: 'saka', text: 'Bukayo Saka', votes: 0 },
                     { id: 'salah', text: 'Mohamed Salah', votes: 0 },
-                    { id: 'palmer', text: 'Cole Palmer', votes: 0 }
+                    { id: 'haaland', text: 'Erling Haaland', votes: 0 },
+                    { id: 'palmer', text: 'Cole Palmer', votes: 0 },
+                    { id: 'saka', text: 'Bukayo Saka', votes: 0 },
+                    { id: 'rodri', text: 'Rodri', votes: 0 }
                 ]
             },
             {
-                id: 'relegation-2025',
-                question: 'Which team will be relegated this season?',
-                category: 'Relegation Battle',
+                id: 'best-young-player',
+                question: 'Best young player (U23) in the Premier League?',
+                category: 'Young Talents',
                 options: [
-                    { id: 'leicester', text: 'Leicester City', votes: 0 },
-                    { id: 'ipswich', text: 'Ipswich Town', votes: 0 },
-                    { id: 'southampton', text: 'Southampton', votes: 0 },
-                    { id: 'wolves', text: 'Wolverhampton', votes: 0 }
-                ]
-            },
-            {
-                id: 'best-signing-2025',
-                question: 'Best summer signing of 2025?',
-                category: 'Transfers',
-                options: [
-                    { id: 'gyokeres', text: 'Viktor Gyokeres (Arsenal)', votes: 0 },
-                    { id: 'ekitike', text: 'Hugo Ekitike (Liverpool)', votes: 0 },
-                    { id: 'musiala', text: 'Jamal Musiala (Man City)', votes: 0 },
-                    { id: 'other', text: 'Other', votes: 0 }
+                    { id: 'palmer', text: 'Cole Palmer (22)', votes: 0 },
+                    { id: 'mainoo', text: 'Kobbie Mainoo (19)', votes: 0 },
+                    { id: 'lewis-skelly', text: 'Myles Lewis-Skelly (18)', votes: 0 },
+                    { id: 'wharton', text: 'Adam Wharton (21)', votes: 0 }
                 ]
             },
             {
@@ -366,10 +380,88 @@
                 question: 'Who is the best manager in the Premier League?',
                 category: 'Managers',
                 options: [
-                    { id: 'arteta', text: 'Mikel Arteta', votes: 0 },
-                    { id: 'guardiola', text: 'Pep Guardiola', votes: 0 },
-                    { id: 'slot', text: 'Arne Slot', votes: 0 },
-                    { id: 'postecoglou', text: 'Ange Postecoglou', votes: 0 }
+                    { id: 'slot', text: 'Arne Slot (Liverpool)', votes: 0 },
+                    { id: 'arteta', text: 'Mikel Arteta (Arsenal)', votes: 0 },
+                    { id: 'guardiola', text: 'Pep Guardiola (Man City)', votes: 0 },
+                    { id: 'maresca', text: 'Enzo Maresca (Chelsea)', votes: 0 }
+                ]
+            },
+            {
+                id: 'top-4-finish',
+                question: 'Which team will finish 4th this season?',
+                category: 'Top 4 Race',
+                options: [
+                    { id: 'chelsea', text: 'Chelsea', votes: 0 },
+                    { id: 'newcastle', text: 'Newcastle United', votes: 0 },
+                    { id: 'aston-villa', text: 'Aston Villa', votes: 0 },
+                    { id: 'tottenham', text: 'Tottenham Hotspur', votes: 0 }
+                ]
+            },
+            {
+                id: 'relegation-2025-26',
+                question: 'Which team is most likely to be relegated?',
+                category: 'Relegation Battle',
+                options: [
+                    { id: 'southampton', text: 'Southampton', votes: 0 },
+                    { id: 'ipswich', text: 'Ipswich Town', votes: 0 },
+                    { id: 'leicester', text: 'Leicester City', votes: 0 },
+                    { id: 'wolves', text: 'Wolverhampton', votes: 0 },
+                    { id: 'everton', text: 'Everton', votes: 0 }
+                ]
+            },
+            {
+                id: 'best-gk-2025',
+                question: 'Who is the best goalkeeper in the Premier League?',
+                category: 'Goalkeepers',
+                options: [
+                    { id: 'alisson', text: 'Alisson Becker (Liverpool)', votes: 0 },
+                    { id: 'ederson', text: 'Ederson (Man City)', votes: 0 },
+                    { id: 'raya', text: 'David Raya (Arsenal)', votes: 0 },
+                    { id: 'onana', text: 'Andre Onana (Man Utd)', votes: 0 }
+                ]
+            },
+            {
+                id: 'best-defender-2025',
+                question: 'Who is the best defender in the Premier League?',
+                category: 'Defenders',
+                options: [
+                    { id: 'van-dijk', text: 'Virgil van Dijk (Liverpool)', votes: 0 },
+                    { id: 'saliba', text: 'William Saliba (Arsenal)', votes: 0 },
+                    { id: 'gvardiol', text: 'Josko Gvardiol (Man City)', votes: 0 },
+                    { id: 'gabriel', text: 'Gabriel Magalhaes (Arsenal)', votes: 0 }
+                ]
+            },
+            {
+                id: 'best-midfielder-2025',
+                question: 'Who is the best midfielder in the Premier League?',
+                category: 'Midfielders',
+                options: [
+                    { id: 'rodri', text: 'Rodri (Man City)', votes: 0 },
+                    { id: 'odegaard', text: 'Martin Odegaard (Arsenal)', votes: 0 },
+                    { id: 'rice', text: 'Declan Rice (Arsenal)', votes: 0 },
+                    { id: 'mac-allister', text: 'Alexis Mac Allister (Liverpool)', votes: 0 }
+                ]
+            },
+            {
+                id: 'man-utd-top-4',
+                question: 'Will Manchester United finish in the top 4?',
+                category: 'Man United',
+                options: [
+                    { id: 'yes', text: 'Yes, they will make it', votes: 0 },
+                    { id: 'no', text: 'No, they will miss out', votes: 0 },
+                    { id: 'europa', text: 'Europa League spots (5th-6th)', votes: 0 },
+                    { id: 'lower', text: 'Lower half finish', votes: 0 }
+                ]
+            },
+            {
+                id: 'biggest-disappointment',
+                question: 'Which team has been the biggest disappointment this season?',
+                category: 'Season Review',
+                options: [
+                    { id: 'man-utd', text: 'Manchester United', votes: 0 },
+                    { id: 'tottenham', text: 'Tottenham Hotspur', votes: 0 },
+                    { id: 'west-ham', text: 'West Ham United', votes: 0 },
+                    { id: 'brighton', text: 'Brighton', votes: 0 }
                 ]
             }
         ];
