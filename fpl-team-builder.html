@@ -1958,15 +1958,15 @@
             'wol': 'Wolves', 'wolves': 'Wolves'
         };
 
-        // Improved player name matching with multiple algorithms
+        // High-accuracy player name matching - focuses on text accuracy only
         function findPlayersInText(text) {
             const playerScores = new Map();
+            const foundPlayerIds = new Set(); // Prevent duplicates
 
             // Normalize and clean the OCR text
             const cleanText = normalizeText(text);
             const words = extractWords(cleanText);
             const phrases = extractPhrases(cleanText, 3); // Up to 3-word phrases
-            const allTerms = [...words, ...phrases];
 
             // Also try with OCR corrections
             const correctedText = correctOCRErrors(cleanText);
@@ -1978,12 +1978,15 @@
 
             // Score each player
             allPlayers.forEach(player => {
+                // Skip if already found
+                if (foundPlayerIds.has(player.id)) return;
+
                 let bestScore = 0;
                 const nameVariations = getNameVariations(player);
 
                 for (const name of nameVariations) {
                     const nameLower = name.toLowerCase();
-                    if (nameLower.length < 2) continue;
+                    if (nameLower.length < 3) continue; // Minimum 3 chars for accuracy
 
                     // 1. Exact match (100 points)
                     if (cleanText.includes(nameLower) || correctedText.includes(nameLower)) {
@@ -1998,63 +2001,48 @@
                     }
 
                     // 3. Phrase match for multi-word names (95 points)
-                    if (phrases.some(p => p === nameLower || p.includes(nameLower))) {
+                    if (phrases.some(p => p === nameLower)) {
                         bestScore = Math.max(bestScore, 95);
                         continue;
                     }
 
-                    // 4. Jaro-Winkler similarity (better for names)
+                    // 4. Jaro-Winkler similarity (threshold raised to 0.90 for accuracy)
                     for (const word of words) {
                         if (word.length < 3) continue;
 
                         const jwScore = jaroWinklerSimilarity(word, nameLower);
-                        if (jwScore >= 0.85) {
+                        if (jwScore >= 0.90) {
                             const matchScore = Math.round(jwScore * 100);
                             bestScore = Math.max(bestScore, matchScore);
                         }
 
-                        // 5. Levenshtein with dynamic threshold
-                        const maxDist = Math.max(1, Math.floor(nameLower.length * 0.35));
+                        // 5. Levenshtein - strict threshold (max 2 edits for short names)
+                        const maxDist = nameLower.length <= 5 ? 1 : 2;
                         const dist = levenshteinDistance(word, nameLower);
-                        if (dist <= maxDist) {
-                            const matchScore = 90 - (dist * 8);
+                        if (dist <= maxDist && dist > 0) {
+                            const matchScore = 88 - (dist * 6);
                             bestScore = Math.max(bestScore, matchScore);
                         }
+                    }
 
-                        // 6. Prefix match (player name starts with OCR word)
-                        if (nameLower.startsWith(word) && word.length >= 4) {
-                            bestScore = Math.max(bestScore, 80);
-                        }
+                    // Also check corrected words
+                    for (const word of correctedWords) {
+                        if (word.length < 3) continue;
 
-                        // 7. OCR word starts with player name
-                        if (word.startsWith(nameLower) && nameLower.length >= 4) {
-                            bestScore = Math.max(bestScore, 78);
-                        }
-
-                        // 8. Substring match for longer strings
-                        if (word.length >= 5 && nameLower.includes(word)) {
-                            bestScore = Math.max(bestScore, 75);
-                        }
-                        if (nameLower.length >= 5 && word.includes(nameLower)) {
-                            bestScore = Math.max(bestScore, 75);
-                        }
-
-                        // 9. N-gram similarity
-                        const ngramScore = ngramSimilarity(word, nameLower, 2);
-                        if (ngramScore >= 0.6) {
-                            bestScore = Math.max(bestScore, Math.round(ngramScore * 80));
+                        const jwScore = jaroWinklerSimilarity(word, nameLower);
+                        if (jwScore >= 0.90) {
+                            const matchScore = Math.round(jwScore * 100);
+                            bestScore = Math.max(bestScore, matchScore);
                         }
                     }
                 }
 
-                // Boost for popular players (they're more likely to be in teams)
-                if (bestScore > 0) {
-                    bestScore += Math.min(8, player.selectedBy / 12);
-                }
+                // NO popularity boost - accuracy based on text match only
 
-                // Store if above threshold
-                if (bestScore >= 55) {
+                // Store if above high threshold (75)
+                if (bestScore >= 75) {
                     playerScores.set(player.id, { player, score: bestScore });
+                    foundPlayerIds.add(player.id);
                 }
             });
 
@@ -2168,22 +2156,49 @@
 
         // Get name variations for a player
         function getNameVariations(player) {
-            const variations = [
-                player.name,
-                player.fullName,
-                player.fullName.split(' ').pop(), // Last name only
-                player.fullName.split(' ')[0], // First name only
-            ];
+            const variations = [];
+            const webName = player.name || '';
+            const fullName = player.fullName || '';
+            const nameParts = fullName.split(' ').filter(p => p.length > 0);
+
+            // Primary variations
+            if (webName) variations.push(webName);
+            if (fullName) variations.push(fullName);
+
+            // Last name only (most common in FPL display)
+            if (nameParts.length > 0) {
+                const lastName = nameParts[nameParts.length - 1];
+                variations.push(lastName);
+            }
+
+            // First name only
+            if (nameParts.length > 0) {
+                variations.push(nameParts[0]);
+            }
+
+            // First initial + last name (e.g., "M. Salah", "M Salah")
+            if (nameParts.length >= 2) {
+                const initial = nameParts[0][0];
+                const lastName = nameParts[nameParts.length - 1];
+                variations.push(`${initial} ${lastName}`);
+                variations.push(`${initial}. ${lastName}`);
+            }
 
             // Handle hyphenated names
-            if (player.name.includes('-')) {
-                variations.push(player.name.replace('-', ' '));
-                variations.push(...player.name.split('-'));
+            if (webName.includes('-')) {
+                variations.push(webName.replace('-', ' '));
+                variations.push(webName.replace(/-/g, ''));
+                variations.push(...webName.split('-'));
             }
 
             // Handle names with apostrophes
-            if (player.name.includes("'")) {
-                variations.push(player.name.replace("'", ''));
+            if (webName.includes("'")) {
+                variations.push(webName.replace(/'/g, ''));
+            }
+
+            // Handle multi-word surnames without spaces (e.g., "Van Dijk" -> "vandijk")
+            if (nameParts.length > 2) {
+                variations.push(nameParts.slice(-2).join(''));
             }
 
             return [...new Set(variations)].filter(v => v && v.length >= 2);
@@ -2192,13 +2207,23 @@
         // Correct common OCR errors
         function correctOCRErrors(text) {
             return text
+                // Number to letter substitutions
                 .replace(/0/g, 'o')
                 .replace(/1/g, 'i')
                 .replace(/5/g, 's')
                 .replace(/8/g, 'b')
+                .replace(/4/g, 'a')
+                .replace(/3/g, 'e')
+                // Common OCR confusions
                 .replace(/\|/g, 'i')
                 .replace(/!/g, 'i')
-                .replace(/\$/g, 's');
+                .replace(/\$/g, 's')
+                .replace(/rn/g, 'm')   // rn often looks like m
+                .replace(/vv/g, 'w')   // vv often looks like w
+                .replace(/cl/g, 'd')   // cl often looks like d
+                .replace(/li/g, 'h')   // li can look like h
+                // Case-insensitive letter confusions (run twice for case variants)
+                .replace(/[Il]/g, match => match === 'I' ? 'l' : 'i');
         }
 
         // Levenshtein distance for fuzzy matching
