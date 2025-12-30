@@ -716,8 +716,9 @@
 
     // Insert ads into sidebar
     function insertSidebarAds() {
-        // Skip predictor game page - it has its own layout
-        if (window.location.pathname.includes('predictor-game')) {
+        // Skip pages with their own layouts
+        if (window.location.pathname.includes('predictor-game') ||
+            window.location.pathname.includes('ai-assistant')) {
             return;
         }
 
