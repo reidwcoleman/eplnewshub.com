@@ -1347,24 +1347,25 @@
             // Define proxies with their URL construction methods
             const proxyConfigs = [
                 {
-                    name: 'corsproxy.io',
-                    buildUrl: (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
+                    name: 'allorigins-get',
+                    buildUrl: (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+                    parseResponse: (text) => JSON.parse(JSON.parse(text).contents)
                 },
                 {
-                    name: 'allorigins',
-                    buildUrl: (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+                    name: 'corsproxy.io',
+                    buildUrl: (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
                 },
                 {
                     name: 'cors-anywhere-alt',
                     buildUrl: (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
                 },
                 {
-                    name: 'corsproxy.org',
-                    buildUrl: (url) => `https://corsproxy.org/?${encodeURIComponent(url)}`
+                    name: 'jsonp-afeld',
+                    buildUrl: (url) => `https://jsonp.afeld.me/?url=${encodeURIComponent(url)}`
                 },
                 {
-                    name: 'cors.sh',
-                    buildUrl: (url) => `https://proxy.cors.sh/${url}`
+                    name: 'corsproxy.org',
+                    buildUrl: (url) => `https://corsproxy.org/?${encodeURIComponent(url)}`
                 }
             ];
 
@@ -1382,7 +1383,8 @@
                     });
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const text = await response.text();
-                    data = JSON.parse(text);
+                    // Use custom parser if provided, otherwise parse directly
+                    data = proxyConfig.parseResponse ? proxyConfig.parseResponse(text) : JSON.parse(text);
                     if (data && data.elements) {
                         console.log(`Success with proxy: ${proxyConfig.name}, loaded ${data.elements.length} players`);
                         break;
