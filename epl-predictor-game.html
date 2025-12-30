@@ -149,28 +149,6 @@
             color: #ff6432;
         }
 
-        .add-coins-btn {
-            background: linear-gradient(135deg, #ffd700, #ffaa00);
-            color: #000;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 50px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
-        }
-
-        .add-coins-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
-        }
-
-        .add-coins-btn:active {
-            transform: scale(0.95);
-        }
-
         .header-right {
             display: flex;
             align-items: center;
@@ -1275,7 +1253,6 @@
                         <div class="coin-icon">C</div>
                         <span class="coin-amount" id="coinBalance">0</span>
                     </div>
-                    <button class="add-coins-btn" id="addCoinsBtn" onclick="addFreeCoins()">+10K</button>
                     <div class="streak-badge" id="streakBadge">
                         <span class="streak-icon">&#128293;</span>
                         <span class="streak-count" id="streakCount">0</span>
@@ -2015,41 +1992,6 @@
                 } else {
                     streakBadgeEl.classList.remove('active');
                 }
-            }
-        }
-
-        // Add Free Coins (10,000)
-        async function addFreeCoins() {
-            if (!currentUser) {
-                showToast('Please sign in to get free coins!', 'error');
-                return;
-            }
-
-            try {
-                // Update Supabase
-                const { error } = await supabaseClient
-                    .from('user_wallets')
-                    .update({ coins: userWallet.coins + 10000 })
-                    .eq('user_id', currentUser.id);
-
-                if (error) {
-                    console.error('Error adding coins:', error);
-                    showToast('Error adding coins. Try again!', 'error');
-                    return;
-                }
-
-                // Update local wallet
-                userWallet.coins += 10000;
-                saveLocalWallet();
-                updateWalletDisplay();
-                showToast('+10,000 coins added!', 'success');
-            } catch (e) {
-                console.error('Error:', e);
-                // Fallback to local only
-                userWallet.coins += 10000;
-                saveLocalWallet();
-                updateWalletDisplay();
-                showToast('+10,000 coins added!', 'success');
             }
         }
 
