@@ -16,7 +16,6 @@
     </script>
 
     <link rel="icon" type="image/png" href="/eplnewshubnewlogo.png">
-    <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -30,10 +29,16 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%);
-            color: #f5f5f5;
+            background: #0d0d12;
+            color: #e5e5e5;
             min-height: 100vh;
             line-height: 1.6;
+        }
+
+        /* Dark mode header override */
+        .header {
+            background: #0d0d12 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
 
         .container {
@@ -44,56 +49,68 @@
 
         .page-header {
             text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, rgba(55, 0, 60, 0.3), rgba(0, 255, 135, 0.1));
-            border-radius: 20px;
+            padding: 50px 20px;
+            background: linear-gradient(180deg, rgba(55, 0, 100, 0.4) 0%, rgba(0, 200, 100, 0.15) 100%);
+            border-radius: 24px;
             margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .page-header h1 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #00ff87, #60efff);
+            background: linear-gradient(135deg, #00ff87 0%, #60efff 50%, #00ff87 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
         }
 
         .page-header p {
             color: #888;
             font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .last-updated {
+            color: #555;
+            font-size: 0.85rem;
+            margin-top: 15px;
         }
 
         .transfer-tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
+            gap: 12px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .transfer-tab-btn {
-            padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: #888;
+            padding: 14px 28px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: #777;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s ease;
             font-size: 14px;
             font-weight: 600;
+            font-family: inherit;
         }
 
         .transfer-tab-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             color: #fff;
+            border-color: rgba(255, 255, 255, 0.15);
         }
 
         .transfer-tab-btn.active {
-            background: linear-gradient(135deg, #00ff87, #00a86b);
+            background: linear-gradient(135deg, #00ff87, #00c853);
             color: #000;
             border-color: transparent;
+            box-shadow: 0 4px 20px rgba(0, 255, 135, 0.3);
         }
 
         .transfer-tab-content {
@@ -102,55 +119,66 @@
 
         .transfer-tab-content.active {
             display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .transfer-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
             gap: 25px;
         }
 
         .transfer-panel {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(10px);
         }
 
         .transfer-panel-header {
-            padding: 18px 22px;
+            padding: 20px 24px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            gap: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .transfer-panel-header.hot {
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.25), rgba(255, 165, 0, 0.25));
+            background: linear-gradient(135deg, rgba(255, 100, 100, 0.2), rgba(255, 150, 50, 0.15));
         }
 
         .transfer-panel-header.cold {
-            background: linear-gradient(135deg, rgba(100, 149, 237, 0.25), rgba(135, 206, 250, 0.25));
+            background: linear-gradient(135deg, rgba(100, 150, 255, 0.2), rgba(135, 206, 250, 0.15));
         }
 
         .transfer-panel-header.neutral {
-            background: linear-gradient(135deg, rgba(128, 128, 128, 0.2), rgba(169, 169, 169, 0.2));
+            background: linear-gradient(135deg, rgba(100, 100, 100, 0.15), rgba(150, 150, 150, 0.1));
         }
 
         .transfer-panel-header.premier {
-            background: linear-gradient(135deg, rgba(55, 0, 60, 0.5), rgba(128, 0, 128, 0.4));
+            background: linear-gradient(135deg, rgba(55, 0, 60, 0.5), rgba(128, 0, 128, 0.3));
         }
 
         .transfer-panel-header.rumors {
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.25), rgba(255, 152, 0, 0.25));
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.15));
         }
 
         .transfer-panel-header.rise {
-            background: linear-gradient(135deg, rgba(0, 255, 135, 0.25), rgba(0, 200, 100, 0.25));
+            background: linear-gradient(135deg, rgba(0, 255, 135, 0.2), rgba(0, 200, 100, 0.15));
         }
 
         .transfer-panel-header.fall {
-            background: linear-gradient(135deg, rgba(255, 59, 48, 0.25), rgba(255, 100, 100, 0.25));
+            background: linear-gradient(135deg, rgba(255, 59, 48, 0.2), rgba(255, 100, 100, 0.15));
+        }
+
+        .transfer-panel-header.summer {
+            background: linear-gradient(135deg, rgba(255, 200, 50, 0.2), rgba(255, 150, 50, 0.15));
         }
 
         .transfer-icon {
@@ -162,20 +190,41 @@
             margin: 0;
             font-size: 18px;
             font-weight: 700;
+            color: #fff;
         }
 
         .transfer-badge {
-            padding: 5px 12px;
-            background: rgba(0, 0, 0, 0.4);
+            padding: 6px 14px;
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 20px;
             font-size: 11px;
-            color: #aaa;
-            font-weight: 500;
+            color: #999;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .transfer-badge.live {
+            background: rgba(0, 255, 135, 0.2);
+            color: #00ff87;
         }
 
         .transfer-list {
-            max-height: 450px;
+            max-height: 500px;
             overflow-y: auto;
+        }
+
+        .transfer-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .transfer-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .transfer-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
         }
 
         .transfer-list.horizontal {
@@ -186,17 +235,21 @@
             gap: 15px;
         }
 
+        .transfer-list.horizontal::-webkit-scrollbar {
+            height: 6px;
+        }
+
         .transfer-item {
             display: flex;
             align-items: center;
-            padding: 14px 18px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             gap: 14px;
             transition: background 0.2s;
         }
 
         .transfer-item:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .transfer-item:last-child {
@@ -204,16 +257,16 @@
         }
 
         .transfer-rank {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.06);
             border-radius: 50%;
             font-weight: 700;
             font-size: 13px;
-            color: #888;
+            color: #666;
         }
 
         .transfer-rank.top-3 {
@@ -228,12 +281,13 @@
         .transfer-player-name {
             font-weight: 600;
             font-size: 15px;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
+            color: #fff;
         }
 
         .transfer-player-meta {
             font-size: 12px;
-            color: #888;
+            color: #666;
         }
 
         .transfer-stats {
@@ -256,24 +310,25 @@
 
         .transfer-price {
             font-size: 12px;
-            color: #888;
+            color: #666;
+            margin-top: 2px;
         }
 
         .transfer-loading {
-            padding: 50px 20px;
+            padding: 60px 20px;
             text-align: center;
-            color: #888;
+            color: #666;
         }
 
         .transfer-loading p {
-            margin-top: 12px;
+            margin-top: 15px;
             font-size: 14px;
         }
 
         .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(0, 255, 135, 0.2);
+            width: 44px;
+            height: 44px;
+            border: 3px solid rgba(0, 255, 135, 0.15);
             border-top-color: #00ff87;
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -285,33 +340,35 @@
         }
 
         .transfer-card {
-            flex: 0 0 220px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 14px;
-            padding: 18px;
+            flex: 0 0 200px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 20px;
             text-align: center;
             transition: transform 0.2s, background 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .transfer-card:hover {
-            transform: translateY(-3px);
-            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.06);
         }
 
         .transfer-card-name {
             font-weight: 700;
             font-size: 15px;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            color: #fff;
         }
 
         .transfer-card-team {
             font-size: 12px;
-            color: #888;
-            margin-bottom: 12px;
+            color: #666;
+            margin-bottom: 14px;
         }
 
         .transfer-card-stat {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 800;
         }
 
@@ -325,16 +382,23 @@
 
         .transfer-card-label {
             font-size: 11px;
-            color: #888;
-            margin-top: 5px;
+            color: #666;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .real-transfer-item {
             display: flex;
             align-items: center;
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 18px 22px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             gap: 16px;
+            transition: background 0.2s;
+        }
+
+        .real-transfer-item:hover {
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .real-transfer-item:last-child {
@@ -348,74 +412,130 @@
         .real-transfer-name {
             font-weight: 700;
             font-size: 16px;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
+            color: #fff;
         }
 
         .real-transfer-details {
             font-size: 13px;
-            color: #888;
+            color: #666;
         }
 
         .real-transfer-clubs {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .real-transfer-club {
-            padding: 7px 14px;
-            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.06);
             border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
         }
 
         .real-transfer-club.from {
-            color: #ff6b6b;
+            color: #ff8a8a;
         }
 
         .real-transfer-club.to {
-            color: #00ff87;
+            color: #7dffb3;
         }
 
         .real-transfer-arrow {
-            color: #888;
-            font-size: 20px;
+            color: #555;
+            font-size: 18px;
         }
 
         .real-transfer-fee {
             font-weight: 800;
             font-size: 15px;
             color: #ffd700;
+            text-align: right;
         }
 
-        .real-transfer-date {
+        .real-transfer-type {
             font-size: 11px;
             color: #666;
-            margin-top: 4px;
+            margin-top: 3px;
+        }
+
+        .real-transfer-type.loan {
+            color: #60efff;
         }
 
         .team-builder-link {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #00ff87, #00a86b);
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #00ff87, #00c853);
             color: #000;
             text-decoration: none;
-            border-radius: 10px;
-            font-weight: 600;
+            border-radius: 12px;
+            font-weight: 700;
             margin-top: 20px;
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .team-builder-link:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 255, 135, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 255, 135, 0.35);
         }
 
         .main-content {
-            padding-bottom: 40px;
+            padding: 20px 0 60px;
+        }
+
+        .section-divider {
+            margin: 30px 0;
+            text-align: center;
+            color: #444;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .club-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .club-filter-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: #777;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .club-filter-btn:hover, .club-filter-btn.active {
+            background: rgba(0, 255, 135, 0.15);
+            border-color: rgba(0, 255, 135, 0.3);
+            color: #00ff87;
+        }
+
+        .data-source {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 11px;
+            color: #555;
+            text-align: center;
+        }
+
+        .data-source a {
+            color: #00ff87;
+            text-decoration: none;
         }
 
         @media (max-width: 768px) {
@@ -424,13 +544,33 @@
             }
 
             .page-header h1 {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
 
             .transfer-tab-btn {
                 font-size: 12px;
-                padding: 10px 16px;
+                padding: 12px 18px;
             }
+
+            .real-transfer-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .real-transfer-clubs {
+                width: 100%;
+            }
+
+            .real-transfer-fee {
+                text-align: left;
+            }
+        }
+
+        /* Footer dark mode */
+        .footer {
+            background: #0d0d12 !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
     </style>
 </head>
@@ -441,8 +581,9 @@
         <div class="container">
             <div class="page-header">
                 <h1>Transfer Center</h1>
-                <p>Live FPL transfer activity, Premier League transfers, and price changes</p>
-                <a href="/fpl-team-builder.html" class="team-builder-link">Open Team Builder</a>
+                <p>Live FPL transfer activity & Premier League transfer news</p>
+                <p class="last-updated" id="last-updated">Data updates automatically</p>
+                <a href="/fpl-team-builder.html" class="team-builder-link">Open FPL Team Builder</a>
             </div>
 
             <div class="transfer-tabs">
@@ -457,7 +598,7 @@
                         <div class="transfer-panel-header hot">
                             <span class="transfer-icon">🔥</span>
                             <h3>Most Transferred In</h3>
-                            <span class="transfer-badge">This GW</span>
+                            <span class="transfer-badge live">Live</span>
                         </div>
                         <div class="transfer-list" id="transfers-in-list">
                             <div class="transfer-loading">
@@ -471,7 +612,7 @@
                         <div class="transfer-panel-header cold">
                             <span class="transfer-icon">❄️</span>
                             <h3>Most Transferred Out</h3>
-                            <span class="transfer-badge">This GW</span>
+                            <span class="transfer-badge live">Live</span>
                         </div>
                         <div class="transfer-list" id="transfers-out-list">
                             <div class="transfer-loading">
@@ -498,30 +639,35 @@
             </div>
 
             <div id="real-transfers-tab" class="transfer-tab-content">
+                <div class="club-filter" id="club-filter">
+                    <button class="club-filter-btn active" data-club="all">All Clubs</button>
+                </div>
+
                 <div class="transfer-panel">
                     <div class="transfer-panel-header premier">
                         <span class="transfer-icon">⚽</span>
-                        <h3>Premier League Transfers 2024/25</h3>
+                        <h3>January 2025 Window</h3>
                         <span class="transfer-badge">Confirmed</span>
                     </div>
-                    <div class="transfer-list" id="real-transfers-list">
+                    <div class="transfer-list" id="january-transfers-list">
                         <div class="transfer-loading">
                             <div class="loading-spinner"></div>
                             <p>Loading transfer news...</p>
                         </div>
                     </div>
+                    <div class="data-source">Data from <a href="https://www.skysports.com/football/news/11095/13280582/transfer-news-january-transfer-window-2025-premier-league-deals-ins-and-outs" target="_blank">Sky Sports</a> & <a href="https://www.premierleague.com/transfers" target="_blank">Premier League</a></div>
                 </div>
 
                 <div class="transfer-panel" style="margin-top: 25px;">
-                    <div class="transfer-panel-header rumors">
-                        <span class="transfer-icon">📰</span>
-                        <h3>Transfer Rumors & News</h3>
-                        <span class="transfer-badge">Latest</span>
+                    <div class="transfer-panel-header summer">
+                        <span class="transfer-icon">☀️</span>
+                        <h3>Summer 2024 Big Signings</h3>
+                        <span class="transfer-badge">Completed</span>
                     </div>
-                    <div class="transfer-list" id="transfer-rumors-list">
+                    <div class="transfer-list" id="summer-transfers-list">
                         <div class="transfer-loading">
                             <div class="loading-spinner"></div>
-                            <p>Loading rumors...</p>
+                            <p>Loading transfers...</p>
                         </div>
                     </div>
                 </div>
@@ -533,7 +679,7 @@
                         <div class="transfer-panel-header rise">
                             <span class="transfer-icon">📈</span>
                             <h3>Price Risers</h3>
-                            <span class="transfer-badge">This GW</span>
+                            <span class="transfer-badge live">This GW</span>
                         </div>
                         <div class="transfer-list" id="price-risers-list">
                             <div class="transfer-loading">
@@ -547,7 +693,7 @@
                         <div class="transfer-panel-header fall">
                             <span class="transfer-icon">📉</span>
                             <h3>Price Fallers</h3>
-                            <span class="transfer-badge">This GW</span>
+                            <span class="transfer-badge live">This GW</span>
                         </div>
                         <div class="transfer-list" id="price-fallers-list">
                             <div class="transfer-loading">
@@ -581,6 +727,7 @@
     <script>
         let allPlayers = [];
         let teams = [];
+        let currentClubFilter = 'all';
 
         const positionMap = {
             1: 'GK',
@@ -589,6 +736,7 @@
             4: 'FWD'
         };
 
+        // Tab switching
         document.querySelectorAll('.transfer-tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.transfer-tab-btn').forEach(b => b.classList.remove('active'));
@@ -597,6 +745,145 @@
                 document.getElementById(btn.dataset.transferTab + '-tab').classList.add('active');
             });
         });
+
+        // Real January 2025 Transfer Data
+        const january2025Transfers = [
+            // Manchester City - Major Signings
+            { name: 'Omar Marmoush', from: 'Eintracht Frankfurt', to: 'Man City', fee: '£59m', type: 'permanent' },
+            { name: 'Nico Gonzalez', from: 'Porto', to: 'Man City', fee: '£50m', type: 'permanent' },
+            { name: 'Abdukodir Khusanov', from: 'Lens', to: 'Man City', fee: '£33.5m', type: 'permanent' },
+            { name: 'Vitor Reis', from: 'Palmeiras', to: 'Man City', fee: '£29.6m', type: 'permanent' },
+            { name: 'Kyle Walker', from: 'Man City', to: 'AC Milan', fee: 'Loan', type: 'loan' },
+
+            // Manchester United
+            { name: 'Patrick Dorgu', from: 'Lecce', to: 'Man Utd', fee: '£30m', type: 'permanent' },
+            { name: 'Marcus Rashford', from: 'Man Utd', to: 'Aston Villa', fee: 'Loan', type: 'loan' },
+            { name: 'Antony', from: 'Man Utd', to: 'Real Betis', fee: 'Loan', type: 'loan' },
+
+            // Aston Villa
+            { name: 'Donyell Malen', from: 'Borussia Dortmund', to: 'Aston Villa', fee: '£20m', type: 'permanent' },
+            { name: 'Jhon Duran', from: 'Aston Villa', to: 'Al Nassr', fee: '£64m', type: 'permanent' },
+            { name: 'Marco Asensio', from: 'PSG', to: 'Aston Villa', fee: 'Loan', type: 'loan' },
+            { name: 'Axel Disasi', from: 'Chelsea', to: 'Aston Villa', fee: 'Loan', type: 'loan' },
+            { name: 'Jaden Philogene', from: 'Aston Villa', to: 'Ipswich', fee: '£20m', type: 'permanent' },
+            { name: 'Diego Carlos', from: 'Aston Villa', to: 'Fenerbahce', fee: '£10m', type: 'permanent' },
+            { name: 'Emiliano Buendia', from: 'Aston Villa', to: 'Bayer Leverkusen', fee: 'Loan', type: 'loan' },
+
+            // Tottenham
+            { name: 'Antonin Kinsky', from: 'Slavia Prague', to: 'Tottenham', fee: '£12.5m', type: 'permanent' },
+            { name: 'Kevin Danso', from: 'Lens', to: 'Tottenham', fee: 'Loan', type: 'loan' },
+            { name: 'Mathys Tel', from: 'Bayern Munich', to: 'Tottenham', fee: 'Loan', type: 'loan' },
+
+            // Brighton
+            { name: 'Diego Gomez', from: 'Inter Miami', to: 'Brighton', fee: '£11m', type: 'permanent' },
+            { name: 'Eiran Cashin', from: 'Derby', to: 'Brighton', fee: '£9m', type: 'permanent' },
+            { name: 'Evan Ferguson', from: 'Brighton', to: 'West Ham', fee: 'Loan', type: 'loan' },
+            { name: 'Julio Enciso', from: 'Brighton', to: 'Ipswich', fee: 'Loan', type: 'loan' },
+
+            // Wolves
+            { name: 'Emmanuel Agbadou', from: 'Reims', to: 'Wolves', fee: '£16.6m', type: 'permanent' },
+            { name: 'Marshall Munetsi', from: 'Reims', to: 'Wolves', fee: '£16m', type: 'permanent' },
+            { name: 'Nasser Djiga', from: 'Red Star Belgrade', to: 'Wolves', fee: '£10m', type: 'permanent' },
+
+            // Chelsea
+            { name: 'Joao Felix', from: 'Chelsea', to: 'AC Milan', fee: 'Loan', type: 'loan' },
+            { name: 'Renato Veiga', from: 'Chelsea', to: 'Juventus', fee: 'Loan', type: 'loan' },
+            { name: 'Ben Chilwell', from: 'Chelsea', to: 'Crystal Palace', fee: 'Loan', type: 'loan' },
+            { name: 'Cesare Casadei', from: 'Chelsea', to: 'Torino', fee: '£12.5m', type: 'permanent' },
+            { name: 'Carney Chukwuemeka', from: 'Chelsea', to: 'Borussia Dortmund', fee: 'Loan', type: 'loan' },
+
+            // Leicester
+            { name: 'Tom Cannon', from: 'Leicester', to: 'Sheffield Utd', fee: '£10m', type: 'permanent' },
+
+            // Ipswich
+            { name: 'Ben Godfrey', from: 'Atalanta', to: 'Ipswich', fee: 'Loan', type: 'loan' },
+            { name: 'Alex Palmer', from: 'West Brom', to: 'Ipswich', fee: '£4m', type: 'permanent' },
+
+            // Brentford
+            { name: 'Michael Kayode', from: 'Fiorentina', to: 'Brentford', fee: 'Loan (£13.5m option)', type: 'loan' },
+
+            // Bournemouth
+            { name: 'Julio Soler', from: 'Lanus', to: 'Bournemouth', fee: '£6.6m', type: 'permanent' },
+            { name: 'Philip Billing', from: 'Bournemouth', to: 'Napoli', fee: 'Loan', type: 'loan' },
+
+            // Southampton
+            { name: 'Albert Gronbaek', from: 'Rennes', to: 'Southampton', fee: 'Loan', type: 'loan' },
+            { name: 'Adam Armstrong', from: 'Southampton', to: 'West Brom', fee: 'Loan', type: 'loan' },
+            { name: 'Ben Brereton Diaz', from: 'Southampton', to: 'Sheffield Utd', fee: 'Loan', type: 'loan' },
+
+            // Crystal Palace
+            { name: 'Romain Esse', from: 'Millwall', to: 'Crystal Palace', fee: 'Undisclosed', type: 'permanent' },
+
+            // West Ham
+            { name: 'James Ward-Prowse', from: 'Nottingham Forest', to: 'West Ham', fee: 'Recall', type: 'permanent' },
+
+            // Newcastle
+            { name: 'Lloyd Kelly', from: 'Newcastle', to: 'Juventus', fee: 'Loan', type: 'loan' },
+
+            // Liverpool
+            { name: 'Jayden Danns', from: 'Liverpool', to: 'Sunderland', fee: 'Loan', type: 'loan' },
+            { name: 'Stefan Bajcetic', from: 'Liverpool', to: 'Las Palmas', fee: 'Loan', type: 'loan' },
+
+            // Everton
+            { name: 'Carlos Alcaraz', from: 'Flamengo', to: 'Everton', fee: 'Loan', type: 'loan' },
+
+            // Nottingham Forest
+            { name: 'Tyler Bindon', from: 'Reading', to: 'Nottingham Forest', fee: 'Undisclosed', type: 'permanent' }
+        ];
+
+        // Summer 2024 Big Signings
+        const summer2024Transfers = [
+            { name: 'Dominic Solanke', from: 'Bournemouth', to: 'Tottenham', fee: '£65m', type: 'permanent' },
+            { name: 'Pedro Neto', from: 'Wolves', to: 'Chelsea', fee: '£54m', type: 'permanent' },
+            { name: 'Leny Yoro', from: 'Lille', to: 'Man Utd', fee: '£52m', type: 'permanent' },
+            { name: 'Amadou Onana', from: 'Everton', to: 'Aston Villa', fee: '£50m', type: 'permanent' },
+            { name: 'Riccardo Calafiori', from: 'Bologna', to: 'Arsenal', fee: '£42m', type: 'permanent' },
+            { name: 'Archie Gray', from: 'Leeds', to: 'Tottenham', fee: '£40m', type: 'permanent' },
+            { name: 'Ian Maatsen', from: 'Chelsea', to: 'Aston Villa', fee: '£37.5m', type: 'permanent' },
+            { name: 'Joshua Zirkzee', from: 'Bologna', to: 'Man Utd', fee: '£36.5m', type: 'permanent' },
+            { name: 'Savinho', from: 'Troyes', to: 'Man City', fee: '£33m', type: 'permanent' },
+            { name: 'Yankuba Minteh', from: 'Newcastle', to: 'Brighton', fee: '£30m', type: 'permanent' },
+            { name: 'Giorgi Mamardashvili', from: 'Valencia', to: 'Liverpool', fee: '£29m', type: 'permanent' },
+            { name: 'Joao Pedro', from: 'Watford', to: 'Brighton', fee: '£30m', type: 'permanent' },
+            { name: 'Matthijs de Ligt', from: 'Bayern Munich', to: 'Man Utd', fee: '£42m', type: 'permanent' },
+            { name: 'Manuel Ugarte', from: 'PSG', to: 'Man Utd', fee: '£42m', type: 'permanent' },
+            { name: 'Noussair Mazraoui', from: 'Bayern Munich', to: 'Man Utd', fee: '£17m', type: 'permanent' }
+        ];
+
+        // Get unique clubs for filter
+        function getUniqueClubs() {
+            const clubs = new Set();
+            january2025Transfers.forEach(t => {
+                clubs.add(t.from);
+                clubs.add(t.to);
+            });
+            return Array.from(clubs).filter(c =>
+                ['Man City', 'Man Utd', 'Arsenal', 'Chelsea', 'Liverpool', 'Tottenham', 'Aston Villa',
+                 'Newcastle', 'Brighton', 'West Ham', 'Wolves', 'Crystal Palace', 'Everton',
+                 'Nottingham Forest', 'Bournemouth', 'Brentford', 'Fulham', 'Leicester',
+                 'Southampton', 'Ipswich'].includes(c)
+            ).sort();
+        }
+
+        // Initialize club filter
+        function initClubFilter() {
+            const filterContainer = document.getElementById('club-filter');
+            const clubs = getUniqueClubs();
+
+            filterContainer.innerHTML = '<button class="club-filter-btn active" data-club="all">All Clubs</button>';
+            clubs.forEach(club => {
+                filterContainer.innerHTML += `<button class="club-filter-btn" data-club="${club}">${club}</button>`;
+            });
+
+            filterContainer.querySelectorAll('.club-filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterContainer.querySelectorAll('.club-filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentClubFilter = btn.dataset.club;
+                    loadJanuaryTransfers();
+                });
+            });
+        }
 
         async function fetchFPLData() {
             const fplUrl = 'https://fantasy.premierleague.com/api/bootstrap-static/';
@@ -613,6 +900,8 @@
                     if (data && data.elements) {
                         allPlayers = data.elements;
                         teams = data.teams || [];
+                        document.getElementById('last-updated').textContent =
+                            `FPL data updated: ${new Date().toLocaleString('en-GB')}`;
                         loadAllTransferData();
                         return;
                     }
@@ -636,8 +925,9 @@
             loadPriceRisers();
             loadPriceFallers();
             loadSeasonPriceChanges();
-            loadRealTransfers();
-            loadTransferRumors();
+            loadJanuaryTransfers();
+            loadSummerTransfers();
+            initClubFilter();
         }
 
         function formatNumber(num) {
@@ -647,101 +937,217 @@
         }
 
         function loadFPLTransfersIn() {
-            const sorted = [...allPlayers].filter(p => p.transfers_in_event > 0).sort((a, b) => b.transfers_in_event - a.transfers_in_event).slice(0, 15);
+            const sorted = [...allPlayers].filter(p => p.transfers_in_event > 0)
+                .sort((a, b) => b.transfers_in_event - a.transfers_in_event).slice(0, 15);
             const container = document.getElementById('transfers-in-list');
-            if (sorted.length === 0) { container.innerHTML = '<p style="padding: 20px; color: #888; text-align: center;">No transfer data available</p>'; return; }
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<p style="padding: 30px; color: #666; text-align: center;">No transfer data available for this gameweek</p>';
+                return;
+            }
+
             container.innerHTML = sorted.map((p, i) => {
                 const team = teams.find(t => t.id === p.team);
-                return `<div class="transfer-item"><div class="transfer-rank ${i < 3 ? 'top-3' : ''}">${i + 1}</div><div class="transfer-player-info"><div class="transfer-player-name">${p.web_name}</div><div class="transfer-player-meta">${team ? team.short_name : ''} • ${positionMap[p.element_type]} • £${(p.now_cost / 10).toFixed(1)}m</div></div><div class="transfer-stats"><div class="transfer-count positive">+${formatNumber(p.transfers_in_event)}</div><div class="transfer-price">${p.total_points} pts</div></div></div>`;
+                return `
+                    <div class="transfer-item">
+                        <div class="transfer-rank ${i < 3 ? 'top-3' : ''}">${i + 1}</div>
+                        <div class="transfer-player-info">
+                            <div class="transfer-player-name">${p.web_name}</div>
+                            <div class="transfer-player-meta">${team ? team.short_name : ''} • ${positionMap[p.element_type]} • £${(p.now_cost / 10).toFixed(1)}m</div>
+                        </div>
+                        <div class="transfer-stats">
+                            <div class="transfer-count positive">+${formatNumber(p.transfers_in_event)}</div>
+                            <div class="transfer-price">${p.total_points} pts • ${p.form} form</div>
+                        </div>
+                    </div>
+                `;
             }).join('');
         }
 
         function loadFPLTransfersOut() {
-            const sorted = [...allPlayers].filter(p => p.transfers_out_event > 0).sort((a, b) => b.transfers_out_event - a.transfers_out_event).slice(0, 15);
+            const sorted = [...allPlayers].filter(p => p.transfers_out_event > 0)
+                .sort((a, b) => b.transfers_out_event - a.transfers_out_event).slice(0, 15);
             const container = document.getElementById('transfers-out-list');
-            if (sorted.length === 0) { container.innerHTML = '<p style="padding: 20px; color: #888; text-align: center;">No transfer data available</p>'; return; }
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<p style="padding: 30px; color: #666; text-align: center;">No transfer data available for this gameweek</p>';
+                return;
+            }
+
             container.innerHTML = sorted.map((p, i) => {
                 const team = teams.find(t => t.id === p.team);
-                return `<div class="transfer-item"><div class="transfer-rank ${i < 3 ? 'top-3' : ''}">${i + 1}</div><div class="transfer-player-info"><div class="transfer-player-name">${p.web_name}</div><div class="transfer-player-meta">${team ? team.short_name : ''} • ${positionMap[p.element_type]} • £${(p.now_cost / 10).toFixed(1)}m</div></div><div class="transfer-stats"><div class="transfer-count negative">-${formatNumber(p.transfers_out_event)}</div><div class="transfer-price">${p.total_points} pts</div></div></div>`;
+                return `
+                    <div class="transfer-item">
+                        <div class="transfer-rank ${i < 3 ? 'top-3' : ''}">${i + 1}</div>
+                        <div class="transfer-player-info">
+                            <div class="transfer-player-name">${p.web_name}</div>
+                            <div class="transfer-player-meta">${team ? team.short_name : ''} • ${positionMap[p.element_type]} • £${(p.now_cost / 10).toFixed(1)}m</div>
+                        </div>
+                        <div class="transfer-stats">
+                            <div class="transfer-count negative">-${formatNumber(p.transfers_out_event)}</div>
+                            <div class="transfer-price">${p.total_points} pts • ${p.form} form</div>
+                        </div>
+                    </div>
+                `;
             }).join('');
         }
 
         function loadNetTransfers() {
-            const withNet = allPlayers.map(p => ({ ...p, netTransfers: (p.transfers_in || 0) - (p.transfers_out || 0) }));
-            const topGainers = [...withNet].sort((a, b) => b.netTransfers - a.netTransfers).slice(0, 10);
+            const withNet = allPlayers.map(p => ({
+                ...p,
+                netTransfers: (p.transfers_in || 0) - (p.transfers_out || 0)
+            }));
+            const topGainers = [...withNet].sort((a, b) => b.netTransfers - a.netTransfers).slice(0, 12);
             const container = document.getElementById('net-transfers-list');
+
             container.innerHTML = topGainers.map(p => {
                 const team = teams.find(t => t.id === p.team);
                 const isPositive = p.netTransfers >= 0;
-                return `<div class="transfer-card"><div class="transfer-card-name">${p.web_name}</div><div class="transfer-card-team">${team ? team.short_name : ''}</div><div class="transfer-card-stat ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${formatNumber(p.netTransfers)}</div><div class="transfer-card-label">Net Transfers</div></div>`;
+                return `
+                    <div class="transfer-card">
+                        <div class="transfer-card-name">${p.web_name}</div>
+                        <div class="transfer-card-team">${team ? team.short_name : ''} • ${positionMap[p.element_type]}</div>
+                        <div class="transfer-card-stat ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${formatNumber(p.netTransfers)}</div>
+                        <div class="transfer-card-label">Net Transfers</div>
+                    </div>
+                `;
             }).join('');
         }
 
         function loadPriceRisers() {
-            const sorted = [...allPlayers].filter(p => p.cost_change_event > 0).sort((a, b) => b.cost_change_event - a.cost_change_event).slice(0, 15);
+            const sorted = [...allPlayers].filter(p => p.cost_change_event > 0)
+                .sort((a, b) => b.cost_change_event - a.cost_change_event).slice(0, 15);
             const container = document.getElementById('price-risers-list');
-            if (sorted.length === 0) { container.innerHTML = '<p style="padding: 20px; color: #888; text-align: center;">No price rises this gameweek</p>'; return; }
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<p style="padding: 30px; color: #666; text-align: center;">No price rises this gameweek</p>';
+                return;
+            }
+
             container.innerHTML = sorted.map((p, i) => {
                 const team = teams.find(t => t.id === p.team);
-                return `<div class="transfer-item"><div class="transfer-rank ${i < 3 ? 'top-3' : ''}">${i + 1}</div><div class="transfer-player-info"><div class="transfer-player-name">${p.web_name}</div><div class="transfer-player-meta">${team ? team.short_name : ''} • ${positionMap[p.element_type]}</div></div><div class="transfer-stats"><div class="transfer-count positive">+£${(p.cost_change_event / 10).toFixed(1)}m</div><div class="transfer-price">Now £${(p.now_cost / 10).toFixed(1)}m</div></div></div>`;
+                return `
+                    <div class="transfer-item">
+                        <div class="transfer-rank ${i < 3 ? 'top-3' : ''}">${i + 1}</div>
+                        <div class="transfer-player-info">
+                            <div class="transfer-player-name">${p.web_name}</div>
+                            <div class="transfer-player-meta">${team ? team.short_name : ''} • ${positionMap[p.element_type]}</div>
+                        </div>
+                        <div class="transfer-stats">
+                            <div class="transfer-count positive">+£${(p.cost_change_event / 10).toFixed(1)}m</div>
+                            <div class="transfer-price">Now £${(p.now_cost / 10).toFixed(1)}m</div>
+                        </div>
+                    </div>
+                `;
             }).join('');
         }
 
         function loadPriceFallers() {
-            const sorted = [...allPlayers].filter(p => p.cost_change_event < 0).sort((a, b) => a.cost_change_event - b.cost_change_event).slice(0, 15);
+            const sorted = [...allPlayers].filter(p => p.cost_change_event < 0)
+                .sort((a, b) => a.cost_change_event - b.cost_change_event).slice(0, 15);
             const container = document.getElementById('price-fallers-list');
-            if (sorted.length === 0) { container.innerHTML = '<p style="padding: 20px; color: #888; text-align: center;">No price falls this gameweek</p>'; return; }
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<p style="padding: 30px; color: #666; text-align: center;">No price falls this gameweek</p>';
+                return;
+            }
+
             container.innerHTML = sorted.map((p, i) => {
                 const team = teams.find(t => t.id === p.team);
-                return `<div class="transfer-item"><div class="transfer-rank ${i < 3 ? 'top-3' : ''}">${i + 1}</div><div class="transfer-player-info"><div class="transfer-player-name">${p.web_name}</div><div class="transfer-player-meta">${team ? team.short_name : ''} • ${positionMap[p.element_type]}</div></div><div class="transfer-stats"><div class="transfer-count negative">-£${(Math.abs(p.cost_change_event) / 10).toFixed(1)}m</div><div class="transfer-price">Now £${(p.now_cost / 10).toFixed(1)}m</div></div></div>`;
+                return `
+                    <div class="transfer-item">
+                        <div class="transfer-rank ${i < 3 ? 'top-3' : ''}">${i + 1}</div>
+                        <div class="transfer-player-info">
+                            <div class="transfer-player-name">${p.web_name}</div>
+                            <div class="transfer-player-meta">${team ? team.short_name : ''} • ${positionMap[p.element_type]}</div>
+                        </div>
+                        <div class="transfer-stats">
+                            <div class="transfer-count negative">-£${(Math.abs(p.cost_change_event) / 10).toFixed(1)}m</div>
+                            <div class="transfer-price">Now £${(p.now_cost / 10).toFixed(1)}m</div>
+                        </div>
+                    </div>
+                `;
             }).join('');
         }
 
         function loadSeasonPriceChanges() {
-            const sorted = [...allPlayers].filter(p => Math.abs(p.cost_change_start || 0) > 0).sort((a, b) => Math.abs(b.cost_change_start || 0) - Math.abs(a.cost_change_start || 0)).slice(0, 10);
+            const sorted = [...allPlayers]
+                .filter(p => Math.abs(p.cost_change_start || 0) > 0)
+                .sort((a, b) => Math.abs(b.cost_change_start || 0) - Math.abs(a.cost_change_start || 0))
+                .slice(0, 12);
             const container = document.getElementById('season-price-changes-list');
+
             container.innerHTML = sorted.map(p => {
                 const team = teams.find(t => t.id === p.team);
                 const change = p.cost_change_start || 0;
                 const isPositive = change >= 0;
-                return `<div class="transfer-card"><div class="transfer-card-name">${p.web_name}</div><div class="transfer-card-team">${team ? team.short_name : ''}</div><div class="transfer-card-stat ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}£${(change / 10).toFixed(1)}m</div><div class="transfer-card-label">Season Change</div></div>`;
+                return `
+                    <div class="transfer-card">
+                        <div class="transfer-card-name">${p.web_name}</div>
+                        <div class="transfer-card-team">${team ? team.short_name : ''}</div>
+                        <div class="transfer-card-stat ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}£${(change / 10).toFixed(1)}m</div>
+                        <div class="transfer-card-label">Season Change</div>
+                    </div>
+                `;
             }).join('');
         }
 
-        function loadRealTransfers() {
-            const recentTransfers = [
-                { name: 'Dominic Solanke', from: 'Bournemouth', to: 'Tottenham', fee: '£65m', date: 'Aug 2024' },
-                { name: 'Pedro Neto', from: 'Wolves', to: 'Chelsea', fee: '£54m', date: 'Aug 2024' },
-                { name: 'Amadou Onana', from: 'Everton', to: 'Aston Villa', fee: '£50m', date: 'Aug 2024' },
-                { name: 'Leny Yoro', from: 'Lille', to: 'Man Utd', fee: '£52m', date: 'Jul 2024' },
-                { name: 'Riccardo Calafiori', from: 'Bologna', to: 'Arsenal', fee: '£42m', date: 'Jul 2024' },
-                { name: 'Archie Gray', from: 'Leeds', to: 'Tottenham', fee: '£40m', date: 'Jul 2024' },
-                { name: 'Ian Maatsen', from: 'Chelsea', to: 'Aston Villa', fee: '£37.5m', date: 'Jun 2024' },
-                { name: 'Joshua Zirkzee', from: 'Bologna', to: 'Man Utd', fee: '£36.5m', date: 'Jul 2024' },
-                { name: 'Savinho', from: 'Troyes', to: 'Man City', fee: '£33m', date: 'Jul 2024' },
-                { name: 'Yankuba Minteh', from: 'Newcastle', to: 'Brighton', fee: '£30m', date: 'Jul 2024' },
-                { name: 'Giorgi Mamardashvili', from: 'Valencia', to: 'Liverpool', fee: '£29m', date: 'Aug 2024' },
-                { name: 'Caleb Wiley', from: 'Atlanta', to: 'Chelsea', fee: '£8.5m', date: 'Jul 2024' }
-            ];
-            const container = document.getElementById('real-transfers-list');
-            container.innerHTML = recentTransfers.map(t => `<div class="real-transfer-item"><div class="real-transfer-player"><div class="real-transfer-name">${t.name}</div><div class="real-transfer-date">${t.date}</div></div><div class="real-transfer-clubs"><span class="real-transfer-club from">${t.from}</span><span class="real-transfer-arrow">→</span><span class="real-transfer-club to">${t.to}</span></div><div class="real-transfer-fee">${t.fee}</div></div>`).join('');
+        function loadJanuaryTransfers() {
+            const container = document.getElementById('january-transfers-list');
+            let transfers = january2025Transfers;
+
+            if (currentClubFilter !== 'all') {
+                transfers = transfers.filter(t =>
+                    t.from === currentClubFilter || t.to === currentClubFilter
+                );
+            }
+
+            if (transfers.length === 0) {
+                container.innerHTML = '<p style="padding: 30px; color: #666; text-align: center;">No transfers found for this club</p>';
+                return;
+            }
+
+            container.innerHTML = transfers.map(t => `
+                <div class="real-transfer-item">
+                    <div class="real-transfer-player">
+                        <div class="real-transfer-name">${t.name}</div>
+                        <div class="real-transfer-details">${t.type === 'loan' ? 'Loan Deal' : 'Permanent'}</div>
+                    </div>
+                    <div class="real-transfer-clubs">
+                        <span class="real-transfer-club from">${t.from}</span>
+                        <span class="real-transfer-arrow">→</span>
+                        <span class="real-transfer-club to">${t.to}</span>
+                    </div>
+                    <div>
+                        <div class="real-transfer-fee">${t.fee}</div>
+                        <div class="real-transfer-type ${t.type}">${t.type === 'loan' ? 'LOAN' : ''}</div>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function loadTransferRumors() {
-            const rumors = [
-                { player: 'Alexander Isak', current: 'Newcastle', linked: 'Arsenal', status: 'Strong Interest', source: 'Various' },
-                { player: 'Eberechi Eze', current: 'Crystal Palace', linked: 'Tottenham', status: 'Monitoring', source: 'Telegraph' },
-                { player: 'Florian Wirtz', current: 'Leverkusen', linked: 'Multiple PL clubs', status: 'Summer Target', source: 'Sky Sports' },
-                { player: 'Bruno Guimaraes', current: 'Newcastle', linked: 'Man City', status: 'Release Clause', source: 'Athletic' },
-                { player: 'Jarrod Bowen', current: 'West Ham', linked: 'Liverpool', status: 'Interest', source: 'Mirror' },
-                { player: 'Jhon Duran', current: 'Aston Villa', linked: 'Chelsea', status: 'Bid Rejected', source: 'Fabrizio Romano' },
-                { player: 'Marc Guehi', current: 'Crystal Palace', linked: 'Newcastle', status: 'Negotiations', source: 'Sky Sports' },
-                { player: 'Victor Osimhen', current: 'Galatasaray', linked: 'Chelsea', status: 'Loan Option', source: 'Di Marzio' }
-            ];
-            const container = document.getElementById('transfer-rumors-list');
-            container.innerHTML = rumors.map(r => `<div class="real-transfer-item"><div class="real-transfer-player"><div class="real-transfer-name">${r.player}</div><div class="real-transfer-details">${r.current} → ${r.linked}</div></div><div style="text-align: right;"><div style="color: ${r.status === 'Strong Interest' ? '#00ff87' : r.status === 'Bid Rejected' ? '#ff6b6b' : '#ffd700'}; font-size: 13px; font-weight: 700;">${r.status}</div><div style="color: #666; font-size: 11px;">${r.source}</div></div></div>`).join('') + '<div style="padding: 15px; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05);"><p style="color: #888; font-size: 11px; text-align: center;">Transfer rumors from major sources. Check official channels for confirmed deals.</p></div>';
+        function loadSummerTransfers() {
+            const container = document.getElementById('summer-transfers-list');
+
+            container.innerHTML = summer2024Transfers.map(t => `
+                <div class="real-transfer-item">
+                    <div class="real-transfer-player">
+                        <div class="real-transfer-name">${t.name}</div>
+                        <div class="real-transfer-details">Summer 2024</div>
+                    </div>
+                    <div class="real-transfer-clubs">
+                        <span class="real-transfer-club from">${t.from}</span>
+                        <span class="real-transfer-arrow">→</span>
+                        <span class="real-transfer-club to">${t.to}</span>
+                    </div>
+                    <div>
+                        <div class="real-transfer-fee">${t.fee}</div>
+                    </div>
+                </div>
+            `).join('');
         }
 
+        // Initialize
         fetchFPLData();
     </script>
 </body>
