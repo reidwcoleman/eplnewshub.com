@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News | EPL News Hub - Premier League News & Analysis</title>
+    <meta name="description" content="Latest Premier League news, transfer updates, match analysis, and FPL tips from EPL News Hub.">
+    <link rel="canonical" href="https://eplnewshub.com/news.html">
+    <link rel="icon" type="image/png" href="/eplnewshubnewlogo.png">
+    <link rel="apple-touch-icon" href="/eplnewshubnewlogo.png">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="News | EPL News Hub">
+    <meta property="og:description" content="Latest Premier League news, transfer updates, match analysis, and FPL tips.">
+    <meta property="og:image" content="https://eplnewshub.com/eplnewshubnewlogo.png">
+    <meta property="og:url" content="https://eplnewshub.com/news.html">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-TVPLGM5QY9');
+    </script>
+
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0f;
+            color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .news-page {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .news-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-top: 20px;
+        }
+
+        .news-header h1 {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+
+        .news-header p {
+            font-size: 18px;
+            color: rgba(255,255,255,0.6);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Search and Filter */
+        .news-controls {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #00ff87;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* Articles Grid */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .article-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .article-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 255, 135, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .article-content {
+            padding: 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .article-date {
+            font-size: 13px;
+            color: #00ff87;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .article-title {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-description {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.6;
+            flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-read-more {
+            margin-top: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #00ff87;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .article-read-more svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s;
+        }
+
+        .article-card:hover .article-read-more svg {
+            transform: translateX(4px);
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #00ff87;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .no-results h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        /* Article Count */
+        .article-count {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .news-header h1 {
+                font-size: 32px;
+            }
+
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .news-page {
+                padding: 20px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header" include="./header.html"></div>
+
+    <main class="news-page">
+        <div class="news-header">
+            <h1>Latest News</h1>
+            <p>Stay up to date with the latest Premier League news, transfer updates, and expert analysis</p>
+        </div>
+
+        <div class="news-controls">
+            <div class="search-box">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" id="search-input" placeholder="Search articles...">
+            </div>
+        </div>
+
+        <div class="article-count" id="article-count"></div>
+
+        <div id="articles-container">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading articles...</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="footer" include="./footer.html"></div>
+
+    <script src="/index.js"></script>
+    <script>
+        let allArticles = [];
+
+        // Format date nicely
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Render articles
+        function renderArticles(articles) {
+            const container = document.getElementById('articles-container');
+            const countEl = document.getElementById('article-count');
+
+            if (articles.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <h3>No articles found</h3>
+                        <p>Try adjusting your search terms</p>
+                    </div>
+                `;
+                countEl.textContent = '';
+                return;
+            }
+
+            countEl.textContent = `Showing ${articles.length} article${articles.length !== 1 ? 's' : ''}`;
+
+            container.innerHTML = `
+                <div class="articles-grid">
+                    ${articles.map(article => `
+                        <a href="/articles/${article.file}" class="article-card">
+                            <img
+                                src="${article.image || '/eplnewshubnewlogo.png'}"
+                                alt="${article.title}"
+                                class="article-image"
+                                loading="lazy"
+                                onerror="this.src='/eplnewshubnewlogo.png'"
+                            >
+                            <div class="article-content">
+                                <div class="article-date">${formatDate(article.date)}</div>
+                                <h2 class="article-title">${article.title}</h2>
+                                <p class="article-description">${article.description}</p>
+                                <div class="article-read-more">
+                                    Read more
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </a>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Search/filter articles
+        function filterArticles(query) {
+            if (!query) {
+                renderArticles(allArticles);
+                return;
+            }
+
+            const filtered = allArticles.filter(article =>
+                article.title.toLowerCase().includes(query.toLowerCase()) ||
+                article.description.toLowerCase().includes(query.toLowerCase())
+            );
+
+            renderArticles(filtered);
+        }
+
+        // Load articles
+        async function loadArticles() {
+            try {
+                const response = await fetch('/articles.json');
+                allArticles = await response.json();
+                renderArticles(allArticles);
+            } catch (error) {
+                console.error('Error loading articles:', error);
+                document.getElementById('articles-container').innerHTML = `
+                    <div class="no-results">
+                        <h3>Error loading articles</h3>
+                        <p>Please try refreshing the page</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadArticles();
+
+            // Search functionality
+            const searchInput = document.getElementById('search-input');
+            let searchTimeout;
+
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    filterArticles(e.target.value);
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>

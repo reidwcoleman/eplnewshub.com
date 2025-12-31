@@ -71,13 +71,27 @@ When the user says "create a new article", follow this workflow:
    - Cascade headline1 → headline2, headline2 → headline3, ..., headline11 → headline12
    - The previous headline12 gets removed (last article drops off)
 
-4. **Update sitemap.xml:**
+4. **Update articles.json (for News page):**
+   - Add new entry at the BEGINNING of the articles array in `/articles.json`
+   - Include: `file`, `title`, `image`, `date` (YYYY-MM-DD), `description` (first 200 chars)
+   - Example entry:
+     ```json
+     {
+       "file": "article-title-2025-01-15.html",
+       "title": "Article Title Here",
+       "image": "https://eplnewshub.com/image.jpg",
+       "date": "2025-01-15",
+       "description": "Brief description of the article..."
+     }
+     ```
+
+5. **Update sitemap.xml:**
    - Add new `<url>` entry for the article
    - Use `<lastmod>` with today's date (YYYY-MM-DD format)
    - Set `<changefreq>monthly</changefreq>`
    - Set `<priority>0.6</priority>`
 
-5. **Commit and push:**
+6. **Commit and push:**
    - Commit all changes with descriptive message
    - Push to GitHub
 
