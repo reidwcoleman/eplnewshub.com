@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'leeds-0-4-arsenal-gunners-title-chances-boosted-after-thrash-2026-01-31',
+    title: 'Leeds 0-4 Arsenal: Gunners\' Title Chances Boosted After Thrashing at Elland Road',
+    excerpt: 'A resounding 4-0 win at Elland Road has strengthened Arsenal\'s grip on the Premier League title, with Paul Merson believing it\'s a decisive victory. We analyze the Gunners\' dominant performance and what it means for their title chances.',
+    image: '/scout-leeds-0-4-arsenal-gunners-title-chances-boosted-after-thrash.jpg',
+    category: 'Match Reports',
+    date: '2026-01-31',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Arsenal', 'Leeds United', 'Premier League', 'title race', 'match report']
+  },
+  {
     id: 'pep-guardiola-future-premier-league-managers-have-growing-co-2026-01-31',
     title: 'Pep Guardiola\'s Potential Exit: A Summer of Change for Manchester City?',
     excerpt: 'Manchester City\'s dominance under Pep Guardiola may be coming to an end, as the manager\'s future at the club hangs in the balance. With a growing conviction among Premier League managers that he will leave this summer, the club faces a potentially ',
