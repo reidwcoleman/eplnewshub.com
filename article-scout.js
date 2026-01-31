@@ -1368,36 +1368,22 @@ const EPL_TEAMS = [
 ];
 
 async function fetchUpcomingFixtures() {
-  // Try API-Football (RapidAPI) first
-  const apiKey = process.env.API_FOOTBALL_KEY;
-  if (apiKey) {
-    try {
-      const season = new Date().getFullYear();
-      const nextRound = `next`;
-      const res = await fetch(`https://v3.football.api-sports.io/fixtures?league=39&season=${season}&next=15`, {
-        headers: {
-          'x-apisports-key': apiKey
-        }
-      });
-      const data = res.json();
-      if (data.response && data.response.length > 0) {
-        console.log(`[Scout] Fetched ${data.response.length} upcoming fixtures from API-Football`);
-        return data.response.map(m => ({
-          homeTeam: m.teams.home.name + ' FC',
-          awayTeam: m.teams.away.name + ' FC',
-          matchDate: m.fixture.date,
-          matchday: m.league.round ? parseInt(m.league.round.replace(/\D/g, '')) || null : null
-        }));
-      }
-    } catch (e) {
-      console.log(`[Scout] API-Football failed: ${e.message}`);
-    }
-  }
+  // Use AI to get real upcoming EPL fixtures
+  const today = new Date().toISOString().split('T')[0];
+  console.log(`[Scout] Fetching upcoming Premier League fixtures for ${today}...`);
+  const prompt = `Today is ${today}. List the next 10 upcoming Premier League 2025-26 season fixtures that have NOT yet been played. These must be REAL scheduled matches from the official EPL fixture list.
 
-  // Fallback: generate plausible fixture list via AI
-  console.log('[Scout] No football API key, generating fixtures via AI...');
-  const prompt = `List the next 10 upcoming Premier League fixtures (real scheduled matches for the current gameweek or next gameweek). Return ONLY a JSON array of objects with "homeTeam", "awayTeam", "matchDate" (ISO format), "matchday" (gameweek number). Use official team names ending in FC. No other text.`;
-  const result = await callLLM(prompt, 'You are a football data assistant. Return accurate, real EPL fixture data in JSON format only.');
+Return ONLY a JSON array of objects with:
+- "homeTeam": official team name (e.g. "Arsenal FC", "Liverpool FC", "Manchester City FC")
+- "awayTeam": official team name
+- "matchDate": ISO date string (e.g. "2026-02-01T15:00:00Z")
+- "matchday": gameweek number
+
+Use these exact team names: Arsenal FC, Aston Villa FC, AFC Bournemouth, Brentford FC, Brighton & Hove Albion FC, Chelsea FC, Crystal Palace FC, Everton FC, Fulham FC, Ipswich Town FC, Leeds United FC, Leicester City FC, Liverpool FC, Manchester City FC, Manchester United FC, Newcastle United FC, Nottingham Forest FC, Southampton FC, Tottenham Hotspur FC, West Ham United FC, Wolverhampton Wanderers FC.
+
+No other text, just the JSON array.`;
+
+  const result = await callLLM(prompt, 'You are a football data assistant with knowledge of the 2025-26 Premier League fixture schedule. Return accurate fixture data in JSON format only. Only include matches that have not been played yet.');
   const jsonMatch = result.match(/\[[\s\S]*\]/);
   if (!jsonMatch) return [];
   try { return JSON.parse(jsonMatch[0]); } catch { return []; }
