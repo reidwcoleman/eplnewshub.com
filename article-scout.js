@@ -1410,6 +1410,18 @@ Return ONLY a JSON array of objects, one per match, with these fields:
 - "winner": "home", "away", or "draw"
 - "confidence": number 50-95 (how confident in the prediction)
 - "analysis": 2-3 sentences of tactical analysis explaining the prediction
+- "formHome": last 5 results string e.g. "WWDLW" (most recent first)
+- "formAway": last 5 results string e.g. "LDWWW" (most recent first)
+- "keyPlayerHome": standout player name + short reason e.g. "Cole Palmer — 12 goals, lethal from set pieces"
+- "keyPlayerAway": standout player name + short reason
+- "h2hSummary": head-to-head recent record string e.g. "Home 3W-1D-1L in last 5 meetings"
+- "homeGoalsPerGame": average goals scored per game this season (number, 1 decimal)
+- "awayGoalsPerGame": average goals scored per game this season (number, 1 decimal)
+- "homeConcededPerGame": average goals conceded per game this season (number, 1 decimal)
+- "awayConcededPerGame": average goals conceded per game this season (number, 1 decimal)
+- "tacticalMatchup": 2-3 sentences on how formations and styles interact
+- "keyBattles": array of 2-3 strings, each a player-vs-player matchup e.g. "Salah vs Cucurella — pace against positioning"
+- "verdict": punchy 1-sentence final call on the match
 
 Be realistic with scores (most PL games are 0-0 to 4-2 range). Vary your predictions — don't predict all home wins. Consider current form, injuries, head-to-head records.`;
 

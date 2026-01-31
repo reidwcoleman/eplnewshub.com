@@ -128,6 +128,7 @@
             margin-bottom: 20px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            cursor: pointer;
         }
 
         .prediction-card:hover {
@@ -264,6 +265,195 @@
             font-size: 12px;
             font-weight: 700;
             color: #8b5cf6;
+        }
+
+        .card-header-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .expand-chevron {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            transition: transform 0.3s ease;
+            font-size: 18px;
+        }
+
+        .prediction-card.expanded .expand-chevron {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .detail-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .prediction-card.expanded .detail-panel {
+            max-height: 800px;
+        }
+
+        .detail-inner {
+            padding-top: 20px;
+            margin-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .detail-section {
+            margin-bottom: 18px;
+        }
+
+        .detail-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8b5cf6;
+            margin-bottom: 8px;
+        }
+
+        .form-guide {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .form-team {
+            flex: 1;
+        }
+
+        .form-team-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .form-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .form-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .form-dot.W { background: #10b981; }
+        .form-dot.D { background: #f59e0b; }
+        .form-dot.L { background: #ef4444; }
+
+        .h2h-text, .verdict-text, .tactical-text {
+            font-size: 14px;
+            color: #b0b0b0;
+            line-height: 1.6;
+        }
+
+        .verdict-text {
+            font-weight: 700;
+            color: #f0f0f0;
+        }
+
+        .key-players {
+            display: flex;
+            gap: 16px;
+        }
+
+        .key-player {
+            flex: 1;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .key-player-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .key-player-name {
+            font-size: 14px;
+            color: #f0f0f0;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-cell {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .stat-cell-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .stat-cell-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f0f0f0;
+        }
+
+        .key-battles-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .key-battles-list li {
+            font-size: 13px;
+            color: #b0b0b0;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .key-battles-list li:last-child {
+            border-bottom: none;
+        }
+
+        .key-battles-list li::before {
+            content: '\u2694\FE0F';
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .form-guide, .key-players {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         .no-predictions {
@@ -406,20 +596,42 @@
 
                 const confidence = p.confidence || 50;
 
-                html += '<div class="prediction-card">' +
-                    '<div class="match-header">' +
-                        '<div class="team">' +
-                            '<img src="' + homeBadge + '" alt="' + p.homeTeam + '" class="team-badge" onerror="this.src=\'/eplnewshubnewlogo.png\'">' +
-                            '<span class="team-name">' + p.homeTeam.replace(/ FC$/, '') + '</span>' +
+                // Build form dots
+                function formDots(formStr) {
+                    if (!formStr) return '';
+                    return formStr.split('').map(function(c) {
+                        return '<span class="form-dot ' + c + '">' + c + '</span>';
+                    }).join('');
+                }
+
+                // Build key battles list
+                var battlesHtml = '';
+                if (p.keyBattles && p.keyBattles.length) {
+                    battlesHtml = '<ul class="key-battles-list">' +
+                        p.keyBattles.map(function(b) { return '<li>' + b + '</li>'; }).join('') +
+                        '</ul>';
+                }
+
+                var homeName = p.homeTeam.replace(/ FC$/, '');
+                var awayName = p.awayTeam.replace(/ FC$/, '');
+
+                html += '<div class="prediction-card" onclick="this.classList.toggle(\'expanded\')">' +
+                    '<div class="card-header-row">' +
+                        '<div class="match-header">' +
+                            '<div class="team">' +
+                                '<img src="' + homeBadge + '" alt="' + p.homeTeam + '" class="team-badge" onerror="this.src=\'/eplnewshubnewlogo.png\'">' +
+                                '<span class="team-name">' + homeName + '</span>' +
+                            '</div>' +
+                            '<div class="vs-divider">' +
+                                '<div class="predicted-score">' + homeScore + ' - ' + awayScore + '</div>' +
+                                (p.matchDate ? '<div class="match-date">' + formatMatchDate(p.matchDate) + '</div>' : '') +
+                            '</div>' +
+                            '<div class="team">' +
+                                '<img src="' + awayBadge + '" alt="' + p.awayTeam + '" class="team-badge" onerror="this.src=\'/eplnewshubnewlogo.png\'">' +
+                                '<span class="team-name">' + awayName + '</span>' +
+                            '</div>' +
                         '</div>' +
-                        '<div class="vs-divider">' +
-                            '<div class="predicted-score">' + homeScore + ' - ' + awayScore + '</div>' +
-                            (p.matchDate ? '<div class="match-date">' + formatMatchDate(p.matchDate) + '</div>' : '') +
-                        '</div>' +
-                        '<div class="team">' +
-                            '<img src="' + awayBadge + '" alt="' + p.awayTeam + '" class="team-badge" onerror="this.src=\'/eplnewshubnewlogo.png\'">' +
-                            '<span class="team-name">' + p.awayTeam.replace(/ FC$/, '') + '</span>' +
-                        '</div>' +
+                        '<span class="expand-chevron">&#9662;</span>' +
                     '</div>' +
                     '<div class="prediction-winner">' +
                         '<span class="winner-badge ' + winnerClass + '">' + winnerText + '</span>' +
@@ -429,6 +641,56 @@
                         '<span class="confidence-label">Confidence</span>' +
                         '<div class="confidence-track"><div class="confidence-fill" style="width: ' + confidence + '%"></div></div>' +
                         '<span class="confidence-value">' + confidence + '%</span>' +
+                    '</div>' +
+                    '<div class="detail-panel">' +
+                        '<div class="detail-inner">' +
+                            (p.formHome || p.formAway ?
+                                '<div class="detail-section">' +
+                                    '<div class="detail-section-title">Form Guide (Last 5)</div>' +
+                                    '<div class="form-guide">' +
+                                        '<div class="form-team"><div class="form-team-label">' + homeName + '</div><div class="form-dots">' + formDots(p.formHome) + '</div></div>' +
+                                        '<div class="form-team"><div class="form-team-label">' + awayName + '</div><div class="form-dots">' + formDots(p.formAway) + '</div></div>' +
+                                    '</div>' +
+                                '</div>' : '') +
+                            (p.h2hSummary ?
+                                '<div class="detail-section">' +
+                                    '<div class="detail-section-title">Head to Head</div>' +
+                                    '<div class="h2h-text">' + p.h2hSummary + '</div>' +
+                                '</div>' : '') +
+                            (p.keyPlayerHome || p.keyPlayerAway ?
+                                '<div class="detail-section">' +
+                                    '<div class="detail-section-title">Key Players</div>' +
+                                    '<div class="key-players">' +
+                                        (p.keyPlayerHome ? '<div class="key-player"><div class="key-player-label">' + homeName + '</div><div class="key-player-name">' + p.keyPlayerHome + '</div></div>' : '') +
+                                        (p.keyPlayerAway ? '<div class="key-player"><div class="key-player-label">' + awayName + '</div><div class="key-player-name">' + p.keyPlayerAway + '</div></div>' : '') +
+                                    '</div>' +
+                                '</div>' : '') +
+                            (p.homeGoalsPerGame != null ?
+                                '<div class="detail-section">' +
+                                    '<div class="detail-section-title">Season Stats (Per Game)</div>' +
+                                    '<div class="stats-grid">' +
+                                        '<div class="stat-cell"><div class="stat-cell-label">' + homeName + ' Scored</div><div class="stat-cell-value">' + p.homeGoalsPerGame + '</div></div>' +
+                                        '<div class="stat-cell"><div class="stat-cell-label">' + awayName + ' Scored</div><div class="stat-cell-value">' + p.awayGoalsPerGame + '</div></div>' +
+                                        '<div class="stat-cell"><div class="stat-cell-label">' + homeName + ' Conceded</div><div class="stat-cell-value">' + p.homeConcededPerGame + '</div></div>' +
+                                        '<div class="stat-cell"><div class="stat-cell-label">' + awayName + ' Conceded</div><div class="stat-cell-value">' + p.awayConcededPerGame + '</div></div>' +
+                                    '</div>' +
+                                '</div>' : '') +
+                            (p.tacticalMatchup ?
+                                '<div class="detail-section">' +
+                                    '<div class="detail-section-title">Tactical Matchup</div>' +
+                                    '<div class="tactical-text">' + p.tacticalMatchup + '</div>' +
+                                '</div>' : '') +
+                            (battlesHtml ?
+                                '<div class="detail-section">' +
+                                    '<div class="detail-section-title">Key Battles</div>' +
+                                    battlesHtml +
+                                '</div>' : '') +
+                            (p.verdict ?
+                                '<div class="detail-section">' +
+                                    '<div class="detail-section-title">Verdict</div>' +
+                                    '<div class="verdict-text">' + p.verdict + '</div>' +
+                                '</div>' : '') +
+                        '</div>' +
                     '</div>' +
                 '</div>';
             }
