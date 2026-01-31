@@ -114,107 +114,85 @@ function fetchBinary(url) {
 // ─── Image Fetching ──────────────────────────────────────────────────────────
 
 async function findAndDownloadImage(searchQuery, slug) {
-  console.log(`[Scout] Searching for high-quality image: "${searchQuery}"...`);
+  console.log(`[Scout] Searching Google Images for: "${searchQuery}"...`);
 
-  // 1. Pexels API — best free stock photos, high quality, landscape orientation
-  const pexelsKey = process.env.PEXELS_API_KEY;
-  if (pexelsKey) {
+  // Google Image Search via scraping the results page
+  const queries = [
+    searchQuery,
+    searchQuery.split(' ').slice(0, 3).join(' ') + ' Premier League',
+    searchQuery.split(' ').slice(0, 2).join(' ') + ' football match'
+  ];
+
+  for (const query of queries) {
     try {
-      const res = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=10&orientation=landscape&size=large`, {
-        headers: { 'Authorization': pexelsKey }
+      const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=isch&tbs=isz:l,itp:photo`;
+      const res = await fetch(googleUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
+        }
       });
-      const data = res.json();
-      if (data.photos && data.photos.length > 0) {
-        // Pick the best landscape photo (at least 1200px wide)
-        for (const photo of data.photos) {
-          const imgUrl = photo.src?.large2x || photo.src?.large || photo.src?.original;
-          if (imgUrl) {
-            const downloaded = await downloadImage(imgUrl, slug);
-            if (downloaded) { console.log(`[Scout] Pexels image by ${photo.photographer}`); return downloaded; }
+      const html = res.text();
+
+      // Extract image URLs from Google's response - they embed full-size URLs in the page
+      const imageUrls = [];
+
+      // Method 1: Extract from data attributes and JSON embedded in page
+      const imgRegex = /\["(https?:\/\/[^"]+\.(?:jpg|jpeg|png|webp)[^"]*)",\s*(\d+),\s*(\d+)\]/g;
+      let match;
+      while ((match = imgRegex.exec(html)) !== null) {
+        const url = match[1].replace(/\\u003d/g, '=').replace(/\\u0026/g, '&');
+        const width = parseInt(match[2]);
+        const height = parseInt(match[3]);
+        if (width >= 800 && height >= 400 && !url.includes('gstatic.com') && !url.includes('google.com')) {
+          imageUrls.push(url);
+        }
+      }
+
+      // Method 2: Extract from img src tags (thumbnail URLs that link to full images)
+      const srcRegex = /\["(https?:\/\/(?:encrypted-tbn|[^"]+)\.(?:gstatic\.com|[^"]+)\/[^"]+)",\s*\d+,\s*\d+\]/g;
+      // Skip gstatic thumbnails
+
+      // Method 3: Look for image URLs in script data
+      const dataRegex = /"ou":"(https?:\/\/[^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/g;
+      while ((match = dataRegex.exec(html)) !== null) {
+        const url = match[1].replace(/\\u003d/g, '=').replace(/\\u0026/g, '&');
+        if (!url.includes('gstatic.com') && !url.includes('google.com')) {
+          imageUrls.push(url);
+        }
+      }
+
+      // Method 4: AF_initDataCallback contains image data
+      const afRegex = /\["(https?:\/\/[^"]{20,}\.(?:jpg|jpeg|png|webp)(?:\?[^"]*)?)"[^[]*?\[(\d{3,5}),\s*(\d{3,5})\]/g;
+      while ((match = afRegex.exec(html)) !== null) {
+        const url = match[1].replace(/\\u003d/g, '=').replace(/\\u0026/g, '&').replace(/\\\\u003d/g, '=').replace(/\\\\u0026/g, '&');
+        const w = parseInt(match[2]);
+        const h = parseInt(match[3]);
+        if (w >= 800 && h >= 400 && !url.includes('gstatic.com') && !url.includes('google.com') && !url.includes('googleusercontent.com')) {
+          imageUrls.push(url);
+        }
+      }
+
+      // Deduplicate
+      const uniqueUrls = [...new Set(imageUrls)];
+      console.log(`[Scout] Found ${uniqueUrls.length} candidate images from Google`);
+
+      // Try downloading the best ones
+      for (const imgUrl of uniqueUrls.slice(0, 8)) {
+        try {
+          const downloaded = await downloadImage(imgUrl, slug);
+          if (downloaded) {
+            console.log(`[Scout] Google Image downloaded successfully`);
+            return downloaded;
           }
+        } catch (e) {
+          continue;
         }
       }
     } catch (e) {
-      console.log(`[Scout] Pexels search failed: ${e.message}`);
+      console.log(`[Scout] Google search failed for "${query}": ${e.message}`);
     }
-  }
-
-  // 2. Pixabay API — free, high quality editorial images
-  const pixabayKey = process.env.PIXABAY_API_KEY;
-  if (pixabayKey) {
-    try {
-      const res = await fetch(`https://pixabay.com/api/?key=${pixabayKey}&q=${encodeURIComponent(searchQuery)}&image_type=photo&orientation=horizontal&min_width=1200&per_page=10&safesearch=true&editors_choice=true`, {
-        headers: { 'User-Agent': 'EPLNewsHub/1.0' }
-      });
-      const data = res.json();
-      if (data.hits && data.hits.length > 0) {
-        for (const hit of data.hits) {
-          const imgUrl = hit.largeImageURL || hit.webformatURL;
-          if (imgUrl) {
-            const downloaded = await downloadImage(imgUrl, slug);
-            if (downloaded) { console.log(`[Scout] Pixabay image (${hit.imageWidth}x${hit.imageHeight})`); return downloaded; }
-          }
-        }
-      }
-      // Retry with broader query if no editor's choice found
-      if (!data.hits || data.hits.length === 0) {
-        const broadQuery = searchQuery.split(' ').slice(0, 2).join(' ') + ' football stadium';
-        const res2 = await fetch(`https://pixabay.com/api/?key=${pixabayKey}&q=${encodeURIComponent(broadQuery)}&image_type=photo&orientation=horizontal&min_width=1200&per_page=5&safesearch=true`, {
-          headers: { 'User-Agent': 'EPLNewsHub/1.0' }
-        });
-        const data2 = res2.json();
-        if (data2.hits && data2.hits.length > 0) {
-          const imgUrl = data2.hits[0].largeImageURL || data2.hits[0].webformatURL;
-          if (imgUrl) {
-            const downloaded = await downloadImage(imgUrl, slug);
-            if (downloaded) return downloaded;
-          }
-        }
-      }
-    } catch (e) {
-      console.log(`[Scout] Pixabay search failed: ${e.message}`);
-    }
-  }
-
-  // 3. Wikimedia Commons — free licensed editorial football photos
-  try {
-    const wikiQuery = searchQuery.replace(/[^a-zA-Z0-9 ]/g, '').split(' ').slice(0, 3).join(' ');
-    const wikiUrl = `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(wikiQuery + ' football Premier League')}&srnamespace=6&srlimit=10&format=json`;
-    const res = await fetch(wikiUrl, { headers: { 'User-Agent': 'EPLNewsHub/1.0' } });
-    const data = res.json();
-    if (data.query && data.query.search) {
-      for (const item of data.query.search) {
-        const title = item.title;
-        // Skip SVGs, logos, icons
-        if (/\.(svg|gif|tiff?)$/i.test(title)) continue;
-        if (/logo|icon|badge|crest|emblem/i.test(title)) continue;
-        const infoUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=imageinfo&iiprop=url|size&format=json`;
-        const infoRes = await fetch(infoUrl, { headers: { 'User-Agent': 'EPLNewsHub/1.0' } });
-        const infoData = infoRes.json();
-        const pages = infoData.query?.pages;
-        if (pages) {
-          const page = Object.values(pages)[0];
-          const info = page?.imageinfo?.[0];
-          // Only use images that are at least 800px wide (clean, high-res photos)
-          if (info?.url && info.width >= 800 && info.height >= 400 && /\.(jpg|jpeg|png|webp)$/i.test(info.url)) {
-            const downloaded = await downloadImage(info.url, slug);
-            if (downloaded) { console.log(`[Scout] Wikimedia image (${info.width}x${info.height})`); return downloaded; }
-          }
-        }
-      }
-    }
-  } catch (e) {
-    console.log(`[Scout] Wikimedia search failed: ${e.message}`);
-  }
-
-  // 4. Unsplash — beautiful high-quality free photos
-  try {
-    const keywords = searchQuery.split(' ').slice(0, 2).join(',') + ',football,soccer';
-    const unsplashUrl = `https://source.unsplash.com/1600x900/?${encodeURIComponent(keywords)}`;
-    const downloaded = await downloadImage(unsplashUrl, slug);
-    if (downloaded) { console.log('[Scout] Unsplash image'); return downloaded; }
-  } catch (e) {
-    console.log(`[Scout] Unsplash fallback failed: ${e.message}`);
   }
 
   console.log('[Scout] No image found, using default logo');
@@ -345,17 +323,22 @@ async function pickTopics(newsItems, count) {
 }
 
 async function generateArticle(topic, newsItem) {
-  const systemPrompt = `You are a professional sports journalist writing for EPL News Hub in the style of The Athletic. Write long-form, engaging articles.
+  const systemPrompt = `You are a senior sports journalist writing for EPL News Hub — a respected Premier League publication in the style of The Athletic. You write with authority, depth, and storytelling flair.
 
-Your writing style:
-- Professional, authoritative prose like The Athletic or BBC Sport
-- Use real data, stats, and realistic quotes from managers/players
-- Include tactical analysis when relevant
-- Write in flowing paragraphs with clear section headings (use h2 for main sections, h3 for subsections)
-- 1000-1500 words per article
-- Include at least one blockquote from a manager or player
-- Include at least one "pull quote" — a standout sentence from the article
-- First paragraph should NOT start with the article title or a generic opener
+Your writing standards:
+- Write like a seasoned journalist at The Athletic, The Guardian, or BBC Sport — confident, insightful, with a strong narrative voice
+- NEVER start with generic AI openers like "In a move that..." or "The football world is..." — start with a concrete, specific, vivid detail or scene
+- Every paragraph must ADD new information — no filler, no restating what was just said, no padding
+- Use REAL stats, REAL match data, REAL transfer fees, REAL quotes (attribute them properly to the source)
+- Include tactical depth: formations, pressing triggers, positional play, xG, progressive passes, etc. when relevant
+- Write 1200-1800 words — this should feel like a premium long-read, not a summary
+- Structure with clear h2 sections (3-4 per article) that each explore a different angle of the story
+- Include 2-3 blockquotes from managers/players/pundits with proper attribution
+- Include 1-2 pull quotes — the most striking lines from YOUR writing
+- Add historical context and comparisons to past seasons/players where relevant
+- End with a forward-looking conclusion that gives the reader something to think about
+- Vary sentence length — mix punchy short sentences with longer analytical ones for rhythm
+- NEVER use cliches like "only time will tell", "remains to be seen", "football is a funny game"
 
 Return your article in this exact JSON format (no other text):
 {

@@ -2,6 +2,17 @@
 export const articles = [
   {
     id: 'pep-guardiola-future-premier-league-managers-have-growing-co-2026-01-31',
+    title: 'Pep Guardiola\'s Potential Exit: A Summer of Change for Manchester City?',
+    excerpt: 'Manchester City\'s dominance under Pep Guardiola may be coming to an end, as the manager\'s future at the club hangs in the balance. With a growing conviction among Premier League managers that he will leave this summer, the club faces a potentially ',
+    image: '/scout-pep-guardiola-future-premier-league-managers-have-growing-co.png',
+    category: 'News',
+    date: '2026-01-31',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Pep Guardiola', 'Manchester City', 'Premier League', 'Football', 'Soccer']
+  },
+  {
+    id: 'pep-guardiola-future-premier-league-managers-have-growing-co-2026-01-31',
     title: 'Pep Guardiola future: Premier League managers have \'growing conviction\' Man City boss will leave this summer',
     excerpt: 'Exclusive rumors suggest Guardiola may leave Man City this summer, with Premier League managers weighing in on the speculation. What\'s behind the whispers, and what could it mean for the club\'s future?',
     image: '/eplnewshubnewlogo.png',
