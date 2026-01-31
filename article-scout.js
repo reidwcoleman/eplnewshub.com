@@ -1368,25 +1368,29 @@ const EPL_TEAMS = [
 ];
 
 async function fetchUpcomingFixtures() {
-  // Try football-data.org free API first
-  const apiKey = process.env.FOOTBALL_DATA_API_KEY;
+  // Try API-Football (RapidAPI) first
+  const apiKey = process.env.API_FOOTBALL_KEY;
   if (apiKey) {
     try {
-      const res = await fetch('https://api.football-data.org/v4/competitions/PL/matches?status=SCHEDULED&limit=15', {
-        headers: { 'X-Auth-Token': apiKey }
+      const season = new Date().getFullYear();
+      const nextRound = `next`;
+      const res = await fetch(`https://v3.football.api-sports.io/fixtures?league=39&season=${season}&next=15`, {
+        headers: {
+          'x-apisports-key': apiKey
+        }
       });
       const data = res.json();
-      if (data.matches && data.matches.length > 0) {
-        console.log(`[Scout] Fetched ${data.matches.length} upcoming fixtures from football-data.org`);
-        return data.matches.map(m => ({
-          homeTeam: m.homeTeam.name,
-          awayTeam: m.awayTeam.name,
-          matchDate: m.utcDate,
-          matchday: m.matchday
+      if (data.response && data.response.length > 0) {
+        console.log(`[Scout] Fetched ${data.response.length} upcoming fixtures from API-Football`);
+        return data.response.map(m => ({
+          homeTeam: m.teams.home.name + ' FC',
+          awayTeam: m.teams.away.name + ' FC',
+          matchDate: m.fixture.date,
+          matchday: m.league.round ? parseInt(m.league.round.replace(/\D/g, '')) || null : null
         }));
       }
     } catch (e) {
-      console.log(`[Scout] football-data.org API failed: ${e.message}`);
+      console.log(`[Scout] API-Football failed: ${e.message}`);
     }
   }
 
