@@ -261,10 +261,14 @@ async function gatherNews() {
   const queries = [
     'Premier League latest news today',
     'EPL transfer news',
-    'Premier League match results',
-    'EA FC football gaming news',
-    'Premier League injury updates',
-    'Fantasy Premier League tips'
+    'Premier League match results highlights',
+    'Premier League match preview this week',
+    'Premier League tactical analysis',
+    'Premier League player performance stats',
+    'Premier League injury team news',
+    'Fantasy Premier League tips gameweek',
+    'Premier League weekend preview predictions',
+    'Premier League season race title relegation'
   ];
 
   const allItems = [];
@@ -287,36 +291,188 @@ async function gatherNews() {
 
 // ─── AI Article Generation ───────────────────────────────────────────────────
 
-async function callGroq(prompt, systemPrompt) {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) throw new Error('GROQ_API_KEY not set in .env');
+// LLM providers — cycles through if one hits rate limits
+// All have generous free tiers. Ordered by quality + free limits.
+const LLM_PROVIDERS = [
+  // Groq: ~14,400 req/day free, ultra-fast inference
+  {
+    name: 'Groq (Llama 3.3 70B)',
+    envKey: 'GROQ_API_KEY',
+    url: 'https://api.groq.com/openai/v1/chat/completions',
+    model: 'llama-3.3-70b-versatile',
+    maxTokens: 4096,
+  },
+  {
+    name: 'Groq (Mixtral 8x7B)',
+    envKey: 'GROQ_API_KEY',
+    url: 'https://api.groq.com/openai/v1/chat/completions',
+    model: 'mixtral-8x7b-32768',
+    maxTokens: 4096,
+  },
+  // Mistral: 1 billion tokens/month free
+  {
+    name: 'Mistral (Mistral Small)',
+    envKey: 'MISTRAL_API_KEY',
+    url: 'https://api.mistral.ai/v1/chat/completions',
+    model: 'mistral-small-latest',
+    maxTokens: 4096,
+  },
+  // Google Gemini: 1,000 req/day free via AI Studio
+  {
+    name: 'Google Gemini Flash',
+    envKey: 'GEMINI_API_KEY',
+    url: 'GEMINI', // special handling below
+    model: 'gemini-2.0-flash',
+    maxTokens: 4096,
+  },
+  // Together AI: $25 free credits on signup
+  {
+    name: 'Together AI (Llama 3.3 70B)',
+    envKey: 'TOGETHER_API_KEY',
+    url: 'https://api.together.xyz/v1/chat/completions',
+    model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+    maxTokens: 4096,
+  },
+  // Cerebras: free tier, blazing fast inference
+  {
+    name: 'Cerebras (Llama 3.3 70B)',
+    envKey: 'CEREBRAS_API_KEY',
+    url: 'https://api.cerebras.ai/v1/chat/completions',
+    model: 'llama-3.3-70b',
+    maxTokens: 4096,
+  },
+  // OpenRouter: 50 req/day free (1,000 if you add $10 credit)
+  {
+    name: 'OpenRouter (Llama 3.3 70B free)',
+    envKey: 'OPENROUTER_API_KEY',
+    url: 'https://openrouter.ai/api/v1/chat/completions',
+    model: 'meta-llama/llama-3.3-70b-instruct:free',
+    maxTokens: 4096,
+  },
+  // HuggingFace Inference: free tier, 300+ models
+  {
+    name: 'HuggingFace (Llama 3.3 70B)',
+    envKey: 'HF_API_KEY',
+    url: 'https://router.huggingface.co/novita/v3/openai/chat/completions',
+    model: 'meta-llama/Llama-3.3-70B-Instruct',
+    maxTokens: 4096,
+  },
+];
 
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.8,
-      max_tokens: 4096,
-    })
-  });
+async function callLLM(prompt, systemPrompt) {
+  const errors = [];
 
-  const data = res.json();
-  if (data.error) throw new Error(`Groq error: ${JSON.stringify(data.error)}`);
-  return data.choices[0].message.content;
+  for (const provider of LLM_PROVIDERS) {
+    const apiKey = process.env[provider.envKey];
+    if (!apiKey) continue;
+
+    try {
+      console.log(`[Scout] Trying ${provider.name}...`);
+
+      let res, data;
+
+      // Google Gemini uses a different API format
+      if (provider.url === 'GEMINI') {
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${provider.model}:generateContent?key=${apiKey}`;
+        res = await fetch(geminiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: systemPrompt + '\n\n' + prompt }] }],
+            generationConfig: { temperature: 0.8, maxOutputTokens: provider.maxTokens },
+          })
+        });
+        const gData = res.json();
+        if (gData.error) throw new Error(JSON.stringify(gData.error));
+        const text = gData.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error('Empty Gemini response');
+        console.log(`[Scout] ${provider.name} responded successfully`);
+        return text;
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      };
+      if (provider.url.includes('openrouter')) {
+        headers['HTTP-Referer'] = 'https://www.eplnewshub.com';
+        headers['X-Title'] = 'EPL News Hub';
+      }
+
+      res = await fetch(provider.url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          model: provider.model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.8,
+          max_tokens: provider.maxTokens,
+        })
+      });
+
+      data = res.json();
+
+      // Check for rate limit or error
+      if (data.error) {
+        const errMsg = JSON.stringify(data.error);
+        console.log(`[Scout] ${provider.name} error: ${errMsg}`);
+        errors.push(`${provider.name}: ${errMsg}`);
+        // If rate limited, try next provider
+        if (errMsg.includes('rate_limit') || errMsg.includes('429') || errMsg.includes('quota') || errMsg.includes('limit') || errMsg.includes('capacity')) {
+          console.log(`[Scout] Rate limited on ${provider.name}, trying next...`);
+          continue;
+        }
+        // Other errors — still try next
+        continue;
+      }
+
+      if (!data.choices || !data.choices[0]?.message?.content) {
+        console.log(`[Scout] ${provider.name} returned empty response`);
+        continue;
+      }
+
+      console.log(`[Scout] ${provider.name} responded successfully`);
+      return data.choices[0].message.content;
+    } catch (e) {
+      console.log(`[Scout] ${provider.name} failed: ${e.message}`);
+      errors.push(`${provider.name}: ${e.message}`);
+      continue;
+    }
+  }
+
+  throw new Error(`All LLM providers failed:\n${errors.join('\n')}`);
+}
+
+function getRecentArticleTitles() {
+  const log = getScoutLog();
+  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  return (log.articles || [])
+    .filter(a => a.date >= oneWeekAgo)
+    .map(a => a.title);
 }
 
 async function pickTopics(newsItems, count) {
   const headlines = newsItems.map((n, i) => `${i + 1}. ${n.title}`).join('\n');
-  const systemPrompt = `You are an editorial assistant for EPL News Hub. Pick the ${count} most interesting stories. Return ONLY a JSON array of objects with "index" (1-based), "category" (News, Transfers, Analysis, Match Reports, or Player Focus), "angle" (unique hook), and "title" (compelling article title). No other text.`;
-  const result = await callGroq(`Today's top football headlines:\n\n${headlines}\n\nPick the best ${count}.`, systemPrompt);
+  const recentTitles = getRecentArticleTitles();
+  const recentList = recentTitles.length > 0
+    ? `\n\nARTICLES ALREADY PUBLISHED THIS WEEK (DO NOT pick similar topics):\n${recentTitles.map(t => '- ' + t).join('\n')}`
+    : '';
+
+  const systemPrompt = `You are an editorial assistant for EPL News Hub. Pick the ${count} most interesting AND DIVERSE stories.
+
+IMPORTANT RULES:
+- VARIETY IS CRITICAL: Pick stories about DIFFERENT teams, players, and topics. Never pick 2+ stories about the same person or team.
+- Mix article types: include match previews, match reviews/overviews, tactical analysis, transfer news, player spotlights, title/relegation race analysis — NOT just managerial news.
+- Prioritise match content (previews, results, tactical breakdowns) and player performances over off-field stories.
+- Each picked story MUST be about a different subject. If 2 headlines are about the same topic, only pick the best one.
+${recentTitles.length > 0 ? '- NEVER pick a topic that is similar to any article already published this week (listed below). Pick something fresh.' : ''}
+
+Return ONLY a JSON array of objects with "index" (1-based from the headlines list), "category" (News, Transfers, Analysis, Match Reports, or Player Focus), "angle" (unique hook), and "title" (compelling article title). No other text.`;
+
+  const result = await callLLM(`Today's top football headlines:\n\n${headlines}${recentList}\n\nPick the best ${count} DIVERSE topics.`, systemPrompt);
   const jsonMatch = result.match(/\[[\s\S]*\]/);
   if (!jsonMatch) throw new Error('Failed to parse topic selection: ' + result);
   return JSON.parse(jsonMatch[0]);
@@ -370,7 +526,7 @@ Source description: ${newsItem.description}
 
 Write a comprehensive, engaging, long-form article.`;
 
-  const result = await callGroq(prompt, systemPrompt);
+  const result = await callLLM(prompt, systemPrompt);
   const jsonMatch = result.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error('Failed to parse article JSON: ' + result.slice(0, 200));
   // Aggressively clean the JSON string:
@@ -1102,6 +1258,19 @@ async function runScout(count = 1) {
         .slice(0, 60)
         .replace(/-+$/, '');
       const filename = `${slug}-${date}.html`;
+
+      // Duplicate check — skip if too similar to a recent article
+      const recentTitles = getRecentArticleTitles();
+      const topicWords = topic.title.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').filter(w => w.length > 3);
+      const isDuplicate = recentTitles.some(recent => {
+        const recentWords = recent.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').filter(w => w.length > 3);
+        const overlap = topicWords.filter(w => recentWords.includes(w)).length;
+        return overlap >= 3; // 3+ significant words in common = too similar
+      });
+      if (isDuplicate) {
+        console.log(`[Scout] Skipping "${topic.title}" — too similar to a recent article`);
+        continue;
+      }
 
       console.log(`[Scout] Generating article: ${topic.title}...`);
       const article = await generateArticle(topic, newsItem);
