@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="AI-powered Premier League match predictions with score forecasts, winner picks, and brief tactical analysis for upcoming EPL fixtures.">
+    <meta name="keywords" content="Premier League predictions, EPL match predictions, football predictions, Premier League score forecast, EPL tips">
+    <meta name="robots" content="index, follow">
+    <title>Match Predictions | EPL News Hub - AI Premier League Forecasts</title>
+
+    <link rel="icon" type="image/png" href="/eplnewshubnewlogo.png">
+    <link rel="canonical" href="https://www.eplnewshub.com/match-predictions.html">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Match Predictions | EPL News Hub">
+    <meta property="og:description" content="AI-powered Premier League match predictions with score forecasts and tactical analysis.">
+    <meta property="og:url" content="https://www.eplnewshub.com/match-predictions.html">
+    <meta property="og:image" content="https://www.eplnewshub.com/eplnewshub_logo.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6480210605786899" crossorigin="anonymous"></script>
+
+    <style>
+        html, body {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+            color: #e8e8e8;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.06) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        main, .predictions-container, footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        .predictions-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 32px 32px 64px;
+        }
+
+        .predictions-header {
+            text-align: center;
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .predictions-header h1 {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: #f5f5f5;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .predictions-header .subtitle {
+            font-size: 16px;
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto 16px;
+        }
+
+        .predictions-header .gameweek-badge {
+            display: inline-block;
+            background: rgba(139, 92, 246, 0.15);
+            color: #8b5cf6;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .predictions-meta {
+            font-size: 12px;
+            color: #666;
+            margin-top: 12px;
+        }
+
+        .prediction-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .prediction-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .match-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-width: 100px;
+        }
+
+        .team-badge {
+            width: 56px;
+            height: 56px;
+            object-fit: contain;
+        }
+
+        .team-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #f0f0f0;
+            text-align: center;
+        }
+
+        .vs-divider {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .predicted-score {
+            font-family: 'Inter', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #f5f5f5;
+            letter-spacing: 2px;
+        }
+
+        .match-date {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .prediction-winner {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .winner-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+
+        .winner-home {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .winner-away {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .winner-draw {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .prediction-analysis {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #b0b0b0;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .confidence-bar {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .confidence-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            white-space: nowrap;
+        }
+
+        .confidence-track {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+
+        .confidence-value {
+            font-size: 12px;
+            font-weight: 700;
+            color: #8b5cf6;
+        }
+
+        .no-predictions {
+            text-align: center;
+            padding: 80px 20px;
+            color: #666;
+        }
+
+        .no-predictions h2 {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 24px;
+            color: #999;
+            margin-bottom: 12px;
+        }
+
+        .footer {
+            flex-shrink: 0;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .predictions-container {
+                padding: 20px 20px 48px;
+            }
+            .predictions-header h1 {
+                font-size: 32px;
+            }
+            .match-header {
+                gap: 16px;
+            }
+            .team-badge {
+                width: 44px;
+                height: 44px;
+            }
+            .predicted-score {
+                font-size: 22px;
+            }
+            .prediction-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header" include="./header.html"></div>
+
+    <main>
+        <div class="predictions-container">
+            <div class="predictions-header">
+                <h1>Match Predictions</h1>
+                <p class="subtitle">AI-powered score predictions and tactical analysis for upcoming Premier League fixtures</p>
+                <div id="gameweek-info"></div>
+                <div class="predictions-meta" id="predictions-meta"></div>
+            </div>
+
+            <div id="predictions-list">
+                <div class="no-predictions">
+                    <h2>Loading predictions...</h2>
+                    <p>Fetching the latest AI match forecasts</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div class="footer" include="./footer.html"></div>
+
+    <!-- Scripts -->
+    <script src="index.js"></script>
+    <script>
+        const EPL_BADGES = {
+            'Arsenal FC': 'https://crests.football-data.org/57.png',
+            'Aston Villa FC': 'https://crests.football-data.org/58.png',
+            'AFC Bournemouth': 'https://crests.football-data.org/1044.png',
+            'Brentford FC': 'https://crests.football-data.org/402.png',
+            'Brighton & Hove Albion FC': 'https://crests.football-data.org/397.png',
+            'Chelsea FC': 'https://crests.football-data.org/61.png',
+            'Crystal Palace FC': 'https://crests.football-data.org/354.png',
+            'Everton FC': 'https://crests.football-data.org/62.png',
+            'Fulham FC': 'https://crests.football-data.org/63.png',
+            'Ipswich Town FC': 'https://crests.football-data.org/349.png',
+            'Leeds United FC': 'https://crests.football-data.org/341.png',
+            'Leicester City FC': 'https://crests.football-data.org/338.png',
+            'Liverpool FC': 'https://crests.football-data.org/64.png',
+            'Manchester City FC': 'https://crests.football-data.org/65.png',
+            'Manchester United FC': 'https://crests.football-data.org/66.png',
+            'Newcastle United FC': 'https://crests.football-data.org/67.png',
+            'Nottingham Forest FC': 'https://crests.football-data.org/351.png',
+            'Southampton FC': 'https://crests.football-data.org/340.png',
+            'Tottenham Hotspur FC': 'https://crests.football-data.org/73.png',
+            'West Ham United FC': 'https://crests.football-data.org/563.png',
+            'Wolverhampton Wanderers FC': 'https://crests.football-data.org/76.png'
+        };
+
+        function getBadge(teamName) {
+            return EPL_BADGES[teamName] || '/eplnewshubnewlogo.png';
+        }
+
+        function formatMatchDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function renderPredictions(data) {
+            const list = document.getElementById('predictions-list');
+            const meta = document.getElementById('predictions-meta');
+            const gwInfo = document.getElementById('gameweek-info');
+
+            if (!data.predictions || data.predictions.length === 0) {
+                list.innerHTML = '<div class="no-predictions"><h2>No Predictions Available</h2><p>Predictions for the next gameweek will be generated soon. Check back later.</p></div>';
+                return;
+            }
+
+            if (data.gameweek) {
+                gwInfo.innerHTML = '<span class="gameweek-badge">Gameweek ' + data.gameweek + '</span>';
+            }
+
+            if (data.generatedAt) {
+                const genDate = new Date(data.generatedAt);
+                meta.textContent = 'Last updated: ' + genDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            }
+
+            let html = '';
+            for (const p of data.predictions) {
+                const homeBadge = getBadge(p.homeTeam);
+                const awayBadge = getBadge(p.awayTeam);
+                const homeScore = p.predictedScore ? p.predictedScore.home : '?';
+                const awayScore = p.predictedScore ? p.predictedScore.away : '?';
+
+                let winnerClass = 'winner-draw';
+                let winnerText = 'Draw';
+                if (p.winner === 'home') {
+                    winnerClass = 'winner-home';
+                    winnerText = p.homeTeam.replace(/ FC$/, '') + ' Win';
+                } else if (p.winner === 'away') {
+                    winnerClass = 'winner-away';
+                    winnerText = p.awayTeam.replace(/ FC$/, '') + ' Win';
+                }
+
+                const confidence = p.confidence || 50;
+
+                html += '<div class="prediction-card">' +
+                    '<div class="match-header">' +
+                        '<div class="team">' +
+                            '<img src="' + homeBadge + '" alt="' + p.homeTeam + '" class="team-badge" onerror="this.src=\'/eplnewshubnewlogo.png\'">' +
+                            '<span class="team-name">' + p.homeTeam.replace(/ FC$/, '') + '</span>' +
+                        '</div>' +
+                        '<div class="vs-divider">' +
+                            '<div class="predicted-score">' + homeScore + ' - ' + awayScore + '</div>' +
+                            (p.matchDate ? '<div class="match-date">' + formatMatchDate(p.matchDate) + '</div>' : '') +
+                        '</div>' +
+                        '<div class="team">' +
+                            '<img src="' + awayBadge + '" alt="' + p.awayTeam + '" class="team-badge" onerror="this.src=\'/eplnewshubnewlogo.png\'">' +
+                            '<span class="team-name">' + p.awayTeam.replace(/ FC$/, '') + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="prediction-winner">' +
+                        '<span class="winner-badge ' + winnerClass + '">' + winnerText + '</span>' +
+                    '</div>' +
+                    (p.analysis ? '<div class="prediction-analysis">' + p.analysis + '</div>' : '') +
+                    '<div class="confidence-bar">' +
+                        '<span class="confidence-label">Confidence</span>' +
+                        '<div class="confidence-track"><div class="confidence-fill" style="width: ' + confidence + '%"></div></div>' +
+                        '<span class="confidence-value">' + confidence + '%</span>' +
+                    '</div>' +
+                '</div>';
+            }
+
+            list.innerHTML = html;
+        }
+
+        // Load predictions from JSON file
+        fetch('/data/match-predictions.json?t=' + Date.now())
+            .then(function(res) { return res.json(); })
+            .then(function(data) { renderPredictions(data); })
+            .catch(function() {
+                document.getElementById('predictions-list').innerHTML =
+                    '<div class="no-predictions"><h2>No Predictions Available</h2><p>Predictions for the next gameweek will be generated soon. Check back later.</p></div>';
+            });
+    </script>
+</body>
+</html>

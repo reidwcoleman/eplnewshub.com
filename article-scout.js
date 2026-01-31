@@ -1056,13 +1056,13 @@ function cascadeHeadlines(articleTitle, articleFilename, articleExcerpt, article
     if (fs.existsSync(src)) fs.copyFileSync(src, dst);
   }
 
-  // headline1 <- main_subheadline4
-  const ms4 = path.join(ROOT, 'main_subheadline4.html');
+  // headline1 <- main_subheadline3
+  const ms3 = path.join(ROOT, 'main_subheadline3.html');
   const h1 = path.join(ROOT, 'headline1.html');
-  if (fs.existsSync(ms4)) fs.copyFileSync(ms4, h1);
+  if (fs.existsSync(ms3)) fs.copyFileSync(ms3, h1);
 
-  // Cascade main_subheadline4 <- 3 <- 2 <- 1
-  for (let i = 4; i > 1; i--) {
+  // Cascade main_subheadline3 <- 2 <- 1
+  for (let i = 3; i > 1; i--) {
     const src = path.join(ROOT, `main_subheadline${i - 1}.html`);
     const dst = path.join(ROOT, `main_subheadline${i}.html`);
     if (fs.existsSync(src)) fs.copyFileSync(src, dst);
@@ -1306,7 +1306,14 @@ async function runScout(count = 1) {
     }
   }
 
-  // Step 11: Push to GitHub
+  // Step 11: Generate match predictions
+  try {
+    await generateMatchPredictions();
+  } catch (e) {
+    console.error('[Scout] Match predictions failed:', e.message);
+  }
+
+  // Step 12: Push to GitHub
   if (publishedTitles.length > 0) {
     gitPush(publishedTitles);
   }
@@ -1346,6 +1353,102 @@ function startDaemon() {
 
   runBatch();
   setInterval(runBatch, 6 * 60 * 60 * 1000);
+}
+
+// ─── Match Predictions Generator ─────────────────────────────────────────
+
+const PREDICTIONS_JSON = path.join(ROOT, 'data', 'match-predictions.json');
+
+const EPL_TEAMS = [
+  'Arsenal FC', 'Aston Villa FC', 'AFC Bournemouth', 'Brentford FC',
+  'Brighton & Hove Albion FC', 'Chelsea FC', 'Crystal Palace FC', 'Everton FC',
+  'Fulham FC', 'Ipswich Town FC', 'Leeds United FC', 'Leicester City FC',
+  'Liverpool FC', 'Manchester City FC', 'Manchester United FC', 'Newcastle United FC',
+  'Nottingham Forest FC', 'Southampton FC', 'Tottenham Hotspur FC', 'West Ham United FC'
+];
+
+async function fetchUpcomingFixtures() {
+  // Try football-data.org free API first
+  const apiKey = process.env.FOOTBALL_DATA_API_KEY;
+  if (apiKey) {
+    try {
+      const res = await fetch('https://api.football-data.org/v4/competitions/PL/matches?status=SCHEDULED&limit=15', {
+        headers: { 'X-Auth-Token': apiKey }
+      });
+      const data = res.json();
+      if (data.matches && data.matches.length > 0) {
+        console.log(`[Scout] Fetched ${data.matches.length} upcoming fixtures from football-data.org`);
+        return data.matches.map(m => ({
+          homeTeam: m.homeTeam.name,
+          awayTeam: m.awayTeam.name,
+          matchDate: m.utcDate,
+          matchday: m.matchday
+        }));
+      }
+    } catch (e) {
+      console.log(`[Scout] football-data.org API failed: ${e.message}`);
+    }
+  }
+
+  // Fallback: generate plausible fixture list via AI
+  console.log('[Scout] No football API key, generating fixtures via AI...');
+  const prompt = `List the next 10 upcoming Premier League fixtures (real scheduled matches for the current gameweek or next gameweek). Return ONLY a JSON array of objects with "homeTeam", "awayTeam", "matchDate" (ISO format), "matchday" (gameweek number). Use official team names ending in FC. No other text.`;
+  const result = await callLLM(prompt, 'You are a football data assistant. Return accurate, real EPL fixture data in JSON format only.');
+  const jsonMatch = result.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) return [];
+  try { return JSON.parse(jsonMatch[0]); } catch { return []; }
+}
+
+async function generateMatchPredictions() {
+  console.log('[Scout] Generating match predictions...');
+
+  const fixtures = await fetchUpcomingFixtures();
+  if (fixtures.length === 0) {
+    console.log('[Scout] No fixtures found, skipping predictions.');
+    return;
+  }
+
+  const gameweek = fixtures[0].matchday || null;
+  const fixtureList = fixtures.map((f, i) => `${i + 1}. ${f.homeTeam} vs ${f.awayTeam}`).join('\n');
+
+  const systemPrompt = `You are an expert football analyst providing match predictions for EPL News Hub. Give realistic, data-informed predictions.
+
+Return ONLY a JSON array of objects, one per match, with these fields:
+- "homeTeam": exact team name as given
+- "awayTeam": exact team name as given
+- "predictedScore": {"home": number, "away": number}
+- "winner": "home", "away", or "draw"
+- "confidence": number 50-95 (how confident in the prediction)
+- "analysis": 2-3 sentences of tactical analysis explaining the prediction
+
+Be realistic with scores (most PL games are 0-0 to 4-2 range). Vary your predictions — don't predict all home wins. Consider current form, injuries, head-to-head records.`;
+
+  const prompt = `Predict the outcomes for these upcoming Premier League matches:\n\n${fixtureList}\n\nProvide predictions for all matches listed.`;
+
+  try {
+    const result = await callLLM(prompt, systemPrompt);
+    const jsonMatch = result.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('Failed to parse predictions JSON');
+
+    let predictions = JSON.parse(jsonMatch[0]);
+
+    // Merge match dates from fixtures
+    predictions = predictions.map((p, i) => ({
+      ...p,
+      matchDate: fixtures[i] ? fixtures[i].matchDate : null
+    }));
+
+    const output = {
+      gameweek: gameweek,
+      generatedAt: new Date().toISOString(),
+      predictions: predictions
+    };
+
+    fs.writeFileSync(PREDICTIONS_JSON, JSON.stringify(output, null, 2));
+    console.log(`[Scout] Match predictions saved (${predictions.length} matches)`);
+  } catch (e) {
+    console.error(`[Scout] Predictions generation failed: ${e.message}`);
+  }
 }
 
 // ─── CLI Entry ───────────────────────────────────────────────────────────────
