@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'pep-guardiola-set-to-leave-manchester-city-this-summer-2026-01-31',
+    title: 'Pep Guardiola Set to Leave Manchester City This Summer?',
+    excerpt: 'Pep Guardiola\'s future at Manchester City is shrouded in uncertainty, with reports suggesting he may leave the club this summer, sparking a potentially seismic shift in the Premier League landscape. The Spanish manager\'s contract is set to expire i',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-01-31',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Pep Guardiola', 'Manchester City', 'Premier League', 'Transfer News']
+  },
+  {
     id: 'the-reason-behind-the-missing-1230-pm-kick-off-in-the-premie-2026-01-31',
     title: 'The Reason Behind the Missing 12:30 PM Kick-Off in the Premier League Today',
     excerpt: 'The Premier League schedule has taken an unusual turn, with the traditional 12:30 PM kick-off slot missing from today\'s lineup. But what\'s behind this unexpected change?',

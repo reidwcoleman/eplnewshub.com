@@ -369,7 +369,7 @@ Return your article in this exact JSON format (no other text):
   "readTime": "X min read",
   "imageSearchQuery": "specific search terms to find a relevant football image for this article",
   "imageCaption": "Descriptive caption for the hero image",
-  "bodyHTML": "The full article body as HTML using <p>, <h2>, <h3>, <blockquote>, <strong>, <em>, <ul>, <li> tags. Do NOT use <div> wrappers. Write flowing prose. Include a pull-quote div like: <div class=\\"pull-quote\\">A standout quote from the article</div>",
+  "bodyHTML": "IMPORTANT: This must be a valid JSON string. Escape all quotes with backslash. Write the full article body using HTML tags: p, h2, h3, blockquote, strong, em, ul, li. Include pull quotes as: <div class=\\\"pull-quote\\\">Quote text here</div>. Example format: <p>First paragraph here.</p><h2>Section Title</h2><p>More content.</p>",
   "relatedArticles": [
     {"title": "Related Article Title 1", "date": "January 28, 2026", "readTime": "6 min read"},
     {"title": "Related Article Title 2", "date": "January 25, 2026", "readTime": "5 min read"},
@@ -400,11 +400,39 @@ Write a comprehensive, engaging, long-form article.`;
   try {
     return JSON.parse(cleaned);
   } catch (e) {
-    // Replace literal newlines in string values with space
+    // Replace literal newlines in string values with escaped versions
     cleaned = cleaned.replace(/"((?:[^"\\]|\\.)*)"/g, (match) => {
       return match.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
     });
-    return JSON.parse(cleaned);
+    try {
+      return JSON.parse(cleaned);
+    } catch (e2) {
+      // Last resort: extract bodyHTML as raw content and manually fix
+      console.log('[Scout] JSON parse failed, attempting aggressive recovery...');
+
+      // Case 1: bodyHTML value is unquoted HTML (starts with <p> or similar)
+      const rawHtmlMatch = cleaned.match(/"bodyHTML"\s*:\s*\n?\s*(<[\s\S]*?)(?=\n\s*"relatedArticles|\n\s*"tags|\n\s*\})/);
+      if (rawHtmlMatch) {
+        const rawBody = rawHtmlMatch[1].trim().replace(/,\s*$/, '');
+        const escapedBody = rawBody.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '').replace(/\t/g, ' ');
+        cleaned = cleaned.replace(rawHtmlMatch[0], `"bodyHTML": "${escapedBody}"`);
+        try { return JSON.parse(cleaned); } catch (e3) { /* continue */ }
+      }
+
+      // Case 2: bodyHTML value is a JSON array of HTML strings
+      const arrayMatch = cleaned.match(/"bodyHTML"\s*:\s*\[([\s\S]*?)\](?=\s*,?\s*")/);
+      if (arrayMatch) {
+        // Join array items into a single string
+        try {
+          const arr = JSON.parse('[' + arrayMatch[1] + ']');
+          const joinedBody = arr.join('').replace(/"/g, '\\"');
+          cleaned = cleaned.replace(arrayMatch[0], `"bodyHTML": "${joinedBody}"`);
+          return JSON.parse(cleaned);
+        } catch (e3) { /* continue */ }
+      }
+
+      throw e2;
+    }
   }
 }
 
