@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'pep-guardiolas-potential-exit-whats-next-for-manchester-city-2026-01-31',
+    title: 'Pep Guardiola\'s Potential Exit: What\'s Next for Manchester City?',
+    excerpt: 'The future of Manchester City manager Pep Guardiola has been the subject of intense speculation in recent weeks, with growing conviction among Premier League managers that the Spanish tactician will leave the Etihad Stadium this summer. As the news c',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-01-31',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Pep Guardiola', 'Manchester City', 'Premier League', 'Manager Exit', 'Football News']
+  },
+  {
     id: 'pep-guardiola-exodus-how-the-manchester-city-bosss-potential-2026-01-31',
     title: 'Pep Guardiola Exodus: How the Manchester City Boss\'s Potential Departure Could Reshape the Premier League',
     excerpt: 'The future of Manchester City manager Pep Guardiola has been a topic of discussion in recent weeks, with several Premier League managers reportedly convinced that the Spanish boss will leave the Etihad Stadium this summer. According to a report by Sk',
