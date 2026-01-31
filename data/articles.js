@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'sunderland-vs-burnley-premier-league-clash-ends-in-thrilling-2026-01-31',
+    title: 'Sunderland vs Burnley: Premier League Clash Ends in Thrilling Encounter',
+    excerpt: 'Sunderland and Burnley played out a thrilling encounter at the Stadium of Light, with the Black Cats coming from behind to secure a crucial point. Get the latest updates, team news, and stats from the Premier League clash.',
+    image: '/scout-sunderland-vs-burnley-premier-league-clash-ends-in-thrilling.jpg',
+    category: 'Match Reports',
+    date: '2026-01-31',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Sunderland', 'Burnley', 'Premier League', 'Match Report', 'Team News', 'Stats']
+  },
+  {
     id: 'leeds-0-4-arsenal-gunners-title-chances-boosted-after-thrash-2026-01-31',
     title: 'Leeds 0-4 Arsenal: Gunners\' Title Chances Boosted After Thrashing at Elland Road',
     excerpt: 'A resounding 4-0 win at Elland Road has strengthened Arsenal\'s grip on the Premier League title, with Paul Merson believing it\'s a decisive victory. We analyze the Gunners\' dominant performance and what it means for their title chances.',
