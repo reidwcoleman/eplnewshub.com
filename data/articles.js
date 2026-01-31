@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'pep-guardiola-future-premier-league-managers-have-growing-co-2026-01-31',
+    title: 'Pep Guardiola future: Premier League managers have \'growing conviction\' Man City boss will leave this summer',
+    excerpt: 'Exclusive rumors suggest Guardiola may leave Man City this summer, with Premier League managers weighing in on the speculation. What\'s behind the whispers, and what could it mean for the club\'s future?',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-01-31',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Pep Guardiola', 'Manchester City', 'Premier League', 'transfer news', 'summer exit']
+  },
+  {
     id: 'pep-guardiola-set-to-leave-manchester-city-this-summer-2026-01-31',
     title: 'Pep Guardiola Set to Leave Manchester City This Summer?',
     excerpt: 'Pep Guardiola\'s future at Manchester City is shrouded in uncertainty, with reports suggesting he may leave the club this summer, sparking a potentially seismic shift in the Premier League landscape. The Spanish manager\'s contract is set to expire i',
