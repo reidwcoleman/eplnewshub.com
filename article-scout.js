@@ -114,19 +114,57 @@ function fetchBinary(url) {
 // ─── Image Fetching ──────────────────────────────────────────────────────────
 
 async function findAndDownloadImage(searchQuery, slug) {
-  console.log(`[Scout] Searching for image: "${searchQuery}"...`);
+  console.log(`[Scout] Searching for high-quality image: "${searchQuery}"...`);
 
-  // Try Brave Search API first
-  const braveKey = process.env.BRAVE_SEARCH_API_KEY;
-  if (braveKey) {
+  // 1. Pexels API — best free stock photos, high quality, landscape orientation
+  const pexelsKey = process.env.PEXELS_API_KEY;
+  if (pexelsKey) {
     try {
-      const res = await fetch(`https://api.search.brave.com/res/v1/images/search?q=${encodeURIComponent(searchQuery + ' football')}&count=5&safesearch=strict`, {
-        headers: { 'Accept': 'application/json', 'Accept-Encoding': 'gzip', 'X-Subscription-Token': braveKey }
+      const res = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=10&orientation=landscape&size=large`, {
+        headers: { 'Authorization': pexelsKey }
       });
       const data = res.json();
-      if (data.results && data.results.length > 0) {
-        for (const result of data.results) {
-          const imgUrl = result.properties?.url || result.thumbnail?.src;
+      if (data.photos && data.photos.length > 0) {
+        // Pick the best landscape photo (at least 1200px wide)
+        for (const photo of data.photos) {
+          const imgUrl = photo.src?.large2x || photo.src?.large || photo.src?.original;
+          if (imgUrl) {
+            const downloaded = await downloadImage(imgUrl, slug);
+            if (downloaded) { console.log(`[Scout] Pexels image by ${photo.photographer}`); return downloaded; }
+          }
+        }
+      }
+    } catch (e) {
+      console.log(`[Scout] Pexels search failed: ${e.message}`);
+    }
+  }
+
+  // 2. Pixabay API — free, high quality editorial images
+  const pixabayKey = process.env.PIXABAY_API_KEY;
+  if (pixabayKey) {
+    try {
+      const res = await fetch(`https://pixabay.com/api/?key=${pixabayKey}&q=${encodeURIComponent(searchQuery)}&image_type=photo&orientation=horizontal&min_width=1200&per_page=10&safesearch=true&editors_choice=true`, {
+        headers: { 'User-Agent': 'EPLNewsHub/1.0' }
+      });
+      const data = res.json();
+      if (data.hits && data.hits.length > 0) {
+        for (const hit of data.hits) {
+          const imgUrl = hit.largeImageURL || hit.webformatURL;
+          if (imgUrl) {
+            const downloaded = await downloadImage(imgUrl, slug);
+            if (downloaded) { console.log(`[Scout] Pixabay image (${hit.imageWidth}x${hit.imageHeight})`); return downloaded; }
+          }
+        }
+      }
+      // Retry with broader query if no editor's choice found
+      if (!data.hits || data.hits.length === 0) {
+        const broadQuery = searchQuery.split(' ').slice(0, 2).join(' ') + ' football stadium';
+        const res2 = await fetch(`https://pixabay.com/api/?key=${pixabayKey}&q=${encodeURIComponent(broadQuery)}&image_type=photo&orientation=horizontal&min_width=1200&per_page=5&safesearch=true`, {
+          headers: { 'User-Agent': 'EPLNewsHub/1.0' }
+        });
+        const data2 = res2.json();
+        if (data2.hits && data2.hits.length > 0) {
+          const imgUrl = data2.hits[0].largeImageURL || data2.hits[0].webformatURL;
           if (imgUrl) {
             const downloaded = await downloadImage(imgUrl, slug);
             if (downloaded) return downloaded;
@@ -134,30 +172,33 @@ async function findAndDownloadImage(searchQuery, slug) {
         }
       }
     } catch (e) {
-      console.log(`[Scout] Brave image search failed: ${e.message}`);
+      console.log(`[Scout] Pixabay search failed: ${e.message}`);
     }
   }
 
-  // Fallback: Use Wikimedia Commons search for free-to-use images
+  // 3. Wikimedia Commons — free licensed editorial football photos
   try {
     const wikiQuery = searchQuery.replace(/[^a-zA-Z0-9 ]/g, '').split(' ').slice(0, 3).join(' ');
-    const wikiUrl = `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(wikiQuery + ' football')}&srnamespace=6&srlimit=5&format=json`;
+    const wikiUrl = `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(wikiQuery + ' football Premier League')}&srnamespace=6&srlimit=10&format=json`;
     const res = await fetch(wikiUrl, { headers: { 'User-Agent': 'EPLNewsHub/1.0' } });
     const data = res.json();
     if (data.query && data.query.search) {
       for (const item of data.query.search) {
         const title = item.title;
-        // Get actual image URL
-        const infoUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=imageinfo&iiprop=url&format=json`;
+        // Skip SVGs, logos, icons
+        if (/\.(svg|gif|tiff?)$/i.test(title)) continue;
+        if (/logo|icon|badge|crest|emblem/i.test(title)) continue;
+        const infoUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=imageinfo&iiprop=url|size&format=json`;
         const infoRes = await fetch(infoUrl, { headers: { 'User-Agent': 'EPLNewsHub/1.0' } });
         const infoData = infoRes.json();
         const pages = infoData.query?.pages;
         if (pages) {
           const page = Object.values(pages)[0];
-          const imgUrl = page?.imageinfo?.[0]?.url;
-          if (imgUrl && (imgUrl.endsWith('.jpg') || imgUrl.endsWith('.jpeg') || imgUrl.endsWith('.png') || imgUrl.endsWith('.webp'))) {
-            const downloaded = await downloadImage(imgUrl, slug);
-            if (downloaded) return downloaded;
+          const info = page?.imageinfo?.[0];
+          // Only use images that are at least 800px wide (clean, high-res photos)
+          if (info?.url && info.width >= 800 && info.height >= 400 && /\.(jpg|jpeg|png|webp)$/i.test(info.url)) {
+            const downloaded = await downloadImage(info.url, slug);
+            if (downloaded) { console.log(`[Scout] Wikimedia image (${info.width}x${info.height})`); return downloaded; }
           }
         }
       }
@@ -166,11 +207,12 @@ async function findAndDownloadImage(searchQuery, slug) {
     console.log(`[Scout] Wikimedia search failed: ${e.message}`);
   }
 
-  // Final fallback: Use Unsplash Source (free, no API key needed)
+  // 4. Unsplash — beautiful high-quality free photos
   try {
-    const unsplashUrl = `https://source.unsplash.com/1200x675/?${encodeURIComponent('football,soccer,premier-league')}`;
+    const keywords = searchQuery.split(' ').slice(0, 2).join(',') + ',football,soccer';
+    const unsplashUrl = `https://source.unsplash.com/1600x900/?${encodeURIComponent(keywords)}`;
     const downloaded = await downloadImage(unsplashUrl, slug);
-    if (downloaded) return downloaded;
+    if (downloaded) { console.log('[Scout] Unsplash image'); return downloaded; }
   } catch (e) {
     console.log(`[Scout] Unsplash fallback failed: ${e.message}`);
   }
@@ -182,13 +224,16 @@ async function findAndDownloadImage(searchQuery, slug) {
 async function downloadImage(imageUrl, slug) {
   try {
     const res = await fetchBinary(imageUrl);
-    if (res.status !== 200 || res.buffer.length < 5000) return null; // Skip tiny/broken images
+    if (res.status !== 200) return null;
+    // Skip tiny images (< 20KB likely broken/icons), skip huge files (> 15MB)
+    if (res.buffer.length < 20000 || res.buffer.length > 15000000) return null;
 
-    // Determine extension
+    // Determine extension from content-type
     let ext = '.jpg';
-    if (res.contentType.includes('png')) ext = '.png';
-    else if (res.contentType.includes('webp')) ext = '.webp';
-    else if (res.contentType.includes('avif')) ext = '.avif';
+    const ct = res.contentType.toLowerCase();
+    if (ct.includes('png')) ext = '.png';
+    else if (ct.includes('webp')) ext = '.webp';
+    else if (ct.includes('avif')) ext = '.avif';
 
     const filename = `scout-${slug}${ext}`;
     const filepath = path.join(ROOT, filename);
@@ -345,12 +390,22 @@ Write a comprehensive, engaging, long-form article.`;
   const result = await callGroq(prompt, systemPrompt);
   const jsonMatch = result.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error('Failed to parse article JSON: ' + result.slice(0, 200));
-  // Clean control characters that break JSON parsing
-  const cleaned = jsonMatch[0].replace(/[\x00-\x1F\x7F]/g, (ch) => {
-    if (ch === '\n' || ch === '\r' || ch === '\t') return ch;
-    return '';
-  });
-  return JSON.parse(cleaned);
+  // Aggressively clean the JSON string:
+  // 1. Replace literal newlines inside string values with \\n
+  // 2. Remove all other control characters
+  let cleaned = jsonMatch[0];
+  // Fix unescaped newlines inside JSON string values by replacing them
+  cleaned = cleaned.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+  // Try parsing, if it fails try a more aggressive cleanup
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {
+    // Replace literal newlines in string values with space
+    cleaned = cleaned.replace(/"((?:[^"\\]|\\.)*)"/g, (match) => {
+      return match.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+    });
+    return JSON.parse(cleaned);
+  }
 }
 
 // ─── HTML Article Template (matches Aston Villa article format exactly) ──────
@@ -1150,7 +1205,8 @@ Requirements:
 } else if (args.includes('--daemon')) {
   startDaemon();
 } else if (args.includes('--batch')) {
-  const count = Math.floor(Math.random() * (CONFIG.maxArticlesPerDay - CONFIG.minArticlesPerDay + 1)) + CONFIG.minArticlesPerDay;
+  const numArg = args.find(a => /^\d+$/.test(a));
+  const count = numArg ? parseInt(numArg) : Math.floor(Math.random() * (CONFIG.maxArticlesPerDay - CONFIG.minArticlesPerDay + 1)) + CONFIG.minArticlesPerDay;
   runScout(count).catch(e => { console.error('[Scout] Fatal:', e); process.exit(1); });
 } else {
   runScout(1).catch(e => { console.error('[Scout] Fatal:', e); process.exit(1); });

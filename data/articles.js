@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'the-reason-behind-the-missing-1230-pm-kick-off-in-the-premie-2026-01-31',
+    title: 'The Reason Behind the Missing 12:30 PM Kick-Off in the Premier League Today',
+    excerpt: 'The Premier League schedule has taken an unusual turn, with the traditional 12:30 PM kick-off slot missing from today\'s lineup. But what\'s behind this unexpected change?',
+    image: '/scout-the-reason-behind-the-missing-1230-pm-kick-off-in-the-premie.jpg',
+    category: 'News',
+    date: '2026-01-31',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'scheduling anomaly', '12:30 PM kick-off', 'football', 'English football']
+  },
+  {
+    id: 'internazionale-in-talks-to-sign-liverpool-midfielder-curtis-2026-01-31',
+    title: 'Internazionale in Talks to Sign Liverpool Midfielder Curtis Jones',
+    excerpt: 'The Italian giants are looking to bolster their midfield with the signing of the talented young Englishman, who has struggled for regular game time at Anfield',
+    image: '/scout-internazionale-in-talks-to-sign-liverpool-midfielder-curtis.jpg',
+    category: 'Transfers',
+    date: '2026-01-31',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Internazionale', 'Curtis Jones', 'Liverpool', 'Transfer News', 'Premier League', 'Serie A']
+  },
+  {
     id: 'pep-guardiola-future-premier-league-managers-have-growing-co-2026-01-31',
     title: 'Pep Guardiola future: Premier League managers have \'growing conviction\' Man City boss will leave this summer',
     excerpt: 'Exclusive: Guardiola\'s future at Man City is uncertain, with top-flight managers convinced he will depart the Etihad Stadium at the end of the season, sparking a managerial merry-go-round',
