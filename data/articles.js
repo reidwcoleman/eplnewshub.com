@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'pep-guardiola-exodus-how-the-manchester-city-bosss-potential-2026-01-31',
+    title: 'Pep Guardiola Exodus: How the Manchester City Boss\'s Potential Departure Could Reshape the Premier League',
+    excerpt: 'The future of Manchester City manager Pep Guardiola has been a topic of discussion in recent weeks, with several Premier League managers reportedly convinced that the Spanish boss will leave the Etihad Stadium this summer. According to a report by Sk',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-01-31',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Pep Guardiola', 'Manchester City', 'Premier League', 'football news', 'manager news']
+  },
+  {
+    id: 'pep-guardiola-set-to-leave-manchester-city-whats-next-for-th-2026-01-31',
+    title: 'Pep Guardiola Set to Leave Manchester City: What\'s Next for the Premier League Champions?',
+    excerpt: 'The football world is abuzz with the news that Pep Guardiola, the highly successful manager of Manchester City, may be leaving the club this summer. According to reports, Premier League managers have a \'growing conviction\' that Guardiola will depar',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-01-31',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Pep Guardiola', 'Manchester City', 'Premier League', 'Football News', 'Manager Departure']
+  },
+  {
     id: 'premier-league-transfer-window-latest-rumors-07-20-2025',
     title: 'Premier League Transfer Window: Latest Rumors & Breaking News',
     excerpt: 'The Premier League transfer window is in full swing with clubs across England making moves to strengthen their squads for the 2025-26 season. Manchester United are reportedly close to securing Khvicha Kvaratskhelia for €85 million, while Arsenal intensify their hunt for Benjamin Šeško.',
