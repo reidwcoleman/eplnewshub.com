@@ -27,7 +27,29 @@ const ARTICLES_JSON = path.join(ROOT, 'articles.json');
 const DATA_ARTICLES_JS = path.join(ROOT, 'data', 'articles.js');
 const SITEMAP = path.join(ROOT, 'sitemap.xml');
 const SCOUT_LOG = path.join(ROOT, 'scout-log.json');
+const SCOUT_PID = path.join(ROOT, '.scout-pid');
 const SERVICE_ACCOUNT_PATH = path.join(ROOT, 'google-service-account.json');
+
+// ─── PID Lock Helpers ───────────────────────────────────────────────────────
+
+function writeScoutPid(mode) {
+  fs.writeFileSync(SCOUT_PID, JSON.stringify({ pid: process.pid, mode, startedAt: new Date().toISOString() }));
+}
+
+function clearScoutPid() {
+  try { fs.unlinkSync(SCOUT_PID); } catch (e) { /* ignore */ }
+}
+
+function getScoutPidInfo() {
+  try {
+    const info = JSON.parse(fs.readFileSync(SCOUT_PID, 'utf-8'));
+    // Check if process is actually still running
+    try { process.kill(info.pid, 0); return info; } catch (e) { /* process dead */ }
+    // Stale PID file — clean up
+    clearScoutPid();
+    return null;
+  } catch (e) { return null; }
+}
 
 // Load .env manually
 function loadEnv() {
@@ -1219,6 +1241,7 @@ function gitPush(articleTitles) {
 // ─── Main Pipeline ───────────────────────────────────────────────────────────
 
 async function runScout(count = 1) {
+  writeScoutPid('batch');
   console.log('═══════════════════════════════════════════════');
   console.log('  EPL News Hub - Article Scout');
   console.log('  ' + new Date().toLocaleString());
@@ -1327,12 +1350,17 @@ async function runScout(count = 1) {
     gitPush(publishedTitles);
   }
 
+  clearScoutPid();
   console.log('[Scout] Run complete!');
 }
 
 // ─── Daemon Mode ─────────────────────────────────────────────────────────────
 
 function startDaemon() {
+  writeScoutPid('daemon');
+  process.on('exit', clearScoutPid);
+  process.on('SIGINT', () => { clearScoutPid(); process.exit(0); });
+  process.on('SIGTERM', () => { clearScoutPid(); process.exit(0); });
   console.log('[Scout Daemon] Starting automated article scout...');
   console.log('[Scout Daemon] Schedule: Runs every 6 hours');
   console.log('[Scout Daemon] Min articles/day:', CONFIG.minArticlesPerDay);
@@ -1566,11 +1594,21 @@ Requirements:
   const log = getScoutLog();
   const today = new Date().toISOString().split('T')[0];
   const todayCount = log.today === today ? log.todayCount : 0;
+  const pidInfo = getScoutPidInfo();
   console.log(`\nArticle Scout Status`);
   console.log(`━━━━━━━━━━━━━━━━━━━`);
-  console.log(`Today: ${todayCount}/${CONFIG.maxArticlesPerDay} articles published`);
+  if (pidInfo) {
+    const elapsed = Math.round((Date.now() - new Date(pidInfo.startedAt).getTime()) / 1000);
+    const mins = Math.floor(elapsed / 60);
+    const secs = elapsed % 60;
+    console.log(`Status:  🟢 RUNNING (${pidInfo.mode} mode, PID ${pidInfo.pid})`);
+    console.log(`Uptime:  ${mins}m ${secs}s (started ${pidInfo.startedAt})`);
+  } else {
+    console.log(`Status:  ⚪ NOT RUNNING`);
+  }
+  console.log(`Today:   ${todayCount}/${CONFIG.maxArticlesPerDay} articles published`);
   console.log(`Last run: ${log.lastRun || 'Never'}`);
-  if (log.articles.length > 0) {
+  if (log.articles && log.articles.length > 0) {
     console.log(`\nRecent articles:`);
     log.articles.slice(0, 5).forEach(a => {
       console.log(`  [${a.category}] ${a.title} (${a.date})`);
@@ -1579,6 +1617,7 @@ Requirements:
   console.log('');
 } else if (args.includes('--predictions')) {
   (async () => {
+    writeScoutPid('predictions');
     try {
       loadEnv();
       console.log('═══════════════════════════════════════════════');
@@ -1587,8 +1626,10 @@ Requirements:
       console.log('═══════════════════════════════════════════════\n');
       await generateMatchPredictions();
       gitPush(['Match predictions updated']);
+      clearScoutPid();
       console.log('[Scout] Predictions run complete!');
     } catch (e) {
+      clearScoutPid();
       console.error('[Scout] Predictions failed:', e.message);
       process.exit(1);
     }
