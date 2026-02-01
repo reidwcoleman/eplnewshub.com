@@ -501,20 +501,130 @@ Return ONLY a JSON array of objects with "index" (1-based from the headlines lis
   return JSON.parse(jsonMatch[0]);
 }
 
-async function generateArticle(topic, newsItem) {
+// ─── Source Scraping & Fact Research ─────────────────────────────────────────
+
+async function scrapeSourceArticle(url) {
+  try {
+    // Google News links redirect — follow them
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 EPLNewsHub/1.0' }
+    });
+    const html = res.text();
+
+    // Extract text content from the HTML — strip tags, scripts, styles
+    let text = html
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+      .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+      .replace(/<header[\s\S]*?<\/header>/gi, '')
+      .replace(/<aside[\s\S]*?<\/aside>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    // Limit to first ~3000 chars to stay within token limits
+    return text.slice(0, 3000);
+  } catch (e) {
+    console.log(`[Scout] Failed to scrape source: ${e.message}`);
+    return null;
+  }
+}
+
+async function researchTopic(topic, newsItem) {
+  console.log(`[Scout] Researching: ${topic.title}...`);
+  const sources = [];
+
+  // 1. Scrape the original source article
+  if (newsItem.link) {
+    const sourceText = await scrapeSourceArticle(newsItem.link);
+    if (sourceText) {
+      sources.push({ origin: 'Original source article', text: sourceText });
+      console.log(`[Scout]   ✓ Scraped original source (${sourceText.length} chars)`);
+    }
+  }
+
+  // 2. Search for additional sources on the same topic via Google News RSS
+  const searchQuery = topic.title.replace(/[^a-zA-Z0-9 ]/g, '').split(' ').slice(0, 6).join(' ');
+  try {
+    const additionalItems = await fetchNewsFromGoogleRSS(searchQuery + ' Premier League');
+    // Scrape top 2-3 additional sources for cross-referencing
+    let scraped = 0;
+    for (const item of additionalItems.slice(0, 4)) {
+      if (scraped >= 2) break;
+      if (item.link === newsItem.link) continue; // skip duplicate
+      const text = await scrapeSourceArticle(item.link);
+      if (text && text.length > 200) {
+        sources.push({ origin: item.title, text: text.slice(0, 2000) });
+        scraped++;
+        console.log(`[Scout]   ✓ Scraped additional source: ${item.title.slice(0, 60)}...`);
+      }
+    }
+  } catch (e) {
+    console.log(`[Scout]   ⚠ Additional source search failed: ${e.message}`);
+  }
+
+  // 3. Compile research summary using AI
+  if (sources.length === 0) {
+    console.log(`[Scout]   ⚠ No sources scraped — article will note limited sourcing`);
+    return { sources: [], summary: `Topic: ${topic.title}\nSource headline: ${newsItem.title}\nSource description: ${newsItem.description}\n\nNo additional source material was available.` };
+  }
+
+  const sourceTexts = sources.map((s, i) => `--- SOURCE ${i + 1}: ${s.origin} ---\n${s.text}`).join('\n\n');
+
+  const summaryPrompt = `You are a fact-checking research assistant. Extract ONLY verifiable facts from these source articles about "${topic.title}".
+
+${sourceTexts}
+
+Extract and return:
+1. KEY FACTS: Verified scores, dates, stats, transfer fees, quotes (with who said them and to which outlet)
+2. QUOTES: Exact quotes with proper attribution (who said it, where it was reported)
+3. STATS: Any specific numbers — goals, assists, xG, league position, points, etc.
+4. CONTEXT: Key background information that multiple sources agree on
+5. WHAT TO AVOID: Any claims that appear in only one source and seem unverified or speculative
+
+Format as a clear bullet-point summary. Only include facts that appear in the source material. If sources contradict each other, note the disagreement.`;
+
+  try {
+    const summary = await callLLM(summaryPrompt, 'You extract verified facts from news sources. Be precise and factual. Never invent information.');
+    console.log(`[Scout]   ✓ Research summary compiled (${sources.length} sources)`);
+    return { sources, summary };
+  } catch (e) {
+    console.log(`[Scout]   ⚠ Research summary failed: ${e.message}`);
+    // Fall back to raw source text
+    return { sources, summary: sourceTexts.slice(0, 4000) };
+  }
+}
+
+// ─── Article Generation ─────────────────────────────────────────────────────
+
+async function generateArticle(topic, newsItem, research) {
   const systemPrompt = `You are a senior sports journalist writing for EPL News Hub — a respected Premier League publication in the style of The Athletic. You write with authority, depth, and storytelling flair.
+
+CRITICAL ACCURACY RULES — READ CAREFULLY:
+- You have been given RESEARCHED SOURCE MATERIAL below. ONLY use facts, stats, quotes, and scores that appear in this source material.
+- NEVER invent match scores, transfer fees, quotes, or statistics. If the source material doesn't contain a specific fact, DO NOT make it up.
+- If you're unsure about a specific stat or detail, omit it rather than guess. Vague but correct is better than specific but wrong.
+- Quotes MUST come from the source material. If a quote is attributed to someone in the sources, use it. Do NOT fabricate quotes.
+- Match scores, league positions, and points totals MUST match the source material exactly.
+- If writing about a future match (preview), clearly frame predictions as analysis, not fact.
 
 Your writing standards:
 - Write like a seasoned journalist at The Athletic, The Guardian, or BBC Sport — confident, insightful, with a strong narrative voice
 - NEVER start with generic AI openers like "In a move that..." or "The football world is..." — start with a concrete, specific, vivid detail or scene
 - Every paragraph must ADD new information — no filler, no restating what was just said, no padding
-- Use REAL stats, REAL match data, REAL transfer fees, REAL quotes (attribute them properly to the source)
-- Include tactical depth: formations, pressing triggers, positional play, xG, progressive passes, etc. when relevant
+- Include tactical depth when relevant: formations, pressing triggers, positional play — but only cite stats that appear in your source material
 - Write 1200-1800 words — this should feel like a premium long-read, not a summary
 - Structure with clear h2 sections (3-4 per article) that each explore a different angle of the story
-- Include 2-3 blockquotes from managers/players/pundits with proper attribution
+- Include 2-3 blockquotes from the source material with proper attribution
 - Include 1-2 pull quotes — the most striking lines from YOUR writing
-- Add historical context and comparisons to past seasons/players where relevant
+- Add historical context where you are confident it is accurate
 - End with a forward-looking conclusion that gives the reader something to think about
 - Vary sentence length — mix punchy short sentences with longer analytical ones for rhythm
 - NEVER use cliches like "only time will tell", "remains to be seen", "football is a funny game"
@@ -540,14 +650,19 @@ Return your article in this exact JSON format (no other text):
   "tags": ["tag1", "tag2", "tag3"]
 }`;
 
+  const researchSection = research && research.summary
+    ? `\n\nRESEARCHED SOURCE MATERIAL (use ONLY these facts):\n${research.summary}`
+    : '';
+
   const prompt = `Write a full article about this topic:
 Title: ${topic.title}
 Angle: ${topic.angle}
 Category: ${topic.category}
 Source headline: ${newsItem.title}
 Source description: ${newsItem.description}
+${researchSection}
 
-Write a comprehensive, engaging, long-form article.`;
+Write a comprehensive, engaging, long-form article. ONLY use facts and quotes from the source material above. Do NOT invent any stats, scores, quotes, or transfer fees.`;
 
   const result = await callLLM(prompt, systemPrompt);
   const jsonMatch = result.match(/\{[\s\S]*\}/);
@@ -1300,8 +1415,11 @@ async function runScout(count = 1) {
         continue;
       }
 
+      // Research: scrape sources and gather verified facts
+      const research = await researchTopic(topic, newsItem);
+
       console.log(`[Scout] Generating article: ${topic.title}...`);
-      const article = await generateArticle(topic, newsItem);
+      const article = await generateArticle(topic, newsItem, research);
 
       // Step 4: Find and download image
       const imageResult = await findAndDownloadImage(article.imageSearchQuery || topic.title, slug);
