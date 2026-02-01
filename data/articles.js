@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'chelsea-complete-stunning-comeback-to-beat-west-ham-in-londo-2026-02-01',
+    title: 'Chelsea Complete Stunning Comeback to Beat West Ham in London Derby',
+    excerpt: 'Chelsea produced a remarkable turnaround to defeat West Ham 3-2, with two late goals securing a dramatic win in the London derby. The Blues trailed 2-0 at halftime but staged an incredible comeback to claim all three points.',
+    image: '/scout-chelsea-complete-stunning-comeback-to-beat-west-ham-in-londo.jpg',
+    category: 'Match Reports',
+    date: '2026-02-01',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Chelsea', 'West Ham', 'Premier League', 'London Derby', 'Comeback Victory']
+  },
+  {
     id: 'tottenham-hotspur-vs-manchester-city-tactical-preview-and-ke-2026-02-01',
     title: 'Tottenham Hotspur vs Manchester City: Tactical Preview and Key Battles',
     excerpt: 'A tactical deep dive into the highly-anticipated match between Tottenham Hotspur and Manchester City, with a focus on key battles and formations. The two teams have a rich history, with their last meeting ending in a 1-0 win for Manchester City, cour',
