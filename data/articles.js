@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'liverpool-target-premier-league-loan-star-as-wolves-close-in-2026-02-01',
+    title: 'Liverpool Target Premier League Loan Star as Wolves Close in on Gomes',
+    excerpt: 'Liverpool are keen on signing a Premier League loan star, while Wolves are set to complete the signing of Andre Gomes, and Arsenal are seven points clear at the top of the table.',
+    image: '/scout-liverpool-target-premier-league-loan-star-as-wolves-close-in.jpg',
+    category: 'Transfers',
+    date: '2026-02-01',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'Transfers', 'Liverpool', 'Wolves', 'Arsenal']
+  },
+  {
     id: 'chelsea-complete-stunning-comeback-to-beat-west-ham-in-londo-2026-02-01',
     title: 'Chelsea Complete Stunning Comeback to Beat West Ham in London Derby',
     excerpt: 'Chelsea produced a remarkable turnaround to defeat West Ham 3-2, with two late goals securing a dramatic win in the London derby. The Blues trailed 2-0 at halftime but staged an incredible comeback to claim all three points.',
