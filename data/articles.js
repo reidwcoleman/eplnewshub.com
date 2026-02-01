@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'tottenham-hotspur-vs-manchester-city-tactical-preview-and-ke-2026-02-01',
+    title: 'Tottenham Hotspur vs Manchester City: Tactical Preview and Key Battles',
+    excerpt: 'A tactical deep dive into the highly-anticipated match between Tottenham Hotspur and Manchester City, with a focus on key battles and formations. The two teams have a rich history, with their last meeting ending in a 1-0 win for Manchester City, cour',
+    image: '/scout-tottenham-hotspur-vs-manchester-city-tactical-preview-and-ke.png',
+    category: 'Analysis',
+    date: '2026-02-01',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Tottenham Hotspur', 'Manchester City', 'Premier League', 'tactical analysis', 'key battles']
+  },
+  {
     id: 'liverpool-4-1-newcastle-united-reds-tactical-masterclass-sec-2026-02-01',
     title: 'Liverpool 4-1 Newcastle United: Reds\' Tactical Masterclass Secures Convincing Win',
     excerpt: 'Liverpool\'s 4-1 win over Newcastle United was a testament to the Reds\' tactical superiority, with Jürgen Klopp\'s side dominating possession and creating numerous scoring opportunities. The victory marked Liverpool\'s fifth consecutive win in the P',
