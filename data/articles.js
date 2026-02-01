@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'liverpool-4-1-newcastle-united-reds-tactical-masterclass-sec-2026-02-01',
+    title: 'Liverpool 4-1 Newcastle United: Reds\' Tactical Masterclass Secures Convincing Win',
+    excerpt: 'Liverpool\'s 4-1 win over Newcastle United was a testament to the Reds\' tactical superiority, with Jürgen Klopp\'s side dominating possession and creating numerous scoring opportunities. The victory marked Liverpool\'s fifth consecutive win in the P',
+    image: '/scout-liverpool-4-1-newcastle-united-reds-tactical-masterclass-sec.jpg',
+    category: 'Match Reports',
+    date: '2026-02-01',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Liverpool', 'Newcastle United', 'Premier League', 'Match Report', 'Tactical Analysis']
+  },
+  {
     id: 'sunderland-vs-burnley-premier-league-clash-ends-in-thrilling-2026-01-31',
     title: 'Sunderland vs Burnley: Premier League Clash Ends in Thrilling Encounter',
     excerpt: 'Sunderland and Burnley played out a thrilling encounter at the Stadium of Light, with the Black Cats coming from behind to secure a crucial point. Get the latest updates, team news, and stats from the Premier League clash.',
