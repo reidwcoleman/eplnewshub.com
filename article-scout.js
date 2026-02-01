@@ -501,6 +501,112 @@ Return ONLY a JSON array of objects with "index" (1-based from the headlines lis
   return JSON.parse(jsonMatch[0]);
 }
 
+// ─── Real Football Data (API-Football) ───────────────────────────────────────
+
+async function fetchFootballData() {
+  const apiKey = process.env.API_FOOTBALL_KEY;
+  if (!apiKey) {
+    console.log('[Scout] No API_FOOTBALL_KEY — skipping real data fetch');
+    return null;
+  }
+
+  const data = { standings: null, recentResults: null, topScorers: null };
+
+  async function apiCall(endpoint) {
+    const res = await fetch(`https://v3.football.api-sports.io${endpoint}`, {
+      headers: { 'x-apisports-key': apiKey }
+    });
+    if (res.status !== 200) throw new Error(`API-Football ${res.status}`);
+    return res.json();
+  }
+
+  try {
+    // Premier League 2025-26 season, league ID = 39
+    const season = 2025;
+    const league = 39;
+
+    // Standings
+    const standingsRes = await apiCall(`/standings?league=${league}&season=${season}`);
+    if (standingsRes.response && standingsRes.response[0]) {
+      data.standings = standingsRes.response[0].league.standings[0].map(t => ({
+        rank: t.rank,
+        team: t.team.name,
+        points: t.points,
+        played: t.all.played,
+        won: t.all.win,
+        drawn: t.all.draw,
+        lost: t.all.lose,
+        goalsFor: t.all.goals.for,
+        goalsAgainst: t.all.goals.against,
+        form: t.form
+      }));
+      console.log('[Scout] ✓ Fetched live Premier League standings');
+    }
+
+    // Recent results (last 7 days)
+    const today = new Date();
+    const weekAgo = new Date(today - 7 * 86400000);
+    const fromDate = weekAgo.toISOString().split('T')[0];
+    const toDate = today.toISOString().split('T')[0];
+    const resultsRes = await apiCall(`/fixtures?league=${league}&season=${season}&from=${fromDate}&to=${toDate}&status=FT`);
+    if (resultsRes.response) {
+      data.recentResults = resultsRes.response.map(m => ({
+        home: m.teams.home.name,
+        away: m.teams.away.name,
+        homeGoals: m.goals.home,
+        awayGoals: m.goals.away,
+        date: m.fixture.date
+      }));
+      console.log(`[Scout] ✓ Fetched ${data.recentResults.length} recent match results`);
+    }
+
+    // Top scorers
+    const scorersRes = await apiCall(`/players/topscorers?league=${league}&season=${season}`);
+    if (scorersRes.response) {
+      data.topScorers = scorersRes.response.slice(0, 15).map(p => ({
+        name: p.player.name,
+        team: p.statistics[0].team.name,
+        goals: p.statistics[0].goals.total,
+        assists: p.statistics[0].goals.assists || 0
+      }));
+      console.log(`[Scout] ✓ Fetched top ${data.topScorers.length} scorers`);
+    }
+
+    return data;
+  } catch (e) {
+    console.log(`[Scout] API-Football fetch failed: ${e.message}`);
+    return null;
+  }
+}
+
+function formatFootballDataForPrompt(data) {
+  if (!data) return '';
+  let text = '\n\nVERIFIED REAL-TIME DATA (from official API — trust these numbers over any other source):\n';
+
+  if (data.standings) {
+    text += '\n--- PREMIER LEAGUE TABLE ---\n';
+    data.standings.forEach(t => {
+      text += `${t.rank}. ${t.team} — ${t.points}pts (P${t.played} W${t.won} D${t.drawn} L${t.lost}, GF${t.goalsFor} GA${t.goalsAgainst}, Form: ${t.form})\n`;
+    });
+  }
+
+  if (data.recentResults && data.recentResults.length > 0) {
+    text += '\n--- RECENT RESULTS (last 7 days) ---\n';
+    data.recentResults.forEach(m => {
+      text += `${m.home} ${m.homeGoals}-${m.awayGoals} ${m.away} (${new Date(m.date).toLocaleDateString()})\n`;
+    });
+  }
+
+  if (data.topScorers) {
+    text += '\n--- TOP SCORERS ---\n';
+    data.topScorers.forEach((p, i) => {
+      text += `${i + 1}. ${p.name} (${p.team}) — ${p.goals} goals, ${p.assists} assists\n`;
+    });
+  }
+
+  return text;
+}
+
 // ─── Source Scraping & Fact Research ─────────────────────────────────────────
 
 async function scrapeSourceArticle(url) {
@@ -711,6 +817,59 @@ Write a comprehensive, engaging, long-form article. ONLY use facts and quotes fr
       throw e2;
     }
   }
+}
+
+// ─── Post-Generation Fact Check ──────────────────────────────────────────────
+
+async function factCheckArticle(article, footballData, research) {
+  if (!footballData && (!research || !research.summary)) return article;
+
+  console.log('[Scout] Fact-checking article against verified data...');
+
+  let verificationData = '';
+  if (footballData) {
+    verificationData += formatFootballDataForPrompt(footballData);
+  }
+  if (research && research.summary) {
+    verificationData += '\n\nSOURCE MATERIAL:\n' + research.summary.slice(0, 3000);
+  }
+
+  const prompt = `You are a strict fact-checker for a Premier League news site. Review this article and fix ANY factual errors.
+
+ARTICLE TITLE: ${article.title}
+
+ARTICLE BODY:
+${article.bodyHTML}
+
+VERIFIED DATA TO CHECK AGAINST:
+${verificationData}
+
+INSTRUCTIONS:
+1. Check ALL match scores mentioned — do they match the verified results?
+2. Check ALL league positions and points — do they match the standings?
+3. Check ALL goal scorer claims — are they in the top scorers list?
+4. Check ALL quotes — are they from the source material?
+5. Remove or correct any stat, score, position, or quote that contradicts the verified data.
+6. If a claim cannot be verified from the data provided, rephrase it to be vaguer (e.g., "high in the table" instead of a specific position number you can't verify).
+
+Return ONLY the corrected bodyHTML. If no changes needed, return the original bodyHTML unchanged. Return raw HTML only, no wrapping, no explanation.`;
+
+  try {
+    const corrected = await callLLM(prompt, 'You are a meticulous football fact-checker. Fix errors, preserve writing style. Return only HTML.');
+    if (corrected && corrected.length > 200) {
+      // Basic sanity: must contain <p> tags and be roughly similar length
+      if (corrected.includes('<p>') && corrected.length > article.bodyHTML.length * 0.5) {
+        console.log('[Scout] ✓ Fact-check complete — article verified/corrected');
+        article.bodyHTML = corrected;
+      } else {
+        console.log('[Scout] ⚠ Fact-check returned unusual output — keeping original');
+      }
+    }
+  } catch (e) {
+    console.log(`[Scout] ⚠ Fact-check failed: ${e.message} — keeping original`);
+  }
+
+  return article;
 }
 
 // ─── HTML Article Template (matches Aston Villa article format exactly) ──────
@@ -1388,6 +1547,10 @@ async function runScout(count = 1) {
   topics.forEach((t, i) => console.log(`  ${i + 1}. [${t.category}] ${t.title}`));
   console.log('');
 
+  // Step 2.5: Fetch real football data for fact verification
+  console.log('[Scout] Fetching real-time football data...');
+  const footballData = await fetchFootballData();
+
   // Step 3: Generate each article
   const publishedTitles = [];
   for (const topic of topics) {
@@ -1418,8 +1581,17 @@ async function runScout(count = 1) {
       // Research: scrape sources and gather verified facts
       const research = await researchTopic(topic, newsItem);
 
+      // Append real football data to research
+      const footballDataText = formatFootballDataForPrompt(footballData);
+      if (footballDataText) {
+        research.summary += footballDataText;
+      }
+
       console.log(`[Scout] Generating article: ${topic.title}...`);
-      const article = await generateArticle(topic, newsItem, research);
+      let article = await generateArticle(topic, newsItem, research);
+
+      // Fact-check: verify article against real data
+      article = await factCheckArticle(article, footballData, research);
 
       // Step 4: Find and download image
       const imageResult = await findAndDownloadImage(article.imageSearchQuery || topic.title, slug);
