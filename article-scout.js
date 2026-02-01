@@ -1487,11 +1487,28 @@ TACTICAL ANALYSIS:
 - "weaknessesHome": array of 1-2 short strings e.g. ["Vulnerable on the counter"]
 - "weaknessesAway": array of 1-2 short strings
 
+SCORELINE PROBABILITIES:
+- "likelyScorelines": array of 3 objects, each {"score": "2-1", "pct": 18} — the 3 most likely exact scorelines with percentage chance
+
+MATCH FLOW:
+- "halfTimePrediction": predicted half-time score string e.g. "1-0"
+- "firstGoalTeam": "home", "away", or "either" — who scores first
+- "matchTempoRating": number 1-10 (1=dull low-tempo, 10=frantic end-to-end)
+- "dangerRating": number 1-5 (1=safe banker, 5=giant-killing potential/major upset risk)
+
+ADDITIONAL MARKETS:
+- "over15Pct": percentage chance of over 1.5 goals (integer 0-100)
+- "over35Pct": percentage chance of over 3.5 goals (integer 0-100)
+- "homeCleanSheetChance": percentage chance home keeps clean sheet (integer 0-100)
+- "awayCleanSheetChance": percentage chance away keeps clean sheet (integer 0-100)
+- "totalCornersEstimate": estimated total corners in the match (number e.g. 10.5)
+- "totalCardsEstimate": estimated total cards in the match (number e.g. 3.5)
+
 REASONING:
 - "reasonsForPrediction": array of 3-4 sentences, each a distinct reason why you picked this result (reference stats, form, h2h, tactical factors)
 - "verdict": punchy 1-sentence final call on the match
 
-Be realistic with scores (most PL games are 0-0 to 4-2 range). Vary your predictions — don't predict all home wins. Consider current form, injuries, head-to-head records. Make probabilities realistic and nuanced — most matches aren't 80%+ for one side.`;
+Be realistic with scores (most PL games are 0-0 to 4-2 range). Vary your predictions — don't predict all home wins. Consider current form, injuries, head-to-head records. Make probabilities realistic and nuanced — most matches aren't 80%+ for one side. Scoreline probabilities should be realistic — most individual scorelines are 8-20% likely.`;
 
   const prompt = `Predict the outcomes for these upcoming Premier League matches:\n\n${fixtureList}\n\nProvide predictions for all matches listed.`;
 
@@ -1534,6 +1551,7 @@ Usage:
   node article-scout.js              Generate 1 article
   node article-scout.js --batch      Generate 2-5 articles (daily batch)
   node article-scout.js --daemon     Run as background daemon (auto-publishes 2-5/day)
+  node article-scout.js --predictions Generate match predictions only (no articles)
   node article-scout.js --status     Show today's scout status
   node article-scout.js --help       Show this help
 
@@ -1555,6 +1573,22 @@ Requirements:
     });
   }
   console.log('');
+} else if (args.includes('--predictions')) {
+  (async () => {
+    try {
+      loadEnv();
+      console.log('═══════════════════════════════════════════════');
+      console.log('  EPL News Hub - Match Predictions');
+      console.log('  ' + new Date().toLocaleString());
+      console.log('═══════════════════════════════════════════════\n');
+      await generateMatchPredictions();
+      gitPush(['Match predictions updated']);
+      console.log('[Scout] Predictions run complete!');
+    } catch (e) {
+      console.error('[Scout] Predictions failed:', e.message);
+      process.exit(1);
+    }
+  })();
 } else if (args.includes('--daemon')) {
   startDaemon();
 } else if (args.includes('--batch')) {
