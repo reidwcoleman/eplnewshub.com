@@ -1595,19 +1595,60 @@ Requirements:
   const today = new Date().toISOString().split('T')[0];
   const todayCount = log.today === today ? log.todayCount : 0;
   const pidInfo = getScoutPidInfo();
+
+  // Check GitHub Actions workflow status (the real persistent scheduler)
+  let ghWorkflowStatus = null;
+  try {
+    const ghOutput = execSync('gh workflow list --all 2>/dev/null || true', { encoding: 'utf-8', timeout: 10000 });
+    const scoutLine = ghOutput.split('\n').find(l => l.includes('Article Scout'));
+    if (scoutLine) {
+      ghWorkflowStatus = scoutLine.includes('active') ? 'active' : 'disabled';
+    }
+  } catch (e) { /* gh CLI not available or not authed */ }
+
   console.log(`\nArticle Scout Status`);
   console.log(`━━━━━━━━━━━━━━━━━━━`);
+
+  // Scheduled (GitHub Actions) — the persistent always-on scheduler
+  if (ghWorkflowStatus === 'active') {
+    console.log(`Scheduler: 🟢 ACTIVE (GitHub Actions — runs 4x daily at 8am/12pm/4pm/8pm UTC)`);
+    console.log(`           Articles auto-publish even when your laptop is closed`);
+  } else if (ghWorkflowStatus === 'disabled') {
+    console.log(`Scheduler: 🔴 DISABLED (GitHub Actions workflow is disabled)`);
+    console.log(`           Run: gh workflow enable "Article Scout" to re-enable`);
+  } else {
+    console.log(`Scheduler: ⚠️  UNKNOWN (install gh CLI and run 'gh auth login' to check)`);
+    console.log(`           GitHub Actions should be running at github.com/reidwcoleman/eplnewshub.com/actions`);
+  }
+
+  // Local process — only relevant if running locally right now
   if (pidInfo) {
     const elapsed = Math.round((Date.now() - new Date(pidInfo.startedAt).getTime()) / 1000);
     const mins = Math.floor(elapsed / 60);
     const secs = elapsed % 60;
-    console.log(`Status:  🟢 RUNNING (${pidInfo.mode} mode, PID ${pidInfo.pid})`);
-    console.log(`Uptime:  ${mins}m ${secs}s (started ${pidInfo.startedAt})`);
-  } else {
-    console.log(`Status:  ⚪ NOT RUNNING`);
+    console.log(`Local:     🟢 Running locally too (${pidInfo.mode} mode, PID ${pidInfo.pid}, ${mins}m ${secs}s)`);
   }
-  console.log(`Today:   ${todayCount}/${CONFIG.maxArticlesPerDay} articles published`);
-  console.log(`Last run: ${log.lastRun || 'Never'}`);
+
+  console.log(`\nToday:     ${todayCount}/${CONFIG.maxArticlesPerDay} articles published`);
+  console.log(`Last run:  ${log.lastRun || 'Never'}`);
+
+  // Next scheduled run estimate
+  const now = new Date();
+  const scheduleHours = [8, 12, 16, 20]; // UTC
+  const currentHourUTC = now.getUTCHours();
+  let nextHour = scheduleHours.find(h => h > currentHourUTC);
+  const nextRun = new Date(now);
+  if (nextHour !== undefined) {
+    nextRun.setUTCHours(nextHour, 0, 0, 0);
+  } else {
+    nextRun.setUTCDate(nextRun.getUTCDate() + 1);
+    nextRun.setUTCHours(scheduleHours[0], 0, 0, 0);
+  }
+  const minsUntil = Math.round((nextRun - now) / 60000);
+  const hoursUntil = Math.floor(minsUntil / 60);
+  const minsRemainder = minsUntil % 60;
+  console.log(`Next run:  ~${hoursUntil}h ${minsRemainder}m (${nextRun.toUTCString()})`);
+
   if (log.articles && log.articles.length > 0) {
     console.log(`\nRecent articles:`);
     log.articles.slice(0, 5).forEach(a => {
