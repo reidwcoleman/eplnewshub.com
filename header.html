@@ -75,4 +75,23 @@ function toggleMobileMenu() {
         document.body.style.overflow = 'hidden';
     }
 }
+
+// Swipe-to-close sidebar
+(function() {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const sidebar = document.getElementById('mobile-sidebar');
+    if (!sidebar) return;
+
+    sidebar.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    sidebar.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        if (touchStartX - touchEndX > 60) {
+            toggleMobileMenu();
+        }
+    }, { passive: true });
+})();
 </script>

@@ -501,6 +501,12 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            /* Disable GPU-heavy background effects */
+            body::before,
+            body::after {
+                display: none !important;
+            }
+
             .article-container {
                 padding: 48px 20px 60px;
             }
@@ -551,6 +557,22 @@
             .article-body table th,
             .article-body table td {
                 padding: 12px 10px;
+            }
+
+            /* Reduce ads on mobile — hide every other ad */
+            .article-ad-container:nth-of-type(even) {
+                display: none !important;
+            }
+
+            .adsbygoogle {
+                min-height: 100px !important;
+                max-height: 280px !important;
+                margin: 16px auto !important;
+            }
+
+            /* Prevent horizontal overflow */
+            html, body {
+                overflow-x: hidden;
             }
         }
 

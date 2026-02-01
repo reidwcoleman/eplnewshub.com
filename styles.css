@@ -433,6 +433,8 @@ p {
     cursor: pointer;
     color: #f0f0f0;
     display: none;
+    min-width: 44px;
+    min-height: 44px;
 }
 
 .nyt-logo {
@@ -688,7 +690,7 @@ p {
     position: fixed;
     top: 0;
     left: -300px;
-    width: 300px;
+    width: min(300px, 85vw);
     height: 100%;
     background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
     z-index: 2000;
@@ -752,7 +754,9 @@ p {
 }
 
 .nyt-mobile-nav a {
-    display: block;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
     padding: 16px 20px;
     font-family: 'Inter', sans-serif;
     font-size: 16px;
@@ -880,13 +884,16 @@ p {
     }
 
     .nyt-nav-links li a {
-        padding: clamp(6px, 2vw, 10px) clamp(10px, 3vw, 16px);
+        padding: 12px 14px;
         font-size: clamp(11px, 3.5vw, 13px);
         font-weight: 500;
         border-radius: 20px;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
         white-space: nowrap;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
     }
 
     .nyt-nav-links li a:active {
@@ -4352,4 +4359,103 @@ p { font-size: 1rem; }
 @media (min-width: 1024px) {
     .p-mobile { padding: 32px; }
     .m-mobile { margin: 32px; }
+}
+
+/* ====================================
+   MOBILE AD REDUCTION & UX IMPROVEMENTS
+   ==================================== */
+@media (max-width: 768px) {
+    /* Hide every other in-article ad on mobile — keeps 1, hides 2, keeps 3, etc. */
+    .article-ad-container:nth-of-type(even),
+    .in-article-ad-container:nth-of-type(even) {
+        display: none !important;
+    }
+
+    /* Reduce ad container sizes on mobile */
+    .adsbygoogle {
+        min-height: 100px !important;
+        max-height: 280px !important;
+        margin: 16px auto !important;
+    }
+
+    /* Cap page-level ad containers */
+    .page-ad-container {
+        margin: 16px 0 !important;
+        padding: 12px !important;
+    }
+
+    /* Prevent fixed/sticky ad overlays on mobile */
+    #sticky-sidebar-ad,
+    #mobile-sticky-banner {
+        display: none !important;
+    }
+
+    /* Reduce spacing around ads */
+    .article-ad-container {
+        margin: 16px 0 !important;
+        padding: 10px 0 !important;
+    }
+
+    /* Improve content-to-ad ratio — ensure text is prominent */
+    article p, .article-body p, .nyt-article p {
+        font-size: 17px;
+        line-height: 1.7;
+    }
+
+    /* Smoother scrolling and prevent rubber-banding */
+    html {
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    body {
+        overflow-x: hidden;
+    }
+
+    /* Improve tap spacing between interactive elements */
+    .article-card + .article-card,
+    .nyt-headline-card + .nyt-headline-card {
+        margin-top: 4px;
+    }
+
+    /* Better image sizing on mobile */
+    .nyt-article img,
+    .article-container img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+
+    /* Reduce hover effects that cause jank on mobile */
+    .nyt-featured:hover,
+    .nyt-side-story:hover,
+    .nyt-bottom-story:hover,
+    .nyt-article-card:hover,
+    .nyt-headline-card:hover,
+    .story-card:hover,
+    .featured-article-card:hover {
+        transform: none !important;
+    }
+
+    /* Simplify box-shadows on mobile for GPU performance */
+    .nyt-featured,
+    .nyt-side-story,
+    .nyt-bottom-story,
+    .nyt-article-card,
+    .nyt-headline-card {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Even more aggressive ad reduction on small phones */
+    .article-ad-container:nth-of-type(3n),
+    .article-ad-container:nth-of-type(3n-1) {
+        display: none !important;
+    }
+
+    /* Only show max 2 ad slots on smallest screens */
+    .page-ad-container ~ .page-ad-container ~ .page-ad-container {
+        display: none !important;
+    }
 }

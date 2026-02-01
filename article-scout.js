@@ -851,6 +851,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
 
         /* Responsive */
         @media (max-width: 768px) {
+            body::before, body::after { display: none !important; }
             .article-container { padding: 48px 20px 60px; }
             .article-headline { font-size: 40px; letter-spacing: -0.6px; line-height: 1.1; }
             .article-dek { font-size: 18px; line-height: 1.55; }
@@ -862,6 +863,9 @@ function buildArticleHTML(article, filename, date, imageFile) {
             .article-byline { padding: 24px 0; margin-bottom: 32px; }
             .article-body table { font-size: 14px; }
             .article-body table th, .article-body table td { padding: 12px 10px; }
+            .article-ad-container:nth-of-type(even) { display: none !important; }
+            .adsbygoogle { min-height: 100px !important; max-height: 280px !important; margin: 16px auto !important; }
+            html, body { overflow-x: hidden; }
         }
 
         @media (max-width: 480px) {

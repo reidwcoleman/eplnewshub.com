@@ -347,7 +347,7 @@
 
         /* Override inline styles for side story */
         .nyt-side-story span[style*="font-size: 11px"] {
-            font-size: 10px !important;
+            font-size: 11px !important;
             padding: 4px 8px !important;
             margin-bottom: 12px !important;
         }
@@ -443,14 +443,14 @@
 
         .nyt-bottom-story span[style*="font-size: 11px"],
         .nyt-bottom-story .nyt-category {
-            font-size: 9px !important;
+            font-size: 11px !important;
             padding: 3px 6px !important;
             margin-bottom: 8px !important;
         }
 
         .nyt-bottom-story .nyt-sidebar-story-meta,
         .nyt-bottom-story div[style*="font-size: 13px"] {
-            font-size: 11px !important;
+            font-size: 12px !important;
             color: #888888 !important;
             margin-top: auto !important;
         }
@@ -1169,7 +1169,7 @@
 
         /* Category Badge */
         .nyt-headline-card .nyt-category {
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: 1.2px;
             text-transform: uppercase;
@@ -1209,7 +1209,7 @@
 
         /* Meta Date */
         .nyt-headline-card .nyt-sidebar-story-meta {
-            font-size: 11px;
+            font-size: 12px;
             color: #666;
             font-weight: 500;
             margin-top: auto;
@@ -1298,6 +1298,42 @@
         }
 
         @media (max-width: 768px) {
+            /* Disable GPU-heavy background effects on mobile */
+            body::before {
+                display: none;
+            }
+
+            body::after {
+                display: none;
+            }
+
+            .nyt-hero, .nyt-three-column, .nyt-headlines-section {
+                animation: none;
+            }
+
+            /* Prevent horizontal scroll */
+            html, body {
+                overflow-x: hidden;
+            }
+
+            /* Disable hover transforms on mobile for GPU perf */
+            .nyt-featured:hover,
+            .nyt-side-story:hover,
+            .nyt-bottom-story:hover,
+            .nyt-article-card:hover,
+            .nyt-headline-card:hover {
+                transform: none;
+            }
+
+            /* Simplify shadows */
+            .nyt-featured,
+            .nyt-side-story,
+            .nyt-bottom-story,
+            .nyt-article-card,
+            .nyt-headline-card {
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+
             .nyt-container {
                 padding: 0 20px;
             }
@@ -1434,12 +1470,14 @@
             }
 
             .nyt-bottom-story a {
-                flex-direction: column;
+                display: flex !important;
+                flex-direction: column !important;
+                grid-template-columns: none !important;
             }
 
             .nyt-bottom-story img {
-                width: 100%;
-                height: auto;
+                width: 100% !important;
+                height: auto !important;
                 aspect-ratio: 16 / 10;
             }
         }
