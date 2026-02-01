@@ -296,11 +296,11 @@
         .detail-panel {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.4s ease;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .prediction-card.expanded .detail-panel {
-            max-height: 800px;
+            max-height: 2000px;
         }
 
         .detail-inner {
@@ -310,7 +310,11 @@
         }
 
         .detail-section {
-            margin-bottom: 18px;
+            margin-bottom: 22px;
+        }
+
+        .detail-section:last-child {
+            margin-bottom: 0;
         }
 
         .detail-section-title {
@@ -319,9 +323,142 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #8b5cf6;
+            margin-bottom: 10px;
+        }
+
+        /* Probability bars */
+        .prob-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .prob-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .prob-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .prob-track {
+            flex: 1;
+            height: 22px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .prob-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.6s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            min-width: 36px;
+        }
+
+        .prob-fill-home { background: linear-gradient(90deg, rgba(16,185,129,0.3), rgba(16,185,129,0.7)); }
+        .prob-fill-draw { background: linear-gradient(90deg, rgba(245,158,11,0.3), rgba(245,158,11,0.7)); }
+        .prob-fill-away { background: linear-gradient(90deg, rgba(59,130,246,0.3), rgba(59,130,246,0.7)); }
+        .prob-fill-generic { background: linear-gradient(90deg, rgba(139,92,246,0.3), rgba(139,92,246,0.7)); }
+
+        .prob-pct {
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* Three-way probability visual */
+        .prob-three-way {
+            display: flex;
+            height: 32px;
+            border-radius: 8px;
+            overflow: hidden;
             margin-bottom: 8px;
         }
 
+        .prob-three-way .seg-home {
+            background: rgba(16,185,129,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width 0.6s ease;
+        }
+
+        .prob-three-way .seg-draw {
+            background: rgba(245,158,11,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width 0.6s ease;
+        }
+
+        .prob-three-way .seg-away {
+            background: rgba(59,130,246,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width 0.6s ease;
+        }
+
+        .prob-three-way span {
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        .prob-legend {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .prob-legend .leg-home { color: #10b981; }
+        .prob-legend .leg-draw { color: #f59e0b; }
+        .prob-legend .leg-away { color: #3b82f6; }
+
+        .prob-extras {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .prob-chip {
+            flex: 1;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .prob-chip-label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .prob-chip-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f0f0f0;
+        }
+
+        /* Form guide */
         .form-guide {
             display: flex;
             justify-content: space-between;
@@ -345,8 +482,8 @@
         }
 
         .form-dot {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -360,17 +497,78 @@
         .form-dot.D { background: #f59e0b; }
         .form-dot.L { background: #ef4444; }
 
-        .h2h-text, .verdict-text, .tactical-text {
-            font-size: 14px;
-            color: #b0b0b0;
-            line-height: 1.6;
+        /* Stats comparison table */
+        .stats-compare {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .verdict-text {
+        .stats-compare tr {
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .stats-compare tr:last-child {
+            border-bottom: none;
+        }
+
+        .stats-compare td {
+            padding: 8px 4px;
+            font-size: 13px;
+        }
+
+        .stats-compare .sc-home {
+            text-align: right;
             font-weight: 700;
             color: #f0f0f0;
+            width: 60px;
         }
 
+        .stats-compare .sc-label {
+            text-align: center;
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stats-compare .sc-away {
+            text-align: left;
+            font-weight: 700;
+            color: #f0f0f0;
+            width: 60px;
+        }
+
+        .stats-compare .sc-bar-cell {
+            width: 80px;
+            padding: 8px 2px;
+        }
+
+        .sc-bar-wrap {
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .sc-bar-wrap.right {
+            direction: rtl;
+        }
+
+        .sc-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+        }
+
+        .sc-bar-fill.home-bar {
+            background: linear-gradient(270deg, #10b981, rgba(16,185,129,0.4));
+        }
+
+        .sc-bar-fill.away-bar {
+            background: linear-gradient(90deg, #3b82f6, rgba(59,130,246,0.4));
+        }
+
+        /* Key players */
         .key-players {
             display: flex;
             gap: 16px;
@@ -380,12 +578,12 @@
             flex: 1;
             background: rgba(255,255,255,0.03);
             border-radius: 10px;
-            padding: 12px;
+            padding: 14px;
             border: 1px solid rgba(255,255,255,0.05);
         }
 
         .key-player-label {
-            font-size: 11px;
+            font-size: 10px;
             color: #666;
             margin-bottom: 4px;
             text-transform: uppercase;
@@ -398,32 +596,113 @@
             font-weight: 600;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+        /* Injuries */
+        .injury-cols {
+            display: flex;
+            gap: 16px;
         }
 
-        .stat-cell {
-            background: rgba(255,255,255,0.03);
-            border-radius: 10px;
-            padding: 12px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.05);
+        .injury-col {
+            flex: 1;
         }
 
-        .stat-cell-label {
+        .injury-col-label {
             font-size: 11px;
             color: #666;
-            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
         }
 
-        .stat-cell-value {
-            font-size: 20px;
+        .injury-item {
+            font-size: 13px;
+            color: #ef4444;
+            padding: 3px 0;
+        }
+
+        .injury-item::before {
+            content: '\u2716';
+            margin-right: 6px;
+            font-size: 10px;
+        }
+
+        .injury-none {
+            font-size: 13px;
+            color: #10b981;
+        }
+
+        /* Formations */
+        .formations-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 10px;
+        }
+
+        .formation-chip {
+            background: rgba(139,92,246,0.12);
+            border: 1px solid rgba(139,92,246,0.3);
+            color: #c4b5fd;
+            font-size: 16px;
             font-weight: 700;
-            color: #f0f0f0;
+            padding: 6px 18px;
+            border-radius: 8px;
+            font-family: 'Inter', monospace;
         }
 
+        .formation-vs {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        /* Strengths & Weaknesses */
+        .sw-cols {
+            display: flex;
+            gap: 16px;
+        }
+
+        .sw-col {
+            flex: 1;
+        }
+
+        .sw-col-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .sw-item {
+            font-size: 13px;
+            padding: 4px 0;
+            line-height: 1.4;
+        }
+
+        .sw-item.strength {
+            color: #10b981;
+        }
+
+        .sw-item.strength::before {
+            content: '+';
+            margin-right: 6px;
+            font-weight: 700;
+        }
+
+        .sw-item.weakness {
+            color: #ef4444;
+        }
+
+        .sw-item.weakness::before {
+            content: '\u2212';
+            margin-right: 6px;
+            font-weight: 700;
+        }
+
+        /* Key battles */
         .key-battles-list {
             list-style: none;
             padding: 0;
@@ -433,7 +712,7 @@
         .key-battles-list li {
             font-size: 13px;
             color: #b0b0b0;
-            padding: 6px 0;
+            padding: 7px 0;
             border-bottom: 1px solid rgba(255,255,255,0.04);
         }
 
@@ -446,13 +725,76 @@
             margin-right: 8px;
         }
 
+        /* Reasoning */
+        .reasons-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            counter-reset: reason;
+        }
+
+        .reasons-list li {
+            font-size: 13px;
+            color: #b0b0b0;
+            padding: 6px 0 6px 28px;
+            position: relative;
+            line-height: 1.5;
+            counter-increment: reason;
+        }
+
+        .reasons-list li::before {
+            content: counter(reason);
+            position: absolute;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            background: rgba(139,92,246,0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #8b5cf6;
+            top: 7px;
+        }
+
+        .h2h-text, .tactical-text {
+            font-size: 14px;
+            color: #b0b0b0;
+            line-height: 1.6;
+        }
+
+        .verdict-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: #f0f0f0;
+            line-height: 1.5;
+            padding: 12px 16px;
+            background: rgba(139,92,246,0.08);
+            border-left: 3px solid #8b5cf6;
+            border-radius: 0 8px 8px 0;
+        }
+
         @media (max-width: 768px) {
-            .form-guide, .key-players {
+            .form-guide, .key-players, .injury-cols, .sw-cols {
                 flex-direction: column;
                 gap: 12px;
             }
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
+            .prob-extras {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .prob-label {
+                min-width: 60px;
+                font-size: 11px;
+            }
+            .formations-row {
+                gap: 12px;
+            }
+            .formation-chip {
+                font-size: 14px;
+                padding: 5px 12px;
             }
         }
 
@@ -558,6 +900,11 @@
             return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
         }
 
+        function getOrdinal(n) {
+            var s = ['th','st','nd','rd'], v = n % 100;
+            return s[(v-20)%10] || s[v] || s[0];
+        }
+
         function renderPredictions(data) {
             const list = document.getElementById('predictions-list');
             const meta = document.getElementById('predictions-meta');
@@ -596,7 +943,6 @@
 
                 const confidence = p.confidence || 50;
 
-                // Build form dots
                 function formDots(formStr) {
                     if (!formStr) return '';
                     return formStr.split('').map(function(c) {
@@ -604,23 +950,97 @@
                     }).join('');
                 }
 
-                // Build key battles list
-                var battlesHtml = '';
-                if (p.keyBattles && p.keyBattles.length) {
-                    battlesHtml = '<ul class="key-battles-list">' +
-                        p.keyBattles.map(function(b) { return '<li>' + b + '</li>'; }).join('') +
-                        '</ul>';
+                function listItems(arr, cls) {
+                    if (!arr || !arr.length) return '';
+                    return arr.map(function(s) { return '<div class="sw-item ' + cls + '">' + s + '</div>'; }).join('');
+                }
+
+                function injuryItems(arr) {
+                    if (!arr || !arr.length) return '<div class="injury-none">No major absences</div>';
+                    return arr.map(function(s) { return '<div class="injury-item">' + s + '</div>'; }).join('');
+                }
+
+                function statRow(homeVal, label, awayVal, maxVal) {
+                    var hPct = Math.min(100, Math.round((homeVal / maxVal) * 100));
+                    var aPct = Math.min(100, Math.round((awayVal / maxVal) * 100));
+                    return '<tr>' +
+                        '<td class="sc-home">' + homeVal + '</td>' +
+                        '<td class="sc-bar-cell"><div class="sc-bar-wrap right"><div class="sc-bar-fill home-bar" style="width:' + hPct + '%"></div></div></td>' +
+                        '<td class="sc-label">' + label + '</td>' +
+                        '<td class="sc-bar-cell"><div class="sc-bar-wrap"><div class="sc-bar-fill away-bar" style="width:' + aPct + '%"></div></div></td>' +
+                        '<td class="sc-away">' + awayVal + '</td>' +
+                    '</tr>';
                 }
 
                 var homeName = p.homeTeam.replace(/ FC$/, '');
                 var awayName = p.awayTeam.replace(/ FC$/, '');
+
+                // Build probability section
+                var probHtml = '';
+                if (p.homeWinPct != null) {
+                    probHtml =
+                        '<div class="detail-section">' +
+                            '<div class="detail-section-title">Win Probability</div>' +
+                            '<div class="prob-three-way">' +
+                                '<div class="seg-home" style="width:' + p.homeWinPct + '%"><span>' + (p.homeWinPct >= 12 ? p.homeWinPct + '%' : '') + '</span></div>' +
+                                '<div class="seg-draw" style="width:' + p.drawPct + '%"><span>' + (p.drawPct >= 12 ? p.drawPct + '%' : '') + '</span></div>' +
+                                '<div class="seg-away" style="width:' + p.awayWinPct + '%"><span>' + (p.awayWinPct >= 12 ? p.awayWinPct + '%' : '') + '</span></div>' +
+                            '</div>' +
+                            '<div class="prob-legend">' +
+                                '<span class="leg-home">' + homeName + ' ' + p.homeWinPct + '%</span>' +
+                                '<span class="leg-draw">Draw ' + p.drawPct + '%</span>' +
+                                '<span class="leg-away">' + awayName + ' ' + p.awayWinPct + '%</span>' +
+                            '</div>' +
+                            '<div class="prob-extras">' +
+                                '<div class="prob-chip"><div class="prob-chip-label">Both Teams Score</div><div class="prob-chip-value">' + (p.bttsYesPct || '—') + '%</div></div>' +
+                                '<div class="prob-chip"><div class="prob-chip-label">Over 2.5 Goals</div><div class="prob-chip-value">' + (p.over25Pct || '—') + '%</div></div>' +
+                            '</div>' +
+                        '</div>';
+                }
+
+                // Build stats comparison table
+                var statsHtml = '';
+                if (p.homeGoalsPerGame != null) {
+                    statsHtml =
+                        '<div class="detail-section">' +
+                            '<div class="detail-section-title">Stats Comparison (Per Game)</div>' +
+                            '<table class="stats-compare">' +
+                                statRow(p.homeGoalsPerGame, 'Goals Scored', p.awayGoalsPerGame, 3) +
+                                statRow(p.homeConcededPerGame, 'Goals Conceded', p.awayConcededPerGame, 3) +
+                                (p.homeXGPerGame != null ? statRow(p.homeXGPerGame, 'xG', p.awayXGPerGame, 3) : '') +
+                                (p.homePossessionPct != null ? statRow(p.homePossessionPct + '%', 'Possession', p.awayPossessionPct + '%', 1) : '') +
+                                (p.homeShotsPerGame != null ? statRow(p.homeShotsPerGame, 'Shots', p.awayShotsPerGame, 20) : '') +
+                                (p.homeCleanSheetPct != null ? statRow(p.homeCleanSheetPct + '%', 'Clean Sheets', p.awayCleanSheetPct + '%', 1) : '') +
+                            '</table>' +
+                        '</div>';
+                }
+
+                // Battles
+                var battlesHtml = '';
+                if (p.keyBattles && p.keyBattles.length) {
+                    battlesHtml = '<div class="detail-section">' +
+                        '<div class="detail-section-title">Key Battles</div>' +
+                        '<ul class="key-battles-list">' +
+                        p.keyBattles.map(function(b) { return '<li>' + b + '</li>'; }).join('') +
+                        '</ul></div>';
+                }
+
+                // Reasons
+                var reasonsHtml = '';
+                if (p.reasonsForPrediction && p.reasonsForPrediction.length) {
+                    reasonsHtml = '<div class="detail-section">' +
+                        '<div class="detail-section-title">Why This Prediction</div>' +
+                        '<ol class="reasons-list">' +
+                        p.reasonsForPrediction.map(function(r) { return '<li>' + r + '</li>'; }).join('') +
+                        '</ol></div>';
+                }
 
                 html += '<div class="prediction-card" onclick="this.classList.toggle(\'expanded\')">' +
                     '<div class="card-header-row">' +
                         '<div class="match-header">' +
                             '<div class="team">' +
                                 '<img src="' + homeBadge + '" alt="' + p.homeTeam + '" class="team-badge" onerror="this.src=\'/eplnewshubnewlogo.png\'">' +
-                                '<span class="team-name">' + homeName + '</span>' +
+                                '<span class="team-name">' + homeName + (p.homeLeaguePosition ? ' <small style="color:#666;font-weight:400">(' + p.homeLeaguePosition + getOrdinal(p.homeLeaguePosition) + ')</small>' : '') + '</span>' +
                             '</div>' +
                             '<div class="vs-divider">' +
                                 '<div class="predicted-score">' + homeScore + ' - ' + awayScore + '</div>' +
@@ -628,7 +1048,7 @@
                             '</div>' +
                             '<div class="team">' +
                                 '<img src="' + awayBadge + '" alt="' + p.awayTeam + '" class="team-badge" onerror="this.src=\'/eplnewshubnewlogo.png\'">' +
-                                '<span class="team-name">' + awayName + '</span>' +
+                                '<span class="team-name">' + awayName + (p.awayLeaguePosition ? ' <small style="color:#666;font-weight:400">(' + p.awayLeaguePosition + getOrdinal(p.awayLeaguePosition) + ')</small>' : '') + '</span>' +
                             '</div>' +
                         '</div>' +
                         '<span class="expand-chevron">&#9662;</span>' +
@@ -644,6 +1064,7 @@
                     '</div>' +
                     '<div class="detail-panel">' +
                         '<div class="detail-inner">' +
+                            probHtml +
                             (p.formHome || p.formAway ?
                                 '<div class="detail-section">' +
                                     '<div class="detail-section-title">Form Guide (Last 5)</div>' +
@@ -657,6 +1078,7 @@
                                     '<div class="detail-section-title">Head to Head</div>' +
                                     '<div class="h2h-text">' + p.h2hSummary + '</div>' +
                                 '</div>' : '') +
+                            statsHtml +
                             (p.keyPlayerHome || p.keyPlayerAway ?
                                 '<div class="detail-section">' +
                                     '<div class="detail-section-title">Key Players</div>' +
@@ -665,26 +1087,38 @@
                                         (p.keyPlayerAway ? '<div class="key-player"><div class="key-player-label">' + awayName + '</div><div class="key-player-name">' + p.keyPlayerAway + '</div></div>' : '') +
                                     '</div>' +
                                 '</div>' : '') +
-                            (p.homeGoalsPerGame != null ?
+                            ((p.injuriesHome && p.injuriesHome.length) || (p.injuriesAway && p.injuriesAway.length) ?
                                 '<div class="detail-section">' +
-                                    '<div class="detail-section-title">Season Stats (Per Game)</div>' +
-                                    '<div class="stats-grid">' +
-                                        '<div class="stat-cell"><div class="stat-cell-label">' + homeName + ' Scored</div><div class="stat-cell-value">' + p.homeGoalsPerGame + '</div></div>' +
-                                        '<div class="stat-cell"><div class="stat-cell-label">' + awayName + ' Scored</div><div class="stat-cell-value">' + p.awayGoalsPerGame + '</div></div>' +
-                                        '<div class="stat-cell"><div class="stat-cell-label">' + homeName + ' Conceded</div><div class="stat-cell-value">' + p.homeConcededPerGame + '</div></div>' +
-                                        '<div class="stat-cell"><div class="stat-cell-label">' + awayName + ' Conceded</div><div class="stat-cell-value">' + p.awayConcededPerGame + '</div></div>' +
+                                    '<div class="detail-section-title">Injuries & Absences</div>' +
+                                    '<div class="injury-cols">' +
+                                        '<div class="injury-col"><div class="injury-col-label">' + homeName + '</div>' + injuryItems(p.injuriesHome) + '</div>' +
+                                        '<div class="injury-col"><div class="injury-col-label">' + awayName + '</div>' + injuryItems(p.injuriesAway) + '</div>' +
                                     '</div>' +
                                 '</div>' : '') +
-                            (p.tacticalMatchup ?
+                            (p.homeFormation || p.awayFormation ?
                                 '<div class="detail-section">' +
-                                    '<div class="detail-section-title">Tactical Matchup</div>' +
-                                    '<div class="tactical-text">' + p.tacticalMatchup + '</div>' +
+                                    '<div class="detail-section-title">Tactical Setup</div>' +
+                                    '<div class="formations-row">' +
+                                        '<span class="formation-chip">' + (p.homeFormation || '?') + '</span>' +
+                                        '<span class="formation-vs">vs</span>' +
+                                        '<span class="formation-chip">' + (p.awayFormation || '?') + '</span>' +
+                                    '</div>' +
+                                    (p.tacticalMatchup ? '<div class="tactical-text">' + p.tacticalMatchup + '</div>' : '') +
                                 '</div>' : '') +
-                            (battlesHtml ?
+                            ((p.strengthsHome && p.strengthsHome.length) || (p.strengthsAway && p.strengthsAway.length) ?
                                 '<div class="detail-section">' +
-                                    '<div class="detail-section-title">Key Battles</div>' +
-                                    battlesHtml +
+                                    '<div class="detail-section-title">Strengths & Weaknesses</div>' +
+                                    '<div class="sw-cols">' +
+                                        '<div class="sw-col"><div class="sw-col-label">' + homeName + '</div>' +
+                                            listItems(p.strengthsHome, 'strength') + listItems(p.weaknessesHome, 'weakness') +
+                                        '</div>' +
+                                        '<div class="sw-col"><div class="sw-col-label">' + awayName + '</div>' +
+                                            listItems(p.strengthsAway, 'strength') + listItems(p.weaknessesAway, 'weakness') +
+                                        '</div>' +
+                                    '</div>' +
                                 '</div>' : '') +
+                            battlesHtml +
+                            reasonsHtml +
                             (p.verdict ?
                                 '<div class="detail-section">' +
                                     '<div class="detail-section-title">Verdict</div>' +

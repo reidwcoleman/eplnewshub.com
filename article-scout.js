@@ -27,6 +27,7 @@ const ARTICLES_JSON = path.join(ROOT, 'articles.json');
 const DATA_ARTICLES_JS = path.join(ROOT, 'data', 'articles.js');
 const SITEMAP = path.join(ROOT, 'sitemap.xml');
 const SCOUT_LOG = path.join(ROOT, 'scout-log.json');
+const SERVICE_ACCOUNT_PATH = path.join(ROOT, 'google-service-account.json');
 
 // Load .env manually
 function loadEnv() {
@@ -1301,12 +1302,16 @@ async function runScout(count = 1) {
       publishedTitles.push(article.title);
 
       console.log(`[Scout] Published: ${article.title}\n`);
+
+      // Step 11: Request Google indexing
+      const articleUrl = `https://www.eplnewshub.com/articles/${filename}`;
+      await requestIndexing(articleUrl);
     } catch (e) {
       console.error(`[Scout] Failed to generate article for "${topic.title}":`, e.message);
     }
   }
 
-  // Step 11: Generate match predictions
+  // Step 12: Generate match predictions
   try {
     await generateMatchPredictions();
   } catch (e) {
@@ -1389,6 +1394,31 @@ No other text, just the JSON array.`;
   try { return JSON.parse(jsonMatch[0]); } catch { return []; }
 }
 
+// ─── Google Indexing API ─────────────────────────────────────────────────────
+
+async function requestIndexing(articleUrl) {
+  try {
+    if (!fs.existsSync(SERVICE_ACCOUNT_PATH)) {
+      console.log('[Scout] No service account key found, skipping indexing request.');
+      return;
+    }
+    const { GoogleAuth } = require('google-auth-library');
+    const auth = new GoogleAuth({
+      keyFile: SERVICE_ACCOUNT_PATH,
+      scopes: ['https://www.googleapis.com/auth/indexing']
+    });
+    const client = await auth.getClient();
+    const res = await client.request({
+      url: 'https://indexing.googleapis.com/v3/urlNotifications:publish',
+      method: 'POST',
+      data: { url: articleUrl, type: 'URL_UPDATED' }
+    });
+    console.log(`[Scout] Indexing requested for ${articleUrl} — status ${res.status}`);
+  } catch (e) {
+    console.error(`[Scout] Indexing request failed for ${articleUrl}: ${e.message}`);
+  }
+}
+
 async function generateMatchPredictions() {
   console.log('[Scout] Generating match predictions...');
 
@@ -1401,29 +1431,67 @@ async function generateMatchPredictions() {
   const gameweek = fixtures[0].matchday || null;
   const fixtureList = fixtures.map((f, i) => `${i + 1}. ${f.homeTeam} vs ${f.awayTeam}`).join('\n');
 
-  const systemPrompt = `You are an expert football analyst providing match predictions for EPL News Hub. Give realistic, data-informed predictions.
+  const systemPrompt = `You are an elite football analyst and data scientist providing match predictions for EPL News Hub. Give realistic, data-informed predictions with detailed probabilistic analysis.
 
 Return ONLY a JSON array of objects, one per match, with these fields:
+
+CORE PREDICTION:
 - "homeTeam": exact team name as given
 - "awayTeam": exact team name as given
 - "predictedScore": {"home": number, "away": number}
 - "winner": "home", "away", or "draw"
 - "confidence": number 50-95 (how confident in the prediction)
 - "analysis": 2-3 sentences of tactical analysis explaining the prediction
+
+PROBABILITIES (must add to 100):
+- "homeWinPct": percentage chance of home win (integer)
+- "drawPct": percentage chance of draw (integer)
+- "awayWinPct": percentage chance of away win (integer)
+- "bttsYesPct": percentage chance both teams score (integer 0-100)
+- "over25Pct": percentage chance of over 2.5 goals (integer 0-100)
+
+FORM & HISTORY:
 - "formHome": last 5 results string e.g. "WWDLW" (most recent first)
 - "formAway": last 5 results string e.g. "LDWWW" (most recent first)
+- "h2hSummary": head-to-head recent record string e.g. "Home 3W-1D-1L in last 5 meetings"
+- "homeLeaguePosition": current league position number
+- "awayLeaguePosition": current league position number
+
+TEAM STATS (per game this season, 1 decimal):
+- "homeGoalsPerGame": average goals scored
+- "awayGoalsPerGame": average goals scored
+- "homeConcededPerGame": average goals conceded
+- "awayConcededPerGame": average goals conceded
+- "homeXGPerGame": expected goals per game
+- "awayXGPerGame": expected goals per game
+- "homePossessionPct": average possession percentage (integer)
+- "awayPossessionPct": average possession percentage (integer)
+- "homeShotsPerGame": average shots per game (1 decimal)
+- "awayShotsPerGame": average shots per game (1 decimal)
+- "homeCleanSheetPct": percentage of games with clean sheet (integer)
+- "awayCleanSheetPct": percentage of games with clean sheet (integer)
+
+PLAYERS:
 - "keyPlayerHome": standout player name + short reason e.g. "Cole Palmer — 12 goals, lethal from set pieces"
 - "keyPlayerAway": standout player name + short reason
-- "h2hSummary": head-to-head recent record string e.g. "Home 3W-1D-1L in last 5 meetings"
-- "homeGoalsPerGame": average goals scored per game this season (number, 1 decimal)
-- "awayGoalsPerGame": average goals scored per game this season (number, 1 decimal)
-- "homeConcededPerGame": average goals conceded per game this season (number, 1 decimal)
-- "awayConcededPerGame": average goals conceded per game this season (number, 1 decimal)
+- "injuriesHome": array of 1-3 strings with notable absentees e.g. ["Reece James (knee)", "Romeo Lavia (hamstring)"]
+- "injuriesAway": array of 1-3 strings with notable absentees
+
+TACTICAL ANALYSIS:
+- "homeFormation": e.g. "4-2-3-1"
+- "awayFormation": e.g. "4-3-3"
 - "tacticalMatchup": 2-3 sentences on how formations and styles interact
-- "keyBattles": array of 2-3 strings, each a player-vs-player matchup e.g. "Salah vs Cucurella — pace against positioning"
+- "keyBattles": array of 2-3 strings, each a player-vs-player matchup
+- "strengthsHome": array of 2-3 short strings e.g. ["Set piece delivery", "Pressing intensity"]
+- "strengthsAway": array of 2-3 short strings
+- "weaknessesHome": array of 1-2 short strings e.g. ["Vulnerable on the counter"]
+- "weaknessesAway": array of 1-2 short strings
+
+REASONING:
+- "reasonsForPrediction": array of 3-4 sentences, each a distinct reason why you picked this result (reference stats, form, h2h, tactical factors)
 - "verdict": punchy 1-sentence final call on the match
 
-Be realistic with scores (most PL games are 0-0 to 4-2 range). Vary your predictions — don't predict all home wins. Consider current form, injuries, head-to-head records.`;
+Be realistic with scores (most PL games are 0-0 to 4-2 range). Vary your predictions — don't predict all home wins. Consider current form, injuries, head-to-head records. Make probabilities realistic and nuanced — most matches aren't 80%+ for one side.`;
 
   const prompt = `Predict the outcomes for these upcoming Premier League matches:\n\n${fixtureList}\n\nProvide predictions for all matches listed.`;
 
