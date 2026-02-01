@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'solankes-stunning-equaliser-dents-man-citys-title-hopes-2026-02-01',
+    title: 'Solanke\'s Stunning Equaliser Dents Man City\'s Title Hopes',
+    excerpt: 'Dominic Solanke\'s incredible late equaliser has dented Manchester City\'s title hopes, leaving the Premier League champions reeling. The 1-1 draw has significant implications for the title race, with City now facing an uphill battle to catch leaders',
+    image: '/scout-solankes-stunning-equaliser-dents-man-citys-title-hopes.jpg',
+    category: 'Match Reports',
+    date: '2026-02-01',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'Manchester City', 'Arsenal', 'Title Race']
+  },
+  {
     id: 'liverpool-target-premier-league-loan-star-as-wolves-close-in-2026-02-01',
     title: 'Liverpool Target Premier League Loan Star as Wolves Close in on Gomes',
     excerpt: 'Liverpool are keen on signing a Premier League loan star, while Wolves are set to complete the signing of Andre Gomes, and Arsenal are seven points clear at the top of the table.',
