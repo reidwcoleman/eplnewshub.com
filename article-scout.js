@@ -613,7 +613,11 @@ async function scrapeSourceArticle(url) {
   try {
     // Google News links redirect — follow them
     const res = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 EPLNewsHub/1.0' }
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5'
+      }
     });
     const html = res.text();
 
@@ -635,8 +639,8 @@ async function scrapeSourceArticle(url) {
       .replace(/\s+/g, ' ')
       .trim();
 
-    // Limit to first ~3000 chars to stay within token limits
-    return text.slice(0, 3000);
+    // Limit to first ~5000 chars to get more source content
+    return text.slice(0, 5000);
   } catch (e) {
     console.log(`[Scout] Failed to scrape source: ${e.message}`);
     return null;
@@ -647,12 +651,19 @@ async function researchTopic(topic, newsItem) {
   console.log(`[Scout] Researching: ${topic.title}...`);
   const sources = [];
 
+  // 0. Always include the Google News description as baseline source material
+  if (newsItem.description && newsItem.description.length > 20) {
+    sources.push({ origin: 'Google News summary', text: newsItem.description });
+  }
+
   // 1. Scrape the original source article
   if (newsItem.link) {
     const sourceText = await scrapeSourceArticle(newsItem.link);
-    if (sourceText) {
+    if (sourceText && sourceText.length > 50) {
       sources.push({ origin: 'Original source article', text: sourceText });
       console.log(`[Scout]   ✓ Scraped original source (${sourceText.length} chars)`);
+    } else {
+      console.log(`[Scout]   ⚠ Original source too short or blocked (${sourceText ? sourceText.length : 0} chars)`);
     }
   }
 
@@ -660,14 +671,14 @@ async function researchTopic(topic, newsItem) {
   const searchQuery = topic.title.replace(/[^a-zA-Z0-9 ]/g, '').split(' ').slice(0, 6).join(' ');
   try {
     const additionalItems = await fetchNewsFromGoogleRSS(searchQuery + ' Premier League');
-    // Scrape top 2-3 additional sources for cross-referencing
+    // Scrape top 3-4 additional sources for cross-referencing
     let scraped = 0;
-    for (const item of additionalItems.slice(0, 4)) {
-      if (scraped >= 2) break;
+    for (const item of additionalItems.slice(0, 6)) {
+      if (scraped >= 4) break;
       if (item.link === newsItem.link) continue; // skip duplicate
       const text = await scrapeSourceArticle(item.link);
       if (text && text.length > 200) {
-        sources.push({ origin: item.title, text: text.slice(0, 2000) });
+        sources.push({ origin: item.title, text: text.slice(0, 3000) });
         scraped++;
         console.log(`[Scout]   ✓ Scraped additional source: ${item.title.slice(0, 60)}...`);
       }
@@ -720,20 +731,34 @@ CRITICAL ACCURACY RULES — READ CAREFULLY:
 - Quotes MUST come from the source material. If a quote is attributed to someone in the sources, use it. Do NOT fabricate quotes.
 - Match scores, league positions, and points totals MUST match the source material exactly.
 - If writing about a future match (preview), clearly frame predictions as analysis, not fact.
+- If VERIFIED REAL-TIME DATA is provided (standings, results, scorers), those numbers are from an official API — trust them above all other sources.
 
-Your writing standards:
-- Write like a seasoned journalist at The Athletic, The Guardian, or BBC Sport — confident, insightful, with a strong narrative voice
-- NEVER start with generic AI openers like "In a move that..." or "The football world is..." — start with a concrete, specific, vivid detail or scene
-- Every paragraph must ADD new information — no filler, no restating what was just said, no padding
-- Include tactical depth when relevant: formations, pressing triggers, positional play — but only cite stats that appear in your source material
-- Write 1200-1800 words — this should feel like a premium long-read, not a summary
-- Structure with clear h2 sections (3-4 per article) that each explore a different angle of the story
-- Include 2-3 blockquotes from the source material with proper attribution
-- Include 1-2 pull quotes — the most striking lines from YOUR writing
-- Add historical context where you are confident it is accurate
-- End with a forward-looking conclusion that gives the reader something to think about
-- Vary sentence length — mix punchy short sentences with longer analytical ones for rhythm
-- NEVER use cliches like "only time will tell", "remains to be seen", "football is a funny game"
+WRITING QUALITY — THIS IS CRITICAL:
+- Write like the best journalists at The Athletic, The Guardian, or BBC Sport — confident, insightful, with a strong narrative voice that makes readers feel they're getting insider analysis
+- Your article MUST be 1800-2500 words. This is a premium long-read, not a news brief. Every section should have depth.
+- NEVER start with generic AI openers like "In a move that...", "The football world is...", "In the ever-evolving..." — start with a concrete, vivid scene, a striking stat, or a bold analytical statement
+- NEVER write filler paragraphs that say "details are scarce" or "information is limited" or "it remains unclear" — if you don't have specific information about something, write about what you DO know: the team's season, the tactical context, the broader narrative
+- Every single paragraph must ADD new information or analysis — zero filler, zero restating, zero padding
+- Use specific football knowledge: discuss formations (4-3-3, 3-5-2), pressing systems, buildup play, defensive structures, transition play, set-piece routines
+- Reference the Premier League table, recent form, and key players by name — use the VERIFIED DATA if provided
+- Include tactical depth: how does this signing/result/development affect the team's system? What changes tactically?
+
+STRUCTURE REQUIREMENTS:
+- 5-6 h2 sections minimum, each exploring a genuinely different angle (not just rewording the same point)
+- For MATCH REPORTS: The Match (key moments), Tactical Analysis (formations, pressing, buildup), Key Performers, The Manager's Perspective, What This Means for the Table, Looking Ahead
+- For TRANSFERS: The Deal, Player Profile & Style of Play, Tactical Fit, What This Means for the Squad, The Financial Picture, How They Compare
+- For ANALYSIS: include data tables where relevant using <table> tags
+- Include 2-3 blockquotes from source material with proper attribution (manager quotes, player quotes)
+- Include 2-3 pull quotes — the most striking analytical lines from YOUR writing
+- Write 8-12 paragraphs per section, not 1-2
+
+STYLE:
+- Vary sentence length dramatically — mix punchy 5-word sentences with longer 30-word analytical ones
+- Use strong verbs: "carved", "dismantled", "orchestrated" not "had", "got", "made"
+- Paint pictures: describe the atmosphere, the reactions, the body language when relevant
+- Reference historical context: previous meetings, past seasons, club history
+- NEVER use cliches: "only time will tell", "remains to be seen", "football is a funny game", "a statement of intent", "the beautiful game"
+- NEVER write "In conclusion" or have a section called "Conclusion" — end with a forward-looking analytical paragraph that feels natural
 
 Return your article in this exact JSON format (no other text):
 {
@@ -768,7 +793,13 @@ Source headline: ${newsItem.title}
 Source description: ${newsItem.description}
 ${researchSection}
 
-Write a comprehensive, engaging, long-form article. ONLY use facts and quotes from the source material above. Do NOT invent any stats, scores, quotes, or transfer fees.`;
+IMPORTANT INSTRUCTIONS:
+- Write 1800-2500 words minimum. This must be a premium long-form article with real depth and analysis.
+- Use ONLY facts, quotes, scores, and stats from the source material above. Do NOT invent anything.
+- If you have verified standings/results data, weave it naturally into the article (e.g. "sitting 4th on 45 points" or "their third win in five matches").
+- Include at least 5 h2 sections with substantial content in each.
+- Every paragraph must contain specific information — NEVER write filler like "details are yet to emerge" or "it remains to be seen".
+- Write with the confidence and insight of a journalist who has watched every minute of this team's season.`;
 
   const result = await callLLM(prompt, systemPrompt);
   const jsonMatch = result.match(/\{[\s\S]*\}/);
@@ -1537,13 +1568,13 @@ async function runScout(count = 1) {
   const news = await gatherNews();
   if (news.length === 0) { console.log('[Scout] No news found. Aborting.'); return; }
 
-  // Step 2: Pick topics
+  // Step 2: Pick topics (request extras as backups in case some fail research)
   console.log('[Scout] Selecting best topics via AI...');
   let topics;
-  try { topics = await pickTopics(news, count); }
+  try { topics = await pickTopics(news, count + 5); }
   catch (e) { console.error('[Scout] Topic selection failed:', e.message); return; }
 
-  console.log(`[Scout] Selected ${topics.length} topic(s):\n`);
+  console.log(`[Scout] Selected ${topics.length} topic(s) (need ${count}, extras are backups):\n`);
   topics.forEach((t, i) => console.log(`  ${i + 1}. [${t.category}] ${t.title}`));
   console.log('');
 
@@ -1551,9 +1582,11 @@ async function runScout(count = 1) {
   console.log('[Scout] Fetching real-time football data...');
   const footballData = await fetchFootballData();
 
-  // Step 3: Generate each article
+  // Step 3: Generate each article (stop once we've published enough)
   const publishedTitles = [];
   for (const topic of topics) {
+    if (publishedTitles.length >= count) break; // already published enough
+
     try {
       const newsItem = news[topic.index - 1] || news[0];
       const date = new Date().toISOString().split('T')[0];
@@ -1580,6 +1613,16 @@ async function runScout(count = 1) {
 
       // Research: scrape sources and gather verified facts
       const research = await researchTopic(topic, newsItem);
+
+      // Quality gate: skip topics with insufficient source material
+      // Need at least one scraped source with real content (>200 chars), not just the Google News description
+      const scrapedSources = research.sources ? research.sources.filter(s => s.origin !== 'Google News summary') : [];
+      const hasRealContent = scrapedSources.some(s => s.text && s.text.length > 200);
+      const totalSourceChars = research.sources ? research.sources.reduce((sum, s) => sum + (s.text ? s.text.length : 0), 0) : 0;
+      if (!hasRealContent && totalSourceChars < 500) {
+        console.log(`[Scout] Skipping "${topic.title}" — insufficient source material (${totalSourceChars} chars total), trying next topic`);
+        continue;
+      }
 
       // Append real football data to research
       const footballDataText = formatFootballDataForPrompt(footballData);

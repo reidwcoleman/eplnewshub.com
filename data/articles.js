@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'tottenham-2-2-man-city-solanke-stunner-completes-comeback-2026-02-02',
+    title: 'Tottenham 2-2 Man City: The Stunning Equaliser That Completed a Thrilling Comeback',
+    excerpt: 'Solanke\'s stunning equaliser completed a thrilling comeback for Tottenham as they drew 2-2 with Man City, in a match that will be remembered for its drama and excitement',
+    image: '/scout-tottenham-2-2-man-city-solanke-stunner-completes-comeback.jpg',
+    category: 'Match Reports',
+    date: '2026-02-02',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Tottenham', 'Man City', 'Premier League', 'Solanke', 'comeback']
+  },
+  {
+    id: 'brighton-transfers-latest-news-rumours-and-gossip-live-updat-2026-02-02',
+    title: 'Deciphering Brighton\'s Transfer Strategy: A Deep Dive into their Summer Targets',
+    excerpt: 'A thorough examination of Brighton\'s transfer plans, including their summer targets and the potential impact on their squad. Get the latest transfer news and analysis from the Premier League.',
+    image: '/scout-brighton-transfers-latest-news-rumours-and-gossip-live-updat.jpg',
+    category: 'Transfers',
+    date: '2026-02-02',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Brighton transfers', 'Premier League', 'summer targets', 'transfer news']
+  },
+  {
     id: 'nottingham-forest-bolster-squad-with-signing-of-ortega-what-2026-02-02',
     title: 'Nottingham Forest Bolster Squad with Signing of Ortega: What to Expect from the New Arrival',
     excerpt: 'Nottingham Forest have added to their squad with the signing of Ortega, but what can fans expect from the new arrival?',
