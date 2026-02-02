@@ -410,7 +410,7 @@ async function callLLM(prompt, systemPrompt) {
         const text = gData.candidates?.[0]?.content?.parts?.[0]?.text;
         if (!text) throw new Error('Empty Gemini response');
         console.log(`[Scout] ${provider.name} responded successfully`);
-        return text;
+        return stripMarkdownFences(text);
       }
 
       const headers = {
@@ -458,7 +458,7 @@ async function callLLM(prompt, systemPrompt) {
       }
 
       console.log(`[Scout] ${provider.name} responded successfully`);
-      return data.choices[0].message.content;
+      return stripMarkdownFences(data.choices[0].message.content);
     } catch (e) {
       console.log(`[Scout] ${provider.name} failed: ${e.message}`);
       errors.push(`${provider.name}: ${e.message}`);
@@ -1043,8 +1043,8 @@ Return ONLY the corrected bodyHTML. If no changes needed, return the original bo
 
 function stripMarkdownFences(text) {
   if (!text) return text;
-  // Remove ```html ... ``` or ``` ... ``` wrapping from LLM output
-  return text.replace(/^```(?:html)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+  // Remove ```html, ```json, ```xml, ``` etc. wrapping from LLM output
+  return text.replace(/^```[a-z]*\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
 }
 
 // ─── HTML Article Template (matches Aston Villa article format exactly) ──────
