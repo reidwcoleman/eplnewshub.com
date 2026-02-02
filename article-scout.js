@@ -326,10 +326,10 @@ const LLM_PROVIDERS = [
     maxTokens: 4096,
   },
   {
-    name: 'Groq (Mixtral 8x7B)',
+    name: 'Groq (Llama 3.1 8B)',
     envKey: 'GROQ_API_KEY',
     url: 'https://api.groq.com/openai/v1/chat/completions',
-    model: 'mixtral-8x7b-32768',
+    model: 'llama-3.1-8b-instant',
     maxTokens: 4096,
   },
   // Mistral: 1 billion tokens/month free
