@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-2025-26-table-analysis-latest-standings-and-t-2026-02-02',
+    title: 'Premier League 2025-26 Table Analysis: Latest Standings and Title/Relegation Implications',
+    excerpt: 'The Premier League 2025-26 season is heating up, with the title race and relegation battle hanging in the balance. We analyze the latest standings and implications for the top and bottom teams.',
+    image: '/scout-premier-league-2025-26-table-analysis-latest-standings-and-t.jpg',
+    category: 'Analysis',
+    date: '2026-02-02',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Premier League', '2025-26 season', 'table analysis', 'title implications', 'relegation battle']
+  },
+  {
     id: 'tottenham-2-2-man-city-solanke-stunner-completes-comeback-2026-02-02',
     title: 'Tottenham 2-2 Man City: The Stunning Equaliser That Completed a Thrilling Comeback',
     excerpt: 'Solanke\'s stunning equaliser completed a thrilling comeback for Tottenham as they drew 2-2 with Man City, in a match that will be remembered for its drama and excitement',
