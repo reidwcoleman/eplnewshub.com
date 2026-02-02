@@ -261,9 +261,10 @@
             /* Ezoic Ad Container Styles */
             .ezoic-ad {
                 margin: 20px 0;
-                min-height: 50px;
+                min-height: 0;
                 text-align: center;
                 clear: both;
+                border: none;
             }
             
             /* Bottom of Page Ad Specific Styles */
@@ -271,12 +272,11 @@
             #ezoic-pub-ad-placeholder-103 {
                 margin: 40px auto 20px;
                 max-width: 970px;
-                min-height: 90px;
+                min-height: 0;
                 text-align: center;
-                background: #f8f9fa;
-                padding: 20px 0;
-                border-top: 2px solid #e9ecef;
-                border-bottom: 2px solid #e9ecef;
+                background: transparent;
+                padding: 0;
+                border: none;
             }
 
             .header-ad {
@@ -295,8 +295,8 @@
             .in-article-ad {
                 margin: 30px 0;
                 padding: 20px 0;
-                border-top: 1px solid #e9ecef;
-                border-bottom: 1px solid #e9ecef;
+                border-top: none;
+                border-bottom: none;
             }
 
             .footer-ad {
@@ -363,16 +363,13 @@
                 display: none !important;
             }
 
-            /* Ad loading placeholder */
-            .ezoic-ad:empty::before {
-                content: 'Advertisement';
-                display: block;
-                padding: 20px;
-                color: #6c757d;
-                font-size: 12px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                opacity: 0.5;
+            /* Hide empty ad placeholders completely */
+            .ezoic-ad:empty {
+                display: none !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
             }
         </style>
     `;
