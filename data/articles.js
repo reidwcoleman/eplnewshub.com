@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'arsenals-late-transfer-push-who-could-be-the-gunners-final-s-2026-02-02',
+    title: 'Arsenal\'s Late Transfer Push: Who Could Be the Gunners\' Final Signing of the Window?',
+    excerpt: 'Arsenal is actively looking to make signings on deadline day, with a focus on strengthening their midfield. The club is dealing with an injury to a key player, which may impact their transfer decisions.',
+    image: '/scout-arsenals-late-transfer-push-who-could-be-the-gunners-final-s.jpg',
+    category: 'Transfers',
+    date: '2026-02-02',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Arsenal', 'transfer news', 'Deadline Day', 'Mikel Merino', 'Sandro Tonali']
+  },
+  {
     id: 'jean-phillipe-mateta-undergoes-ac-milan-medical-as-transfer-2026-02-02',
     title: 'Jean-Phillipe Mateta\'s AC Milan Move: A Strategic Strike or a High-Risk Gamble?',
     excerpt: 'As Jean-Phillipe Mateta undergoes his medical with AC Milan, we examine the tactical and financial implications of a deal that could reshape the Rossoneri\'s attack.',
