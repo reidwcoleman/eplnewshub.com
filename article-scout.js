@@ -501,6 +501,84 @@ Return ONLY a JSON array of objects with "index" (1-based from the headlines lis
   return JSON.parse(jsonMatch[0]);
 }
 
+// ─── Web Search ──────────────────────────────────────────────────────────────
+
+async function webSearch(query, maxResults = 5) {
+  console.log(`[Scout]   🔍 Searching: "${query}"`);
+  const results = [];
+
+  // Try DuckDuckGo HTML (no API key needed, reliable)
+  try {
+    const ddgUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+    const res = await fetch(ddgUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
+      }
+    });
+    const html = res.text();
+
+    // Extract result snippets from DuckDuckGo HTML
+    const resultBlocks = html.match(/<a class="result__a"[\s\S]*?<\/a>[\s\S]*?<a class="result__snippet"[\s\S]*?<\/a>/g) || [];
+    for (const block of resultBlocks.slice(0, maxResults)) {
+      const titleMatch = block.match(/<a class="result__a"[^>]*>([\s\S]*?)<\/a>/);
+      const snippetMatch = block.match(/<a class="result__snippet"[^>]*>([\s\S]*?)<\/a>/);
+      const hrefMatch = block.match(/<a class="result__a" href="([^"]+)"/);
+      if (titleMatch && snippetMatch) {
+        results.push({
+          title: titleMatch[1].replace(/<[^>]+>/g, '').trim(),
+          snippet: snippetMatch[1].replace(/<[^>]+>/g, '').trim(),
+          url: hrefMatch ? decodeURIComponent(hrefMatch[1].replace(/.*uddg=/, '').replace(/&.*/, '')) : ''
+        });
+      }
+    }
+  } catch (e) {
+    console.log(`[Scout]   ⚠ DuckDuckGo search failed: ${e.message}`);
+  }
+
+  // Fallback: try Google News RSS for the query
+  if (results.length === 0) {
+    try {
+      const newsItems = await fetchNewsFromGoogleRSS(query);
+      for (const item of newsItems.slice(0, maxResults)) {
+        results.push({
+          title: item.title,
+          snippet: item.description,
+          url: item.link
+        });
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  return results;
+}
+
+async function webSearchAndScrape(query, maxScrape = 3) {
+  const searchResults = await webSearch(query);
+  const content = [];
+
+  // Add search snippets as quick facts
+  for (const r of searchResults) {
+    if (r.snippet) {
+      content.push({ origin: `Search: ${r.title}`, text: r.snippet });
+    }
+  }
+
+  // Scrape top results for full articles
+  let scraped = 0;
+  for (const r of searchResults) {
+    if (scraped >= maxScrape) break;
+    if (!r.url || r.url.includes('duckduckgo.com')) continue;
+    const text = await scrapeSourceArticle(r.url);
+    if (text && text.length > 200) {
+      content.push({ origin: r.title, text: text.slice(0, 3000) });
+      scraped++;
+      console.log(`[Scout]   ✓ Scraped search result: ${r.title.slice(0, 50)}...`);
+    }
+  }
+
+  return content;
+}
+
 // ─── Real Football Data (API-Football) ───────────────────────────────────────
 
 async function fetchFootballData() {
@@ -687,6 +765,30 @@ async function researchTopic(topic, newsItem) {
     console.log(`[Scout]   ⚠ Additional source search failed: ${e.message}`);
   }
 
+  // 2.5. Web search for additional facts (especially useful when direct scraping is blocked)
+  const scrapedContentSoFar = sources.filter(s => s.origin !== 'Google News summary').reduce((sum, s) => sum + s.text.length, 0);
+  if (scrapedContentSoFar < 1000) {
+    console.log(`[Scout]   Only ${scrapedContentSoFar} chars of scraped content — running web search for more...`);
+    try {
+      // Search for the specific topic
+      const webResults = await webSearchAndScrape(topic.title + ' Premier League 2026', 3);
+      for (const r of webResults) {
+        sources.push(r);
+      }
+      // Also search for key entities in the topic (team names, player names)
+      const entitySearch = topic.title.replace(/[^a-zA-Z ]/g, '').split(' ')
+        .filter(w => w.length > 3 && w[0] === w[0].toUpperCase()).slice(0, 3).join(' ');
+      if (entitySearch.length > 5) {
+        const entityResults = await webSearchAndScrape(entitySearch + ' Premier League latest', 2);
+        for (const r of entityResults) {
+          sources.push(r);
+        }
+      }
+    } catch (e) {
+      console.log(`[Scout]   ⚠ Web search failed: ${e.message}`);
+    }
+  }
+
   // 3. Compile research summary using AI
   if (sources.length === 0) {
     console.log(`[Scout]   ⚠ No sources scraped — article will note limited sourcing`);
@@ -853,10 +955,36 @@ IMPORTANT INSTRUCTIONS:
 // ─── Post-Generation Fact Check ──────────────────────────────────────────────
 
 async function factCheckArticle(article, footballData, research) {
-  if (!footballData && (!research || !research.summary)) return article;
-
   console.log('[Scout] Fact-checking article against verified data...');
 
+  // Step 1: Extract key claims to verify via web search
+  let webVerification = '';
+  try {
+    const claimsPrompt = `Extract the 3-5 most important factual claims from this article that should be verified. Focus on: match scores, transfer fees, league positions, player stats, and specific quotes.
+
+ARTICLE: ${article.bodyHTML.slice(0, 3000)}
+
+Return ONLY a JSON array of short search queries to verify each claim. Example: ["Liverpool 4-1 Newcastle result January 2026", "Mohamed Salah Premier League goals 2025-26"]`;
+
+    const claimsResult = await callLLM(claimsPrompt, 'Extract key factual claims as search queries. Return only a JSON array.');
+    const claimsMatch = claimsResult.match(/\[[\s\S]*\]/);
+    if (claimsMatch) {
+      const queries = JSON.parse(claimsMatch[0]);
+      console.log(`[Scout]   Verifying ${queries.length} key claims via web search...`);
+      for (const query of queries.slice(0, 4)) {
+        const results = await webSearch(query, 3);
+        for (const r of results) {
+          if (r.snippet) {
+            webVerification += `\nSearch "${query}": ${r.snippet}`;
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.log(`[Scout]   ⚠ Claim extraction failed: ${e.message}`);
+  }
+
+  // Step 2: Build verification data
   let verificationData = '';
   if (footballData) {
     verificationData += formatFootballDataForPrompt(footballData);
@@ -864,7 +992,13 @@ async function factCheckArticle(article, footballData, research) {
   if (research && research.summary) {
     verificationData += '\n\nSOURCE MATERIAL:\n' + research.summary.slice(0, 3000);
   }
+  if (webVerification) {
+    verificationData += '\n\nWEB SEARCH VERIFICATION RESULTS:\n' + webVerification;
+  }
 
+  if (!verificationData) return article;
+
+  // Step 3: Run fact-check
   const prompt = `You are a strict fact-checker for a Premier League news site. Review this article and fix ANY factual errors.
 
 ARTICLE TITLE: ${article.title}
@@ -876,19 +1010,20 @@ VERIFIED DATA TO CHECK AGAINST:
 ${verificationData}
 
 INSTRUCTIONS:
-1. Check ALL match scores mentioned — do they match the verified results?
+1. Check ALL match scores mentioned — do they match the verified results and web search results?
 2. Check ALL league positions and points — do they match the standings?
-3. Check ALL goal scorer claims — are they in the top scorers list?
-4. Check ALL quotes — are they from the source material?
-5. Remove or correct any stat, score, position, or quote that contradicts the verified data.
-6. If a claim cannot be verified from the data provided, rephrase it to be vaguer (e.g., "high in the table" instead of a specific position number you can't verify).
+3. Check ALL goal scorer claims — are they verified by the data?
+4. Check ALL quotes — are they from the source material? Remove any fabricated quotes.
+5. Check ALL transfer fees, contract lengths, and specific numbers against web search results.
+6. Remove or correct any stat, score, position, or quote that contradicts the verified data.
+7. If a claim cannot be verified, rephrase it to be vaguer rather than leaving a specific but potentially wrong number.
+8. Do NOT shorten the article. Maintain the same length and quality.
 
 Return ONLY the corrected bodyHTML. If no changes needed, return the original bodyHTML unchanged. Return raw HTML only, no wrapping, no explanation.`;
 
   try {
-    const corrected = await callLLM(prompt, 'You are a meticulous football fact-checker. Fix errors, preserve writing style. Return only HTML.');
+    const corrected = await callLLM(prompt, 'You are a meticulous football fact-checker. Fix errors, preserve writing style and length. Return only HTML.');
     if (corrected && corrected.length > 200) {
-      // Basic sanity: must contain <p> tags and be roughly similar length
       if (corrected.includes('<p>') && corrected.length > article.bodyHTML.length * 0.5) {
         console.log('[Scout] ✓ Fact-check complete — article verified/corrected');
         article.bodyHTML = corrected;

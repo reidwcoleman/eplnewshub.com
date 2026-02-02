@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'jean-phillipe-mateta-undergoes-ac-milan-medical-as-transfer-2026-02-02',
+    title: 'Jean-Phillipe Mateta\'s AC Milan Move: A Strategic Strike or a High-Risk Gamble?',
+    excerpt: 'As Jean-Phillipe Mateta undergoes his medical with AC Milan, we examine the tactical and financial implications of a deal that could reshape the Rossoneri\'s attack.',
+    image: '/scout-jean-phillipe-mateta-undergoes-ac-milan-medical-as-transfer.jpg',
+    category: 'Transfers',
+    date: '2026-02-02',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['AC Milan', 'Jean-Phillipe Mateta', 'Transfers', 'Serie A', 'Crystal Palace']
+  },
+  {
+    id: 'late-sesko-goal-gives-man-united-dramatic-win-over-fulham-in-2026-02-02',
+    title: 'Late Sesko Goal Gives Man United Dramatic Win Over Fulham in Five-Goal Thriller',
+    excerpt: 'A dramatic late goal from Benjamin Sesko secured a crucial three points for Manchester United in a pulsating encounter at Old Trafford.',
+    image: '/scout-late-sesko-goal-gives-man-united-dramatic-win-over-fulham-in.jpg',
+    category: 'Match Reports',
+    date: '2026-02-02',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Manchester United', 'Fulham', 'Premier League', 'Benjamin Sesko', 'Michael Carrick']
+  },
+  {
     id: 'premier-league-2025-26-table-analysis-latest-standings-and-t-2026-02-02',
     title: 'Premier League 2025-26 Table Analysis: Latest Standings and Title/Relegation Implications',
     excerpt: 'The Premier League 2025-26 season is heating up, with the title race and relegation battle hanging in the balance. We analyze the latest standings and implications for the top and bottom teams.',
