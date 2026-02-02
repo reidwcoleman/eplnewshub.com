@@ -1022,7 +1022,8 @@ INSTRUCTIONS:
 Return ONLY the corrected bodyHTML. If no changes needed, return the original bodyHTML unchanged. Return raw HTML only, no wrapping, no explanation.`;
 
   try {
-    const corrected = await callLLM(prompt, 'You are a meticulous football fact-checker. Fix errors, preserve writing style and length. Return only HTML.');
+    let corrected = await callLLM(prompt, 'You are a meticulous football fact-checker. Fix errors, preserve writing style and length. Return only HTML.');
+    corrected = stripMarkdownFences(corrected);
     if (corrected && corrected.length > 200) {
       if (corrected.includes('<p>') && corrected.length > article.bodyHTML.length * 0.5) {
         console.log('[Scout] ✓ Fact-check complete — article verified/corrected');
@@ -1036,6 +1037,14 @@ Return ONLY the corrected bodyHTML. If no changes needed, return the original bo
   }
 
   return article;
+}
+
+// ─── Markdown Fence Stripping ────────────────────────────────────────────────
+
+function stripMarkdownFences(text) {
+  if (!text) return text;
+  // Remove ```html ... ``` or ``` ... ``` wrapping from LLM output
+  return text.replace(/^```(?:html)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
 }
 
 // ─── HTML Article Template (matches Aston Villa article format exactly) ──────
@@ -1390,7 +1399,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
 
         <!-- Article Body -->
         <div class="article-body">
-            ${article.bodyHTML}
+            ${stripMarkdownFences(article.bodyHTML)}
         </div>
 
         <!-- Related Articles -->
