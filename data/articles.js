@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'nottingham-forest-bolster-squad-with-signing-of-ortega-what-2026-02-02',
+    title: 'Nottingham Forest Bolster Squad with Signing of Ortega: What to Expect from the New Arrival',
+    excerpt: 'Nottingham Forest have added to their squad with the signing of Ortega, but what can fans expect from the new arrival?',
+    image: '/scout-nottingham-forest-bolster-squad-with-signing-of-ortega-what.jpg',
+    category: 'Transfers',
+    date: '2026-02-02',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Nottingham Forest', 'Ortega', 'Premier League', 'Transfers']
+  },
+  {
+    id: 'aston-villas-title-aspirations-dented-after-shock-loss-to-10-2026-02-02',
+    title: 'Aston Villa\'s Title Aspirations Dented After Shock Loss to 10-Man Brentford',
+    excerpt: 'Aston Villa\'s title hopes have been dealt a significant blow after a shocking defeat to 10-man Brentford, leaving their championship ambitions in jeopardy. The loss has raised questions about Villa\'s ability to compete with the top teams in the lea',
+    image: '/scout-aston-villas-title-aspirations-dented-after-shock-loss-to-10.jpg',
+    category: 'Match Reports',
+    date: '2026-02-02',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Aston Villa', 'Brentford', 'Premier League', 'Title Aspirations']
+  },
+  {
     id: 'solankes-stunning-equaliser-dents-man-citys-title-hopes-2026-02-01',
     title: 'Solanke\'s Stunning Equaliser Dents Man City\'s Title Hopes',
     excerpt: 'Dominic Solanke\'s incredible late equaliser has dented Manchester City\'s title hopes, leaving the Premier League champions reeling. The 1-1 draw has significant implications for the title race, with City now facing an uphill battle to catch leaders',
