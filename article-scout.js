@@ -1742,13 +1742,20 @@ async function runScout(count = 1) {
         .replace(/-+$/, '');
       const filename = `${slug}-${date}.html`;
 
-      // Duplicate check — skip if too similar to a recent article
-      const recentTitles = getRecentArticleTitles();
+      // Duplicate check — skip if too similar to a recent article OR one published in this batch
+      const recentTitles = [...getRecentArticleTitles(), ...publishedTitles];
       const topicWords = topic.title.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').filter(w => w.length > 3);
+      // Also extract key entities (team names, player names) for stricter matching
+      const topicEntities = topic.title.replace(/[^a-zA-Z ]/g, '').split(' ')
+        .filter(w => w.length > 3 && w[0] === w[0].toUpperCase()).map(w => w.toLowerCase());
       const isDuplicate = recentTitles.some(recent => {
         const recentWords = recent.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').filter(w => w.length > 3);
-        const overlap = topicWords.filter(w => recentWords.includes(w)).length;
-        return overlap >= 3; // 3+ significant words in common = too similar
+        const recentEntities = recent.replace(/[^a-zA-Z ]/g, '').split(' ')
+          .filter(w => w.length > 3 && w[0] === w[0].toUpperCase()).map(w => w.toLowerCase());
+        const wordOverlap = topicWords.filter(w => recentWords.includes(w)).length;
+        const entityOverlap = topicEntities.filter(e => recentEntities.includes(e)).length;
+        // Similar if 2+ key entities match (e.g. same team + same player) OR 3+ general words match
+        return entityOverlap >= 2 || wordOverlap >= 3;
       });
       if (isDuplicate) {
         console.log(`[Scout] Skipping "${topic.title}" — too similar to a recent article`);
