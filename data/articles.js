@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'sunderland-3-0-burnley-clinical-finishing-and-solid-defence-2026-02-03',
+    title: 'Sunderland 3-0 Burnley: Clinical Finishing and Solid Defence Secure Important Win',
+    excerpt: 'A clinical performance from Sunderland saw them secure a crucial 3-0 win over Burnley, with solid defending and potent attacking play on display. The victory marks a significant turning point in their season, as they look to push up the Premier Leagu',
+    image: '/scout-sunderland-3-0-burnley-clinical-finishing-and-solid-defence.jpg',
+    category: 'Match Reports',
+    date: '2026-02-03',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Sunderland', 'Burnley', 'Premier League', 'match report', 'analysis']
+  },
+  {
     id: 'everton-transfers-latest-news-rumours-and-gossip-live-update-2026-02-03',
     title: 'Everton Transfer Updates: A Deep Dive into the Toffees\' Summer Plans',
     excerpt: 'As the summer transfer window heats up, Everton is looking to bolster their squad and improve their chances of success in the Premier League. Here\'s a closer look at the Toffees\' transfer plans and what they might mean for the team\'s future.',
