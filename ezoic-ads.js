@@ -293,10 +293,13 @@
             }
 
             .in-article-ad {
-                margin: 30px 0;
-                padding: 20px 0;
+                margin: 40px 0;
+                padding: 24px;
                 border-top: none;
                 border-bottom: none;
+                background: linear-gradient(145deg, #1e1e1e, #252525);
+                border-radius: 12px;
+                border: 1px solid #2a2a2a;
             }
 
             .footer-ad {

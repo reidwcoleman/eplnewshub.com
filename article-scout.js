@@ -471,9 +471,9 @@ async function callLLM(prompt, systemPrompt) {
 
 function getRecentArticleTitles() {
   const log = getScoutLog();
-  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   return (log.articles || [])
-    .filter(a => a.date >= oneWeekAgo)
+    .filter(a => a.date >= twoWeeksAgo)
     .map(a => a.title);
 }
 
@@ -481,7 +481,7 @@ async function pickTopics(newsItems, count) {
   const headlines = newsItems.map((n, i) => `${i + 1}. ${n.title}`).join('\n');
   const recentTitles = getRecentArticleTitles();
   const recentList = recentTitles.length > 0
-    ? `\n\nARTICLES ALREADY PUBLISHED THIS WEEK (DO NOT pick similar topics):\n${recentTitles.map(t => '- ' + t).join('\n')}`
+    ? `\n\nARTICLES ALREADY PUBLISHED IN THE LAST 2 WEEKS (DO NOT pick similar topics):\n${recentTitles.map(t => '- ' + t).join('\n')}`
     : '';
 
   const systemPrompt = `You are an editorial assistant for EPL News Hub. Pick the ${count} most interesting AND DIVERSE stories.
@@ -491,7 +491,7 @@ IMPORTANT RULES:
 - Mix article types: include match previews, match reviews/overviews, tactical analysis, transfer news, player spotlights, title/relegation race analysis — NOT just managerial news.
 - Prioritise match content (previews, results, tactical breakdowns) and player performances over off-field stories.
 - Each picked story MUST be about a different subject. If 2 headlines are about the same topic, only pick the best one.
-${recentTitles.length > 0 ? '- NEVER pick a topic that is similar to any article already published this week (listed below). Pick something fresh.' : ''}
+${recentTitles.length > 0 ? '- NEVER pick a topic that is similar to any article already published in the last 2 weeks (listed below). Pick something completely fresh and different.' : ''}
 
 Return ONLY a JSON array of objects with "index" (1-based from the headlines list), "category" (News, Transfers, Analysis, Match Reports, or Player Focus), "angle" (unique hook), and "title" (compelling article title). No other text.`;
 
