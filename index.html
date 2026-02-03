@@ -50,144 +50,81 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="styles.css">
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#0a0a0a">
 
     <style>
-        html, body {
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
-            color: #e8e8e8;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            position: relative;
-            scroll-behavior: smooth;
-            margin: 0;
-            padding: 0;
-            overscroll-behavior: none;
-            -webkit-overflow-scrolling: touch;
-            min-height: 100vh;
+        /* ═══════════════════════════════════════════
+           EPL NEWS HUB — EDITORIAL REDESIGN
+           Aesthetic: Dark editorial broadsheet meets
+           modern digital newsroom. Ink-black canvas,
+           warm ivory accents, razor-sharp typography.
+           ═══════════════════════════════════════════ */
+
+        :root {
+            --ink: #0a0a0a;
+            --paper: #f0ece4;
+            --chalk: #e8e4dc;
+            --smoke: #8a8578;
+            --ash: #5a564e;
+            --ember: #c8553a;
+            --gold: #c9a84c;
+            --mint: #3eb489;
+            --steel: #1a1918;
+            --card: #111110;
+            --card-border: rgba(240, 236, 228, 0.06);
+            --card-hover: rgba(240, 236, 228, 0.1);
+            --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+            --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         html {
             overflow-x: hidden;
-            overscroll-behavior: none;
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
         }
 
         body {
+            background: var(--ink);
+            color: var(--paper);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            position: relative;
         }
 
-        /* Modern gradient mesh background */
+        /* Subtle noise texture */
         body::before {
             content: '';
             position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background:
-                radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
-            animation: meshFloat 20s ease-in-out infinite;
-            z-index: 0;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
             pointer-events: none;
-        }
-
-        @keyframes meshFloat {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(2%, -2%) rotate(1deg); }
-            66% { transform: translate(-2%, 2%) rotate(-1deg); }
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                repeating-linear-gradient(
-                    90deg,
-                    transparent,
-                    transparent 100px,
-                    rgba(255,255,255,0.02) 100px,
-                    rgba(255,255,255,0.02) 101px
-                ),
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 100px,
-                    rgba(255,255,255,0.02) 100px,
-                    rgba(255,255,255,0.02) 101px
-                );
-            opacity: 0.3;
             z-index: 0;
-            pointer-events: none;
         }
 
-        /* Ensure main content is above background effects but don't affect header */
-        main, .nyt-container, footer {
-            position: relative;
-            z-index: 1;
-        }
+        a { text-decoration: none; color: inherit; }
 
-        /* Container */
-        .nyt-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 32px 16px 32px;
-        }
+        /* Header spacing */
+        .header { margin: 0 !important; padding: 0 !important; }
+        .nyt-header { margin-bottom: 0 !important; }
+        .nyt-nav { margin-bottom: 0 !important; }
 
-        /* Main Content */
-        .nyt-main-content {
-            background: transparent;
-            padding: 0;
-            margin: 0;
-            flex: 1 0 auto;
-        }
-
-        /* Remove any gap between header and content */
-        .header {
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        .nyt-header {
-            margin-bottom: 0 !important;
-        }
-
-        .nyt-nav {
-            margin-bottom: 0 !important;
-        }
-
-        .nyt-hero {
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-        }
-
-        .nyt-container {
-            padding-top: 0 !important;
-            margin-top: 0 !important;
-        }
-
-        /* Ensure no gap on scroll */
-        .nyt-main-content .nyt-container {
-            padding-top: 0;
-        }
-
-        /* Footer wrapper - ensure full width and no extra space */
+        /* Footer */
         .footer {
             flex-shrink: 0;
             width: 100%;
@@ -196,1291 +133,657 @@
             margin: 0 !important;
         }
 
-        /* Ensure footer reaches bottom - no gap below */
-        .nyt-footer {
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
+        /* ── LAYOUT ── */
+        .site-content {
+            position: relative;
+            z-index: 1;
+            flex: 1 0 auto;
         }
 
-        .nyt-footer-bottom {
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
+        .container {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 0 40px;
         }
 
-        html, body {
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
+        /* ── EDITION BANNER ── */
+        .edition-bar {
+            border-bottom: 1px solid rgba(240, 236, 228, 0.08);
+            padding: 12px 0;
         }
 
-        /* Add subtle fade in animation */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .nyt-hero, .nyt-three-column, .nyt-headlines-section {
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        /* Top Section - Main Story + Side Story */
-        .nyt-hero {
-            display: grid;
-            grid-template-columns: 1.6fr 1fr;
-            gap: 24px;
-            margin-top: 0;
-            padding-top: 16px;
-            margin-bottom: 24px;
-            align-items: stretch;
-        }
-
-        /* Main Featured Story */
-        .nyt-featured {
-            display: flex;
-            flex-direction: column;
-            background: rgba(255,255,255,0.02);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            height: 100%;
-        }
-
-        .nyt-featured:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
-            border-color: rgba(139, 92, 246, 0.3);
-        }
-
-        .nyt-featured .main_headline {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .nyt-featured .main_headline img {
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.6s ease;
-        }
-
-        .nyt-featured:hover .main_headline img {
-            transform: scale(1.02);
-        }
-
-        /* Side Story - matches main headline height */
-        .nyt-side-story {
-            display: flex;
-            flex-direction: column;
-            background: rgba(255,255,255,0.02);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            height: 100%;
-        }
-
-        .nyt-side-story:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
-            border-color: rgba(59, 130, 246, 0.3);
-        }
-
-        .nyt-side-story > div {
-            height: 100%;
-        }
-
-        .nyt-side-story a {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .nyt-side-story img {
-            width: 100% !important;
-            aspect-ratio: 16 / 10 !important;
-            object-fit: cover;
-            border-radius: 12px !important;
-            margin-bottom: 16px !important;
-            transition: transform 0.6s ease;
-        }
-
-        .nyt-side-story:hover img {
-            transform: scale(1.02);
-        }
-
-        .nyt-side-story h2 {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 24px !important;
-            font-weight: 700;
-            line-height: 1.25 !important;
-            color: #f5f5f5;
-            margin: 0 0 12px 0 !important;
-            letter-spacing: -0.3px;
-        }
-
-        .nyt-side-story p {
-            font-size: 15px !important;
-            line-height: 1.6 !important;
-            color: #b8b8b8;
-            margin: 0 0 auto 0 !important;
-            flex: 1;
-        }
-
-        .nyt-side-story .story-meta {
-            font-size: 12px;
-            color: #888888;
-            margin-top: 16px;
+        .edition-bar-inner {
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--smoke);
+            letter-spacing: 0.5px;
         }
 
-        /* Override inline styles for side story */
-        .nyt-side-story span[style*="font-size: 11px"] {
-            font-size: 11px !important;
-            padding: 4px 8px !important;
-            margin-bottom: 12px !important;
+        .edition-date {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 11px;
         }
 
-        /* Bottom Headlines Row - Full Width */
-        .nyt-bottom-headlines {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 40px;
-            padding-bottom: 32px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .nyt-bottom-story {
+        .edition-links {
             display: flex;
-            background: rgba(255,255,255,0.02);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
+            gap: 24px;
         }
 
-        .nyt-bottom-story:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
-            border-color: rgba(16, 185, 129, 0.3);
+        .edition-links a {
+            color: var(--smoke);
+            font-weight: 500;
+            transition: color 0.2s;
+            font-size: 12px;
         }
 
-        .nyt-bottom-story > div {
+        .edition-links a:hover { color: var(--paper); }
+
+        .edition-dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--ember);
+            display: inline-block;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ── HERO: LEAD STORY + SECONDARY ── */
+        .hero {
+            padding: 24px 0 0;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.7fr 1fr;
+            gap: 2px;
+            background: rgba(240, 236, 228, 0.06);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .hero-lead {
+            background: var(--card);
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-lead .main_headline {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .hero-lead .main_headline a {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .hero-lead .main_headline img {
             width: 100%;
-        }
-
-        .nyt-bottom-story a {
-            display: grid !important;
-            grid-template-columns: 180px 1fr !important;
-            gap: 20px !important;
-            align-items: start !important;
-            text-decoration: none;
-            color: inherit;
-            width: 100%;
-        }
-
-        .nyt-bottom-story img {
-            width: 180px !important;
-            height: 130px !important;
-            aspect-ratio: auto !important;
+            aspect-ratio: 16 / 9;
             object-fit: cover;
-            border-radius: 10px !important;
-            flex-shrink: 0;
-            transition: transform 0.4s ease;
+            transition: transform 0.8s var(--ease);
+            border-radius: 0 !important;
             margin-bottom: 0 !important;
         }
 
-        .nyt-bottom-story:hover img {
+        .hero-lead:hover .main_headline img {
             transform: scale(1.03);
         }
 
-        .nyt-bottom-story a > div {
+        .hero-lead .main_headline > a > div {
+            padding: 28px 32px 32px;
+        }
+
+        .hero-lead .main_headline h2 {
+            font-family: var(--font-display) !important;
+            font-size: 38px !important;
+            font-weight: 800 !important;
+            line-height: 1.1 !important;
+            letter-spacing: -0.5px !important;
+            color: var(--paper) !important;
+            margin-bottom: 12px !important;
+        }
+
+        .hero-lead .main_headline p {
+            font-family: var(--font-body) !important;
+            font-size: 15px !important;
+            line-height: 1.6 !important;
+            color: var(--smoke) !important;
+        }
+
+        /* Side story */
+        .hero-side {
+            background: var(--card);
             display: flex;
             flex-direction: column;
+        }
+
+        .hero-side .main_subheadline1 {
+            height: 100%;
+        }
+
+        .hero-side .main_subheadline1 a {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .hero-side .main_subheadline1 img {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            object-fit: cover;
+            border-radius: 0 !important;
+            margin-bottom: 0 !important;
+            transition: transform 0.8s var(--ease);
+        }
+
+        .hero-side:hover .main_subheadline1 img {
+            transform: scale(1.03);
+        }
+
+        .hero-side .main_subheadline1 > a > div {
+            padding: 24px 28px 28px;
             flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
-        .nyt-bottom-story h2,
-        .nyt-bottom-story h3,
-        .nyt-bottom-story .nyt-sidebar-story-title {
-            font-family: 'Noto Serif', Georgia, serif !important;
-            font-size: 18px !important;
+        .hero-side .main_subheadline1 h2 {
+            font-family: var(--font-display) !important;
+            font-size: 24px !important;
             font-weight: 700 !important;
-            line-height: 1.35 !important;
-            color: #f5f5f5 !important;
-            margin: 0 0 8px 0 !important;
-            letter-spacing: -0.2px !important;
+            line-height: 1.2 !important;
+            color: var(--paper) !important;
+            letter-spacing: -0.3px !important;
         }
 
-        .nyt-bottom-story p,
-        .nyt-bottom-story .nyt-sidebar-story-summary {
+        .hero-side .main_subheadline1 p {
             font-size: 14px !important;
-            line-height: 1.5 !important;
-            color: #a0a0a0 !important;
-            margin: 0 0 8px 0 !important;
+            color: var(--smoke) !important;
+            line-height: 1.55 !important;
+        }
+
+        /* ── SECONDARY STORIES ROW ── */
+        .secondary-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            background: rgba(240, 236, 228, 0.06);
+            margin-top: 2px;
+            border-radius: 0 0 2px 2px;
+            overflow: hidden;
+        }
+
+        .secondary-card {
+            background: var(--card);
+            transition: background 0.3s var(--ease);
+        }
+
+        .secondary-card:hover {
+            background: #161614;
+        }
+
+        .secondary-card > div { height: 100%; }
+
+        .secondary-card a {
+            display: grid !important;
+            grid-template-columns: 200px 1fr !important;
+            gap: 0 !important;
+            align-items: stretch !important;
+            height: 100%;
+        }
+
+        .secondary-card img {
+            width: 200px !important;
+            height: 100% !important;
+            min-height: 160px;
+            aspect-ratio: auto !important;
+            object-fit: cover;
+            border-radius: 0 !important;
+            margin-bottom: 0 !important;
+            transition: transform 0.6s var(--ease);
+        }
+
+        .secondary-card:hover img { transform: scale(1.05); }
+
+        .secondary-card a > div {
+            padding: 24px 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .secondary-card h2,
+        .secondary-card h3,
+        .secondary-card .nyt-sidebar-story-title {
+            font-family: var(--font-display) !important;
+            font-size: 20px !important;
+            font-weight: 700 !important;
+            line-height: 1.25 !important;
+            color: var(--paper) !important;
+            letter-spacing: -0.2px !important;
+            margin-bottom: 8px !important;
+        }
+
+        .secondary-card p,
+        .secondary-card .nyt-sidebar-story-summary {
+            font-size: 14px !important;
+            line-height: 1.55 !important;
+            color: var(--smoke) !important;
+            margin-bottom: 0 !important;
             display: -webkit-box !important;
             -webkit-line-clamp: 2 !important;
             -webkit-box-orient: vertical !important;
             overflow: hidden !important;
         }
 
-        .nyt-bottom-story .nyt-sidebar-story-summary {
-            display: -webkit-box !important;
+        .secondary-card span[style*="font-size: 11px"] {
+            font-size: 10px !important;
+            padding: 3px 8px !important;
+            margin-bottom: 10px !important;
+            border-radius: 2px !important;
+            font-weight: 700 !important;
+            letter-spacing: 1.2px !important;
         }
 
-        .nyt-bottom-story span[style*="font-size: 11px"],
-        .nyt-bottom-story .nyt-category {
-            font-size: 11px !important;
-            padding: 3px 6px !important;
-            margin-bottom: 8px !important;
-        }
-
-        .nyt-bottom-story .nyt-sidebar-story-meta,
-        .nyt-bottom-story div[style*="font-size: 13px"] {
-            font-size: 12px !important;
-            color: #888888 !important;
-            margin-top: auto !important;
-        }
-
-        .nyt-bottom-story .nyt-sidebar-story-content {
+        /* ── SECTION DIVIDER ── */
+        .section-divider {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin: 48px 0 28px;
         }
 
-        /* Legacy sidebar styles for other sections */
-        .nyt-sidebar-story-image {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 8px;
-            transition: all 0.4s ease;
-        }
-
-        .nyt-sidebar-story-content {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .nyt-sidebar-story-title {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 17px;
+        .section-divider h2 {
+            font-family: var(--font-display);
+            font-size: 15px;
             font-weight: 700;
-            line-height: 1.35;
-            color: #f5f5f5;
-            margin-bottom: 6px;
-            letter-spacing: -0.3px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--smoke);
+            white-space: nowrap;
         }
 
-        .nyt-sidebar-story-title:hover {
-            text-decoration: underline;
-            text-decoration-thickness: 1px;
-            text-underline-offset: 2px;
-            cursor: pointer;
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(240,236,228,0.12), transparent);
         }
 
-        .nyt-sidebar-story-summary {
-            font-size: 14px;
-            line-height: 1.55;
-            color: #b8b8b8;
-            margin-bottom: 6px;
-            display: none;
-        }
-
-        .nyt-sidebar-story-meta {
-            font-size: 12px;
-            color: #888888;
-            letter-spacing: 0.2px;
-        }
-
-        /* Three Column Grid */
-        .nyt-three-column {
+        /* ── TOOLS PROMO STRIP ── */
+        .tools-strip {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-bottom: 32px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .nyt-article-card {
-            display: flex;
-            flex-direction: column;
-            background: rgba(255,255,255,0.02);
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.06);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-        }
-
-        .nyt-article-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
-            border-color: rgba(16, 185, 129, 0.3);
-        }
-
-        .nyt-article-card a {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .nyt-article-image-wrapper {
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 0;
-            width: 100%;
-        }
-
-        .nyt-article-image {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-
-        .nyt-article-card:hover .nyt-article-image {
-            transform: scale(1.08);
-        }
-
-        .nyt-article-card > a > div:not(.nyt-article-image-wrapper) {
-            padding: 16px;
-        }
-
-        .nyt-article-title {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 18px;
-            font-weight: 700;
-            line-height: 1.3;
-            color: #f5f5f5;
-            margin-bottom: 8px;
-            letter-spacing: -0.3px;
-        }
-
-        .nyt-article-title:hover {
-            color: rgba(139, 92, 246, 0.9);
-        }
-
-        .nyt-article-summary {
-            font-size: 14px;
-            line-height: 1.6;
-            color: #b8b8b8;
-            margin-bottom: 8px;
-        }
-
-        /* Two Column Grid for Secondary Stories */
-        .nyt-two-column {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 48px;
-            margin-bottom: 32px;
-        }
-
-        .nyt-main-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .nyt-sidebar {
-            padding-left: 32px;
-            border-left: 1px solid #404040;
-        }
-
-        /* Horizontal Article Card */
-        .nyt-horizontal-card {
-            display: grid;
-            grid-template-columns: 180px 1fr;
-            gap: 24px;
-            padding-bottom: 40px;
-            border-bottom: 1px solid #404040;
-        }
-
-        .nyt-horizontal-card:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .nyt-horizontal-image {
-            width: 180px;
-            height: 120px;
-            object-fit: cover;
-            transition: opacity 0.2s ease;
-        }
-
-        .nyt-horizontal-card:hover .nyt-horizontal-image {
-            opacity: 0.88;
-        }
-
-        .nyt-horizontal-title {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 20px;
-            font-weight: 700;
-            line-height: 1.35;
-            color: #f0f0f0;
-            margin-bottom: 10px;
-            letter-spacing: -0.3px;
-        }
-
-        .nyt-horizontal-title:hover {
-            text-decoration: underline;
-            text-decoration-thickness: 1px;
-            text-underline-offset: 3px;
-        }
-
-        /* Sidebar List */
-        .nyt-sidebar-title {
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: #f0f0f0;
-            margin-bottom: 28px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .nyt-sidebar-list {
-            list-style: none;
-        }
-
-        .nyt-sidebar-item {
-            padding: 20px 0;
-            border-bottom: 1px solid #404040;
-        }
-
-        .nyt-sidebar-item:last-child {
-            border-bottom: none;
-        }
-
-        .nyt-sidebar-link {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 17px;
-            font-weight: 700;
-            line-height: 1.4;
-            color: #f0f0f0;
-            text-decoration: none;
-            display: block;
-        }
-
-        .nyt-sidebar-link:hover {
-            text-decoration: underline;
-            text-decoration-thickness: 1px;
-            text-underline-offset: 3px;
-        }
-
-        .nyt-sidebar-meta {
-            font-size: 12px;
-            color: #888888;
-            margin-top: 8px;
-            letter-spacing: 0.2px;
-        }
-
-        /* Promotional Cards */
-        .promo-main {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .promo-card {
-            background: #2a2a2a;
-            border: 1px solid #505050;
+            gap: 2px;
+            background: rgba(240, 236, 228, 0.06);
             border-radius: 2px;
-            padding: 16px 20px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .promo-card:hover {
-            border-color: #e0e0e0;
-            box-shadow: 0 2px 8px rgba(255,255,255,0.1);
-        }
-
-        .promo-featured {
-            background: linear-gradient(135deg, #353535 0%, #2a2a2a 100%);
-            border: 2px solid #e0e0e0;
-        }
-
-        .promo-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #e0e0e0;
-            color: #1a1a1a;
-            padding: 2px 6px;
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            border-radius: 2px;
-        }
-
-        .promo-icon {
-            font-size: 24px;
-            margin-bottom: 6px;
-            line-height: 1;
-        }
-
-        .promo-title {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 18px;
-            font-weight: 700;
-            line-height: 1.2;
-            color: #f0f0f0;
-            margin-bottom: 4px;
-            letter-spacing: -0.3px;
-        }
-
-        .promo-subtitle {
-            font-size: 12px;
-            color: #b0b0b0;
-            margin-bottom: 6px;
-            font-weight: 600;
-            letter-spacing: 0.2px;
-        }
-
-        .promo-description {
-            font-size: 13px;
-            line-height: 1.4;
-            color: #d0d0d0;
-            margin-bottom: 10px;
-            display: none;
-        }
-
-        .promo-features {
-            list-style: none;
-            margin-bottom: 12px;
-        }
-
-        .promo-features li {
-            font-size: 12px;
-            line-height: 1.5;
-            color: #d0d0d0;
-            font-weight: 500;
-        }
-
-        .promo-button {
-            display: inline-block;
-            background: #e0e0e0;
-            color: #1a1a1a;
-            padding: 8px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            text-decoration: none;
-            border-radius: 2px;
-            transition: all 0.2s ease;
-            letter-spacing: 0.3px;
-        }
-
-        .promo-button:hover {
-            background: #f0f0f0;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255,255,255,0.3);
-        }
-
-        .promo-button-premium {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .promo-button-premium:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
-        }
-
-        /* Secondary Article Cards */
-        .story-card, .featured-article-card {
-            height: 100%;
-            box-shadow: 0 10px 35px rgba(0,0,0,0.5);
-            border-radius: 20px;
             overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
-            background: linear-gradient(to bottom, #2a2a2a 0%, #252525 100%);
+            margin-bottom: 48px;
         }
 
-        .story-card:hover, .featured-article-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 45px rgba(255,255,255,0.1);
-        }
-
-        .story-link, .featured-link {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .story-image-wrapper, .featured-image-container {
-            height: 220px;
+        .tool-card {
+            background: var(--card);
+            padding: 32px 28px;
             position: relative;
+            transition: background 0.3s var(--ease);
             overflow: hidden;
-            border-radius: 20px 20px 0 0;
         }
 
-        .story-image-wrapper img, .featured-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-            filter: saturate(1.15) contrast(1.08) brightness(1.03);
-        }
+        .tool-card:hover { background: #161614; }
 
-        .story-card:hover .story-image-wrapper img,
-        .featured-article-card:hover .featured-image {
-            transform: scale(1.05);
-        }
-
-        .story-overlay, .featured-overlay {
-            background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.7) 100%);
+        .tool-card::before {
+            content: '';
             position: absolute;
-            inset: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--ember);
+            transform: scaleX(0);
+            transition: transform 0.4s var(--ease);
         }
 
-        .story-category, .featured-category {
-            position: absolute;
-            top: 16px;
-            left: 16px;
+        .tool-card:hover::before { transform: scaleX(1); }
+
+        .tool-label {
             font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            padding: 6px 12px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border-radius: 16px;
-            text-transform: uppercase;
-        }
-
-        .story-content-wrapper, .featured-content {
-            padding: 28px;
-            background: linear-gradient(to bottom, #2a2a2a 0%, #252525 100%);
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            border-radius: 0 0 20px 20px;
-        }
-
-        .story-headline, .featured-title {
-            font-size: 1.35rem;
-            line-height: 1.25;
-            margin-bottom: 14px;
-            font-weight: 900;
-            color: #f0f0f0;
-            letter-spacing: -0.025em;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
-
-        .story-summary, .featured-excerpt {
-            font-size: 0.95rem;
-            line-height: 1.65;
-            margin-bottom: 18px;
-            color: #b0b0b0;
-            font-weight: 400;
-            flex-grow: 1;
-        }
-
-        .story-footer, .featured-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 18px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            margin-top: auto;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .story-date, .featured-date {
-            font-size: 0.82rem;
-            color: #888888;
-            font-weight: 600;
-        }
-
-        .featured-author {
-            font-size: 0.82rem;
-            color: #888888;
-            font-weight: 600;
-        }
-
-        .featured-separator {
-            color: #606060;
-            margin: 0 4px;
-        }
-
-        .featured-badge {
-            font-size: 0.82rem;
-            font-weight: 600;
-        }
-
-        .read-more {
-            font-weight: 700;
-            color: #667eea;
-            font-size: 0.88rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: gap 0.3s;
-        }
-
-        .story-card:hover .read-more,
-        .featured-article-card:hover .read-more {
-            gap: 8px;
-        }
-
-        /* Links */
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        /* FPL Promotional Section */
-        .fpl-promo-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 56px;
-            padding-bottom: 56px;
-            border-bottom: 1px solid #404040;
-        }
-
-        .fpl-promo-card {
-            background: linear-gradient(135deg, #2a2a2a 0%, #252525 100%);
-            border: 1px solid #505050;
-            border-radius: 8px;
-            padding: 28px 32px;
-            position: relative;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-
-        .fpl-promo-card:hover {
-            border-color: #00ff87;
-            box-shadow: 0 8px 24px rgba(0,255,135,0.2);
-            transform: translateY(-4px);
-        }
-
-        .fpl-promo-featured {
-            background: linear-gradient(135deg, #38003c 0%, #4a0e4e 100%);
-            border: 2px solid #38003c;
-            color: #ffffff;
-        }
-
-        .fpl-promo-featured .fpl-promo-title,
-        .fpl-promo-featured .fpl-promo-subtitle,
-        .fpl-promo-featured .fpl-promo-features li {
-            color: #ffffff;
-        }
-
-        .fpl-promo-badge {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: #00ff87;
-            color: #121212;
-            padding: 4px 12px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,255,135,0.3);
-        }
-
-        .promo-icon {
-            font-size: 36px;
-            margin-bottom: 12px;
-            line-height: 1;
-            display: block;
-        }
-
-        .fpl-promo-title {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 24px;
-            font-weight: 700;
-            line-height: 1.2;
-            color: #f0f0f0;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-        }
-
-        .fpl-promo-subtitle {
-            font-size: 14px;
-            color: #b0b0b0;
-            margin-bottom: 16px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-
-        .fpl-promo-featured .fpl-promo-subtitle {
-            color: rgba(255,255,255,0.9);
-        }
-
-        .fpl-promo-features {
-            list-style: none;
-            margin-bottom: 20px;
-        }
-
-        .fpl-promo-features li {
-            font-size: 14px;
-            line-height: 1.8;
-            color: #d0d0d0;
-            font-weight: 500;
-        }
-
-        .fpl-promo-button {
-            display: inline-block;
-            background: #00ff87;
-            color: #1a1a1a;
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-            letter-spacing: 0.3px;
-        }
-
-        .fpl-promo-button:hover {
-            background: #00e678;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,255,135,0.4);
-        }
-
-        .fpl-promo-button-premium {
-            background: #00ff87;
-            color: #1a1a1a;
-        }
-
-        .fpl-promo-button-premium:hover {
-            background: #00e678;
-            box-shadow: 0 4px 12px rgba(0,255,135,0.4);
-        }
-
-        /* Headlines Section - Modern Clean Design */
-        .nyt-headlines-section {
-            margin-bottom: 0;
-            padding: 32px 0 16px 0;
-        }
-
-        .nyt-section-title {
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
             font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
-            color: #888;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex;
+            color: var(--ember);
+            margin-bottom: 12px;
+        }
+
+        .tool-name {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--paper);
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .tool-desc {
+            font-size: 14px;
+            color: var(--smoke);
+            line-height: 1.55;
+            margin-bottom: 20px;
+        }
+
+        .tool-cta {
+            display: inline-flex;
             align-items: center;
-            gap: 12px;
-        }
-
-        .nyt-section-title::before {
-            content: '';
-            width: 4px;
-            height: 20px;
-            background: linear-gradient(180deg, #8b5cf6, #3b82f6);
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--paper);
+            padding: 10px 20px;
+            border: 1px solid rgba(240, 236, 228, 0.15);
             border-radius: 2px;
+            transition: all 0.3s var(--ease);
+            letter-spacing: 0.5px;
         }
 
-        .nyt-headlines-grid {
+        .tool-cta:hover {
+            background: var(--paper);
+            color: var(--ink);
+            border-color: var(--paper);
+        }
+
+        .tool-cta svg {
+            transition: transform 0.3s var(--ease);
+        }
+
+        .tool-card:hover .tool-cta svg {
+            transform: translateX(3px);
+        }
+
+        /* ── WIDGETS SECTION ── */
+        .widgets-row {
+            margin-bottom: 48px;
+        }
+
+        /* ── HEADLINES GRID ── */
+        .headlines-section {
+            margin-bottom: 48px;
+        }
+
+        .headlines-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            gap: 2px;
+            background: rgba(240, 236, 228, 0.06);
+            border-radius: 2px;
+            overflow: hidden;
         }
 
-        .nyt-headline-card {
-            background: linear-gradient(145deg, rgba(30,30,35,0.9) 0%, rgba(20,20,25,0.95) 100%);
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        .headline-card {
+            background: var(--card);
+            transition: background 0.3s var(--ease);
             position: relative;
         }
 
-        .nyt-headline-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(139,92,246,0.1) 0%, transparent 50%);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            pointer-events: none;
-            z-index: 1;
-        }
+        .headline-card:hover { background: #161614; }
 
-        .nyt-headline-card:hover {
-            transform: translateY(-6px) scale(1.01);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(139,92,246,0.2);
-            border-color: rgba(139,92,246,0.3);
-        }
+        .headline-card > div { height: 100%; }
 
-        .nyt-headline-card:hover::before {
-            opacity: 1;
-        }
-
-        .nyt-headline-card a {
+        .headline-card a {
             display: flex;
             flex-direction: column;
             height: 100%;
-            text-decoration: none;
-            color: inherit;
         }
 
-        /* Headline Card Image */
-        .nyt-headline-card .nyt-sidebar-story-image {
-            width: 100%;
-            height: 140px;
+        /* Headline images */
+        .headline-card .nyt-sidebar-story-image {
+            width: 100% !important;
+            height: 160px !important;
             object-fit: cover;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            filter: brightness(0.95);
+            border-radius: 0 !important;
+            transition: transform 0.6s var(--ease);
         }
 
-        .nyt-headline-card:hover .nyt-sidebar-story-image {
-            transform: scale(1.08);
-            filter: brightness(1);
+        .headline-card:hover .nyt-sidebar-story-image {
+            transform: scale(1.05);
         }
 
-        /* Headline Card Content */
-        .nyt-headline-card .nyt-sidebar-story-content {
-            padding: 16px;
+        /* Headline content */
+        .headline-card .nyt-sidebar-story-content {
+            padding: 20px;
             display: flex;
             flex-direction: column;
             flex: 1;
-            position: relative;
-            z-index: 2;
         }
 
-        /* Category Badge */
-        .nyt-headline-card .nyt-category {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.2px;
+        .headline-card .nyt-category {
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            letter-spacing: 1.5px !important;
             text-transform: uppercase;
-            color: #8b5cf6;
-            margin-bottom: 10px;
-            padding: 4px 8px;
-            background: rgba(139,92,246,0.12);
-            border-radius: 4px;
+            margin-bottom: 10px !important;
+            padding: 3px 8px !important;
+            border-radius: 2px !important;
             width: fit-content;
-            border: 1px solid rgba(139,92,246,0.2);
         }
 
-        /* Headline Title */
-        .nyt-headline-card .nyt-sidebar-story-title {
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            line-height: 1.4;
-            color: #f0f0f0;
-            margin-bottom: 8px;
-            letter-spacing: -0.2px;
+        .headline-card .nyt-sidebar-story-title {
+            font-family: var(--font-display) !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            line-height: 1.3 !important;
+            color: var(--paper) !important;
+            letter-spacing: -0.2px !important;
+            margin-bottom: 10px !important;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            transition: color 0.3s ease;
         }
 
-        .nyt-headline-card:hover .nyt-sidebar-story-title {
-            color: #fff;
-        }
+        .headline-card:hover .nyt-sidebar-story-title { color: #fff !important; }
 
-        /* Summary - Hidden by default */
-        .nyt-headline-card .nyt-sidebar-story-summary {
-            display: none;
-        }
+        .headline-card .nyt-sidebar-story-summary { display: none !important; }
 
-        /* Meta Date */
-        .nyt-headline-card .nyt-sidebar-story-meta {
-            font-size: 12px;
-            color: #666;
-            font-weight: 500;
-            margin-top: auto;
+        .headline-card .nyt-sidebar-story-meta {
+            font-size: 12px !important;
+            color: var(--ash) !important;
+            margin-top: auto !important;
             padding-top: 12px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            display: flex;
+            border-top: 1px solid rgba(240, 236, 228, 0.05);
+        }
+
+        /* ── BOTTOM CTA ── */
+        .bottom-cta {
+            text-align: center;
+            padding: 56px 0 64px;
+            border-top: 1px solid rgba(240, 236, 228, 0.06);
+        }
+
+        .bottom-cta h3 {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--paper);
+            margin-bottom: 12px;
+        }
+
+        .bottom-cta p {
+            font-size: 15px;
+            color: var(--smoke);
+            margin-bottom: 28px;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .bottom-cta-btn {
+            display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 10px;
+            padding: 14px 32px;
+            background: var(--paper);
+            color: var(--ink);
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            border-radius: 2px;
+            transition: all 0.3s var(--ease);
         }
 
-        .nyt-headline-card .nyt-sidebar-story-meta::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: #3b82f6;
-            border-radius: 50%;
-            opacity: 0.7;
+        .bottom-cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(240, 236, 228, 0.15);
         }
 
-        /* Responsive */
+        /* ── ANIMATIONS ── */
+        @keyframes reveal {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero, .tools-strip, .headlines-section, .widgets-row {
+            animation: reveal 0.5s var(--ease) backwards;
+        }
+
+        .tools-strip { animation-delay: 0.1s; }
+        .widgets-row { animation-delay: 0.15s; }
+        .headlines-section { animation-delay: 0.2s; }
+
+        /* ── RESPONSIVE ── */
         @media (max-width: 1024px) {
-            .nyt-container {
-                padding: 0 24px;
-            }
+            .container { padding: 0 24px; }
 
-            .nyt-main-content {
-                padding: 48px 0 0 0;
-            }
-
-            .nyt-hero {
-                grid-template-columns: 1fr;
-                gap: 24px;
-            }
-
-            .nyt-featured {
-                border-right: none;
-                border-bottom: none;
-            }
-
-            .nyt-side-story {
-                min-height: auto;
-            }
-
-            .nyt-bottom-headlines {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .nyt-two-column {
+            .hero-grid {
                 grid-template-columns: 1fr;
             }
 
-            .nyt-hero-title {
-                font-size: 32px;
-                line-height: 1.1;
+            .hero-lead .main_headline h2 {
+                font-size: 32px !important;
             }
 
-            .nyt-featured img {
-                aspect-ratio: 16 / 10;
+            .secondary-row {
+                grid-template-columns: 1fr;
             }
 
-            .promo-card {
-                padding: 24px 20px;
+            .tools-strip {
+                grid-template-columns: 1fr;
             }
 
-            .promo-title {
-                font-size: 24px;
-            }
-
-            .nyt-sidebar {
-                padding-left: 0;
-                border-left: none;
-                border-top: 1px solid rgba(255,255,255,0.08);
-                padding-top: 32px;
-            }
-
-            .nyt-headlines-grid {
+            .headlines-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 16px;
-            }
-
-            .nyt-three-column {
-                grid-template-columns: 1fr;
-                gap: 20px;
             }
         }
 
         @media (max-width: 768px) {
-            /* Disable GPU-heavy background effects on mobile */
-            body::before {
-                display: none;
+            body::before { display: none; }
+
+            .container { padding: 0 16px; }
+
+            .edition-links { display: none; }
+
+            .hero-lead .main_headline h2 {
+                font-size: 28px !important;
+                line-height: 1.15 !important;
             }
 
-            body::after {
-                display: none;
-            }
-
-            .nyt-hero, .nyt-three-column, .nyt-headlines-section {
-                animation: none;
-            }
-
-            /* Prevent horizontal scroll */
-            html, body {
-                overflow-x: hidden;
-            }
-
-            /* Disable hover transforms on mobile for GPU perf */
-            .nyt-featured:hover,
-            .nyt-side-story:hover,
-            .nyt-bottom-story:hover,
-            .nyt-article-card:hover,
-            .nyt-headline-card:hover {
-                transform: none;
-            }
-
-            /* Simplify shadows */
-            .nyt-featured,
-            .nyt-side-story,
-            .nyt-bottom-story,
-            .nyt-article-card,
-            .nyt-headline-card {
-                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            }
-
-            .nyt-container {
-                padding: 0 20px;
-            }
-
-            .nyt-main-content {
-                padding: 32px 0 0 0;
-            }
-
-            .nyt-three-column {
-                grid-template-columns: 1fr;
-            }
-
-            .nyt-hero-title {
-                font-size: 28px;
-                line-height: 1.15;
-            }
-
-            .nyt-hero-summary {
-                font-size: 15px;
-                line-height: 1.5;
-            }
-
-            .nyt-featured {
-                padding: 16px;
-            }
-
-            .nyt-featured img {
-                aspect-ratio: 16 / 10;
-            }
-
-            .nyt-side-story {
-                padding: 16px;
-            }
-
-            .nyt-side-story h2 {
-                font-size: 20px;
-            }
-
-            .nyt-bottom-headlines {
-                gap: 16px;
-            }
-
-            .nyt-bottom-story {
-                padding: 16px;
-            }
-
-            .nyt-bottom-story img {
-                width: 120px;
-                height: 90px;
-            }
-
-            .nyt-bottom-story h3 {
-                font-size: 16px;
-            }
-
-            .nyt-article-title {
-                font-size: 18px;
-            }
-
-            .nyt-horizontal-card {
-                grid-template-columns: 120px 1fr;
-                gap: 16px;
-            }
-
-            .nyt-horizontal-image {
-                height: 80px;
-            }
-
-            .story-image-wrapper, .featured-image-container {
-                height: 200px;
-            }
-
-            .story-headline, .featured-title {
-                font-size: 1.2rem;
-            }
-
-            .story-content-wrapper, .featured-content {
+            .hero-lead .main_headline > a > div,
+            .hero-side .main_subheadline1 > a > div {
                 padding: 20px;
             }
 
-            .fpl-promo-section {
-                grid-template-columns: 1fr;
+            .secondary-card a {
+                grid-template-columns: 140px 1fr !important;
             }
 
-            .nyt-headlines-grid {
+            .secondary-card img {
+                width: 140px !important;
+                min-height: 120px;
+            }
+
+            .secondary-card a > div {
+                padding: 16px 20px;
+            }
+
+            .secondary-card h2,
+            .secondary-card h3,
+            .secondary-card .nyt-sidebar-story-title {
+                font-size: 17px !important;
+            }
+
+            .tool-card { padding: 24px 20px; }
+            .tool-name { font-size: 19px; }
+
+            .headlines-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
             }
 
-            .nyt-section-title {
-                font-size: 26px;
+            .headline-card .nyt-sidebar-story-image {
+                height: 120px !important;
             }
 
-            .nyt-sidebar-story a {
-                grid-template-columns: 100px 1fr;
-                gap: 12px;
+            .headline-card .nyt-sidebar-story-title {
+                font-size: 14px !important;
             }
 
-            .nyt-sidebar-story-image {
-                width: 100px;
-                height: 100px;
+            .section-divider { margin: 36px 0 20px; }
+
+            /* Disable hover transforms */
+            .hero-lead:hover .main_headline img,
+            .hero-side:hover .main_subheadline1 img,
+            .secondary-card:hover img,
+            .headline-card:hover .nyt-sidebar-story-image {
+                transform: none;
             }
         }
 
         @media (max-width: 480px) {
-            .nyt-container {
-                padding: 0 16px;
+            .container { padding: 0 12px; }
+
+            .hero-lead .main_headline h2 {
+                font-size: 24px !important;
             }
 
-            .nyt-headlines-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
+            .hero-side .main_subheadline1 h2 {
+                font-size: 20px !important;
             }
 
-            .fpl-promo-card {
-                padding: 16px 20px;
+            .secondary-card a {
+                grid-template-columns: 1fr !important;
             }
 
-            .nyt-section-title {
-                font-size: 22px;
-                margin-bottom: 24px;
-            }
-
-            .nyt-featured {
-                padding: 12px;
-            }
-
-            .nyt-side-story {
-                padding: 12px;
-            }
-
-            .nyt-bottom-story {
-                padding: 12px;
-                flex-direction: column;
-            }
-
-            .nyt-bottom-story a {
-                display: flex !important;
-                flex-direction: column !important;
-                grid-template-columns: none !important;
-            }
-
-            .nyt-bottom-story img {
+            .secondary-card img {
                 width: 100% !important;
                 height: auto !important;
+                min-height: 0;
                 aspect-ratio: 16 / 10;
             }
+
+            .headlines-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1px;
+            }
+
+            .headline-card .nyt-sidebar-story-content {
+                padding: 14px;
+            }
+
+            .headline-card .nyt-sidebar-story-image {
+                height: 100px !important;
+            }
+
+            .bottom-cta h3 { font-size: 22px; }
         }
     </style>
 </head>
@@ -1519,80 +822,121 @@
     <div class="header" include="./header.html"></div>
 
     <!-- Main Content -->
-    <main class="nyt-main-content">
-        <div class="nyt-container">
+    <main class="site-content">
+        <div class="container">
 
-            <!-- Top Section: Main Headline + Side Story -->
-            <section class="nyt-hero">
-                <!-- Main Featured Story (Large) -->
-                <div class="nyt-featured">
-                    <div class="main_headline" include="./main_headline.html"></div>
+            <!-- Edition Bar -->
+            <div class="edition-bar">
+                <div class="edition-bar-inner">
+                    <span class="edition-date" id="edition-date"></span>
+                    <div class="edition-links">
+                        <span class="edition-dot"></span>
+                        <a href="/news.html">Latest News</a>
+                        <a href="/match-predictions.html">Predictions</a>
+                        <a href="/stats.html">Standings</a>
+                        <a href="/transfer-hub.html">Transfers</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero: Lead + Side -->
+            <section class="hero">
+                <div class="hero-grid">
+                    <div class="hero-lead">
+                        <div class="main_headline" include="./main_headline.html"></div>
+                    </div>
+                    <div class="hero-side">
+                        <div class="main_subheadline1" include="./main_subheadline1.html"></div>
+                    </div>
                 </div>
 
-                <!-- Side Story (Same Height) -->
-                <div class="nyt-side-story">
-                    <div class="main_subheadline1" include="./main_subheadline1.html"></div>
+                <!-- Secondary Stories -->
+                <div class="secondary-row">
+                    <div class="secondary-card">
+                        <div class="main_subheadline2" include="./main_subheadline2.html"></div>
+                    </div>
+                    <div class="secondary-card">
+                        <div class="main_subheadline3" include="./main_subheadline3.html"></div>
+                    </div>
                 </div>
             </section>
 
-            <!-- Bottom Headlines Row - Full Width -->
-            <section class="nyt-bottom-headlines">
-                <div class="nyt-bottom-story">
-                    <div class="main_subheadline2" include="./main_subheadline2.html"></div>
-                </div>
-                <div class="nyt-bottom-story">
-                    <div class="main_subheadline3" include="./main_subheadline3.html"></div>
-                </div>
-            </section>
+            <!-- Tools Promo Strip -->
+            <div class="section-divider">
+                <h2>FPL Tools</h2>
+            </div>
+
+            <div class="tools-strip">
+                <a href="/transfer-simulator-pro.html" class="tool-card">
+                    <div class="tool-label">Squad Builder</div>
+                    <div class="tool-name">Transfer Simulator Pro</div>
+                    <div class="tool-desc">AI-powered squad optimization with real-time price tracking and what-if analysis.</div>
+                    <span class="tool-cta">
+                        Try Free
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </span>
+                </a>
+                <a href="/fpl-ai-assistant.html" class="tool-card">
+                    <div class="tool-label">AI Powered</div>
+                    <div class="tool-name">FPL AI Assistant</div>
+                    <div class="tool-desc">Personalised captain picks, transfer advice, and differential tips from advanced AI.</div>
+                    <span class="tool-cta">
+                        Try Free
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </span>
+                </a>
+                <a href="/fpl-player-analyzer.html" class="tool-card">
+                    <div class="tool-label">ML Analysis</div>
+                    <div class="tool-name">Player Analyzer</div>
+                    <div class="tool-desc">Machine learning predictions with 85% accuracy. Captain picks 5 gameweeks ahead.</div>
+                    <span class="tool-cta">
+                        Try Free
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </span>
+                </a>
+            </div>
 
             <!-- Live Scores Widget -->
-            <div include="./live-scores-widget.html"></div>
+            <div class="widgets-row">
+                <div include="./live-scores-widget.html"></div>
+            </div>
 
             <!-- Premier League Standings Widget -->
-            <div include="./pl-standings-widget.html"></div>
+            <div class="widgets-row">
+                <div include="./pl-standings-widget.html"></div>
+            </div>
 
-            <!-- Headlines Grid -->
-            <section class="nyt-headlines-section">
-                <h2 class="nyt-section-title">Latest Headlines</h2>
-                <div class="nyt-headlines-grid">
-                    <div class="nyt-headline-card">
-                        <div include="./headline1.html"></div>
-                    </div>
-                    <div class="nyt-headline-card">
-                        <div include="./headline2.html"></div>
-                    </div>
-                    <div class="nyt-headline-card">
-                        <div include="./headline3.html"></div>
-                    </div>
-                    <div class="nyt-headline-card">
-                        <div include="./headline4.html"></div>
-                    </div>
-                    <div class="nyt-headline-card">
-                        <div include="./headline5.html"></div>
-                    </div>
-                    <div class="nyt-headline-card">
-                        <div include="./headline6.html"></div>
-                    </div>
-                    <div class="nyt-headline-card">
-                        <div include="./headline7.html"></div>
-                    </div>
-                    <div class="nyt-headline-card">
-                        <div include="./headline8.html"></div>
-                    </div>
-                    <div class="nyt-headline-card">
-                        <div include="./headline9.html"></div>
-                    </div>
-                    <div class="nyt-headline-card">
-                        <div include="./headline10.html"></div>
-                    </div>
-                    <div class="nyt-headline-card">
-                        <div include="./headline11.html"></div>
-                    </div>
-                    <div class="nyt-headline-card">
-                        <div include="./headline12.html"></div>
-                    </div>
+            <!-- Headlines -->
+            <div class="section-divider">
+                <h2>Latest Headlines</h2>
+            </div>
+
+            <section class="headlines-section">
+                <div class="headlines-grid">
+                    <div class="headline-card"><div include="./headline1.html"></div></div>
+                    <div class="headline-card"><div include="./headline2.html"></div></div>
+                    <div class="headline-card"><div include="./headline3.html"></div></div>
+                    <div class="headline-card"><div include="./headline4.html"></div></div>
+                    <div class="headline-card"><div include="./headline5.html"></div></div>
+                    <div class="headline-card"><div include="./headline6.html"></div></div>
+                    <div class="headline-card"><div include="./headline7.html"></div></div>
+                    <div class="headline-card"><div include="./headline8.html"></div></div>
+                    <div class="headline-card"><div include="./headline9.html"></div></div>
+                    <div class="headline-card"><div include="./headline10.html"></div></div>
+                    <div class="headline-card"><div include="./headline11.html"></div></div>
+                    <div class="headline-card"><div include="./headline12.html"></div></div>
                 </div>
             </section>
+
+            <!-- Bottom CTA -->
+            <div class="bottom-cta">
+                <h3>Never Miss a Story</h3>
+                <p>All the Premier League coverage you need, from transfers to tactical breakdowns.</p>
+                <a href="/news.html" class="bottom-cta-btn">
+                    View All Articles
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+            </div>
 
         </div>
     </main>
@@ -1602,5 +946,14 @@
 
     <!-- Scripts -->
     <script src="index.js"></script>
+    <script>
+        // Set edition date
+        const dateEl = document.getElementById('edition-date');
+        if (dateEl) {
+            const now = new Date();
+            const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateEl.textContent = now.toLocaleDateString('en-GB', opts);
+        }
+    </script>
 </body>
 </html>
