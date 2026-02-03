@@ -1850,7 +1850,7 @@ async function runScout(count = 1) {
   // Step 2: Pick topics (request extras as backups in case some fail research)
   console.log('[Scout] Selecting best topics via AI...');
   let topics;
-  try { topics = await pickTopics(news, count + 5); }
+  try { topics = await pickTopics(news, count + 10); }
   catch (e) { console.error('[Scout] Topic selection failed:', e.message); return; }
 
   console.log(`[Scout] Selected ${topics.length} topic(s) (need ${count}, extras are backups):\n`);

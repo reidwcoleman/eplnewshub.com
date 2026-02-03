@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'everton-transfers-latest-news-rumours-and-gossip-live-update-2026-02-03',
+    title: 'Everton Transfer Updates: A Deep Dive into the Toffees\' Summer Plans',
+    excerpt: 'As the summer transfer window heats up, Everton is looking to bolster their squad and improve their chances of success in the Premier League. Here\'s a closer look at the Toffees\' transfer plans and what they might mean for the team\'s future.',
+    image: '/scout-everton-transfers-latest-news-rumours-and-gossip-live-update.jpg',
+    category: 'Transfers',
+    date: '2026-02-03',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Everton', 'transfers', 'Premier League', 'summer plans']
+  },
+  {
     id: 'man-utd-vs-fulham-live-result-and-updates-after-thrilling-fi-2026-02-03',
     title: 'Man Utd vs Fulham: Thrilling Finish as Sesko Scores Late Winner',
     excerpt: 'Manchester United secured a dramatic 3-2 win over Fulham, thanks to a late winner from Benjamin Sesko, in a match that will be remembered for its thrilling finish',
