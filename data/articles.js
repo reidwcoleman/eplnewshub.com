@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'man-utd-vs-fulham-live-result-and-updates-after-thrilling-fi-2026-02-03',
+    title: 'Man Utd vs Fulham: Thrilling Finish as Sesko Scores Late Winner',
+    excerpt: 'Manchester United secured a dramatic 3-2 win over Fulham, thanks to a late winner from Benjamin Sesko, in a match that will be remembered for its thrilling finish',
+    image: '/scout-man-utd-vs-fulham-live-result-and-updates-after-thrilling-fi.jpg',
+    category: 'Match Reports',
+    date: '2026-02-03',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Manchester United', 'Fulham', 'Premier League', 'Benjamin Sesko', 'Michael Carrick']
+  },
+  {
     id: 'arsenal-weighing-up-late-transfer-move-after-mikel-merino-se-2026-02-03',
     title: 'Arsenal Weighing Up Late Transfer Move After Mikel Merino Setback',
     excerpt: 'Arsenal is dealing with an injury crisis, and Mikel Merino\'s suspected serious foot injury has prompted the club to consider a late transfer signing. With the January transfer window nearing its end, the Gunners must act quickly to address their nee',
