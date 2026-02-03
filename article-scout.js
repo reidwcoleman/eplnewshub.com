@@ -1047,6 +1047,56 @@ function stripMarkdownFences(text) {
   return text.replace(/^```[a-z]*\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
 }
 
+// ─── Real Related Articles from articles.json ───────────────────────────────
+
+function getRelatedArticles(currentTitle, currentCategory, currentTags, maxCount = 3) {
+  try {
+    const articlesPath = path.join(ROOT, 'articles.json');
+    if (!fs.existsSync(articlesPath)) return [];
+    const allArticles = JSON.parse(fs.readFileSync(articlesPath, 'utf-8'));
+
+    // Score each article by relevance
+    const scored = allArticles
+      .filter(a => a.title !== currentTitle)
+      .map(a => {
+        let score = 0;
+        const titleWords = (currentTitle || '').toLowerCase().split(/\s+/);
+        const aTitleWords = (a.title || '').toLowerCase().split(/\s+/);
+        // Same category boost
+        if (currentCategory && a.title) {
+          const catLower = currentCategory.toLowerCase();
+          if (a.description && a.description.toLowerCase().includes(catLower)) score += 3;
+        }
+        // Shared title keywords (skip common words)
+        const stopWords = new Set(['the','a','an','and','or','but','in','on','at','to','for','of','is','it','by','as','with','from','this','that','after','has','have','had','was','were','be','been','are','its','can','could','will','would','not','no','so','up','out','if','about','into','over','than','how','what','who','which','when','where','why','all','their','there','they','we','our','your','his','her','new','more','some','do','did','does','also','most','just','any','other','very','back','been','over']);
+          titleWords.forEach(w => {
+          if (w.length > 2 && !stopWords.has(w) && aTitleWords.includes(w)) score += 2;
+        });
+        // Tag match
+        if (currentTags && currentTags.length) {
+          currentTags.forEach(tag => {
+            if (a.title && a.title.toLowerCase().includes(tag.toLowerCase())) score += 2;
+          });
+        }
+        // Recency boost
+        if (a.date) {
+          const daysDiff = Math.abs((new Date() - new Date(a.date)) / 86400000);
+          if (daysDiff < 3) score += 2;
+          else if (daysDiff < 7) score += 1;
+        }
+        return { ...a, score };
+      })
+      .filter(a => a.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, maxCount);
+
+    return scored;
+  } catch (e) {
+    console.log('[Scout] Could not load related articles:', e.message);
+    return [];
+  }
+}
+
 // ─── HTML Article Template (matches Aston Villa article format exactly) ──────
 
 function buildArticleHTML(article, filename, date, imageFile) {
@@ -1402,26 +1452,75 @@ function buildArticleHTML(article, filename, date, imageFile) {
             ${stripMarkdownFences(article.bodyHTML)}
         </div>
 
-        <!-- Related Articles -->
+        <!-- Inline Promo: Transfer Simulator -->
+        <aside style="margin: 64px 0; padding: 32px; background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%); border-radius: 16px; border: 1px solid #2a2a3e; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; right: 0; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 6px 16px; border-radius: 0 16px 0 12px; font-family: Inter, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Featured Tool</div>
+            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);">&#9917;</div>
+                <div style="flex: 1; min-width: 200px;">
+                    <h3 style="font-family: Inter, sans-serif; font-size: 18px; font-weight: 800; color: #f5f5f5; margin: 0 0 6px;">Transfer Simulator Pro</h3>
+                    <p style="font-family: Inter, sans-serif; font-size: 14px; color: #a0a0b0; margin: 0; line-height: 1.5;">Build your perfect squad with AI-powered transfer recommendations and real-time price tracking.</p>
+                </div>
+                <a href="/transfer-simulator-pro.html" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; border-radius: 10px; font-family: Inter, sans-serif; font-size: 14px; font-weight: 700; white-space: nowrap; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(102,126,234,0.4)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 16px rgba(102,126,234,0.3)'">Try Free &#8594;</a>
+            </div>
+        </aside>
+
+        <!-- Related Articles (Real) -->
         <aside class="related-articles">
-            <h2 class="related-title">Related Articles</h2>
-${(article.relatedArticles || []).map(r => `
-            <article class="related-item">
-                <a href="#">
-                    <h3 class="related-item-title">${r.title}</h3>
-                    <div class="related-item-meta">${r.date} &middot; ${r.readTime}</div>
+            <h2 class="related-title">More from EPL News Hub</h2>
+${(() => {
+  const related = getRelatedArticles(article.title, article.category, article.tags || []);
+  if (!related.length) return '';
+  return related.map(r => {
+    const rDate = r.date ? new Date(r.date).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+    const rImage = r.image || '/eplnewshubnewlogo.png';
+    return `
+            <article class="related-item" style="display: flex; gap: 16px; align-items: center;">
+                <a href="/articles/${r.file}" style="display: flex; gap: 16px; align-items: center; text-decoration: none; color: inherit; width: 100%;">
+                    <img src="${rImage}" alt="" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0;" loading="lazy">
+                    <div>
+                        <h3 class="related-item-title">${r.title}</h3>
+                        <div class="related-item-meta">${rDate}</div>
+                    </div>
                 </a>
-            </article>`).join('')}
+            </article>`;
+  }).join('');
+})()}
+        </aside>
+
+        <!-- Inline Promo: FPL AI Assistant -->
+        <aside style="margin: 48px 0 0; padding: 28px 32px; background: linear-gradient(135deg, #37003c, #4a0e4e); border-radius: 16px; position: relative; overflow: hidden;">
+            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #00ff87, #60efaa); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">&#129302;</div>
+                <div style="flex: 1; min-width: 180px;">
+                    <h3 style="font-family: Inter, sans-serif; font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 4px;">FPL AI Assistant</h3>
+                    <p style="font-family: Inter, sans-serif; font-size: 13px; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.4;">Get captain picks, transfer advice, and differential tips powered by AI.</p>
+                </div>
+                <a href="/fpl-ai-assistant.html" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: linear-gradient(135deg, #00ff87, #60efaa); color: #37003c; text-decoration: none; border-radius: 10px; font-family: Inter, sans-serif; font-size: 13px; font-weight: 700; white-space: nowrap; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">Try Free &#8594;</a>
+            </div>
         </aside>
 
         <!-- Comments Section -->
-        <section style="margin-top: 64px; padding-top: 40px; border-top: 1px solid #333333;">
-            <h2 style="font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 700; color: #f5f5f5; margin-bottom: 32px;">Join the Discussion</h2>
-            <div style="background: #252525; padding: 32px; border-radius: 8px;">
+        <section style="margin-top: 64px; padding-top: 48px; border-top: 2px solid #2a2a2a;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px;">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #333, #444); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">&#128172;</div>
+                <div>
+                    <h2 style="font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 800; color: #f5f5f5; margin: 0;">Join the Discussion</h2>
+                    <p style="font-family: 'Inter', sans-serif; font-size: 13px; color: #888; margin: 4px 0 0;">Share your thoughts on this article</p>
+                </div>
+            </div>
+            <div style="background: linear-gradient(145deg, #1e1e1e, #252525); padding: 32px; border-radius: 12px; border: 1px solid #333;">
                 <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Comment Box</a> is loading comments...</div>
                 <link rel="stylesheet" type="text/css" href="https://www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
                 <script type="text/javascript" id="hcb"> if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/['"]/g,"%27"), h="https://www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24w8ot526O1NwJSxpfQ4Tqd0"+"&opts=16798&num=10&ts=1737000000000");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); </script>
             </div>
+            <style>
+                #HCB_comment_box .hcb-comment-hdr, #HCB_comment_box textarea, #HCB_comment_box input { background: #2a2a2a !important; color: #f5f5f5 !important; border-color: #444 !important; border-radius: 8px !important; }
+                #HCB_comment_box .hcb-comment { background: #222 !important; border-color: #333 !important; border-radius: 8px !important; margin-bottom: 12px !important; }
+                #HCB_comment_box a { color: #a0a0ff !important; }
+                #HCB_comment_box .hcb-submit { background: linear-gradient(135deg, #37003c, #4a0e4e) !important; color: white !important; border: none !important; border-radius: 8px !important; padding: 10px 24px !important; font-weight: 700 !important; cursor: pointer !important; }
+                #HCB_comment_box .hcb-submit:hover { background: linear-gradient(135deg, #4a0e4e, #37003c) !important; }
+            </style>
         </section>
 
     </article>
