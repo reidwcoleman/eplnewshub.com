@@ -1,21 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>News | EPL News Hub - Premier League News & Analysis</title>
-    <meta name="description" content="Latest Premier League news, transfer updates, match analysis, and FPL tips from EPL News Hub.">
-    <link rel="canonical" href="https://eplnewshub.com/news.html">
+    <meta name="description" content="Latest Premier League news, transfer updates, match analysis, and expert coverage from EPL News Hub.">
+    <link rel="canonical" href="https://www.eplnewshub.com/news.html">
     <link rel="icon" type="image/png" href="/eplnewshubnewlogo.png">
     <link rel="apple-touch-icon" href="/eplnewshubnewlogo.png">
 
-    <!-- Open Graph -->
     <meta property="og:title" content="News | EPL News Hub">
-    <meta property="og:description" content="Latest Premier League news, transfer updates, match analysis, and FPL tips.">
+    <meta property="og:description" content="Latest Premier League news, transfer updates, match analysis, and expert coverage.">
     <meta property="og:image" content="https://eplnewshub.com/eplnewshubnewlogo.png">
     <meta property="og:url" content="https://eplnewshub.com/news.html">
 
-    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -25,83 +23,150 @@
     </script>
 
     <link rel="stylesheet" href="/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --ink: #0a0a0a;
+            --paper: #f0ece4;
+            --chalk: #e8e4dc;
+            --smoke: #8a8578;
+            --ash: #5a564e;
+            --ember: #c8553a;
+            --gold: #c9a84c;
+            --mint: #3eb489;
+            --steel: #1a1918;
+            --card: #111110;
+            --card-border: rgba(240, 236, 228, 0.06);
+            --card-hover: rgba(240, 236, 228, 0.1);
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #0a0a0f;
-            color: #f5f5f5;
+            background: var(--ink);
+            color: var(--paper);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
         }
 
-        .news-page {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 20px;
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
         }
 
+        a { text-decoration: none; color: inherit; }
+        .header, .footer { flex-shrink: 0; }
+
+        .news-page {
+            flex: 1 0 auto;
+            position: relative;
+            z-index: 1;
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 0 40px 64px;
+            width: 100%;
+        }
+
+        /* ── PAGE HEADER ── */
         .news-header {
-            text-align: center;
-            margin-bottom: 50px;
-            padding-top: 20px;
+            padding: 48px 0 0;
+            margin-bottom: 40px;
+        }
+
+        .news-header-inner {
+            border-bottom: 1px solid rgba(240,236,228,0.08);
+            padding-bottom: 32px;
+        }
+
+        .news-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--ember);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .news-label::before {
+            content: '';
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--ember);
         }
 
         .news-header h1 {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 48px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 16px;
+            font-family: var(--font-display);
+            font-size: 52px;
+            font-weight: 800;
+            color: var(--paper);
+            letter-spacing: -1.5px;
+            line-height: 1.05;
+            margin-bottom: 14px;
         }
 
         .news-header p {
-            font-size: 18px;
-            color: rgba(255,255,255,0.6);
-            max-width: 600px;
-            margin: 0 auto;
+            font-size: 16px;
+            color: var(--smoke);
+            max-width: 520px;
+            line-height: 1.6;
         }
 
-        /* Search and Filter */
+        /* ── SEARCH & CONTROLS ── */
         .news-controls {
             display: flex;
             gap: 16px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-            justify-content: center;
+            margin-bottom: 12px;
+            align-items: center;
         }
 
         .search-box {
             flex: 1;
-            max-width: 400px;
+            max-width: 420px;
             position: relative;
         }
 
         .search-box input {
             width: 100%;
-            padding: 14px 20px 14px 48px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 16px;
-            transition: all 0.2s;
+            padding: 13px 20px 13px 46px;
+            background: var(--card);
+            border: 1px solid rgba(240,236,228,0.08);
+            border-radius: 2px;
+            color: var(--paper);
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 500;
+            transition: border-color 0.25s var(--ease), background 0.25s var(--ease);
+            letter-spacing: 0.2px;
         }
 
         .search-box input:focus {
             outline: none;
-            border-color: #00ff87;
-            background: rgba(255,255,255,0.08);
+            border-color: var(--ember);
+            background: #141413;
         }
 
         .search-box input::placeholder {
-            color: rgba(255,255,255,0.4);
+            color: var(--ash);
         }
 
         .search-box svg {
@@ -109,156 +174,361 @@
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            color: rgba(255,255,255,0.4);
+            width: 16px;
+            height: 16px;
+            color: var(--ash);
+            pointer-events: none;
         }
 
-        /* Articles Grid */
+        .article-count {
+            font-size: 12px;
+            color: var(--ash);
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        /* ── FEATURED / LATEST ARTICLE ── */
+        .featured-article {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 2px;
+            background: rgba(240,236,228,0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 2px;
+            animation: reveal 0.5s var(--ease) backwards;
+        }
+
+        .featured-image-wrap {
+            overflow: hidden;
+            background: var(--card);
+        }
+
+        .featured-image {
+            width: 100%;
+            height: 100%;
+            min-height: 380px;
+            object-fit: cover;
+            transition: transform 0.8s var(--ease);
+        }
+
+        .featured-article:hover .featured-image {
+            transform: scale(1.03);
+        }
+
+        .featured-content {
+            background: var(--card);
+            padding: 40px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .featured-date {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--ember);
+            margin-bottom: 16px;
+        }
+
+        .featured-title {
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--paper);
+            line-height: 1.15;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+            transition: color 0.2s var(--ease);
+        }
+
+        .featured-article:hover .featured-title {
+            color: #fff;
+        }
+
+        .featured-desc {
+            font-size: 15px;
+            color: var(--smoke);
+            line-height: 1.65;
+            margin-bottom: 24px;
+        }
+
+        .featured-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--paper);
+            padding: 10px 22px;
+            border: 1px solid rgba(240,236,228,0.15);
+            border-radius: 2px;
+            transition: all 0.3s var(--ease);
+            letter-spacing: 0.5px;
+            width: fit-content;
+        }
+
+        .featured-cta:hover {
+            background: var(--paper);
+            color: var(--ink);
+            border-color: var(--paper);
+        }
+
+        .featured-cta svg {
+            transition: transform 0.3s var(--ease);
+        }
+
+        .featured-article:hover .featured-cta svg {
+            transform: translateX(3px);
+        }
+
+        /* ── ARTICLES GRID ── */
         .articles-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(min(350px, 100%), 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: rgba(240,236,228,0.04);
+            border-radius: 0 0 2px 2px;
+            overflow: hidden;
+            animation: reveal 0.5s var(--ease) 0.1s backwards;
         }
 
         .article-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
+            background: var(--card);
             overflow: hidden;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: inherit;
             display: flex;
             flex-direction: column;
+            transition: background 0.3s var(--ease);
+            position: relative;
         }
 
-        .article-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(0, 255, 135, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        .article-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--ember);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s var(--ease);
+        }
+
+        .article-card:hover { background: #161614; }
+        .article-card:hover::after { transform: scaleX(1); }
+
+        .article-image-wrap {
+            overflow: hidden;
+            flex-shrink: 0;
         }
 
         .article-image {
             width: 100%;
             height: 200px;
             object-fit: cover;
-            background: rgba(255,255,255,0.05);
+            transition: transform 0.7s var(--ease), filter 0.7s var(--ease);
+            background: var(--steel);
+        }
+
+        .article-card:hover .article-image {
+            transform: scale(1.05);
+            filter: brightness(1.08);
         }
 
         .article-content {
-            padding: 24px;
+            padding: 24px 22px;
             flex: 1;
             display: flex;
             flex-direction: column;
         }
 
         .article-date {
-            font-size: 13px;
-            color: #00ff87;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--ember);
             margin-bottom: 12px;
-            font-weight: 500;
         }
 
         .article-title {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 20px;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 12px;
-            line-height: 1.4;
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--paper);
+            margin-bottom: 10px;
+            line-height: 1.3;
+            letter-spacing: -0.3px;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            transition: color 0.2s var(--ease);
+        }
+
+        .article-card:hover .article-title {
+            color: #fff;
         }
 
         .article-description {
-            font-size: 14px;
-            color: rgba(255,255,255,0.6);
+            font-size: 13px;
+            color: var(--smoke);
             line-height: 1.6;
             flex: 1;
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
 
         .article-read-more {
-            margin-top: 16px;
-            font-size: 14px;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(240,236,228,0.06);
+            font-size: 12px;
             font-weight: 600;
-            color: #00ff87;
+            color: var(--smoke);
             display: flex;
             align-items: center;
             gap: 6px;
+            letter-spacing: 0.5px;
+            transition: color 0.2s var(--ease);
+        }
+
+        .article-card:hover .article-read-more {
+            color: var(--paper);
         }
 
         .article-read-more svg {
-            width: 16px;
-            height: 16px;
-            transition: transform 0.2s;
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s var(--ease);
         }
 
         .article-card:hover .article-read-more svg {
-            transform: translateX(4px);
+            transform: translateX(3px);
         }
 
-        /* Loading State */
+        /* ── LOADING ── */
         .loading {
             text-align: center;
-            padding: 60px 20px;
-            color: rgba(255,255,255,0.5);
+            padding: 80px 20px;
+            color: var(--smoke);
         }
 
         .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: #00ff87;
+            width: 32px;
+            height: 32px;
+            border: 2px solid rgba(240,236,228,0.08);
+            border-top-color: var(--ember);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* No Results */
         .no-results {
             text-align: center;
-            padding: 60px 20px;
-            color: rgba(255,255,255,0.5);
+            padding: 80px 20px;
+            color: var(--smoke);
         }
 
         .no-results h3 {
-            font-size: 24px;
-            margin-bottom: 12px;
-            color: #fff;
+            font-family: var(--font-display);
+            font-size: 22px;
+            color: var(--chalk);
+            margin-bottom: 8px;
         }
 
-        /* Article Count */
-        .article-count {
+        /* ── LOAD MORE ── */
+        .load-more-wrap {
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 14px;
-            color: rgba(255,255,255,0.5);
+            padding: 48px 0 0;
         }
 
-        /* Responsive */
+        .load-more-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 13px 32px;
+            background: transparent;
+            border: 1px solid rgba(240,236,228,0.12);
+            border-radius: 2px;
+            color: var(--smoke);
+            font-family: var(--font-body);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s var(--ease);
+        }
+
+        .load-more-btn:hover {
+            background: var(--paper);
+            color: var(--ink);
+            border-color: var(--paper);
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes reveal {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1024px) {
+            .news-page { padding: 0 24px 48px; }
+            .featured-article { grid-template-columns: 1fr; }
+            .featured-image { min-height: 280px; }
+            .featured-content { padding: 32px 28px; }
+            .featured-title { font-size: 28px; }
+            .articles-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
         @media (max-width: 768px) {
-            .news-header h1 {
-                font-size: 32px;
-            }
+            body::before { display: none; }
+            .news-page { padding: 0 16px 40px; }
+            .news-header { padding: 32px 0 0; margin-bottom: 28px; }
+            .news-header h1 { font-size: 36px; letter-spacing: -1px; }
+            .news-header p { font-size: 15px; }
+            .featured-image { min-height: 220px; }
+            .featured-content { padding: 24px 22px; }
+            .featured-title { font-size: 24px; }
+            .featured-desc { font-size: 14px; margin-bottom: 18px; }
+            .articles-grid { grid-template-columns: repeat(2, 1fr); }
+            .article-image { height: 160px; }
+            .article-title { font-size: 16px; }
+            .article-content { padding: 18px 16px; }
 
-            .articles-grid {
-                grid-template-columns: 1fr;
+            .article-card::after { display: none; }
+            .article-card:hover .article-image {
+                transform: none;
+                filter: none;
             }
+            .featured-article:hover .featured-image { transform: none; }
+        }
 
-            .news-page {
-                padding: 20px 16px;
+        @media (max-width: 480px) {
+            .news-page { padding: 0 12px 32px; }
+            .news-header h1 { font-size: 28px; }
+            .featured-title { font-size: 22px; }
+            .articles-grid { grid-template-columns: 1fr; }
+            .article-card {
+                display: grid;
+                grid-template-columns: 120px 1fr;
             }
+            .article-image-wrap { height: 100%; }
+            .article-image { height: 100% !important; min-height: 130px; }
+            .article-content { padding: 16px; }
+            .article-title { font-size: 15px; -webkit-line-clamp: 2; }
+            .article-description { display: none; }
+            .article-read-more { display: none; }
         }
     </style>
 </head>
@@ -267,8 +537,11 @@
 
     <main class="news-page">
         <div class="news-header">
-            <h1>Latest News</h1>
-            <p>Stay up to date with the latest Premier League news, transfer updates, and expert analysis</p>
+            <div class="news-header-inner">
+                <div class="news-label">Latest Coverage</div>
+                <h1>News</h1>
+                <p>Transfer updates, match analysis, and expert coverage across all 20 Premier League clubs.</p>
+            </div>
         </div>
 
         <div class="news-controls">
@@ -295,19 +568,18 @@
     <script src="/index.js"></script>
     <script>
         let allArticles = [];
+        let visibleCount = 18;
 
-        // Format date nicely
         function formatDate(dateStr) {
             if (!dateStr) return '';
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-US', {
-                year: 'numeric',
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-GB', {
+                day: 'numeric',
                 month: 'long',
-                day: 'numeric'
+                year: 'numeric'
             });
         }
 
-        // Render articles
         function renderArticles(articles) {
             const container = document.getElementById('articles-container');
             const countEl = document.getElementById('article-count');
@@ -316,60 +588,111 @@
                 container.innerHTML = `
                     <div class="no-results">
                         <h3>No articles found</h3>
-                        <p>Try adjusting your search terms</p>
+                        <p>Try adjusting your search terms.</p>
                     </div>
                 `;
                 countEl.textContent = '';
                 return;
             }
 
-            countEl.textContent = `Showing ${articles.length} article${articles.length !== 1 ? 's' : ''}`;
+            countEl.textContent = `${articles.length} article${articles.length !== 1 ? 's' : ''}`;
 
-            container.innerHTML = `
-                <div class="articles-grid">
-                    ${articles.map(article => `
+            const showing = articles.slice(0, visibleCount);
+            const featured = showing[0];
+            const rest = showing.slice(1);
+
+            let html = '';
+
+            // Featured lead article
+            html += `
+                <a href="/articles/${featured.file}" class="featured-article">
+                    <div class="featured-image-wrap">
+                        <img src="${featured.image || '/eplnewshubnewlogo.png'}"
+                            alt="${featured.title}"
+                            class="featured-image"
+                            loading="eager"
+                            onerror="this.src='/eplnewshubnewlogo.png'">
+                    </div>
+                    <div class="featured-content">
+                        <div class="featured-date">${formatDate(featured.date)}</div>
+                        <h2 class="featured-title">${featured.title}</h2>
+                        <p class="featured-desc">${featured.description}</p>
+                        <span class="featured-cta">
+                            Read Article
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+            `;
+
+            // Grid
+            if (rest.length > 0) {
+                html += `<div class="articles-grid">`;
+                rest.forEach(article => {
+                    html += `
                         <a href="/articles/${article.file}" class="article-card">
-                            <img
-                                src="${article.image || '/eplnewshubnewlogo.png'}"
-                                alt="${article.title}"
-                                class="article-image"
-                                loading="lazy"
-                                decoding="async"
-                                onerror="this.src='/eplnewshubnewlogo.png'"
-                            >
+                            <div class="article-image-wrap">
+                                <img src="${article.image || '/eplnewshubnewlogo.png'}"
+                                    alt="${article.title}"
+                                    class="article-image"
+                                    loading="lazy"
+                                    decoding="async"
+                                    onerror="this.src='/eplnewshubnewlogo.png'">
+                            </div>
                             <div class="article-content">
                                 <div class="article-date">${formatDate(article.date)}</div>
                                 <h2 class="article-title">${article.title}</h2>
                                 <p class="article-description">${article.description}</p>
                                 <div class="article-read-more">
                                     Read more
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                                     </svg>
                                 </div>
                             </div>
                         </a>
-                    `).join('')}
-                </div>
-            `;
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            // Load more
+            if (articles.length > visibleCount) {
+                html += `
+                    <div class="load-more-wrap">
+                        <button class="load-more-btn" id="load-more-btn">
+                            Load More Articles
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', () => {
+                    visibleCount += 18;
+                    renderArticles(articles);
+                });
+            }
         }
 
-        // Search/filter articles
         function filterArticles(query) {
+            visibleCount = 18;
             if (!query) {
                 renderArticles(allArticles);
                 return;
             }
-
-            const filtered = allArticles.filter(article =>
-                article.title.toLowerCase().includes(query.toLowerCase()) ||
-                article.description.toLowerCase().includes(query.toLowerCase())
+            const q = query.toLowerCase();
+            const filtered = allArticles.filter(a =>
+                a.title.toLowerCase().includes(q) ||
+                a.description.toLowerCase().includes(q)
             );
-
             renderArticles(filtered);
         }
 
-        // Load articles
         async function loadArticles() {
             try {
                 const response = await fetch('/articles.json');
@@ -380,25 +703,20 @@
                 document.getElementById('articles-container').innerHTML = `
                     <div class="no-results">
                         <h3>Error loading articles</h3>
-                        <p>Please try refreshing the page</p>
+                        <p>Please try refreshing the page.</p>
                     </div>
                 `;
             }
         }
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             loadArticles();
 
-            // Search functionality
             const searchInput = document.getElementById('search-input');
             let searchTimeout;
-
             searchInput.addEventListener('input', (e) => {
                 clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    filterArticles(e.target.value);
-                }, 300);
+                searchTimeout = setTimeout(() => filterArticles(e.target.value), 300);
             });
         });
     </script>
