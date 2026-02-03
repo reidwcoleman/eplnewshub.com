@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'arsenal-weighing-up-late-transfer-move-after-mikel-merino-se-2026-02-03',
+    title: 'Arsenal Weighing Up Late Transfer Move After Mikel Merino Setback',
+    excerpt: 'Arsenal is dealing with an injury crisis, and Mikel Merino\'s suspected serious foot injury has prompted the club to consider a late transfer signing. With the January transfer window nearing its end, the Gunners must act quickly to address their nee',
+    image: '/scout-arsenal-weighing-up-late-transfer-move-after-mikel-merino-se.jpg',
+    category: 'Transfers',
+    date: '2026-02-03',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Arsenal', 'Mikel Merino', 'transfer', 'injury', 'Deadline Day']
+  },
+  {
+    id: 'man-utd-can-michael-carrick-lure-marcus-rashford-back-to-old-2026-02-03',
+    title: 'Man Utd: Can Michael Carrick Lure Marcus Rashford Back to Old Trafford?',
+    excerpt: 'With Michael Carrick in the running for the permanent manager position, a Rashford reunion could be on the cards. But can he persuade the England star to return to his boyhood club?',
+    image: '/scout-man-utd-can-michael-carrick-lure-marcus-rashford-back-to-old.jpg',
+    category: 'Player Focus',
+    date: '2026-02-03',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Manchester United', 'Michael Carrick', 'Marcus Rashford', 'Transfer News']
+  },
+  {
     id: 'arsenals-late-transfer-push-who-could-be-the-gunners-final-s-2026-02-02',
     title: 'Arsenal\'s Late Transfer Push: Who Could Be the Gunners\' Final Signing of the Window?',
     excerpt: 'Arsenal is actively looking to make signings on deadline day, with a focus on strengthening their midfield. The club is dealing with an injury to a key player, which may impact their transfer decisions.',
