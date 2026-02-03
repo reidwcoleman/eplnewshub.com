@@ -258,16 +258,18 @@
     // Add CSS styles for ad containers
     const styles = `
         <style>
-            /* Ezoic Ad Container Styles */
+            /* Ezoic Ad Container Styles — Dark Mode */
             .ezoic-ad {
-                margin: 20px 0;
+                margin: 24px 0;
                 min-height: 0;
                 text-align: center;
                 clear: both;
                 border: none;
+                background: #1a1a1a;
+                border-radius: 12px;
             }
-            
-            /* Bottom of Page Ad Specific Styles */
+
+            /* Bottom of Page Ad */
             .ezoic-bottom-ad,
             #ezoic-pub-ad-placeholder-103 {
                 margin: 40px auto 20px;
@@ -282,22 +284,24 @@
             .header-ad {
                 margin: 20px auto;
                 max-width: 728px;
+                background: #111;
+                border-radius: 12px;
+                overflow: hidden;
             }
 
             .sidebar-ad-top,
             .sidebar-ad-bottom {
                 margin: 20px 0;
-                padding: 10px;
-                background: #f8f9fa;
-                border-radius: 8px;
+                padding: 12px;
+                background: #1e1e1e;
+                border-radius: 12px;
+                border: 1px solid #2a2a2a;
             }
 
             .in-article-ad {
                 margin: 40px 0;
                 padding: 24px;
-                border-top: none;
-                border-bottom: none;
-                background: linear-gradient(145deg, #1e1e1e, #252525);
+                background: #1e1e1e;
                 border-radius: 12px;
                 border: 1px solid #2a2a2a;
             }
@@ -305,13 +309,17 @@
             .footer-ad {
                 margin: 30px auto 20px;
                 max-width: 728px;
+                background: #111;
+                border-radius: 12px;
+                overflow: hidden;
             }
 
             .between-articles-ad {
                 margin: 30px 0;
                 padding: 20px;
-                background: linear-gradient(to right, #f8f9fa, #ffffff, #f8f9fa);
+                background: #1e1e1e;
                 border-radius: 12px;
+                border: 1px solid #2a2a2a;
             }
 
             /* Floating Ad (Mobile) */
@@ -320,11 +328,12 @@
                 bottom: 0;
                 left: 0;
                 right: 0;
-                background: white;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+                background: #111;
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
                 z-index: 999;
                 padding: 10px;
                 display: none;
+                border-top: 1px solid #2a2a2a;
             }
 
             @media (max-width: 768px) {
@@ -335,20 +344,26 @@
 
             .close-floating-ad {
                 position: absolute;
-                top: 5px;
-                right: 5px;
-                background: rgba(0,0,0,0.5);
-                color: white;
-                border: none;
+                top: 6px;
+                right: 6px;
+                background: #333;
+                color: #ccc;
+                border: 1px solid #444;
                 border-radius: 50%;
-                width: 25px;
-                height: 25px;
+                width: 28px;
+                height: 28px;
                 font-size: 16px;
                 cursor: pointer;
                 z-index: 1000;
+                transition: background 0.2s;
             }
 
-            /* Responsive adjustments */
+            .close-floating-ad:hover {
+                background: #555;
+                color: #fff;
+            }
+
+            /* Responsive */
             @media (max-width: 768px) {
                 .header-ad,
                 .footer-ad {
@@ -356,8 +371,9 @@
                 }
 
                 .in-article-ad {
-                    margin: 20px -10px;
-                    padding: 15px 10px;
+                    margin: 24px 0;
+                    padding: 16px;
+                    border-radius: 10px;
                 }
             }
 

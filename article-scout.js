@@ -470,11 +470,47 @@ async function callLLM(prompt, systemPrompt) {
 }
 
 function getRecentArticleTitles() {
-  const log = getScoutLog();
   const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-  return (log.articles || [])
-    .filter(a => a.date >= twoWeeksAgo)
-    .map(a => a.title);
+  // Combine scout-log AND articles.json for maximum coverage
+  const titles = new Set();
+  const log = getScoutLog();
+  (log.articles || []).filter(a => a.date >= twoWeeksAgo).forEach(a => titles.add(a.title));
+  try {
+    const articlesJson = JSON.parse(fs.readFileSync(path.join(ROOT, 'articles.json'), 'utf-8'));
+    articlesJson.filter(a => a.date >= twoWeeksAgo).forEach(a => titles.add(a.title));
+  } catch (e) { /* ignore */ }
+  return [...titles];
+}
+
+// Normalise a title for comparison: lowercase, strip punctuation, remove filler words
+function normaliseTitle(title) {
+  const stop = new Set(['the','a','an','and','or','but','in','on','at','to','for','of','is','it','by','as','with','from','this','that','after','has','have','had','was','were','be','been','are','its','can','could','will','would','not','no','so','up','out','if','about','into','over','than','how','what','who','which','when','where','why','all','their','there','they','we','our','your','his','her','new','more','some','do','did','does','also','most','just','any','other','very','back','live','result','updates','latest','news','premier','league','vs']);
+  return title.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(/\s+/).filter(w => w.length > 2 && !stop.has(w));
+}
+
+// Extract proper-noun entities (capitalised words) from original title
+function extractEntities(title) {
+  return title.replace(/[^a-zA-Z ]/g, '').split(/\s+/)
+    .filter(w => w.length > 2 && w[0] === w[0].toUpperCase() && w !== w.toUpperCase())
+    .map(w => w.toLowerCase());
+}
+
+// Check if a candidate title is too similar to any title in a list
+function isTooSimilar(candidateTitle, existingTitles) {
+  const candidateWords = normaliseTitle(candidateTitle);
+  const candidateEntities = extractEntities(candidateTitle);
+  for (const existing of existingTitles) {
+    const existWords = normaliseTitle(existing);
+    const existEntities = extractEntities(existing);
+    // Entity overlap: if 2+ proper nouns match
+    const entityOverlap = candidateEntities.filter(e => existEntities.includes(e)).length;
+    if (entityOverlap >= 2) return true;
+    // Word overlap: if >40% of meaningful words match AND at least 3 words overlap
+    const wordOverlap = candidateWords.filter(w => existWords.includes(w)).length;
+    const overlapRatio = candidateWords.length > 0 ? wordOverlap / candidateWords.length : 0;
+    if (wordOverlap >= 3 && overlapRatio >= 0.4) return true;
+  }
+  return false;
 }
 
 async function pickTopics(newsItems, count) {
@@ -1841,22 +1877,9 @@ async function runScout(count = 1) {
         .replace(/-+$/, '');
       const filename = `${slug}-${date}.html`;
 
-      // Duplicate check — skip if too similar to a recent article OR one published in this batch
-      const recentTitles = [...getRecentArticleTitles(), ...publishedTitles];
-      const topicWords = topic.title.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').filter(w => w.length > 3);
-      // Also extract key entities (team names, player names) for stricter matching
-      const topicEntities = topic.title.replace(/[^a-zA-Z ]/g, '').split(' ')
-        .filter(w => w.length > 3 && w[0] === w[0].toUpperCase()).map(w => w.toLowerCase());
-      const isDuplicate = recentTitles.some(recent => {
-        const recentWords = recent.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').filter(w => w.length > 3);
-        const recentEntities = recent.replace(/[^a-zA-Z ]/g, '').split(' ')
-          .filter(w => w.length > 3 && w[0] === w[0].toUpperCase()).map(w => w.toLowerCase());
-        const wordOverlap = topicWords.filter(w => recentWords.includes(w)).length;
-        const entityOverlap = topicEntities.filter(e => recentEntities.includes(e)).length;
-        // Similar if 2+ key entities match (e.g. same team + same player) OR 3+ general words match
-        return entityOverlap >= 2 || wordOverlap >= 3;
-      });
-      if (isDuplicate) {
+      // Duplicate check — skip if too similar to anything published in last 14 days or this batch
+      const allRecentTitles = [...getRecentArticleTitles(), ...publishedTitles];
+      if (isTooSimilar(topic.title, allRecentTitles)) {
         console.log(`[Scout] Skipping "${topic.title}" — too similar to a recent article`);
         continue;
       }
