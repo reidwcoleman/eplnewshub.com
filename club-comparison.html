@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TVPLGM5QY9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TVPLGM5QY9');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Club Comparison - Compare Premier League clubs head-to-head. Visual stats, form, goals, clean sheets, and more for all 20 PL teams.">
+    <title>Club Comparison | EPL News Hub</title>
+    <link rel="canonical" href="https://www.eplnewshub.com/club-comparison.html">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0a0a0a;
+            --paper: #f0ece4;
+            --chalk: #e8e4dc;
+            --smoke: #8a8578;
+            --ash: #5a564e;
+            --ember: #c8553a;
+            --gold: #c9a84c;
+            --mint: #3eb489;
+            --steel: #1a1918;
+            --card: #111110;
+            --card-border: rgba(240, 236, 228, 0.06);
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+            --club-a: var(--ember);
+            --club-b: var(--mint);
+        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--ink);
+            color: var(--paper);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        a { text-decoration: none; color: inherit; }
+        .header, .footer { flex-shrink: 0; }
+
+        .page-content {
+            flex: 1 0 auto;
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 0 40px;
+            width: 100%;
+        }
+        .page-title {
+            padding: 40px 0 12px;
+            border-bottom: 1px solid rgba(240,236,228,0.08);
+            margin-bottom: 32px;
+        }
+        .page-title h1 {
+            font-family: var(--font-display);
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+        .page-title p { color: var(--smoke); font-size: 15px; margin-top: 8px; }
+
+        /* Club Selectors */
+        .selectors {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        .selector {
+            position: relative;
+        }
+        .selector label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--smoke);
+            display: block;
+            margin-bottom: 8px;
+        }
+        .selector label.a { color: var(--ember); }
+        .selector label.b { color: var(--mint); }
+
+        .club-select {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--card);
+            border: 1px solid rgba(240,236,228,0.1);
+            border-radius: 2px;
+            color: var(--paper);
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a8578' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+        }
+        .club-select:focus { outline: none; border-color: var(--paper); }
+
+        .vs-badge {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--ash);
+            text-align: center;
+            padding-top: 24px;
+        }
+
+        /* Comparison Section */
+        .comparison {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            background: rgba(240,236,228,0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 48px;
+        }
+        .compare-row {
+            display: grid;
+            grid-template-columns: 1fr 140px 1fr;
+            background: var(--card);
+            padding: 20px 24px;
+            align-items: center;
+        }
+        .compare-row.header {
+            background: var(--steel);
+            padding: 14px 24px;
+        }
+        .compare-row.header .stat-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--smoke);
+            text-align: center;
+        }
+        .compare-row.header .club-header {
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .compare-row.header .club-header.a { color: var(--ember); }
+        .compare-row.header .club-header.b { color: var(--mint); text-align: right; }
+
+        .stat-label {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--smoke);
+            letter-spacing: 0.5px;
+        }
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .stat-value.a { color: var(--ember); }
+        .stat-value.b { color: var(--mint); text-align: right; }
+
+        .stat-bar-wrap {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .stat-bar-wrap.left { justify-content: flex-end; }
+        .stat-bar-wrap.right { justify-content: flex-start; }
+
+        .bar-container {
+            height: 8px;
+            background: rgba(240,236,228,0.05);
+            border-radius: 1px;
+            overflow: hidden;
+            flex: 1;
+            max-width: 200px;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 1px;
+            transition: width 0.6s var(--ease);
+        }
+        .bar-fill.a { background: var(--ember); float: right; }
+        .bar-fill.b { background: var(--mint); }
+
+        .stat-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .stat-cell.left { align-items: flex-start; }
+        .stat-cell.right { align-items: flex-end; }
+
+        .stat-num {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 800;
+        }
+        .stat-num.a { color: var(--ember); }
+        .stat-num.b { color: var(--mint); }
+        .stat-num.winner { color: var(--gold); }
+
+        /* Top Scorer Row */
+        .scorer-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--chalk);
+        }
+        .scorer-goals {
+            font-size: 12px;
+            color: var(--smoke);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--smoke);
+        }
+        .empty-state h2 {
+            font-family: var(--font-display);
+            font-size: 24px;
+            color: var(--chalk);
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .page-content { padding: 0 16px; }
+            .page-title h1 { font-size: 32px; }
+            .selectors { grid-template-columns: 1fr; gap: 12px; }
+            .vs-badge { padding: 0; font-size: 16px; }
+            .compare-row { grid-template-columns: 1fr 100px 1fr; padding: 16px; }
+            .stat-num { font-size: 18px; }
+        }
+        @media (max-width: 480px) {
+            .page-content { padding: 0 12px; }
+            .page-title h1 { font-size: 26px; }
+            .compare-row { grid-template-columns: 1fr 80px 1fr; padding: 14px 12px; }
+            .stat-num { font-size: 16px; }
+            .stat-label { font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header" include="header.html"></div>
+
+    <main class="page-content">
+        <div class="page-title">
+            <h1>Club Comparison</h1>
+            <p>Pick two Premier League clubs and compare them head-to-head across key stats.</p>
+        </div>
+
+        <div class="selectors">
+            <div class="selector">
+                <label class="a">Club A</label>
+                <select class="club-select" id="club-a"></select>
+            </div>
+            <div class="vs-badge">VS</div>
+            <div class="selector">
+                <label class="b">Club B</label>
+                <select class="club-select" id="club-b"></select>
+            </div>
+        </div>
+
+        <div id="comparison-area">
+            <div class="empty-state">
+                <h2>Select two clubs to compare</h2>
+                <p>Choose from the dropdowns above to see a head-to-head breakdown.</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="footer" include="footer.html"></div>
+    <script src="index.js"></script>
+
+    <script>
+    const CLUBS = {
+        "Arsenal": { pos: 3, pts: 47, w: 14, d: 5, l: 4, gf: 47, ga: 22, cs: 9, form: "WWDWL", topScorer: "Bukayo Saka", topGoals: 9 },
+        "Aston Villa": { pos: 9, pts: 35, w: 10, d: 5, l: 8, gf: 33, ga: 33, cs: 5, form: "LDWWL", topScorer: "Ollie Watkins", topGoals: 8 },
+        "Bournemouth": { pos: 6, pts: 40, w: 12, d: 4, l: 7, gf: 37, ga: 27, cs: 6, form: "WLLWW", topScorer: "Justin Kluivert", topGoals: 8 },
+        "Brentford": { pos: 11, pts: 31, w: 9, d: 4, l: 10, gf: 38, ga: 37, cs: 4, form: "WLWDL", topScorer: "Bryan Mbeumo", topGoals: 10 },
+        "Brighton": { pos: 10, pts: 34, w: 9, d: 7, l: 7, gf: 35, ga: 33, cs: 5, form: "DWLWD", topScorer: "Joao Pedro", topGoals: 6 },
+        "Chelsea": { pos: 4, pts: 43, w: 13, d: 4, l: 6, gf: 46, ga: 28, cs: 7, form: "WWLWD", topScorer: "Cole Palmer", topGoals: 14 },
+        "Crystal Palace": { pos: 15, pts: 27, w: 6, d: 9, l: 8, gf: 25, ga: 28, cs: 5, form: "DDDWL", topScorer: "Jean-Philippe Mateta", topGoals: 7 },
+        "Everton": { pos: 16, pts: 23, w: 5, d: 8, l: 10, gf: 20, ga: 31, cs: 5, form: "DLLDW", topScorer: "Dominic Calvert-Lewin", topGoals: 4 },
+        "Fulham": { pos: 8, pts: 36, w: 10, d: 6, l: 7, gf: 34, ga: 29, cs: 6, form: "WDWLW", topScorer: "Alex Iwobi", topGoals: 7 },
+        "Ipswich": { pos: 18, pts: 16, w: 3, d: 7, l: 13, gf: 19, ga: 41, cs: 3, form: "LLLLD", topScorer: "Liam Delap", topGoals: 6 },
+        "Leicester": { pos: 19, pts: 14, w: 3, d: 5, l: 15, gf: 22, ga: 48, cs: 2, form: "LLLWL", topScorer: "Jamie Vardy", topGoals: 5 },
+        "Liverpool": { pos: 1, pts: 53, w: 17, d: 2, l: 4, gf: 52, ga: 22, cs: 10, form: "WWLWW", topScorer: "Mohamed Salah", topGoals: 18 },
+        "Man City": { pos: 5, pts: 41, w: 12, d: 5, l: 6, gf: 44, ga: 29, cs: 6, form: "WWWDL", topScorer: "Erling Haaland", topGoals: 16 },
+        "Man United": { pos: 13, pts: 29, w: 8, d: 5, l: 10, gf: 28, ga: 33, cs: 5, form: "WLDLW", topScorer: "Bruno Fernandes", topGoals: 7 },
+        "Newcastle": { pos: 7, pts: 38, w: 11, d: 5, l: 7, gf: 36, ga: 27, cs: 7, form: "WWDLW", topScorer: "Alexander Isak", topGoals: 13 },
+        "Nottm Forest": { pos: 2, pts: 47, w: 14, d: 5, l: 4, gf: 37, ga: 21, cs: 10, form: "WWWDW", topScorer: "Chris Wood", topGoals: 13 },
+        "Southampton": { pos: 20, pts: 6, w: 1, d: 3, l: 19, gf: 13, ga: 52, cs: 2, form: "LLLLL", topScorer: "Cameron Archer", topGoals: 3 },
+        "Tottenham": { pos: 12, pts: 31, w: 9, d: 4, l: 10, gf: 43, ga: 33, cs: 4, form: "LWWLL", topScorer: "Dominic Solanke", topGoals: 8 },
+        "West Ham": { pos: 14, pts: 28, w: 7, d: 7, l: 9, gf: 28, ga: 37, cs: 4, form: "DLWDL", topScorer: "Jarrod Bowen", topGoals: 6 },
+        "Wolves": { pos: 17, pts: 20, w: 5, d: 5, l: 13, gf: 30, ga: 47, cs: 3, form: "WLLLD", topScorer: "Matheus Cunha", topGoals: 10 }
+    };
+
+    const clubNames = Object.keys(CLUBS).sort();
+    const selA = document.getElementById('club-a');
+    const selB = document.getElementById('club-b');
+
+    // Populate selects
+    [selA, selB].forEach((sel, i) => {
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Select a club...';
+        sel.appendChild(placeholder);
+        clubNames.forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            sel.appendChild(opt);
+        });
+        // Default selections
+        if (i === 0) sel.value = 'Arsenal';
+        if (i === 1) sel.value = 'Liverpool';
+    });
+
+    function renderComparison() {
+        const a = CLUBS[selA.value];
+        const b = CLUBS[selB.value];
+        const area = document.getElementById('comparison-area');
+
+        if (!a || !b || selA.value === selB.value) {
+            area.innerHTML = `<div class="empty-state"><h2>${selA.value === selB.value && selA.value ? 'Pick two different clubs' : 'Select two clubs to compare'}</h2><p>Choose from the dropdowns above.</p></div>`;
+            return;
+        }
+
+        const nameA = selA.value;
+        const nameB = selB.value;
+
+        const stats = [
+            { label: "Position", a: a.pos, b: b.pos, lower: true },
+            { label: "Points", a: a.pts, b: b.pts },
+            { label: "Wins", a: a.w, b: b.w },
+            { label: "Draws", a: a.d, b: b.d },
+            { label: "Losses", a: a.l, b: b.l, lower: true },
+            { label: "Goals Scored", a: a.gf, b: b.gf },
+            { label: "Goals Conceded", a: a.ga, b: b.ga, lower: true },
+            { label: "Clean Sheets", a: a.cs, b: b.cs },
+            { label: "Form (Last 5)", a: a.form, b: b.form, text: true },
+        ];
+
+        let html = `<div class="comparison">`;
+        html += `<div class="compare-row header">
+            <div class="club-header a">${nameA}</div>
+            <div class="stat-label">Stat</div>
+            <div class="club-header b">${nameB}</div>
+        </div>`;
+
+        stats.forEach(s => {
+            if (s.text) {
+                html += `<div class="compare-row">
+                    <div class="stat-cell left"><span class="stat-num a">${s.a}</span></div>
+                    <div class="stat-label">${s.label}</div>
+                    <div class="stat-cell right"><span class="stat-num b">${s.b}</span></div>
+                </div>`;
+                return;
+            }
+
+            const max = Math.max(s.a, s.b, 1);
+            const aWins = s.lower ? s.a < s.b : s.a > s.b;
+            const bWins = s.lower ? s.b < s.a : s.b > s.a;
+            const aPct = (s.a / max * 100).toFixed(0);
+            const bPct = (s.b / max * 100).toFixed(0);
+
+            html += `<div class="compare-row">
+                <div class="stat-cell left">
+                    <span class="stat-num ${aWins ? 'winner' : 'a'}">${s.a}</span>
+                    <div class="stat-bar-wrap left">
+                        <div class="bar-container"><div class="bar-fill a" style="width:${aPct}%"></div></div>
+                    </div>
+                </div>
+                <div class="stat-label">${s.label}</div>
+                <div class="stat-cell right">
+                    <span class="stat-num ${bWins ? 'winner' : 'b'}">${s.b}</span>
+                    <div class="stat-bar-wrap right">
+                        <div class="bar-container"><div class="bar-fill b" style="width:${bPct}%"></div></div>
+                    </div>
+                </div>
+            </div>`;
+        });
+
+        // Top scorer row
+        html += `<div class="compare-row">
+            <div class="stat-cell left">
+                <span class="scorer-name">${a.topScorer}</span>
+                <span class="scorer-goals">${a.topGoals} goals</span>
+            </div>
+            <div class="stat-label">Top Scorer</div>
+            <div class="stat-cell right">
+                <span class="scorer-name">${b.topScorer}</span>
+                <span class="scorer-goals">${b.topGoals} goals</span>
+            </div>
+        </div>`;
+
+        html += `</div>`;
+        area.innerHTML = html;
+    }
+
+    selA.addEventListener('change', renderComparison);
+    selB.addEventListener('change', renderComparison);
+    renderComparison();
+    </script>
+</body>
+</html>
