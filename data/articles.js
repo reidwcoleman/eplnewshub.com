@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'how-to-watch-arsenal-v-chelsea-live-on-tv-2026-02-04',
+    title: 'The London Rivals Clash: How to Watch Arsenal v Chelsea Live on TV',
+    excerpt: 'The Gunners and the Blues face off in a thrilling encounter, and we\'ve got you covered on how to catch all the action live on TV',
+    image: '/scout-how-to-watch-arsenal-v-chelsea-live-on-tv.jpg',
+    category: 'News',
+    date: '2026-02-04',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Arsenal', 'Chelsea', 'Carabao Cup', 'London Rivals', 'Live on TV']
+  },
+  {
     id: 'tottenhams-stunning-draw-with-manchester-city-a-turning-poin-2026-02-04',
     title: 'Tottenham\'s Stunning Draw with Manchester City: A Turning Point in the Title Race?',
     excerpt: 'A stunning draw between Tottenham and Manchester City has thrown the title race wide open, as Manchester United\'s dramatic win adds to the excitement. Can Spurs and United capitalize on City\'s slip-up?',
