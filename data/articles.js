@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'tottenhams-stunning-draw-with-manchester-city-a-turning-poin-2026-02-04',
+    title: 'Tottenham\'s Stunning Draw with Manchester City: A Turning Point in the Title Race?',
+    excerpt: 'A stunning draw between Tottenham and Manchester City has thrown the title race wide open, as Manchester United\'s dramatic win adds to the excitement. Can Spurs and United capitalize on City\'s slip-up?',
+    image: '/scout-tottenhams-stunning-draw-with-manchester-city-a-turning-poin.jpg',
+    category: 'Match Reports',
+    date: '2026-02-04',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Tottenham', 'Manchester City', 'Premier League', 'title race', 'Manchester United']
+  },
+  {
     id: 'sunderland-3-0-burnley-clinical-finishing-and-solid-defence-2026-02-03',
     title: 'Sunderland 3-0 Burnley: Clinical Finishing and Solid Defence Secure Important Win',
     excerpt: 'A clinical performance from Sunderland saw them secure a crucial 3-0 win over Burnley, with solid defending and potent attacking play on display. The victory marks a significant turning point in their season, as they look to push up the Premier Leagu',
