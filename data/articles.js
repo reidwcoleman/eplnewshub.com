@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'football-latest-news-gossip-2026-02-04',
+    title: 'Football Latest News & Gossip: Transfer Deadline Day Recap and More',
+    excerpt: 'The transfer deadline day in February saw several deals, but what does it mean for the teams involved? We take a closer look at the latest news and gossip, including updates on Cristiano Ronaldo\'s future and Liverpool\'s new signings',
+    image: '/scout-football-latest-news-gossip.jpg',
+    category: 'News',
+    date: '2026-02-04',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['football news', 'transfer deadline day', 'Cristiano Ronaldo', 'Liverpool', 'Aston Villa']
+  },
+  {
+    id: 'cristiano-ronaldo-considering-european-return-or-mls-move-am-2026-02-04',
+    title: 'Ronaldo\'s Next Move: European Return or MLS Adventure?',
+    excerpt: 'The Portuguese superstar is weighing his options as a reported \'strike\' at Al Nassr sparks speculation about his next destination. Where will Ronaldo end up next?',
+    image: '/scout-cristiano-ronaldo-considering-european-return-or-mls-move-am.jpg',
+    category: 'Player Focus',
+    date: '2026-02-04',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Cristiano Ronaldo', 'Al Nassr', 'European return', 'MLS move', 'transfer rumors']
+  },
+  {
     id: 'how-to-watch-arsenal-v-chelsea-live-on-tv-2026-02-04',
     title: 'The London Rivals Clash: How to Watch Arsenal v Chelsea Live on TV',
     excerpt: 'The Gunners and the Blues face off in a thrilling encounter, and we\'ve got you covered on how to catch all the action live on TV',
