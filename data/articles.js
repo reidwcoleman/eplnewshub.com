@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'sunderland-3-0-burnley-black-cats-dominant-display-secures-c-2026-02-04',
+    title: 'Sunderland 3-0 Burnley: Black Cats\' Dominant Display Secures Comfortable Win',
+    excerpt: 'Tony Mowatt\'s tactical masterclass and clinical finishing from Amad Diallo and Jack Clarke secured a resounding victory for Sunderland.',
+    image: '/scout-sunderland-3-0-burnley-black-cats-dominant-display-secures-c.jpg',
+    category: 'Match Reports',
+    date: '2026-02-04',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Sunderland', 'Burnley', 'Premier League', 'Tony Mowatt', 'Amad Diallo']
+  },
+  {
     id: 'tottenhams-stunning-draw-with-manchester-city-a-turning-poin-2026-02-04',
     title: 'Tottenham\'s Stunning Draw with Manchester City: A Turning Point in the Title Race?',
     excerpt: 'A stunning draw between Tottenham and Manchester City has thrown the title race wide open, as Manchester United\'s dramatic win adds to the excitement. Can Spurs and United capitalize on City\'s slip-up?',
