@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'liverpool-xi-vs-man-city-predicted-lineup-and-tactical-break-2026-02-05',
+    title: 'Liverpool XI vs Man City: Predicted Lineup and Tactical Breakdown',
+    excerpt: 'Jurgen Klopp\'s Liverpool side face a daunting task as they host Pep Guardiola\'s Manchester City at Anfield, but what lineup and tactics can we expect from the Reds? A comprehensive tactical breakdown of the highly anticipated clash.',
+    image: '/scout-liverpool-xi-vs-man-city-predicted-lineup-and-tactical-break.jpg',
+    category: 'Match Reports',
+    date: '2026-02-05',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Liverpool', 'Manchester City', 'Premier League', 'Tactical Analysis']
+  },
+  {
     id: 'sunderland-3-0-burnley-black-cats-dominant-display-secures-c-2026-02-04',
     title: 'Sunderland 3-0 Burnley: Black Cats\' Dominant Display Secures Comfortable Win',
     excerpt: 'Tony Mowatt\'s tactical masterclass and clinical finishing from Amad Diallo and Jack Clarke secured a resounding victory for Sunderland.',
