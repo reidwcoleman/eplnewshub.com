@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'wsl-news-transfers-rumours-gossip-and-womens-football-latest-2026-02-05',
+    title: 'WSL News and Updates: A Comprehensive Analysis',
+    excerpt: 'Get the latest news, transfers, and rumors from the Women\'s Super League, with in-depth analysis and expert insight',
+    image: '/scout-wsl-news-transfers-rumours-gossip-and-womens-football-latest.jpg',
+    category: 'News',
+    date: '2026-02-05',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['WSL', 'women\'s football', 'transfers', 'rumors', 'gossip']
+  },
+  {
+    id: 'arne-slot-insists-liverpool-are-ready-for-life-after-virgil-2026-02-05',
+    title: 'Life After Van Dijk: How Liverpool Are Preparing for a New Era',
+    excerpt: 'As Liverpool prepares for life after Virgil van Dijk, manager Arne Slot is confident that the club has a plan in place to ensure a smooth transition, with Jeremy Jacquet playing a key role in the team\'s long-term strategy',
+    image: '/scout-arne-slot-insists-liverpool-are-ready-for-life-after-virgil.jpg',
+    category: 'News',
+    date: '2026-02-05',
+    readTime: '25 min read',
+    featured: true,
+    tags: ['Liverpool', 'Virgil van Dijk', 'Arne Slot', 'Jeremy Jacquet', 'Premier League']
+  },
+  {
     id: 'football-latest-news-gossip-2026-02-04',
     title: 'Football Latest News & Gossip: Transfer Deadline Day Recap and More',
     excerpt: 'The transfer deadline day in February saw several deals, but what does it mean for the teams involved? We take a closer look at the latest news and gossip, including updates on Cristiano Ronaldo\'s future and Liverpool\'s new signings',
