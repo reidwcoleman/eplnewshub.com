@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'micky-van-de-ven-injury-update-will-the-tottenham-defender-m-2026-02-06',
+    title: 'Micky van de Ven Injury Update: Will the Tottenham Defender Miss the Weekend?',
+    excerpt: 'Tottenham defender Micky van de Ven\'s injury status is a concern ahead of upcoming matches against Manchester United and Manchester City. Thomas Frank provided an update on the defender\'s status.',
+    image: '/scout-micky-van-de-ven-injury-update-will-the-tottenham-defender-m.jpg',
+    category: 'Player Focus',
+    date: '2026-02-06',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Tottenham', 'Micky van de Ven', 'injury update', 'Premier League']
+  },
+  {
     id: 'tottenham-captain-cristiano-romero-on-atletico-madrid-shortl-2026-02-06',
     title: 'Tottenham\'s Defensive Dilemma: Cristian Romero\'s Transfer Outburst Sparks Atletico Madrid Interest',
     excerpt: 'Tottenham captain Cristian Romero\'s transfer outburst has led to speculation about his future at the club, with Atletico Madrid reportedly interested in signing the defender. What does this mean for Spurs\' defensive setup?',
