@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'transfer-news-live-sandro-tonali-juventus-top-target-jesse-l-2026-02-06',
+    title: 'Sandro Tonali Transfer News: Juventus Lead the Chase for the Coveted Midfielder',
+    excerpt: 'Juventus are leading the charge for Sandro Tonali, while Arsenal made a surprise deadline-day move for the midfielder, and Feyenoord are set to reunite with Jesse Lingard',
+    image: '/scout-transfer-news-live-sandro-tonali-juventus-top-target-jesse-l.jpg',
+    category: 'Transfers',
+    date: '2026-02-06',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Sandro Tonali', 'Juventus', 'Arsenal', 'Feyenoord', 'Jesse Lingard', 'transfer news']
+  },
+  {
+    id: 'everton-transfers-latest-news-rumours-and-gossip-live-update-2026-02-06',
+    title: 'Everton Transfer News: Analyzing the Toffees\' Summer Plans',
+    excerpt: 'The Toffees are looking to strengthen their squad ahead of the new season. Here\'s the latest on their transfer plans and rumors.',
+    image: '/scout-everton-transfers-latest-news-rumours-and-gossip-live-update.webp',
+    category: 'Transfers',
+    date: '2026-02-06',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Everton', 'transfer news', 'Premier League', 'rumors', 'gossip']
+  },
+  {
     id: 'micky-van-de-ven-injury-update-will-the-tottenham-defender-m-2026-02-06',
     title: 'Micky van de Ven Injury Update: Will the Tottenham Defender Miss the Weekend?',
     excerpt: 'Tottenham defender Micky van de Ven\'s injury status is a concern ahead of upcoming matches against Manchester United and Manchester City. Thomas Frank provided an update on the defender\'s status.',
