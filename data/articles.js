@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'fantasy-premier-league-gameweek-25-qampa-with-expert-gianni-2026-02-06',
+    title: 'Fantasy Premier League: Gameweek 25 Q&A with expert Gianni Buttice',
+    excerpt: 'Get the inside track on Gameweek 25 with expert Gianni Buttice\'s Q&A session, covering the best transfers, captain picks, and more. Send us your questions and get ready to climb the FPL rankings.',
+    image: '/scout-fantasy-premier-league-gameweek-25-qampa-with-expert-gianni.jpg',
+    category: 'News',
+    date: '2026-02-06',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Fantasy Premier League', 'Gameweek 25', 'FPL', 'Gianni Buttice', 'expert advice']
+  },
+  {
+    id: 'leeds-3-1-nottingham-forest-premier-league-as-it-happened-2026-02-06',
+    title: 'Leeds United\'s Resurgence: A Comprehensive Analysis of their 3-1 Win over Nottingham Forest',
+    excerpt: 'Leeds United\'s impressive 3-1 victory over Nottingham Forest has reignited their survival hopes, but what were the key factors behind their success? Our in-depth analysis delves into the tactics, player performances, and turning points that shaped t',
+    image: '/scout-leeds-3-1-nottingham-forest-premier-league-as-it-happened.jpg',
+    category: 'Match Reports',
+    date: '2026-02-06',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Leeds United', 'Nottingham Forest', 'Premier League', 'match report', 'analysis']
+  },
+  {
     id: 'liverpool-xi-vs-man-city-predicted-lineup-and-tactical-break-2026-02-05',
     title: 'Liverpool XI vs Man City: Predicted Lineup and Tactical Breakdown',
     excerpt: 'Jurgen Klopp\'s Liverpool side face a daunting task as they host Pep Guardiola\'s Manchester City at Anfield, but what lineup and tactics can we expect from the Reds? A comprehensive tactical breakdown of the highly anticipated clash.',
