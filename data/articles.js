@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'tottenham-captain-cristiano-romero-on-atletico-madrid-shortl-2026-02-06',
+    title: 'Tottenham\'s Defensive Dilemma: Cristian Romero\'s Transfer Outburst Sparks Atletico Madrid Interest',
+    excerpt: 'Tottenham captain Cristian Romero\'s transfer outburst has led to speculation about his future at the club, with Atletico Madrid reportedly interested in signing the defender. What does this mean for Spurs\' defensive setup?',
+    image: '/scout-tottenham-captain-cristiano-romero-on-atletico-madrid-shortl.jpg',
+    category: 'Transfers',
+    date: '2026-02-06',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Cristian Romero', 'Tottenham', 'Atletico Madrid', 'Transfer News', 'Premier League']
+  },
+  {
+    id: 'chelsea-injury-update-james-neto-and-gittens-latest-return-d-2026-02-06',
+    title: 'Chelsea\'s Injury Conundrum: Navigating the Recovery of James, Neto, and Gittens',
+    excerpt: 'Chelsea boss Liam Rosenior provides updates on the team\'s injured players ahead of their match against Wolves, as the Blues look to navigate their way through a challenging period.',
+    image: '/scout-chelsea-injury-update-james-neto-and-gittens-latest-return-d.jpg',
+    category: 'News',
+    date: '2026-02-06',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Chelsea', 'Premier League', 'injuries', 'Reece James', 'Pedro Neto', 'Gittens', 'Liam Rosenior']
+  },
+  {
     id: 'wsl-news-transfers-rumours-gossip-and-womens-football-latest-2026-02-05',
     title: 'WSL News and Updates: A Comprehensive Analysis',
     excerpt: 'Get the latest news, transfers, and rumors from the Women\'s Super League, with in-depth analysis and expert insight',
