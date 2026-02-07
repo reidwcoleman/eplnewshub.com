@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'predicted-line-ups-for-matchweek-25-2026-02-07',
+    title: 'Unraveling the Predicted Line-ups for Matchweek 25',
+    excerpt: 'As the Premier League enters its 25th matchweek, predictions and analysis are flooding in, with various sources providing their takes on the upcoming matches. With key teams like Manchester United, Tottenham, Liverpool, and Manchester City in action,',
+    image: '/scout-predicted-line-ups-for-matchweek-25.jpg',
+    category: 'Analysis',
+    date: '2026-02-07',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'Matchweek 25', 'Predicted Line-ups', 'Manchester United', 'Tottenham', 'Liverpool', 'Manchester City']
+  },
+  {
+    id: 'arsenal-vs-sunderland-prediction-kick-off-time-team-news-tv-2026-02-07',
+    title: 'Arsenal vs Sunderland: A Premier League Clash with Title Implications',
+    excerpt: 'Arsenal looks to maintain their title push as they host a travel-sick Sunderland side in a crucial Premier League match, with the Gunners seeking to capitalize on their home advantage',
+    image: '/scout-arsenal-vs-sunderland-prediction-kick-off-time-team-news-tv.jpg',
+    category: 'Match Previews',
+    date: '2026-02-07',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Arsenal', 'Sunderland', 'Premier League', 'title chase', 'match preview']
+  },
+  {
     id: 'transfer-news-live-sandro-tonali-juventus-top-target-jesse-l-2026-02-06',
     title: 'Sandro Tonali Transfer News: Juventus Lead the Chase for the Coveted Midfielder',
     excerpt: 'Juventus are leading the charge for Sandro Tonali, while Arsenal made a surprise deadline-day move for the midfielder, and Feyenoord are set to reunite with Jesse Lingard',
