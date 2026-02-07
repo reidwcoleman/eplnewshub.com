@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'chelsea-xi-vs-wolves-predicted-lineup-and-confirmed-team-new-2026-02-07',
+    title: 'Chelsea XI vs Wolves: Unpacking the Predicted Lineup and Team News',
+    excerpt: 'As Chelsea prepare to face Wolves, we examine the predicted lineup and confirmed team news, with a focus on the key factors that could shape the outcome',
+    image: '/scout-chelsea-xi-vs-wolves-predicted-lineup-and-confirmed-team-new.jpg',
+    category: 'News',
+    date: '2026-02-07',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Chelsea', 'Wolves', 'Premier League', 'Predicted Lineup', 'Team News']
+  },
+  {
     id: 'predicted-line-ups-for-matchweek-25-2026-02-07',
     title: 'Unraveling the Predicted Line-ups for Matchweek 25',
     excerpt: 'As the Premier League enters its 25th matchweek, predictions and analysis are flooding in, with various sources providing their takes on the upcoming matches. With key teams like Manchester United, Tottenham, Liverpool, and Manchester City in action,',
