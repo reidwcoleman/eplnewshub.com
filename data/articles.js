@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'wolves-vs-chelsea-blues-victory-puts-pressure-on-wolves-rele-2026-02-07',
+    title: 'Wolves vs Chelsea: Blues\' Victory Puts Pressure on Wolves\' Relegation Battle',
+    excerpt: 'Chelsea\'s 3-0 win over Wolves at Molineux Stadium has left the home team struggling to stay afloat in the Premier League, with their chances of survival hanging by a thread. The Blues\' dominant performance has added to the mounting pressure on Wolv',
+    image: '/scout-wolves-vs-chelsea-blues-victory-puts-pressure-on-wolves-rele.jpg',
+    category: 'Match Reports',
+    date: '2026-02-07',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Wolves', 'Chelsea', 'Premier League', 'relegation battle']
+  },
+  {
     id: 'fantasy-premier-league-gameweek-25-qampa-with-expert-gianni-2026-02-06',
     title: 'Fantasy Premier League: Gameweek 25 Q&A with expert Gianni Buttice',
     excerpt: 'Get the inside track on Gameweek 25 with expert Gianni Buttice\'s Q&A session, covering the best transfers, captain picks, and more. Send us your questions and get ready to climb the FPL rankings.',
