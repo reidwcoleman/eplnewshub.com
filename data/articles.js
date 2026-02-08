@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'brighton-0-1-crystal-palace-seagulls-unfortunate-defeat-in-t-2026-02-08',
+    title: 'Brighton 0-1 Crystal Palace: Seagulls\' Unfortunate Defeat in the M23 Derby',
+    excerpt: 'A tense and closely contested M23 Derby saw Crystal Palace edge out Brighton 1-0, with the Seagulls left to ponder what could have been. The match was a testament to the intense rivalry between the two teams, with both sides creating scoring opportun',
+    image: '/scout-brighton-0-1-crystal-palace-seagulls-unfortunate-defeat-in-t.jpg',
+    category: 'Match Reports',
+    date: '2026-02-08',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Brighton', 'Crystal Palace', 'M23 Derby', 'Premier League', 'football', 'soccer']
+  },
+  {
     id: 'newcastle-united-2-3-brentford-dango-ouattaras-late-strike-c-2026-02-08',
     title: 'Newcastle United 2-3 Brentford: Dango Ouattara\'s Late Strike Continues Magpies\' Winless Run',
     excerpt: 'Dango Ouattara\'s late strike sealed a 3-2 win for Brentford at St James\' Park, extending Newcastle United\'s winless run in the Premier League. The Magpies\' struggles continue, but what went wrong in this rollercoaster clash?',
