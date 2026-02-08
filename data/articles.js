@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'brighton-0-1-crystal-palace-eagles-victory-in-the-m23-derby-2026-02-08',
+    title: 'Brighton 0-1 Crystal Palace: Eagles\' Victory in the M23 Derby',
+    excerpt: 'Ismaila Sarr\'s second-half goal sealed a crucial win for Crystal Palace, ending their 12-match winless streak in the process. We analyze the key moments and tactics that decided the M23 derby.',
+    image: '/scout-brighton-0-1-crystal-palace-eagles-victory-in-the-m23-derby.jpg',
+    category: 'Match Reports',
+    date: '2026-02-08',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['M23 derby', 'Crystal Palace', 'Brighton', 'Premier League']
+  },
+  {
     id: 'chelsea-xi-vs-wolves-predicted-lineup-and-confirmed-team-new-2026-02-07',
     title: 'Chelsea XI vs Wolves: Unpacking the Predicted Lineup and Team News',
     excerpt: 'As Chelsea prepare to face Wolves, we examine the predicted lineup and confirmed team news, with a focus on the key factors that could shape the outcome',
