@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'predicted-line-ups-for-matchweek-25-2026-02-08',
+    title: 'Predicted Line-ups for Matchweek 25',
+    excerpt: 'Get the latest predicted line-ups for Matchweek 25 in the Premier League, with insights into team news, injuries, and tactical formations. Who will start and who will miss out?',
+    image: '/scout-predicted-line-ups-for-matchweek-25.jpg',
+    category: 'Analysis',
+    date: '2026-02-08',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'Matchweek 25', 'Predicted Lineups', 'Team News', 'Injuries']
+  },
+  {
+    id: 'man-utd-beat-10-man-spurs-to-earn-fourth-straight-victory-2026-02-08',
+    title: 'Man Utd Beat 10-Man Spurs to Earn Fourth Straight Victory',
+    excerpt: 'Manchester United secured their fourth consecutive win with a hard-fought victory over 10-man Tottenham, as Marcus Rashford\'s goal proved decisive. Erik ten Hag\'s side continue to build momentum, while Spurs\' woes deepen after a controversial red ',
+    image: '/scout-man-utd-beat-10-man-spurs-to-earn-fourth-straight-victory.jpg',
+    category: 'Match Reports',
+    date: '2026-02-08',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Manchester United', 'Tottenham', 'Premier League', 'Match Report']
+  },
+  {
     id: 'wolves-vs-chelsea-blues-victory-puts-pressure-on-wolves-rele-2026-02-07',
     title: 'Wolves vs Chelsea: Blues\' Victory Puts Pressure on Wolves\' Relegation Battle',
     excerpt: 'Chelsea\'s 3-0 win over Wolves at Molineux Stadium has left the home team struggling to stay afloat in the Premier League, with their chances of survival hanging by a thread. The Blues\' dominant performance has added to the mounting pressure on Wolv',
