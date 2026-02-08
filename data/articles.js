@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'newcastle-united-2-3-brentford-dango-ouattaras-late-strike-c-2026-02-08',
+    title: 'Newcastle United 2-3 Brentford: Dango Ouattara\'s Late Strike Continues Magpies\' Winless Run',
+    excerpt: 'Dango Ouattara\'s late strike sealed a 3-2 win for Brentford at St James\' Park, extending Newcastle United\'s winless run in the Premier League. The Magpies\' struggles continue, but what went wrong in this rollercoaster clash?',
+    image: '/scout-newcastle-united-2-3-brentford-dango-ouattaras-late-strike-c.jpg',
+    category: 'Match Reports',
+    date: '2026-02-08',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Newcastle United', 'Brentford', 'Premier League', 'Dango Ouattara', 'St James\' Park']
+  },
+  {
     id: 'predicted-line-ups-for-matchweek-25-2026-02-08',
     title: 'Predicted Line-ups for Matchweek 25',
     excerpt: 'Get the latest predicted line-ups for Matchweek 25 in the Premier League, with insights into team news, injuries, and tactical formations. Who will start and who will miss out?',
