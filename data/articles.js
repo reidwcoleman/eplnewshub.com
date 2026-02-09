@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'aston-villa-0-2-brighton-hove-albion-seagulls-edge-closer-to-2026-02-09',
+    title: 'Aston Villa 0-2 Brighton & Hove Albion: Seagulls Edge Closer to European Football',
+    excerpt: 'Brighton & Hove Albion took a significant step towards securing European football with a 2-0 win over Aston Villa, who continue to struggle with defensive woes. The Seagulls\' victory puts them in a strong position to claim a top-seven finish.',
+    image: '/scout-aston-villa-0-2-brighton-hove-albion-seagulls-edge-closer-to.jpg',
+    category: 'Match Reports',
+    date: '2026-02-09',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'Aston Villa', 'Brighton & Hove Albion', 'European football']
+  },
+  {
     id: 'chelsea-vs-leeds-united-blues-look-to-solidify-top-four-spot-2026-02-09',
     title: 'Chelsea vs Leeds United: Blues Look to Solidify Top Four Spot',
     excerpt: 'Chelsea face a tricky test against relegation-battling Leeds United, with the Blues looking to strengthen their grip on a Champions League spot. A win for Thomas Tuchel\'s side could move them further clear of the chasing pack, while Leeds desperatel',
