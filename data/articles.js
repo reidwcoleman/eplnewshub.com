@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'chelsea-vs-leeds-united-blues-look-to-solidify-top-four-spot-2026-02-09',
+    title: 'Chelsea vs Leeds United: Blues Look to Solidify Top Four Spot',
+    excerpt: 'Chelsea face a tricky test against relegation-battling Leeds United, with the Blues looking to strengthen their grip on a Champions League spot. A win for Thomas Tuchel\'s side could move them further clear of the chasing pack, while Leeds desperatel',
+    image: '/scout-chelsea-vs-leeds-united-blues-look-to-solidify-top-four-spot.jpg',
+    category: 'Match Reports',
+    date: '2026-02-09',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Chelsea', 'Leeds United', 'Premier League', 'top four', 'relegation battle']
+  },
+  {
     id: 'brighton-0-1-crystal-palace-seagulls-unfortunate-defeat-in-t-2026-02-08',
     title: 'Brighton 0-1 Crystal Palace: Seagulls\' Unfortunate Defeat in the M23 Derby',
     excerpt: 'A tense and closely contested M23 Derby saw Crystal Palace edge out Brighton 1-0, with the Seagulls left to ponder what could have been. The match was a testament to the intense rivalry between the two teams, with both sides creating scoring opportun',
