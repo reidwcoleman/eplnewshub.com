@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'tottenham-vs-newcastle-prediction-kick-off-time-team-news-od-2026-02-10',
+    title: 'Tottenham vs Newcastle: A Clash of Premier League Titans',
+    excerpt: 'Tottenham and Newcastle are set to clash in a highly anticipated Premier League match, with both teams looking to make a statement. Here\'s a breakdown of the teams, their recent form, and a prediction for the match.',
+    image: '/scout-tottenham-vs-newcastle-prediction-kick-off-time-team-news-od.jpg',
+    category: 'Match Reports',
+    date: '2026-02-10',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Tottenham', 'Newcastle', 'Premier League', 'match prediction', 'team news']
+  },
+  {
+    id: 'chelsea-vs-leeds-prediction-kick-off-time-team-news-h2h-and-2026-02-10',
+    title: 'Chelsea vs Leeds: A Clash of Styles and Ambitions',
+    excerpt: 'Chelsea and Leeds clash in a Premier League match that promises to be an exciting encounter, with both teams looking to gain an advantage in the table.',
+    image: '/scout-chelsea-vs-leeds-prediction-kick-off-time-team-news-h2h-and.jpg',
+    category: 'Match Reports',
+    date: '2026-02-10',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Chelsea', 'Leeds', 'Premier League', 'match prediction', 'team news']
+  },
+  {
     id: 'spurs-in-relegation-battle-united-eye-fifth-win-prem-action-2026-02-10',
     title: 'Premier League Relegation Battle Intensifies as Spurs Struggle',
     excerpt: 'Tottenham Hotspur\'s woes continue with a 2-0 loss to Manchester United, while the Red Devils eye their fifth win of the season. The Premier League action is heating up, with talkSPORT bringing you all the live coverage.',
