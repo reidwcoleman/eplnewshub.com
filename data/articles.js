@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'spurs-in-relegation-battle-united-eye-fifth-win-prem-action-2026-02-10',
+    title: 'Premier League Relegation Battle Intensifies as Spurs Struggle',
+    excerpt: 'Tottenham Hotspur\'s woes continue with a 2-0 loss to Manchester United, while the Red Devils eye their fifth win of the season. The Premier League action is heating up, with talkSPORT bringing you all the live coverage.',
+    image: '/scout-spurs-in-relegation-battle-united-eye-fifth-win-prem-action.jpg',
+    category: 'Analysis',
+    date: '2026-02-10',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'Relegation Battle', 'Tottenham Hotspur', 'Manchester United']
+  },
+  {
     id: 'brighton-0-1-crystal-palace-eagles-victory-in-the-m23-derby-2026-02-08',
     title: 'Brighton 0-1 Crystal Palace: Eagles\' Victory in the M23 Derby',
     excerpt: 'Ismaila Sarr\'s second-half goal sealed a crucial win for Crystal Palace, ending their 12-match winless streak in the process. We analyze the key moments and tactics that decided the M23 derby.',
