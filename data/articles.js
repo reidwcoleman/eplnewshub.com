@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'brentford-vs-arsenal-premier-league-showdown-for-the-ages-2026-02-10',
+    title: 'Brentford vs Arsenal: Premier League Showdown for the Ages',
+    excerpt: 'The Bees and the Gunners face off in a crucial top-of-the-table clash, with both teams looking to solidify their positions at the summit of the Premier League. Brentford has been a revelation this season, while Arsenal is seeking to prove its title c',
+    image: '/scout-brentford-vs-arsenal-premier-league-showdown-for-the-ages.png',
+    category: 'Match Reports',
+    date: '2026-02-10',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Premier League', 'Brentford', 'Arsenal', 'Thomas Frank', 'Mikel Arteta']
+  },
+  {
     id: 'aston-villa-0-2-brighton-hove-albion-seagulls-edge-closer-to-2026-02-09',
     title: 'Aston Villa 0-2 Brighton & Hove Albion: Seagulls Edge Closer to European Football',
     excerpt: 'Brighton & Hove Albion took a significant step towards securing European football with a 2-0 win over Aston Villa, who continue to struggle with defensive woes. The Seagulls\' victory puts them in a strong position to claim a top-seven finish.',
