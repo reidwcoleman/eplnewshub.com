@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-2025-26-table-latest-standings-and-titlereleg-2026-02-10',
+    title: 'Premier League 2025-26 Table: Latest Standings and Title/Relegation Implications',
+    excerpt: 'The latest Premier League table standings and their implications for the title and relegation battles, with expert analysis and insights. As we approach the midpoint of the season, the stakes are high for teams at both ends of the table.',
+    image: '/scout-premier-league-2025-26-table-latest-standings-and-titlereleg.jpg',
+    category: 'Analysis',
+    date: '2026-02-10',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Premier League', 'table', 'standings', 'title', 'relegation', 'implications']
+  },
+  {
     id: 'brentford-vs-arsenal-premier-league-showdown-for-the-ages-2026-02-10',
     title: 'Brentford vs Arsenal: Premier League Showdown for the Ages',
     excerpt: 'The Bees and the Gunners face off in a crucial top-of-the-table clash, with both teams looking to solidify their positions at the summit of the Premier League. Brentford has been a revelation this season, while Arsenal is seeking to prove its title c',
