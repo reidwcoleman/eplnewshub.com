@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'west-ham-vs-man-united-seskos-stunning-96th-minute-equaliser-2026-02-11',
+    title: 'Sesko\'s Stunning 96th-Minute Equaliser Secures Draw for Man United',
+    excerpt: 'Man United salvaged a dramatic 2-2 draw against West Ham thanks to Benjamin Sesko\'s stunning 96th-minute equaliser, a goal that will be remembered for a long time. The match had it all, with both teams creating numerous scoring opportunities and the',
+    image: '/scout-west-ham-vs-man-united-seskos-stunning-96th-minute-equaliser.jpg',
+    category: 'Match Reports',
+    date: '2026-02-11',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Premier League', 'West Ham', 'Manchester United', 'Benjamin Sesko']
+  },
+  {
     id: 'pep-guardiolas-revealing-admission-what-it-means-for-manches-2026-02-11',
     title: 'Pep Guardiola\'s Revealing Admission: What it Means for Manchester City\'s Title Hopes',
     excerpt: 'Pep Guardiola\'s revealing admission has sparked debate about Manchester City\'s title chances, but what does it really mean for the club\'s hopes of reclaiming the Premier League crown? As the title race heats up, we delve into the implications of G',
