@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'pep-guardiolas-revealing-admission-what-it-means-for-manches-2026-02-11',
+    title: 'Pep Guardiola\'s Revealing Admission: What it Means for Manchester City\'s Title Hopes',
+    excerpt: 'Pep Guardiola\'s revealing admission has sparked debate about Manchester City\'s title chances, but what does it really mean for the club\'s hopes of reclaiming the Premier League crown? As the title race heats up, we delve into the implications of G',
+    image: '/scout-pep-guardiolas-revealing-admission-what-it-means-for-manches.jpg',
+    category: 'Analysis',
+    date: '2026-02-11',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Manchester City', 'Pep Guardiola', 'Premier League', 'title race', 'Arsenal']
+  },
+  {
     id: 'premier-league-2025-26-table-latest-standings-and-titlereleg-2026-02-10',
     title: 'Premier League 2025-26 Table: Latest Standings and Title/Relegation Implications',
     excerpt: 'The latest Premier League table standings and their implications for the title and relegation battles, with expert analysis and insights. As we approach the midpoint of the season, the stakes are high for teams at both ends of the table.',
