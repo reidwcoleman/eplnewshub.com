@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'aston-villa---brighton-hove-albion-2026-02-11',
+    title: 'Aston Villa - Brighton & Hove Albion: A Mid-Table Clash',
+    excerpt: 'Aston Villa and Brighton & Hove Albion face off in a match that could have significant implications for their seasons, as they look to gain an edge in the congested middle of the Premier League table.',
+    image: '/scout-aston-villa---brighton-hove-albion.jpg',
+    category: 'Match Previews',
+    date: '2026-02-11',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Aston Villa', 'Brighton & Hove Albion', 'Premier League', 'mid-table clash']
+  },
+  {
+    id: 'sunderland---liverpool-2026-02-11',
+    title: 'Sunderland vs Liverpool: A Bottom-Half Battle in the Premier League',
+    excerpt: 'As the 2025/2026 Premier League season unfolds, Sunderland and Liverpool are set to clash in a matchup that could have significant implications for both teams\' seasons. With multiple sources reporting on the match, it\'s clear that this encounter is',
+    image: '/scout-sunderland---liverpool.jpg',
+    category: 'Match Previews',
+    date: '2026-02-11',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Sunderland', 'Liverpool', 'Premier League', 'Match Preview']
+  },
+  {
     id: 'tottenham-vs-newcastle-prediction-kick-off-time-team-news-od-2026-02-10',
     title: 'Tottenham vs Newcastle: A Clash of Premier League Titans',
     excerpt: 'Tottenham and Newcastle are set to clash in a highly anticipated Premier League match, with both teams looking to make a statement. Here\'s a breakdown of the teams, their recent form, and a prediction for the match.',
