@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'crystal-palace-v-burnley-crunch-time-in-the-relegation-battl-2026-02-11',
+    title: 'Crystal Palace v Burnley: Crunch Time in the Relegation Battle',
+    excerpt: 'The Eagles aim to extend their unbeaten run, while the Clarets fight for survival in a must-win encounter.',
+    image: '/scout-crystal-palace-v-burnley-crunch-time-in-the-relegation-battl.jpg',
+    category: 'Match Reports',
+    date: '2026-02-11',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Crystal Palace', 'Burnley', 'Premier League', 'Relegation Battle', 'Roy Hodgson', 'Vincent Kompany']
+  },
+  {
     id: 'west-ham-vs-man-united-seskos-stunning-96th-minute-equaliser-2026-02-11',
     title: 'Sesko\'s Stunning 96th-Minute Equaliser Secures Draw for Man United',
     excerpt: 'Man United salvaged a dramatic 2-2 draw against West Ham thanks to Benjamin Sesko\'s stunning 96th-minute equaliser, a goal that will be remembered for a long time. The match had it all, with both teams creating numerous scoring opportunities and the',
