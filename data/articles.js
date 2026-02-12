@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'brentford-vs-arsenal-prediction-kick-off-time-team-news-tv-o-2026-02-12',
+    title: 'Brentford vs Arsenal: A Derby Test for the Gunners',
+    excerpt: 'Arsenal faces a tough test against Brentford in the Premier League, a match that will challenge their resolve and tactics. With the Gunners looking to assert their dominance, can they overcome the Bees\' stubborn defense?',
+    image: '/scout-brentford-vs-arsenal-prediction-kick-off-time-team-news-tv-o.png',
+    category: 'Match Reports',
+    date: '2026-02-12',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Brentford', 'Arsenal', 'Premier League', 'derby test']
+  },
+  {
     id: 'aston-villa---brighton-hove-albion-2026-02-11',
     title: 'Aston Villa - Brighton & Hove Albion: A Mid-Table Clash',
     excerpt: 'Aston Villa and Brighton & Hove Albion face off in a match that could have significant implications for their seasons, as they look to gain an edge in the congested middle of the Premier League table.',
