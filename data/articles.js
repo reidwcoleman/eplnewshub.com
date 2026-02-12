@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'sunderland-vs-liverpool-reds-face-tough-test-at-stadium-of-l-2026-02-12',
+    title: 'Sunderland vs Liverpool: Reds Face Tough Test at Stadium of Light',
+    excerpt: 'Liverpool travel to the Stadium of Light to face a resurgent Sunderland side, looking to bounce back from a disappointing run of form. Can the Reds overcome the Black Cats and get their season back on track?',
+    image: '/scout-sunderland-vs-liverpool-reds-face-tough-test-at-stadium-of-l.jpg',
+    category: 'Match Reports',
+    date: '2026-02-12',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Liverpool', 'Sunderland', 'Premier League', 'Stadium of Light', 'Jurgen Klopp']
+  },
+  {
     id: 'arsenals-predicted-lineup-against-brentford-who-will-start-2026-02-12',
     title: 'Arsenal\'s Predicted Lineup Against Brentford: Who Will Start?',
     excerpt: 'Mikel Arteta faces a selection dilemma as Arsenal prepare to face Brentford, with several key players returning from injury. We analyze the predicted lineup and team news ahead of the match.',
