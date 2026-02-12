@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'scottish-premiership-news-transfers-rumours-gossip-and-more-2026-02-12',
+    title: 'Unpacking the Scottish Premiership: Transfers, Rumors, and Title Contenders',
+    excerpt: 'The Scottish Premiership is heating up, with transfer news and rumors dominating the headlines. Who are the top contenders, and which players are on the move?',
+    image: '/scout-scottish-premiership-news-transfers-rumours-gossip-and-more.jpg',
+    category: 'News',
+    date: '2026-02-12',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Scottish Premiership', 'transfers', 'rumors', 'gossip', 'news']
+  },
+  {
     id: 'wolverhampton-wanderers-transfers-latest-news-rumours-and-go-2026-02-12',
     title: 'Wolverhampton Wanderers Transfer Update: Pereira Signing and Relegation Battle',
     excerpt: 'Wolves are on the verge of signing Pereira as they look to boost their squad in a heated relegation battle, following a crucial 0-0 draw with Nottingham Forest',
