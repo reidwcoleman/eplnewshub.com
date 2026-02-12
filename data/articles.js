@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'transfer-news-live-liverpool-tracking-christian-pulisic-as-f-2026-02-12',
+    title: 'Liverpool\'s Pursuit of Christian Pulisic: A Canny Move in a Crowded Market',
+    excerpt: 'With five clubs chasing Robert Lewandowski, Liverpool\'s attention turns to Pulisic as they seek to bolster their attack. What does this move say about their transfer strategy?',
+    image: '/scout-transfer-news-live-liverpool-tracking-christian-pulisic-as-f.jpg',
+    category: 'Transfers',
+    date: '2026-02-12',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Liverpool', 'Christian Pulisic', 'Transfer News', 'Premier League']
+  },
+  {
+    id: 'fulham-transfers-latest-news-rumours-and-gossip-live-updates-2026-02-12',
+    title: 'Fulham\'s Summer of Change: Navigating the Premier League Landscape',
+    excerpt: 'As Fulham looks to strengthen their squad, a recent 3-0 loss to Man City serves as a reminder of the challenges they face in the Premier League. We delve into the latest news, updates, and analysis on their transfer dealings and season prospects.',
+    image: '/scout-fulham-transfers-latest-news-rumours-and-gossip-live-updates.jpg',
+    category: 'Transfers',
+    date: '2026-02-12',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Fulham', 'Premier League', 'transfers', 'Man City', 'Haaland']
+  },
+  {
     id: 'brentford-vs-arsenal-prediction-kick-off-time-team-news-tv-o-2026-02-12',
     title: 'Brentford vs Arsenal: A Derby Test for the Gunners',
     excerpt: 'Arsenal faces a tough test against Brentford in the Premier League, a match that will challenge their resolve and tactics. With the Gunners looking to assert their dominance, can they overcome the Bees\' stubborn defense?',
