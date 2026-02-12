@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'wolverhampton-wanderers-transfers-latest-news-rumours-and-go-2026-02-12',
+    title: 'Wolverhampton Wanderers Transfer Update: Pereira Signing and Relegation Battle',
+    excerpt: 'Wolves are on the verge of signing Pereira as they look to boost their squad in a heated relegation battle, following a crucial 0-0 draw with Nottingham Forest',
+    image: '/scout-wolverhampton-wanderers-transfers-latest-news-rumours-and-go.jpg',
+    category: 'Transfers',
+    date: '2026-02-12',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Wolverhampton Wanderers', 'Pereira', 'Nottingham Forest', 'Relegation Battle', 'Premier League']
+  },
+  {
     id: 'transfer-news-live-liverpool-tracking-christian-pulisic-as-f-2026-02-12',
     title: 'Liverpool\'s Pursuit of Christian Pulisic: A Canny Move in a Crowded Market',
     excerpt: 'With five clubs chasing Robert Lewandowski, Liverpool\'s attention turns to Pulisic as they seek to bolster their attack. What does this move say about their transfer strategy?',
