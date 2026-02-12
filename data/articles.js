@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'arsenals-predicted-lineup-against-brentford-who-will-start-2026-02-12',
+    title: 'Arsenal\'s Predicted Lineup Against Brentford: Who Will Start?',
+    excerpt: 'Mikel Arteta faces a selection dilemma as Arsenal prepare to face Brentford, with several key players returning from injury. We analyze the predicted lineup and team news ahead of the match.',
+    image: '/scout-arsenals-predicted-lineup-against-brentford-who-will-start.jpg',
+    category: 'Player Focus',
+    date: '2026-02-12',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Arsenal', 'Brentford', 'Premier League', 'Mikel Arteta', 'Gabriel Jesus', 'Bukayo Saka', 'Emile Smith Rowe']
+  },
+  {
     id: 'crystal-palace-v-burnley-crunch-time-in-the-relegation-battl-2026-02-11',
     title: 'Crystal Palace v Burnley: Crunch Time in the Relegation Battle',
     excerpt: 'The Eagles aim to extend their unbeaten run, while the Clarets fight for survival in a must-win encounter.',
