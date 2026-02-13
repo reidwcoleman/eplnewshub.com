@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'brentford-1-1-arsenal-gunners-title-hopes-suffer-setback-2026-02-13',
+    title: 'Brentford 1-1 Arsenal: Gunners\' Title Hopes Suffer Setback',
+    excerpt: 'Arsenal\'s title aspirations have been dealt a significant blow after a disappointing 1-1 draw with Brentford, as Mikel Arteta\'s side failed to capitalize on key scoring opportunities. The Gunners now face an uphill battle to reclaim the top spot in',
+    image: '/scout-brentford-1-1-arsenal-gunners-title-hopes-suffer-setback.jpg',
+    category: 'Match Reports',
+    date: '2026-02-13',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Arsenal', 'Brentford', 'Premier League', 'title race', 'Mikel Arteta']
+  },
+  {
     id: 'thiago-makes-history-with-ea-sports-player-of-the-month-awar-2026-02-13',
     title: 'Thiago Makes History with EA SPORTS Player of the Month Award',
     excerpt: 'Thiago Alcântara has become the first Liverpool player to win the EA SPORTS Player of the Month award, capping off an impressive month of performances. The Spanish midfielder has been instrumental in Liverpool\'s recent success, and his award is a te',
