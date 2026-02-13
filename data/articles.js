@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'everton-transfers-latest-news-rumours-and-gossip-live-update-2026-02-13',
+    title: 'Everton\'s Relegation Battle: A Season on the Brink',
+    excerpt: 'Everton\'s 1-2 defeat to Bournemouth has left them teetering on the edge of the relegation zone. Can they arrest their slide and secure their top-flight status?',
+    image: '/scout-everton-transfers-latest-news-rumours-and-gossip-live-update.jpg',
+    category: 'Transfers',
+    date: '2026-02-13',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Everton', 'Premier League', 'relegation battle', 'Bournemouth', 'transfer news']
+  },
+  {
+    id: 'thiago-makes-history-after-winning-ea-sports-player-of-the-m-2026-02-13',
+    title: 'Thiago Makes History: The EA SPORTS Player of the Month Award Winner',
+    excerpt: 'Thiago\'s outstanding performances have earned him a historic award, solidifying his position as one of the Premier League\'s top players. We delve into the significance of this achievement and what it means for Brentford\'s season.',
+    image: '/scout-thiago-makes-history-after-winning-ea-sports-player-of-the-m.jpg',
+    category: 'News',
+    date: '2026-02-13',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Thiago', 'Brentford', 'EA SPORTS Player of the Month', 'Premier League']
+  },
+  {
     id: 'thomas-frank-sacked-tottenhams-search-for-a-new-head-coach-b-2026-02-13',
     title: 'Thomas Frank Sacked: Tottenham\'s Search for a New Head Coach Begins',
     excerpt: 'Tottenham\'s search for a new head coach has begun after Thomas Frank\'s eight-month tenure came to an abrupt end.',
