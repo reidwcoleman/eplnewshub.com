@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'thomas-frank-sacked-tottenhams-search-for-a-new-head-coach-b-2026-02-13',
+    title: 'Thomas Frank Sacked: Tottenham\'s Search for a New Head Coach Begins',
+    excerpt: 'Tottenham\'s search for a new head coach has begun after Thomas Frank\'s eight-month tenure came to an abrupt end.',
+    image: '/scout-thomas-frank-sacked-tottenhams-search-for-a-new-head-coach-b.png',
+    category: 'News',
+    date: '2026-02-13',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Tottenham', 'Thomas Frank', 'sacked', 'head coach', 'Mauricio Pochettino']
+  },
+  {
+    id: 'york-knights-vs-hull-kr-super-league-2026-kicks-off-with-a-b-2026-02-13',
+    title: 'York Knights vs Hull KR: Super League 2026 Kicks Off with a Bang',
+    excerpt: 'Newcomers York Knights stun defending champions Hull KR with a narrow 19-18 victory, marking their first Super League win. The Super League 2026 season has officially kicked off with a thrilling match that will be remembered for a long time.',
+    image: '/scout-york-knights-vs-hull-kr-super-league-2026-kicks-off-with-a-b.webp',
+    category: 'Match Reports',
+    date: '2026-02-13',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Super League 2026', 'York Knights', 'Hull KR', 'Rugby League']
+  },
+  {
     id: 'scottish-premiership-news-transfers-rumours-gossip-and-more-2026-02-12',
     title: 'Unpacking the Scottish Premiership: Transfers, Rumors, and Title Contenders',
     excerpt: 'The Scottish Premiership is heating up, with transfer news and rumors dominating the headlines. Who are the top contenders, and which players are on the move?',
