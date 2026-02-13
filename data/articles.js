@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'thiago-makes-history-with-ea-sports-player-of-the-month-awar-2026-02-13',
+    title: 'Thiago Makes History with EA SPORTS Player of the Month Award',
+    excerpt: 'Thiago Alcântara has become the first Liverpool player to win the EA SPORTS Player of the Month award, capping off an impressive month of performances. The Spanish midfielder has been instrumental in Liverpool\'s recent success, and his award is a te',
+    image: '/scout-thiago-makes-history-with-ea-sports-player-of-the-month-awar.jpg',
+    category: 'News',
+    date: '2026-02-13',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Thiago Alcântara', 'EA SPORTS Player of the Month', 'Premier League', 'Liverpool FC']
+  },
+  {
     id: 'man-city-xi-vs-fulham-predicted-lineup-and-key-battles-in-pr-2026-02-13',
     title: 'Man City XI vs Fulham: Predicted Lineup and Key Battles in Premier League Clash',
     excerpt: 'Manchester City host Fulham at the Etihad Stadium, with Pep Guardiola\'s side looking to maintain their title charge. We predict the starting XI and analyze the key battles that will decide the outcome.',
