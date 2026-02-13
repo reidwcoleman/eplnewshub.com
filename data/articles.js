@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'man-city-xi-vs-fulham-predicted-lineup-and-key-battles-in-pr-2026-02-13',
+    title: 'Man City XI vs Fulham: Predicted Lineup and Key Battles in Premier League Clash',
+    excerpt: 'Manchester City host Fulham at the Etihad Stadium, with Pep Guardiola\'s side looking to maintain their title charge. We predict the starting XI and analyze the key battles that will decide the outcome.',
+    image: '/scout-man-city-xi-vs-fulham-predicted-lineup-and-key-battles-in-pr.jpg',
+    category: 'Match Previews',
+    date: '2026-02-13',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Manchester City', 'Fulham', 'Premier League', 'Predicted Lineup', 'Tactical Analysis']
+  },
+  {
     id: 'sunderland-vs-liverpool-reds-face-tough-test-at-stadium-of-l-2026-02-12',
     title: 'Sunderland vs Liverpool: Reds Face Tough Test at Stadium of Light',
     excerpt: 'Liverpool travel to the Stadium of Light to face a resurgent Sunderland side, looking to bounce back from a disappointing run of form. Can the Reds overcome the Black Cats and get their season back on track?',
