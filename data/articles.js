@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'darwin-nunez-set-for-premier-league-return-after-al-hilal-st-2026-02-14',
+    title: 'Darwin Nunez Set for Premier League Return After Al Hilal Stint?',
+    excerpt: 'Former Liverpool striker Darwin Nunez is reportedly set for a return to the Premier League after being axed by Al Hilal, but which club will he join? The Uruguayan striker\'s stint in Saudi Arabia has been cut short, and he\'s now eyeing a comeback t',
+    image: '/scout-darwin-nunez-set-for-premier-league-return-after-al-hilal-st.jpg',
+    category: 'Transfers',
+    date: '2026-02-14',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Darwin Nunez', 'Premier League', 'Liverpool', 'Al Hilal', 'Transfer News']
+  },
+  {
     id: 'wsl-update-latest-news-transfers-and-rumours-in-the-womens-s-2026-02-14',
     title: 'WSL Update: Latest News, Transfers, and Rumours in the Women\'s Super League',
     excerpt: 'Get the latest updates on the Women\'s Super League, including news, transfers, and rumours from top teams and players. Stay up-to-date with the latest developments in women\'s football.',
