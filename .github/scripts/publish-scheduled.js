@@ -35,32 +35,43 @@ if (articlesToPublish.length === 0) {
 
 console.log(`Found ${articlesToPublish.length} article(s) to publish:`);
 
-articlesToPublish.forEach(filename => {
-    console.log(`  - ${filename}`);
+async function publishAll() {
+    for (const filename of articlesToPublish) {
+        console.log(`  - ${filename}`);
 
-    // Read the scheduled article metadata file
-    const scheduledPath = path.join(SCHEDULED_DIR, filename);
-    const metadata = JSON.parse(fs.readFileSync(scheduledPath, 'utf8'));
+        // Read the scheduled article metadata file
+        const scheduledPath = path.join(SCHEDULED_DIR, filename);
+        const metadata = JSON.parse(fs.readFileSync(scheduledPath, 'utf8'));
 
-    // Move article file to articles directory
-    const articleFilename = metadata.articleFile;
-    const scheduledArticlePath = path.join(SCHEDULED_DIR, articleFilename);
-    const articlePath = path.join(ARTICLES_DIR, articleFilename);
+        // Move article file to articles directory
+        const articleFilename = metadata.articleFile;
+        const scheduledArticlePath = path.join(SCHEDULED_DIR, articleFilename);
+        const articlePath = path.join(ARTICLES_DIR, articleFilename);
 
-    if (fs.existsSync(scheduledArticlePath)) {
-        fs.renameSync(scheduledArticlePath, articlePath);
-        console.log(`    ✓ Moved article to ${articlePath}`);
+        if (fs.existsSync(scheduledArticlePath)) {
+            fs.renameSync(scheduledArticlePath, articlePath);
+            console.log(`    ✓ Moved article to ${articlePath}`);
+        }
+
+        // Update homepage components (cascade articles)
+        cascadeArticles(metadata);
+
+        // Update sitemap
+        updateSitemap(metadata);
+
+        // Request Google indexing
+        const articleUrl = `https://www.eplnewshub.com/articles/${articleFilename}`;
+        await requestIndexing(articleUrl);
+
+        // Remove the metadata file
+        fs.unlinkSync(scheduledPath);
+        console.log(`    ✓ Published successfully`);
     }
+}
 
-    // Update homepage components (cascade articles)
-    cascadeArticles(metadata);
-
-    // Update sitemap
-    updateSitemap(metadata);
-
-    // Remove the metadata file
-    fs.unlinkSync(scheduledPath);
-    console.log(`    ✓ Published successfully`);
+publishAll().catch(e => {
+    console.error('Publish failed:', e.message);
+    process.exit(1);
 });
 
 function cascadeArticles(metadata) {
@@ -164,17 +175,41 @@ function updateSitemap(metadata) {
     let sitemap = fs.readFileSync(sitemapPath, 'utf8');
 
     // Add new URL entry before closing </urlset>
-    const newUrl = `
-  <url>
-    <loc>https://www.eplnewshub.com/${metadata.articleFile}</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-</urlset>`;
+    const newEntry = `
+    <url>
+        <loc>https://www.eplnewshub.com/articles/${metadata.articleFile}</loc>
+        <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>`;
 
-    sitemap = sitemap.replace('</urlset>', newUrl);
+    sitemap = sitemap.replace('</urlset>', newEntry + '\n</urlset>');
     fs.writeFileSync(sitemapPath, sitemap);
 
     console.log('    ✓ Updated sitemap.xml');
+}
+
+async function requestIndexing(articleUrl) {
+    const serviceAccountPath = './google-service-account.json';
+    if (!fs.existsSync(serviceAccountPath)) {
+        console.log('    ⚠ No service account key found, skipping indexing request');
+        return;
+    }
+
+    try {
+        const { GoogleAuth } = require('google-auth-library');
+        const auth = new GoogleAuth({
+            keyFile: serviceAccountPath,
+            scopes: ['https://www.googleapis.com/auth/indexing']
+        });
+        const client = await auth.getClient();
+        const res = await client.request({
+            url: 'https://indexing.googleapis.com/v3/urlNotifications:publish',
+            method: 'POST',
+            data: { url: articleUrl, type: 'URL_UPDATED' }
+        });
+        console.log(`    ✓ Indexing requested for ${articleUrl} — status ${res.status}`);
+    } catch (e) {
+        console.error(`    ✗ Indexing request failed: ${e.message}`);
+    }
 }

@@ -21,6 +21,15 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Install Google auth library
+        run: npm install google-auth-library
+
+      - name: Write Google service account key
+        if: env.GOOGLE_SERVICE_ACCOUNT_JSON != ''
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: echo "$GOOGLE_SERVICE_ACCOUNT_JSON" > google-service-account.json
+
       - name: Check and publish scheduled articles
         run: node .github/scripts/publish-scheduled.js
 
