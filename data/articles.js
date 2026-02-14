@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'bath-rugby-v-bristol-bears-tv-guide-and-full-team-news-for-p-2026-02-14',
+    title: 'Bath Rugby vs. Bristol Bears: A Rugby Crossover to Remember',
+    excerpt: 'The PREM Rugby Cup derby between Bath Rugby and Bristol Bears promises to be a clash of titans, with both teams vying for supremacy in this thrilling encounter.',
+    image: '/scout-bath-rugby-v-bristol-bears-tv-guide-and-full-team-news-for-p.jpg',
+    category: 'News',
+    date: '2026-02-14',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Bath Rugby', 'Bristol Bears', 'PREM Rugby Cup', 'rugby derby', 'rugby crossover']
+  },
+  {
+    id: 'transfer-news-live-salah-to-saudi-tottenham-want-rudiger-and-2026-02-14',
+    title: 'Summer Transfer Window Heats Up: Salah to Saudi, Tottenham Eye Rudiger',
+    excerpt: 'The summer transfer window is in full swing, with top clubs vying for key signings. Mohamed Salah\'s future at Liverpool is uncertain, while Tottenham and Chelsea are eyeing major additions.',
+    image: '/scout-transfer-news-live-salah-to-saudi-tottenham-want-rudiger-and.jpg',
+    category: 'Transfer News',
+    date: '2026-02-14',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['transfer news', 'Mohamed Salah', 'Antonio Rudiger', 'Julian Alvarez', 'Liverpool', 'Tottenham', 'Chelsea']
+  },
+  {
     id: 'darwin-nunez-set-for-premier-league-return-after-al-hilal-st-2026-02-14',
     title: 'Darwin Nunez Set for Premier League Return After Al Hilal Stint?',
     excerpt: 'Former Liverpool striker Darwin Nunez is reportedly set for a return to the Premier League after being axed by Al Hilal, but which club will he join? The Uruguayan striker\'s stint in Saudi Arabia has been cut short, and he\'s now eyeing a comeback t',
