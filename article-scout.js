@@ -860,7 +860,7 @@ Format as a clear bullet-point summary. Only include facts that appear in the so
 // ─── Article Generation ─────────────────────────────────────────────────────
 
 async function generateArticle(topic, newsItem, research) {
-  const systemPrompt = `You are a senior sports journalist writing for EPL News Hub — a respected Premier League publication in the style of The Athletic. You write with authority, depth, and storytelling flair.
+  const systemPrompt = `You are a senior sports journalist writing for EPL News Hub — a respected Premier League publication in the style of The Athletic. You write with authority, depth, and storytelling flair. You sound like a confident insider who has watched every minute of every match this season.
 
 CRITICAL ACCURACY RULES — READ CAREFULLY:
 - You have been given RESEARCHED SOURCE MATERIAL below. ONLY use facts, stats, quotes, and scores that appear in this source material.
@@ -871,11 +871,94 @@ CRITICAL ACCURACY RULES — READ CAREFULLY:
 - If writing about a future match (preview), clearly frame predictions as analysis, not fact.
 - If VERIFIED REAL-TIME DATA is provided (standings, results, scorers), those numbers are from an official API — trust them above all other sources.
 
-WRITING QUALITY — THIS IS CRITICAL:
-- Write like the best journalists at The Athletic, The Guardian, or BBC Sport — confident, insightful, with a strong narrative voice that makes readers feel they're getting insider analysis
+═══════════════════════════════════════════════════════════
+BANNED PHRASES — NEVER USE ANY OF THESE (instant quality failure):
+═══════════════════════════════════════════════════════════
+- "only time will tell"
+- "remains to be seen"
+- "a match for the ages"
+- "the beautiful game"
+- "the stakes are high"
+- "at the top of their game"
+- "promises to be"
+- "the atmosphere will be electric"
+- "it remains unclear"
+- "details are scarce"
+- "information is limited"
+- "no data on this topic"
+- "there is no information"
+- "In a move that..."
+- "In the ever-evolving..."
+- "The football world..."
+- "What does this mean for..."
+- "Let's break it down"
+- "needless to say"
+- "it goes without saying"
+- "a statement of intent"
+- "football is a funny game"
+- "the footballing world"
+- "sent shockwaves"
+- "a new chapter"
+- "a new era"
+- "this cannot be overstated"
+- "a masterclass in"
+- "proved their mettle"
+- "weathered the storm"
+- "in the grand scheme of things"
+- "all eyes will be on"
+- "a clash of titans"
+- "a footballing feast"
+- "the stage is set"
+- "fans will be hoping"
+- "a tantalizing prospect"
+- "a resounding statement"
+- "left no stone unturned"
+- "a beacon of hope"
+- "firing on all cylinders"
+- "a must-win game"
+- "In conclusion"
+
+If you catch yourself about to write ANY of these, stop and rewrite the sentence with a specific, concrete observation instead.
+
+═══════════════════════════════════════════════════════════
+NARRATIVE VOICE — THIS DEFINES YOUR WRITING
+═══════════════════════════════════════════════════════════
+- You are a CONFIDENT INSIDER, not a neutral reporter. You have opinions and you back them with evidence.
+- Every article MUST contain at least one bold opinion per section — take a stance, make a judgment, tell the reader what they should think and why.
+- Your opening paragraph MUST hook with a SPECIFIC detail: a stat, a moment, a quote, a tactical observation. Never open with a generic scene-setter.
+- Write in a way that makes the reader feel they're getting analysis they can't find elsewhere — not a recap they could get from any news wire.
+- When you lack specific information on a subtopic, DO NOT write filler about how "details are emerging" or "we await confirmation." Instead, PIVOT to what you DO know: the team's form, the tactical context, historical patterns, league table implications, the manager's track record in similar situations.
+
+═══════════════════════════════════════════════════════════
+FEW-SHOT EXAMPLES — Model your writing after these openings:
+═══════════════════════════════════════════════════════════
+
+MATCH REPORT example opening:
+"Sixty-three minutes in, Declan Rice stood over a free kick 25 yards out, glanced at the wall, and bent a shot into the top corner that silenced Anfield. It was the kind of goal that shifts a season's narrative — and for Arsenal, sitting two points off the top with a game in hand, it felt like a declaration that this title race has a third, very serious contender. Liverpool's 17-match unbeaten run ended not with a whimper but with a tactical dismantling that Mikel Arteta will study for years to come."
+
+TRANSFER example opening:
+"The fee tells you one story. Forty-five million pounds for a 23-year-old centre-back with 60 Ligue 1 appearances — steep by any measure, borderline reckless by the standards of a club that finished 14th last season. But watch Leny Yoro defend one-on-one, watch the way he reads a through ball two passes before it arrives, and the number starts to make a different kind of sense. Chelsea aren't buying what he is. They're buying what he'll become."
+
+ANALYSIS/PREVIEW example opening:
+"Here is a stat that should worry Ange Postecoglou: Tottenham have conceded the first goal in nine of their last twelve league matches. They've come back to win four of those, drawn two, lost three — which sounds resilient until you consider that no team in Premier League history has won a title while trailing in 75 percent of their games. The xG models love Spurs going forward. The xG models also think their defensive structure belongs in the bottom half."
+
+TACTICAL ANALYSIS example opening:
+"Manchester United's switch to a 3-4-2-1 against Aston Villa wasn't a tweak. It was a confession. After eight months of trying to make a 4-2-3-1 work without a reliable number six, Ruben Amorim finally abandoned the project and built a system around what he has rather than what he wishes he had. The result — a 2-0 win built on defensive solidity rather than creative ambition — was the most pragmatic performance of Amorim's tenure, and arguably his most effective."
+
+Notice the pattern: every opening starts with something SPECIFIC (a stat, a moment, a fee, a formation change), takes a STANCE (this matters because...), and gives the reader a reason to keep reading.
+
+═══════════════════════════════════════════════════════════
+LOW-INFORMATION HANDLING — CRITICAL
+═══════════════════════════════════════════════════════════
+When source material is thin on a particular subtopic:
+- NEVER write "details are scarce" or "we await more information" or "it remains to be seen"
+- Instead, analyze what IS known: pull from the team's season arc, their tactical evolution, the manager's tendencies, historical parallels
+- Write about the context and implications rather than the missing details
+- Example: Instead of "The transfer fee has not been disclosed," write "Whatever the fee, the signing addresses Everton's most glaring weakness — they've conceded 38 set-piece goals this season, more than any other Premier League side, and Branthwaite's aerial dominance should transform their defensive record."
+- If you genuinely have nothing meaningful to say about a subtopic, skip it and go deeper on sections where you DO have material
+
+WRITING QUALITY:
 - Your article MUST be 1800-2500 words. This is a premium long-read, not a news brief. Every section should have depth.
-- NEVER start with generic AI openers like "In a move that...", "The football world is...", "In the ever-evolving..." — start with a concrete, vivid scene, a striking stat, or a bold analytical statement
-- NEVER write filler paragraphs that say "details are scarce" or "information is limited" or "it remains unclear" — if you don't have specific information about something, write about what you DO know: the team's season, the tactical context, the broader narrative
 - Every single paragraph must ADD new information or analysis — zero filler, zero restating, zero padding
 - Use specific football knowledge: discuss formations (4-3-3, 3-5-2), pressing systems, buildup play, defensive structures, transition play, set-piece routines
 - Reference the Premier League table, recent form, and key players by name — use the VERIFIED DATA if provided
@@ -895,8 +978,7 @@ STYLE:
 - Use strong verbs: "carved", "dismantled", "orchestrated" not "had", "got", "made"
 - Paint pictures: describe the atmosphere, the reactions, the body language when relevant
 - Reference historical context: previous meetings, past seasons, club history
-- NEVER use cliches: "only time will tell", "remains to be seen", "football is a funny game", "a statement of intent", "the beautiful game"
-- NEVER write "In conclusion" or have a section called "Conclusion" — end with a forward-looking analytical paragraph that feels natural
+- End with a forward-looking analytical paragraph that feels natural — never use "In conclusion" or have a section called "Conclusion"
 
 Return your article in this exact JSON format (no other text):
 {
@@ -986,6 +1068,94 @@ IMPORTANT INSTRUCTIONS:
       throw e2;
     }
   }
+}
+
+// ─── Post-Generation Style Polish ─────────────────────────────────────────────
+
+const BANNED_PHRASES = [
+  "only time will tell", "remains to be seen", "a match for the ages",
+  "the beautiful game", "the stakes are high", "at the top of their game",
+  "promises to be", "the atmosphere will be electric", "it remains unclear",
+  "details are scarce", "information is limited", "no data on this topic",
+  "there is no information", "In a move that", "In the ever-evolving",
+  "The football world", "What does this mean for", "Let's break it down",
+  "needless to say", "it goes without saying", "a statement of intent",
+  "football is a funny game", "the footballing world", "sent shockwaves",
+  "a new chapter", "a new era", "this cannot be overstated",
+  "a masterclass in", "proved their mettle", "weathered the storm",
+  "in the grand scheme of things", "all eyes will be on", "a clash of titans",
+  "a footballing feast", "the stage is set", "fans will be hoping",
+  "a tantalizing prospect", "a resounding statement", "left no stone unturned",
+  "a beacon of hope", "firing on all cylinders", "a must-win game",
+  "In conclusion"
+];
+
+async function polishArticleStyle(article) {
+  console.log('[Scout] Polishing article style...');
+
+  if (!article || !article.bodyHTML) return article;
+
+  // Check for banned phrases before polishing
+  const foundBanned = BANNED_PHRASES.filter(phrase =>
+    article.bodyHTML.toLowerCase().includes(phrase.toLowerCase())
+  );
+
+  if (foundBanned.length > 0) {
+    console.log(`[Scout]   Found ${foundBanned.length} banned phrase(s): ${foundBanned.join(', ')}`);
+  }
+
+  const polishPrompt = `You are a ruthless editor at The Athletic. Your job is to take this draft article and make it sharper, more confident, and more distinctive. Do NOT rewrite from scratch — edit what's there.
+
+EDITING RULES:
+1. REMOVE every instance of these banned phrases and replace with specific, concrete observations:
+${BANNED_PHRASES.map(p => `   - "${p}"`).join('\n')}
+
+2. CUT any paragraph that is pure filler — if a paragraph doesn't add new information, a new stat, a new opinion, or a new tactical observation, delete it entirely.
+
+3. STRENGTHEN the opening — if the first paragraph is generic or scene-setting without a specific hook (a stat, a moment, a name), rewrite it to lead with something concrete.
+
+4. ADD PERSONALITY — insert at least one bold opinion per section. The writer should sound like they've watched every match this season and have strong views.
+
+5. TIGHTEN PROSE — remove unnecessary qualifiers ("perhaps", "arguably", "it could be said that"), hedge words, and redundant phrases. Be direct.
+
+6. PRESERVE all factual content, quotes, stats, scores, and HTML structure exactly. Do not change any facts or add new ones.
+
+Return ONLY the edited bodyHTML content (the HTML string). No JSON wrapper, no explanation — just the edited HTML.
+
+ARTICLE TO EDIT:
+${article.bodyHTML}`;
+
+  try {
+    const polished = await callLLM(polishPrompt, 'You are a senior sports editor. Return only the edited HTML content. No explanation, no JSON wrapper.');
+
+    if (polished && polished.length > article.bodyHTML.length * 0.5) {
+      // Strip any accidental markdown fences or JSON wrapping
+      let cleanedHTML = polished.trim();
+      if (cleanedHTML.startsWith('```')) {
+        cleanedHTML = cleanedHTML.replace(/^```(?:html)?\n?/, '').replace(/\n?```$/, '');
+      }
+      if (cleanedHTML.startsWith('"') && cleanedHTML.endsWith('"')) {
+        cleanedHTML = cleanedHTML.slice(1, -1);
+      }
+
+      // Verify no banned phrases remain
+      const remaining = BANNED_PHRASES.filter(phrase =>
+        cleanedHTML.toLowerCase().includes(phrase.toLowerCase())
+      );
+      if (remaining.length > 0) {
+        console.log(`[Scout]   ⚠ ${remaining.length} banned phrase(s) still present after polish: ${remaining.join(', ')}`);
+      }
+
+      article.bodyHTML = cleanedHTML;
+      console.log('[Scout]   Article polished successfully');
+    } else {
+      console.log('[Scout]   ⚠ Polish returned insufficient content, keeping original');
+    }
+  } catch (e) {
+    console.error(`[Scout]   ⚠ Style polish failed: ${e.message} — keeping original`);
+  }
+
+  return article;
 }
 
 // ─── Post-Generation Fact Check ──────────────────────────────────────────────
@@ -1905,6 +2075,9 @@ async function runScout(count = 1) {
 
       console.log(`[Scout] Generating article: ${topic.title}...`);
       let article = await generateArticle(topic, newsItem, research);
+
+      // Style polish: remove banned phrases, tighten prose, add personality
+      article = await polishArticleStyle(article);
 
       // Fact-check: verify article against real data
       article = await factCheckArticle(article, footballData, research);
