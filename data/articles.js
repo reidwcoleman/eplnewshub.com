@@ -12,6 +12,50 @@ export const articles = [
     tags: ['WSL', 'Women\'s Football', 'Transfers', 'Rumours', 'News']
   },
   {
+    id: 'everton-transfers-latest-news-rumours-and-gossip-live-update-2026-02-13',
+    title: 'Everton\'s Relegation Battle: A Season on the Brink',
+    excerpt: 'Everton\'s 1-2 defeat to Bournemouth has left them teetering on the edge of the relegation zone. Can they arrest their slide and secure their top-flight status?',
+    image: '/scout-everton-transfers-latest-news-rumours-and-gossip-live-update.jpg',
+    category: 'Transfers',
+    date: '2026-02-13',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Everton', 'Premier League', 'relegation battle', 'Bournemouth', 'transfer news']
+  },
+  {
+    id: 'thiago-makes-history-after-winning-ea-sports-player-of-the-m-2026-02-13',
+    title: 'Thiago Makes History: The EA SPORTS Player of the Month Award Winner',
+    excerpt: 'Thiago\'s outstanding performances have earned him a historic award, solidifying his position as one of the Premier League\'s top players. We delve into the significance of this achievement and what it means for Brentford\'s season.',
+    image: '/scout-thiago-makes-history-after-winning-ea-sports-player-of-the-m.jpg',
+    category: 'News',
+    date: '2026-02-13',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Thiago', 'Brentford', 'EA SPORTS Player of the Month', 'Premier League']
+  },
+  {
+    id: 'thomas-frank-sacked-tottenhams-search-for-a-new-head-coach-b-2026-02-13',
+    title: 'Thomas Frank Sacked: Tottenham\'s Search for a New Head Coach Begins',
+    excerpt: 'Tottenham\'s search for a new head coach has begun after Thomas Frank\'s eight-month tenure came to an abrupt end.',
+    image: '/scout-thomas-frank-sacked-tottenhams-search-for-a-new-head-coach-b.png',
+    category: 'News',
+    date: '2026-02-13',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Tottenham', 'Thomas Frank', 'sacked', 'head coach', 'Mauricio Pochettino']
+  },
+  {
+    id: 'york-knights-vs-hull-kr-super-league-2026-kicks-off-with-a-b-2026-02-13',
+    title: 'York Knights vs Hull KR: Super League 2026 Kicks Off with a Bang',
+    excerpt: 'Newcomers York Knights stun defending champions Hull KR with a narrow 19-18 victory, marking their first Super League win. The Super League 2026 season has officially kicked off with a thrilling match that will be remembered for a long time.',
+    image: '/scout-york-knights-vs-hull-kr-super-league-2026-kicks-off-with-a-b.webp',
+    category: 'Match Reports',
+    date: '2026-02-13',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Super League 2026', 'York Knights', 'Hull KR', 'Rugby League']
+  },
+  {
     id: 'brentford-1-1-arsenal-gunners-title-hopes-suffer-setback-2026-02-13',
     title: 'Brentford 1-1 Arsenal: Gunners\' Title Hopes Suffer Setback',
     excerpt: 'Arsenal\'s title aspirations have been dealt a significant blow after a disappointing 1-1 draw with Brentford, as Mikel Arteta\'s side failed to capitalize on key scoring opportunities. The Gunners now face an uphill battle to reclaim the top spot in',
@@ -45,6 +89,61 @@ export const articles = [
     tags: ['Manchester City', 'Fulham', 'Premier League', 'Predicted Lineup', 'Tactical Analysis']
   },
   {
+    id: 'scottish-premiership-news-transfers-rumours-gossip-and-more-2026-02-12',
+    title: 'Unpacking the Scottish Premiership: Transfers, Rumors, and Title Contenders',
+    excerpt: 'The Scottish Premiership is heating up, with transfer news and rumors dominating the headlines. Who are the top contenders, and which players are on the move?',
+    image: '/scout-scottish-premiership-news-transfers-rumours-gossip-and-more.jpg',
+    category: 'News',
+    date: '2026-02-12',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Scottish Premiership', 'transfers', 'rumors', 'gossip', 'news']
+  },
+  {
+    id: 'wolverhampton-wanderers-transfers-latest-news-rumours-and-go-2026-02-12',
+    title: 'Wolverhampton Wanderers Transfer Update: Pereira Signing and Relegation Battle',
+    excerpt: 'Wolves are on the verge of signing Pereira as they look to boost their squad in a heated relegation battle, following a crucial 0-0 draw with Nottingham Forest',
+    image: '/scout-wolverhampton-wanderers-transfers-latest-news-rumours-and-go.jpg',
+    category: 'Transfers',
+    date: '2026-02-12',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Wolverhampton Wanderers', 'Pereira', 'Nottingham Forest', 'Relegation Battle', 'Premier League']
+  },
+  {
+    id: 'transfer-news-live-liverpool-tracking-christian-pulisic-as-f-2026-02-12',
+    title: 'Liverpool\'s Pursuit of Christian Pulisic: A Canny Move in a Crowded Market',
+    excerpt: 'With five clubs chasing Robert Lewandowski, Liverpool\'s attention turns to Pulisic as they seek to bolster their attack. What does this move say about their transfer strategy?',
+    image: '/scout-transfer-news-live-liverpool-tracking-christian-pulisic-as-f.jpg',
+    category: 'Transfers',
+    date: '2026-02-12',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Liverpool', 'Christian Pulisic', 'Transfer News', 'Premier League']
+  },
+  {
+    id: 'fulham-transfers-latest-news-rumours-and-gossip-live-updates-2026-02-12',
+    title: 'Fulham\'s Summer of Change: Navigating the Premier League Landscape',
+    excerpt: 'As Fulham looks to strengthen their squad, a recent 3-0 loss to Man City serves as a reminder of the challenges they face in the Premier League. We delve into the latest news, updates, and analysis on their transfer dealings and season prospects.',
+    image: '/scout-fulham-transfers-latest-news-rumours-and-gossip-live-updates.jpg',
+    category: 'Transfers',
+    date: '2026-02-12',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Fulham', 'Premier League', 'transfers', 'Man City', 'Haaland']
+  },
+  {
+    id: 'brentford-vs-arsenal-prediction-kick-off-time-team-news-tv-o-2026-02-12',
+    title: 'Brentford vs Arsenal: A Derby Test for the Gunners',
+    excerpt: 'Arsenal faces a tough test against Brentford in the Premier League, a match that will challenge their resolve and tactics. With the Gunners looking to assert their dominance, can they overcome the Bees\' stubborn defense?',
+    image: '/scout-brentford-vs-arsenal-prediction-kick-off-time-team-news-tv-o.png',
+    category: 'Match Reports',
+    date: '2026-02-12',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Brentford', 'Arsenal', 'Premier League', 'derby test']
+  },
+  {
     id: 'sunderland-vs-liverpool-reds-face-tough-test-at-stadium-of-l-2026-02-12',
     title: 'Sunderland vs Liverpool: Reds Face Tough Test at Stadium of Light',
     excerpt: 'Liverpool travel to the Stadium of Light to face a resurgent Sunderland side, looking to bounce back from a disappointing run of form. Can the Reds overcome the Black Cats and get their season back on track?',
@@ -65,6 +164,28 @@ export const articles = [
     readTime: '12 min read',
     featured: true,
     tags: ['Arsenal', 'Brentford', 'Premier League', 'Mikel Arteta', 'Gabriel Jesus', 'Bukayo Saka', 'Emile Smith Rowe']
+  },
+  {
+    id: 'aston-villa---brighton-hove-albion-2026-02-11',
+    title: 'Aston Villa - Brighton & Hove Albion: A Mid-Table Clash',
+    excerpt: 'Aston Villa and Brighton & Hove Albion face off in a match that could have significant implications for their seasons, as they look to gain an edge in the congested middle of the Premier League table.',
+    image: '/scout-aston-villa---brighton-hove-albion.jpg',
+    category: 'Match Previews',
+    date: '2026-02-11',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Aston Villa', 'Brighton & Hove Albion', 'Premier League', 'mid-table clash']
+  },
+  {
+    id: 'sunderland---liverpool-2026-02-11',
+    title: 'Sunderland vs Liverpool: A Bottom-Half Battle in the Premier League',
+    excerpt: 'As the 2025/2026 Premier League season unfolds, Sunderland and Liverpool are set to clash in a matchup that could have significant implications for both teams\' seasons. With multiple sources reporting on the match, it\'s clear that this encounter is',
+    image: '/scout-sunderland---liverpool.jpg',
+    category: 'Match Previews',
+    date: '2026-02-11',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Sunderland', 'Liverpool', 'Premier League', 'Match Preview']
   },
   {
     id: 'crystal-palace-v-burnley-crunch-time-in-the-relegation-battl-2026-02-11',
@@ -98,6 +219,39 @@ export const articles = [
     readTime: '15 min read',
     featured: true,
     tags: ['Manchester City', 'Pep Guardiola', 'Premier League', 'title race', 'Arsenal']
+  },
+  {
+    id: 'tottenham-vs-newcastle-prediction-kick-off-time-team-news-od-2026-02-10',
+    title: 'Tottenham vs Newcastle: A Clash of Premier League Titans',
+    excerpt: 'Tottenham and Newcastle are set to clash in a highly anticipated Premier League match, with both teams looking to make a statement. Here\'s a breakdown of the teams, their recent form, and a prediction for the match.',
+    image: '/scout-tottenham-vs-newcastle-prediction-kick-off-time-team-news-od.jpg',
+    category: 'Match Reports',
+    date: '2026-02-10',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Tottenham', 'Newcastle', 'Premier League', 'match prediction', 'team news']
+  },
+  {
+    id: 'chelsea-vs-leeds-prediction-kick-off-time-team-news-h2h-and-2026-02-10',
+    title: 'Chelsea vs Leeds: A Clash of Styles and Ambitions',
+    excerpt: 'Chelsea and Leeds clash in a Premier League match that promises to be an exciting encounter, with both teams looking to gain an advantage in the table.',
+    image: '/scout-chelsea-vs-leeds-prediction-kick-off-time-team-news-h2h-and.jpg',
+    category: 'Match Reports',
+    date: '2026-02-10',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Chelsea', 'Leeds', 'Premier League', 'match prediction', 'team news']
+  },
+  {
+    id: 'spurs-in-relegation-battle-united-eye-fifth-win-prem-action-2026-02-10',
+    title: 'Premier League Relegation Battle Intensifies as Spurs Struggle',
+    excerpt: 'Tottenham Hotspur\'s woes continue with a 2-0 loss to Manchester United, while the Red Devils eye their fifth win of the season. The Premier League action is heating up, with talkSPORT bringing you all the live coverage.',
+    image: '/scout-spurs-in-relegation-battle-united-eye-fifth-win-prem-action.jpg',
+    category: 'Analysis',
+    date: '2026-02-10',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'Relegation Battle', 'Tottenham Hotspur', 'Manchester United']
   },
   {
     id: 'premier-league-2025-26-table-latest-standings-and-titlereleg-2026-02-10',
@@ -144,6 +298,17 @@ export const articles = [
     tags: ['Chelsea', 'Leeds United', 'Premier League', 'top four', 'relegation battle']
   },
   {
+    id: 'brighton-0-1-crystal-palace-eagles-victory-in-the-m23-derby-2026-02-08',
+    title: 'Brighton 0-1 Crystal Palace: Eagles\' Victory in the M23 Derby',
+    excerpt: 'Ismaila Sarr\'s second-half goal sealed a crucial win for Crystal Palace, ending their 12-match winless streak in the process. We analyze the key moments and tactics that decided the M23 derby.',
+    image: '/scout-brighton-0-1-crystal-palace-eagles-victory-in-the-m23-derby.jpg',
+    category: 'Match Reports',
+    date: '2026-02-08',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['M23 derby', 'Crystal Palace', 'Brighton', 'Premier League']
+  },
+  {
     id: 'brighton-0-1-crystal-palace-seagulls-unfortunate-defeat-in-t-2026-02-08',
     title: 'Brighton 0-1 Crystal Palace: Seagulls\' Unfortunate Defeat in the M23 Derby',
     excerpt: 'A tense and closely contested M23 Derby saw Crystal Palace edge out Brighton 1-0, with the Seagulls left to ponder what could have been. The match was a testament to the intense rivalry between the two teams, with both sides creating scoring opportun',
@@ -188,6 +353,39 @@ export const articles = [
     tags: ['Manchester United', 'Tottenham', 'Premier League', 'Match Report']
   },
   {
+    id: 'chelsea-xi-vs-wolves-predicted-lineup-and-confirmed-team-new-2026-02-07',
+    title: 'Chelsea XI vs Wolves: Unpacking the Predicted Lineup and Team News',
+    excerpt: 'As Chelsea prepare to face Wolves, we examine the predicted lineup and confirmed team news, with a focus on the key factors that could shape the outcome',
+    image: '/scout-chelsea-xi-vs-wolves-predicted-lineup-and-confirmed-team-new.jpg',
+    category: 'News',
+    date: '2026-02-07',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Chelsea', 'Wolves', 'Premier League', 'Predicted Lineup', 'Team News']
+  },
+  {
+    id: 'predicted-line-ups-for-matchweek-25-2026-02-07',
+    title: 'Unraveling the Predicted Line-ups for Matchweek 25',
+    excerpt: 'As the Premier League enters its 25th matchweek, predictions and analysis are flooding in, with various sources providing their takes on the upcoming matches. With key teams like Manchester United, Tottenham, Liverpool, and Manchester City in action,',
+    image: '/scout-predicted-line-ups-for-matchweek-25.jpg',
+    category: 'Analysis',
+    date: '2026-02-07',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'Matchweek 25', 'Predicted Line-ups', 'Manchester United', 'Tottenham', 'Liverpool', 'Manchester City']
+  },
+  {
+    id: 'arsenal-vs-sunderland-prediction-kick-off-time-team-news-tv-2026-02-07',
+    title: 'Arsenal vs Sunderland: A Premier League Clash with Title Implications',
+    excerpt: 'Arsenal looks to maintain their title push as they host a travel-sick Sunderland side in a crucial Premier League match, with the Gunners seeking to capitalize on their home advantage',
+    image: '/scout-arsenal-vs-sunderland-prediction-kick-off-time-team-news-tv.jpg',
+    category: 'Match Previews',
+    date: '2026-02-07',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Arsenal', 'Sunderland', 'Premier League', 'title chase', 'match preview']
+  },
+  {
     id: 'wolves-vs-chelsea-blues-victory-puts-pressure-on-wolves-rele-2026-02-07',
     title: 'Wolves vs Chelsea: Blues\' Victory Puts Pressure on Wolves\' Relegation Battle',
     excerpt: 'Chelsea\'s 3-0 win over Wolves at Molineux Stadium has left the home team struggling to stay afloat in the Premier League, with their chances of survival hanging by a thread. The Blues\' dominant performance has added to the mounting pressure on Wolv',
@@ -197,6 +395,61 @@ export const articles = [
     readTime: '15 min read',
     featured: true,
     tags: ['Wolves', 'Chelsea', 'Premier League', 'relegation battle']
+  },
+  {
+    id: 'transfer-news-live-sandro-tonali-juventus-top-target-jesse-l-2026-02-06',
+    title: 'Sandro Tonali Transfer News: Juventus Lead the Chase for the Coveted Midfielder',
+    excerpt: 'Juventus are leading the charge for Sandro Tonali, while Arsenal made a surprise deadline-day move for the midfielder, and Feyenoord are set to reunite with Jesse Lingard',
+    image: '/scout-transfer-news-live-sandro-tonali-juventus-top-target-jesse-l.jpg',
+    category: 'Transfers',
+    date: '2026-02-06',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Sandro Tonali', 'Juventus', 'Arsenal', 'Feyenoord', 'Jesse Lingard', 'transfer news']
+  },
+  {
+    id: 'everton-transfers-latest-news-rumours-and-gossip-live-update-2026-02-06',
+    title: 'Everton Transfer News: Analyzing the Toffees\' Summer Plans',
+    excerpt: 'The Toffees are looking to strengthen their squad ahead of the new season. Here\'s the latest on their transfer plans and rumors.',
+    image: '/scout-everton-transfers-latest-news-rumours-and-gossip-live-update.webp',
+    category: 'Transfers',
+    date: '2026-02-06',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Everton', 'transfer news', 'Premier League', 'rumors', 'gossip']
+  },
+  {
+    id: 'micky-van-de-ven-injury-update-will-the-tottenham-defender-m-2026-02-06',
+    title: 'Micky van de Ven Injury Update: Will the Tottenham Defender Miss the Weekend?',
+    excerpt: 'Tottenham defender Micky van de Ven\'s injury status is a concern ahead of upcoming matches against Manchester United and Manchester City. Thomas Frank provided an update on the defender\'s status.',
+    image: '/scout-micky-van-de-ven-injury-update-will-the-tottenham-defender-m.jpg',
+    category: 'Player Focus',
+    date: '2026-02-06',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Tottenham', 'Micky van de Ven', 'injury update', 'Premier League']
+  },
+  {
+    id: 'tottenham-captain-cristiano-romero-on-atletico-madrid-shortl-2026-02-06',
+    title: 'Tottenham\'s Defensive Dilemma: Cristian Romero\'s Transfer Outburst Sparks Atletico Madrid Interest',
+    excerpt: 'Tottenham captain Cristian Romero\'s transfer outburst has led to speculation about his future at the club, with Atletico Madrid reportedly interested in signing the defender. What does this mean for Spurs\' defensive setup?',
+    image: '/scout-tottenham-captain-cristiano-romero-on-atletico-madrid-shortl.jpg',
+    category: 'Transfers',
+    date: '2026-02-06',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Cristian Romero', 'Tottenham', 'Atletico Madrid', 'Transfer News', 'Premier League']
+  },
+  {
+    id: 'chelsea-injury-update-james-neto-and-gittens-latest-return-d-2026-02-06',
+    title: 'Chelsea\'s Injury Conundrum: Navigating the Recovery of James, Neto, and Gittens',
+    excerpt: 'Chelsea boss Liam Rosenior provides updates on the team\'s injured players ahead of their match against Wolves, as the Blues look to navigate their way through a challenging period.',
+    image: '/scout-chelsea-injury-update-james-neto-and-gittens-latest-return-d.jpg',
+    category: 'News',
+    date: '2026-02-06',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Chelsea', 'Premier League', 'injuries', 'Reece James', 'Pedro Neto', 'Gittens', 'Liam Rosenior']
   },
   {
     id: 'fantasy-premier-league-gameweek-25-qampa-with-expert-gianni-2026-02-06',
@@ -221,6 +474,28 @@ export const articles = [
     tags: ['Leeds United', 'Nottingham Forest', 'Premier League', 'match report', 'analysis']
   },
   {
+    id: 'wsl-news-transfers-rumours-gossip-and-womens-football-latest-2026-02-05',
+    title: 'WSL News and Updates: A Comprehensive Analysis',
+    excerpt: 'Get the latest news, transfers, and rumors from the Women\'s Super League, with in-depth analysis and expert insight',
+    image: '/scout-wsl-news-transfers-rumours-gossip-and-womens-football-latest.jpg',
+    category: 'News',
+    date: '2026-02-05',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['WSL', 'women\'s football', 'transfers', 'rumors', 'gossip']
+  },
+  {
+    id: 'arne-slot-insists-liverpool-are-ready-for-life-after-virgil-2026-02-05',
+    title: 'Life After Van Dijk: How Liverpool Are Preparing for a New Era',
+    excerpt: 'As Liverpool prepares for life after Virgil van Dijk, manager Arne Slot is confident that the club has a plan in place to ensure a smooth transition, with Jeremy Jacquet playing a key role in the team\'s long-term strategy',
+    image: '/scout-arne-slot-insists-liverpool-are-ready-for-life-after-virgil.jpg',
+    category: 'News',
+    date: '2026-02-05',
+    readTime: '25 min read',
+    featured: true,
+    tags: ['Liverpool', 'Virgil van Dijk', 'Arne Slot', 'Jeremy Jacquet', 'Premier League']
+  },
+  {
     id: 'liverpool-xi-vs-man-city-predicted-lineup-and-tactical-break-2026-02-05',
     title: 'Liverpool XI vs Man City: Predicted Lineup and Tactical Breakdown',
     excerpt: 'Jurgen Klopp\'s Liverpool side face a daunting task as they host Pep Guardiola\'s Manchester City at Anfield, but what lineup and tactics can we expect from the Reds? A comprehensive tactical breakdown of the highly anticipated clash.',
@@ -232,15 +507,37 @@ export const articles = [
     tags: ['Liverpool', 'Manchester City', 'Premier League', 'Tactical Analysis']
   },
   {
-    id: 'sunderland-3-0-burnley-black-cats-dominant-display-secures-c-2026-02-04',
-    title: 'Sunderland 3-0 Burnley: Black Cats\' Dominant Display Secures Comfortable Win',
-    excerpt: 'Tony Mowatt\'s tactical masterclass and clinical finishing from Amad Diallo and Jack Clarke secured a resounding victory for Sunderland.',
-    image: '/scout-sunderland-3-0-burnley-black-cats-dominant-display-secures-c.jpg',
-    category: 'Match Reports',
+    id: 'football-latest-news-gossip-2026-02-04',
+    title: 'Football Latest News & Gossip: Transfer Deadline Day Recap and More',
+    excerpt: 'The transfer deadline day in February saw several deals, but what does it mean for the teams involved? We take a closer look at the latest news and gossip, including updates on Cristiano Ronaldo\'s future and Liverpool\'s new signings',
+    image: '/scout-football-latest-news-gossip.jpg',
+    category: 'News',
     date: '2026-02-04',
-    readTime: '12 min read',
+    readTime: '20 min read',
     featured: true,
-    tags: ['Sunderland', 'Burnley', 'Premier League', 'Tony Mowatt', 'Amad Diallo']
+    tags: ['football news', 'transfer deadline day', 'Cristiano Ronaldo', 'Liverpool', 'Aston Villa']
+  },
+  {
+    id: 'cristiano-ronaldo-considering-european-return-or-mls-move-am-2026-02-04',
+    title: 'Ronaldo\'s Next Move: European Return or MLS Adventure?',
+    excerpt: 'The Portuguese superstar is weighing his options as a reported \'strike\' at Al Nassr sparks speculation about his next destination. Where will Ronaldo end up next?',
+    image: '/scout-cristiano-ronaldo-considering-european-return-or-mls-move-am.jpg',
+    category: 'Player Focus',
+    date: '2026-02-04',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Cristiano Ronaldo', 'Al Nassr', 'European return', 'MLS move', 'transfer rumors']
+  },
+  {
+    id: 'how-to-watch-arsenal-v-chelsea-live-on-tv-2026-02-04',
+    title: 'The London Rivals Clash: How to Watch Arsenal v Chelsea Live on TV',
+    excerpt: 'The Gunners and the Blues face off in a thrilling encounter, and we\'ve got you covered on how to catch all the action live on TV',
+    image: '/scout-how-to-watch-arsenal-v-chelsea-live-on-tv.jpg',
+    category: 'News',
+    date: '2026-02-04',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Arsenal', 'Chelsea', 'Carabao Cup', 'London Rivals', 'Live on TV']
   },
   {
     id: 'tottenhams-stunning-draw-with-manchester-city-a-turning-poin-2026-02-04',
@@ -252,6 +549,17 @@ export const articles = [
     readTime: '15 min read',
     featured: true,
     tags: ['Tottenham', 'Manchester City', 'Premier League', 'title race', 'Manchester United']
+  },
+  {
+    id: 'sunderland-3-0-burnley-black-cats-dominant-display-secures-c-2026-02-04',
+    title: 'Sunderland 3-0 Burnley: Black Cats\' Dominant Display Secures Comfortable Win',
+    excerpt: 'Tony Mowatt\'s tactical masterclass and clinical finishing from Amad Diallo and Jack Clarke secured a resounding victory for Sunderland.',
+    image: '/scout-sunderland-3-0-burnley-black-cats-dominant-display-secures-c.jpg',
+    category: 'Match Reports',
+    date: '2026-02-04',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Sunderland', 'Burnley', 'Premier League', 'Tony Mowatt', 'Amad Diallo']
   },
   {
     id: 'sunderland-3-0-burnley-clinical-finishing-and-solid-defence-2026-02-03',
@@ -475,25 +783,14 @@ export const articles = [
   },
   {
     id: 'pep-guardiola-future-premier-league-managers-have-growing-co-2026-01-31',
-    title: 'Pep Guardiola\'s Potential Exit: A Summer of Change for Manchester City?',
-    excerpt: 'Manchester City\'s dominance under Pep Guardiola may be coming to an end, as the manager\'s future at the club hangs in the balance. With a growing conviction among Premier League managers that he will leave this summer, the club faces a potentially ',
-    image: '/scout-pep-guardiola-future-premier-league-managers-have-growing-co.png',
-    category: 'News',
-    date: '2026-01-31',
-    readTime: '15 min read',
-    featured: true,
-    tags: ['Pep Guardiola', 'Manchester City', 'Premier League', 'Football', 'Soccer']
-  },
-  {
-    id: 'pep-guardiola-future-premier-league-managers-have-growing-co-2026-01-31',
     title: 'Pep Guardiola future: Premier League managers have \'growing conviction\' Man City boss will leave this summer',
-    excerpt: 'Exclusive rumors suggest Guardiola may leave Man City this summer, with Premier League managers weighing in on the speculation. What\'s behind the whispers, and what could it mean for the club\'s future?',
-    image: '/eplnewshubnewlogo.png',
-    category: 'Transfers',
+    excerpt: 'Exclusive: Guardiola\'s future at Man City is uncertain, with top-flight managers convinced he will depart the Etihad Stadium at the end of the season, sparking a managerial merry-go-round',
+    image: '/scout-pep-guardiola-future-premier-league-managers-have-growing-co.jpg',
+    category: 'News',
     date: '2026-01-31',
     readTime: '12 min read',
     featured: true,
-    tags: ['Pep Guardiola', 'Manchester City', 'Premier League', 'transfer news', 'summer exit']
+    tags: ['Pep Guardiola', 'Manchester City', 'Premier League', 'Managerial Rumors']
   },
   {
     id: 'pep-guardiola-set-to-leave-manchester-city-this-summer-2026-01-31',
@@ -527,17 +824,6 @@ export const articles = [
     readTime: '12 min read',
     featured: true,
     tags: ['Internazionale', 'Curtis Jones', 'Liverpool', 'Transfer News', 'Premier League', 'Serie A']
-  },
-  {
-    id: 'pep-guardiola-future-premier-league-managers-have-growing-co-2026-01-31',
-    title: 'Pep Guardiola future: Premier League managers have \'growing conviction\' Man City boss will leave this summer',
-    excerpt: 'Exclusive: Guardiola\'s future at Man City is uncertain, with top-flight managers convinced he will depart the Etihad Stadium at the end of the season, sparking a managerial merry-go-round',
-    image: '/scout-pep-guardiola-future-premier-league-managers-have-growing-co.jpg',
-    category: 'News',
-    date: '2026-01-31',
-    readTime: '12 min read',
-    featured: true,
-    tags: ['Pep Guardiola', 'Manchester City', 'Premier League', 'Managerial Rumors']
   },
   {
     id: 'pep-guardiolas-potential-exit-whats-next-for-manchester-city-2026-01-31',
@@ -584,6 +870,17 @@ export const articles = [
     tags: ['Transfers', 'Manchester United', 'Arsenal', 'Liverpool', 'Chelsea']
   },
   {
+    id: 'victor-gyokeres-premier-league-giants-in-hot-pursuit-05-25-25',
+    title: 'Victor Gyökeres: Premier League Giants in Hot Pursuit',
+    excerpt: 'The latest on the transfer race for one of Europe\'s most sought-after strikers.',
+    image: '/May 25, 2025, 06_22_37 PM.png',
+    category: 'Transfers',
+    date: '2025-05-25',
+    readTime: '5 min read',
+    featured: false,
+    tags: ['Transfers', 'Victor Gyökeres', 'Strikers']
+  },
+  {
     id: 'latest-epl-news-2025-02-07',
     title: 'Latest EPL News & Match Highlights - February 2025',
     excerpt: 'Comprehensive coverage of the latest Premier League action, standings, and breaking news from February 2025. Postecoglou defends Tottenham after Liverpool defeat, Premier League debates celebration rules.',
@@ -593,28 +890,6 @@ export const articles = [
     readTime: '4 min read',
     featured: true,
     tags: ['News', 'Tottenham', 'Liverpool', 'Match Reports']
-  },
-  {
-    id: 'nottingham-forest-rises-to-an-incredible-third-in-the-epl-standings-01-06-2025',
-    title: 'Nottingham Forest\'s Incredible Rise to Third Place',
-    excerpt: 'Analyzing Forest\'s remarkable journey to the top of the Premier League table and what it means for the rest of the season.',
-    image: '/nottingham_forest2.webp',
-    category: 'Analysis',
-    date: '2025-01-06',
-    readTime: '6 min read',
-    featured: true,
-    tags: ['Analysis', 'Nottingham Forest', 'Premier League Table']
-  },
-  {
-    id: 'Manchester-Uniteds-worst-team-in-years-20-01-2025',
-    title: 'Manchester United\'s Crisis Deepens',
-    excerpt: 'Examining the struggles of what many consider United\'s worst team in years and the challenges facing the club.',
-    image: '/DALL·E 2025-01-20 11.05.22 - A dramatic and intense football scene depicting a Manchester United player looking frustrated and defeated on the pitch. The background should show a .webp',
-    category: 'Analysis',
-    date: '2025-01-20',
-    readTime: '7 min read',
-    featured: true,
-    tags: ['Analysis', 'Manchester United', 'Crisis']
   },
   {
     id: 'liverpool-triumph-over-bournemouth-2025-02-02',
@@ -639,26 +914,26 @@ export const articles = [
     tags: ['News', 'Arsenal', 'Referees', 'Controversy']
   },
   {
-    id: 'victor-gyokeres-premier-league-giants-in-hot-pursuit-05-25-25',
-    title: 'Victor Gyökeres: Premier League Giants in Hot Pursuit',
-    excerpt: 'The latest on the transfer race for one of Europe\'s most sought-after strikers.',
-    image: '/May 25, 2025, 06_22_37 PM.png',
-    category: 'Transfers',
-    date: '2025-05-25',
-    readTime: '5 min read',
-    featured: false,
-    tags: ['Transfers', 'Victor Gyökeres', 'Strikers']
+    id: 'Manchester-Uniteds-worst-team-in-years-20-01-2025',
+    title: 'Manchester United\'s Crisis Deepens',
+    excerpt: 'Examining the struggles of what many consider United\'s worst team in years and the challenges facing the club.',
+    image: '/DALL·E 2025-01-20 11.05.22 - A dramatic and intense football scene depicting a Manchester United player looking frustrated and defeated on the pitch. The background should show a .webp',
+    category: 'Analysis',
+    date: '2025-01-20',
+    readTime: '7 min read',
+    featured: true,
+    tags: ['Analysis', 'Manchester United', 'Crisis']
   },
   {
-    id: 'why-erling-haaland-is-unstopable-in-2024-2025-season-09-17-2024',
-    title: 'Why Erling Haaland is Unstoppable in 2024-2025 Season',
-    excerpt: 'A deep dive into Haaland\'s incredible form and what makes him the Premier League\'s most lethal striker.',
-    image: '/DALL·E 2024-09-17 20.09.01 - A dynamic image of Erling Haaland in action during a Premier League match, showing his intense focus, speed, and strength. The scene captures Haaland .webp',
-    category: 'Player Focus',
-    date: '2024-09-17',
+    id: 'nottingham-forest-rises-to-an-incredible-third-in-the-epl-standings-01-06-2025',
+    title: 'Nottingham Forest\'s Incredible Rise to Third Place',
+    excerpt: 'Analyzing Forest\'s remarkable journey to the top of the Premier League table and what it means for the rest of the season.',
+    image: '/nottingham_forest2.webp',
+    category: 'Analysis',
+    date: '2025-01-06',
     readTime: '6 min read',
-    featured: false,
-    tags: ['Player Focus', 'Erling Haaland', 'Manchester City', 'Goals']
+    featured: true,
+    tags: ['Analysis', 'Nottingham Forest', 'Premier League Table']
   },
   {
     id: 'cole-palmers-rise-and-domination-of-the-premier-league-09-30-2024',
@@ -670,20 +945,16 @@ export const articles = [
     readTime: '5 min read',
     featured: false,
     tags: ['Player Focus', 'Cole Palmer', 'Chelsea', 'Rising Stars']
+  },
+  {
+    id: 'why-erling-haaland-is-unstopable-in-2024-2025-season-09-17-2024',
+    title: 'Why Erling Haaland is Unstoppable in 2024-2025 Season',
+    excerpt: 'A deep dive into Haaland\'s incredible form and what makes him the Premier League\'s most lethal striker.',
+    image: '/DALL·E 2024-09-17 20.09.01 - A dynamic image of Erling Haaland in action during a Premier League match, showing his intense focus, speed, and strength. The scene captures Haaland .webp',
+    category: 'Player Focus',
+    date: '2024-09-17',
+    readTime: '6 min read',
+    featured: false,
+    tags: ['Player Focus', 'Erling Haaland', 'Manchester City', 'Goals']
   }
-];
-
-// Helper functions
-export const getFeaturedArticles = () => articles.filter(article => article.featured);
-export const getArticlesByCategory = (category) => articles.filter(article => article.category === category);
-export const getArticleById = (id) => articles.find(article => article.id === id);
-export const getRecentArticles = (limit = 6) => articles.slice(0, limit);
-
-// Categories
-export const categories = [
-  { name: 'News', color: '#e74c3c', icon: '📰' },
-  { name: 'Transfers', color: '#3498db', icon: '↔️' },
-  { name: 'Analysis', color: '#f39c12', icon: '📊' },
-  { name: 'Match Reports', color: '#27ae60', icon: '⚽' },
-  { name: 'Player Focus', color: '#9b59b6', icon: '👤' }
 ];
