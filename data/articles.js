@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'wsl-update-latest-news-transfers-and-rumours-in-the-womens-s-2026-02-14',
+    title: 'WSL Update: Latest News, Transfers, and Rumours in the Women\'s Super League',
+    excerpt: 'Get the latest updates on the Women\'s Super League, including news, transfers, and rumours from top teams and players. Stay up-to-date with the latest developments in women\'s football.',
+    image: '/scout-wsl-update-latest-news-transfers-and-rumours-in-the-womens-s.jpg',
+    category: 'News',
+    date: '2026-02-14',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['WSL', 'Women\'s Football', 'Transfers', 'Rumours', 'News']
+  },
+  {
     id: 'brentford-1-1-arsenal-gunners-title-hopes-suffer-setback-2026-02-13',
     title: 'Brentford 1-1 Arsenal: Gunners\' Title Hopes Suffer Setback',
     excerpt: 'Arsenal\'s title aspirations have been dealt a significant blow after a disappointing 1-1 draw with Brentford, as Mikel Arteta\'s side failed to capitalize on key scoring opportunities. The Gunners now face an uphill battle to reclaim the top spot in',
