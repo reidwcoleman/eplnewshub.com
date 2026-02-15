@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'brilliant-mansfield-pile-pressure-on-parker-is-his-time-up-a-2026-02-15',
+    title: 'Brilliant Mansfield Pile Pressure on Parker: Is His Time Up at Burnley?',
+    excerpt: 'Burnley\'s 1-0 defeat to Mansfield has piled pressure on manager Jon Parker, with the Clarets struggling to stay afloat in the Premier League. Can they turn their season around or is it time for a change?',
+    image: '/scout-brilliant-mansfield-pile-pressure-on-parker-is-his-time-up-a.jpg',
+    category: 'Analysis',
+    date: '2026-02-15',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Burnley', 'Mansfield', 'Premier League', 'relegation battle', 'Jon Parker']
+  },
+  {
     id: 'liverpool-vs-brighton-reds-cruise-through-to-next-round-with-2026-02-15',
     title: 'Liverpool vs Brighton: Reds Cruise Through to Next Round with Convincing Performance',
     excerpt: 'Liverpool dominated Brighton 2-0 to progress to the next round of the FA Cup, with standout performances from their key players. The Reds\' convincing win sets them up for a strong campaign in the competition.',
