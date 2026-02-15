@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 't20-cricket-world-cup-zimbabwe-stun-australia-in-major-upset-2026-02-15',
+    title: 'T20 Cricket World Cup: Zimbabwe Stun Australia in Major Upset',
+    excerpt: 'Zimbabwe pulled off a stunning upset at the T20 Cricket World Cup, beating Australia by 23 runs on Friday in Colombo.',
+    image: '/scout-t20-cricket-world-cup-zimbabwe-stun-australia-in-major-upset.jpg',
+    category: 'News',
+    date: '2026-02-15',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['T20 Cricket World Cup', 'Zimbabwe', 'Australia', 'cricket', 'sports']
+  },
+  {
     id: 'liverpool-vs-brighton-reds-cruise-through-to-next-round-with-2026-02-15',
     title: 'Liverpool vs Brighton: Reds Cruise Through to Next Round with Convincing Performance',
     excerpt: 'Liverpool dominated Brighton 2-0 to progress to the next round of the FA Cup, with standout performances from their key players. The Reds\' convincing win sets them up for a strong campaign in the competition.',
