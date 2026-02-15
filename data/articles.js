@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'transfer-news-live-liverpool-tracking-christian-pulisic-as-f-2026-02-15',
+    title: 'Liverpool\'s Pursuit of Christian Pulisic: A Transfer Saga Unfolds',
+    excerpt: 'Liverpool is reportedly tracking Christian Pulisic, amidst a crowded transfer market. What does this mean for the Reds and the American winger?',
+    image: '/scout-transfer-news-live-liverpool-tracking-christian-pulisic-as-f.jpg',
+    category: 'Transfers',
+    date: '2026-02-15',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Christian Pulisic', 'Liverpool', 'Chelsea', 'Transfer News', 'Premier League']
+  },
+  {
     id: 'bath-rugby-v-bristol-bears-tv-guide-and-full-team-news-for-p-2026-02-14',
     title: 'Bath Rugby vs. Bristol Bears: A Rugby Crossover to Remember',
     excerpt: 'The PREM Rugby Cup derby between Bath Rugby and Bristol Bears promises to be a clash of titans, with both teams vying for supremacy in this thrilling encounter.',
