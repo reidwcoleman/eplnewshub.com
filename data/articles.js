@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'liverpool-vs-brighton-reds-cruise-through-to-next-round-with-2026-02-15',
+    title: 'Liverpool vs Brighton: Reds Cruise Through to Next Round with Convincing Performance',
+    excerpt: 'Liverpool dominated Brighton 2-0 to progress to the next round of the FA Cup, with standout performances from their key players. The Reds\' convincing win sets them up for a strong campaign in the competition.',
+    image: '/scout-liverpool-vs-brighton-reds-cruise-through-to-next-round-with.jpg',
+    category: 'Match Reports',
+    date: '2026-02-15',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Liverpool', 'Brighton', 'FA Cup', 'Jürgen Klopp', 'Mohamed Salah']
+  },
+  {
     id: 'transfer-news-live-liverpool-tracking-christian-pulisic-as-f-2026-02-15',
     title: 'Liverpool\'s Pursuit of Christian Pulisic: A Transfer Saga Unfolds',
     excerpt: 'Liverpool is reportedly tracking Christian Pulisic, amidst a crowded transfer market. What does this mean for the Reds and the American winger?',
