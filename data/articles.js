@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'sunderland-transfer-news-rumours-and-gossip-live-updates-and-2026-02-15',
+    title: 'Sunderland Transfer News and the Impact of Their Recent Loss to Liverpool',
+    excerpt: 'Analyzing Sunderland\'s transfer needs after their loss to Liverpool and the current state of their squad',
+    image: '/scout-sunderland-transfer-news-rumours-and-gossip-live-updates-and.jpg',
+    category: 'Transfers',
+    date: '2026-02-15',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Sunderland', 'Transfer News', 'Premier League', 'Liverpool']
+  },
+  {
+    id: 'brilliant-mansfield-pile-pressure-on-parker---is-his-time-up-2026-02-15',
+    title: 'Brilliant Mansfield Pile Pressure on Parker - Is His Time Up at Burnley?',
+    excerpt: 'Mansfield\'s surprise FA Cup win over Burnley has turned up the heat on Clarets boss Scott Parker, but what does the future hold for the under-pressure manager?',
+    image: '/scout-brilliant-mansfield-pile-pressure-on-parker---is-his-time-up.jpg',
+    category: 'News',
+    date: '2026-02-15',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Mansfield', 'Burnley', 'FA Cup', 'Scott Parker', 'Premier League', 'League One']
+  },
+  {
     id: 't20-cricket-world-cup-zimbabwe-stun-australia-in-major-upset-2026-02-15',
     title: 'T20 Cricket World Cup: Zimbabwe Stun Australia in Major Upset',
     excerpt: 'Zimbabwe pulled off a stunning upset at the T20 Cricket World Cup, beating Australia by 23 runs on Friday in Colombo.',
