@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'chelseas-transfer-targets-who-will-join-the-blues-this-summe-2026-02-16',
+    title: 'Chelsea\'s Transfer Targets: Who Will Join the Blues This Summer?',
+    excerpt: 'Chelsea are gearing up for a busy summer transfer window, with a focus on signing a new striker and monitoring young talent from across Europe',
+    image: '/scout-chelseas-transfer-targets-who-will-join-the-blues-this-summe.png',
+    category: 'Transfers',
+    date: '2026-02-16',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Chelsea FC', 'Transfer News', 'Premier League', 'Summer Signings']
+  },
+  {
+    id: 'nottingham-forests-transfer-ambitions-whos-next-for-the-red-2026-02-16',
+    title: 'Nottingham Forest\'s Transfer Ambitions: Who\'s Next for the Red Devils?',
+    excerpt: 'Nottingham Forest are set for a busy summer transfer window with several key targets in their sights. But who will they sign and how will they fit into Vitor Pereira\'s plans?',
+    image: '/scout-nottingham-forests-transfer-ambitions-whos-next-for-the-red.jpg',
+    category: 'Transfers',
+    date: '2026-02-16',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Nottingham Forest', 'Vitor Pereira', 'Manchester United', 'Chelsea', 'Joao Gomes']
+  },
+  {
     id: 'wolves-edge-past-grimsby-in-fa-cup-clash-2026-02-16',
     title: 'Wolves Edge Past Grimsby in FA Cup Clash',
     excerpt: 'Wolves secured a hard-fought 1-0 win over Grimsby in the FA Cup, but the League Two side pushed them to the limit. The Premier League strugglers were made to work for their victory, with Grimsby creating several chances to cause an upset.',
