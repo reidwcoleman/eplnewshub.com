@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'wolves-survive-fa-cup-scare-analyzing-their-narrow-win-over-2026-02-16',
+    title: 'Wolves Survive FA Cup Scare: Analyzing Their Narrow Win Over Grimsby',
+    excerpt: 'Wolves survived a major FA Cup scare, beating Grimsby 1-0 in a tightly contested match, but the victory raises more questions than answers about their season. The Premier League strugglers were pushed to the limit by their League Two opponents, who c',
+    image: '/scout-wolves-survive-fa-cup-scare-analyzing-their-narrow-win-over.jpg',
+    category: 'Match Reports',
+    date: '2026-02-16',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Wolves', 'Grimsby', 'FA Cup', 'Premier League', 'League Two']
+  },
+  {
     id: 'wolves-edge-past-grimsby-in-fa-cup-clash-2026-02-16',
     title: 'Wolves Edge Past Grimsby in FA Cup Clash',
     excerpt: 'Wolves secured a hard-fought 1-0 win over Grimsby in the FA Cup, but the League Two side pushed them to the limit. The Premier League strugglers were made to work for their victory, with Grimsby creating several chances to cause an upset.',
