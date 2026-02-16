@@ -1566,6 +1566,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
 
         /* ── HERO IMAGE ── */
         .article-hero {
+            margin-top: 20px;
             margin-bottom: 24px;
         }
 
@@ -1640,7 +1641,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
             color: var(--smoke);
             font-weight: 400;
             max-width: 95%;
-            margin-bottom: 36px;
+            margin-bottom: 24px;
         }
 
         /* ── BYLINE BAR ── */
@@ -1652,7 +1653,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
             padding: 16px 0;
             border-top: 1px solid var(--card-border);
             border-bottom: 1px solid var(--card-border);
-            margin-bottom: 24px;
+            margin-bottom: 0;
         }
 
         .byline-left {
