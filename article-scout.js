@@ -1566,7 +1566,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
 
         /* ── HERO IMAGE ── */
         .article-hero {
-            margin-top: 20px;
+            margin-top: 0;
             margin-bottom: 24px;
         }
 
