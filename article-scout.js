@@ -161,7 +161,7 @@ async function findAndDownloadImage(searchQuery, slug) {
           'Accept-Language': 'en-US,en;q=0.9',
         }
       });
-      const html = res.text();
+      const html = await res.text();
 
       // Extract image URLs from Google's response - they embed full-size URLs in the page
       const imageUrls = [];
@@ -258,7 +258,7 @@ async function fetchNewsFromGoogleRSS(query) {
   const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-GB&gl=GB&ceid=GB:en`;
   try {
     const res = await fetch(url);
-    const xml = res.text();
+    const xml = await res.text();
     const items = [];
     const itemRegex = /<item>([\s\S]*?)<\/item>/g;
     let match;
@@ -601,7 +601,7 @@ async function webSearch(query, maxResults = 5) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
       }
     });
-    const html = res.text();
+    const html = await res.text();
 
     // Extract result snippets from DuckDuckGo HTML
     const resultBlocks = html.match(/<a class="result__a"[\s\S]*?<\/a>[\s\S]*?<a class="result__snippet"[\s\S]*?<\/a>/g) || [];
@@ -776,23 +776,38 @@ function formatFootballDataForPrompt(data) {
 async function scrapeSourceArticle(url) {
   try {
     // Google News links redirect — follow them
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5'
-      }
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Referer': 'https://www.google.com/'
+      },
+      signal: controller.signal,
+      redirect: 'follow'
     });
-    const html = res.text();
+    clearTimeout(timeout);
+    const html = await res.text();
 
-    // Extract text content from the HTML — strip tags, scripts, styles
-    let text = html
+    // Try to extract article body first (more relevant content)
+    let articleText = '';
+    const articleMatch = html.match(/<article[\s\S]*?<\/article>/i);
+    const mainMatch = html.match(/<main[\s\S]*?<\/main>/i);
+    const bodySource = articleMatch ? articleMatch[0] : (mainMatch ? mainMatch[0] : html);
+
+    // Extract text content — strip non-content elements, then tags
+    articleText = bodySource
       .replace(/<script[\s\S]*?<\/script>/gi, '')
       .replace(/<style[\s\S]*?<\/style>/gi, '')
       .replace(/<nav[\s\S]*?<\/nav>/gi, '')
       .replace(/<footer[\s\S]*?<\/footer>/gi, '')
       .replace(/<header[\s\S]*?<\/header>/gi, '')
       .replace(/<aside[\s\S]*?<\/aside>/gi, '')
+      .replace(/<figure[\s\S]*?<\/figure>/gi, '')
+      .replace(/<form[\s\S]*?<\/form>/gi, '')
+      .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
       .replace(/<[^>]+>/g, ' ')
       .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')
@@ -803,10 +818,9 @@ async function scrapeSourceArticle(url) {
       .replace(/\s+/g, ' ')
       .trim();
 
-    // Limit to first ~5000 chars to get more source content
-    return text.slice(0, 5000);
+    return articleText.slice(0, 6000);
   } catch (e) {
-    console.log(`[Scout] Failed to scrape source: ${e.message}`);
+    console.log(`[Scout] Failed to scrape ${url.slice(0, 60)}...: ${e.message}`);
     return null;
   }
 }
@@ -2987,25 +3001,49 @@ No other text, just the JSON array.`;
 // ─── Google Indexing API ─────────────────────────────────────────────────────
 
 async function requestIndexing(articleUrl) {
+  // 1. Google Indexing API (primary)
   try {
-    if (!fs.existsSync(SERVICE_ACCOUNT_PATH)) {
-      console.log('[Scout] No service account key found, skipping indexing request.');
-      return;
+    if (fs.existsSync(SERVICE_ACCOUNT_PATH)) {
+      const { GoogleAuth } = require('google-auth-library');
+      const auth = new GoogleAuth({
+        keyFile: SERVICE_ACCOUNT_PATH,
+        scopes: ['https://www.googleapis.com/auth/indexing']
+      });
+      const client = await auth.getClient();
+      const res = await client.request({
+        url: 'https://indexing.googleapis.com/v3/urlNotifications:publish',
+        method: 'POST',
+        data: { url: articleUrl, type: 'URL_UPDATED' }
+      });
+      console.log(`[Scout] Google Indexing API: ${articleUrl} — status ${res.status}`);
+    } else {
+      console.log('[Scout] No service account key found, skipping Google Indexing API.');
     }
-    const { GoogleAuth } = require('google-auth-library');
-    const auth = new GoogleAuth({
-      keyFile: SERVICE_ACCOUNT_PATH,
-      scopes: ['https://www.googleapis.com/auth/indexing']
-    });
-    const client = await auth.getClient();
-    const res = await client.request({
-      url: 'https://indexing.googleapis.com/v3/urlNotifications:publish',
-      method: 'POST',
-      data: { url: articleUrl, type: 'URL_UPDATED' }
-    });
-    console.log(`[Scout] Indexing requested for ${articleUrl} — status ${res.status}`);
   } catch (e) {
-    console.error(`[Scout] Indexing request failed for ${articleUrl}: ${e.message}`);
+    console.error(`[Scout] Google Indexing API failed: ${e.message}`);
+  }
+
+  // 2. IndexNow (Bing, Yandex, etc.)
+  try {
+    const indexNowKey = process.env.INDEXNOW_KEY;
+    if (indexNowKey) {
+      const res = await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=${indexNowKey}`);
+      console.log(`[Scout] IndexNow: ${articleUrl} — status ${res.status}`);
+    }
+  } catch (e) {
+    console.log(`[Scout] IndexNow failed: ${e.message}`);
+  }
+
+  // 3. Ping sitemap to Google and Bing
+  try {
+    const sitemapUrl = 'https://www.eplnewshub.com/sitemap.xml';
+    const [googleRes, bingRes] = await Promise.allSettled([
+      fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`),
+      fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`)
+    ]);
+    console.log(`[Scout] Sitemap ping: Google=${googleRes.status === 'fulfilled' ? googleRes.value.status : 'failed'}, Bing=${bingRes.status === 'fulfilled' ? bingRes.value.status : 'failed'}`);
+  } catch (e) {
+    console.log(`[Scout] Sitemap ping failed: ${e.message}`);
   }
 }
 
