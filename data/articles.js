@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'strava-leak-fans-think-former-premier-league-stars-new-job-h-2026-02-16',
+    title: 'Strava Leak? Gary Caldwell\'s Wigan Athletic Appointment Sparks Social Media Frenzy',
+    excerpt: 'Multiple sources suggest a fitness app may have inadvertently revealed Gary Caldwell\'s new managerial role at Wigan Athletic, sparking a wave of speculation among fans.',
+    image: '/scout-strava-leak-fans-think-former-premier-league-stars-new-job-h.jpg',
+    category: 'News',
+    date: '2026-02-16',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Gary Caldwell', 'Wigan Athletic', 'Strava leak', 'Premier League', 'Managerial Appointment']
+  },
+  {
     id: 'grimsbys-giant-killing-act-how-league-two-side-stunned-premi-2026-02-16',
     title: 'Grimsby\'s Giant-Killing Act: How League Two Side Stunned Premier League Wolves',
     excerpt: 'In a thrilling FA Cup encounter, Grimsby Town pushed Premier League Wolves to their limits, showcasing the enduring magic of the competition.',
