@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'grimsbys-giant-killing-act-how-league-two-side-stunned-premi-2026-02-16',
+    title: 'Grimsby\'s Giant-Killing Act: How League Two Side Stunned Premier League Wolves',
+    excerpt: 'In a thrilling FA Cup encounter, Grimsby Town pushed Premier League Wolves to their limits, showcasing the enduring magic of the competition.',
+    image: '/scout-grimsbys-giant-killing-act-how-league-two-side-stunned-premi.jpg',
+    category: 'Match Reports',
+    date: '2026-02-16',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Grimsby Town', 'Wolves', 'FA Cup', 'underdog', 'giant-killing', 'League Two', 'Premier League']
+  },
+  {
     id: 'brilliant-mansfield-pile-pressure-on-parker-is-his-time-up-a-2026-02-15',
     title: 'Brilliant Mansfield Pile Pressure on Parker: Is His Time Up at Burnley?',
     excerpt: 'Burnley\'s 1-0 defeat to Mansfield has piled pressure on manager Jon Parker, with the Clarets struggling to stay afloat in the Premier League. Can they turn their season around or is it time for a change?',

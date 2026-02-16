@@ -2,9 +2,14 @@
 /**
  * EPL News Hub - Automated Article Scout
  *
- * Fetches latest EPL and gaming news, generates full articles via AI,
+ * Fetches latest soccer/football news, generates full articles via AI,
  * creates HTML files, cascades homepage headlines, updates articles.json
  * and sitemap.xml. Designed to run 2-5 articles per day on a cron schedule.
+ *
+ * CONTENT POLICY: Only publishes articles about real-world soccer/football.
+ * Articles must be backed by verified source material. If there is not
+ * enough information to write a factually accurate article, it will not
+ * be published.
  *
  * Usage:
  *   node article-scout.js              # Run once (generates 1 article)
@@ -283,15 +288,15 @@ async function gatherNews() {
   console.log('[Scout] Gathering news from sources...');
   const queries = [
     'Premier League latest news today',
-    'EPL transfer news',
+    'EPL transfer news football',
     'Premier League match results highlights',
     'Premier League match preview this week',
-    'Premier League tactical analysis',
-    'Premier League player performance stats',
-    'Premier League injury team news',
-    'Fantasy Premier League tips gameweek',
+    'Premier League tactical analysis football',
+    'Premier League player performance stats goals assists',
+    'Premier League injury team news squad',
+    'Champions League football latest news',
     'Premier League weekend preview predictions',
-    'Premier League season race title relegation'
+    'Premier League title race relegation battle football'
   ];
 
   const allItems = [];
@@ -308,8 +313,44 @@ async function gatherNews() {
     return true;
   });
 
-  console.log(`[Scout] Found ${unique.length} unique news items`);
-  return unique.slice(0, 20);
+  // Filter out non-soccer content — only keep items clearly about football/soccer
+  const soccerKeywords = [
+    'premier league', 'epl', 'football', 'soccer', 'fc', 'united', 'city',
+    'arsenal', 'chelsea', 'liverpool', 'tottenham', 'spurs', 'everton',
+    'newcastle', 'aston villa', 'west ham', 'brighton', 'brentford',
+    'fulham', 'crystal palace', 'bournemouth', 'wolves', 'nottingham forest',
+    'ipswich', 'leicester', 'southampton', 'leeds', 'transfer', 'manager',
+    'coach', 'goal', 'assist', 'match', 'fixture', 'league', 'cup',
+    'champions league', 'europa league', 'fa cup', 'carabao', 'efl',
+    'midfielder', 'striker', 'defender', 'goalkeeper', 'winger',
+    'la liga', 'serie a', 'bundesliga', 'ligue 1', 'world cup', 'euros',
+    'international', 'cap', 'squad', 'lineup', 'formation', 'tactics',
+    'penalty', 'red card', 'yellow card', 'var', 'offside', 'referee',
+    'relegation', 'promotion', 'clean sheet', 'hat trick', 'derby',
+    'kickoff', 'kick-off', 'half-time', 'full-time', 'injury', 'fitness',
+    'real madrid', 'barcelona', 'bayern', 'psg', 'juventus', 'inter milan',
+    'dortmund', 'atletico', 'napoli', 'benfica', 'porto', 'ajax',
+    'mls', 'world cup', 'fifa', 'uefa', 'conmebol'
+  ];
+  const nonSoccerKeywords = [
+    'gaming', 'ea fc', 'ea sports fc', 'football manager', 'video game',
+    'esports', 'e-sports', 'playstation', 'xbox', 'nintendo', 'steam',
+    'console', 'nfl', 'nba', 'mlb', 'nhl', 'cricket', 'rugby',
+    'tennis', 'golf', 'boxing', 'ufc', 'mma', 'f1', 'formula 1',
+    'basketball', 'baseball', 'american football', 'super bowl',
+    'fantasy football draft', 'fpl draft simulator'
+  ];
+
+  const soccerItems = unique.filter(item => {
+    const text = (item.title + ' ' + item.description).toLowerCase();
+    // Reject items that match non-soccer keywords
+    if (nonSoccerKeywords.some(kw => text.includes(kw))) return false;
+    // Keep items that match at least one soccer keyword
+    return soccerKeywords.some(kw => text.includes(kw));
+  });
+
+  console.log(`[Scout] Found ${unique.length} unique news items, ${soccerItems.length} are soccer-related`);
+  return soccerItems.slice(0, 20);
 }
 
 // ─── AI Article Generation ───────────────────────────────────────────────────
@@ -317,6 +358,14 @@ async function gatherNews() {
 // LLM providers — cycles through if one hits rate limits
 // All have generous free tiers. Ordered by quality + free limits.
 const LLM_PROVIDERS = [
+  // Mistral: 1 billion tokens/month free — primary provider
+  {
+    name: 'Mistral (Mistral Small)',
+    envKey: 'MISTRAL_API_KEY',
+    url: 'https://api.mistral.ai/v1/chat/completions',
+    model: 'mistral-small-latest',
+    maxTokens: 4096,
+  },
   // Groq: ~14,400 req/day free, ultra-fast inference
   {
     name: 'Groq (Llama 3.3 70B)',
@@ -330,14 +379,6 @@ const LLM_PROVIDERS = [
     envKey: 'GROQ_API_KEY',
     url: 'https://api.groq.com/openai/v1/chat/completions',
     model: 'llama-3.1-8b-instant',
-    maxTokens: 4096,
-  },
-  // Mistral: 1 billion tokens/month free
-  {
-    name: 'Mistral (Mistral Small)',
-    envKey: 'MISTRAL_API_KEY',
-    url: 'https://api.mistral.ai/v1/chat/completions',
-    model: 'mistral-small-latest',
     maxTokens: 4096,
   },
   // Google Gemini: 1,000 req/day free via AI Studio
@@ -489,10 +530,13 @@ function normaliseTitle(title) {
 }
 
 // Extract proper-noun entities (capitalised words) from original title
+// Excludes generic football terms that appear in almost every headline
 function extractEntities(title) {
+  const genericTerms = new Set(['premier','league','football','soccer','transfer','news','latest','update','updates','rumours','rumors','gossip','live','breaking','reports','analysis','preview','review','results','deals','match','cup','champions','europa','championship','english','scottish','wsl','women']);
   return title.replace(/[^a-zA-Z ]/g, '').split(/\s+/)
     .filter(w => w.length > 2 && w[0] === w[0].toUpperCase() && w !== w.toUpperCase())
-    .map(w => w.toLowerCase());
+    .map(w => w.toLowerCase())
+    .filter(w => !genericTerms.has(w));
 }
 
 // Check if a candidate title is too similar to any title in a list
@@ -502,13 +546,13 @@ function isTooSimilar(candidateTitle, existingTitles) {
   for (const existing of existingTitles) {
     const existWords = normaliseTitle(existing);
     const existEntities = extractEntities(existing);
-    // Entity overlap: if 2+ proper nouns match
+    // Entity overlap: if 3+ proper nouns match (specific names, clubs, players)
     const entityOverlap = candidateEntities.filter(e => existEntities.includes(e)).length;
-    if (entityOverlap >= 2) return true;
-    // Word overlap: if >40% of meaningful words match AND at least 3 words overlap
+    if (entityOverlap >= 3) return true;
+    // Word overlap: if >50% of meaningful words match AND at least 4 words overlap
     const wordOverlap = candidateWords.filter(w => existWords.includes(w)).length;
     const overlapRatio = candidateWords.length > 0 ? wordOverlap / candidateWords.length : 0;
-    if (wordOverlap >= 3 && overlapRatio >= 0.4) return true;
+    if (wordOverlap >= 4 && overlapRatio >= 0.5) return true;
   }
   return false;
 }
@@ -521,6 +565,12 @@ async function pickTopics(newsItems, count) {
     : '';
 
   const systemPrompt = `You are an editorial assistant for EPL News Hub. Pick the ${count} most interesting AND DIVERSE stories.
+
+CRITICAL RULE — SOCCER ONLY:
+- Every story MUST be about real-world soccer/football (the sport played on a pitch with a ball and goals).
+- NEVER pick stories about video games, gaming, esports, EA FC, Football Manager, fantasy draft simulators, or any non-soccer topic.
+- NEVER pick stories about other sports (NFL, NBA, cricket, rugby, tennis, etc.).
+- If a headline is ambiguous or could be about gaming/non-soccer, DO NOT pick it.
 
 IMPORTANT RULES:
 - VARIETY IS CRITICAL: Pick stories about DIFFERENT teams, players, and topics. Never pick 2+ stories about the same person or team.
@@ -605,10 +655,10 @@ async function webSearchAndScrape(query, maxScrape = 3) {
     if (scraped >= maxScrape) break;
     if (!r.url || r.url.includes('duckduckgo.com')) continue;
     const text = await scrapeSourceArticle(r.url);
-    if (text && text.length > 200) {
+    if (text && text.length > 100) {
       content.push({ origin: r.title, text: text.slice(0, 3000) });
       scraped++;
-      console.log(`[Scout]   ✓ Scraped search result: ${r.title.slice(0, 50)}...`);
+      console.log(`[Scout]   ✓ Scraped search result: ${r.title.slice(0, 50)}... (${text.length} chars)`);
     }
   }
 
@@ -791,20 +841,20 @@ async function researchTopic(topic, newsItem) {
       if (scraped >= 4) break;
       if (item.link === newsItem.link) continue; // skip duplicate
       const text = await scrapeSourceArticle(item.link);
-      if (text && text.length > 200) {
+      if (text && text.length > 100) {
         sources.push({ origin: item.title, text: text.slice(0, 3000) });
         scraped++;
-        console.log(`[Scout]   ✓ Scraped additional source: ${item.title.slice(0, 60)}...`);
+        console.log(`[Scout]   ✓ Scraped additional source: ${item.title.slice(0, 60)}... (${text.length} chars)`);
       }
     }
   } catch (e) {
     console.log(`[Scout]   ⚠ Additional source search failed: ${e.message}`);
   }
 
-  // 2.5. Web search for additional facts (especially useful when direct scraping is blocked)
+  // 2.5. Web search for additional facts (always run to supplement sources, especially when direct scraping is blocked)
   const scrapedContentSoFar = sources.filter(s => s.origin !== 'Google News summary').reduce((sum, s) => sum + s.text.length, 0);
-  if (scrapedContentSoFar < 1000) {
-    console.log(`[Scout]   Only ${scrapedContentSoFar} chars of scraped content — running web search for more...`);
+  {
+    console.log(`[Scout]   ${scrapedContentSoFar} chars of scraped content so far — running web search for more...`);
     try {
       // Search for the specific topic
       const webResults = await webSearchAndScrape(topic.title + ' Premier League 2026', 3);
@@ -843,12 +893,18 @@ Extract and return:
 3. STATS: Any specific numbers — goals, assists, xG, league position, points, etc.
 4. CONTEXT: Key background information that multiple sources agree on
 5. WHAT TO AVOID: Any claims that appear in only one source and seem unverified or speculative
+6. CONFIDENCE ASSESSMENT: At the end, rate the overall quality of available information on a scale of 1-10 (1 = no facts at all, 10 = comprehensive verified coverage). Only state "INSUFFICIENT_SOURCES" on the last line if the rating is 1 — meaning there are literally zero usable facts. If there are any real facts (scores, names, dates, quotes, stats), even from search snippets, rate at least 2 and do NOT flag insufficient sources.
 
 Format as a clear bullet-point summary. Only include facts that appear in the source material. If sources contradict each other, note the disagreement.`;
 
   try {
     const summary = await callLLM(summaryPrompt, 'You extract verified facts from news sources. Be precise and factual. Never invent information.');
     console.log(`[Scout]   ✓ Research summary compiled (${sources.length} sources)`);
+    // Check if the AI flagged insufficient sources
+    if (summary.includes('INSUFFICIENT_SOURCES')) {
+      console.log(`[Scout]   ⚠ Research AI flagged insufficient source quality`);
+      return { sources, summary, insufficientSources: true };
+    }
     return { sources, summary };
   } catch (e) {
     console.log(`[Scout]   ⚠ Research summary failed: ${e.message}`);
@@ -862,6 +918,11 @@ Format as a clear bullet-point summary. Only include facts that appear in the so
 async function generateArticle(topic, newsItem, research) {
   const systemPrompt = `You are a senior sports journalist writing for EPL News Hub — a respected Premier League publication in the style of The Athletic. You write with authority, depth, and storytelling flair. You sound like a confident insider who has watched every minute of every match this season.
 
+ABSOLUTE REQUIREMENT — SOCCER ONLY:
+- You write EXCLUSIVELY about real-world soccer/football (the sport played on a pitch).
+- NEVER write about video games, gaming, esports, EA FC, Football Manager, fantasy draft tools, or any non-soccer topic.
+- If the topic is not clearly about real soccer, DO NOT write the article.
+
 CRITICAL ACCURACY RULES — READ CAREFULLY:
 - You have been given RESEARCHED SOURCE MATERIAL below. ONLY use facts, stats, quotes, and scores that appear in this source material.
 - NEVER invent match scores, transfer fees, quotes, or statistics. If the source material doesn't contain a specific fact, DO NOT make it up.
@@ -870,6 +931,7 @@ CRITICAL ACCURACY RULES — READ CAREFULLY:
 - Match scores, league positions, and points totals MUST match the source material exactly.
 - If writing about a future match (preview), clearly frame predictions as analysis, not fact.
 - If VERIFIED REAL-TIME DATA is provided (standings, results, scorers), those numbers are from an official API — trust them above all other sources.
+- If the source material is insufficient to write an accurate, well-sourced article, return a JSON object with "insufficientData": true and "reason": "explanation" instead of generating a low-quality article.
 
 ═══════════════════════════════════════════════════════════
 BANNED PHRASES — NEVER USE ANY OF THESE (instant quality failure):
@@ -1219,17 +1281,22 @@ INSTRUCTIONS:
 1. Check ALL match scores mentioned — do they match the verified results and web search results?
 2. Check ALL league positions and points — do they match the standings?
 3. Check ALL goal scorer claims — are they verified by the data?
-4. Check ALL quotes — are they from the source material? Remove any fabricated quotes.
+4. Check ALL quotes — are they from the source material? Remove any fabricated quotes entirely.
 5. Check ALL transfer fees, contract lengths, and specific numbers against web search results.
-6. Remove or correct any stat, score, position, or quote that contradicts the verified data.
-7. If a claim cannot be verified, rephrase it to be vaguer rather than leaving a specific but potentially wrong number.
-8. Do NOT shorten the article. Maintain the same length and quality.
+6. REMOVE any stat, score, position, or quote that contradicts the verified data or cannot be verified. Do not rephrase to be vague — either it's verified and stays, or it gets removed.
+7. If more than 50% of the key claims in the article cannot be verified, return ONLY the text "INSUFFICIENT_ACCURACY" instead of the article.
+8. Do NOT shorten the article unnecessarily, but DO remove unverified claims completely rather than keeping them.
 
-Return ONLY the corrected bodyHTML. If no changes needed, return the original bodyHTML unchanged. Return raw HTML only, no wrapping, no explanation.`;
+Return ONLY the corrected bodyHTML. If no changes needed, return the original bodyHTML unchanged. If too many claims are unverifiable, return "INSUFFICIENT_ACCURACY". Return raw HTML only, no wrapping, no explanation.`;
 
   try {
-    let corrected = await callLLM(prompt, 'You are a meticulous football fact-checker. Fix errors, preserve writing style and length. Return only HTML.');
+    let corrected = await callLLM(prompt, 'You are a meticulous football fact-checker. Fix errors, preserve writing style and length. Return only HTML. If too many facts are unverifiable, return INSUFFICIENT_ACCURACY.');
     corrected = stripMarkdownFences(corrected);
+    if (corrected && corrected.trim() === 'INSUFFICIENT_ACCURACY') {
+      console.log('[Scout] ✗ Fact-check determined article has too many unverifiable claims — marking for rejection');
+      article._failedFactCheck = true;
+      return article;
+    }
     if (corrected && corrected.length > 200) {
       if (corrected.includes('<p>') && corrected.length > article.bodyHTML.length * 0.5) {
         console.log('[Scout] ✓ Fact-check complete — article verified/corrected');
@@ -1303,7 +1370,11 @@ function getRelatedArticles(currentTitle, currentCategory, currentTags, maxCount
   }
 }
 
-// ─── HTML Article Template (matches Aston Villa article format exactly) ──────
+
+// ─── HTML Article Template ───────────────────────────────────────────────────
+
+
+// ─── HTML Article Template ───────────────────────────────────────────────────
 
 function buildArticleHTML(article, filename, date, imageFile) {
   const dateObj = new Date(date);
@@ -1313,6 +1384,35 @@ function buildArticleHTML(article, filename, date, imageFile) {
   const encodedTitle = article.title.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const escapedTitle = article.title.replace(/"/g, '\\"').replace(/\\/g, '\\\\');
   const heroImage = imageFile || '/eplnewshubnewlogo.png';
+
+  const categoryAccents = {
+    'News': '#c8553a',
+    'Transfers': '#4a8fe7',
+    'Analysis': '#c9a84c',
+    'Match Reports': '#3eb489',
+    'Player Focus': '#9b6dd7'
+  };
+  const accent = categoryAccents[article.category] || '#c8553a';
+
+  // Build related articles HTML
+  const relatedHTML = (() => {
+    const related = getRelatedArticles(article.title, article.category, article.tags || []);
+    if (!related.length) return '';
+    return related.map(r => {
+      const rDate = r.date ? new Date(r.date).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+      const rImage = r.image || '/eplnewshubnewlogo.png';
+      return `
+              <a href="/articles/${r.file}" class="related-card">
+                <div class="related-img-wrap">
+                  <img src="${rImage}" alt="" loading="lazy">
+                </div>
+                <div class="related-card-content">
+                  <h3>${r.title}</h3>
+                  <span class="related-date">${rDate}</span>
+                </div>
+              </a>`;
+    }).join('');
+  })();
 
   return `<!DOCTYPE html>
 <html lang="en-GB">
@@ -1331,6 +1431,8 @@ function buildArticleHTML(article, filename, date, imageFile) {
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/eplnewshubnewlogo.png">
+    <link rel="apple-touch-icon" href="/eplnewshubnewlogo.png">
+    <link rel="canonical" href="${articleUrl}">
 
     <!-- Open Graph -->
     <meta property="og:type" content="article">
@@ -1367,243 +1469,769 @@ function buildArticleHTML(article, filename, date, imageFile) {
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Shared Stylesheet -->
     <link rel="stylesheet" href="/styles.css">
 
+    <!-- PWA -->
+    <meta name="theme-color" content="#0a0a0a">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ═══════════════════════════════════════════
+           EPL NEWS HUB — ARTICLE PAGE
+           Matches homepage editorial design system
+           ═══════════════════════════════════════════ */
+
+        :root {
+            --ink: #0a0a0a;
+            --paper: #f0ece4;
+            --chalk: #e8e4dc;
+            --smoke: #8a8578;
+            --ash: #5a564e;
+            --ember: ${accent};
+            --gold: #c9a84c;
+            --mint: #3eb489;
+            --steel: #1a1918;
+            --card: #111110;
+            --card-border: rgba(240, 236, 228, 0.06);
+            --card-hover: rgba(240, 236, 228, 0.1);
+            --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+            --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
         html {
-            font-size: 18px;
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
         }
 
         body {
-            background: #1a1a1a;
-            color: #f5f5f5;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.65;
+            background: var(--ink);
+            color: var(--paper);
+            font-family: var(--font-body);
+            line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
-            font-feature-settings: "kern" 1;
-            font-kerning: normal;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
         }
 
-        /* Reading Progress Bar */
+        /* Subtle noise texture — matches homepage */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        .header { margin: 0 !important; padding: 0 !important; }
+        .nyt-header { margin-bottom: 0 !important; }
+        .nyt-nav { margin-bottom: 0 !important; }
+
+        .footer {
+            flex-shrink: 0;
+            width: 100%;
+            max-width: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* ── READING PROGRESS ── */
         .reading-progress {
             position: fixed;
             top: 0;
             left: 0;
             width: 0%;
-            height: 3px;
-            background: linear-gradient(90deg, #121212 0%, #333 100%);
+            height: 2px;
+            background: var(--ember);
             z-index: 9999;
-            transition: width 0.1s ease-out;
+            transition: width 80ms linear;
         }
 
-        /* Article Container */
-        .article-container {
-            max-width: 680px;
-            margin: 0 auto;
-            padding: 80px 32px 100px;
+        /* ── SITE CONTENT ── */
+        .site-content {
+            position: relative;
+            z-index: 1;
+            flex: 1 0 auto;
         }
 
-        /* Article Header */
-        .article-category {
-            font-family: 'Inter', sans-serif;
+        /* ── HERO IMAGE ── */
+        .article-hero {
+            position: relative;
+            width: 100%;
+            max-height: 560px;
+            overflow: hidden;
+        }
+
+        .article-hero img {
+            width: 100%;
+            height: 560px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .article-hero-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(10, 10, 10, 0.1) 40%,
+                rgba(10, 10, 10, 0.5) 65%,
+                var(--ink) 100%
+            );
+            pointer-events: none;
+        }
+
+        .article-hero-caption {
+            position: absolute;
+            bottom: 16px;
+            right: 24px;
+            font-family: var(--font-body);
             font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: #f5f5f5;
-            display: inline-block;
-            margin-bottom: 24px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #121212;
+            color: rgba(240, 236, 228, 0.35);
+            letter-spacing: 0.3px;
+            z-index: 2;
         }
 
-        .article-headline {
-            font-family: 'Noto Serif', Georgia, 'Times New Roman', serif;
-            font-size: 52px;
-            font-weight: 700;
-            line-height: 1.05;
-            color: #f5f5f5;
-            margin-bottom: 24px;
-            letter-spacing: -1px;
-            word-spacing: 0.05em;
-            hyphens: manual;
+        /* ── ARTICLE CONTAINER ── */
+        .article-container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 32px;
+            position: relative;
+        }
+
+        /* ── ARTICLE HEADER ── */
+        .article-header {
+            margin-top: -100px;
+            position: relative;
+            z-index: 3;
+            padding-bottom: 40px;
+        }
+
+        .article-category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-family: var(--font-body);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: var(--ember);
+        }
+
+        .article-category-badge::before {
+            content: '';
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: var(--ember);
+        }
+
+        .article-title {
+            font-family: var(--font-display);
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 800;
+            line-height: 1.08;
+            color: var(--paper);
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
         }
 
         .article-dek {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            font-size: 21px;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 19px;
             line-height: 1.55;
-            color: #c0c0c0;
-            margin-bottom: 40px;
+            color: var(--smoke);
             font-weight: 400;
-            letter-spacing: -0.01em;
+            max-width: 95%;
+            margin-bottom: 36px;
         }
 
-        /* Byline */
-        .article-byline {
+        /* ── BYLINE BAR ── */
+        .byline-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 24px;
-            padding: 32px 0;
-            border-top: 1px solid #333333;
-            border-bottom: 1px solid #333333;
+            gap: 20px;
+            padding: 20px 0;
+            border-top: 1px solid var(--card-border);
+            border-bottom: 1px solid var(--card-border);
             margin-bottom: 48px;
         }
 
-        .byline-content { flex: 1; }
+        .byline-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .byline-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card);
+            border: 1px solid rgba(240, 236, 228, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ember);
+            flex-shrink: 0;
+        }
+
+        .byline-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
 
         .byline-author {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
             font-size: 14px;
             font-weight: 600;
-            color: #f5f5f5;
-            margin-bottom: 8px;
-            letter-spacing: 0.01em;
+            color: var(--paper);
         }
 
         .byline-meta {
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            color: #a0a0a0;
-            line-height: 1.5;
+            font-family: var(--font-body);
+            font-size: 12px;
+            color: var(--ash);
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
 
-        .byline-meta time { font-variant-numeric: lining-nums; }
-        .byline-meta-separator { margin: 0 6px; opacity: 0.4; }
+        .byline-meta .dot { opacity: 0.4; }
 
-        .share-tools { display: flex; gap: 8px; align-items: center; }
-
-        .share-button {
-            width: 40px; height: 40px; border-radius: 50%;
-            border: 1px solid #333333; background: #1a1a1a;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 15px; color: #f5f5f5; text-decoration: none;
+        /* ── SHARE BUTTONS ── */
+        .share-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
         }
-        .share-button:hover { background: #252525; border-color: #f5f5f5; transform: translateY(-2px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .share-button:active { transform: translateY(0); }
-        .save-button { width: auto; padding: 0 16px; border-radius: 20px; font-size: 13px; font-weight: 600; gap: 6px; }
-        .save-button span { font-size: 13px; }
 
-        /* Hero Image */
-        .article-hero { margin: 0 -24px 32px; max-width: 100vw; }
-        @media (min-width: 768px) { .article-hero { margin: 0 0 48px; } }
-        .article-hero-image { width: 100%; height: auto; display: block; }
-        .article-caption { font-size: 14px; line-height: 1.6; color: #a0a0a0; padding: 16px 24px 0; }
-        @media (min-width: 768px) { .article-caption { padding: 16px 0 0; } }
-        .caption-credit { font-size: 12px; color: #999; margin-top: 8px; }
+        .share-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 2px;
+            border: 1px solid rgba(240, 236, 228, 0.1);
+            background: var(--card);
+            color: var(--smoke);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s var(--ease);
+            font-size: 14px;
+        }
 
-        /* Article Body */
+        .share-btn:hover {
+            background: rgba(240, 236, 228, 0.08);
+            border-color: rgba(240, 236, 228, 0.15);
+            color: var(--paper);
+        }
+
+        .share-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .share-btn--save {
+            width: auto;
+            padding: 0 14px;
+            gap: 6px;
+            font-family: var(--font-body);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* ── ARTICLE BODY ── */
         .article-body {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            font-size: 1.17rem; line-height: 1.8;
-            color: #f5f5f5; letter-spacing: -0.003em; word-spacing: 0.01em;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 1.12rem;
+            line-height: 1.85;
+            color: var(--paper);
+            letter-spacing: -0.003em;
         }
-        .article-body p { margin-bottom: 1.5em; text-align: justify; text-justify: inter-word; hyphens: auto; }
-        .article-body p:first-child { text-align: left; }
-        .article-body p:first-child::first-letter {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 5.2em; font-weight: 400; line-height: 0.68;
-            float: left; margin: 0.08em 0.12em 0 -0.02em; color: #f5f5f5;
+
+        .article-body > *:first-child { margin-top: 0; }
+
+        .article-body p {
+            margin-bottom: 1.6em;
         }
+
+        /* Drop cap on first paragraph */
+        .article-body > p:first-of-type::first-letter {
+            font-family: var(--font-display);
+            font-size: 4.2em;
+            font-weight: 900;
+            float: left;
+            line-height: 0.72;
+            margin: 0.06em 0.12em 0 -0.02em;
+            color: var(--ember);
+        }
+
         .article-body h2 {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 1.85rem; font-weight: 700; line-height: 1.15;
-            color: #f5f5f5; margin: 2.8em 0 0.85em; letter-spacing: -0.02em;
+            font-family: var(--font-display);
+            font-size: 1.7rem;
+            font-weight: 700;
+            line-height: 1.15;
+            color: var(--paper);
+            margin: 2.8em 0 0.9em;
+            letter-spacing: -0.02em;
+            position: relative;
+            padding-left: 18px;
         }
+
+        .article-body h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            bottom: 4px;
+            width: 3px;
+            background: var(--ember);
+            border-radius: 2px;
+        }
+
         .article-body h3 {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 1.45rem; font-weight: 700; line-height: 1.25;
-            color: #f5f5f5; margin: 2.4em 0 0.7em; letter-spacing: -0.015em;
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 700;
+            line-height: 1.25;
+            color: var(--paper);
+            margin: 2.2em 0 0.7em;
+            letter-spacing: -0.01em;
         }
-        .article-body strong { font-weight: 700; color: #ffffff; }
-        .article-body em { font-style: italic; }
+
+        .article-body strong {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .article-body em {
+            font-style: italic;
+        }
+
+        .article-body a {
+            color: var(--ember);
+            text-decoration: underline;
+            text-decoration-color: rgba(200, 85, 58, 0.3);
+            text-underline-offset: 3px;
+            transition: text-decoration-color 0.2s;
+        }
+
+        .article-body a:hover {
+            text-decoration-color: var(--ember);
+        }
+
+        .article-body ul, .article-body ol {
+            margin: 28px 0 28px 24px;
+            line-height: 1.8;
+        }
+
+        .article-body li {
+            margin-bottom: 12px;
+        }
+
+        .article-body li::marker {
+            color: var(--ember);
+        }
+
+        /* Blockquote */
         .article-body blockquote {
-            font-family: 'Georgia', serif; font-size: 1.2rem; font-weight: 400;
-            font-style: italic; line-height: 1.6; color: #e0e0e0;
-            margin: 2.2em 0; padding-left: 1.6em; border-left: 3px solid #333333;
+            font-family: Georgia, serif;
+            font-size: 1.08rem;
+            font-style: italic;
+            line-height: 1.7;
+            color: var(--chalk);
+            margin: 2.2em 0;
+            padding: 24px 24px 24px 28px;
+            background: var(--card);
+            border-left: 3px solid var(--ember);
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* Pull quote */
+        .pull-quote {
+            font-family: var(--font-display);
+            font-size: 1.45rem;
+            font-weight: 400;
+            font-style: italic;
+            line-height: 1.45;
+            color: var(--paper);
+            text-align: center;
+            margin: 3em auto;
+            padding: 2.5em 2em;
+            max-width: 560px;
             position: relative;
         }
-        .article-body blockquote::before {
-            content: '\\201C'; font-family: 'Noto Serif', Georgia, serif;
-            font-size: 3.5em; font-weight: 700; line-height: 0;
-            position: absolute; left: -0.15em; top: 0.4em; color: #383838; z-index: -1;
-        }
-        .article-body ul, .article-body ol { margin: 28px 0 28px 28px; line-height: 1.75; }
-        .article-body li { margin-bottom: 14px; }
-        .article-body a { color: #f5f5f5; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: rgba(245, 245, 245, 0.3); transition: all 0.15s ease; }
-        .article-body a:hover { text-decoration-color: rgba(245, 245, 245, 0.7); }
 
-        /* Pull Quote */
-        .pull-quote {
-            font-family: 'Noto Serif', Georgia, serif;
-            font-size: 1.65rem; font-weight: 400; font-style: italic;
-            line-height: 1.45; color: #f5f5f5; text-align: center;
-            margin: 3em auto; padding: 2.2em 0;
-            border-top: 1px solid #333333; border-bottom: 1px solid #333333;
-            max-width: 540px; position: relative; letter-spacing: -0.01em;
+        .pull-quote::before,
+        .pull-quote::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 1px;
+            width: 80px;
+            background: linear-gradient(90deg, transparent, var(--ember), transparent);
         }
+
+        .pull-quote::before { top: 0; }
+        .pull-quote::after { bottom: 0; }
 
         /* Tables */
-        .article-body table { width: 100%; border-collapse: collapse; margin: 44px 0; font-family: 'Inter', sans-serif; font-size: 15px; }
-        .article-body table th { background: #202020; padding: 14px 16px; text-align: left; font-weight: 600; border-bottom: 2px solid #383838; color: #f5f5f5; font-size: 14px; letter-spacing: 0.3px; }
-        .article-body table td { padding: 14px 16px; border-bottom: 1px solid #2a2a2a; color: #d0d0d0; }
-        .article-body table tr:last-child td { border-bottom: 1px solid #383838; }
-        .article-body table tr:hover { background: #252525; }
+        .article-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 40px 0;
+            font-family: var(--font-body);
+            font-size: 14px;
+            border-radius: 2px;
+            overflow: hidden;
+            border: 1px solid rgba(240, 236, 228, 0.08);
+        }
 
-        /* Related Articles */
-        .related-articles { margin: 80px 0 0; padding: 48px 0 0; border-top: 2px solid #383838; }
-        .related-title { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #f5f5f5; margin-bottom: 28px; }
-        .related-item { padding: 20px 0; border-bottom: 1px solid #2a2a2a; transition: background 0.15s ease; }
-        .related-item:last-child { border-bottom: none; }
-        .related-item:hover { background: #252525; margin: 0 -16px; padding: 20px 16px; }
-        .related-item a { text-decoration: none; color: inherit; display: block; }
-        .related-item-title { font-family: 'Noto Serif', Georgia, serif; font-size: 19px; font-weight: 700; line-height: 1.35; color: #f5f5f5; margin-bottom: 8px; transition: color 0.15s ease; }
-        .related-item:hover .related-item-title { color: #a0a0a0; }
-        .related-item-meta { font-family: 'Inter', sans-serif; font-size: 13px; color: #a0a0a0; }
+        .article-body table th {
+            background: var(--card);
+            padding: 14px 18px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--paper);
+            font-size: 11px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(240, 236, 228, 0.08);
+        }
 
-        /* Responsive */
+        .article-body table td {
+            padding: 13px 18px;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--smoke);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .article-body table tr:last-child td { border-bottom: none; }
+        .article-body table tr:hover td { background: rgba(240, 236, 228, 0.03); color: var(--paper); }
+
+        /* ── AD PLACEMENTS ── */
+        .article-ad {
+            margin: 40px 0;
+            text-align: center;
+            min-height: 90px;
+        }
+
+        /* ── TAGS ── */
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 48px 0 0;
+            padding-top: 28px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .tag-chip {
+            font-family: var(--font-body);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--smoke);
+            background: var(--card);
+            border: 1px solid rgba(240, 236, 228, 0.08);
+            padding: 6px 14px;
+            border-radius: 2px;
+            transition: all 0.2s var(--ease);
+        }
+
+        .tag-chip:hover {
+            border-color: rgba(240, 236, 228, 0.15);
+            color: var(--paper);
+        }
+
+        /* ── RELATED ARTICLES ── */
+        .related-section {
+            margin: 64px 0 0;
+            padding-top: 40px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .related-section-title {
+            font-family: var(--font-body);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--ash);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .related-section-title::before {
+            content: '';
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--ember);
+        }
+
+        .related-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(240,236,228,0.08), transparent);
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2px;
+            background: rgba(240, 236, 228, 0.04);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .related-card {
+            text-decoration: none;
+            color: inherit;
+            background: var(--card);
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s var(--ease);
+            position: relative;
+        }
+
+        .related-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--ember);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s var(--ease);
+        }
+
+        .related-card:hover { background: #161614; }
+        .related-card:hover::after { transform: scaleX(1); }
+
+        .related-img-wrap {
+            overflow: hidden;
+            aspect-ratio: 16 / 10;
+        }
+
+        .related-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s var(--ease);
+        }
+
+        .related-card:hover .related-img-wrap img {
+            transform: scale(1.05);
+        }
+
+        .related-card-content {
+            padding: 18px 20px 22px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .related-card-content h3 {
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.3;
+            color: var(--paper);
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: color 0.2s var(--ease);
+        }
+
+        .related-card:hover .related-card-content h3 { color: #fff; }
+
+        .related-date {
+            font-family: var(--font-body);
+            font-size: 11px;
+            color: var(--ash);
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        /* ── COMMENTS ── */
+        .comments-section {
+            margin-top: 56px;
+            padding-top: 40px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .comments-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .comments-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--card);
+            border: 1px solid rgba(240, 236, 228, 0.08);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .comments-header-text h2 {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--paper);
+        }
+
+        .comments-header-text p {
+            font-family: var(--font-body);
+            font-size: 13px;
+            color: var(--ash);
+            margin-top: 2px;
+        }
+
+        .comments-box {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 2px;
+            border: 1px solid var(--card-border);
+        }
+
+        /* HTMLCommentBox dark theme overrides */
+        #HCB_comment_box .hcb-comment-hdr,
+        #HCB_comment_box textarea,
+        #HCB_comment_box input {
+            background: #1a1918 !important;
+            color: var(--paper) !important;
+            border-color: rgba(240, 236, 228, 0.1) !important;
+            border-radius: 2px !important;
+            font-family: var(--font-body) !important;
+        }
+
+        #HCB_comment_box .hcb-comment {
+            background: var(--card) !important;
+            border-color: var(--card-border) !important;
+            border-radius: 2px !important;
+            margin-bottom: 12px !important;
+        }
+
+        #HCB_comment_box a { color: var(--ember) !important; }
+
+        #HCB_comment_box .hcb-submit {
+            background: var(--ember) !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 2px !important;
+            padding: 10px 24px !important;
+            font-weight: 600 !important;
+            font-family: var(--font-body) !important;
+            cursor: pointer !important;
+            transition: opacity 0.2s !important;
+        }
+
+        #HCB_comment_box .hcb-submit:hover { opacity: 0.85 !important; }
+
+        /* ── REVEAL ANIMATION ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
-            body::before, body::after { display: none !important; }
-            .article-container { padding: 48px 20px 60px; }
-            .article-headline { font-size: 40px; letter-spacing: -0.6px; line-height: 1.1; }
-            .article-dek { font-size: 18px; line-height: 1.55; }
-            .article-body { font-size: 20px; }
-            .article-body h2 { font-size: 28px; margin: 44px 0 20px; }
-            .article-body h3 { font-size: 22px; }
-            .pull-quote { font-size: 24px; margin: 48px auto; padding: 36px 0; }
-            .share-tools { display: none; }
-            .article-byline { padding: 24px 0; margin-bottom: 32px; }
-            .article-body table { font-size: 14px; }
-            .article-body table th, .article-body table td { padding: 12px 10px; }
-            .article-ad-container:nth-of-type(even) { display: none !important; }
-            .adsbygoogle { min-height: 100px !important; max-height: 280px !important; margin: 16px auto !important; }
-            html, body { overflow-x: hidden; }
+            body::before { display: none; }
+
+            .article-container { padding: 0 20px; }
+
+            .article-hero img { height: 360px; }
+            .article-hero { max-height: 360px; }
+
+            .article-header { margin-top: -80px; }
+            .article-title { font-size: 30px; }
+            .article-dek { font-size: 17px; max-width: 100%; }
+
+            .byline-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .share-row { width: 100%; }
+
+            .article-body { font-size: 1.05rem; }
+            .article-body h2 { font-size: 1.4rem; margin: 2em 0 0.7em; }
+            .article-body h3 { font-size: 1.15rem; }
+            .article-body blockquote { padding: 20px 20px 20px 24px; }
+
+            .pull-quote { font-size: 1.2rem; padding: 2em 1em; }
+
+            .related-grid { grid-template-columns: 1fr; }
+
+            .article-hero-caption { bottom: 12px; right: 16px; font-size: 10px; }
+
+            .related-card::after { display: none; }
+            .related-card:hover .related-img-wrap img { transform: none; }
+
+            .article-ad:nth-of-type(even) { display: none !important; }
         }
 
         @media (max-width: 480px) {
-            .article-container { padding: 40px 18px 50px; }
-            .article-headline { font-size: 34px; letter-spacing: -0.5px; }
-            .article-dek { font-size: 17px; }
-            .article-body { font-size: 19px; }
-            .article-body p:first-child::first-letter { font-size: 68px; margin: 8px 8px 0 -2px; }
-            .article-body h2 { font-size: 26px; margin: 40px 0 18px; }
-            .pull-quote { font-size: 22px; padding: 32px 0; margin: 44px auto; }
-            .related-item:hover { margin: 0 -12px; padding: 20px 12px; }
+            .article-container { padding: 0 16px; }
+
+            .article-hero img { height: 280px; }
+            .article-hero { max-height: 280px; }
+
+            .article-header { margin-top: -60px; }
+            .article-title { font-size: 26px; }
+            .article-dek { font-size: 16px; }
+
+            .article-body { font-size: 1rem; }
+            .article-body > p:first-of-type::first-letter { font-size: 3.4em; }
+            .article-body h2 { font-size: 1.25rem; padding-left: 14px; }
+
+            .article-body table { font-size: 12px; }
+            .article-body table th,
+            .article-body table td { padding: 10px 12px; }
         }
     </style>
 </head>
@@ -1614,122 +2242,113 @@ function buildArticleHTML(article, filename, date, imageFile) {
     <!-- Header -->
     <div class="header" include="../header.html"></div>
 
-    <!-- Article Content -->
-    <article class="article-container">
-
-        <!-- Article Header -->
-        <header>
-            <span class="article-category">${article.categoryLabel || article.category}</span>
-            <h1 class="article-headline">${encodedTitle}</h1>
-            <p class="article-dek">${(article.dek || article.metaDescription).replace(/"/g, '&quot;')}</p>
-
-            <div class="article-byline">
-                <div class="byline-content">
-                    <div class="byline-author">By ${article.authorName || 'EPL News Hub'}</div>
-                    <div class="byline-meta">
-                        <time datetime="${date}">${dateFormatted}</time>
-                        <span class="byline-meta-separator">&middot;</span>
-                        <span>${article.readTime || '7 min read'}</span>
-                    </div>
-                </div>
-                <div class="share-tools">
-                    <button class="share-button" onclick="shareArticle('twitter')" title="Share on X" aria-label="Share on X">&#120143;</button>
-                    <button class="share-button" onclick="shareArticle('facebook')" title="Share on Facebook" aria-label="Share on Facebook">f</button>
-                    <button class="share-button" onclick="shareArticle('copy')" title="Copy link" aria-label="Copy link">&#128279;</button>
-                    <button class="share-button save-button" onclick="saveArticle()" title="Save article" aria-label="Save article">
-                        <span>&#128209;</span>
-                        <span>Save</span>
-                    </button>
-                </div>
-            </div>
-        </header>
+    <!-- Main Content -->
+    <main class="site-content">
 
         <!-- Hero Image -->
-        <figure class="article-hero">
-            <img src="${heroImage}" alt="${encodedTitle}" class="article-hero-image">
-            <figcaption class="article-caption">
-                ${article.imageCaption || article.title}
-                <div class="caption-credit">Photo: Getty Images</div>
-            </figcaption>
-        </figure>
-
-        <!-- Article Body -->
-        <div class="article-body">
-            ${stripMarkdownFences(article.bodyHTML)}
+        <div class="article-hero">
+            <img src="${heroImage}" alt="${encodedTitle}">
+            <div class="article-hero-gradient"></div>
+            <span class="article-hero-caption">${article.imageCaption || ''} — Getty Images</span>
         </div>
 
-        <!-- Inline Promo: Transfer Simulator -->
-        <aside style="margin: 64px 0; padding: 32px; background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%); border-radius: 16px; border: 1px solid #2a2a3e; position: relative; overflow: hidden;">
-            <div style="position: absolute; top: 0; right: 0; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 6px 16px; border-radius: 0 16px 0 12px; font-family: Inter, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Featured Tool</div>
-            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-                <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);">&#9917;</div>
-                <div style="flex: 1; min-width: 200px;">
-                    <h3 style="font-family: Inter, sans-serif; font-size: 18px; font-weight: 800; color: #f5f5f5; margin: 0 0 6px;">Transfer Simulator Pro</h3>
-                    <p style="font-family: Inter, sans-serif; font-size: 14px; color: #a0a0b0; margin: 0; line-height: 1.5;">Build your perfect squad with AI-powered transfer recommendations and real-time price tracking.</p>
-                </div>
-                <a href="/transfer-simulator-pro.html" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; border-radius: 10px; font-family: Inter, sans-serif; font-size: 14px; font-weight: 700; white-space: nowrap; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(102,126,234,0.4)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 16px rgba(102,126,234,0.3)'">Try Free &#8594;</a>
-            </div>
-        </aside>
+        <!-- Article -->
+        <article class="article-container">
 
-        <!-- Related Articles (Real) -->
-        <aside class="related-articles">
-            <h2 class="related-title">More from EPL News Hub</h2>
-${(() => {
-  const related = getRelatedArticles(article.title, article.category, article.tags || []);
-  if (!related.length) return '';
-  return related.map(r => {
-    const rDate = r.date ? new Date(r.date).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
-    const rImage = r.image || '/eplnewshubnewlogo.png';
-    return `
-            <article class="related-item" style="display: flex; gap: 16px; align-items: center;">
-                <a href="/articles/${r.file}" style="display: flex; gap: 16px; align-items: center; text-decoration: none; color: inherit; width: 100%;">
-                    <img src="${rImage}" alt="" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0;" loading="lazy">
-                    <div>
-                        <h3 class="related-item-title">${r.title}</h3>
-                        <div class="related-item-meta">${rDate}</div>
+            <!-- Article Header -->
+            <header class="article-header reveal">
+                <div class="article-category-badge">${article.categoryLabel || article.category}</div>
+                <h1 class="article-title">${encodedTitle}</h1>
+                <p class="article-dek">${(article.dek || article.metaDescription).replace(/"/g, '&quot;')}</p>
+
+                <div class="byline-bar">
+                    <div class="byline-left">
+                        <div class="byline-avatar">${(article.authorName || 'E')[0]}</div>
+                        <div class="byline-info">
+                            <div class="byline-author">${article.authorName || 'EPL News Hub'}</div>
+                            <div class="byline-meta">
+                                <time datetime="${date}">${dateFormatted}</time>
+                                <span class="dot">&middot;</span>
+                                <span>${article.readTime || '7 min read'}</span>
+                            </div>
+                        </div>
                     </div>
-                </a>
-            </article>`;
-  }).join('');
-})()}
-        </aside>
-
-        <!-- Inline Promo: FPL AI Assistant -->
-        <aside style="margin: 48px 0 0; padding: 28px 32px; background: linear-gradient(135deg, #37003c, #4a0e4e); border-radius: 16px; position: relative; overflow: hidden;">
-            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-                <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #00ff87, #60efaa); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">&#129302;</div>
-                <div style="flex: 1; min-width: 180px;">
-                    <h3 style="font-family: Inter, sans-serif; font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 4px;">FPL AI Assistant</h3>
-                    <p style="font-family: Inter, sans-serif; font-size: 13px; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.4;">Get captain picks, transfer advice, and differential tips powered by AI.</p>
+                    <div class="share-row">
+                        <button class="share-btn" onclick="shareArticle('twitter')" title="Share on X" aria-label="Share on X"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></button>
+                        <button class="share-btn" onclick="shareArticle('facebook')" title="Share on Facebook" aria-label="Share on Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></button>
+                        <button class="share-btn" onclick="shareArticle('copy')" title="Copy link" aria-label="Copy link"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+                        <button class="share-btn share-btn--save" onclick="saveArticle()" title="Save article" aria-label="Save article"><svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>Save</button>
+                    </div>
                 </div>
-                <a href="/fpl-ai-assistant.html" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: linear-gradient(135deg, #00ff87, #60efaa); color: #37003c; text-decoration: none; border-radius: 10px; font-family: Inter, sans-serif; font-size: 13px; font-weight: 700; white-space: nowrap; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">Try Free &#8594;</a>
-            </div>
-        </aside>
+            </header>
 
-        <!-- Comments Section -->
-        <section style="margin-top: 64px; padding-top: 48px; border-top: 2px solid #2a2a2a;">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 32px;">
-                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #333, #444); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">&#128172;</div>
-                <div>
-                    <h2 style="font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 800; color: #f5f5f5; margin: 0;">Join the Discussion</h2>
-                    <p style="font-family: 'Inter', sans-serif; font-size: 13px; color: #888; margin: 4px 0 0;">Share your thoughts on this article</p>
+            <!-- Ad Placement: Top -->
+            <div class="article-ad">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-6480210605786899"
+                     data-ad-slot="auto"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+
+            <!-- Article Body -->
+            <div class="article-body reveal">
+                ${stripMarkdownFences(article.bodyHTML)}
+            </div>
+
+            <!-- Ad Placement: After Body -->
+            <div class="article-ad">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-6480210605786899"
+                     data-ad-slot="auto"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+
+            <!-- Tags -->
+            <div class="tags-row reveal">
+                ${article.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}
+            </div>
+
+            <!-- Related Articles -->
+            <section class="related-section reveal">
+                <h2 class="related-section-title">More from EPL News Hub</h2>
+                <div class="related-grid">${relatedHTML}</div>
+            </section>
+
+            <!-- Ad Placement: Before Comments -->
+            <div class="article-ad">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-6480210605786899"
+                     data-ad-slot="auto"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+
+            <!-- Comments Section -->
+            <section class="comments-section reveal">
+                <div class="comments-header">
+                    <div class="comments-icon">&#128172;</div>
+                    <div class="comments-header-text">
+                        <h2>Join the Discussion</h2>
+                        <p>Share your thoughts on this article</p>
+                    </div>
                 </div>
-            </div>
-            <div style="background: linear-gradient(145deg, #1e1e1e, #252525); padding: 32px; border-radius: 12px; border: 1px solid #333;">
-                <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Comment Box</a> is loading comments...</div>
-                <link rel="stylesheet" type="text/css" href="https://www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
-                <script type="text/javascript" id="hcb"> if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/['"]/g,"%27"), h="https://www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24w8ot526O1NwJSxpfQ4Tqd0"+"&opts=16798&num=10&ts=1737000000000");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); </script>
-            </div>
-            <style>
-                #HCB_comment_box .hcb-comment-hdr, #HCB_comment_box textarea, #HCB_comment_box input { background: #2a2a2a !important; color: #f5f5f5 !important; border-color: #444 !important; border-radius: 8px !important; }
-                #HCB_comment_box .hcb-comment { background: #222 !important; border-color: #333 !important; border-radius: 8px !important; margin-bottom: 12px !important; }
-                #HCB_comment_box a { color: #a0a0ff !important; }
-                #HCB_comment_box .hcb-submit { background: linear-gradient(135deg, #37003c, #4a0e4e) !important; color: white !important; border: none !important; border-radius: 8px !important; padding: 10px 24px !important; font-weight: 700 !important; cursor: pointer !important; }
-                #HCB_comment_box .hcb-submit:hover { background: linear-gradient(135deg, #4a0e4e, #37003c) !important; }
-            </style>
-        </section>
+                <div class="comments-box">
+                    <div id="HCB_comment_box"><a href="http://www.htmlcommentbox.com">Comment Box</a> is loading comments...</div>
+                    <link rel="stylesheet" type="text/css" href="https://www.htmlcommentbox.com/static/skins/bootstrap/twitter-bootstrap.css?v=0" />
+                    <script type="text/javascript" id="hcb"> if(!window.hcb_user){hcb_user={};} (function(){var s=document.createElement("script"), l=hcb_user.PAGE || (""+window.location).replace(/['"]/g,"%27"), h="https://www.htmlcommentbox.com";s.setAttribute("type","text/javascript");s.setAttribute("src", h+"/jread?page="+encodeURIComponent(l).replace("+","%2B")+"&mod=%241%24wq1rdBcg%24w8ot526O1NwJSxpfQ4Tqd0"+"&opts=16798&num=10&ts=1737000000000");if (typeof s!="undefined") document.getElementsByTagName("head")[0].appendChild(s);})(); </script>
+                </div>
+            </section>
 
-    </article>
+        </article>
+    </main>
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -1755,66 +2374,90 @@ ${(() => {
     <!-- Scripts -->
     <script src="/index.js"></script>
     <script>
-        // Reading Progress Bar
-        function updateReadingProgress() {
-            const article = document.querySelector('.article-body');
-            const progressBar = document.querySelector('.reading-progress');
-            if (!article || !progressBar) return;
-            const articleRect = article.getBoundingClientRect();
-            const articleHeight = article.offsetHeight;
-            const windowHeight = window.innerHeight;
-            const scrollDistance = -articleRect.top;
-            const scrollableDistance = articleHeight - windowHeight;
-            const scrollPercentage = Math.min(Math.max((scrollDistance / scrollableDistance) * 100, 0), 100);
-            progressBar.style.width = scrollPercentage + '%';
-        }
-        window.addEventListener('scroll', updateReadingProgress);
-        window.addEventListener('resize', updateReadingProgress);
-        document.addEventListener('DOMContentLoaded', updateReadingProgress);
+        // Reading progress bar
+        (function(){
+            var t = false;
+            function u() {
+                var b = document.querySelector('.article-body'),
+                    r = document.querySelector('.reading-progress');
+                if (!b || !r) return;
+                var rc = b.getBoundingClientRect(),
+                    h = b.offsetHeight,
+                    w = window.innerHeight,
+                    p = Math.min(Math.max(-rc.top / (h - w) * 100, 0), 100);
+                r.style.width = p + '%';
+                t = false;
+            }
+            window.addEventListener('scroll', function(){ if(!t){requestAnimationFrame(u);t=true} });
+            window.addEventListener('resize', u);
+            u();
+        })();
 
-        // Share Article
-        function shareArticle(platform) {
-            const url = window.location.href;
-            const title = document.querySelector('.article-headline').textContent;
-            switch(platform) {
+        // Scroll reveal
+        (function(){
+            var els = document.querySelectorAll('.reveal');
+            if (!('IntersectionObserver' in window)) {
+                els.forEach(function(e){ e.classList.add('visible'); });
+                return;
+            }
+            var obs = new IntersectionObserver(function(entries){
+                entries.forEach(function(e){
+                    if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+            els.forEach(function(e){ obs.observe(e); });
+        })();
+
+        // Share functions
+        function shareArticle(p) {
+            var u = window.location.href,
+                t = document.querySelector('.article-title').textContent;
+            switch(p) {
                 case 'twitter':
-                    window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(title), '_blank', 'width=550,height=420');
+                    window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(u) + '&text=' + encodeURIComponent(t), '_blank', 'width=550,height=420');
                     break;
                 case 'facebook':
-                    window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'width=550,height=420');
+                    window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(u), '_blank', 'width=550,height=420');
                     break;
                 case 'copy':
-                    navigator.clipboard.writeText(url).then(function() { showNotification('Link copied to clipboard!'); }).catch(function() { prompt('Copy this link:', url); });
+                    navigator.clipboard.writeText(u).then(function(){ showNotification('Link copied!'); });
                     break;
             }
         }
 
-        // Save Article
+        // Save article
         function saveArticle() {
-            const title = document.querySelector('.article-headline').textContent;
-            const url = window.location.href;
-            const savedArticles = JSON.parse(localStorage.getItem('savedArticles') || '[]');
-            if (savedArticles.some(function(a) { return a.url === url; })) {
-                showNotification('Article already saved!');
+            var t = document.querySelector('.article-title').textContent,
+                u = window.location.href,
+                s = JSON.parse(localStorage.getItem('savedArticles') || '[]'),
+                e = s.some(function(a){ return a.url === u; });
+            if(e) {
+                s = s.filter(function(a){ return a.url !== u; });
+                localStorage.setItem('savedArticles', JSON.stringify(s));
+                showNotification('Removed from saved');
             } else {
-                savedArticles.push({ title: title, url: url, savedAt: new Date().toISOString() });
-                localStorage.setItem('savedArticles', JSON.stringify(savedArticles));
-                showNotification('Article saved!');
+                s.push({ title: t, url: u, savedAt: new Date().toISOString() });
+                localStorage.setItem('savedArticles', JSON.stringify(s));
+                showNotification('Article saved');
             }
         }
 
-        // Notification Toast
-        function showNotification(message) {
-            var notification = document.createElement('div');
-            notification.textContent = message;
-            notification.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#121212;color:white;padding:16px 24px;border-radius:8px;font-family:Inter,sans-serif;font-size:14px;font-weight:600;z-index:10000;box-shadow:0 4px 16px rgba(0,0,0,0.2);animation:slideUp 0.3s ease-out';
-            document.body.appendChild(notification);
-            setTimeout(function() { notification.style.animation = 'slideDown 0.3s ease-in'; setTimeout(function() { notification.remove(); }, 300); }, 2000);
+        // Toast notification
+        function showNotification(m) {
+            var e = document.createElement('div');
+            e.textContent = m;
+            e.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:#111110;color:#f0ece4;padding:14px 28px;border-radius:2px;font-family:DM Sans,sans-serif;font-size:14px;font-weight:600;z-index:10000;box-shadow:0 8px 32px rgba(0,0,0,0.4);border:1px solid rgba(240,236,228,0.08);transition:all 0.3s cubic-bezier(0.16,1,0.3,1)';
+            document.body.appendChild(e);
+            requestAnimationFrame(function(){
+                e.style.transform = 'translateX(-50%) translateY(0)';
+                e.style.opacity = '1';
+            });
+            setTimeout(function(){
+                e.style.transform = 'translateX(-50%) translateY(20px)';
+                e.style.opacity = '0';
+                setTimeout(function(){ e.remove(); }, 300);
+            }, 2200);
         }
-
-        var style = document.createElement('style');
-        style.textContent = '@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}@keyframes slideDown{from{transform:translateX(-50%) translateY(0);opacity:1}to{transform:translateX(-50%) translateY(20px);opacity:0}}';
-        document.head.appendChild(style);
     </script>
 </body>
 </html>`;
@@ -1854,23 +2497,23 @@ function cascadeHeadlines(articleTitle, articleFilename, articleExcerpt, article
   const ms1 = path.join(ROOT, 'main_subheadline1.html');
   if (fs.existsSync(mh)) fs.copyFileSync(mh, ms1);
 
-  // Create new main_headline
+  // Create new main_headline — matches homepage editorial design system
   const categoryColors = {
-    'News': '#e74c3c', 'Transfers': '#3498db', 'Analysis': '#f39c12',
-    'Match Reports': '#27ae60', 'Player Focus': '#9b59b6'
+    'News': '#c8553a', 'Transfers': '#4a8fe7', 'Analysis': '#c9a84c',
+    'Match Reports': '#3eb489', 'Player Focus': '#9b6dd7'
   };
-  const catColor = categoryColors[articleCategory] || '#8b5cf6';
-  const rgbMap = { '#e74c3c': '231, 76, 60', '#3498db': '52, 152, 219', '#f39c12': '243, 156, 18', '#27ae60': '39, 174, 96', '#9b59b6': '155, 89, 182', '#8b5cf6': '139, 92, 246' };
-  const catRgb = rgbMap[catColor] || '139, 92, 246';
+  const catColor = categoryColors[articleCategory] || '#c8553a';
+  const catRgbMap = { '#c8553a': '200, 85, 58', '#4a8fe7': '74, 143, 231', '#c9a84c': '201, 168, 76', '#3eb489': '62, 180, 137', '#9b6dd7': '155, 109, 215' };
+  const catRgb = catRgbMap[catColor] || '200, 85, 58';
 
   const mainHeadlineHTML = `<a href="/articles/${articleFilename}" style="display: flex; flex-direction: column; height: 100%; text-decoration: none; color: inherit;" aria-label="Read full article: ${articleTitle.replace(/"/g, '&quot;')}">
-    <img src="${heroImage}" alt="${articleTitle.replace(/"/g, '&quot;')}" style="width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 16px; flex-shrink: 0; border-radius: 12px;" loading="eager">
-    <div style="display: flex; flex-direction: column;">
-        <span style="font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: ${catColor}; margin-bottom: 10px; background: rgba(${catRgb}, 0.15); padding: 5px 10px; border-radius: 4px; display: inline-block; width: fit-content;">${articleCategory.toUpperCase()}</span>
-        <h2 style="font-family: 'Noto Serif', Georgia, serif; font-size: 36px; font-weight: 700; line-height: 1.15; color: #f5f5f5; margin: 0 0 12px 0; letter-spacing: -0.5px;">${articleTitle}</h2>
-        <p style="font-size: 16px; line-height: 1.6; color: #b8b8b8; margin: 0 0 12px 0;">${articleExcerpt}</p>
-        <div style="font-size: 12px; color: #888888; letter-spacing: 0.3px; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.6;">
+    <img src="${heroImage}" alt="${articleTitle.replace(/"/g, '&quot;')}" style="width: 100%; aspect-ratio: 16 / 9; object-fit: cover; flex-shrink: 0; border-radius: 0;" loading="eager">
+    <div style="display: flex; flex-direction: column; padding: 28px 32px 32px;">
+        <span style="font-size: 10px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: ${catColor}; margin-bottom: 12px; background: rgba(${catRgb}, 0.12); padding: 4px 10px; border-radius: 2px; display: inline-block; width: fit-content;">${articleCategory.toUpperCase()}</span>
+        <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 38px; font-weight: 800; line-height: 1.1; color: #f0ece4; margin: 0 0 12px 0; letter-spacing: -0.5px;">${articleTitle}</h2>
+        <p style="font-family: 'DM Sans', -apple-system, sans-serif; font-size: 15px; line-height: 1.6; color: #8a8578; margin: 0 0 12px 0;">${articleExcerpt}</p>
+        <div style="font-family: 'DM Sans', -apple-system, sans-serif; font-size: 11px; color: #5a564e; letter-spacing: 0.3px; display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.4;">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
@@ -1992,6 +2635,144 @@ function gitPush(articleTitles) {
   }
 }
 
+// ─── Soccer Relevance & Accuracy Gates ──────────────────────────────────────
+
+function isSoccerArticle(article) {
+  if (!article || !article.bodyHTML || !article.title) return false;
+
+  const text = (article.title + ' ' + article.bodyHTML + ' ' + (article.metaDescription || '') + ' ' + (article.tags || []).join(' ')).toLowerCase();
+
+  // Must contain soccer/football keywords
+  const soccerSignals = [
+    'premier league', 'epl', 'football', 'soccer', ' fc', 'united',
+    'match', 'goal', 'assist', 'transfer', 'manager', 'fixture',
+    'league', 'cup', 'midfielder', 'striker', 'defender', 'goalkeeper',
+    'penalty', 'offside', 'formation', 'tactics', 'clean sheet',
+    'kickoff', 'kick-off', 'half-time', 'full-time', 'pitch',
+    'champions league', 'europa league', 'fa cup', 'var',
+    'relegation', 'promotion', 'hat trick', 'derby'
+  ];
+
+  // Must NOT be primarily about non-soccer topics
+  const nonSoccerSignals = [
+    'video game', 'gaming', 'ea fc', 'ea sports fc', 'football manager game',
+    'esports', 'e-sports', 'playstation', 'xbox', 'console', 'steam',
+    'nfl', 'nba', 'mlb', 'nhl', 'super bowl', 'touchdown', 'quarterback',
+    'cricket', 'rugby', 'tennis', 'golf', 'boxing', 'ufc', 'mma',
+    'formula 1', 'f1 racing', 'basketball', 'baseball', 'american football'
+  ];
+
+  const soccerCount = soccerSignals.filter(kw => text.includes(kw)).length;
+  const nonSoccerCount = nonSoccerSignals.filter(kw => text.includes(kw)).length;
+
+  // Require at least 3 soccer signals and no non-soccer signals dominating
+  if (soccerCount < 3) {
+    console.log(`[Scout] Soccer relevance check FAILED: only ${soccerCount} soccer signals found`);
+    return false;
+  }
+  if (nonSoccerCount > 0 && nonSoccerCount >= soccerCount * 0.3) {
+    console.log(`[Scout] Soccer relevance check FAILED: ${nonSoccerCount} non-soccer signals vs ${soccerCount} soccer signals`);
+    return false;
+  }
+
+  return true;
+}
+
+async function verifyArticleAccuracy(article, research, footballData) {
+  if (!article || !article.bodyHTML) {
+    return { passed: false, reason: 'No article body to verify' };
+  }
+
+  const bodyText = article.bodyHTML.toLowerCase();
+  const bodyLength = article.bodyHTML.replace(/<[^>]+>/g, '').length;
+
+  // 1. Article must be substantial (at least 1500 chars of actual text content)
+  if (bodyLength < 1500) {
+    return { passed: false, reason: `Article too short (${bodyLength} chars, need 1500+)` };
+  }
+
+  // 2. Check that we have source material backing the article
+  if (!research || !research.sources || research.sources.length === 0) {
+    return { passed: false, reason: 'No source material to verify claims against' };
+  }
+
+  // 3. Check for signs of fabricated/hallucinated content — generic filler that indicates
+  //    the AI didn't have enough real information
+  const fabricationSignals = [
+    'details are yet to emerge',
+    'details are still emerging',
+    'we await confirmation',
+    'we await more information',
+    'reports are unconfirmed',
+    'no official statement',
+    'yet to be confirmed',
+    'according to unverified reports',
+    'rumours suggest',
+    'speculation mounts',
+    'it is believed that',
+    'sources close to the situation',
+    'according to sources familiar',
+    'it is understood that'
+  ];
+
+  const fabricationCount = fabricationSignals.filter(phrase => bodyText.includes(phrase)).length;
+  if (fabricationCount >= 3) {
+    return { passed: false, reason: `Too many unverified/speculative phrases (${fabricationCount} found) — not enough confirmed information` };
+  }
+
+  // 4. Verify key facts against source material using AI
+  try {
+    const sourceText = research.summary ? research.summary.slice(0, 2000) : '';
+    const footballDataText = footballData ? formatFootballDataForPrompt(footballData).slice(0, 2000) : '';
+
+    const verifyPrompt = `You are a strict editorial fact-checker. Compare this article against the source material and verified data below.
+
+ARTICLE TITLE: ${article.title}
+ARTICLE (first 2000 chars): ${article.bodyHTML.slice(0, 2000)}
+
+SOURCE MATERIAL:
+${sourceText}
+
+${footballDataText ? 'VERIFIED API DATA:\n' + footballDataText : ''}
+
+Check for:
+1. Are the key claims (scores, stats, positions, transfers, quotes) supported by the source material or verified data?
+2. Are there any fabricated quotes (quotes not found in source material)?
+3. Are there obviously invented statistics or match scores?
+4. Is the core story factually grounded in the sources?
+
+Return ONLY a JSON object:
+{
+  "accurate": true/false,
+  "confidence": 1-10 (how confident you are in accuracy),
+  "issues": ["list of specific factual issues found, if any"],
+  "verdict": "one sentence summary"
+}`;
+
+    const result = await callLLM(verifyPrompt, 'You are a fact-checker. Return only JSON. Be strict — if key facts cannot be verified, mark as inaccurate.');
+    const jsonMatch = result.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const verification = JSON.parse(jsonMatch[0]);
+      console.log(`[Scout] Accuracy verification: confidence=${verification.confidence}/10, accurate=${verification.accurate}`);
+      if (verification.issues && verification.issues.length > 0) {
+        console.log(`[Scout]   Issues: ${verification.issues.join('; ')}`);
+      }
+
+      // Fail if confidence is very low or marked inaccurate with serious issues
+      if (!verification.accurate && verification.confidence <= 4) {
+        return { passed: false, reason: `Low accuracy confidence (${verification.confidence}/10): ${verification.verdict}` };
+      }
+      if (verification.issues && verification.issues.length >= 3 && verification.confidence <= 5) {
+        return { passed: false, reason: `Too many factual issues (${verification.issues.length}): ${verification.issues.slice(0, 2).join('; ')}` };
+      }
+    }
+  } catch (e) {
+    console.log(`[Scout] Accuracy verification LLM call failed: ${e.message} — allowing article (source gate already passed)`);
+  }
+
+  return { passed: true, reason: 'Article passed accuracy verification' };
+}
+
 // ─── Main Pipeline ───────────────────────────────────────────────────────────
 
 async function runScout(count = 1) {
@@ -2057,13 +2838,19 @@ async function runScout(count = 1) {
       // Research: scrape sources and gather verified facts
       const research = await researchTopic(topic, newsItem);
 
+      // Research quality gate: skip if AI flagged sources as insufficient
+      if (research.insufficientSources) {
+        console.log(`[Scout] Skipping "${topic.title}" — research AI determined insufficient verified facts for an accurate article`);
+        continue;
+      }
+
       // Quality gate: skip topics with insufficient source material
-      // Need at least one scraped source with real content (>200 chars), not just the Google News description
-      const scrapedSources = research.sources ? research.sources.filter(s => s.origin !== 'Google News summary') : [];
-      const hasRealContent = scrapedSources.some(s => s.text && s.text.length > 200);
-      const totalSourceChars = research.sources ? research.sources.reduce((sum, s) => sum + (s.text ? s.text.length : 0), 0) : 0;
-      if (!hasRealContent && totalSourceChars < 500) {
-        console.log(`[Scout] Skipping "${topic.title}" — insufficient source material (${totalSourceChars} chars total), trying next topic`);
+      // Need at least 1 source with real content and 500+ total chars (including search snippets)
+      const allSources = research.sources || [];
+      const realSources = allSources.filter(s => s.text && s.text.length > 50);
+      const totalSourceChars = allSources.reduce((sum, s) => sum + (s.text ? s.text.length : 0), 0);
+      if (realSources.length < 1 || totalSourceChars < 500) {
+        console.log(`[Scout] Skipping "${topic.title}" — insufficient source material for accurate article (${realSources.length} sources, ${totalSourceChars} chars total — need 1+ sources and 500+ chars), trying next topic`);
         continue;
       }
 
@@ -2076,11 +2863,36 @@ async function runScout(count = 1) {
       console.log(`[Scout] Generating article: ${topic.title}...`);
       let article = await generateArticle(topic, newsItem, research);
 
+      // Check if the AI flagged insufficient data
+      if (article.insufficientData) {
+        console.log(`[Scout] Skipping "${topic.title}" — AI flagged insufficient data: ${article.reason || 'not enough verified information'}`);
+        continue;
+      }
+
+      // Soccer relevance gate: verify the generated article is actually about soccer
+      if (!isSoccerArticle(article)) {
+        console.log(`[Scout] Skipping "${topic.title}" — generated article is not about soccer, trying next topic`);
+        continue;
+      }
+
       // Style polish: remove banned phrases, tighten prose, add personality
       article = await polishArticleStyle(article);
 
       // Fact-check: verify article against real data
       article = await factCheckArticle(article, footballData, research);
+
+      // Check if fact-checker flagged the article as having too many unverifiable claims
+      if (article._failedFactCheck) {
+        console.log(`[Scout] Skipping "${topic.title}" — fact-checker determined too many claims could not be verified`);
+        continue;
+      }
+
+      // Accuracy gate: verify the article passed fact-checking with sufficient verified content
+      const accuracyCheck = await verifyArticleAccuracy(article, research, footballData);
+      if (!accuracyCheck.passed) {
+        console.log(`[Scout] Skipping "${topic.title}" — failed accuracy verification: ${accuracyCheck.reason}`);
+        continue;
+      }
 
       // Step 4: Find and download image
       const imageResult = await findAndDownloadImage(article.imageSearchQuery || topic.title, slug);
