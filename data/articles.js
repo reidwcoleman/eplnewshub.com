@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'wolves-edge-past-grimsby-in-fa-cup-clash-2026-02-16',
+    title: 'Wolves Edge Past Grimsby in FA Cup Clash',
+    excerpt: 'Wolves secured a hard-fought 1-0 win over Grimsby in the FA Cup, but the League Two side pushed them to the limit. The Premier League strugglers were made to work for their victory, with Grimsby creating several chances to cause an upset.',
+    image: '/scout-wolves-edge-past-grimsby-in-fa-cup-clash.jpg',
+    category: 'Match Reports',
+    date: '2026-02-16',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['FA Cup', 'Wolves', 'Grimsby Town', 'Premier League', 'League Two']
+  },
+  {
     id: 'strava-leak-fans-think-former-premier-league-stars-new-job-h-2026-02-16',
     title: 'Strava Leak? Gary Caldwell\'s Wigan Athletic Appointment Sparks Social Media Frenzy',
     excerpt: 'Multiple sources suggest a fitness app may have inadvertently revealed Gary Caldwell\'s new managerial role at Wigan Athletic, sparking a wave of speculation among fans.',
