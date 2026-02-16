@@ -1566,29 +1566,23 @@ function buildArticleHTML(article, filename, date, imageFile) {
 
         /* ── HERO IMAGE ── */
         .article-hero {
-            max-width: 720px;
-            margin: 0 auto;
-            padding: 24px 32px 0;
+            margin-bottom: 24px;
         }
 
         .article-hero img {
             width: 100%;
             height: auto;
             display: block;
-            border-radius: 6px;
-        }
-
-        .article-hero-gradient {
-            display: none;
+            border-radius: 4px;
         }
 
         .article-hero-caption {
+            display: block;
             font-family: var(--font-body);
             font-size: 11px;
             color: var(--ash);
             letter-spacing: 0.3px;
-            padding: 10px 0 0;
-            text-align: right;
+            padding: 8px 0 0;
         }
 
         /* ── ARTICLE CONTAINER ── */
@@ -2173,9 +2167,6 @@ function buildArticleHTML(article, filename, date, imageFile) {
 
             .article-container { padding: 0 20px; }
 
-            .article-hero { padding: 16px 20px 0; }
-            .article-hero img { height: auto; }
-
             .article-header { margin-top: 0; padding-top: 24px; }
             .article-title { font-size: 30px; }
             .article-dek { font-size: 17px; max-width: 100%; }
@@ -2208,9 +2199,6 @@ function buildArticleHTML(article, filename, date, imageFile) {
         @media (max-width: 480px) {
             .article-container { padding: 0 16px; }
 
-            .article-hero { padding: 12px 16px 0; }
-            .article-hero img { height: auto; }
-
             .article-header { margin-top: 0; padding-top: 20px; }
             .article-title { font-size: 26px; }
             .article-dek { font-size: 16px; }
@@ -2234,13 +2222,6 @@ function buildArticleHTML(article, filename, date, imageFile) {
 
     <!-- Main Content -->
     <main class="site-content">
-
-        <!-- Hero Image -->
-        <div class="article-hero">
-            <img src="${heroImage}" alt="${encodedTitle}">
-            <div class="article-hero-gradient"></div>
-            <span class="article-hero-caption">${article.imageCaption || ''} — Getty Images</span>
-        </div>
 
         <!-- Article -->
         <article class="article-container">
@@ -2271,6 +2252,12 @@ function buildArticleHTML(article, filename, date, imageFile) {
                     </div>
                 </div>
             </header>
+
+            <!-- Hero Image -->
+            <div class="article-hero reveal">
+                <img src="${heroImage}" alt="${encodedTitle}">
+                <span class="article-hero-caption">${article.imageCaption || ''}</span>
+            </div>
 
             <!-- Ad Placement: Top -->
             <div class="article-ad">
