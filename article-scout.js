@@ -2260,17 +2260,6 @@ function buildArticleHTML(article, filename, date, imageFile) {
                 <span class="article-hero-caption">${article.imageCaption || ''}</span>
             </div>
 
-            <!-- Ad Placement: Top -->
-            <div class="article-ad">
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-6480210605786899"
-                     data-ad-slot="auto"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-            </div>
-
             <!-- Article Body -->
             <div class="article-body reveal">
                 ${stripMarkdownFences(article.bodyHTML)}
