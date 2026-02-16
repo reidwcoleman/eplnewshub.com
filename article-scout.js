@@ -2173,10 +2173,10 @@ function buildArticleHTML(article, filename, date, imageFile) {
 
             .article-container { padding: 0 20px; }
 
-            .article-hero img { height: 360px; }
-            .article-hero { max-height: 360px; }
+            .article-hero { padding: 16px 20px 0; }
+            .article-hero img { height: auto; }
 
-            .article-header { margin-top: -80px; }
+            .article-header { margin-top: 0; padding-top: 24px; }
             .article-title { font-size: 30px; }
             .article-dek { font-size: 17px; max-width: 100%; }
 
@@ -2197,7 +2197,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
 
             .related-grid { grid-template-columns: 1fr; }
 
-            .article-hero-caption { bottom: 12px; right: 16px; font-size: 10px; }
+            .article-hero-caption { font-size: 10px; }
 
             .related-card::after { display: none; }
             .related-card:hover .related-img-wrap img { transform: none; }
@@ -2208,10 +2208,10 @@ function buildArticleHTML(article, filename, date, imageFile) {
         @media (max-width: 480px) {
             .article-container { padding: 0 16px; }
 
-            .article-hero img { height: 280px; }
-            .article-hero { max-height: 280px; }
+            .article-hero { padding: 12px 16px 0; }
+            .article-hero img { height: auto; }
 
-            .article-header { margin-top: -60px; }
+            .article-header { margin-top: 0; padding-top: 20px; }
             .article-title { font-size: 26px; }
             .article-dek { font-size: 16px; }
 
