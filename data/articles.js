@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'fa-cup-fifth-round-draw-arsenal-face-trip-to-mansfield-newca-2026-02-17',
+    title: 'FA Cup Fifth-Round Draw: Arsenal Face Trip to Mansfield, Newcastle Host Man City',
+    excerpt: 'The FA Cup fifth-round draw has thrown up some intriguing ties, with Arsenal facing a trip to non-league Mansfield and Newcastle hosting Manchester City. We break down the key fixtures and storylines emerging from the draw.',
+    image: '/scout-fa-cup-fifth-round-draw-arsenal-face-trip-to-mansfield-newca.jpg',
+    category: 'Match Reports',
+    date: '2026-02-17',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['FA Cup', 'fifth-round draw', 'Arsenal', 'Mansfield Town', 'Newcastle United', 'Manchester City']
+  },
+  {
     id: 'fa-cup-fifth-round-draw-analyzing-the-toughest-ties-and-pote-2026-02-17',
     title: 'FA Cup Fifth-Round Draw: Analyzing the Toughest Ties and Potential Upsets',
     excerpt: 'The FA Cup fifth-round draw has thrown up some intriguing matchups, with Arsenal facing a trip to non-league Mansfield and Newcastle set to host Manchester City.',
