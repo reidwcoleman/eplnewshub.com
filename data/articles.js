@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'leeds-united-transfer-news-live-updates-on-deals-signings-an-2026-02-17',
+    title: 'Leeds United\'s Transfer Strategy: A Deep Dive into Their Summer Plans',
+    excerpt: 'Leeds United are actively involved in transfer negotiations, with several high-profile targets on their radar. Here\'s a detailed look at their strategy and summer plans.',
+    image: '/scout-leeds-united-transfer-news-live-updates-on-deals-signings-an.jpg',
+    category: 'Transfers',
+    date: '2026-02-17',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Leeds United', 'transfer strategy', 'summer plans', 'Dan James', 'Hayden Hackney', 'Premier League']
+  },
+  {
+    id: 'head-of-pgmo-howard-webb-faces-resignation-calls-amidst-fa-c-2026-02-17',
+    title: 'Refereeing Under Fire: Howard Webb Faces Resignation Calls Amidst FA Cup Blunders',
+    excerpt: 'The Head of PGMO is under pressure after a series of high-profile refereeing blunders, with a former Premier League referee calling for his resignation',
+    image: '/scout-head-of-pgmo-howard-webb-faces-resignation-calls-amidst-fa-c.jpg',
+    category: 'News',
+    date: '2026-02-17',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Howard Webb', 'PGMO', 'FA Cup', 'refereeing errors', 'resignation calls']
+  },
+  {
     id: 'chelseas-transfer-targets-who-will-join-the-blues-this-summe-2026-02-16',
     title: 'Chelsea\'s Transfer Targets: Who Will Join the Blues This Summer?',
     excerpt: 'Chelsea are gearing up for a busy summer transfer window, with a focus on signing a new striker and monitoring young talent from across Europe',
