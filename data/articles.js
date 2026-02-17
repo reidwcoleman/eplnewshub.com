@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'fa-cup-fifth-round-draw-analyzing-the-toughest-ties-and-pote-2026-02-17',
+    title: 'FA Cup Fifth-Round Draw: Analyzing the Toughest Ties and Potential Upsets',
+    excerpt: 'The FA Cup fifth-round draw has thrown up some intriguing matchups, with Arsenal facing a trip to non-league Mansfield and Newcastle set to host Manchester City.',
+    image: '/scout-fa-cup-fifth-round-draw-analyzing-the-toughest-ties-and-pote.jpg',
+    category: 'News',
+    date: '2026-02-17',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['FA Cup', 'fifth-round draw', 'Arsenal', 'Mansfield', 'Newcastle', 'Manchester City', 'football analysis']
+  },
+  {
     id: 'wolves-survive-fa-cup-scare-analyzing-their-narrow-win-over-2026-02-16',
     title: 'Wolves Survive FA Cup Scare: Analyzing Their Narrow Win Over Grimsby',
     excerpt: 'Wolves survived a major FA Cup scare, beating Grimsby 1-0 in a tightly contested match, but the victory raises more questions than answers about their season. The Premier League strugglers were pushed to the limit by their League Two opponents, who c',
