@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'efl-transfer-rumors-whos-moving-in-the-championship-league-o-2026-02-17',
+    title: 'EFL Transfer Rumors: Who\'s Moving in the Championship, League One, and League Two?',
+    excerpt: 'With the transfer deadline day just a week away, clubs in the Championship, League One, and League Two are gearing up for a frantic period of activity. What can we expect from the upcoming transfer window?',
+    image: '/scout-efl-transfer-rumors-whos-moving-in-the-championship-league-o.webp',
+    category: 'Transfers',
+    date: '2026-02-17',
+    readTime: '25 min read',
+    featured: true,
+    tags: ['EFL transfer window', 'Championship transfer rumors', 'League One', 'League Two', 'transfer deadline day']
+  },
+  {
+    id: 'scottish-premiership-title-race-heats-up-as-celtic-and-range-2026-02-17',
+    title: 'Scottish Premiership: Title Race Heats Up as Celtic and Rangers Battle for Supremacy',
+    excerpt: 'The Scottish Premiership title race is heating up, with Celtic and Rangers battling for supremacy in a season that promises to be one of the most exciting in recent memory',
+    image: '/scout-scottish-premiership-title-race-heats-up-as-celtic-and-range.jpg',
+    category: 'News',
+    date: '2026-02-17',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Scottish Premiership', 'Celtic', 'Rangers', 'Old Firm derby', 'title race']
+  },
+  {
     id: 'leeds-united-transfer-news-live-updates-on-deals-signings-an-2026-02-17',
     title: 'Leeds United\'s Transfer Strategy: A Deep Dive into Their Summer Plans',
     excerpt: 'Leeds United are actively involved in transfer negotiations, with several high-profile targets on their radar. Here\'s a detailed look at their strategy and summer plans.',
