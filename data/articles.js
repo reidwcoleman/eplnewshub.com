@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'macclesfield-0-1-brentford-sam-heathcotes-own-goal-sends-bre-2026-02-18',
+    title: 'Macclesfield 0-1 Brentford: Analyzing the FA Cup Win',
+    excerpt: 'Brentford secures a spot in the fifth round of the Emirates FA Cup with a narrow win over non-league Macclesfield, thanks to an own goal by Sam Heathcote',
+    image: '/scout-macclesfield-0-1-brentford-sam-heathcotes-own-goal-sends-bre.jpg',
+    category: 'Match Reports',
+    date: '2026-02-18',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Brentford', 'Macclesfield', 'Emirates FA Cup', 'fifth round', 'Sam Heathcote', 'own goal']
+  },
+  {
+    id: 'transfer-centre-live-all-the-latest-football-transfer-news-a-2026-02-18',
+    title: 'Transfer Centre LIVE: All the Latest Football Transfer News and Rumours',
+    excerpt: 'Stay up-to-date with the latest transfer news and rumours from the Premier League and beyond',
+    image: '/scout-transfer-centre-live-all-the-latest-football-transfer-news-a.jpg',
+    category: 'Transfers',
+    date: '2026-02-18',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['transfer news', 'Premier League', 'football transfers', 'rumours', 'contracts', 'signings', 'loans']
+  },
+  {
     id: 'arsenal-face-david-vs-goliath-clash-can-mansfield-shock-the-2026-02-17',
     title: 'Arsenal Face David vs. Goliath Clash: Can Mansfield Shock the Gunners?',
     excerpt: 'The Gunners travel to Field Mill looking to avoid a giant-killing, but Mansfield will be buoyed by their own cup run and Arsenal\'s injury concerns',
