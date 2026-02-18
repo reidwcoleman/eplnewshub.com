@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-news-conferences-carricks-update-and-rosenior-2026-02-18',
+    title: 'Premier League News Conferences: Carrick\'s Update and Rosenior\'s Arsenal Accusations',
+    excerpt: 'Carrick discusses Manchester United\'s plans, while Rosenior accuses Arsenal of disrespect during a pre-match warm-up',
+    image: '/scout-premier-league-news-conferences-carricks-update-and-rosenior.jpg',
+    category: 'News',
+    date: '2026-02-18',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Premier League', 'Manchester United', 'Chelsea', 'Arsenal', 'Michael Carrick', 'Liam Rosenior', 'Mikel Arteta']
+  },
+  {
+    id: 'premier-league-big-six-evaluate-750m-advertising-deal-what-i-2026-02-18',
+    title: 'Premier League ‘Big Six’ Evaluate £750m Advertising Deal: What It Means for the Future',
+    excerpt: 'The Premier League \'Big Six\' are weighing the pros and cons of a £750m advertising deal that could shake up their financial strategies and impact the league\'s competitiveness. What does this mean for the future of English football?',
+    image: '/scout-premier-league-big-six-evaluate-750m-advertising-deal-what-i.jpg',
+    category: 'Analysis',
+    date: '2026-02-18',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'Big Six', 'advertising deal', 'financial implications', 'strategic considerations']
+  },
+  {
     id: 'macclesfield-0-1-brentford-sam-heathcotes-own-goal-sends-bre-2026-02-18',
     title: 'Macclesfield 0-1 Brentford: Analyzing the FA Cup Win',
     excerpt: 'Brentford secures a spot in the fifth round of the Emirates FA Cup with a narrow win over non-league Macclesfield, thanks to an own goal by Sam Heathcote',
