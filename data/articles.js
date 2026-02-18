@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'transfer-news-man-united-eye-liverpool-star-as-galatasaray-e-2026-02-18',
+    title: 'Transfer News: Manchester United Sets Sights on Liverpool Star as Galatasaray Pursues Çalhanoğlu',
+    excerpt: 'Manchester United\'s interest in a Liverpool star heats up, while Galatasaray makes a move for Hakan Çalhanoğlu, and other transfer news',
+    image: '/scout-transfer-news-man-united-eye-liverpool-star-as-galatasaray-e.jpg',
+    category: 'Transfers',
+    date: '2026-02-18',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Transfer News', 'Manchester United', 'Liverpool', 'Galatasaray', 'Hakan Çalhanoğlu']
+  },
+  {
     id: 'premier-league-news-conferences-carricks-update-and-rosenior-2026-02-18',
     title: 'Premier League News Conferences: Carrick\'s Update and Rosenior\'s Arsenal Accusations',
     excerpt: 'Carrick discusses Manchester United\'s plans, while Rosenior accuses Arsenal of disrespect during a pre-match warm-up',
