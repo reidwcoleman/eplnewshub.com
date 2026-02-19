@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-buildup-and-latest-football-news-matchday-liv-2026-02-19',
+    title: 'Premier League Matchday Live: Key Signings, Managerial Changes, and the Weekend\'s Big Stories',
+    excerpt: 'From Nottingham Forest\'s new signing to Tottenham\'s managerial change, here\'s everything you need to know from the latest Premier League matchday.',
+    image: '/scout-premier-league-buildup-and-latest-football-news-matchday-liv.png',
+    category: 'News',
+    date: '2026-02-19',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'Nottingham Forest', 'Tottenham Hotspur', 'Igor Tudor', 'Ortega', 'Premier League Darts']
+  },
+  {
+    id: 'next-man-city-manager-alonso-maresca-and-fabregas-in-the-fra-2026-02-19',
+    title: 'Next Man City Manager: Alonso, Maresca, and Fabregas in the Frame',
+    excerpt: 'As Pep Guardiola\'s future at Manchester City hangs in the balance, the club is considering three top candidates to take the reins. But what can we expect from each potential manager?',
+    image: '/scout-next-man-city-manager-alonso-maresca-and-fabregas-in-the-fra.jpg',
+    category: 'Analysis',
+    date: '2026-02-19',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Manchester City', 'Pep Guardiola', 'Xabi Alonso', 'Enzo Maresca', 'Cesc Fabregas']
+  },
+  {
     id: 'arsenals-two-goal-lead-vanishes-in-dramatic-wolves-draw-2026-02-19',
     title: 'Arsenal\'s Two-Goal Lead Vanishes in Dramatic Wolves Draw',
     excerpt: 'Gunners\' grip on top spot loosens after conceding two-goal advantage to Wolves',
