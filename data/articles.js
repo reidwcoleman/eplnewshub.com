@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'crystal-palaces-transfer-targets-reinforcing-the-eagles-for-2026-02-19',
+    title: 'Crystal Palace\'s Transfer Targets: Reinforcing the Eagles for the Future',
+    excerpt: 'Crystal Palace is preparing for a busy summer transfer window, with manager Oliver Glasner emphasizing the need for investment to strengthen the squad. Here\'s a look at their potential targets and the strategic direction.',
+    image: '/scout-crystal-palaces-transfer-targets-reinforcing-the-eagles-for.jpg',
+    category: 'Transfers',
+    date: '2026-02-19',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Crystal Palace', 'Transfer Targets', 'Premier League', 'Oliver Glasner', 'Bayern Munich', 'Jean-Philippe Mateta', 'Jorgen Strand Larsen']
+  },
+  {
     id: 'premier-league-buildup-and-latest-football-news-matchday-liv-2026-02-19',
     title: 'Premier League Matchday Live: Key Signings, Managerial Changes, and the Weekend\'s Big Stories',
     excerpt: 'From Nottingham Forest\'s new signing to Tottenham\'s managerial change, here\'s everything you need to know from the latest Premier League matchday.',
