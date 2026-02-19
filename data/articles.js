@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'arsenals-two-goal-lead-vanishes-in-dramatic-wolves-draw-2026-02-19',
+    title: 'Arsenal\'s Two-Goal Lead Vanishes in Dramatic Wolves Draw',
+    excerpt: 'Gunners\' grip on top spot loosens after conceding two-goal advantage to Wolves',
+    image: '/scout-arsenals-two-goal-lead-vanishes-in-dramatic-wolves-draw.jpg',
+    category: 'Match Reports',
+    date: '2026-02-19',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Arsenal', 'Wolves', 'Premier League', 'draw', 'two-goal lead']
+  },
+  {
+    id: 'how-wolves-late-comeback-against-arsenal-revived-the-premier-2026-02-19',
+    title: 'How Wolves\' Late Comeback Against Arsenal Revived the Premier League Title Race',
+    excerpt: 'Wolves\' dramatic late comeback against Arsenal has breathed new life into the Premier League title race, with Manchester City still in the hunt after a 2-0 win over Wolves',
+    image: '/scout-how-wolves-late-comeback-against-arsenal-revived-the-premier.jpg',
+    category: 'Match Reports',
+    date: '2026-02-19',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'title race', 'Wolves', 'Arsenal', 'Manchester City']
+  },
+  {
     id: 'transfer-news-man-united-eye-liverpool-star-as-galatasaray-e-2026-02-18',
     title: 'Transfer News: Manchester United Sets Sights on Liverpool Star as Galatasaray Pursues Çalhanoğlu',
     excerpt: 'Manchester United\'s interest in a Liverpool star heats up, while Galatasaray makes a move for Hakan Çalhanoğlu, and other transfer news',
