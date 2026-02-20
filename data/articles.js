@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'transfer-news-live-liverpool-want-bergvall-as-messi-holds-ke-2026-02-20',
+    title: 'Messi\'s Return to Barcelona: The Domino Effect on Haaland and Premier League Ambitions',
+    excerpt: 'The potential return of Lionel Messi to Barcelona could set off a chain reaction, bringing Erling Haaland to Camp Nou and altering the Premier League landscape.',
+    image: '/scout-transfer-news-live-liverpool-want-bergvall-as-messi-holds-ke.jpg',
+    category: 'Transfers',
+    date: '2026-02-20',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Lionel Messi', 'Barcelona', 'Erling Haaland', 'Manchester City', 'Premier League', 'Transfer News']
+  },
+  {
+    id: 'wolverhampton-wanderers-2-2-arsenal-premier-league-as-it-hap-2026-02-20',
+    title: 'Wolverhampton Wanderers 2-2 Arsenal: A Thrilling Tale of Resilience and Comeback',
+    excerpt: 'Wolverhampton Wanderers produced a stunning turnaround to snatch a 2-2 draw against Arsenal, leaving the Gunners\' title hopes dangling by a thread. The match was a testament to the never-say-die spirit of Nuno Espirito Santo\'s side, who fought back',
+    image: '/scout-wolverhampton-wanderers-2-2-arsenal-premier-league-as-it-hap.jpg',
+    category: 'Match Reports',
+    date: '2026-02-20',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Wolverhampton Wanderers', 'Arsenal', 'Premier League', 'comeback', 'draw']
+  },
+  {
     id: 'fa-cup-fifth-round-draw-arsenal-face-trip-to-mansfield-newca-2026-02-17',
     title: 'FA Cup Fifth-Round Draw: Arsenal Face Trip to Mansfield, Newcastle Host Man City',
     excerpt: 'The FA Cup fifth-round draw has thrown up some intriguing ties, with Arsenal facing a trip to non-league Mansfield and Newcastle hosting Manchester City. We break down the key fixtures and storylines emerging from the draw.',
