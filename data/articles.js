@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'wolves-2-2-arsenal-match-highlights-and-key-moments-2026-02-20',
+    title: 'Wolves 2-2 Arsenal: Match Highlights and Key Moments',
+    excerpt: 'Wolves staged a stunning second-half comeback to draw 2-2 with Arsenal, denting the Gunners\' title hopes in the process',
+    image: '/scout-wolves-2-2-arsenal-match-highlights-and-key-moments.jpg',
+    category: 'Match Reports',
+    date: '2026-02-20',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Wolves', 'Arsenal', 'Premier League', 'Match Report', 'Highlights']
+  },
+  {
+    id: 'premier-league-sack-race-latest-twists-and-turns-2026-02-20',
+    title: 'Premier League Sack Race: Latest Twists and Turns',
+    excerpt: 'The Premier League sack race has taken a new twist with developments surrounding Oliver Glasner, as the title race heats up and managerial changes continue to shape the season',
+    image: '/scout-premier-league-sack-race-latest-twists-and-turns.jpg',
+    category: 'News',
+    date: '2026-02-20',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'sack race', 'managerial changes', 'title race']
+  },
+  {
     id: 'fulham-transfers-live-updates-and-latest-news-2026-02-20',
     title: 'Fulham Transfers: Unpacking the Latest Deals and Rumors',
     excerpt: 'Fulham\'s recent transfer deals and the monitoring of their star player by other Premier League teams have significant implications for their European dream',
