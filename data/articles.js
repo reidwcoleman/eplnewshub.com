@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'fulham-transfers-live-updates-and-latest-news-2026-02-20',
+    title: 'Fulham Transfers: Unpacking the Latest Deals and Rumors',
+    excerpt: 'Fulham\'s recent transfer deals and the monitoring of their star player by other Premier League teams have significant implications for their European dream',
+    image: '/scout-fulham-transfers-live-updates-and-latest-news.jpg',
+    category: 'Transfers',
+    date: '2026-02-20',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Fulham', 'Premier League', 'Transfers', 'European football']
+  },
+  {
+    id: 'nottingham-forest-transfers-live-updates-and-latest-news-2026-02-20',
+    title: 'Nottingham Forest Transfers: A Deep Dive into the January Window',
+    excerpt: 'Nottingham Forest has been active in the January transfer window, confirming several key signings to bolster their squad. We analyze the latest news and what it means for the team\'s season.',
+    image: '/scout-nottingham-forest-transfers-live-updates-and-latest-news.jpg',
+    category: 'Transfers',
+    date: '2026-02-20',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Nottingham Forest', 'Transfers', 'January Window', 'Omari Hutchinson', 'James McAtee', 'Luca Netz']
+  },
+  {
     id: 'crystal-palaces-transfer-targets-reinforcing-the-eagles-for-2026-02-19',
     title: 'Crystal Palace\'s Transfer Targets: Reinforcing the Eagles for the Future',
     excerpt: 'Crystal Palace is preparing for a busy summer transfer window, with manager Oliver Glasner emphasizing the need for investment to strengthen the squad. Here\'s a look at their potential targets and the strategic direction.',
