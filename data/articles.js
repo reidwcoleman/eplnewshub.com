@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'man-city-vs-newcastle-how-will-haalands-injury-affect-the-te-2026-02-20',
+    title: 'Man City vs Newcastle: Navigating the Haaland Injury Conundrum',
+    excerpt: 'Erling Haaland\'s injury poses a significant question for Manchester City ahead of their clash with Newcastle, but what options does Pep Guardiola have to mitigate this loss? The Norwegian striker has been a pivotal figure, scoring 23 goals in 19 app',
+    image: '/scout-man-city-vs-newcastle-how-will-haalands-injury-affect-the-te.jpg',
+    category: 'Match Reports',
+    date: '2026-02-20',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Premier League', 'Manchester City', 'Newcastle', 'Erling Haaland', 'Pep Guardiola']
+  },
+  {
     id: 'transfer-news-live-liverpool-want-bergvall-as-messi-holds-ke-2026-02-20',
     title: 'Messi\'s Return to Barcelona: The Domino Effect on Haaland and Premier League Ambitions',
     excerpt: 'The potential return of Lionel Messi to Barcelona could set off a chain reaction, bringing Erling Haaland to Camp Nou and altering the Premier League landscape.',
