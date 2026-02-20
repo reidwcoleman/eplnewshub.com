@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-sack-race-oliver-glasners-development-and-man-2026-02-20',
+    title: 'Premier League Sack Race: Oliver Glasner\'s Development and Managerial Shake-Up',
+    excerpt: 'The Premier League sack race has taken a new twist with Oliver Glasner\'s development, while Mauricio Pochettino\'s potential return to Tottenham Hotspur adds another layer to the managerial shake-up.',
+    image: '/scout-premier-league-sack-race-oliver-glasners-development-and-man.jpg',
+    category: 'Analysis',
+    date: '2026-02-20',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'sack race', 'Oliver Glasner', 'managerial changes', 'football analysis']
+  },
+  {
     id: 'wolves-2-2-arsenal-match-highlights-and-key-moments-2026-02-20',
     title: 'Wolves 2-2 Arsenal: Match Highlights and Key Moments',
     excerpt: 'Wolves staged a stunning second-half comeback to draw 2-2 with Arsenal, denting the Gunners\' title hopes in the process',
