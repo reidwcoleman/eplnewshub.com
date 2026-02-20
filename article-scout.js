@@ -2560,6 +2560,12 @@ function updateDataArticlesJs(article, filename, date, imageFile) {
 function updateSitemap(filename, date) {
   let sitemap = fs.readFileSync(SITEMAP, 'utf-8');
 
+  // Prevent duplicate entries
+  if (sitemap.includes(`/articles/${filename}`)) {
+    console.log('[Scout] Article already in sitemap.xml, skipping');
+    return;
+  }
+
   const newEntry = `
     <url>
         <loc>https://www.eplnewshub.com/articles/${filename}</loc>
