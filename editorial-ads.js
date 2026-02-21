@@ -94,11 +94,53 @@
         'display: none !important;' +
       '}' +
 
-      // Responsive: fewer ads on mobile
+      // Mobile: optimized ads — all positions visible, full width, clean spacing
       '@media (max-width: 600px) {' +
-        '.ed-ad-unit { margin: 28px auto; padding: 16px 0; }' +
-        '.ed-ad-unit[data-position="mid"] { display: none !important; }' +
-        '.ed-ad-unit[data-position="post-related"] { display: none !important; }' +
+        '.ed-ad-unit {' +
+          'margin: 24px -16px;' +
+          'padding: 16px 12px;' +
+          'max-width: none;' +
+          'width: calc(100% + 32px);' +
+        '}' +
+        '.ed-ad-unit ins.adsbygoogle {' +
+          'min-height: 100px;' +
+          'max-height: 300px;' +
+        '}' +
+        '.ed-ad-unit::before, .ed-ad-unit::after {' +
+          'width: 32px;' +
+          'margin-bottom: 10px;' +
+          'margin-top: 10px;' +
+        '}' +
+        '.ed-ad-label { font-size: 8px; margin-bottom: 8px; }' +
+        // Outer units same treatment on mobile
+        '.ed-ad-unit[data-position="hero"],' +
+        '.ed-ad-unit[data-position="post-related"],' +
+        '.ed-ad-unit[data-position="pre-comments"] {' +
+          'padding: 16px 12px;' +
+        '}' +
+      '}' +
+
+      // Kill Google auto-injected anchor/banner/vignette ads on mobile
+      '@media (max-width: 600px) {' +
+        // Bottom anchor ads
+        'ins.adsbygoogle[data-anchor-shown="true"],' +
+        'ins.adsbygoogle[data-ad-format="auto"][data-anchor-status],' +
+        // Google auto ads fixed overlays
+        'div[id^="google_ads_iframe"][style*="position: fixed"],' +
+        'div[id^="aswift_"][style*="position: fixed"],' +
+        'iframe[id^="aswift_"][style*="position: fixed"],' +
+        // General fixed/sticky ad overlays
+        '#mobile-sticky-banner,' +
+        '#sticky-sidebar-ad,' +
+        'div[style*="position: fixed"][style*="bottom: 0"],' +
+        'div[style*="position: fixed"][style*="z-index: 2147"],' +
+        'aside[style*="position: fixed"] {' +
+          'display: none !important;' +
+          'height: 0 !important;' +
+          'max-height: 0 !important;' +
+          'overflow: hidden !important;' +
+          'visibility: hidden !important;' +
+        '}' +
       '}';
 
     document.head.appendChild(style);
@@ -240,10 +282,39 @@
     }
   }
 
+  // Remove Google anchor/banner/vignette ads on mobile
+  function killMobileBanners() {
+    if (window.innerWidth > 600) return;
+
+    // Kill fixed-position ad overlays (anchor ads, vignettes)
+    var fixedEls = document.querySelectorAll(
+      'div[style*="position: fixed"], iframe[style*="position: fixed"], aside[style*="position: fixed"]'
+    );
+    fixedEls.forEach(function (el) {
+      // Only remove if it looks like an ad (contains adsbygoogle or google_ads)
+      var html = el.innerHTML || '';
+      var id = el.id || '';
+      if (id.indexOf('aswift_') === 0 || id.indexOf('google_ads') === 0 ||
+          html.indexOf('adsbygoogle') !== -1 || html.indexOf('google_ads') !== -1 ||
+          el.tagName === 'IFRAME') {
+        el.style.display = 'none';
+        el.style.height = '0';
+        el.style.visibility = 'hidden';
+      }
+    });
+  }
+
   // Run after DOM is ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', placeAds);
+    document.addEventListener('DOMContentLoaded', function () {
+      placeAds();
+      // Run banner killer after a delay to catch late-injected ads
+      setTimeout(killMobileBanners, 2000);
+      setTimeout(killMobileBanners, 5000);
+    });
   } else {
     placeAds();
+    setTimeout(killMobileBanners, 2000);
+    setTimeout(killMobileBanners, 5000);
   }
 })();
