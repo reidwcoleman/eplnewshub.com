@@ -33,6 +33,7 @@
       '.ed-ad-unit {' +
         'margin: 40px auto;' +
         'padding: 20px 0;' +
+        'width: 100%;' +
         'max-width: 728px;' +
         'text-align: center;' +
         'background: transparent;' +
@@ -62,6 +63,7 @@
 
       '.ed-ad-unit ins.adsbygoogle {' +
         'display: block !important;' +
+        'width: 100% !important;' +
         'min-height: 90px;' +
         'max-width: 100%;' +
         'overflow: hidden;' +
