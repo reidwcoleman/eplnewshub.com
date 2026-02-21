@@ -1137,8 +1137,7 @@ STRUCTURE REQUIREMENTS:
 - For MATCH REPORTS: The Match (key moments), Tactical Analysis (formations, pressing, buildup), Key Performers, The Manager's Perspective, What This Means for the Table, Looking Ahead
 - For TRANSFERS: The Deal, Player Profile & Style of Play, Tactical Fit, What This Means for the Squad, The Financial Picture, How They Compare
 - For ANALYSIS: include data tables where relevant using <table> tags
-- Include 2-3 blockquotes from source material with proper attribution (manager quotes, player quotes)
-- Include 2-3 pull quotes — the most striking analytical lines from YOUR writing
+- Do NOT use blockquotes or pull quotes — write everything as regular paragraphs
 - Write 8-12 paragraphs per section, not 1-2
 
 STYLE:
@@ -1160,7 +1159,7 @@ Return your article in this exact JSON format (no other text):
   "readTime": "X min read",
   "imageSearchQuery": "specific search terms to find a relevant football image for this article",
   "imageCaption": "Descriptive caption for the hero image",
-  "bodyHTML": "IMPORTANT: This must be a valid JSON string. Escape all quotes with backslash. Write the full article body using HTML tags: p, h2, h3, blockquote, strong, em, ul, li. Include pull quotes as: <div class=\\\"pull-quote\\\">Quote text here</div>. Example format: <p>First paragraph here.</p><h2>Section Title</h2><p>More content.</p>",
+  "bodyHTML": "IMPORTANT: This must be a valid JSON string. Escape all quotes with backslash. Write the full article body using HTML tags: p, h2, h3, strong, em, ul, li, table. Do NOT use blockquote or pull-quote elements. Example format: <p>First paragraph here.</p><h2>Section Title</h2><p>More content.</p>",
   "relatedArticles": [
     {"title": "Related Article Title 1", "date": "January 28, 2026", "readTime": "6 min read"},
     {"title": "Related Article Title 2", "date": "January 25, 2026", "readTime": "5 min read"},
@@ -1964,49 +1963,6 @@ function buildArticleHTML(article, filename, date, imageFile) {
             color: var(--ember);
         }
 
-        /* Blockquote */
-        .article-body blockquote {
-            font-family: Georgia, serif;
-            font-size: 1.08rem;
-            font-style: italic;
-            line-height: 1.7;
-            color: var(--chalk);
-            margin: 2.2em 0;
-            padding: 24px 24px 24px 28px;
-            background: var(--card);
-            border-left: 3px solid var(--ember);
-            border-radius: 0 2px 2px 0;
-        }
-
-        /* Pull quote */
-        .pull-quote {
-            font-family: var(--font-display);
-            font-size: 1.45rem;
-            font-weight: 400;
-            font-style: italic;
-            line-height: 1.45;
-            color: var(--paper);
-            text-align: center;
-            margin: 3em auto;
-            padding: 2.5em 2em;
-            max-width: 560px;
-            position: relative;
-        }
-
-        .pull-quote::before,
-        .pull-quote::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            height: 1px;
-            width: 80px;
-            background: linear-gradient(90deg, transparent, var(--ember), transparent);
-        }
-
-        .pull-quote::before { top: 0; }
-        .pull-quote::after { bottom: 0; }
-
         /* Tables */
         .article-body table {
             width: 100%;
@@ -2301,10 +2257,6 @@ function buildArticleHTML(article, filename, date, imageFile) {
             .article-body { font-size: 1.05rem; }
             .article-body h2 { font-size: 1.4rem; margin: 2em 0 0.7em; }
             .article-body h3 { font-size: 1.15rem; }
-            .article-body blockquote { padding: 20px 20px 20px 24px; }
-
-            .pull-quote { font-size: 1.2rem; padding: 2em 1em; }
-
             .related-grid { grid-template-columns: 1fr; }
 
             .article-hero-caption { font-size: 10px; }

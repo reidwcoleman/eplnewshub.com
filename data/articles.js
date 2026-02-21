@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-2025-26-table-latest-standings-and-race-for-g-2026-02-21',
+    title: 'Premier League 2025-26 Table: The Title Race and Relegation Battle Heats Up',
+    excerpt: 'With just months remaining, the Premier League title race is as tight as ever, while the relegation battle intensifies. Here\'s what the latest standings tell us about the season\'s defining struggles.',
+    image: '/scout-premier-league-2025-26-table-latest-standings-and-race-for-g.png',
+    category: 'Analysis',
+    date: '2026-02-21',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'title race', 'relegation battle', 'Arsenal', 'Manchester City', 'Aston Villa', 'Manchester United', 'Chelsea', 'Liverpool', 'Brentford', 'Everton']
+  },
+  {
     id: 'pep-guardiola-provides-erling-haaland-injury-update-ahead-of-2026-02-21',
     title: 'Pep Guardiola Provides Erling Haaland Injury Update Ahead of Newcastle Clash',
     excerpt: 'Manchester City manager Pep Guardiola confirms Erling Haaland is fully fit for the upcoming match against Newcastle United, a crucial clash in the Premier League title race',
