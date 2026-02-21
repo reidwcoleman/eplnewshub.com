@@ -118,7 +118,7 @@
     ins.style.display = 'block';
     ins.style.minHeight = '90px';
     ins.setAttribute('data-ad-client', AD_CLIENT);
-    ins.setAttribute('data-ad-slot', 'auto');
+    ins.setAttribute('data-ad-slot', '2887667887');
     ins.setAttribute('data-ad-format', 'auto');
     ins.setAttribute('data-full-width-responsive', 'true');
 
