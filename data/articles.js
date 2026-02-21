@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'how-to-watch-manchester-city-vs-newcastle-live-stream-and-br-2026-02-21',
+    title: 'Manchester City vs Newcastle: A Global Audience Awaits',
+    excerpt: 'The highly anticipated match between Manchester City and Newcastle United is set to be broadcast globally, with fans able to watch on various platforms',
+    image: '/scout-how-to-watch-manchester-city-vs-newcastle-live-stream-and-br.jpg',
+    category: 'Match Reports',
+    date: '2026-02-21',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'Manchester City', 'Newcastle United', 'live stream', 'broadcast details']
+  },
+  {
+    id: 'psg-enters-erling-haaland-race-as-barcelona-eyes-julin-alvar-2026-02-21',
+    title: 'PSG Enters Erling Haaland Race as Barcelona Eyes Julián Alvarez',
+    excerpt: 'The summer transfer window is heating up as PSG enters the race for Erling Haaland, while Barcelona sets its sights on Julián Alvarez, and Arsenal also joins the chase for the Argentine forward',
+    image: '/scout-psg-enters-erling-haaland-race-as-barcelona-eyes-julin-alvar.png',
+    category: 'Transfers',
+    date: '2026-02-21',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Erling Haaland', 'Julián Álvarez', 'PSG', 'Barcelona', 'Arsenal', 'Transfer News']
+  },
+  {
     id: 'premier-league-sack-race-oliver-glasners-development-and-man-2026-02-20',
     title: 'Premier League Sack Race: Oliver Glasner\'s Development and Managerial Shake-Up',
     excerpt: 'The Premier League sack race has taken a new twist with Oliver Glasner\'s development, while Mauricio Pochettino\'s potential return to Tottenham Hotspur adds another layer to the managerial shake-up.',
