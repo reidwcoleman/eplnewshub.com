@@ -27,7 +27,7 @@ function loadEditorialAds() {
 
     if (isArticle && !document.querySelector('script[src*="/editorial-ads.js"]')) {
         const script = document.createElement('script');
-        script.src = '/editorial-ads.js?v=2';
+        script.src = '/editorial-ads.js?v=3';
         document.head.appendChild(script);
     }
 }

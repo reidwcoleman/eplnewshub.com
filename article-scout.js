@@ -2386,7 +2386,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
     <div class="footer" include="../footer.html"></div>
 
     <!-- Scripts -->
-    <script src="/editorial-ads.js?v=2" defer></script>
+    <script src="/editorial-ads.js?v=3" defer></script>
     <script src="/index.js"></script>
     <script>
         // Reading progress bar
