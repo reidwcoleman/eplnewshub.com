@@ -1027,7 +1027,7 @@ function addMembershipModalStyles() {
             .membership-actions {
                 flex-direction: column;
             }
-            
+
             .membership-btn {
                 width: 100%;
             }
@@ -1035,3 +1035,40 @@ function addMembershipModalStyles() {
     `;
     document.head.appendChild(style);
 }
+
+// Kill Google anchor/popup ads on mobile (site-wide)
+(function () {
+    if (window.innerWidth > 600) return;
+
+    function killAnchorAds() {
+        document.querySelectorAll(
+            'ins.adsbygoogle[data-anchor-shown],' +
+            'ins.adsbygoogle[data-anchor-status]'
+        ).forEach(function (el) {
+            el.style.setProperty('display', 'none', 'important');
+            el.style.setProperty('height', '0', 'important');
+            el.style.setProperty('max-height', '0', 'important');
+            el.style.setProperty('visibility', 'hidden', 'important');
+            el.style.setProperty('overflow', 'hidden', 'important');
+        });
+    }
+
+    var observer = new MutationObserver(function (mutations) {
+        for (var i = 0; i < mutations.length; i++) {
+            var added = mutations[i].addedNodes;
+            for (var j = 0; j < added.length; j++) {
+                if (added[j].nodeType === 1) { killAnchorAds(); return; }
+            }
+        }
+    });
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            killAnchorAds();
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        });
+    } else {
+        killAnchorAds();
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+    }
+})();
