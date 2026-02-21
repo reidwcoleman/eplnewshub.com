@@ -839,6 +839,16 @@ p {
         padding-top: 72px;
     }
 
+    /* Safe area for notched phones (iPhone X+) */
+    @supports (padding: env(safe-area-inset-top)) {
+        .nyt-header {
+            padding-top: env(safe-area-inset-top);
+        }
+        body {
+            padding-top: calc(72px + env(safe-area-inset-top));
+        }
+    }
+
     /* Menu Button */
     .nyt-menu-btn {
         display: flex;
@@ -898,7 +908,7 @@ p {
     .nyt-mobile-nav ul li a {
         padding: 16px 24px;
         font-family: 'DM Sans', -apple-system, sans-serif;
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 500;
         color: rgba(240, 236, 228, 0.8);
         border-bottom: 1px solid rgba(240, 236, 228, 0.04);
@@ -907,6 +917,7 @@ p {
         min-height: 52px;
         letter-spacing: 0.2px;
         transition: all 0.2s ease;
+        -webkit-tap-highlight-color: rgba(200, 85, 58, 0.15);
     }
 
     .nyt-mobile-nav ul li a:active,
@@ -4190,18 +4201,15 @@ p { font-size: 1rem; }
     }
 }
 
-@media (max-width: 768px) {
-    * {
-        animation-duration: 0.2s !important;
-        transition-duration: 0.2s !important;
+/* Disable hover transforms on pure touch devices (all sizes) */
+@media (hover: none) and (pointer: coarse) {
+    a:hover, button:hover, .tool-card:hover, .headline-card:hover,
+    .secondary-card:hover, .hero-lead:hover, .hero-side:hover {
+        transform: none !important;
     }
-    
-    /* Disable hover effects on touch devices */
-    @media (hover: none) {
-        *:hover {
-            transform: none !important;
-            box-shadow: none !important;
-        }
+    .tool-card:hover::before,
+    .headline-card:hover::after {
+        transform: scaleX(0) !important;
     }
 }
 
@@ -4221,9 +4229,18 @@ p { font-size: 1rem; }
    ACCESSIBILITY IMPROVEMENTS
    =================================== */
 
-/* Focus styles for mobile */
+/* Focus styles */
 *:focus {
-    outline: 3px solid #37003c;
+    outline: 2px solid rgba(200, 85, 58, 0.6);
+    outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+    outline: none;
+}
+
+*:focus-visible {
+    outline: 2px solid rgba(200, 85, 58, 0.6);
     outline-offset: 2px;
 }
 
@@ -4359,7 +4376,7 @@ p { font-size: 1rem; }
     .article-container img {
         max-width: 100%;
         height: auto;
-        border-radius: 8px;
+        border-radius: 4px;
     }
 
     /* Reduce hover effects that cause jank on mobile */
@@ -4380,6 +4397,37 @@ p { font-size: 1rem; }
     .nyt-article-card,
     .nyt-headline-card {
         box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+    }
+
+    /* Ensure all interactive links meet 44px min touch target */
+    .nyt-footer-links a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    .view-all-link {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+/* ====================================
+   MOBILE: Cap article hero image height
+   ==================================== */
+@media (max-width: 600px) {
+    .article-hero {
+        max-height: 220px;
+        overflow: hidden;
+        border-radius: 4px;
+        margin-bottom: 16px;
+    }
+    .article-hero img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        object-position: top center;
     }
 }
 

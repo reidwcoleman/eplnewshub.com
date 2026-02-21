@@ -2259,6 +2259,8 @@ function buildArticleHTML(article, filename, date, imageFile) {
             .article-body h3 { font-size: 1.15rem; }
             .related-grid { grid-template-columns: 1fr; }
 
+            .article-hero { max-height: 220px; overflow: hidden; margin-bottom: 16px; }
+            .article-hero img { height: 220px; object-fit: cover; object-position: top center; }
             .article-hero-caption { font-size: 10px; }
 
             .related-card::after { display: none; }
@@ -2280,6 +2282,26 @@ function buildArticleHTML(article, filename, date, imageFile) {
             .article-body table { font-size: 12px; }
             .article-body table th,
             .article-body table td { padding: 10px 12px; }
+        }
+
+        @media (max-width: 360px) {
+            .article-container { padding: 0 12px; }
+            .article-title { font-size: 22px; }
+            .article-dek { font-size: 14px; }
+            .article-body { font-size: 0.95rem; }
+            .article-body h2 { font-size: 1.15rem; }
+            .article-body > p:first-of-type::first-letter { font-size: 3em; }
+            .share-btn { width: 34px; height: 34px; }
+            .article-body table th,
+            .article-body table td { padding: 8px 6px; font-size: 11px; }
+        }
+
+        /* Safe areas for notched phones */
+        @supports (padding: env(safe-area-inset-left)) {
+            .article-container {
+                padding-left: max(env(safe-area-inset-left), 16px);
+                padding-right: max(env(safe-area-inset-right), 16px);
+            }
         }
     </style>
 </head>
