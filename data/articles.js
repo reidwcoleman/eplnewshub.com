@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-team-news-injury-updates-and-fantasy-premier-2026-02-21',
+    title: 'Premier League Team News: Injury Updates and Fantasy Premier League Impact',
+    excerpt: 'Stay up-to-date with the latest injury news and Fantasy Premier League implications for Premier League teams ahead of Matchweek 26 and Gameweek 27',
+    image: '/scout-premier-league-team-news-injury-updates-and-fantasy-premier.jpg',
+    category: 'News',
+    date: '2026-02-21',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'injury updates', 'Fantasy Premier League', 'team news']
+  },
+  {
     id: 'scottish-premiership-news-transfers-rumours-and-gossip-2026-02-21',
     title: 'Scottish Premiership Transfer Window: A Tactical Reset for 2026',
     excerpt: 'The January 2026 transfer window has reshaped the Scottish Premiership landscape, with clubs making strategic signings to address key weaknesses and bolster their squads for the second half of the season.',
