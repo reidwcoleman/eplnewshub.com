@@ -7,14 +7,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadFloatingSideAds() {
     // Check if we're on an article page
-    const isArticle = window.location.pathname.includes('/articles/') || 
-                     document.querySelector('.nyt-article') || 
+    const isArticle = window.location.pathname.includes('/articles/') ||
+                     document.querySelector('.nyt-article') ||
                      document.querySelector('article');
-    
+
     if (isArticle) {
         const script = document.createElement('script');
         script.src = '/article-side-ads.js';
         script.async = true;
+        document.head.appendChild(script);
+    }
+}
+
+function loadEditorialAds() {
+    const isArticle = window.location.pathname.includes('/articles/') ||
+                     document.querySelector('.article-body') ||
+                     document.querySelector('.article-content') ||
+                     document.querySelector('.nyt-article');
+
+    if (isArticle && !document.querySelector('script[src="/editorial-ads.js"]')) {
+        const script = document.createElement('script');
+        script.src = '/editorial-ads.js';
+        script.defer = true;
         document.head.appendChild(script);
     }
 }
@@ -57,6 +71,9 @@ function enhanceArticle() {
 
     // Add smooth scroll and interaction effects
     addInteractionEffects();
+
+    // Load editorial ad placement system
+    loadEditorialAds();
 }
 
 function createEnhancedHeader(h1, byline, article) {

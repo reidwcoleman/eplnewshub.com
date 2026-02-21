@@ -187,10 +187,6 @@ class SubscriptionManager {
 
     // Hide advertisement elements
     hideAds() {
-        // Hide Ezoic ads
-        const ezoicElements = document.querySelectorAll('[id^="ezoic-pub-ad-placeholder"]');
-        ezoicElements.forEach(el => el.style.display = 'none');
-        
         // Hide AdSense ads
         const adsenseElements = document.querySelectorAll('.adsbygoogle');
         adsenseElements.forEach(el => el.style.display = 'none');

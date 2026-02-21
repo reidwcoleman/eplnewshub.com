@@ -619,57 +619,66 @@ Return ONLY a JSON array of objects with "index" (1-based from the headlines lis
 async function webSearch(query, maxResults = 5) {
   console.log(`[Scout]   🔍 Searching: "${query}"`);
   const results = [];
+  const seenUrls = new Set();
 
-  // Try DuckDuckGo HTML (no API key needed, reliable)
+  // Source 1: Google News RSS (fresh news-specific results with scrapeable URLs)
   try {
-    const ddgUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-    const res = await fetch(ddgUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
-      }
-    });
-    const html = await res.text();
-
-    // Extract result snippets from DuckDuckGo HTML
-    const resultBlocks = html.match(/<a class="result__a"[\s\S]*?<\/a>[\s\S]*?<a class="result__snippet"[\s\S]*?<\/a>/g) || [];
-    for (const block of resultBlocks.slice(0, maxResults)) {
-      const titleMatch = block.match(/<a class="result__a"[^>]*>([\s\S]*?)<\/a>/);
-      const snippetMatch = block.match(/<a class="result__snippet"[^>]*>([\s\S]*?)<\/a>/);
-      const hrefMatch = block.match(/<a class="result__a" href="([^"]+)"/);
-      if (titleMatch && snippetMatch) {
-        let extractedUrl = '';
-        if (hrefMatch) {
-          try {
-            extractedUrl = decodeURIComponent(hrefMatch[1].replace(/.*uddg=/, '').replace(/&.*/, ''));
-          } catch (e) {
-            extractedUrl = hrefMatch[1];
-          }
-        }
-        results.push({
-          title: titleMatch[1].replace(/<[^>]+>/g, '').trim(),
-          snippet: snippetMatch[1].replace(/<[^>]+>/g, '').trim(),
-          url: extractedUrl
-        });
-      }
-    }
-  } catch (e) {
-    console.log(`[Scout]   ⚠ DuckDuckGo search failed: ${e.message}`);
-  }
-
-  // Fallback: try Google News RSS for the query
-  if (results.length === 0) {
-    try {
-      const newsItems = await fetchNewsFromGoogleRSS(query);
-      for (const item of newsItems.slice(0, maxResults)) {
+    const newsItems = await fetchNewsFromGoogleRSS(query);
+    for (const item of newsItems.slice(0, maxResults)) {
+      if (item.link && !seenUrls.has(item.link)) {
+        seenUrls.add(item.link);
         results.push({
           title: item.title,
           snippet: item.description,
           url: item.link
         });
       }
-    } catch (e) { /* ignore */ }
+    }
+    if (results.length > 0) {
+      console.log(`[Scout]   Google News RSS returned ${results.length} results`);
+    }
+  } catch (e) {
+    console.log(`[Scout]   ⚠ Google News RSS failed: ${e.message}`);
   }
 
+  // Source 2: Brave Search (broader web results with rich snippets)
+  try {
+    const braveUrl = `https://search.brave.com/search?q=${encodeURIComponent(query)}&source=web`;
+    const res = await fetch(braveUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml',
+        'Accept-Language': 'en-US,en;q=0.5'
+      }
+    });
+    const html = await res.text();
+
+    // Split by result-content blocks — each contains one search result with URL, title, and snippet
+    const resultBlocks = html.split(/class="result-content/).slice(1);
+    let braveCount = 0;
+    for (const block of resultBlocks) {
+      if (results.length >= maxResults * 2) break; // collect up to 2x, dedup later
+      const linkMatch = block.match(/<a[^>]*href="(https?:\/\/[^"]+)"[^>]*>([\s\S]*?)<\/a>/);
+      const snippetMatch = block.match(/<div[^>]*class="generic-snippet[^"]*"[^>]*>([\s\S]*?)<\/div>/);
+      if (!snippetMatch) continue;
+      const snippetText = snippetMatch[1].replace(/<[^>]+>/g, ' ').replace(/&#x27;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/\s+/g, ' ').trim();
+      if (snippetText.length < 20) continue;
+      const url = linkMatch ? linkMatch[1].replace(/&amp;/g, '&') : '';
+      if (url && seenUrls.has(url)) continue; // skip duplicates across sources
+      if (url) seenUrls.add(url);
+      const title = linkMatch ? linkMatch[2].replace(/<[^>]+>/g, '').trim() : snippetText.slice(0, 80);
+      results.push({ title, snippet: snippetText, url });
+      braveCount++;
+    }
+
+    if (braveCount > 0) {
+      console.log(`[Scout]   Brave Search returned ${braveCount} results`);
+    }
+  } catch (e) {
+    console.log(`[Scout]   ⚠ Brave Search failed: ${e.message}`);
+  }
+
+  console.log(`[Scout]   Total search results: ${results.length}`);
   return results;
 }
 
@@ -2032,13 +2041,6 @@ function buildArticleHTML(article, filename, date, imageFile) {
         .article-body table tr:last-child td { border-bottom: none; }
         .article-body table tr:hover td { background: rgba(240, 236, 228, 0.03); color: var(--paper); }
 
-        /* ── AD PLACEMENTS ── */
-        .article-ad {
-            margin: 40px 0;
-            text-align: center;
-            min-height: 90px;
-        }
-
         /* ── TAGS ── */
         .tags-row {
             display: flex;
@@ -2310,7 +2312,6 @@ function buildArticleHTML(article, filename, date, imageFile) {
             .related-card::after { display: none; }
             .related-card:hover .related-img-wrap img { transform: none; }
 
-            .article-ad:nth-of-type(even) { display: none !important; }
         }
 
         @media (max-width: 480px) {
@@ -2381,26 +2382,6 @@ function buildArticleHTML(article, filename, date, imageFile) {
                 ${stripMarkdownFences(article.bodyHTML)}
             </div>
 
-            <!-- Sources -->
-            ${(article._sourceOrigins && article._sourceOrigins.length > 0) ? `
-            <div class="article-sources reveal" style="margin-top: 2em; padding-top: 1.5em; border-top: 1px solid rgba(240,236,228,0.1);">
-                <h3 style="font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--smoke); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75em;">Sources</h3>
-                <ul style="list-style: none; padding: 0; margin: 0;">
-                    ${article._sourceOrigins.map(s => `<li style="font-family: var(--font-body); font-size: 14px; color: var(--ash); padding: 4px 0;">${s.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</li>`).join('\n                    ')}
-                </ul>
-            </div>` : ''}
-
-            <!-- Ad Placement: After Body -->
-            <div class="article-ad">
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-6480210605786899"
-                     data-ad-slot="auto"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-            </div>
-
             <!-- Tags -->
             <div class="tags-row reveal">
                 ${article.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}
@@ -2411,17 +2392,6 @@ function buildArticleHTML(article, filename, date, imageFile) {
                 <h2 class="related-section-title">More from EPL News Hub</h2>
                 <div class="related-grid">${relatedHTML}</div>
             </section>
-
-            <!-- Ad Placement: Before Comments -->
-            <div class="article-ad">
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-6480210605786899"
-                     data-ad-slot="auto"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-            </div>
 
             <!-- Comments Section -->
             <section class="comments-section reveal">
@@ -2464,6 +2434,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
     <div class="footer" include="../footer.html"></div>
 
     <!-- Scripts -->
+    <script src="/editorial-ads.js" defer></script>
     <script src="/index.js"></script>
     <script>
         // Reading progress bar
@@ -3032,13 +3003,6 @@ async function runScout(count = 1) {
         continue;
       }
 
-      // Attach source origins for citation rendering
-      article._sourceOrigins = (research.sources || [])
-        .map(s => s.origin)
-        .filter(o => o && o !== 'Google News summary')
-        .filter((v, i, a) => a.indexOf(v) === i) // unique
-        .slice(0, 8);
-
       // Step 4: Find and download image
       const imageResult = await findAndDownloadImage(article.imageSearchQuery || topic.title, slug);
       const imageFile = imageResult ? imageResult.filename : null;
@@ -3305,11 +3269,25 @@ Be realistic with scores (most PL games are 0-0 to 4-2 range). Vary your predict
   const prompt = `Predict the outcomes for these upcoming Premier League matches:\n\n${fixtureList}\n\nProvide predictions for all matches listed.`;
 
   try {
-    const result = await callLLM(prompt, systemPrompt, { temperature: 0.5 });
+    const result = await callLLM(prompt, systemPrompt, { temperature: 0.5, long: true });
     const jsonMatch = result.match(/\[[\s\S]*\]/);
     if (!jsonMatch) throw new Error('Failed to parse predictions JSON');
 
-    let predictions = JSON.parse(jsonMatch[0]);
+    let predictions;
+    try {
+      predictions = JSON.parse(jsonMatch[0]);
+    } catch (parseErr) {
+      // Truncated JSON — attempt to salvage by closing at the last complete object
+      let truncated = jsonMatch[0];
+      const lastBrace = truncated.lastIndexOf('}');
+      if (lastBrace > 0) {
+        truncated = truncated.slice(0, lastBrace + 1) + ']';
+        predictions = JSON.parse(truncated);
+        console.log(`[Scout] Predictions JSON was truncated — recovered ${predictions.length} complete predictions`);
+      } else {
+        throw parseErr;
+      }
+    }
 
     // Merge match dates from fixtures
     predictions = predictions.map((p, i) => ({

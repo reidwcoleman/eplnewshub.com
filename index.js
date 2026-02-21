@@ -84,14 +84,6 @@ window.addEventListener('DOMContentLoaded', function() {
         document.head.appendChild(script);
     })();
 
-    // Load Ezoic Ad Placement System
-    // This loads after DOM is ready to ensure proper placement
-    setTimeout(function() {
-        const ezoicScript = document.createElement('script');
-        ezoicScript.src = '/ezoic-ads.js';
-        ezoicScript.async = true;
-        document.head.appendChild(ezoicScript);
-    }, 500); // Small delay to ensure content is fully loaded
 });
 
 // Search functionality

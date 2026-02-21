@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'pep-guardiola-provides-erling-haaland-injury-update-ahead-of-2026-02-21',
+    title: 'Pep Guardiola Provides Erling Haaland Injury Update Ahead of Newcastle Clash',
+    excerpt: 'Manchester City manager Pep Guardiola confirms Erling Haaland is fully fit for the upcoming match against Newcastle United, a crucial clash in the Premier League title race',
+    image: '/scout-pep-guardiola-provides-erling-haaland-injury-update-ahead-of.jpg',
+    category: 'Match Reports',
+    date: '2026-02-21',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Manchester City', 'Newcastle United', 'Erling Haaland', 'Pep Guardiola', 'Premier League']
+  },
+  {
     id: 'aston-villa-vs-leeds-how-to-watch-and-what-to-expect-in-prem-2026-02-21',
     title: 'Aston Villa vs Leeds: Breaking Down the Premier League Showdown',
     excerpt: 'Aston Villa looks to snap a 26-year streak as they face Leeds United in a critical Premier League encounter. Here\'s everything you need to know.',
