@@ -1024,39 +1024,10 @@
             }
         }
 
-        /* ── BLOCK ADS IN HERO / HEADLINE AREAS ──
-           Prevent Google auto-ads from injecting into layout-critical
-           sections. Ads continue to appear everywhere else on the page. */
-        .hero ins.adsbygoogle,
-        .hero .adsbygoogle,
-        .hero .google-auto-placed,
-        .hero iframe[id^="aswift_"],
-        .hero iframe[id^="google_ads_"],
-        .secondary-row ins.adsbygoogle,
-        .secondary-row .adsbygoogle,
-        .secondary-row .google-auto-placed,
-        .secondary-row iframe[id^="aswift_"],
-        .secondary-row iframe[id^="google_ads_"],
-        .hero-grid > ins,
-        .hero-grid > div:not(.hero-lead):not(.hero-side),
-        .secondary-row > ins,
-        .secondary-row > div:not(.secondary-card) {
-            display: none !important;
-            height: 0 !important;
-            min-height: 0 !important;
-            max-height: 0 !important;
-            overflow: hidden !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        /* Ensure grid layout can't be broken by injected elements */
-        .hero-grid {
-            grid-template-rows: auto;
-        }
-        .secondary-row {
-            grid-template-rows: auto;
-        }
+        /* Grid protection — prevent injected elements from breaking layout */
+        .hero-grid { grid-template-rows: auto; }
+        .secondary-row { grid-template-rows: auto; }
+        .headlines-grid { grid-template-rows: auto; }
     </style>
 </head>
 <body>
@@ -1218,6 +1189,7 @@
 
     <!-- Scripts -->
     <script src="index.js"></script>
+    <script src="homepage-ads.js?v=1" defer></script>
     <script>
         // Set edition date
         const dateEl = document.getElementById('edition-date');
@@ -1226,32 +1198,6 @@
             const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             dateEl.textContent = now.toLocaleDateString('en-GB', opts);
         }
-
-        // Remove auto-placed ads from hero and secondary headline sections
-        // so they don't break the grid layout. Ads remain everywhere else.
-        function cleanAdsFromHero() {
-            var areas = document.querySelectorAll('.hero, .secondary-row');
-            areas.forEach(function(section) {
-                var ads = section.querySelectorAll('ins.adsbygoogle, .google-auto-placed, [data-google-query-id]');
-                ads.forEach(function(ad) { ad.remove(); });
-            });
-        }
-        // Run after page loads and watch for late-injected ads
-        window.addEventListener('load', function() {
-            cleanAdsFromHero();
-            setTimeout(cleanAdsFromHero, 2000);
-            setTimeout(cleanAdsFromHero, 5000);
-
-            // Watch for dynamically injected ads in hero/secondary areas
-            var heroEl = document.querySelector('.hero');
-            if (heroEl) {
-                new MutationObserver(cleanAdsFromHero).observe(heroEl, { childList: true, subtree: true });
-            }
-            var secRow = document.querySelector('.secondary-row');
-            if (secRow) {
-                new MutationObserver(cleanAdsFromHero).observe(secRow, { childList: true, subtree: true });
-            }
-        });
     </script>
 </body>
 </html>
