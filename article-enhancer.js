@@ -25,10 +25,9 @@ function loadEditorialAds() {
                      document.querySelector('.article-content') ||
                      document.querySelector('.nyt-article');
 
-    if (isArticle && !document.querySelector('script[src="/editorial-ads.js"]')) {
+    if (isArticle && !document.querySelector('script[src*="/editorial-ads.js"]')) {
         const script = document.createElement('script');
-        script.src = '/editorial-ads.js';
-        script.defer = true;
+        script.src = '/editorial-ads.js?v=2';
         document.head.appendChild(script);
     }
 }

@@ -2434,7 +2434,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
     <div class="footer" include="../footer.html"></div>
 
     <!-- Scripts -->
-    <script src="/editorial-ads.js" defer></script>
+    <script src="/editorial-ads.js?v=2" defer></script>
     <script src="/index.js"></script>
     <script>
         // Reading progress bar
@@ -3277,16 +3277,24 @@ Be realistic with scores (most PL games are 0-0 to 4-2 range). Vary your predict
     try {
       predictions = JSON.parse(jsonMatch[0]);
     } catch (parseErr) {
-      // Truncated JSON — attempt to salvage by closing at the last complete object
+      // Truncated/malformed JSON — progressively trim to find last parseable array
       let truncated = jsonMatch[0];
-      const lastBrace = truncated.lastIndexOf('}');
-      if (lastBrace > 0) {
+      let recovered = false;
+      while (!recovered && truncated.lastIndexOf('}') > 0) {
+        const lastBrace = truncated.lastIndexOf('}');
         truncated = truncated.slice(0, lastBrace + 1) + ']';
-        predictions = JSON.parse(truncated);
-        console.log(`[Scout] Predictions JSON was truncated — recovered ${predictions.length} complete predictions`);
-      } else {
-        throw parseErr;
+        try {
+          predictions = JSON.parse(truncated);
+          console.log(`[Scout] Predictions JSON was malformed — recovered ${predictions.length} complete predictions`);
+          recovered = true;
+        } catch (e) {
+          // Remove the broken trailing object and try again
+          truncated = truncated.slice(0, lastBrace);
+          // Strip trailing comma or whitespace
+          truncated = truncated.replace(/,\s*$/, '');
+        }
       }
+      if (!recovered) throw parseErr;
     }
 
     // Merge match dates from fixtures
