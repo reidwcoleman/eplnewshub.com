@@ -31,6 +31,8 @@ jobs:
         run: echo "$GOOGLE_SERVICE_ACCOUNT_JSON" > google-service-account.json
 
       - name: Check and publish scheduled articles
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
         run: node .github/scripts/publish-scheduled.js
 
       - name: Commit and push changes

@@ -190,26 +190,49 @@ function updateSitemap(metadata) {
 }
 
 async function requestIndexing(articleUrl) {
+    // 1. Google Indexing API (primary)
     const serviceAccountPath = './google-service-account.json';
-    if (!fs.existsSync(serviceAccountPath)) {
-        console.log('    ⚠ No service account key found, skipping indexing request');
-        return;
+    try {
+        if (fs.existsSync(serviceAccountPath)) {
+            const { GoogleAuth } = require('google-auth-library');
+            const auth = new GoogleAuth({
+                keyFile: serviceAccountPath,
+                scopes: ['https://www.googleapis.com/auth/indexing']
+            });
+            const client = await auth.getClient();
+            const res = await client.request({
+                url: 'https://indexing.googleapis.com/v3/urlNotifications:publish',
+                method: 'POST',
+                data: { url: articleUrl, type: 'URL_UPDATED' }
+            });
+            console.log(`    ✓ Google Indexing API: ${articleUrl} — status ${res.status}`);
+        } else {
+            console.log('    ⚠ No service account key found, skipping Google Indexing API');
+        }
+    } catch (e) {
+        console.error(`    ✗ Google Indexing API failed: ${e.message}`);
     }
 
+    // 2. IndexNow (Bing, Yandex, etc.)
     try {
-        const { GoogleAuth } = require('google-auth-library');
-        const auth = new GoogleAuth({
-            keyFile: serviceAccountPath,
-            scopes: ['https://www.googleapis.com/auth/indexing']
-        });
-        const client = await auth.getClient();
-        const res = await client.request({
-            url: 'https://indexing.googleapis.com/v3/urlNotifications:publish',
-            method: 'POST',
-            data: { url: articleUrl, type: 'URL_UPDATED' }
-        });
-        console.log(`    ✓ Indexing requested for ${articleUrl} — status ${res.status}`);
+        const indexNowKey = process.env.INDEXNOW_KEY;
+        if (indexNowKey) {
+            const res = await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=${indexNowKey}`);
+            console.log(`    ✓ IndexNow: ${articleUrl} — status ${res.status}`);
+        }
     } catch (e) {
-        console.error(`    ✗ Indexing request failed: ${e.message}`);
+        console.log(`    ✗ IndexNow failed: ${e.message}`);
+    }
+
+    // 3. Ping sitemap to Google and Bing
+    try {
+        const sitemapUrl = 'https://www.eplnewshub.com/sitemap.xml';
+        const [googleRes, bingRes] = await Promise.allSettled([
+            fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`),
+            fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`)
+        ]);
+        console.log(`    ✓ Sitemap ping: Google=${googleRes.status === 'fulfilled' ? googleRes.value.status : 'failed'}, Bing=${bingRes.status === 'fulfilled' ? bingRes.value.status : 'failed'}`);
+    } catch (e) {
+        console.log(`    ✗ Sitemap ping failed: ${e.message}`);
     }
 }
