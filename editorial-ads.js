@@ -1,13 +1,12 @@
 // Editorial Ad Placement System for EPL News Hub
-// Removes old crammed ad blocks and injects 3 strategically placed,
-// editorially styled ad units (upper ~30%, mid ~60%, lower after body).
+// Places clean, well-spaced ad units throughout articles.
+// Positions: after hero, every 2 h2 sections, after body, after related, before comments.
 
 (function () {
   'use strict';
 
   var AD_CLIENT = 'ca-pub-6480210605786899';
 
-  // Detect article body container
   function getArticleBody() {
     return (
       document.querySelector('.article-body') ||
@@ -16,58 +15,95 @@
     );
   }
 
-  // Remove existing static ad blocks
+  // Remove any old static ad blocks from the HTML template
   function removeOldAds() {
-    var oldAds = document.querySelectorAll('.article-ad');
-    oldAds.forEach(function (el) { el.remove(); });
+    document.querySelectorAll('.article-ad').forEach(function (el) {
+      var ins = el.querySelector('ins.adsbygoogle');
+      if (ins) ins.remove();
+      el.remove();
+    });
   }
 
-  // Inject editorial CSS once
   function injectStyles() {
     if (document.getElementById('editorial-ad-styles')) return;
 
     var style = document.createElement('style');
     style.id = 'editorial-ad-styles';
     style.textContent =
-      // Editorial ad wrapper
       '.ed-ad-unit {' +
-        'margin: 48px 0;' +
-        'padding: 24px 0;' +
-        'border-top: 1px solid rgba(240, 236, 228, 0.10);' +
-        'border-bottom: 1px solid rgba(240, 236, 228, 0.10);' +
+        'margin: 40px auto;' +
+        'padding: 20px 0;' +
+        'max-width: 728px;' +
         'text-align: center;' +
         'background: transparent;' +
+        'position: relative;' +
+        'clear: both;' +
+        'overflow: hidden;' +
+        'z-index: 1;' +
+      '}' +
+
+      '.ed-ad-unit::before {' +
+        'content: "";' +
+        'display: block;' +
+        'width: 48px;' +
+        'height: 1px;' +
+        'background: rgba(240, 236, 228, 0.12);' +
+        'margin: 0 auto 16px;' +
+      '}' +
+
+      '.ed-ad-unit::after {' +
+        'content: "";' +
+        'display: block;' +
+        'width: 48px;' +
+        'height: 1px;' +
+        'background: rgba(240, 236, 228, 0.12);' +
+        'margin: 16px auto 0;' +
+      '}' +
+
+      '.ed-ad-unit ins.adsbygoogle {' +
+        'display: block !important;' +
+        'min-height: 90px;' +
+        'max-width: 100%;' +
+        'overflow: hidden;' +
       '}' +
 
       '.ed-ad-label {' +
         'display: block;' +
-        'font-family: "DM Sans", sans-serif;' +
-        'font-size: 10px;' +
+        'font-family: "DM Sans", -apple-system, sans-serif;' +
+        'font-size: 9px;' +
         'font-weight: 500;' +
-        'letter-spacing: 0.08em;' +
+        'letter-spacing: 0.12em;' +
         'text-transform: uppercase;' +
-        'color: var(--ash, #6b6560);' +
+        'color: rgba(138, 133, 120, 0.5);' +
         'margin-bottom: 12px;' +
       '}' +
 
-      // Suppress Google auto-injected ads inside article body
-      '.article-body > ins.adsbygoogle,' +
-      '.article-content > ins.adsbygoogle,' +
-      '.nyt-article > ins.adsbygoogle {' +
+      // Outer ad units (hero, related, comments) get subtle background
+      '.ed-ad-unit[data-position="hero"],' +
+      '.ed-ad-unit[data-position="post-related"],' +
+      '.ed-ad-unit[data-position="pre-comments"] {' +
+        'padding: 24px 16px;' +
+        'background: rgba(240, 236, 228, 0.02);' +
+        'border-radius: 2px;' +
+      '}' +
+
+      // Suppress any Google auto-injected ads inside article body
+      '.article-body > ins.adsbygoogle:not(.ed-ad-unit ins),' +
+      '.article-content > ins.adsbygoogle:not(.ed-ad-unit ins),' +
+      '.nyt-article > ins.adsbygoogle:not(.ed-ad-unit ins) {' +
         'display: none !important;' +
       '}' +
 
-      // Hide mid-article ad on mobile
-      '@media (max-width: 768px) {' +
-        '.ed-ad-unit[data-position="mid"] {' +
-          'display: none !important;' +
-        '}' +
+      // Responsive: fewer ads on mobile
+      '@media (max-width: 600px) {' +
+        '.ed-ad-unit { margin: 28px auto; padding: 16px 0; }' +
+        '.ed-ad-unit[data-position="mid"] { display: none !important; }' +
+        '.ed-ad-unit[data-position="post-related"] { display: none !important; }' +
       '}';
 
     document.head.appendChild(style);
   }
 
-  // Create a single editorial ad unit
   function createAdUnit(position) {
     var wrapper = document.createElement('div');
     wrapper.className = 'ed-ad-unit';
@@ -80,6 +116,7 @@
     var ins = document.createElement('ins');
     ins.className = 'adsbygoogle';
     ins.style.display = 'block';
+    ins.style.minHeight = '90px';
     ins.setAttribute('data-ad-client', AD_CLIENT);
     ins.setAttribute('data-ad-slot', 'auto');
     ins.setAttribute('data-ad-format', 'auto');
@@ -87,12 +124,10 @@
 
     wrapper.appendChild(label);
     wrapper.appendChild(ins);
-
     return wrapper;
   }
 
-  // Find the end-of-section node for a given h2.
-  // Walks forward until the next h2 or end of parent.
+  // Find the last element before the next h2 (or end of parent)
   function findSectionEnd(h2) {
     var node = h2.nextElementSibling;
     while (node && node.tagName !== 'H2') {
@@ -103,77 +138,106 @@
     return h2;
   }
 
-  // Main placement logic
+  function pushAdSlot() {
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) { /* AdSense will pick it up later */ }
+  }
+
+  function insertAfter(newNode, refNode) {
+    if (refNode.nextSibling) {
+      refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
+    } else {
+      refNode.parentNode.appendChild(newNode);
+    }
+  }
+
+  function insertBefore(newNode, refNode) {
+    refNode.parentNode.insertBefore(newNode, refNode);
+  }
+
   function placeAds() {
     var body = getArticleBody();
     if (!body) return;
 
+    // Prevent double-run
+    if (document.querySelector('.ed-ad-unit')) return;
+
     removeOldAds();
     injectStyles();
 
+    var adsPlaced = 0;
+
+    // 1. After hero image
+    var hero = document.querySelector('.article-hero');
+    if (hero) {
+      var heroAd = createAdUnit('hero');
+      insertAfter(heroAd, hero);
+      pushAdSlot();
+      adsPlaced++;
+    }
+
+    // 2. In-article ads: after every 2nd h2 section
     var h2s = body.querySelectorAll('h2');
     var count = h2s.length;
-    var units = [];
+    var inArticlePositions = [];
 
-    if (count < 3) {
-      // Short article: only the Lower unit (after body, before tags)
-      units.push({ position: 'lower' });
-    } else if (count <= 4) {
-      // Medium article: Upper + Lower
-      units.push({ position: 'upper', afterH2Index: 1 }); // after 2nd h2 section
-      units.push({ position: 'lower' });
-    } else {
-      // Full-length article: Upper + Mid + Lower
-      var upperIdx = 1; // after 2nd h2 (~30%)
-      var midIdx = Math.round(count * 0.6) - 1; // ~60%
-      // Ensure mid is at least 2 sections after upper
-      if (midIdx <= upperIdx + 1) midIdx = upperIdx + 2;
-      if (midIdx >= count) midIdx = count - 1;
-
-      units.push({ position: 'upper', afterH2Index: upperIdx });
-      units.push({ position: 'mid', afterH2Index: midIdx });
-      units.push({ position: 'lower' });
+    if (count >= 2) {
+      // Place after section 2, 4, 6, etc. — every 2 sections
+      for (var i = 1; i < count; i += 2) {
+        inArticlePositions.push(i);
+      }
     }
 
-    // Inject in-article units (upper and mid)
-    units.forEach(function (unit) {
-      if (unit.position === 'lower') return; // handled separately
+    // Cap in-article ads: max 3 for articles, scale with length
+    var maxInArticle = Math.min(3, inArticlePositions.length);
+    // For short articles (<=3 h2s), only 1 in-article ad
+    if (count <= 3) maxInArticle = Math.min(1, inArticlePositions.length);
 
-      var h2 = h2s[unit.afterH2Index];
-      if (!h2) return;
+    for (var j = 0; j < maxInArticle; j++) {
+      var idx = inArticlePositions[j];
+      var h2 = h2s[idx];
+      if (!h2) continue;
 
+      var posName = j === 0 ? 'upper' : (j === 1 ? 'mid' : 'mid-lower');
       var anchor = findSectionEnd(h2);
-      var adEl = createAdUnit(unit.position);
-
-      if (anchor.nextSibling) {
-        anchor.parentNode.insertBefore(adEl, anchor.nextSibling);
-      } else {
-        anchor.parentNode.appendChild(adEl);
-      }
-    });
-
-    // Inject lower unit: after article body, before tags
-    var hasLower = units.some(function (u) { return u.position === 'lower'; });
-    if (hasLower) {
-      var adEl = createAdUnit('lower');
-      var tagsRow = document.querySelector('.tags-row');
-      if (tagsRow) {
-        tagsRow.parentNode.insertBefore(adEl, tagsRow);
-      } else {
-        // Fallback: append after article body
-        body.parentNode.insertBefore(adEl, body.nextSibling);
-      }
+      var adEl = createAdUnit(posName);
+      insertAfter(adEl, anchor);
+      pushAdSlot();
+      adsPlaced++;
     }
 
-    // Push adsbygoogle for each injected unit
-    var allUnits = document.querySelectorAll('.ed-ad-unit ins.adsbygoogle');
-    allUnits.forEach(function () {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        // AdSense not loaded yet — silent fail
-      }
-    });
+    // 3. After article body (before tags)
+    var tagsRow = document.querySelector('.tags-row');
+    if (tagsRow) {
+      var lowerAd = createAdUnit('lower');
+      insertBefore(lowerAd, tagsRow);
+      pushAdSlot();
+      adsPlaced++;
+    } else {
+      var lowerAd2 = createAdUnit('lower');
+      insertAfter(lowerAd2, body);
+      pushAdSlot();
+      adsPlaced++;
+    }
+
+    // 4. After related articles section
+    var relatedSection = document.querySelector('.related-section');
+    if (relatedSection) {
+      var postRelatedAd = createAdUnit('post-related');
+      insertAfter(postRelatedAd, relatedSection);
+      pushAdSlot();
+      adsPlaced++;
+    }
+
+    // 5. Before comments section
+    var commentsSection = document.querySelector('.comments-section');
+    if (commentsSection) {
+      var preCommentsAd = createAdUnit('pre-comments');
+      insertBefore(preCommentsAd, commentsSection);
+      pushAdSlot();
+      adsPlaced++;
+    }
   }
 
   // Run after DOM is ready
