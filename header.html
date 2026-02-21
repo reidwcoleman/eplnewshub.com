@@ -1,3 +1,43 @@
+<!-- Mobile: Kill Google anchor/popup/bottom ads site-wide -->
+<style>
+@media (max-width: 600px) {
+    ins.adsbygoogle[data-anchor-shown],
+    ins.adsbygoogle[data-anchor-status],
+    ins.adsbygoogle[data-anchor-shown="true"],
+    ins.adsbygoogle[data-ad-status="filled"][style*="position: fixed"],
+    div[id^="aswift_"][style*="position: fixed"],
+    iframe[id^="aswift_"][style*="position: fixed"],
+    div[id^="google_ads_iframe"][style*="position: fixed"],
+    div[style*="position: fixed"][style*="z-index: 2147"],
+    div[style*="position: fixed"][style*="bottom: 0px"] {
+        display: none !important;
+        height: 0 !important;
+        max-height: 0 !important;
+        visibility: hidden !important;
+        overflow: hidden !important;
+        pointer-events: none !important;
+    }
+}
+</style>
+<script>
+(function(){
+    if(window.innerWidth>600)return;
+    function k(){
+        document.querySelectorAll('ins.adsbygoogle[data-anchor-shown],ins.adsbygoogle[data-anchor-status]').forEach(function(e){
+            e.style.setProperty('display','none','important');
+            e.style.setProperty('height','0','important');
+            e.style.setProperty('max-height','0','important');
+            e.style.setProperty('visibility','hidden','important');
+            e.style.setProperty('overflow','hidden','important');
+        });
+    }
+    new MutationObserver(function(m){
+        for(var i=0;i<m.length;i++){var a=m[i].addedNodes;for(var j=0;j<a.length;j++){if(a[j].nodeType===1){k();return;}}}
+    }).observe(document.documentElement,{childList:true,subtree:true});
+    k();
+})();
+</script>
+
 <!-- NYT/Athletic Style Header -->
 <header class="nyt-header">
     <div class="nyt-header-bar">
