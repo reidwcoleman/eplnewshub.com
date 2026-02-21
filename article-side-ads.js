@@ -298,7 +298,7 @@
 
             /* Pulse animation for attention */
             .floating-side-ad {
-                animation: slideIn 0.5s ease, pulse 4s ease-in-out infinite;
+                animation: slideIn 0.5s ease, pulse 4s ease-in-out 3;
             }
 
             @keyframes pulse {
@@ -471,7 +471,8 @@
 
     // Initialize side ads
     function initSideAds() {
-        if (!isArticlePage()) return;
+        // Internal promo ads disabled on article pages
+        return;
 
         // Check if ads were already closed this session
         const leftClosed = sessionStorage.getItem('left-side-ad_closed');

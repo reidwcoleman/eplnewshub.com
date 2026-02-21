@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'wolves-2-2-arsenal-tactical-breakdown-of-a-thrilling-premier-2026-02-21',
+    title: 'Wolves 2-2 Arsenal: Tactical Breakdown of a Thrilling Premier League Draw',
+    excerpt: 'Arsenal squandered a two-goal lead at Molineux, but their resilience in securing a point reveals both their strengths and weaknesses in the title race.',
+    image: '/scout-wolves-2-2-arsenal-tactical-breakdown-of-a-thrilling-premier.jpg',
+    category: 'Match Reports',
+    date: '2026-02-21',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Wolves', 'Arsenal', 'Premier League', 'Tactical Analysis', 'Declan Rice', 'Bukayo Saka', 'Mikel Arteta']
+  },
+  {
     id: 'how-to-watch-manchester-city-vs-newcastle-live-stream-and-br-2026-02-21',
     title: 'Manchester City vs Newcastle: A Global Audience Awaits',
     excerpt: 'The highly anticipated match between Manchester City and Newcastle United is set to be broadcast globally, with fans able to watch on various platforms',

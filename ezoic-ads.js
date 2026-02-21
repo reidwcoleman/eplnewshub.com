@@ -24,7 +24,7 @@
         init: function() {
             // Check if user is premium (no ads for premium users)
             if (this.isPremiumUser()) {
-                console.log('Premium user detected - Ezoic ads will not display');
+                // Premium user - Ezoic ads will not display
                 return;
             }
 
@@ -52,6 +52,11 @@
 
         // Setup ad placements
         setupAds: function() {
+            // Mark title-to-image zone as ad-free for Ezoic auto-placement
+            document.querySelectorAll('.article-header, .hero-section, .article-meta, .article-byline').forEach(el => {
+                el.setAttribute('data-ez-no-ads', '');
+            });
+
             // Collect all placement IDs that need to be shown
             const placementsToShow = [];
             
@@ -93,12 +98,16 @@
                 }
             }
             
-            // Insert floating ad (mobile)
+            // Insert floating ad (mobile) with 5s delay
             if (window.innerWidth <= 768) {
-                this.insertFloatingAd();
-                if (document.getElementById(this.placements.floating)) {
-                    placementsToShow.push(106);
-                }
+                setTimeout(() => {
+                    this.insertFloatingAd();
+                    if (document.getElementById(this.placements.floating) && window.ezstandalone) {
+                        ezstandalone.cmd.push(function() {
+                            ezstandalone.showAds(106);
+                        });
+                    }
+                }, 5000);
             }
 
             // Insert between article ads on homepage
@@ -114,8 +123,7 @@
                 });
             }
 
-            // Refresh ads when needed
-            this.setupAdRefresh();
+            // Ad refresh handled by Ezoic automatically
         },
 
         // Create ad placeholder div
@@ -225,33 +233,9 @@
             });
         },
 
-        // Setup ad refresh for long page sessions
+        // Ad refresh handled by Ezoic's own optimization
         setupAdRefresh: function() {
-            // Refresh ads every 90 seconds for users who stay on page
-            setInterval(() => {
-                if (window.ezstandalone && window.ezstandalone.refresh && !this.isPremiumUser()) {
-                    ezstandalone.cmd.push(function() {
-                        ezstandalone.refresh();
-                    });
-                }
-            }, 90000);
-
-            // Refresh ads on scroll for infinite scroll pages
-            let lastScrollPosition = 0;
-            window.addEventListener('scroll', () => {
-                const currentScrollPosition = window.pageYOffset;
-                
-                // If user scrolled significantly (more than 2 viewport heights)
-                if (Math.abs(currentScrollPosition - lastScrollPosition) > window.innerHeight * 2) {
-                    lastScrollPosition = currentScrollPosition;
-                    
-                    if (window.ezstandalone && window.ezstandalone.refresh && !this.isPremiumUser()) {
-                        ezstandalone.cmd.push(function() {
-                            ezstandalone.refresh();
-                        });
-                    }
-                }
-            });
+            // Intentionally empty - Ezoic handles its own refresh
         }
     };
 
@@ -377,6 +361,32 @@
                 }
             }
 
+            /* Block ads between article title and featured image */
+            .article-header ins,
+            .article-header .ezoic-ad,
+            .article-header .adsbygoogle,
+            .article-header iframe[id^="google_ads"],
+            .article-header [id^="ezoic-pub-ad"],
+            .hero-section ins,
+            .hero-section .ezoic-ad,
+            .hero-section .adsbygoogle,
+            .hero-section iframe[id^="google_ads"],
+            .hero-section [id^="ezoic-pub-ad"],
+            .article-meta ins,
+            .article-meta .ezoic-ad,
+            .article-meta .adsbygoogle,
+            .article-byline ins,
+            .article-byline .ezoic-ad,
+            .article-byline .adsbygoogle {
+                display: none !important;
+                height: 0 !important;
+                min-height: 0 !important;
+                max-height: 0 !important;
+                overflow: hidden !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
             /* Hide ads for premium users */
             .ezoic-ads-disabled .ezoic-ad {
                 display: none !important;
@@ -395,6 +405,45 @@
 
     // Inject styles
     document.head.insertAdjacentHTML('beforeend', styles);
+
+    // Guard: remove any ads auto-injected between article title and featured image
+    function guardTitleImageZone() {
+        const zones = document.querySelectorAll('.article-header, .hero-section, .article-meta, .article-byline');
+        if (zones.length === 0) return;
+
+        const adSelectors = 'ins.adsbygoogle, [id^="ezoic-pub-ad"], .ezoic-ad, iframe[id^="google_ads"], [data-ad-slot]';
+
+        zones.forEach(zone => {
+            // Remove any ads already present
+            zone.querySelectorAll(adSelectors).forEach(ad => ad.remove());
+        });
+
+        // Watch for dynamically injected ads
+        const guardObserver = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType !== 1) return;
+                    if (node.matches && node.matches(adSelectors)) {
+                        node.remove();
+                    }
+                    if (node.querySelectorAll) {
+                        node.querySelectorAll(adSelectors).forEach(ad => ad.remove());
+                    }
+                });
+            });
+        });
+
+        zones.forEach(zone => {
+            guardObserver.observe(zone, { childList: true, subtree: true });
+        });
+    }
+
+    // Run guard after DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', guardTitleImageZone);
+    } else {
+        guardTitleImageZone();
+    }
 
     // Initialize Ezoic ads when ready
     if (window.ezstandalone) {

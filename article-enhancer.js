@@ -3,8 +3,6 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     enhanceArticle();
-    // Load floating side ads for articles
-    loadFloatingSideAds();
 });
 
 function loadFloatingSideAds() {

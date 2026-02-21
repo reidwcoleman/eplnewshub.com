@@ -1,11 +1,10 @@
 const CACHE_NAME = 'epl-news-hub-v1';
 const urlsToCache = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/manifest.json',
-  '/reidsnbest.webp',
-  '/apple-touch-icon.png'
+  '/styles.css',
+  '/index.js',
+  '/eplnewshubnewlogo.png',
+  '/manifest.json'
 ];
 
 // Install event

@@ -68,30 +68,7 @@
         });
     }
     
-    // 4. Fast include loader for article pages
-    async function loadIncludes() {
-        const includes = document.querySelectorAll('[include]');
-        if (includes.length === 0) return;
-        
-        const promises = Array.from(includes).map(async (element) => {
-            const path = element.getAttribute('include');
-            if (!path) return;
-            
-            try {
-                const response = await fetch(path);
-                if (response.ok) {
-                    element.innerHTML = await response.text();
-                }
-            } catch (error) {
-                console.error('Failed to load include:', path);
-            }
-        });
-        
-        await Promise.all(promises);
-        optimizeImages(); // Re-optimize after includes load
-    }
-    
-    // 5. Preload next navigation
+    // 4. Preload next navigation
     function preloadNextLinks() {
         // Only preload on idle
         if ('requestIdleCallback' in window) {
@@ -128,7 +105,6 @@
         // Run after DOM ready
         document.addEventListener('DOMContentLoaded', () => {
             optimizeImages();
-            loadIncludes();
             preloadNextLinks();
         });
     } else {
@@ -137,7 +113,6 @@
         optimizeCSS();
         cleanupScripts();
         optimizeImages();
-        loadIncludes();
         
         if (document.readyState === 'complete') {
             preloadNextLinks();
@@ -146,20 +121,18 @@
         }
     }
     
-    // Re-optimize on dynamic content changes
+    // Re-optimize on dynamic content changes (debounced, auto-disconnect after 10s)
+    let debounceTimer;
     const observer = new MutationObserver(() => {
-        optimizeImages();
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(optimizeImages, 500);
     });
-    
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => observer.disconnect(), 10000);
     
     // Export for use by other scripts
     window.UniversalFastLoad = {
         optimizeImages,
-        loadIncludes,
         optimizeCSS
     };
 })();

@@ -873,7 +873,7 @@
                 adsContainer.innerHTML = selectedAds.map(ad => createSidebarAd(ad)).join('');
                 attachAdListeners();
             }
-        }, 30000); // Rotate every 30 seconds
+        }, 120000); // Rotate every 2 minutes
     }
 
     // Attach click listeners to ads
@@ -890,7 +890,10 @@
 
     // Initialize ads system
     function init() {
-        // Load FPL banner on all pages
+        // Skip internal promo ads on article pages
+        const isArticlePage = window.location.pathname.includes('/articles/');
+        if (isArticlePage) return;
+
         injectStyles();
         insertSidebarAds();
         insertBannerAd();

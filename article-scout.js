@@ -350,6 +350,21 @@ async function gatherNews() {
   });
 
   console.log(`[Scout] Found ${unique.length} unique news items, ${soccerItems.length} are soccer-related`);
+
+  // Filter out stale news (older than 72 hours)
+  const freshnessCutoff = Date.now() - 72 * 60 * 60 * 1000;
+  const freshItems = soccerItems.filter(item => {
+    if (!item.pubDate) return true; // keep items without a date
+    const pub = new Date(item.pubDate).getTime();
+    return !isNaN(pub) && pub >= freshnessCutoff;
+  });
+
+  if (freshItems.length >= 5) {
+    console.log(`[Scout] ${freshItems.length} items are within 72h freshness window (filtered ${soccerItems.length - freshItems.length} stale)`);
+    return freshItems.slice(0, 20);
+  }
+
+  console.log(`[Scout] Only ${freshItems.length} fresh items — using all ${soccerItems.length} soccer items`);
   return soccerItems.slice(0, 20);
 }
 
@@ -365,6 +380,7 @@ const LLM_PROVIDERS = [
     url: 'https://api.mistral.ai/v1/chat/completions',
     model: 'mistral-small-latest',
     maxTokens: 4096,
+    maxTokensLong: 8192,
   },
   // Groq: ~14,400 req/day free, ultra-fast inference
   {
@@ -373,6 +389,7 @@ const LLM_PROVIDERS = [
     url: 'https://api.groq.com/openai/v1/chat/completions',
     model: 'llama-3.3-70b-versatile',
     maxTokens: 4096,
+    maxTokensLong: 8192,
   },
   {
     name: 'Groq (Llama 3.1 8B)',
@@ -380,6 +397,7 @@ const LLM_PROVIDERS = [
     url: 'https://api.groq.com/openai/v1/chat/completions',
     model: 'llama-3.1-8b-instant',
     maxTokens: 4096,
+    maxTokensLong: 8192,
   },
   // Google Gemini: 1,000 req/day free via AI Studio
   {
@@ -388,6 +406,7 @@ const LLM_PROVIDERS = [
     url: 'GEMINI', // special handling below
     model: 'gemini-2.0-flash',
     maxTokens: 4096,
+    maxTokensLong: 8192,
   },
   // Together AI: $25 free credits on signup
   {
@@ -396,6 +415,7 @@ const LLM_PROVIDERS = [
     url: 'https://api.together.xyz/v1/chat/completions',
     model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
     maxTokens: 4096,
+    maxTokensLong: 8192,
   },
   // Cerebras: free tier, blazing fast inference
   {
@@ -404,6 +424,7 @@ const LLM_PROVIDERS = [
     url: 'https://api.cerebras.ai/v1/chat/completions',
     model: 'llama-3.3-70b',
     maxTokens: 4096,
+    maxTokensLong: 8192,
   },
   // OpenRouter: 50 req/day free (1,000 if you add $10 credit)
   {
@@ -412,6 +433,7 @@ const LLM_PROVIDERS = [
     url: 'https://openrouter.ai/api/v1/chat/completions',
     model: 'meta-llama/llama-3.3-70b-instruct:free',
     maxTokens: 4096,
+    maxTokensLong: 8192,
   },
   // HuggingFace Inference: free tier, 300+ models
   {
@@ -420,18 +442,23 @@ const LLM_PROVIDERS = [
     url: 'https://router.huggingface.co/novita/v3/openai/chat/completions',
     model: 'meta-llama/Llama-3.3-70B-Instruct',
     maxTokens: 4096,
+    maxTokensLong: 8192,
   },
 ];
 
-async function callLLM(prompt, systemPrompt) {
+async function callLLM(prompt, systemPrompt, options = {}) {
   const errors = [];
+  const temperature = options.temperature !== undefined ? options.temperature : 0.7;
+  const useLongTokens = !!options.long;
 
   for (const provider of LLM_PROVIDERS) {
     const apiKey = process.env[provider.envKey];
     if (!apiKey) continue;
 
+    const tokenLimit = useLongTokens ? (provider.maxTokensLong || provider.maxTokens) : provider.maxTokens;
+
     try {
-      console.log(`[Scout] Trying ${provider.name}...`);
+      console.log(`[Scout] Trying ${provider.name}... (temp=${temperature}, maxTokens=${tokenLimit})`);
 
       let res, data;
 
@@ -443,7 +470,7 @@ async function callLLM(prompt, systemPrompt) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: systemPrompt + '\n\n' + prompt }] }],
-            generationConfig: { temperature: 0.8, maxOutputTokens: provider.maxTokens },
+            generationConfig: { temperature, maxOutputTokens: tokenLimit },
           })
         });
         const gData = res.json();
@@ -472,8 +499,8 @@ async function callLLM(prompt, systemPrompt) {
             { role: 'system', content: systemPrompt },
             { role: 'user', content: prompt }
           ],
-          temperature: 0.8,
-          max_tokens: provider.maxTokens,
+          temperature,
+          max_tokens: tokenLimit,
         })
       });
 
@@ -581,7 +608,7 @@ ${recentTitles.length > 0 ? '- NEVER pick a topic that is similar to any article
 
 Return ONLY a JSON array of objects with "index" (1-based from the headlines list), "category" (News, Transfers, Analysis, Match Reports, or Player Focus), "angle" (unique hook), and "title" (compelling article title). No other text.`;
 
-  const result = await callLLM(`Today's top football headlines:\n\n${headlines}${recentList}\n\nPick the best ${count} DIVERSE topics.`, systemPrompt);
+  const result = await callLLM(`Today's top football headlines:\n\n${headlines}${recentList}\n\nPick the best ${count} DIVERSE topics.`, systemPrompt, { temperature: 0.5 });
   const jsonMatch = result.match(/\[[\s\S]*\]/);
   if (!jsonMatch) throw new Error('Failed to parse topic selection: ' + result);
   return JSON.parse(jsonMatch[0]);
@@ -610,10 +637,18 @@ async function webSearch(query, maxResults = 5) {
       const snippetMatch = block.match(/<a class="result__snippet"[^>]*>([\s\S]*?)<\/a>/);
       const hrefMatch = block.match(/<a class="result__a" href="([^"]+)"/);
       if (titleMatch && snippetMatch) {
+        let extractedUrl = '';
+        if (hrefMatch) {
+          try {
+            extractedUrl = decodeURIComponent(hrefMatch[1].replace(/.*uddg=/, '').replace(/&.*/, ''));
+          } catch (e) {
+            extractedUrl = hrefMatch[1];
+          }
+        }
         results.push({
           title: titleMatch[1].replace(/<[^>]+>/g, '').trim(),
           snippet: snippetMatch[1].replace(/<[^>]+>/g, '').trim(),
-          url: hrefMatch ? decodeURIComponent(hrefMatch[1].replace(/.*uddg=/, '').replace(/&.*/, '')) : ''
+          url: extractedUrl
         });
       }
     }
@@ -685,8 +720,9 @@ async function fetchFootballData() {
   }
 
   try {
-    // Premier League 2025-26 season, league ID = 39
-    const season = 2025;
+    // Premier League season — dynamically calculated (Aug+ = current year, Jan-Jul = previous year)
+    const now = new Date();
+    const season = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
     const league = 39;
 
     // Standings
@@ -776,8 +812,6 @@ function formatFootballDataForPrompt(data) {
 async function scrapeSourceArticle(url) {
   try {
     // Google News links redirect — follow them
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
@@ -785,10 +819,8 @@ async function scrapeSourceArticle(url) {
         'Accept-Language': 'en-US,en;q=0.5',
         'Referer': 'https://www.google.com/'
       },
-      signal: controller.signal,
       redirect: 'follow'
     });
-    clearTimeout(timeout);
     const html = await res.text();
 
     // Try to extract article body first (more relevant content)
@@ -823,6 +855,40 @@ async function scrapeSourceArticle(url) {
     console.log(`[Scout] Failed to scrape ${url.slice(0, 60)}...: ${e.message}`);
     return null;
   }
+}
+
+function deduplicateSources(sources) {
+  if (sources.length <= 1) return sources;
+  const getFirst50Words = (text) => text.replace(/<[^>]+>/g, ' ').trim().split(/\s+/).slice(0, 50);
+
+  const deduplicated = [];
+  for (const src of sources) {
+    const srcWords = getFirst50Words(src.text);
+    let isDuplicate = false;
+    for (let i = 0; i < deduplicated.length; i++) {
+      const existWords = getFirst50Words(deduplicated[i].text);
+      const overlap = srcWords.filter(w => existWords.includes(w)).length;
+      const overlapRatio = Math.max(srcWords.length, existWords.length) > 0
+        ? overlap / Math.max(srcWords.length, existWords.length) : 0;
+      if (overlapRatio > 0.7) {
+        // Keep the longer version
+        if (src.text.length > deduplicated[i].text.length) {
+          console.log(`[Scout]   Dedup: replacing "${deduplicated[i].origin.slice(0, 40)}" with longer "${src.origin.slice(0, 40)}" (${Math.round(overlapRatio * 100)}% overlap)`);
+          deduplicated[i] = src;
+        } else {
+          console.log(`[Scout]   Dedup: discarding "${src.origin.slice(0, 40)}" — duplicate of "${deduplicated[i].origin.slice(0, 40)}" (${Math.round(overlapRatio * 100)}% overlap)`);
+        }
+        isDuplicate = true;
+        break;
+      }
+    }
+    if (!isDuplicate) deduplicated.push(src);
+  }
+
+  if (deduplicated.length < sources.length) {
+    console.log(`[Scout]   Source deduplication: ${sources.length} → ${deduplicated.length} unique sources`);
+  }
+  return deduplicated;
 }
 
 async function researchTopic(topic, newsItem) {
@@ -875,9 +941,21 @@ async function researchTopic(topic, newsItem) {
       for (const r of webResults) {
         sources.push(r);
       }
-      // Also search for key entities in the topic (team names, player names)
-      const entitySearch = topic.title.replace(/[^a-zA-Z ]/g, '').split(' ')
-        .filter(w => w.length > 3 && w[0] === w[0].toUpperCase()).slice(0, 3).join(' ');
+      // Also search for key entities in the topic (team names, player names — multi-word aware)
+      const titleWords = topic.title.replace(/[^a-zA-Z ]/g, '').split(' ');
+      const entities = [];
+      for (let i = 0; i < titleWords.length; i++) {
+        if (titleWords[i].length > 1 && titleWords[i][0] === titleWords[i][0].toUpperCase() && titleWords[i] !== titleWords[i].toUpperCase()) {
+          // Check for multi-word entity (consecutive capitalised words like "Aston Villa", "De Bruyne")
+          let entity = titleWords[i];
+          while (i + 1 < titleWords.length && titleWords[i + 1].length > 1 && titleWords[i + 1][0] === titleWords[i + 1][0].toUpperCase() && titleWords[i + 1] !== titleWords[i + 1].toUpperCase()) {
+            i++;
+            entity += ' ' + titleWords[i];
+          }
+          entities.push(entity);
+        }
+      }
+      const entitySearch = entities.slice(0, 3).join(' ');
       if (entitySearch.length > 5) {
         const entityResults = await webSearchAndScrape(entitySearch + ' Premier League latest', 2);
         for (const r of entityResults) {
@@ -888,6 +966,11 @@ async function researchTopic(topic, newsItem) {
       console.log(`[Scout]   ⚠ Web search failed: ${e.message}`);
     }
   }
+
+  // 2.8. Deduplicate sources (wire stories often appear in multiple outlets)
+  const deduplicatedSources = deduplicateSources(sources);
+  sources.length = 0;
+  sources.push(...deduplicatedSources);
 
   // 3. Compile research summary using AI
   if (sources.length === 0) {
@@ -912,7 +995,7 @@ Extract and return:
 Format as a clear bullet-point summary. Only include facts that appear in the source material. If sources contradict each other, note the disagreement.`;
 
   try {
-    const summary = await callLLM(summaryPrompt, 'You extract verified facts from news sources. Be precise and factual. Never invent information.');
+    const summary = await callLLM(summaryPrompt, 'You extract verified facts from news sources. Be precise and factual. Never invent information.', { temperature: 0.2 });
     console.log(`[Scout]   ✓ Research summary compiled (${sources.length} sources)`);
     // Check if the AI flagged insufficient sources
     if (summary.includes('INSUFFICIENT_SOURCES')) {
@@ -1097,7 +1180,7 @@ IMPORTANT INSTRUCTIONS:
 - Every paragraph must contain specific information — NEVER write filler like "details are yet to emerge" or "it remains to be seen".
 - Write with the confidence and insight of a journalist who has watched every minute of this team's season.`;
 
-  const result = await callLLM(prompt, systemPrompt);
+  const result = await callLLM(prompt, systemPrompt, { temperature: 0.65, long: true });
   const jsonMatch = result.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error('Failed to parse article JSON: ' + result.slice(0, 200));
   // Aggressively clean the JSON string:
@@ -1201,8 +1284,11 @@ Return ONLY the edited bodyHTML content (the HTML string). No JSON wrapper, no e
 ARTICLE TO EDIT:
 ${article.bodyHTML}`;
 
+  // Save original bodyHTML for number integrity check
+  const prePolishBody = article.bodyHTML;
+
   try {
-    const polished = await callLLM(polishPrompt, 'You are a senior sports editor. Return only the edited HTML content. No explanation, no JSON wrapper.');
+    const polished = await callLLM(polishPrompt, 'You are a senior sports editor. Return only the edited HTML content. No explanation, no JSON wrapper.', { temperature: 0.6, long: true });
 
     if (polished && polished.length > article.bodyHTML.length * 0.5) {
       // Strip any accidental markdown fences or JSON wrapping
@@ -1222,8 +1308,24 @@ ${article.bodyHTML}`;
         console.log(`[Scout]   ⚠ ${remaining.length} banned phrase(s) still present after polish: ${remaining.join(', ')}`);
       }
 
-      article.bodyHTML = cleanedHTML;
-      console.log('[Scout]   Article polished successfully');
+      // Number integrity check: compare multi-digit numbers before/after polish
+      const extractNumbers = (html) => {
+        const text = html.replace(/<[^>]+>/g, ' ');
+        return new Set((text.match(/\d{2,}/g) || []).map(n => n));
+      };
+      const originalNums = extractNumbers(prePolishBody);
+      const polishedNums = extractNumbers(cleanedHTML);
+      const lost = [...originalNums].filter(n => !polishedNums.has(n));
+      const added = [...polishedNums].filter(n => !originalNums.has(n));
+      console.log(`[Scout]   Number integrity: ${lost.length} lost, ${added.length} added (original had ${originalNums.size})`);
+
+      if (lost.length > 3 || added.length > 2) {
+        console.log(`[Scout]   ⚠ Number integrity check FAILED — reverting to pre-polish version (lost: ${lost.join(', ')}, added: ${added.join(', ')})`);
+        // Keep prePolishBody — do not apply the polish
+      } else {
+        article.bodyHTML = cleanedHTML;
+        console.log('[Scout]   Article polished successfully');
+      }
     } else {
       console.log('[Scout]   ⚠ Polish returned insufficient content, keeping original');
     }
@@ -1244,11 +1346,11 @@ async function factCheckArticle(article, footballData, research) {
   try {
     const claimsPrompt = `Extract the 3-5 most important factual claims from this article that should be verified. Focus on: match scores, transfer fees, league positions, player stats, and specific quotes.
 
-ARTICLE: ${article.bodyHTML.slice(0, 3000)}
+ARTICLE: ${article.bodyHTML}
 
 Return ONLY a JSON array of short search queries to verify each claim. Example: ["Liverpool 4-1 Newcastle result January 2026", "Mohamed Salah Premier League goals 2025-26"]`;
 
-    const claimsResult = await callLLM(claimsPrompt, 'Extract key factual claims as search queries. Return only a JSON array.');
+    const claimsResult = await callLLM(claimsPrompt, 'Extract key factual claims as search queries. Return only a JSON array.', { temperature: 0.1 });
     const claimsMatch = claimsResult.match(/\[[\s\S]*\]/);
     if (claimsMatch) {
       const queries = JSON.parse(claimsMatch[0]);
@@ -1272,7 +1374,7 @@ Return ONLY a JSON array of short search queries to verify each claim. Example: 
     verificationData += formatFootballDataForPrompt(footballData);
   }
   if (research && research.summary) {
-    verificationData += '\n\nSOURCE MATERIAL:\n' + research.summary.slice(0, 3000);
+    verificationData += '\n\nSOURCE MATERIAL:\n' + research.summary.slice(0, 6000);
   }
   if (webVerification) {
     verificationData += '\n\nWEB SEARCH VERIFICATION RESULTS:\n' + webVerification;
@@ -1304,7 +1406,7 @@ INSTRUCTIONS:
 Return ONLY the corrected bodyHTML. If no changes needed, return the original bodyHTML unchanged. If too many claims are unverifiable, return "INSUFFICIENT_ACCURACY". Return raw HTML only, no wrapping, no explanation.`;
 
   try {
-    let corrected = await callLLM(prompt, 'You are a meticulous football fact-checker. Fix errors, preserve writing style and length. Return only HTML. If too many facts are unverifiable, return INSUFFICIENT_ACCURACY.');
+    let corrected = await callLLM(prompt, 'You are a meticulous football fact-checker. Fix errors, preserve writing style and length. Return only HTML. If too many facts are unverifiable, return INSUFFICIENT_ACCURACY.', { temperature: 0.15, long: true });
     corrected = stripMarkdownFences(corrected);
     if (corrected && corrected.trim() === 'INSUFFICIENT_ACCURACY') {
       console.log('[Scout] ✗ Fact-check determined article has too many unverifiable claims — marking for rejection');
@@ -2279,6 +2381,15 @@ function buildArticleHTML(article, filename, date, imageFile) {
                 ${stripMarkdownFences(article.bodyHTML)}
             </div>
 
+            <!-- Sources -->
+            ${(article._sourceOrigins && article._sourceOrigins.length > 0) ? `
+            <div class="article-sources reveal" style="margin-top: 2em; padding-top: 1.5em; border-top: 1px solid rgba(240,236,228,0.1);">
+                <h3 style="font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--smoke); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75em;">Sources</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    ${article._sourceOrigins.map(s => `<li style="font-family: var(--font-body); font-size: 14px; color: var(--ash); padding: 4px 0;">${s.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</li>`).join('\n                    ')}
+                </ul>
+            </div>` : ''}
+
             <!-- Ad Placement: After Body -->
             <div class="article-ad">
                 <ins class="adsbygoogle"
@@ -2709,13 +2820,13 @@ async function verifyArticleAccuracy(article, research, footballData) {
 
   // 4. Verify key facts against source material using AI
   try {
-    const sourceText = research.summary ? research.summary.slice(0, 2000) : '';
-    const footballDataText = footballData ? formatFootballDataForPrompt(footballData).slice(0, 2000) : '';
+    const sourceText = research.summary ? research.summary.slice(0, 6000) : '';
+    const footballDataText = footballData ? formatFootballDataForPrompt(footballData).slice(0, 4000) : '';
 
     const verifyPrompt = `You are a strict editorial fact-checker. Compare this article against the source material and verified data below.
 
 ARTICLE TITLE: ${article.title}
-ARTICLE (first 2000 chars): ${article.bodyHTML.slice(0, 2000)}
+ARTICLE: ${article.bodyHTML.slice(0, 8000)}
 
 SOURCE MATERIAL:
 ${sourceText}
@@ -2736,7 +2847,7 @@ Return ONLY a JSON object:
   "verdict": "one sentence summary"
 }`;
 
-    const result = await callLLM(verifyPrompt, 'You are a fact-checker. Return only JSON. Be strict — if key facts cannot be verified, mark as inaccurate.');
+    const result = await callLLM(verifyPrompt, 'You are a fact-checker. Return only JSON. Be strict — if key facts cannot be verified, mark as inaccurate.', { temperature: 0.1 });
     const jsonMatch = result.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const verification = JSON.parse(jsonMatch[0]);
@@ -2755,6 +2866,46 @@ Return ONLY a JSON object:
     }
   } catch (e) {
     console.log(`[Scout] Accuracy verification LLM call failed: ${e.message} — allowing article (source gate already passed)`);
+  }
+
+  // 5. Second-pass verification for long articles (>8000 chars)
+  if (article.bodyHTML.length > 8000) {
+    console.log(`[Scout] Long article (${article.bodyHTML.length} chars) — running second-pass verification on latter half...`);
+    try {
+      const secondHalf = article.bodyHTML.slice(article.bodyHTML.length / 2);
+      const sourceText = research.summary ? research.summary.slice(0, 4000) : '';
+      const secondPassPrompt = `You are a strict editorial fact-checker. Check the SECOND HALF of this article against the source material below.
+
+ARTICLE TITLE: ${article.title}
+ARTICLE (second half): ${secondHalf}
+
+SOURCE MATERIAL:
+${sourceText}
+
+Check for fabricated quotes, invented statistics, incorrect scores, wrong league positions, or facts not supported by the source material.
+
+Return ONLY a JSON object:
+{
+  "accurate": true/false,
+  "issues": ["list of specific factual issues found, if any"],
+  "verdict": "one sentence summary"
+}`;
+
+      const result2 = await callLLM(secondPassPrompt, 'You are a fact-checker. Return only JSON. Be strict.', { temperature: 0.1 });
+      const json2 = result2.match(/\{[\s\S]*\}/);
+      if (json2) {
+        const v2 = JSON.parse(json2[0]);
+        console.log(`[Scout] Second-pass verification: accurate=${v2.accurate}, issues=${(v2.issues || []).length}`);
+        if (v2.issues && v2.issues.length > 0) {
+          console.log(`[Scout]   Second-pass issues: ${v2.issues.join('; ')}`);
+        }
+        if (!v2.accurate && v2.issues && v2.issues.length >= 3) {
+          return { passed: false, reason: `Second-pass verification failed: ${v2.issues.slice(0, 2).join('; ')}` };
+        }
+      }
+    } catch (e) {
+      console.log(`[Scout] Second-pass verification failed: ${e.message} — allowing article`);
+    }
   }
 
   return { passed: true, reason: 'Article passed accuracy verification' };
@@ -2834,10 +2985,10 @@ async function runScout(count = 1) {
       // Quality gate: skip topics with insufficient source material
       // Need at least 1 source with real content and 500+ total chars (including search snippets)
       const allSources = research.sources || [];
-      const realSources = allSources.filter(s => s.text && s.text.length > 50);
+      const realSources = allSources.filter(s => s.text && s.text.length > 200);
       const totalSourceChars = allSources.reduce((sum, s) => sum + (s.text ? s.text.length : 0), 0);
-      if (realSources.length < 1 || totalSourceChars < 500) {
-        console.log(`[Scout] Skipping "${topic.title}" — insufficient source material for accurate article (${realSources.length} sources, ${totalSourceChars} chars total — need 1+ sources and 500+ chars), trying next topic`);
+      if (realSources.length < 2 || totalSourceChars < 1500) {
+        console.log(`[Scout] Skipping "${topic.title}" — insufficient source material for accurate article (${realSources.length} sources, ${totalSourceChars} chars total — need 2+ sources and 1500+ chars), trying next topic`);
         continue;
       }
 
@@ -2880,6 +3031,13 @@ async function runScout(count = 1) {
         console.log(`[Scout] Skipping "${topic.title}" — failed accuracy verification: ${accuracyCheck.reason}`);
         continue;
       }
+
+      // Attach source origins for citation rendering
+      article._sourceOrigins = (research.sources || [])
+        .map(s => s.origin)
+        .filter(o => o && o !== 'Google News summary')
+        .filter((v, i, a) => a.indexOf(v) === i) // unique
+        .slice(0, 8);
 
       // Step 4: Find and download image
       const imageResult = await findAndDownloadImage(article.imageSearchQuery || topic.title, slug);
@@ -2998,7 +3156,7 @@ Use these exact team names: Arsenal FC, Aston Villa FC, AFC Bournemouth, Brentfo
 
 No other text, just the JSON array.`;
 
-  const result = await callLLM(prompt, 'You are a football data assistant with knowledge of the 2025-26 Premier League fixture schedule. Return accurate fixture data in JSON format only. Only include matches that have not been played yet.');
+  const result = await callLLM(prompt, 'You are a football data assistant with knowledge of the 2025-26 Premier League fixture schedule. Return accurate fixture data in JSON format only. Only include matches that have not been played yet.', { temperature: 0.2 });
   const jsonMatch = result.match(/\[[\s\S]*\]/);
   if (!jsonMatch) return [];
   try { return JSON.parse(jsonMatch[0]); } catch { return []; }
@@ -3147,7 +3305,7 @@ Be realistic with scores (most PL games are 0-0 to 4-2 range). Vary your predict
   const prompt = `Predict the outcomes for these upcoming Premier League matches:\n\n${fixtureList}\n\nProvide predictions for all matches listed.`;
 
   try {
-    const result = await callLLM(prompt, systemPrompt);
+    const result = await callLLM(prompt, systemPrompt, { temperature: 0.5 });
     const jsonMatch = result.match(/\[[\s\S]*\]/);
     if (!jsonMatch) throw new Error('Failed to parse predictions JSON');
 
