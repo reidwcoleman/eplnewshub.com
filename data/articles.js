@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'aston-villa-vs-leeds-how-to-watch-and-what-to-expect-in-prem-2026-02-21',
+    title: 'Aston Villa vs Leeds: Breaking Down the Premier League Showdown',
+    excerpt: 'Aston Villa looks to snap a 26-year streak as they face Leeds United in a critical Premier League encounter. Here\'s everything you need to know.',
+    image: '/scout-aston-villa-vs-leeds-how-to-watch-and-what-to-expect-in-prem.jpg',
+    category: 'Match Previews',
+    date: '2026-02-21',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Aston Villa', 'Leeds United', 'Premier League', 'Unai Emery', 'Sam Allardyce']
+  },
+  {
     id: 'wolves-2-2-arsenal-tactical-breakdown-of-a-thrilling-premier-2026-02-21',
     title: 'Wolves 2-2 Arsenal: Tactical Breakdown of a Thrilling Premier League Draw',
     excerpt: 'Arsenal squandered a two-goal lead at Molineux, but their resilience in securing a point reveals both their strengths and weaknesses in the title race.',
