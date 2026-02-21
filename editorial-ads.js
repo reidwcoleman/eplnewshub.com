@@ -89,11 +89,36 @@
         'border-radius: 2px;' +
       '}' +
 
-      // Suppress any Google auto-injected ads inside article body
-      '.article-body > ins.adsbygoogle:not(.ed-ad-unit ins),' +
-      '.article-content > ins.adsbygoogle:not(.ed-ad-unit ins),' +
-      '.nyt-article > ins.adsbygoogle:not(.ed-ad-unit ins) {' +
+      // Hide ALL Google ads that are NOT inside our .ed-ad-unit containers
+      'body > ins.adsbygoogle,' +
+      'html > ins.adsbygoogle,' +
+      'ins.adsbygoogle:not(.ed-ad-unit ins) {' +
         'display: none !important;' +
+        'height: 0 !important;' +
+        'max-height: 0 !important;' +
+        'visibility: hidden !important;' +
+        'overflow: hidden !important;' +
+        'position: absolute !important;' +
+        'pointer-events: none !important;' +
+      '}' +
+
+      // Kill anchor/banner/vignette/overlay ads (all screen sizes)
+      'ins.adsbygoogle[data-anchor-shown],' +
+      'ins.adsbygoogle[data-anchor-status],' +
+      'ins.adsbygoogle[data-ad-status="filled"]:not(.ed-ad-unit ins),' +
+      'div[id^="google_ads_iframe"][style*="position: fixed"],' +
+      'div[id^="aswift_"][style*="position: fixed"],' +
+      'iframe[id^="aswift_"][style*="position: fixed"],' +
+      '#mobile-sticky-banner,' +
+      '#sticky-sidebar-ad,' +
+      'div[style*="position: fixed"][style*="bottom: 0"],' +
+      'div[style*="position: fixed"][style*="z-index: 2147"],' +
+      'aside[style*="position: fixed"] {' +
+        'display: none !important;' +
+        'height: 0 !important;' +
+        'max-height: 0 !important;' +
+        'visibility: hidden !important;' +
+        'overflow: hidden !important;' +
       '}' +
 
       // Mobile: optimized ads — all positions visible, full width, clean spacing
@@ -119,29 +144,6 @@
         '.ed-ad-unit[data-position="post-related"],' +
         '.ed-ad-unit[data-position="pre-comments"] {' +
           'padding: 16px 12px;' +
-        '}' +
-      '}' +
-
-      // Kill Google auto-injected anchor/banner/vignette ads on mobile
-      '@media (max-width: 600px) {' +
-        // Bottom anchor ads
-        'ins.adsbygoogle[data-anchor-shown="true"],' +
-        'ins.adsbygoogle[data-ad-format="auto"][data-anchor-status],' +
-        // Google auto ads fixed overlays
-        'div[id^="google_ads_iframe"][style*="position: fixed"],' +
-        'div[id^="aswift_"][style*="position: fixed"],' +
-        'iframe[id^="aswift_"][style*="position: fixed"],' +
-        // General fixed/sticky ad overlays
-        '#mobile-sticky-banner,' +
-        '#sticky-sidebar-ad,' +
-        'div[style*="position: fixed"][style*="bottom: 0"],' +
-        'div[style*="position: fixed"][style*="z-index: 2147"],' +
-        'aside[style*="position: fixed"] {' +
-          'display: none !important;' +
-          'height: 0 !important;' +
-          'max-height: 0 !important;' +
-          'overflow: hidden !important;' +
-          'visibility: hidden !important;' +
         '}' +
       '}';
 
@@ -284,12 +286,10 @@
     }
   }
 
-  // Remove Google anchor/banner/vignette ads on mobile
-  function killMobileBanners() {
-    if (window.innerWidth > 600) return;
-
-    // Kill anchor ads (ins elements injected directly into body)
-    document.querySelectorAll('ins.adsbygoogle[data-anchor-shown]').forEach(function (el) {
+  // Kill any Google-injected ad that is NOT inside our .ed-ad-unit containers
+  function killRogueAds() {
+    document.querySelectorAll('ins.adsbygoogle').forEach(function (el) {
+      if (el.closest('.ed-ad-unit')) return; // Don't touch our own ads
       el.style.setProperty('display', 'none', 'important');
       el.style.setProperty('height', '0', 'important');
       el.style.setProperty('max-height', '0', 'important');
@@ -297,28 +297,49 @@
       el.style.setProperty('overflow', 'hidden', 'important');
     });
 
-    // Kill vignette/overlay ads
-    document.querySelectorAll('ins.adsbygoogle[data-ad-format="auto"]').forEach(function (el) {
-      if (el.closest('.ed-ad-unit')) return; // Don't touch our own ads
-      var style = window.getComputedStyle(el);
-      if (style.position === 'fixed' || el.getAttribute('data-anchor-shown')) {
-        el.style.setProperty('display', 'none', 'important');
-        el.style.setProperty('height', '0', 'important');
-      }
+    // Also kill fixed-position ad iframes/divs
+    document.querySelectorAll(
+      'div[id^="aswift_"][style*="position: fixed"],' +
+      'iframe[id^="aswift_"][style*="position: fixed"],' +
+      'div[id^="google_ads_iframe"][style*="position: fixed"]'
+    ).forEach(function (el) {
+      el.style.setProperty('display', 'none', 'important');
+      el.style.setProperty('height', '0', 'important');
     });
+  }
+
+  // Watch for Google injecting new ads and kill them immediately
+  function watchForRogueAds() {
+    killRogueAds(); // Initial sweep
+
+    var observer = new MutationObserver(function (mutations) {
+      var needsCheck = false;
+      for (var i = 0; i < mutations.length; i++) {
+        var added = mutations[i].addedNodes;
+        for (var j = 0; j < added.length; j++) {
+          var node = added[j];
+          if (node.nodeType !== 1) continue;
+          if (node.tagName === 'INS' || node.tagName === 'IFRAME' || node.tagName === 'DIV') {
+            needsCheck = true;
+            break;
+          }
+        }
+        if (needsCheck) break;
+      }
+      if (needsCheck) killRogueAds();
+    });
+
+    observer.observe(document.documentElement, { childList: true, subtree: true });
   }
 
   // Run after DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () {
       placeAds();
-      // Run banner killer after a delay to catch late-injected ads
-      setTimeout(killMobileBanners, 2000);
-      setTimeout(killMobileBanners, 5000);
+      watchForRogueAds();
     });
   } else {
     placeAds();
-    setTimeout(killMobileBanners, 2000);
-    setTimeout(killMobileBanners, 5000);
+    watchForRogueAds();
   }
 })();
