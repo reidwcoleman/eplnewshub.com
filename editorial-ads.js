@@ -286,20 +286,22 @@
   function killMobileBanners() {
     if (window.innerWidth > 600) return;
 
-    // Kill fixed-position ad overlays (anchor ads, vignettes)
-    var fixedEls = document.querySelectorAll(
-      'div[style*="position: fixed"], iframe[style*="position: fixed"], aside[style*="position: fixed"]'
-    );
-    fixedEls.forEach(function (el) {
-      // Only remove if it looks like an ad (contains adsbygoogle or google_ads)
-      var html = el.innerHTML || '';
-      var id = el.id || '';
-      if (id.indexOf('aswift_') === 0 || id.indexOf('google_ads') === 0 ||
-          html.indexOf('adsbygoogle') !== -1 || html.indexOf('google_ads') !== -1 ||
-          el.tagName === 'IFRAME') {
-        el.style.display = 'none';
-        el.style.height = '0';
-        el.style.visibility = 'hidden';
+    // Kill anchor ads (ins elements injected directly into body)
+    document.querySelectorAll('ins.adsbygoogle[data-anchor-shown]').forEach(function (el) {
+      el.style.setProperty('display', 'none', 'important');
+      el.style.setProperty('height', '0', 'important');
+      el.style.setProperty('max-height', '0', 'important');
+      el.style.setProperty('visibility', 'hidden', 'important');
+      el.style.setProperty('overflow', 'hidden', 'important');
+    });
+
+    // Kill vignette/overlay ads
+    document.querySelectorAll('ins.adsbygoogle[data-ad-format="auto"]').forEach(function (el) {
+      if (el.closest('.ed-ad-unit')) return; // Don't touch our own ads
+      var style = window.getComputedStyle(el);
+      if (style.position === 'fixed' || el.getAttribute('data-anchor-shown')) {
+        el.style.setProperty('display', 'none', 'important');
+        el.style.setProperty('height', '0', 'important');
       }
     });
   }
