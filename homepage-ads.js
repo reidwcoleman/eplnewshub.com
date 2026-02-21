@@ -109,24 +109,44 @@
         'height: 0 !important;' +
       '}' +
 
-      // Mobile responsive
-      '@media (max-width: 600px) {' +
+      // Mobile responsive — edge-to-edge ads using viewport width
+      '@media (max-width: 768px) {' +
         '.hp-ad-unit {' +
-          'margin: 20px -16px;' +
-          'padding: 16px 12px;' +
-          'max-width: none;' +
-          'width: calc(100% + 32px);' +
+          'position: relative;' +
+          'left: 50%;' +
+          'transform: translateX(-50%);' +
+          'width: 100vw;' +
+          'max-width: 100vw;' +
+          'margin: 24px 0;' +
+          'padding: 16px 16px;' +
+          'background: rgba(240, 236, 228, 0.02);' +
+          'border-top: 1px solid rgba(240, 236, 228, 0.06);' +
+          'border-bottom: 1px solid rgba(240, 236, 228, 0.06);' +
+          'box-sizing: border-box;' +
+          'overflow: hidden;' +
+        '}' +
+        '.hp-ad-unit::before, .hp-ad-unit::after {' +
+          'display: none;' +
         '}' +
         '.hp-ad-unit ins.adsbygoogle {' +
           'min-height: 100px;' +
           'max-height: 300px;' +
         '}' +
-        '.hp-ad-unit::before, .hp-ad-unit::after {' +
-          'width: 32px;' +
-          'margin-bottom: 10px;' +
-          'margin-top: 10px;' +
-        '}' +
         '.hp-ad-label { font-size: 8px; margin-bottom: 8px; }' +
+      '}' +
+
+      '@media (max-width: 480px) {' +
+        '.hp-ad-unit {' +
+          'margin: 18px 0;' +
+          'padding: 14px 12px;' +
+        '}' +
+      '}' +
+
+      '@media (max-width: 360px) {' +
+        '.hp-ad-unit {' +
+          'margin: 14px 0;' +
+          'padding: 12px 10px;' +
+        '}' +
       '}';
 
     document.head.appendChild(style);
