@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-predictions-chris-sutton-vs-embrace-bassist-s-2026-02-21',
+    title: 'Premier League Predictions: Chris Sutton vs. Embrace Bassist Steve Firth - and AI',
+    excerpt: 'Chris Sutton and Steve Firth go head-to-head in Premier League predictions, with AI also in the mix. Who will come out on top?',
+    image: '/scout-premier-league-predictions-chris-sutton-vs-embrace-bassist-s.jpg',
+    category: 'Analysis',
+    date: '2026-02-21',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'Chris Sutton', 'Steve Firth', 'Embrace', 'AI', 'football predictions']
+  },
+  {
     id: 'premier-league-2025-26-table-latest-standings-and-race-for-g-2026-02-21',
     title: 'Premier League 2025-26 Table: The Title Race and Relegation Battle Heats Up',
     excerpt: 'With just months remaining, the Premier League title race is as tight as ever, while the relegation battle intensifies. Here\'s what the latest standings tell us about the season\'s defining struggles.',
