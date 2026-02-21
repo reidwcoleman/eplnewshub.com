@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'scottish-premiership-news-transfers-rumours-and-gossip-2026-02-21',
+    title: 'Scottish Premiership Transfer Window: A Tactical Reset for 2026',
+    excerpt: 'The January 2026 transfer window has reshaped the Scottish Premiership landscape, with clubs making strategic signings to address key weaknesses and bolster their squads for the second half of the season.',
+    image: '/scout-scottish-premiership-news-transfers-rumours-and-gossip.jpg',
+    category: 'News',
+    date: '2026-02-21',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Scottish Premiership', 'transfers', 'January 2026', 'Aberdeen', 'Celtic', 'Dundee', 'Rangers']
+  },
+  {
+    id: 'premier-league-team-news-predicted-lineups-for-the-weekend-2026-02-21',
+    title: 'Premier League Team News: Predicted Lineups and Tactical Battles for the Weekend',
+    excerpt: 'With key injuries and suspensions looming, we break down the predicted lineups and tactical battles for the Premier League\'s weekend action.',
+    image: '/scout-premier-league-team-news-predicted-lineups-for-the-weekend.jpg',
+    category: 'Match Reports',
+    date: '2026-02-21',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'team news', 'predicted lineups', 'injuries', 'tactical analysis']
+  },
+  {
     id: 'premier-league-predictions-chris-sutton-vs-embrace-bassist-s-2026-02-21',
     title: 'Premier League Predictions: Chris Sutton vs. Embrace Bassist Steve Firth - and AI',
     excerpt: 'Chris Sutton and Steve Firth go head-to-head in Premier League predictions, with AI also in the mix. Who will come out on top?',
