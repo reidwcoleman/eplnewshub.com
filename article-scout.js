@@ -745,7 +745,15 @@ async function fetchFootballData() {
     return null;
   }
 
-  const data = { standings: null, recentResults: null, upcomingFixtures: null, topScorers: null };
+  const data = {
+    standings: null,
+    recentResults: null,
+    upcomingFixtures: null,
+    topScorers: null,
+    topAssists: null,
+    coaches: {},     // teamName -> { name, nationality, age, career }
+    teamSquads: {}   // teamName -> [{ name, position, age, number }]
+  };
 
   async function apiCall(endpoint) {
     const res = await fetch(`https://v3.football.api-sports.io${endpoint}`, {
@@ -755,54 +763,145 @@ async function fetchFootballData() {
     return res.json();
   }
 
+  // Small delay between calls to be polite to the API
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+
   try {
-    // Premier League season — dynamically calculated (Aug+ = current year, Jan-Jul = previous year)
     const now = new Date();
     const season = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
     const league = 39;
 
-    // Standings
+    // 1. Standings (includes team IDs we'll use later)
     const standingsRes = await apiCall(`/standings?league=${league}&season=${season}`);
+    const teamIdMap = {}; // teamName -> teamId
     if (standingsRes.response && standingsRes.response[0]) {
-      data.standings = standingsRes.response[0].league.standings[0].map(t => ({
-        rank: t.rank,
-        team: t.team.name,
-        points: t.points,
-        played: t.all.played,
-        won: t.all.win,
-        drawn: t.all.draw,
-        lost: t.all.lose,
-        goalsFor: t.all.goals.for,
-        goalsAgainst: t.all.goals.against,
-        form: t.form
-      }));
-      console.log('[Scout] ✓ Fetched live Premier League standings');
+      data.standings = standingsRes.response[0].league.standings[0].map(t => {
+        teamIdMap[t.team.name] = t.team.id;
+        return {
+          rank: t.rank,
+          team: t.team.name,
+          teamId: t.team.id,
+          points: t.points,
+          played: t.all.played,
+          won: t.all.win,
+          drawn: t.all.draw,
+          lost: t.all.lose,
+          goalsFor: t.all.goals.for,
+          goalsAgainst: t.all.goals.against,
+          homeRecord: `W${t.home.win} D${t.home.draw} L${t.home.lose}`,
+          awayRecord: `W${t.away.win} D${t.away.draw} L${t.away.lose}`,
+          form: t.form
+        };
+      });
+      console.log('[Scout] ✓ Fetched Premier League standings');
     }
 
-    // Recent results (last 7 days)
+    // 2. Recent results (last 7 days) — store fixture IDs for detailed lookup
     const today = new Date();
     const weekAgo = new Date(today - 7 * 86400000);
     const fromDate = weekAgo.toISOString().split('T')[0];
     const toDate = today.toISOString().split('T')[0];
     const resultsRes = await apiCall(`/fixtures?league=${league}&season=${season}&from=${fromDate}&to=${toDate}&status=FT`);
+    const recentFixtureIds = [];
     if (resultsRes.response) {
-      data.recentResults = resultsRes.response.map(m => ({
-        home: m.teams.home.name,
-        away: m.teams.away.name,
-        homeGoals: m.goals.home,
-        awayGoals: m.goals.away,
-        date: m.fixture.date
-      }));
+      data.recentResults = resultsRes.response.map(m => {
+        recentFixtureIds.push(m.fixture.id);
+        return {
+          fixtureId: m.fixture.id,
+          home: m.teams.home.name,
+          away: m.teams.away.name,
+          homeGoals: m.goals.home,
+          awayGoals: m.goals.away,
+          date: m.fixture.date,
+          venue: m.fixture.venue ? m.fixture.venue.name : null,
+          round: m.league.round,
+          // filled in below
+          scorers: [],
+          cards: [],
+          stats: null
+        };
+      });
       console.log(`[Scout] ✓ Fetched ${data.recentResults.length} recent match results`);
     }
 
-    // Upcoming fixtures (next 14 days)
+    // 3. Per-match events (scorers, assists, cards) + stats — cap at 6 most recent to manage API calls
+    const fixturesForDetail = recentFixtureIds.slice(-6);
+    for (const fid of fixturesForDetail) {
+      await delay(150);
+      try {
+        const eventsRes = await apiCall(`/fixtures/events?fixture=${fid}`);
+        if (eventsRes.response) {
+          const matchData = data.recentResults.find(r => r.fixtureId === fid);
+          if (matchData) {
+            eventsRes.response.forEach(ev => {
+              if (ev.type === 'Goal' && ev.detail !== 'Missed Penalty') {
+                matchData.scorers.push({
+                  player: ev.player.name,
+                  team: ev.team.name,
+                  minute: ev.time.elapsed,
+                  assist: ev.assist && ev.assist.name ? ev.assist.name : null,
+                  type: ev.detail // 'Normal Goal', 'Own Goal', 'Penalty'
+                });
+              } else if (ev.type === 'Card') {
+                matchData.cards.push({
+                  player: ev.player.name,
+                  team: ev.team.name,
+                  minute: ev.time.elapsed,
+                  card: ev.detail // 'Yellow Card', 'Red Card', 'Second Yellow Card'
+                });
+              }
+            });
+          }
+        }
+      } catch (e) {
+        console.log(`[Scout]   ⚠ Could not fetch events for fixture ${fid}: ${e.message}`);
+      }
+
+      await delay(150);
+      try {
+        const statsRes = await apiCall(`/fixtures/statistics?fixture=${fid}`);
+        if (statsRes.response && statsRes.response.length >= 2) {
+          const matchData = data.recentResults.find(r => r.fixtureId === fid);
+          if (matchData) {
+            const getStat = (teamStats, name) => {
+              const s = teamStats.statistics.find(x => x.type === name);
+              return s ? s.value : null;
+            };
+            const homeStats = statsRes.response[0];
+            const awayStats = statsRes.response[1];
+            matchData.stats = {
+              homePossession: getStat(homeStats, 'Ball Possession'),
+              awayPossession: getStat(awayStats, 'Ball Possession'),
+              homeShotsOnTarget: getStat(homeStats, 'Shots on Goal'),
+              awayShotsOnTarget: getStat(awayStats, 'Shots on Goal'),
+              homeTotalShots: getStat(homeStats, 'Total Shots'),
+              awayTotalShots: getStat(awayStats, 'Total Shots'),
+              homeCorners: getStat(homeStats, 'Corner Kicks'),
+              awayCorners: getStat(awayStats, 'Corner Kicks'),
+              homeFouls: getStat(homeStats, 'Fouls'),
+              awayFouls: getStat(awayStats, 'Fouls'),
+              homeXG: getStat(homeStats, 'expected_goals'),
+              awayXG: getStat(awayStats, 'expected_goals')
+            };
+          }
+        }
+      } catch (e) {
+        console.log(`[Scout]   ⚠ Could not fetch stats for fixture ${fid}: ${e.message}`);
+      }
+    }
+    if (fixturesForDetail.length > 0) {
+      console.log(`[Scout] ✓ Fetched events + stats for ${fixturesForDetail.length} recent matches`);
+    }
+
+    // 4. Upcoming fixtures (next 14 days)
     const twoWeeksOut = new Date(today.getTime() + 14 * 86400000);
     const fromDateUpcoming = today.toISOString().split('T')[0];
     const toDateUpcoming = twoWeeksOut.toISOString().split('T')[0];
-    const upcomingRes = await apiCall(`/fixtures?league=${league}&season=${season}&from=${fromDateUpcoming}&to=${toDateUpcoming}&status=NS-TBD-1H-2H-HT`);
+    await delay(150);
+    const upcomingRes = await apiCall(`/fixtures?league=${league}&season=${season}&from=${fromDateUpcoming}&to=${toDateUpcoming}&status=NS-TBD`);
     if (upcomingRes.response) {
       data.upcomingFixtures = upcomingRes.response.map(m => ({
+        fixtureId: m.fixture.id,
         home: m.teams.home.name,
         away: m.teams.away.name,
         date: m.fixture.date,
@@ -812,17 +911,90 @@ async function fetchFootballData() {
       console.log(`[Scout] ✓ Fetched ${data.upcomingFixtures.length} upcoming fixtures`);
     }
 
-    // Top scorers
+    // 5. Top scorers
+    await delay(150);
     const scorersRes = await apiCall(`/players/topscorers?league=${league}&season=${season}`);
     if (scorersRes.response) {
       data.topScorers = scorersRes.response.slice(0, 15).map(p => ({
         name: p.player.name,
         team: p.statistics[0].team.name,
         goals: p.statistics[0].goals.total,
-        assists: p.statistics[0].goals.assists || 0
+        assists: p.statistics[0].goals.assists || 0,
+        shots: p.statistics[0].shots ? p.statistics[0].shots.on : null,
+        appearances: p.statistics[0].games ? p.statistics[0].games.appearences : null
       }));
       console.log(`[Scout] ✓ Fetched top ${data.topScorers.length} scorers`);
     }
+
+    // 6. Top assists
+    await delay(150);
+    const assistsRes = await apiCall(`/players/topassists?league=${league}&season=${season}`);
+    if (assistsRes.response) {
+      data.topAssists = assistsRes.response.slice(0, 10).map(p => ({
+        name: p.player.name,
+        team: p.statistics[0].team.name,
+        assists: p.statistics[0].goals.assists || 0,
+        goals: p.statistics[0].goals.total || 0
+      }));
+      console.log(`[Scout] ✓ Fetched top ${data.topAssists.length} assist makers`);
+    }
+
+    // 7. Coaches/managers for teams featured in recent results + upcoming fixtures
+    const featuredTeams = new Set();
+    (data.recentResults || []).forEach(m => { featuredTeams.add(m.home); featuredTeams.add(m.away); });
+    (data.upcomingFixtures || []).forEach(m => { featuredTeams.add(m.home); featuredTeams.add(m.away); });
+    const teamsToFetch = [...featuredTeams].slice(0, 10); // cap at 10 to manage API calls
+
+    for (const teamName of teamsToFetch) {
+      const teamId = teamIdMap[teamName];
+      if (!teamId) continue;
+      await delay(150);
+      try {
+        const coachRes = await apiCall(`/coachs?team=${teamId}`);
+        if (coachRes.response && coachRes.response.length > 0) {
+          // Most recent/current coach is last in array
+          const coach = coachRes.response[coachRes.response.length - 1];
+          data.coaches[teamName] = {
+            name: coach.name,
+            nationality: coach.nationality,
+            age: coach.age,
+            dateJoined: coach.career && coach.career.length > 0
+              ? coach.career[coach.career.length - 1].start
+              : null
+          };
+        }
+      } catch (e) {
+        console.log(`[Scout]   ⚠ Could not fetch coach for ${teamName}: ${e.message}`);
+      }
+    }
+    const coachCount = Object.keys(data.coaches).length;
+    if (coachCount > 0) console.log(`[Scout] ✓ Fetched managers for ${coachCount} teams`);
+
+    // 8. Key squad players for teams in upcoming fixtures (for preview articles)
+    const upcomingTeams = new Set();
+    (data.upcomingFixtures || []).slice(0, 3).forEach(m => {
+      upcomingTeams.add({ name: m.home, id: teamIdMap[m.home] });
+      upcomingTeams.add({ name: m.away, id: teamIdMap[m.away] });
+    });
+    for (const team of upcomingTeams) {
+      if (!team.id || data.teamSquads[team.name]) continue;
+      await delay(150);
+      try {
+        const squadRes = await apiCall(`/players/squads?team=${team.id}`);
+        if (squadRes.response && squadRes.response[0]) {
+          data.teamSquads[team.name] = squadRes.response[0].players.map(p => ({
+            name: p.name,
+            position: p.position,
+            age: p.age,
+            number: p.number
+          }));
+        }
+      } catch (e) {
+        console.log(`[Scout]   ⚠ Could not fetch squad for ${team.name}: ${e.message}`);
+      }
+    }
+    const squadCount = Object.keys(data.teamSquads).length;
+    if (squadCount > 0) console.log(`[Scout] ✓ Fetched squads for ${squadCount} teams`);
 
     return data;
   } catch (e) {
@@ -833,35 +1005,98 @@ async function fetchFootballData() {
 
 function formatFootballDataForPrompt(data) {
   if (!data) return '';
-  let text = '\n\nVERIFIED REAL-TIME DATA (from official API — trust these numbers over any other source):\n';
+  let text = '\n\nVERIFIED REAL-TIME DATA (from official API — trust these numbers above ALL other sources):\n';
 
   if (data.standings) {
     text += '\n--- PREMIER LEAGUE TABLE ---\n';
+    text += 'Pos | Team | Pts | P | W | D | L | GF | GA | Home | Away | Form\n';
     data.standings.forEach(t => {
-      text += `${t.rank}. ${t.team} — ${t.points}pts (P${t.played} W${t.won} D${t.drawn} L${t.lost}, GF${t.goalsFor} GA${t.goalsAgainst}, Form: ${t.form})\n`;
+      text += `${t.rank}. ${t.team} — ${t.points}pts (P${t.played} W${t.won} D${t.drawn} L${t.lost}, GF${t.goalsFor} GA${t.goalsAgainst}, Home: ${t.homeRecord}, Away: ${t.awayRecord}, Form: ${t.form})\n`;
     });
   }
 
   if (data.recentResults && data.recentResults.length > 0) {
     text += '\n--- RECENT RESULTS (last 7 days) ---\n';
     data.recentResults.forEach(m => {
-      text += `${m.home} ${m.homeGoals}-${m.awayGoals} ${m.away} (${new Date(m.date).toLocaleDateString()})\n`;
+      const d = new Date(m.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+      text += `\n${m.home} ${m.homeGoals}–${m.awayGoals} ${m.away} | ${d}${m.venue ? ' | ' + m.venue : ''}${m.round ? ' | ' + m.round : ''}\n`;
+      if (m.scorers && m.scorers.length > 0) {
+        text += '  Goals:\n';
+        m.scorers.forEach(g => {
+          const assist = g.assist ? ` (assist: ${g.assist})` : '';
+          const type = g.type !== 'Normal Goal' ? ` [${g.type}]` : '';
+          text += `    ${g.minute}' ${g.player} (${g.team})${assist}${type}\n`;
+        });
+      }
+      if (m.cards && m.cards.length > 0) {
+        const reds = m.cards.filter(c => c.card.toLowerCase().includes('red'));
+        if (reds.length > 0) {
+          text += '  Red cards:\n';
+          reds.forEach(c => text += `    ${c.minute}' ${c.player} (${c.team})\n`);
+        }
+        const yellows = m.cards.filter(c => c.card === 'Yellow Card');
+        if (yellows.length > 0) {
+          text += `  Yellow cards: ${yellows.map(c => `${c.player} (${c.team}) ${c.minute}'`).join(', ')}\n`;
+        }
+      }
+      if (m.stats) {
+        const s = m.stats;
+        const parts = [];
+        if (s.homePossession && s.awayPossession) parts.push(`Possession: ${s.homePossession} – ${s.awayPossession}`);
+        if (s.homeShotsOnTarget != null && s.awayShotsOnTarget != null) parts.push(`Shots on target: ${s.homeShotsOnTarget} – ${s.awayShotsOnTarget}`);
+        if (s.homeTotalShots != null && s.awayTotalShots != null) parts.push(`Total shots: ${s.homeTotalShots} – ${s.awayTotalShots}`);
+        if (s.homeCorners != null && s.awayCorners != null) parts.push(`Corners: ${s.homeCorners} – ${s.awayCorners}`);
+        if (s.homeXG && s.awayXG) parts.push(`xG: ${s.homeXG} – ${s.awayXG}`);
+        if (parts.length > 0) text += `  Stats: ${parts.join(' | ')}\n`;
+      }
     });
   }
 
   if (data.upcomingFixtures && data.upcomingFixtures.length > 0) {
     text += '\n--- UPCOMING FIXTURES (next 14 days) ---\n';
     data.upcomingFixtures.forEach(m => {
-      const matchDate = new Date(m.date).toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' });
-      const matchTime = new Date(m.date).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-      text += `${m.home} vs ${m.away} — ${matchDate} ${matchTime}${m.venue ? ' at ' + m.venue : ''}${m.round ? ' (' + m.round + ')' : ''}\n`;
+      const d = new Date(m.date);
+      const dateStr = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+      const timeStr = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      text += `${m.home} vs ${m.away} — ${dateStr} ${timeStr}${m.venue ? ' at ' + m.venue : ''}${m.round ? ' (' + m.round + ')' : ''}\n`;
     });
   }
 
-  if (data.topScorers) {
-    text += '\n--- TOP SCORERS ---\n';
+  if (data.coaches && Object.keys(data.coaches).length > 0) {
+    text += '\n--- MANAGERS ---\n';
+    Object.entries(data.coaches).forEach(([team, c]) => {
+      const joined = c.dateJoined ? ` (since ${c.dateJoined.slice(0, 10)})` : '';
+      text += `${team}: ${c.name} (${c.nationality}, age ${c.age})${joined}\n`;
+    });
+  }
+
+  if (data.topScorers && data.topScorers.length > 0) {
+    text += '\n--- TOP SCORERS (season) ---\n';
     data.topScorers.forEach((p, i) => {
-      text += `${i + 1}. ${p.name} (${p.team}) — ${p.goals} goals, ${p.assists} assists\n`;
+      const apps = p.appearances ? ` in ${p.appearances} apps` : '';
+      text += `${i + 1}. ${p.name} (${p.team}) — ${p.goals} goals, ${p.assists} assists${apps}\n`;
+    });
+  }
+
+  if (data.topAssists && data.topAssists.length > 0) {
+    text += '\n--- TOP ASSIST MAKERS (season) ---\n';
+    data.topAssists.forEach((p, i) => {
+      text += `${i + 1}. ${p.name} (${p.team}) — ${p.assists} assists, ${p.goals} goals\n`;
+    });
+  }
+
+  if (data.teamSquads && Object.keys(data.teamSquads).length > 0) {
+    text += '\n--- SQUAD PLAYERS (teams in upcoming fixtures) ---\n';
+    Object.entries(data.teamSquads).forEach(([team, players]) => {
+      text += `\n${team} squad:\n`;
+      const byPosition = { Goalkeeper: [], Defender: [], Midfielder: [], Attacker: [] };
+      players.forEach(p => {
+        const pos = byPosition[p.position] ? p.position : 'Midfielder';
+        (byPosition[pos] || byPosition['Midfielder']).push(`${p.name}${p.number ? ' (#' + p.number + ')' : ''}`);
+      });
+      Object.entries(byPosition).forEach(([pos, names]) => {
+        if (names.length > 0) text += `  ${pos}s: ${names.join(', ')}\n`;
+      });
     });
   }
 
