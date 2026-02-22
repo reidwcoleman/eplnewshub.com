@@ -1,12 +1,13 @@
 // Show the popup form
 function showPopup() {
-    document.getElementById('popupForm').style.display = 'block';
+    var popup = document.getElementById('popupForm');
+    if (popup) popup.style.display = 'block';
 }
 
 // Close the popup form - redirects to homepage
 function closePopup() {
-    document.getElementById('popupForm').style.display = 'none';
-    // Redirect to homepage
+    var popup = document.getElementById('popupForm');
+    if (popup) popup.style.display = 'none';
     window.location.href = '/';
 }
 
@@ -16,28 +17,31 @@ function closePopup() {
 // });
 
 // Handle form submission
-document.getElementById('subscriptionForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+var subscriptionForm = document.getElementById('subscriptionForm');
+if (subscriptionForm) {
+    subscriptionForm.addEventListener('submit', function(event) {
+        event.preventDefault();
 
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const address = document.getElementById('address').value;
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const address = document.getElementById('address').value;
 
-    // Send data to the backend server
-    fetch('/subscribe', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name, email, address })
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert('Subscription successful!');
-        closePopup();
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while subscribing.');
+        // Send data to the backend server
+        fetch('/subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, email, address })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Subscription successful!');
+            closePopup();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while subscribing.');
+        });
     });
-});
+}

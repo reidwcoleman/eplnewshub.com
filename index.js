@@ -74,7 +74,7 @@ async function initializeContent() {
 initializeContent();
 
 // Load advertising systems after content injection
-window.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     // Load FPL Premium Ads System
     (function loadFPLAds() {
         // Load FPL banner on all pages
@@ -83,7 +83,6 @@ window.addEventListener('DOMContentLoaded', function() {
         script.async = true;
         document.head.appendChild(script);
     })();
-
 });
 
 // Search functionality
@@ -169,7 +168,8 @@ function performSearch() {
 }
 
 function highlightText(text, query) {
-    const regex = new RegExp(`(${query})`, 'gi');
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
     return text.replace(regex, '<strong style="background-color: #fff3cd;">$1</strong>');
 }
 

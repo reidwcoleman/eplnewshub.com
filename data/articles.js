@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'chelsea-vs-burnley-blues-secure-hard-fought-win-in-tight-con-2026-02-22',
+    title: 'Chelsea vs Burnley: Blues Secure Hard-Fought Win in Tight Contest',
+    excerpt: 'Chelsea fought back from a deficit to secure a 1-1 draw against Burnley in a tense Premier League encounter, with Wesley Fofana\'s red card adding to the drama.',
+    image: '/scout-chelsea-vs-burnley-blues-secure-hard-fought-win-in-tight-con.png',
+    category: 'Match Reports',
+    date: '2026-02-22',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Chelsea', 'Burnley', 'Premier League', 'Match Report', 'Wesley Fofana']
+  },
+  {
+    id: 'james-milner-the-record-breaking-career-of-a-premier-league-2026-02-22',
+    title: 'James Milner: The Record-Breaking Career of a Premier League Icon',
+    excerpt: 'James Milner\'s record-breaking 654th Premier League appearance cements his legacy as one of the most consistent and enduring players in the league\'s history.',
+    image: '/scout-james-milner-the-record-breaking-career-of-a-premier-league.jpg',
+    category: 'Player Focus',
+    date: '2026-02-22',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['James Milner', 'Premier League', 'Brighton & Hove Albion', 'Gareth Barry', 'Premier League record', 'football legend']
+  },
+  {
     id: 'premier-league-team-news-injury-updates-and-fantasy-premier-2026-02-21',
     title: 'Premier League Team News: Injury Updates and Fantasy Premier League Impact',
     excerpt: 'Stay up-to-date with the latest injury news and Fantasy Premier League implications for Premier League teams ahead of Matchweek 26 and Gameweek 27',

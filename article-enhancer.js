@@ -1,10 +1,6 @@
 // Article Enhancement Script for EPL News Hub
 // This script automatically enhances existing articles with modern styling
 
-document.addEventListener('DOMContentLoaded', function() {
-    enhanceArticle();
-});
-
 function loadFloatingSideAds() {
     // Check if we're on an article page
     const isArticle = window.location.pathname.includes('/articles/') ||
@@ -71,8 +67,9 @@ function enhanceArticle() {
     // Add smooth scroll and interaction effects
     addInteractionEffects();
 
-    // Load editorial ad placement system
+    // Load ad systems
     loadEditorialAds();
+    loadFloatingSideAds();
 }
 
 function createEnhancedHeader(h1, byline, article) {
