@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'chelseas-defensive-collapse-how-the-blues-are-setting-fire-t-2026-02-22',
+    title: 'Chelsea\'s Defensive Collapse: How the Blues Are Setting Fire to Points',
+    excerpt: 'Chelsea have dropped 19 points from winning positions this season, with their defensive frailties and poor home form proving costly.',
+    image: '/scout-chelseas-defensive-collapse-how-the-blues-are-setting-fire-t.png',
+    category: 'Analysis',
+    date: '2026-02-22',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Chelsea', 'Premier League', 'defensive struggles', 'home form', 'set pieces', 'Liam Rosenior', 'defensive record']
+  },
+  {
+    id: 'everton-0-1-manchester-united-tactical-masterclass-secures-v-2026-02-22',
+    title: 'Everton 0-1 Manchester United: Tactical Masterclass Secures Vital Three Points',
+    excerpt: 'Manchester United\'s narrow 1-0 victory over Everton was a masterclass in tactical discipline, with Michael Carrick\'s side outmaneuvering David Moyes\' team in a crucial Premier League encounter.',
+    image: '/scout-everton-0-1-manchester-united-tactical-masterclass-secures-v.jpg',
+    category: 'Match Reports',
+    date: '2026-02-22',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Manchester United', 'Everton', 'Premier League', 'Tactical Analysis', 'Football']
+  },
+  {
     id: 'chelsea-vs-burnley-blues-secure-hard-fought-win-in-tight-con-2026-02-22',
     title: 'Chelsea vs Burnley: Blues Secure Hard-Fought Win in Tight Contest',
     excerpt: 'Chelsea fought back from a deficit to secure a 1-1 draw against Burnley in a tense Premier League encounter, with Wesley Fofana\'s red card adding to the drama.',
