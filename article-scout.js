@@ -38,6 +38,26 @@ const SCOUT_LOG = path.join(ROOT, 'scout-log.json');
 const SCOUT_PID = path.join(ROOT, '.scout-pid');
 const SERVICE_ACCOUNT_PATH = path.join(ROOT, 'google-service-account.json');
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const C = {
+  NEWS_FRESHNESS_HOURS: 72,
+  RECENT_ARTICLES_DAYS: 14,
+  MIN_SOURCE_CHARS: 200,
+  MIN_TOTAL_SOURCE_CHARS: 1500,
+  MIN_REAL_SOURCES: 2,
+  ARTICLE_MIN_CHARS: 1500,
+  FIXTURE_DETAIL_LIMIT: 6,
+  COACH_LOOKUP_LIMIT: 10,
+  SQUAD_FIXTURE_LIMIT: 3,
+  TOP_SCORERS_LIMIT: 15,
+  TOP_ASSISTS_LIMIT: 10,
+  API_CALL_DELAY_MS: 150,
+  FABRICATION_SIGNAL_LIMIT: 3,
+  DEDUP_OVERLAP_RATIO: 0.7,
+  NEWS_MAX_ITEMS: 20,
+};
+
 // ─── PID Lock Helpers ───────────────────────────────────────────────────────
 
 function writeScoutPid(mode) {
@@ -355,7 +375,7 @@ async function gatherNews() {
   console.log(`[Scout] Found ${unique.length} unique news items, ${soccerItems.length} are soccer-related`);
 
   // Filter out stale news (older than 72 hours)
-  const freshnessCutoff = Date.now() - 72 * 60 * 60 * 1000;
+  const freshnessCutoff = Date.now() - C.NEWS_FRESHNESS_HOURS * 60 * 60 * 1000;
   const freshItems = soccerItems.filter(item => {
     if (!item.pubDate) return true; // keep items without a date
     const pub = new Date(item.pubDate).getTime();
@@ -825,9 +845,9 @@ async function fetchFootballData() {
     }
 
     // 3. Per-match events (scorers, assists, cards) + stats — cap at 6 most recent to manage API calls
-    const fixturesForDetail = recentFixtureIds.slice(-6);
+    const fixturesForDetail = recentFixtureIds.slice(-C.FIXTURE_DETAIL_LIMIT);
     for (const fid of fixturesForDetail) {
-      await delay(150);
+      await delay(C.API_CALL_DELAY_MS);
       try {
         const eventsRes = await apiCall(`/fixtures/events?fixture=${fid}`);
         if (eventsRes.response) {
@@ -857,7 +877,7 @@ async function fetchFootballData() {
         console.log(`[Scout]   ⚠ Could not fetch events for fixture ${fid}: ${e.message}`);
       }
 
-      await delay(150);
+      await delay(C.API_CALL_DELAY_MS);
       try {
         const statsRes = await apiCall(`/fixtures/statistics?fixture=${fid}`);
         if (statsRes.response && statsRes.response.length >= 2) {
@@ -897,7 +917,7 @@ async function fetchFootballData() {
     const twoWeeksOut = new Date(today.getTime() + 14 * 86400000);
     const fromDateUpcoming = today.toISOString().split('T')[0];
     const toDateUpcoming = twoWeeksOut.toISOString().split('T')[0];
-    await delay(150);
+    await delay(C.API_CALL_DELAY_MS);
     const upcomingRes = await apiCall(`/fixtures?league=${league}&season=${season}&from=${fromDateUpcoming}&to=${toDateUpcoming}&status=NS-TBD`);
     if (upcomingRes.response) {
       data.upcomingFixtures = upcomingRes.response.map(m => ({
@@ -912,10 +932,10 @@ async function fetchFootballData() {
     }
 
     // 5. Top scorers
-    await delay(150);
+    await delay(C.API_CALL_DELAY_MS);
     const scorersRes = await apiCall(`/players/topscorers?league=${league}&season=${season}`);
     if (scorersRes.response) {
-      data.topScorers = scorersRes.response.slice(0, 15).map(p => ({
+      data.topScorers = scorersRes.response.slice(0, C.TOP_SCORERS_LIMIT).map(p => ({
         name: p.player.name,
         team: p.statistics[0].team.name,
         goals: p.statistics[0].goals.total,
@@ -927,10 +947,10 @@ async function fetchFootballData() {
     }
 
     // 6. Top assists
-    await delay(150);
+    await delay(C.API_CALL_DELAY_MS);
     const assistsRes = await apiCall(`/players/topassists?league=${league}&season=${season}`);
     if (assistsRes.response) {
-      data.topAssists = assistsRes.response.slice(0, 10).map(p => ({
+      data.topAssists = assistsRes.response.slice(0, C.TOP_ASSISTS_LIMIT).map(p => ({
         name: p.player.name,
         team: p.statistics[0].team.name,
         assists: p.statistics[0].goals.assists || 0,
@@ -943,12 +963,12 @@ async function fetchFootballData() {
     const featuredTeams = new Set();
     (data.recentResults || []).forEach(m => { featuredTeams.add(m.home); featuredTeams.add(m.away); });
     (data.upcomingFixtures || []).forEach(m => { featuredTeams.add(m.home); featuredTeams.add(m.away); });
-    const teamsToFetch = [...featuredTeams].slice(0, 10); // cap at 10 to manage API calls
+    const teamsToFetch = [...featuredTeams].slice(0, C.COACH_LOOKUP_LIMIT);
 
     for (const teamName of teamsToFetch) {
       const teamId = teamIdMap[teamName];
       if (!teamId) continue;
-      await delay(150);
+      await delay(C.API_CALL_DELAY_MS);
       try {
         const coachRes = await apiCall(`/coachs?team=${teamId}`);
         if (coachRes.response && coachRes.response.length > 0) {
@@ -972,13 +992,13 @@ async function fetchFootballData() {
 
     // 8. Key squad players for teams in upcoming fixtures (for preview articles)
     const upcomingTeams = new Set();
-    (data.upcomingFixtures || []).slice(0, 3).forEach(m => {
+    (data.upcomingFixtures || []).slice(0, C.SQUAD_FIXTURE_LIMIT).forEach(m => {
       upcomingTeams.add({ name: m.home, id: teamIdMap[m.home] });
       upcomingTeams.add({ name: m.away, id: teamIdMap[m.away] });
     });
     for (const team of upcomingTeams) {
       if (!team.id || data.teamSquads[team.name]) continue;
-      await delay(150);
+      await delay(C.API_CALL_DELAY_MS);
       try {
         const squadRes = await apiCall(`/players/squads?team=${team.id}`);
         if (squadRes.response && squadRes.response[0]) {
@@ -1166,7 +1186,7 @@ function deduplicateSources(sources) {
       const overlap = srcWords.filter(w => existWords.includes(w)).length;
       const overlapRatio = Math.max(srcWords.length, existWords.length) > 0
         ? overlap / Math.max(srcWords.length, existWords.length) : 0;
-      if (overlapRatio > 0.7) {
+      if (overlapRatio > C.DEDUP_OVERLAP_RATIO) {
         // Keep the longer version
         if (src.text.length > deduplicated[i].text.length) {
           console.log(`[Scout]   Dedup: replacing "${deduplicated[i].origin.slice(0, 40)}" with longer "${src.origin.slice(0, 40)}" (${Math.round(overlapRatio * 100)}% overlap)`);
@@ -1208,16 +1228,38 @@ async function researchTopic(topic, newsItem) {
   }
 
   // 2. Search for additional sources on the same topic via Google News RSS
+  // Detect article type for targeted extra research
+  const isMatchRecap = /\b(\d[–\-]\d|beat|defeated|won|drew|recap|highlights|goals|report)\b/i.test(topic.title);
+  const isMatchPreview = /\bvs\.?\b|\bv\b|\bpreview\b|\bprediction\b|\bahead of\b|\bfacing\b/i.test(topic.title);
   // Extract multi-word entities (team names, player names) for better queries
   const knownEntities = [
-    'Manchester United', 'Manchester City', 'Man United', 'Man City', 'Aston Villa',
-    'Crystal Palace', 'West Ham', 'Nottingham Forest', 'Nott\'m Forest', 'Newcastle United',
-    'Brighton and Hove Albion', 'Tottenham Hotspur', 'Leicester City', 'Leeds United',
-    'Premier League', 'Champions League', 'Europa League', 'FA Cup', 'Carabao Cup',
-    'De Bruyne', 'Van Dijk', 'De Ligt', 'Van Nistelrooy', 'Ten Hag',
-    'Kai Havertz', 'Bukayo Saka', 'Martin Odegaard', 'Erling Haaland',
-    'Mohamed Salah', 'Darwin Nunez', 'Bruno Fernandes', 'Marcus Rashford',
-    'Cole Palmer', 'Ollie Watkins', 'Alexander Isak', 'Son Heung-min',
+    // Teams
+    'Manchester United', 'Manchester City', 'Man United', 'Man City',
+    'Aston Villa', 'Crystal Palace', 'West Ham', 'Nottingham Forest',
+    'Newcastle United', 'Brighton', 'Brentford', 'Fulham', 'Wolves',
+    'Wolverhampton Wanderers', 'Tottenham Hotspur', 'Leicester City', 'Leeds United',
+    'Ipswich Town', 'Southampton', 'Everton', 'Chelsea', 'Arsenal', 'Liverpool',
+    // Competitions
+    'Premier League', 'Champions League', 'Europa League', 'Conference League',
+    'FA Cup', 'Carabao Cup', 'League Cup',
+    // Current managers (2025-26)
+    'Mikel Arteta', 'Arne Slot', 'Pep Guardiola', 'Ruben Amorim',
+    'Graham Potter', 'Enzo Maresca', 'Unai Emery', 'Oliver Glasner',
+    'Andoni Iraola', 'Thomas Frank', 'Marco Silva', 'Gary O\'Neil',
+    'Kieran McKenna', 'Sean Dyche', 'Eddie Howe',
+    // Key players (2025-26)
+    'Erling Haaland', 'Mohamed Salah', 'Bukayo Saka', 'Martin Odegaard',
+    'Cole Palmer', 'Ollie Watkins', 'Alexander Isak', 'Dominic Solanke',
+    'Bruno Fernandes', 'Marcus Rashford', 'Rasmus Hojlund',
+    'Son Heung-min', 'Heung-min Son', 'Trent Alexander-Arnold',
+    'Virgil van Dijk', 'Kevin De Bruyne', 'Phil Foden', 'Jack Grealish', 'Rodri',
+    'Declan Rice', 'Kai Havertz', 'Gabriel Martinelli', 'Leandro Trossard',
+    'Darwin Nunez', 'Luis Diaz', 'Cody Gakpo', 'Harvey Elliott',
+    'James Maddison', 'Pedro Porro', 'Richarlison', 'Dejan Kulusevski',
+    'Jarrod Bowen', 'Lucas Paqueta', 'Mohammed Kudus',
+    'Bryan Mbeumo', 'Yoane Wissa', 'Ethan Nwaneri', 'Jurrien Timber',
+    'Ben White', 'William Saliba', 'Gabriel Magalhaes',
+    'Joao Pedro', 'Simon Adingra', 'Kaoru Mitoma',
   ];
   const titleClean = topic.title.replace(/[^a-zA-Z0-9' ]/g, '');
   const foundEntities = knownEntities.filter(e => titleClean.toLowerCase().includes(e.toLowerCase()));
@@ -1277,6 +1319,18 @@ async function researchTopic(topic, newsItem) {
       console.log(`[Scout]   ⚠ Web search failed: ${e.message}`);
     }
   }
+
+  // 2.7. Targeted extra searches for match content
+  try {
+    if (isMatchRecap) {
+      const recapResults = await webSearchAndScrape(searchQuery + ' goals scorers match report stats', 2);
+      for (const r of recapResults) sources.push(r);
+    }
+    if (isMatchPreview) {
+      const previewResults = await webSearchAndScrape(searchQuery + ' team news form head-to-head', 2);
+      for (const r of previewResults) sources.push(r);
+    }
+  } catch (e) { /* ignore extra search failures */ }
 
   // 2.8. Deduplicate sources (wire stories often appear in multiple outlets)
   const deduplicatedSources = deduplicateSources(sources);
@@ -1340,6 +1394,12 @@ CRITICAL ACCURACY RULES — READ CAREFULLY:
 - Match scores, league positions, and points totals MUST match the source material exactly.
 - If writing about a future match (preview), clearly frame predictions as analysis, not fact.
 - If VERIFIED REAL-TIME DATA is provided (standings, results, scorers), those numbers are from an official API — trust them above all other sources.
+- When GOAL SCORERS are listed in the verified data, name them explicitly in your writing with the minute scored. Never invent scorers.
+- When MATCH STATS are listed (possession, shots, xG), cite them to give your analysis concrete grounding.
+- When MANAGERS are listed in the verified data, use their real name — never invent or substitute a different manager.
+- When SQUAD PLAYERS are listed, use real player names in your previews and lineups — never invent players.
+- When writing MATCH RECAPS: build the narrative around the real scorer timeline. Lead with the decisive moment.
+- When writing MATCH PREVIEWS: cite the real form guide, real head-to-head, real squad lists. Do not write a fictional predicted score.
 - If the source material is insufficient to write an accurate, well-sourced article, return a JSON object with "insufficientData": true and "reason": "explanation" instead of generating a low-quality article.
 
 ═══════════════════════════════════════════════════════════
@@ -1437,7 +1497,8 @@ WRITING QUALITY:
 
 STRUCTURE REQUIREMENTS:
 - 5-6 h2 sections minimum, each exploring a genuinely different angle (not just rewording the same point)
-- For MATCH RECAPS: The Match (key moments with real scores only), Tactical Analysis (formations, pressing, buildup), Key Performers, The Manager's Perspective, What This Means for the Table, Looking Ahead
+- For MATCH RECAPS: The Match (narrative built around real scorer timeline — include minute + scorer from verified data), Tactical Analysis (formations, key duels, how the goal came about), Key Performers (use real names from match events), The Manager's View (post-match context), Table Implications, What Comes Next
+- For MATCH PREVIEWS: Form Guide (last 5 for each team using verified results), Head-to-Head (historical record), Key Battles (specific players from squad data), Predicted Lineups (use real squad players), Betting & Prediction Analysis (frame as analysis not fact, no fake final scores)
 - For MATCH PREVIEWS: Form Guide (recent results), Head-to-Head (historical context), Tactical Matchup (how the systems interact), Key Battles (player vs player), Predicted Lineup & Formation, Prediction & Analysis
 - For TRANSFERS: The Deal, Player Profile & Style of Play, Tactical Fit, What This Means for the Squad, The Financial Picture, How They Compare
 - For ANALYSIS: include data tables where relevant using <table> tags
@@ -1746,6 +1807,18 @@ function stripMarkdownFences(text) {
   if (!text) return text;
   // Remove ```html, ```json, ```xml, ``` etc. wrapping from LLM output
   return text.replace(/^```[a-z]*\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+}
+
+// Sanitize LLM-generated HTML — remove executable tags while preserving content
+function sanitizeLLMHtml(html) {
+  if (!html) return html;
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
+    .replace(/<object[\s\S]*?<\/object>/gi, '')
+    .replace(/<embed[\s\S]*?>/gi, '')
+    .replace(/ on\w+="[^"]*"/gi, '')
+    .replace(/ on\w+='[^']*'/gi, '');
 }
 
 // ─── Real Related Articles from articles.json ───────────────────────────────
@@ -2651,7 +2724,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
 
             <!-- Article Body -->
             <div class="article-body reveal">
-                ${stripMarkdownFences(article.bodyHTML)}
+                ${sanitizeLLMHtml(stripMarkdownFences(article.bodyHTML))}
             </div>
 
             <!-- Tags -->
@@ -3162,6 +3235,8 @@ async function runScout(count = 1) {
   const today = new Date().toISOString().split('T')[0];
   const remaining = CONFIG.maxArticlesPerDay - (log.today === today ? log.todayCount : 0);
   count = Math.min(count, remaining);
+  // Enforce minimum articles per batch (not per day — daily min is enforced by cron schedule)
+  if (count < 1) count = 1;
 
   console.log(`[Scout] Will generate ${count} article(s) (${remaining} remaining today)\n`);
 
@@ -3221,9 +3296,9 @@ async function runScout(count = 1) {
       // Quality gate: skip topics with insufficient source material
       // Need at least 2 sources with 200+ chars each and 1500+ total chars
       const allSources = research.sources || [];
-      const realSources = allSources.filter(s => s.text && s.text.length > 200);
+      const realSources = allSources.filter(s => s.text && s.text.length > C.MIN_SOURCE_CHARS);
       const totalSourceChars = allSources.reduce((sum, s) => sum + (s.text ? s.text.length : 0), 0);
-      if (realSources.length < 2 || totalSourceChars < 1500) {
+      if (realSources.length < C.MIN_REAL_SOURCES || totalSourceChars < C.MIN_TOTAL_SOURCE_CHARS) {
         console.log(`[Scout] Skipping "${topic.title}" — insufficient source material for accurate article (${realSources.length} sources, ${totalSourceChars} chars total — need 2+ sources and 1500+ chars), trying next topic`);
         continue;
       }
