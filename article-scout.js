@@ -912,16 +912,31 @@ async function researchTopic(topic, newsItem) {
   // 1. Scrape the original source article
   if (newsItem.link) {
     const sourceText = await scrapeSourceArticle(newsItem.link);
-    if (sourceText && sourceText.length > 50) {
+    if (sourceText && sourceText.length > 200) {
       sources.push({ origin: 'Original source article', text: sourceText });
       console.log(`[Scout]   ✓ Scraped original source (${sourceText.length} chars)`);
     } else {
-      console.log(`[Scout]   ⚠ Original source too short or blocked (${sourceText ? sourceText.length : 0} chars)`);
+      console.log(`[Scout]   ⚠ Original source too short or blocked (${sourceText ? sourceText.length : 0} chars, need 200+)`);
     }
   }
 
   // 2. Search for additional sources on the same topic via Google News RSS
-  const searchQuery = topic.title.replace(/[^a-zA-Z0-9 ]/g, '').split(' ').slice(0, 6).join(' ');
+  // Extract multi-word entities (team names, player names) for better queries
+  const knownEntities = [
+    'Manchester United', 'Manchester City', 'Man United', 'Man City', 'Aston Villa',
+    'Crystal Palace', 'West Ham', 'Nottingham Forest', 'Nott\'m Forest', 'Newcastle United',
+    'Brighton and Hove Albion', 'Tottenham Hotspur', 'Leicester City', 'Leeds United',
+    'Premier League', 'Champions League', 'Europa League', 'FA Cup', 'Carabao Cup',
+    'De Bruyne', 'Van Dijk', 'De Ligt', 'Van Nistelrooy', 'Ten Hag',
+    'Kai Havertz', 'Bukayo Saka', 'Martin Odegaard', 'Erling Haaland',
+    'Mohamed Salah', 'Darwin Nunez', 'Bruno Fernandes', 'Marcus Rashford',
+    'Cole Palmer', 'Ollie Watkins', 'Alexander Isak', 'Son Heung-min',
+  ];
+  const titleClean = topic.title.replace(/[^a-zA-Z0-9' ]/g, '');
+  const foundEntities = knownEntities.filter(e => titleClean.toLowerCase().includes(e.toLowerCase()));
+  const remainingWords = foundEntities.reduce((t, e) => t.replace(new RegExp(e, 'gi'), ''), titleClean)
+    .split(/\s+/).filter(w => w.length > 3);
+  const searchQuery = [...foundEntities, ...remainingWords].slice(0, 6).join(' ');
   try {
     const additionalItems = await fetchNewsFromGoogleRSS(searchQuery + ' Premier League');
     // Scrape top 3-4 additional sources for cross-referencing
@@ -1500,7 +1515,7 @@ function getRelatedArticles(currentTitle, currentCategory, currentTags, maxCount
 
 // ─── HTML Article Template ───────────────────────────────────────────────────
 
-function buildArticleHTML(article, filename, date, imageFile) {
+function buildArticleHTML(article, filename, date, imageFile, sources) {
   const dateObj = new Date(date);
   const dateFormatted = dateObj.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
   const isoDate = date + 'T00:00:00Z';
@@ -1536,6 +1551,25 @@ function buildArticleHTML(article, filename, date, imageFile) {
                 </div>
               </a>`;
     }).join('');
+  })();
+
+  // Build sources HTML
+  const sourcesHTML = (() => {
+    if (!sources || !sources.length) return '';
+    const uniqueOrigins = [...new Set(sources
+      .filter(s => s.origin && s.text && s.text.length > 200)
+      .map(s => s.origin)
+    )];
+    if (!uniqueOrigins.length) return '';
+    const items = uniqueOrigins.map(o => `<li>${o.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</li>`).join('\n                    ');
+    return `
+            <!-- Sources -->
+            <section class="sources-section reveal">
+                <h2>Sources</h2>
+                <ul class="sources-list">
+                    ${items}
+                </ul>
+            </section>`;
   })();
 
   return `<!DOCTYPE html>
@@ -2142,6 +2176,42 @@ function buildArticleHTML(article, filename, date, imageFile) {
             border-top: 1px solid var(--card-border);
         }
 
+        /* ── SOURCES ── */
+        .sources-section {
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .sources-section h2 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--ash);
+            margin-bottom: 16px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .sources-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sources-list li {
+            font-family: var(--font-body);
+            font-size: 13px;
+            color: var(--ash);
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(240, 236, 228, 0.04);
+            line-height: 1.5;
+        }
+
+        .sources-list li:last-child {
+            border-bottom: none;
+        }
+
         /* ── COMMENTS ── */
         .comments-section {
             margin-top: 56px;
@@ -2360,6 +2430,8 @@ function buildArticleHTML(article, filename, date, imageFile) {
                 <h2 class="related-section-title">More from EPL News Hub</h2>
                 <div class="related-grid">${relatedHTML}</div>
             </section>
+
+            ${sourcesHTML}
 
             <!-- Comments Section -->
             <section class="comments-section reveal">
@@ -2912,7 +2984,7 @@ async function runScout(count = 1) {
       }
 
       // Quality gate: skip topics with insufficient source material
-      // Need at least 1 source with real content and 500+ total chars (including search snippets)
+      // Need at least 2 sources with 200+ chars each and 1500+ total chars
       const allSources = research.sources || [];
       const realSources = allSources.filter(s => s.text && s.text.length > 200);
       const totalSourceChars = allSources.reduce((sum, s) => sum + (s.text ? s.text.length : 0), 0);
@@ -2966,7 +3038,7 @@ async function runScout(count = 1) {
       const imageFile = imageResult ? imageResult.filename : null;
 
       // Step 5: Create HTML file
-      const html = buildArticleHTML(article, filename, date, imageFile);
+      const html = buildArticleHTML(article, filename, date, imageFile, research.sources);
       fs.writeFileSync(path.join(ARTICLES_DIR, filename), html);
       console.log(`[Scout] Created: articles/${filename}`);
 
