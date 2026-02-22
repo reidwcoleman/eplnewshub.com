@@ -8,6 +8,16 @@
   var AD_CLIENT = 'ca-pub-6480210605786899';
   var AD_SLOT = '2887667887';
 
+  // Ensure the AdSense library is loaded (covers pages that don't have it in <head>)
+  function ensureAdSenseLoaded() {
+    if (document.querySelector('script[src*="pagead2.googlesyndication.com/pagead/js/adsbygoogle"]')) return;
+    var s = document.createElement('script');
+    s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + AD_CLIENT;
+    s.async = true;
+    s.crossOrigin = 'anonymous';
+    document.head.appendChild(s);
+  }
+
   // Pages that should never show ads
   var NO_AD_PAGES = [
     '/signin.html', '/create-account.html', '/account.html',
@@ -91,7 +101,7 @@
       '}' +
 
       // Hide ALL Google ads not inside any designated container
-      'ins.adsbygoogle:not(.sa-ad-unit ins):not(.hp-ad-unit ins):not(.ed-ad-unit ins) {' +
+      'ins.adsbygoogle:not(.sa-ad-unit ins):not(.hp-ad-unit ins):not(.ed-ad-unit ins):not(.article-ad ins) {' +
         'display: none !important;' +
         'height: 0 !important;' +
         'max-height: 0 !important;' +
@@ -189,6 +199,10 @@
   function findMainContent() {
     return (
       document.querySelector('main') ||
+      document.querySelector('article') ||
+      document.querySelector('.article-container') ||
+      document.querySelector('.article-body') ||
+      document.querySelector('.nyt-article') ||
       document.querySelector('.site-content') ||
       document.querySelector('.page-content') ||
       document.querySelector('.container') ||
@@ -390,7 +404,7 @@
   // Kill rogue ads on all pages (even pages with their own scripts, as a safety net)
   function killRogueAds() {
     document.querySelectorAll('ins.adsbygoogle').forEach(function (el) {
-      if (el.closest('.sa-ad-unit') || el.closest('.hp-ad-unit') || el.closest('.ed-ad-unit')) return;
+      if (el.closest('.sa-ad-unit') || el.closest('.hp-ad-unit') || el.closest('.ed-ad-unit') || el.closest('.article-ad')) return;
       el.style.setProperty('display', 'none', 'important');
       el.style.setProperty('height', '0', 'important');
       el.style.setProperty('max-height', '0', 'important');
@@ -433,6 +447,8 @@
 
   // Wait for page to be ready — includes may still be loading
   function init() {
+    ensureAdSenseLoaded();
+
     // On pages with homepage-ads.js or editorial-ads.js, just do rogue ad killing
     if (document.querySelector('.hp-ad-unit') || document.querySelector('.ed-ad-unit')) {
       watchForRogueAds();

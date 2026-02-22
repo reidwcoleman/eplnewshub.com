@@ -728,7 +728,7 @@
 
         if (sidebar) {
             // Select 2 random ads to show
-            const selectedAds = fplAds.sort(() => 0.5 - Math.random()).slice(0, 2);
+            const selectedAds = [...fplAds].sort(() => 0.5 - Math.random()).slice(0, 2);
             const adsHTML = selectedAds.map(ad => createSidebarAd(ad)).join('');
             
             // Create ads container
@@ -869,7 +869,7 @@
         setInterval(() => {
             const adsContainer = document.querySelector('.fpl-ads-container');
             if (adsContainer) {
-                const selectedAds = fplAds.sort(() => 0.5 - Math.random()).slice(0, 2);
+                const selectedAds = [...fplAds].sort(() => 0.5 - Math.random()).slice(0, 2);
                 adsContainer.innerHTML = selectedAds.map(ad => createSidebarAd(ad)).join('');
                 attachAdListeners();
             }
