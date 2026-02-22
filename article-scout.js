@@ -473,7 +473,7 @@ async function callLLM(prompt, systemPrompt, options = {}) {
             generationConfig: { temperature, maxOutputTokens: tokenLimit },
           })
         });
-        const gData = res.json();
+        const gData = await res.json();
         if (gData.error) throw new Error(JSON.stringify(gData.error));
         const text = gData.candidates?.[0]?.content?.parts?.[0]?.text;
         if (!text) throw new Error('Empty Gemini response');
@@ -2224,16 +2224,10 @@ function buildArticleHTML(article, filename, date, imageFile) {
 
         #HCB_comment_box .hcb-submit:hover { opacity: 0.85 !important; }
 
-        /* ── REVEAL ANIMATION ── */
+        /* ── Content visible immediately (no fade-in delays) ── */
         .reveal {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
-        }
-
-        .reveal.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: none;
         }
 
         /* ── RESPONSIVE ── */
@@ -2430,19 +2424,9 @@ function buildArticleHTML(article, filename, date, imageFile) {
             u();
         })();
 
-        // Scroll reveal
+        // Make all content visible immediately (no scroll reveal delays)
         (function(){
-            var els = document.querySelectorAll('.reveal');
-            if (!('IntersectionObserver' in window)) {
-                els.forEach(function(e){ e.classList.add('visible'); });
-                return;
-            }
-            var obs = new IntersectionObserver(function(entries){
-                entries.forEach(function(e){
-                    if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); }
-                });
-            }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-            els.forEach(function(e){ obs.observe(e); });
+            document.querySelectorAll('.reveal').forEach(function(e){ e.classList.add('visible'); });
         })();
 
         // Share functions

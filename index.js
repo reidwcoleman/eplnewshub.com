@@ -59,11 +59,8 @@ async function initializeContent() {
     try {
         await injectAll();
         
-        // Wait a bit more for all content to be fully rendered
-        setTimeout(() => {
-            // Initialize enhancements after content is fully loaded
-            addVisualEnhancements();
-        }, 800);
+        // Initialize enhancements immediately after content injection
+        addVisualEnhancements();
         
     } catch (error) {
         console.error('Error initializing content:', error);
@@ -470,60 +467,11 @@ function addAuthModalStyles() {
 
 // Enhanced visual interactions for static site
 function addVisualEnhancements() {
-    // Add loading animation to images
-    const images = document.querySelectorAll('img');
-    images.forEach(img => {
-        if (img.complete) {
-            img.style.opacity = '1';
-            img.style.transform = 'scale(1)';
-        } else {
-            img.addEventListener('load', function() {
-                this.style.opacity = '1';
-                this.style.transform = 'scale(1)';
-            });
-            
-            // Set initial state
-            img.style.opacity = '0';
-            img.style.transform = 'scale(0.95)';
-            img.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        }
-    });
-
-    // Add intersection observer for scroll animations (one-time only)
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-                entry.target.classList.add('animate-in');
-                // Stop observing once animated - prevents re-triggering
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    // Observe elements for scroll animations (skip elements already visible)
-    const animatedElements = document.querySelectorAll('.main_headline, .main_subheadline, .main_subheadline2, .main_subheadline3, .story-card, .featured-main');
-    animatedElements.forEach(el => {
-        // Skip if already in view or already animated
-        const rect = el.getBoundingClientRect();
-        const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-
-        if (isVisible || el.classList.contains('animate-in')) {
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0)';
-            el.classList.add('animate-in');
-        } else {
-            el.style.opacity = '0.3';
-            el.style.transform = 'translateY(30px)';
-            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            observer.observe(el);
-        }
+    // Make all reveal elements visible immediately (override article fade-in)
+    document.querySelectorAll('.reveal').forEach(function(el) {
+        el.classList.add('visible');
+        el.style.opacity = '1';
+        el.style.transform = 'none';
     });
 
     // Add smooth hover effects for buttons
