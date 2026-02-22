@@ -5,7 +5,7 @@
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TVPLGM5QY9');</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="description" content="Club Connector — name a player who played for both clubs. The ultimate Premier League football quiz.">
+    <meta name="description" content="Club Connector — name a player who played for both clubs or matches a trait. The ultimate Premier League football quiz.">
     <title>Club Connector | EPL Quiz | EPL News Hub</title>
     <link rel="canonical" href="https://eplnewshub.com/epl-logo-quiz-game.html">
     <link rel="stylesheet" href="/styles.css">
@@ -18,22 +18,30 @@
         html,body{background:#0a0a0a;color:#f5f5f5;font-family:'Inter',-apple-system,sans-serif;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
         .game-page{max-width:700px;margin:0 auto;padding:40px 24px 80px;}
 
-        /* Header */
         .game-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#8b5cf6;margin:0 0 10px;}
         .game-title{font-family:'Noto Serif',Georgia,serif;font-size:40px;font-weight:700;line-height:1.1;margin:0 0 6px;letter-spacing:-0.5px;}
         .game-subtitle{font-size:15px;color:#888;margin:0 0 32px;}
 
         /* Score bar */
-        .score-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;margin-bottom:28px;}
-        .score-item{text-align:center;}
+        .score-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;margin-bottom:4px;position:relative;}
+        .score-item{text-align:center;flex:1;}
         .score-val{font-size:24px;font-weight:700;color:#f5f5f5;line-height:1;}
         .score-lbl{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:#666;margin-top:2px;}
-        .score-divider{width:1px;height:36px;background:rgba(255,255,255,.07);}
+        .score-divider{width:1px;height:36px;background:rgba(255,255,255,.07);flex-shrink:0;}
         .timer-val{color:#8b5cf6;}
         .timer-val.low{color:#ef4444;}
+        .found-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#10b981;background:rgba(16,185,129,.1);padding:2px 8px;border-radius:10px;margin-left:6px;vertical-align:middle;}
 
-        /* Club connector box */
-        .connector-box{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:28px;margin-bottom:20px;}
+        /* Timer progress bar */
+        .timer-bar-wrap{height:4px;background:rgba(255,255,255,.05);border-radius:0 0 12px 12px;margin-bottom:28px;overflow:hidden;}
+        .timer-bar{height:100%;background:#8b5cf6;border-radius:0 0 12px 12px;transition:width 1s linear;will-change:width;}
+        .timer-bar.danger{background:#ef4444;}
+
+        /* Connector box */
+        .connector-box{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:28px;margin-bottom:20px;overflow:hidden;}
+        .round-slide{transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .4s cubic-bezier(.4,0,.2,1);}
+        .round-slide.enter{transform:translateX(60px);opacity:0;}
+
         .clubs-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;margin-bottom:24px;}
         .club-card{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;}
         .club-badge{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,.5));}
@@ -43,8 +51,17 @@
         .vs-text{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#555;}
         .vs-line{width:2px;height:32px;background:linear-gradient(to bottom,transparent,#8b5cf6,transparent);}
 
-        /* Round label */
+        /* Trait card */
+        .trait-card{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 16px;background:rgba(139,92,246,.05);border:1px solid rgba(139,92,246,.15);border-radius:12px;}
+        .trait-icon{font-size:40px;line-height:1;}
+        .trait-text{font-size:13px;font-weight:600;color:#a78bfa;text-align:center;line-height:1.4;}
+
         .round-label{font-size:12px;font-weight:600;letter-spacing:.5px;color:#666;text-align:center;margin-bottom:16px;text-transform:uppercase;}
+        .round-type-badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-left:8px;}
+        .badge-clubs{background:rgba(139,92,246,.12);color:#a78bfa;}
+        .badge-trait{background:rgba(245,158,11,.12);color:#f59e0b;}
+
+        .question-text{font-family:'Noto Serif',Georgia,serif;font-size:17px;font-weight:400;color:#ccc;text-align:center;margin-bottom:24px;line-height:1.5;}
 
         /* Input */
         .input-row{display:flex;gap:10px;}
@@ -55,32 +72,47 @@
         .submit-btn:hover{background:#7c3aed;}
         .submit-btn:disabled{background:#333;color:#666;cursor:not-allowed;}
 
-        /* Feedback */
         .feedback{margin-top:12px;min-height:24px;font-size:14px;font-weight:600;text-align:center;transition:opacity .2s;}
         .feedback.correct{color:#10b981;}
         .feedback.wrong{color:#ef4444;}
         .feedback.duplicate{color:#f59e0b;}
 
-        /* Found players */
+        /* Shake animation */
+        @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+        .shake{animation:shake .4s ease;}
+
+        /* Green flash on chip */
+        @keyframes chipFlash{0%{background:rgba(16,185,129,.35)}100%{background:rgba(16,185,129,.1)}}
+        .chip-flash{animation:chipFlash .6s ease;}
+
+        /* Pulse for next button */
+        @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(139,92,246,.5)}50%{box-shadow:0 0 0 10px rgba(139,92,246,0)}}
+        .pulse{animation:pulse 1.5s infinite;}
+
         .found-section{margin-top:20px;}
         .found-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#666;margin-bottom:10px;}
         .found-list{display:flex;flex-wrap:wrap;gap:8px;}
         .found-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:20px;font-size:13px;font-weight:600;color:#10b981;}
         .found-chip .chip-pts{font-size:11px;color:#059669;font-weight:700;}
 
-        /* Hint */
         .hint-row{display:flex;justify-content:center;margin-top:16px;}
         .hint-btn{padding:8px 20px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#888;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;}
         .hint-btn:hover:not(:disabled){border-color:#8b5cf6;color:#a78bfa;}
         .hint-btn:disabled{opacity:.4;cursor:not-allowed;}
         .hint-text{margin-top:10px;text-align:center;font-size:13px;color:#a78bfa;font-style:italic;min-height:18px;}
 
-        /* Skip / next */
         .action-row{display:flex;gap:12px;justify-content:center;margin-top:24px;}
         .skip-btn{padding:10px 24px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#666;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;}
         .skip-btn:hover{border-color:rgba(255,255,255,.2);color:#888;}
         .next-btn{padding:10px 28px;background:#8b5cf6;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s;font-family:'Inter',sans-serif;display:none;}
         .next-btn:hover{background:#7c3aed;}
+
+        /* Start screen */
+        .start-screen{text-align:center;padding:40px 0;}
+        .start-btn{padding:16px 48px;background:#8b5cf6;border:none;border-radius:12px;color:#fff;font-size:18px;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:'Inter',sans-serif;}
+        .start-btn:hover{background:#7c3aed;transform:translateY(-2px);box-shadow:0 4px 20px rgba(139,92,246,.3);}
+        .start-rules{margin-top:24px;font-size:13px;color:#666;line-height:1.8;text-align:left;max-width:440px;margin-left:auto;margin-right:auto;}
+        .start-rules strong{color:#999;}
 
         /* End screen */
         .end-screen{display:none;text-align:center;padding:40px 20px;}
@@ -93,15 +125,22 @@
         .end-rounds{margin-top:32px;text-align:left;}
         .end-round-item{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:14px;color:#888;}
         .end-round-item strong{color:#f5f5f5;}
+        .end-round-pts{color:#8b5cf6;font-weight:700;}
 
         @media(max-width:600px){
             .game-page{padding:24px 16px 60px;}
             .game-title{font-size:28px;}
             .clubs-row{gap:10px;}
-            .club-card{padding:14px 10px;}
+            .club-card,.trait-card{padding:14px 10px;}
             .club-badge,.club-badge-fallback{width:48px;height:48px;}
+            .trait-icon{font-size:32px;}
             .club-name{font-size:13px;}
             .score-val{font-size:20px;}
+            .question-text{font-size:15px;}
+        }
+
+        @media(prefers-reduced-motion:reduce){
+            .round-slide,.timer-bar,.found-chip,.next-btn{animation:none!important;transition:none!important;}
         }
     </style>
 </head>
@@ -111,58 +150,81 @@
     <main class="game-page">
         <p class="game-eyebrow">EPL Quiz</p>
         <h1 class="game-title">Club Connector</h1>
-        <p class="game-subtitle">Name a player who has played for <em>both</em> clubs — past or present</p>
+        <p class="game-subtitle">Name players who link clubs and traits — 10 rounds, 60 seconds each</p>
 
-        <div class="score-bar">
+        <!-- Start screen -->
+        <div id="start-screen" class="start-screen">
+            <button class="start-btn" onclick="initGame()">Start Game</button>
+            <div class="start-rules">
+                <strong>How to play:</strong><br>
+                Each round shows two clubs or a club + trait. Type player names who fit.<br><br>
+                <strong>Scoring:</strong> First answer = 20 pts, each extra = 10 pts, speed bonus (+5) for answers in first 20s. Hints cost 5 pts.<br><br>
+                <strong>10 rounds.</strong> How many connections can you find?
+            </div>
+        </div>
+
+        <!-- Score bar (hidden until game starts) -->
+        <div class="score-bar" id="score-bar" style="display:none;">
             <div class="score-item"><div class="score-val" id="score-display">0</div><div class="score-lbl">Points</div></div>
             <div class="score-divider"></div>
             <div class="score-item"><div class="score-val" id="round-display">1/10</div><div class="score-lbl">Round</div></div>
             <div class="score-divider"></div>
-            <div class="score-item"><div class="score-val timer-val" id="timer-display">60</div><div class="score-lbl">Seconds</div></div>
+            <div class="score-item">
+                <div class="score-val timer-val" id="timer-display">60</div>
+                <div class="score-lbl">Seconds</div>
+            </div>
+            <div class="score-divider"></div>
+            <div class="score-item"><div class="score-val" id="found-count">0</div><div class="score-lbl">Found</div></div>
+        </div>
+        <div class="timer-bar-wrap" id="timer-bar-wrap" style="display:none;"><div class="timer-bar" id="timer-bar"></div></div>
+
+        <!-- Game area -->
+        <div class="connector-box" id="game-area" style="display:none;">
+            <div id="round-content" class="round-slide">
+                <div class="round-label" id="round-label">Round 1 of 10 <span class="round-type-badge badge-clubs" id="type-badge">Club Connector</span></div>
+                <div class="question-text" id="question-text"></div>
+                <div class="clubs-row" id="clubs-row">
+                    <div class="club-card" id="left-card">
+                        <div id="club1-badge"></div>
+                        <div class="club-name" id="club1-name"></div>
+                    </div>
+                    <div class="connector-vs">
+                        <div class="vs-line"></div>
+                        <div class="vs-text">+</div>
+                        <div class="vs-line"></div>
+                    </div>
+                    <div id="right-card" class="club-card">
+                        <div id="club2-badge"></div>
+                        <div class="club-name" id="club2-name"></div>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <input type="text" id="player-input" class="player-input" placeholder="Type a player's name..." autocomplete="off" autocorrect="off" spellcheck="false">
+                    <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">Submit</button>
+                </div>
+                <div class="feedback" id="feedback"></div>
+
+                <div class="found-section" id="found-section" style="display:none">
+                    <div class="found-label">Found so far</div>
+                    <div class="found-list" id="found-list"></div>
+                </div>
+
+                <div class="hint-row">
+                    <button class="hint-btn" id="hint-btn" onclick="useHint()">Hint (-5 pts)</button>
+                </div>
+                <div class="hint-text" id="hint-text"></div>
+            </div>
         </div>
 
-        <div class="connector-box" id="game-area">
-            <div class="round-label" id="round-label">Round 1 of 10</div>
-            <div class="clubs-row">
-                <div class="club-card">
-                    <div id="club1-badge"></div>
-                    <div class="club-name" id="club1-name">—</div>
-                </div>
-                <div class="connector-vs">
-                    <div class="vs-line"></div>
-                    <div class="vs-text">+</div>
-                    <div class="vs-line"></div>
-                </div>
-                <div class="club-card">
-                    <div id="club2-badge"></div>
-                    <div class="club-name" id="club2-name">—</div>
-                </div>
-            </div>
-
-            <div class="input-row">
-                <input type="text" id="player-input" class="player-input" placeholder="Type a player's name…" autocomplete="off" autocorrect="off" spellcheck="false">
-                <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">Submit</button>
-            </div>
-            <div class="feedback" id="feedback"></div>
-
-            <div class="found-section" id="found-section" style="display:none">
-                <div class="found-label">Found so far</div>
-                <div class="found-list" id="found-list"></div>
-            </div>
-
-            <div class="hint-row">
-                <button class="hint-btn" id="hint-btn" onclick="useHint()">💡 Hint (−5 pts)</button>
-            </div>
-            <div class="hint-text" id="hint-text"></div>
+        <div class="action-row" id="action-row" style="display:none;">
+            <button class="skip-btn" id="skip-btn" onclick="skipRound()">Skip</button>
+            <button class="next-btn" id="next-btn" onclick="nextRound()">Next Round</button>
         </div>
 
-        <div class="action-row">
-            <button class="skip-btn" id="skip-btn" onclick="skipRound()">Skip →</button>
-            <button class="next-btn" id="next-btn" onclick="nextRound()">Next Round →</button>
-        </div>
-
+        <!-- End screen -->
         <div class="end-screen" id="end-screen">
-            <div class="end-title">Game Over!</div>
+            <div class="end-title">Game Over</div>
             <div class="end-score" id="end-score">0</div>
             <div class="end-label">points scored</div>
             <div class="end-grade" id="end-grade"></div>
@@ -174,8 +236,8 @@
     <div class="footer" include="./footer.html"></div>
     <script src="/index.js"></script>
     <script>
-    // ─── Team logos ──────────────────────────────────────────────────
-    const LOGOS = {
+    // ─── Logos ──────────────────────────────────────────────────────
+    const LOGOS={
         "Arsenal":"https://resources.premierleague.com/premierleague/badges/50/t3.png",
         "Aston Villa":"https://resources.premierleague.com/premierleague/badges/50/t7.png",
         "Bournemouth":"https://resources.premierleague.com/premierleague/badges/50/t91.png",
@@ -211,131 +273,405 @@
 
     function clubBadge(name){
         const url=LOGOS[name];
-        if(url)return`<img class="club-badge" src="${url}" alt="${name}" onerror="this.style.display='none'">`;
-        return`<div class="club-badge-fallback">${name.slice(0,3).toUpperCase()}</div>`;
+        if(url) return '<img class="club-badge" src="'+url+'" alt="'+name+'" onerror="this.style.display=\'none\'">';
+        return '<div class="club-badge-fallback">'+name.slice(0,3).toUpperCase()+'</div>';
     }
 
-    // ─── Puzzle bank ─────────────────────────────────────────────────
-    // Each puzzle: club1, club2, answers (array of valid player names + aliases), hints
-    const PUZZLES = [
-        {c1:"Arsenal",c2:"Chelsea",
-         ans:["Nicolas Anelka","Anelka","Ashley Cole","Cole","Cesc Fabregas","Fabregas","Emmanuel Petit","Petit","Petr Cech","Cech","Thierry Henry","Henry","Olivier Giroud","Giroud","Gael Clichy","Clichy","Samir Nasri","Nasri","Andre Santos","Santos","William Gallas","Gallas","Bafetimbi Gomis","John Obi Mikel","Mikel","David Luiz","Luiz"],
-         hints:["Scored 228 goals for Arsenal, briefly at Chelsea","Left Arsenal for Chelsea in 2006","French striker who went from Arsenal to Chelsea","French defender, played for both in the 2000s"]},
-        {c1:"Man City",c2:"Liverpool",
-         ans:["Robbie Fowler","Fowler","Steve McManaman","McManaman","Nicolas Anelka","Anelka","Raheem Sterling","Sterling","Daniel Sturridge","Sturridge","James Milner","Milner","Edin Dzeko","Dzeko","David Silva","Silva","Gael Clichy","Clichy","Craig Bellamy","Bellamy","Glenn Whelan","Whelan","Emmanuel Adebayor","Adebayor"],
-         hints:["Brilliant winger who left Liverpool for Man City in 2015","English midfielder, played for both clubs in PL era","Welsh striker with a short but productive time at both"]},
-        {c1:"Man Utd",c2:"Everton",
-         ans:["Andrei Kanchelskis","Kanchelskis","Tim Howard","Howard","Louis Saha","Saha","Marouane Fellaini","Fellaini","Wayne Rooney","Rooney","Phil Neville","Phil Neville","Neville","Victor Anichebe","Anichebe"],
-         hints:["Belgian midfielder who moved from Everton to Man Utd in 2013","Scouser who returned home late in career","Russian winger who played for both in the 90s"]},
-        {c1:"Arsenal",c2:"Man City",
-         ans:["Emmanuel Adebayor","Adebayor","Samir Nasri","Nasri","Gael Clichy","Clichy","Kolo Toure","Toure","Bacary Sagna","Sagna","Nicolas Anelka","Anelka","Patrick Vieira","Vieira","Marc Overmars","Overmars","David Rocastle","Rocastle"],
-         hints:["Togolese striker, scored for Arsenal then joined Man City in 2009","French midfielder who left Arsenal for City in 2011","Ivory Coast centre-back who made the same switch","Ivorian right-back, moved to City in 2014"]},
-        {c1:"Chelsea",c2:"Liverpool",
-         ans:["Fernando Torres","Torres","Daniel Sturridge","Sturridge","Salomon Kalou","Kalou","Glen Johnson","Johnson","Nicolas Anelka","Anelka","Christian Benteke","Benteke","Ibrahim Ba","Eidur Gudjohnsen","Gudjohnsen","Henrique","Joe Cole","Cole","Bolo Zenden","Zenden"],
-         hints:["Spanish striker for whom Chelsea paid £50m to Liverpool","English striker who moved from Chelsea to Liverpool in 2013","Belgian forward, played for both clubs"]},
-        {c1:"Spurs",c2:"Arsenal",
-         ans:["Sol Campbell","Campbell","Emmanuel Adebayor","Adebayor","David Bentley","Bentley","Nicolas Anelka","Anelka","Pat Jennings","Jennings","Willie Young","Jimmy Robertson","Robertson","Laurie Brown"],
-         hints:["Famously crossed north London for free in 2001","Togolese striker played for both London clubs","Irish goalkeeper who made the move in 1977"]},
-        {c1:"Man Utd",c2:"Man City",
-         ans:["Carlos Tevez","Tevez","Peter Schmeichel","Schmeichel","Denis Law","Law","Brian Kidd","Kidd","Alf-Inge Haaland","Haaland","Owen Hargreaves","Hargreaves","Peter Barnes","Barnes","Terry Cooke","Cooke"],
-         hints:["Argentine striker who controversially crossed Manchester in 2009","Danish goalkeeper who ended career at City","Scottish legend who scored a hat-trick against his old club"]},
-        {c1:"Liverpool",c2:"Everton",
-         ans:["Nick Barmby","Barmby","Dave Hickson","Hickson","David Johnson","Johnson","Peter Beardsley","Beardsley","Abel Xavier","Xavier","Steve McMahon","McMahon","Gary Ablett","Ablett","Kevin Sheedy","Sheedy","Michael Branch","Branch"],
-         hints:["English midfielder who crossed Stanley Park in 2000","One of only a handful to cross the great divide","Popular in the 1980s at both clubs"]},
-        {c1:"Chelsea",c2:"Spurs",
-         ans:["William Gallas","Gallas","Celestine Babayaro","Babayaro","Clive Walker","Walker","Gordon Durie","Durie","Jason Cundy","Cundy","Bobby Smith","Smith"],
-         hints:["French defender involved in a controversial swap deal in 2006","Nigerian left-back who later moved across London"]},
-        {c1:"Newcastle",c2:"Sunderland",
-         ans:["Lee Clark","Clark","Shola Ameobi","Ameobi","Craig Bellamy","Bellamy","Emre","Bridges","Michael Bridges","Darren Holloway","Gavin McCann","McCann"],
-         hints:["Local lad who managed both clubs and played for them","Energetic Welsh striker who played for both Tyne-Wear clubs"]},
-        {c1:"Arsenal",c2:"Liverpool",
-         ans:["Nicolas Anelka","Anelka","Peter Beardsley","Beardsley","Mark Walters","Walters","Steve Bould","Ray Kennedy","Kennedy","Michael Thomas","Thomas","Jermaine Pennant","Pennant","Emmanuel Petit","Petit"],
-         hints:["Scored the title-winning goal at Anfield in 1989, later a Liverpool player","French midfielder who played for both top clubs"]},
-        {c1:"Man Utd",c2:"Chelsea",
-         ans:["Juan Sebastian Veron","Veron","Juan Mata","Mata","Nemanja Matic","Matic","Romelu Lukaku","Lukaku","Henrique Hilario","Hilario","Andy Goram","Goram","Mark Hughes","Hughes","Jaap Stam","Stam"],
-         hints:["Spanish playmaker signed by Man Utd in 2014 from Chelsea","Serbian midfielder who moved from Chelsea to United in 2017","Welsh striker who played for both clubs in the 90s"]},
-        {c1:"Man City",c2:"Chelsea",
-         ans:["Nicolas Anelka","Anelka","Robinho","Emmanuel Adebayor","Adebayor","Scott Sinclair","Sinclair","Patrick Vieira","Vieira","Michael Duberry","Duberry","Jimmy Floyd Hasselbaink","Hasselbaink"],
-         hints:["Brazilian striker signed by Man City, later at Chelsea","Togolese striker played for both clubs","Dutch striker who played for Chelsea and then City"]},
-        {c1:"Everton",c2:"Liverpool",
-         ans:["Nick Barmby","Barmby","Dave Hickson","Hickson","Peter Beardsley","Beardsley","Abel Xavier","Xavier","Steve McMahon","McMahon","Gary Ablett","Ablett","Kevin Sheedy","Sheedy","David Johnson","Johnson","Ronnie Goodlass","Goodlass","Johnny Morrissey","Morrissey"],
-         hints:["Crossed Stanley Park in 2000, caused uproar","Popular winger of the 80s who made the move"]},
-        {c1:"Arsenal",c2:"Spurs",
-         ans:["Sol Campbell","Campbell","Pat Jennings","Jennings","David Bentley","Bentley","Emmanuel Adebayor","Adebayor","Willie Young","Young","Jimmy Robertson","Robertson"],
-         hints:["Made the controversial free transfer to Arsenal in 2001","Irish goalkeeper who moved the other way"]},
-        {c1:"Leicester",c2:"Man City",
-         ans:["Kasper Schmeichel","Schmeichel","Riyad Mahrez","Mahrez","Edin Dzeko","Dzeko","Gael Clichy","Clichy","Daniel Amartey","Amartey","Danny Simpson","Simpson"],
-         hints:["Algerian winger who left Leicester for Man City in 2018 for £60m","Danish goalkeeper, son of Peter Schmeichel"]},
-        {c1:"Chelsea",c2:"Man City",
-         ans:["Nicolas Anelka","Anelka","Emmanuel Adebayor","Adebayor","Robinho","Patrick Vieira","Vieira","Scott Sinclair","Sinclair","Shaun Wright-Phillips","Wright-Phillips","Michael Ball","Ball"],
-         hints:["English winger who moved from City to Chelsea in 2005","Togolese striker who played for both clubs"]},
-        {c1:"Leeds",c2:"Man Utd",
-         ans:["Eric Cantona","Cantona","Gordon McQueen","McQueen","Joe Jordan","Jordan","Arthur Graham","Graham","Brian Greenhoff","Greenhoff","Johnny Giles","Giles"],
-         hints:["Legendary Frenchman crossed the Pennines in 1992","Scottish centre-back who moved from Leeds to United"]},
-        {c1:"Man City",c2:"Everton",
-         ans:["Wayne Rooney","Rooney","Sylvain Distin","Distin","Gary Neville","Neville","Leon Osman","Osman","Joleon Lescott","Lescott","Shane Duffy","Duffy","Kevin Ratcliffe","Ratcliffe"],
-         hints:["Everton legend who ended career at Man City briefly","Defender who made the move from Everton to City in 2009"]},
-        {c1:"Liverpool",c2:"Spurs",
-         ans:["Peter Crouch","Crouch","Robbie Keane","Keane","Mark Walters","Walters","Paul Stewart","Stewart","Nick Barmby","Barmby","Neil Ruddock","Ruddock"],
-         hints:["Tall English striker who had stints at both clubs","Irish striker who had a brief spell at Liverpool from Spurs"]}
+    // ─── 100 Question Bank ─────────────────────────────────────────
+    const PUZZLES=[
+    // ============ TYPE 1: CLUB CONNECTORS (60) ============
+    {type:'clubs',label:"Name a player who has played for both Arsenal and Chelsea",c1:"Arsenal",c2:"Chelsea",trait:null,
+     ans:["Nicolas Anelka","Anelka","Ashley Cole","Cole","Cesc Fabregas","Fabregas","Emmanuel Petit","Petit","Petr Cech","Cech","Olivier Giroud","Giroud","William Gallas","Gallas","David Luiz","Luiz"],
+     hints:["Left Arsenal for Chelsea in 2006, a controversial defender","French World Cup winner who played midfield for both","Czech goalkeeper who joined Arsenal late in career"]},
+    {type:'clubs',label:"Name a player who has played for both Man City and Liverpool",c1:"Man City",c2:"Liverpool",trait:null,
+     ans:["Raheem Sterling","Sterling","James Milner","Milner","Daniel Sturridge","Sturridge","Craig Bellamy","Bellamy","Robbie Fowler","Fowler","Nicolas Anelka","Anelka","Steve McManaman","McManaman"],
+     hints:["English winger who left Liverpool for City in 2015","Versatile English midfielder who played for both","Welsh striker who had spells at both clubs"]},
+    {type:'clubs',label:"Name a player who has played for both Man Utd and Everton",c1:"Man Utd",c2:"Everton",trait:null,
+     ans:["Wayne Rooney","Rooney","Marouane Fellaini","Fellaini","Louis Saha","Saha","Phil Neville","Neville","Tim Howard","Howard","Andrei Kanchelskis","Kanchelskis","Morgan Schneiderlin","Schneiderlin"],
+     hints:["Boyhood Evertonian who became Man Utd legend then returned","Belgian with big hair, Everton to United in 2013","American goalkeeper who moved from United to Everton"]},
+    {type:'clubs',label:"Name a player who has played for both Arsenal and Man City",c1:"Arsenal",c2:"Man City",trait:null,
+     ans:["Emmanuel Adebayor","Adebayor","Samir Nasri","Nasri","Gael Clichy","Clichy","Kolo Toure","Toure","Bacary Sagna","Sagna","Patrick Vieira","Vieira","Nicolas Anelka","Anelka"],
+     hints:["French midfielder who left Arsenal for City in 2011","Togolese striker who celebrated against Arsenal at the Etihad","Ivory Coast centre-back, Arsenal then City"]},
+    {type:'clubs',label:"Name a player who has played for both Chelsea and Liverpool",c1:"Chelsea",c2:"Liverpool",trait:null,
+     ans:["Fernando Torres","Torres","Daniel Sturridge","Sturridge","Joe Cole","Cole","Glen Johnson","Johnson","Bolo Zenden","Zenden","Eidur Gudjohnsen","Gudjohnsen","Mohamed Salah","Salah"],
+     hints:["Spanish striker for whom Chelsea paid 50m to Liverpool","English striker who moved from Chelsea to Liverpool","Icelandic forward who played for both in the 2000s"]},
+    {type:'clubs',label:"Name a player who has played for both Spurs and Arsenal",c1:"Spurs",c2:"Arsenal",trait:null,
+     ans:["Sol Campbell","Campbell","Emmanuel Adebayor","Adebayor","Pat Jennings","Jennings","William Gallas","Gallas","David Bentley","Bentley"],
+     hints:["Famously crossed north London on a free in 2001","Northern Irish goalkeeper who played for both","Togolese striker who had spells at both"]},
+    {type:'clubs',label:"Name a player who has played for both Man Utd and Man City",c1:"Man Utd",c2:"Man City",trait:null,
+     ans:["Carlos Tevez","Tevez","Peter Schmeichel","Schmeichel","Denis Law","Law","Owen Hargreaves","Hargreaves","Brian Kidd","Kidd","Alf-Inge Haaland","Haaland","Andy Cole","Cole"],
+     hints:["Argentine who controversially crossed Manchester in 2009","Danish GK who ended career at City","Scottish legend who scored against United for City"]},
+    {type:'clubs',label:"Name a player who has played for both Liverpool and Everton",c1:"Liverpool",c2:"Everton",trait:null,
+     ans:["Nick Barmby","Barmby","Peter Beardsley","Beardsley","Abel Xavier","Xavier","Steve McMahon","McMahon","Gary Ablett","Ablett","David Johnson","Johnson","Sander Westerveld","Westerveld"],
+     hints:["Crossed Stanley Park in 2000, caused uproar","English forward popular at both in the 1980s","Left-footed defender who won trophies at both"]},
+    {type:'clubs',label:"Name a player who has played for both Chelsea and Spurs",c1:"Chelsea",c2:"Spurs",trait:null,
+     ans:["William Gallas","Gallas","Jimmy Greaves","Greaves","Celestine Babayaro","Babayaro","Gordon Durie","Durie","Bobby Smith","Smith","Gus Poyet","Poyet"],
+     hints:["French defender in a controversial swap deal in 2006","English all-time great goalscorer who played for both","Uruguayan midfielder who played for both London clubs"]},
+    {type:'clubs',label:"Name a player who has played for both Newcastle and Sunderland",c1:"Newcastle",c2:"Sunderland",trait:null,
+     ans:["Lee Clark","Clark","Craig Bellamy","Bellamy","Steve Caldwell","Caldwell","Michael Bridges","Bridges","Gavin McCann","McCann","Jack Colback","Colback"],
+     hints:["Local lad midfielder who crossed the Tyne-Wear divide","Energetic Welsh striker at both clubs","Midfielder who went from Sunderland to Newcastle on a free"]},
+    {type:'clubs',label:"Name a player who has played for both Arsenal and Liverpool",c1:"Arsenal",c2:"Liverpool",trait:null,
+     ans:["Nicolas Anelka","Anelka","Jermaine Pennant","Pennant","Alex Oxlade-Chamberlain","Oxlade-Chamberlain","Ox","Yossi Benayoun","Benayoun","Emmanuel Petit","Petit","Michael Thomas","Thomas"],
+     hints:["English midfielder who moved from Arsenal to Liverpool in 2017","Scored the title-winning goal at Anfield in 1989","Israeli playmaker who played for both"]},
+    {type:'clubs',label:"Name a player who has played for both Man Utd and Chelsea",c1:"Man Utd",c2:"Chelsea",trait:null,
+     ans:["Juan Mata","Mata","Nemanja Matic","Matic","Romelu Lukaku","Lukaku","Mark Hughes","Hughes","Juan Sebastian Veron","Veron","Radamel Falcao","Falcao"],
+     hints:["Spanish playmaker signed by United from Chelsea in 2014","Serbian midfielder, Chelsea to United in 2017","Welsh striker who played for both in the 90s"]},
+    {type:'clubs',label:"Name a player who has played for both Man City and Chelsea",c1:"Man City",c2:"Chelsea",trait:null,
+     ans:["Nicolas Anelka","Anelka","Shaun Wright-Phillips","Wright-Phillips","Patrick Vieira","Vieira","Raheem Sterling","Sterling","Scott Sinclair","Sinclair","Jimmy Floyd Hasselbaink","Hasselbaink"],
+     hints:["English winger who moved from City to Chelsea in 2005","French midfielder who played for both late in career","English winger from City to Chelsea in 2022"]},
+    {type:'clubs',label:"Name a player who has played for both Leicester and Man City",c1:"Leicester",c2:"Man City",trait:null,
+     ans:["Riyad Mahrez","Mahrez","Kelechi Iheanacho","Iheanacho","Kasper Schmeichel","Schmeichel","Danny Simpson","Simpson","Edin Dzeko","Dzeko","Gael Clichy","Clichy"],
+     hints:["Algerian winger, Leicester to City for 60m in 2018","Nigerian striker, City academy to Leicester","Danish GK, son of a legend"]},
+    {type:'clubs',label:"Name a player who has played for both Leeds and Man Utd",c1:"Leeds",c2:"Man Utd",trait:null,
+     ans:["Eric Cantona","Cantona","Rio Ferdinand","Ferdinand","Alan Smith","Smith","Gordon McQueen","McQueen","Joe Jordan","Jordan","Johnny Giles","Giles"],
+     hints:["Legendary Frenchman who crossed the Pennines in 1992","English centre-back who made a controversial move","Scored a famous volley, moved from Leeds to United"]},
+    {type:'clubs',label:"Name a player who has played for both Man City and Everton",c1:"Man City",c2:"Everton",trait:null,
+     ans:["Wayne Rooney","Rooney","Joleon Lescott","Lescott","Sylvain Distin","Distin","Gareth Barry","Barry","Jack Rodwell","Rodwell","Tim Howard","Howard"],
+     hints:["Defender who moved from Everton to City in 2009","English midfielder who played for both clubs","Everton legend who briefly ended career at City"]},
+    {type:'clubs',label:"Name a player who has played for both Liverpool and Spurs",c1:"Liverpool",c2:"Spurs",trait:null,
+     ans:["Peter Crouch","Crouch","Robbie Keane","Keane","Neil Ruddock","Ruddock","Nick Barmby","Barmby","Paul Stewart","Stewart","Yossi Benayoun","Benayoun"],
+     hints:["Tall English striker at both clubs","Irish striker who had a brief spell at Liverpool","Israeli playmaker at both north London and Merseyside"]},
+    {type:'clubs',label:"Name a player who has played for both Everton and Chelsea",c1:"Everton",c2:"Chelsea",trait:null,
+     ans:["Romelu Lukaku","Lukaku","Samuel Eto'o","Eto'o","Pat Nevin","Nevin","Daniel Amokachi","Amokachi","Mikel Arteta","Arteta","Idrissa Gueye","Gueye"],
+     hints:["Belgian striker who played for both before going to Man Utd","Cameroon legend who had a spell at both","Scottish winger popular at Chelsea in the 80s"]},
+    {type:'clubs',label:"Name a player who has played for both Newcastle and Liverpool",c1:"Newcastle",c2:"Liverpool",trait:null,
+     ans:["Michael Owen","Owen","Andy Carroll","Carroll","Georginio Wijnaldum","Wijnaldum","Peter Beardsley","Beardsley","Craig Bellamy","Bellamy","Dietmar Hamann","Hamann"],
+     hints:["Ballon d'Or winner who moved from Liverpool to Newcastle","Tall striker sold from Newcastle to Liverpool for 35m","Dutch midfielder, Newcastle to Liverpool"]},
+    {type:'clubs',label:"Name a player who has played for both West Ham and Chelsea",c1:"West Ham",c2:"Chelsea",trait:null,
+     ans:["Joe Cole","Cole","Frank Lampard","Lampard","Glen Johnson","Johnson","Scott Parker","Parker","John Terry","Terry"],
+     hints:["Midfield legend who came through West Ham academy","England captain who grew up at West Ham","English midfielder who played for both London clubs"]},
+    {type:'clubs',label:"Name a player who has played for both Southampton and Liverpool",c1:"Southampton",c2:"Liverpool",trait:null,
+     ans:["Sadio Mane","Mane","Adam Lallana","Lallana","Dejan Lovren","Lovren","Rickie Lambert","Lambert","Nathaniel Clyne","Clyne","Peter Crouch","Crouch"],
+     hints:["Senegalese winger, Saints to Reds in 2016","English midfielder who moved in 2014","Croatian defender, part of the Southampton exodus"]},
+    {type:'clubs',label:"Name a player who has played for both Arsenal and West Ham",c1:"Arsenal",c2:"West Ham",trait:null,
+     ans:["Samir Nasri","Nasri","Jack Wilshere","Wilshere","Lukasz Fabianski","Fabianski","Theo Walcott","Walcott","Emmanuel Adebayor","Adebayor","Declan Rice","Rice"],
+     hints:["English midfielder who joined Arsenal from West Ham in 2023","Polish goalkeeper who moved across London","Injury-prone English midfielder who had a spell at West Ham"]},
+    {type:'clubs',label:"Name a player who has played for both Blackburn and Chelsea",c1:"Blackburn",c2:"Chelsea",trait:null,
+     ans:["Damien Duff","Duff","Chris Sutton","Sutton","Graeme Le Saux","Le Saux","Henning Berg","Berg","Brett Emerton","Emerton"],
+     hints:["Irish winger who won the league at Blackburn then moved to Chelsea","English left-back who played for both","Norwegian defender, won PL at Blackburn then went to Chelsea"]},
+    {type:'clubs',label:"Name a player who has played for both Spurs and Man Utd",c1:"Spurs",c2:"Man Utd",trait:null,
+     ans:["Dimitar Berbatov","Berbatov","Michael Carrick","Carrick","Teddy Sheringham","Sheringham","Eric Dier","Dier","Mikael Silvestre","Silvestre"],
+     hints:["Bulgarian striker who moved from Spurs to United","English midfielder, Spurs to United in 2006","Scored in 1999 CL final, had been at Spurs"]},
+    {type:'clubs',label:"Name a player who has played for both Aston Villa and Man Utd",c1:"Aston Villa",c2:"Man Utd",trait:null,
+     ans:["Eric Djemba-Djemba","Djemba-Djemba","Dwight Yorke","Yorke","Ashley Young","Young","Peter Schmeichel","Schmeichel","Bosko Balaban","Balaban","Tom Cleverley","Cleverley"],
+     hints:["Trinidad and Tobago striker, Villa to United in 1998","English winger who made the same move in 2011","Danish GK who ended career at Villa"]},
+    {type:'clubs',label:"Name a player who has played for both Chelsea and Arsenal",c1:"Chelsea",c2:"Arsenal",trait:null,
+     ans:["Nicolas Anelka","Anelka","Ashley Cole","Cole","Cesc Fabregas","Fabregas","Petr Cech","Cech","Olivier Giroud","Giroud","William Gallas","Gallas","David Luiz","Luiz","Emmanuel Petit","Petit"],
+     hints:["French striker at both London clubs","Brazilian defender who played for both","Spanish midfielder who returned to the PL with Chelsea"]},
+    {type:'clubs',label:"Name a player who has played for both Wolves and Man City",c1:"Wolves",c2:"Man City",trait:null,
+     ans:["Joleon Lescott","Lescott","Robinho","Benik Afobe","Afobe","Carl Ikeme","Ikeme","Michael Kightly","Kightly"],
+     hints:["English centre-back who went via Everton","Brazilian who had a brief loan"]},
+    {type:'clubs',label:"Name a player who has played for both Fulham and Liverpool",c1:"Fulham",c2:"Liverpool",trait:null,
+     ans:["Danny Murphy","Murphy","Steve Finnan","Finnan","Clint Dempsey","Dempsey","Ryan Babel","Babel","Harvey Elliott","Elliott"],
+     hints:["English midfielder who moved from Liverpool to Fulham","Irish right-back who won the CL with Liverpool","Young English winger who went from Fulham to Liverpool"]},
+    {type:'clubs',label:"Name a player who has played for both Crystal Palace and Arsenal",c1:"Crystal Palace",c2:"Arsenal",trait:null,
+     ans:["Ian Wright","Wright","Kenny Sansom","Sansom","Andy Gray","Gray","Kwesi Appiah","Appiah","Andros Townsend","Townsend"],
+     hints:["Legendary striker who went from Palace to Arsenal","England left-back who started at Palace"]},
+    {type:'clubs',label:"Name a player who has played for both Newcastle and Arsenal",c1:"Newcastle",c2:"Arsenal",trait:null,
+     ans:["Sol Campbell","Campbell","Yohan Cabaye","Cabaye","Joe Willock","Willock","Mathieu Debuchy","Debuchy","Nicky Butt","Butt","Gervinho","Jeff Reine-Adelaide"],
+     hints:["English midfielder who moved from Arsenal to Newcastle permanently","French right-back who played for both","French midfielder who went from Newcastle to PSG"]},
+    {type:'clubs',label:"Name a player who has played for both Everton and Spurs",c1:"Everton",c2:"Spurs",trait:null,
+     ans:["Gary Lineker","Lineker","Steven Pienaar","Pienaar","Aaron Lennon","Lennon","Richarlison","Tom Davies","Davies"],
+     hints:["England legend who played for both before going to Barcelona","South African midfielder at both","English winger who moved from Spurs to Everton"]},
+    {type:'clubs',label:"Name a player who has played for both Bolton and Chelsea",c1:"Bolton",c2:"Chelsea",trait:null,
+     ans:["Nicolas Anelka","Anelka","Loic Remy","Remy","Didier Drogba","Daniel Sturridge","Sturridge","Gary Cahill","Cahill"],
+     hints:["French striker who played for Bolton then Chelsea","English centre-back who went from Bolton to Chelsea"]},
+    {type:'clubs',label:"Name a player who has played for both Stoke and Liverpool",c1:"Stoke",c2:"Liverpool",trait:null,
+     ans:["Peter Crouch","Crouch","Charlie Adam","Adam","Glen Johnson","Johnson","Jermaine Pennant","Pennant","Joe Allen","Allen"],
+     hints:["Tall English striker at both clubs","Scottish midfielder who moved from Liverpool to Stoke","Welsh midfielder who went from Liverpool to Stoke"]},
+    {type:'clubs',label:"Name a player who has played for both Swansea and Liverpool",c1:"Swansea",c2:"Liverpool",trait:null,
+     ans:["Joe Allen","Allen","Jonjo Shelvey","Shelvey","Andre Ayew","Ayew","Fabio Borini","Borini","Ben Davies","Davies"],
+     hints:["Welsh midfielder dubbed the Welsh Xavi","English midfielder who had a loan spell at Swansea"]},
+    {type:'clubs',label:"Name a player who has played for both Derby and Leeds",c1:"Derby",c2:"Leeds",trait:null,
+     ans:["Seth Johnson","Johnson","Danny Mills","Mills","Robbie Savage","Savage","Fabrizio Ravanelli","Ravanelli","Gary Speed","Speed"],
+     hints:["Welsh midfielder known for his long blond hair","English right-back who played for both"]},
+    {type:'clubs',label:"Name a player who has played for both Middlesbrough and Aston Villa",c1:"Middlesbrough",c2:"Aston Villa",trait:null,
+     ans:["Gareth Southgate","Southgate","Ugo Ehiogu","Ehiogu","Stewart Downing","Downing","Barry Venison","Venison","Gareth Barry","Barry"],
+     hints:["Current England manager who played for both","English centre-back who played for both in the PL","English left winger from Middlesbrough"]},
+    {type:'clubs',label:"Name a player who has played for both Chelsea and West Ham",c1:"Chelsea",c2:"West Ham",trait:null,
+     ans:["Frank Lampard","Lampard","Joe Cole","Cole","Scott Parker","Parker","Glen Johnson","Johnson","John Terry","Terry","Demba Ba","Ba"],
+     hints:["Midfield legend from West Ham academy","Skilful English midfielder at both","Senegalese striker who played for both"]},
+    {type:'clubs',label:"Name a player who has played for both Arsenal and Everton",c1:"Arsenal",c2:"Everton",trait:null,
+     ans:["Mikel Arteta","Arteta","Francis Jeffers","Jeffers","Alex Iwobi","Iwobi","Theo Walcott","Walcott","Thomas Vermaelen","Vermaelen"],
+     hints:["Now Arsenal manager, played for both clubs","Nigerian winger who moved from Arsenal to Everton","English forward, Arsenal to Everton"]},
+    {type:'clubs',label:"Name a player who has played for both Spurs and Chelsea",c1:"Spurs",c2:"Chelsea",trait:null,
+     ans:["William Gallas","Gallas","Jimmy Greaves","Greaves","Gus Poyet","Poyet","Celestine Babayaro","Babayaro","Bobby Smith","Smith"],
+     hints:["French defender in a swap deal","England's greatest ever goalscorer played for both","Uruguayan midfielder at both London clubs"]},
+    {type:'clubs',label:"Name a player who has played for both Brighton and Chelsea",c1:"Brighton",c2:"Chelsea",trait:null,
+     ans:["Marc Cucurella","Cucurella","Moises Caicedo","Caicedo","Robert Sanchez","Sanchez","Adam Lallana","Lallana","Trevoh Chalobah","Chalobah"],
+     hints:["Spanish left-back, Brighton to Chelsea","Ecuadorian midfielder, big transfer fee","Spanish goalkeeper who moved from Brighton"]},
+    {type:'clubs',label:"Name a player who has played for both Brentford and Chelsea",c1:"Brentford",c2:"Chelsea",trait:null,
+     ans:["Ian Holloway","Holloway","Marcus Bent","Bent","Noni Madueke","Madueke"],
+     hints:["English forward who played for many PL clubs"]},
+    {type:'clubs',label:"Name a player who has played for both Nott'm Forest and Liverpool",c1:"Nott'm Forest",c2:"Liverpool",trait:null,
+     ans:["Stan Collymore","Collymore","Nigel Clough","Clough","Steve Stone","Stone","Stuart Pearce","Pearce","Neil Webb","Webb"],
+     hints:["English striker who made a big money move to Liverpool","Son of a famous Forest manager"]},
+    {type:'clubs',label:"Name a player who has played for both West Ham and Spurs",c1:"West Ham",c2:"Spurs",trait:null,
+     ans:["Jermain Defoe","Defoe","Bobby Zamora","Zamora","Michael Carrick","Carrick","Frederic Kanoute","Kanoute","Scott Parker","Parker","Calum Davenport","Davenport"],
+     hints:["English striker who went back and forth","English midfielder who went from West Ham to Spurs to United","Malian-French striker who crossed London"]},
+    {type:'clubs',label:"Name a player who has played for both Leicester and Chelsea",c1:"Leicester",c2:"Chelsea",trait:null,
+     ans:["N'Golo Kante","Kante","Danny Drinkwater","Drinkwater","Frank Sinclair","Sinclair","Muzzy Izzet","Izzet","Ben Chilwell","Chilwell"],
+     hints:["French midfielder, won PL at Leicester then Chelsea","English midfielder who followed him to Chelsea","English left-back, Leicester to Chelsea"]},
+    {type:'clubs',label:"Name a player who has played for both Sunderland and Everton",c1:"Sunderland",c2:"Everton",trait:null,
+     ans:["Lee Cattermole","Cattermole","Joleon Lescott","Lescott","Lamine Kone","Kone","Jack Rodwell","Rodwell","Aiden McGeady","McGeady","Kevin Kilbane","Kilbane","Steven Pienaar","Pienaar"],
+     hints:["English midfielder who played for both in the 2010s","Irish winger who played for both"]},
+    {type:'clubs',label:"Name a player who has played for both Chelsea and Man Utd",c1:"Chelsea",c2:"Man Utd",trait:null,
+     ans:["Juan Mata","Mata","Nemanja Matic","Matic","Mark Hughes","Hughes","Romelu Lukaku","Lukaku","Radamel Falcao","Falcao","Juan Sebastian Veron","Veron"],
+     hints:["Spanish playmaker sold from Chelsea to United","Serbian holding midfielder at both","Welsh striker-turned-manager"]},
+    {type:'clubs',label:"Name a player who has played for both Southampton and Spurs",c1:"Southampton",c2:"Spurs",trait:null,
+     ans:["Gareth Bale","Bale","Luke Shaw","Shaw","Kyle Walker-Peters","Walker-Peters","Calum Chambers","Chambers","Kevin Phillips","Phillips","Dean Richards","Richards"],
+     hints:["Welsh left-back turned global superstar","Young English left-back who left Southampton"]},
+    {type:'clubs',label:"Name a player who has played for both West Ham and Man Utd",c1:"West Ham",c2:"Man Utd",trait:null,
+     ans:["Rio Ferdinand","Ferdinand","Michael Carrick","Carrick","Javier Hernandez","Hernandez","Chicharito","Ravel Morrison","Morrison","Carlos Tevez","Tevez"],
+     hints:["English centre-back who went via Leeds","English midfielder from the academy","Argentine striker at both"]},
+    {type:'clubs',label:"Name a player who has played for both Arsenal and Aston Villa",c1:"Arsenal",c2:"Aston Villa",trait:null,
+     ans:["Emiliano Martinez","Martinez","Emi Martinez","Stewart Downing","Downing","Richard Dunne","Dunne","Ashley Young","Young","David Platt","Platt"],
+     hints:["Argentine goalkeeper who left Arsenal for Villa","English winger who played for Villa before Man Utd","Former England captain who played for both"]},
+    {type:'clubs',label:"Name a player who has played for both Liverpool and Chelsea",c1:"Liverpool",c2:"Chelsea",trait:null,
+     ans:["Fernando Torres","Torres","Mohamed Salah","Salah","Daniel Sturridge","Sturridge","Joe Cole","Cole","Glen Johnson","Johnson","Bolo Zenden","Zenden"],
+     hints:["Egyptian who played briefly at Chelsea before Liverpool","Spanish number 9 who shocked Anfield"]},
+    {type:'clubs',label:"Name a player who has played for both Newcastle and Man Utd",c1:"Newcastle",c2:"Man Utd",trait:null,
+     ans:["Michael Owen","Owen","Andy Cole","Cole","Louis Saha","Saha","Nicky Butt","Butt","Kieran Trippier","Trippier","Alan Shearer","Shearer"],
+     hints:["Prolific striker who moved from Newcastle to United in 1995","Ballon d'Or winner who ended up at Newcastle"]},
+    {type:'clubs',label:"Name a player who has played for both Wolves and Leicester",c1:"Wolves",c2:"Leicester",trait:null,
+     ans:["Matt Murray","Murray","Robbie Savage","Savage","Matt Elliott","Elliott","Emile Heskey","Heskey","Riyad Mahrez","Mahrez"],
+     hints:["Welsh midfielder with long blond hair","English striker who played for both in his career"]},
+    {type:'clubs',label:"Name a player who has played for both Crystal Palace and Man Utd",c1:"Crystal Palace",c2:"Man Utd",trait:null,
+     ans:["Wilfried Zaha","Zaha","Andrew Cole","Cole","Andy Cole","Eric Cantona","Cantona","Fraizer Campbell","Campbell","Aaron Wan-Bissaka","Wan-Bissaka"],
+     hints:["Ivorian winger who briefly went to United then returned","English right-back, Palace to United for 50m"]},
+    {type:'clubs',label:"Name a player who has played for both Aston Villa and Chelsea",c1:"Aston Villa",c2:"Chelsea",trait:null,
+     ans:["John Terry","Terry","Ross Barkley","Barkley","Jimmy Floyd Hasselbaink","Hasselbaink","Steve Sidwell","Sidwell","Robert Huth","Huth"],
+     hints:["Chelsea legend who ended career at Villa","English midfielder on loan at Villa from Chelsea"]},
+    {type:'clubs',label:"Name a player who has played for both Everton and Man City",c1:"Everton",c2:"Man City",trait:null,
+     ans:["Wayne Rooney","Rooney","Joleon Lescott","Lescott","Gareth Barry","Barry","Jack Rodwell","Rodwell","Sylvain Distin","Distin","Tim Howard","Howard"],
+     hints:["English defender who left Everton for City","English midfielder who played for both in the 2010s"]},
+    {type:'clubs',label:"Name a player who has played for both Chelsea and Fulham",c1:"Chelsea",c2:"Fulham",trait:null,
+     ans:["Ruben Loftus-Cheek","Loftus-Cheek","Ross Turnbull","Turnbull","Steve Sidwell","Sidwell","John Obi Mikel","Mikel","Tore Andre Flo","Flo"],
+     hints:["English midfielder on loan at Fulham from Chelsea","Norwegian striker who played for both"]},
+    {type:'clubs',label:"Name a player who has played for both Brighton and Liverpool",c1:"Brighton",c2:"Liverpool",trait:null,
+     ans:["Adam Lallana","Lallana","Luis Diaz","Diaz","Alexis Mac Allister","Mac Allister","Cody Gakpo","Gakpo"],
+     hints:["Argentine World Cup winner who went from Brighton to Liverpool","English midfielder who joined Brighton late career"]},
+    {type:'clubs',label:"Name a player who has played for both Middlesbrough and Chelsea",c1:"Middlesbrough",c2:"Chelsea",trait:null,
+     ans:["Tore Andre Flo","Flo","Mark Schwarzer","Schwarzer","Jimmy Floyd Hasselbaink","Hasselbaink","Robert Huth","Huth","Bolo Zenden","Zenden"],
+     hints:["Norwegian striker at both","Australian goalkeeper who played for both","Dutch winger at both clubs"]},
+    {type:'clubs',label:"Name a player who has played for both Bolton and Man City",c1:"Bolton",c2:"Man City",trait:null,
+     ans:["Nicolas Anelka","Anelka","Gary Cahill","Cahill","Jay Jay Okocha","Okocha","Daniel Sturridge","Sturridge","Joleon Lescott","Lescott"],
+     hints:["French striker at both clubs","Nigerian playmaker who starred at Bolton"]},
+    {type:'clubs',label:"Name a player who has played for both Blackburn and Newcastle",c1:"Blackburn",c2:"Newcastle",trait:null,
+     ans:["Alan Shearer","Shearer","Craig Bellamy","Bellamy","Nicky Butt","Butt","Stephen Warnock","Warnock","David Batty","Batty"],
+     hints:["PL all-time top scorer who played for both","Welsh striker who played for both","English midfielder who played for both in the 90s"]},
+
+    // ============ TYPE 2: TRAIT CHALLENGES (40) ============
+    {type:'trait',label:"Name a player who played for Man Utd AND won the Ballon d'Or",c1:"Man Utd",c2:null,trait:"won the Ballon d'Or",
+     ans:["Cristiano Ronaldo","Ronaldo","George Best","Best","Denis Law","Law","Bobby Charlton","Charlton","Michael Owen","Owen"],
+     hints:["Portuguese superstar, won it multiple times","Northern Irish genius of the 1960s","English legend who won it in 1966"]},
+    {type:'trait',label:"Name a player who played for Arsenal AND scored at a World Cup",c1:"Arsenal",c2:null,trait:"scored at a World Cup",
+     ans:["Thierry Henry","Henry","Dennis Bergkamp","Bergkamp","Patrick Vieira","Vieira","Emmanuel Petit","Petit","Alexis Sanchez","Sanchez","Mesut Ozil","Ozil","Santi Cazorla","Cazorla","Robin van Persie","Van Persie","Aaron Ramsey","Ramsey","Lukas Podolski","Podolski"],
+     hints:["French striker, Arsenal legend, scored at 1998 and 2006 WCs","Dutch forward with an iconic 1998 WC goal","German playmaker who scored in 2010 and 2014 WCs"]},
+    {type:'trait',label:"Name a player who played for Liverpool AND won the Champions League with another club",c1:"Liverpool",c2:null,trait:"won the Champions League with another club",
+     ans:["Xabi Alonso","Alonso","Javier Mascherano","Mascherano","Michael Owen","Owen","Fernando Torres","Torres","Philippe Coutinho","Coutinho","Thiago Alcantara","Thiago","Fabinho"],
+     hints:["Spanish midfielder who won it with Real Madrid after Liverpool","Argentine who won it at Barcelona","Brazilian who won it at Bayern Munich"]},
+    {type:'trait',label:"Name a player who played for Chelsea AND played international football for France",c1:"Chelsea",c2:null,trait:"played international football for France",
+     ans:["Didier Deschamps","Deschamps","Marcel Desailly","Desailly","Nicolas Anelka","Anelka","Florent Malouda","Malouda","William Gallas","Gallas","Claude Makelele","Makelele","Olivier Giroud","Giroud","N'Golo Kante","Kante","Kurt Zouma","Zouma","Tiemoue Bakayoko","Bakayoko","Loic Remy","Remy"],
+     hints:["French captain who managed France to WC glory","Defensive midfielder who revolutionised the position","French striker, current all-time top scorer for France"]},
+    {type:'trait',label:"Name a player who played for Man City AND represented their country at a World Cup final",c1:"Man City",c2:null,trait:"played in a World Cup final",
+     ans:["Sergio Aguero","Aguero","Pablo Zabaleta","Zabaleta","Nicolas Otamendi","Otamendi","Julian Alvarez","Alvarez","Ilkay Gundogan","Gundogan","Vincent Kompany","Kompany","Raheem Sterling","Sterling"],
+     hints:["Argentine striker, City legend, 2014 WC finalist","Argentine right-back at City, 2014 finalist","German midfielder, 2014 WC winner"]},
+    {type:'trait',label:"Name a player who played for Spurs AND scored in a north London derby",c1:"Spurs",c2:null,trait:"scored in a north London derby",
+     ans:["Harry Kane","Kane","Emmanuel Adebayor","Adebayor","Robbie Keane","Keane","Gareth Bale","Bale","Dele Alli","Alli","Son Heung-min","Son","Aaron Lennon","Lennon","Jermain Defoe","Defoe","Rafael van der Vaart","Van der Vaart"],
+     hints:["All-time PL top scorer who started at Spurs","Welsh winger who scored memorable goals vs Arsenal","South Korean forward, prolific in NLD"]},
+    {type:'trait',label:"Name a player who played for Everton AND won the Premier League",c1:"Everton",c2:null,trait:"won the Premier League",
+     ans:["Wayne Rooney","Rooney","Romelu Lukaku","Lukaku","Idrissa Gueye","Gueye","Gareth Barry","Barry","Sylvain Distin","Distin","Joleon Lescott","Lescott","Michael Keane","Keane","Phil Jagielka","Jagielka","James McCarthy","McCarthy"],
+     hints:["Boyhood Evertonian who won multiple titles at Man Utd","Belgian striker who won it at another club","English defender who won it with Man City after leaving Everton"]},
+    {type:'trait',label:"Name a player who played for Newcastle AND scored 20+ PL goals in a season",c1:"Newcastle",c2:null,trait:"scored 20+ PL goals in a season",
+     ans:["Alan Shearer","Shearer","Andy Cole","Cole","Les Ferdinand","Ferdinand","Alexander Isak","Isak","Demba Ba","Ba","Papiss Cisse","Cisse"],
+     hints:["PL all-time top scorer","Scored 34 PL goals in one season for Newcastle","Trinidadian-born striker prolific in the mid 90s"]},
+    {type:'trait',label:"Name a player who played for Chelsea AND managed a Premier League club",c1:"Chelsea",c2:null,trait:"managed a Premier League club",
+     ans:["Frank Lampard","Lampard","Gianluca Vialli","Vialli","Ruud Gullit","Gullit","Dennis Wise","Wise","Glenn Hoddle","Hoddle","Mark Hughes","Hughes","Roberto Di Matteo","Di Matteo","Gianfranco Zola","Zola"],
+     hints:["Chelsea legend who managed them twice","Italian player-manager at Chelsea","Dutch player-manager at Chelsea in the 90s"]},
+    {type:'trait',label:"Name a player who played for Arsenal AND went on to play in La Liga",c1:"Arsenal",c2:null,trait:"went on to play in La Liga",
+     ans:["Cesc Fabregas","Fabregas","Thierry Henry","Henry","Alexander Hleb","Hleb","Giovanni van Bronckhorst","Van Bronckhorst","Thomas Vermaelen","Vermaelen","Alexis Sanchez","Sanchez","Mesut Ozil","Ozil","Hector Bellerin","Bellerin","Nacho Monreal","Monreal"],
+     hints:["Returned to Barcelona from Arsenal","French legend who joined Barcelona","Spanish right-back who returned to Spain"]},
+    {type:'trait',label:"Name a player who played for Man Utd AND scored against them in a major final",c1:"Man Utd",c2:null,trait:"scored against Man Utd in a major final",
+     ans:["Carlos Tevez","Tevez","Cristiano Ronaldo","Ronaldo","Romelu Lukaku","Lukaku","Gerard Pique","Pique","Samuel Eto'o","Eto'o","Nani"],
+     hints:["Argentine who scored for City vs United in 2011","Spanish defender who scored for Barca in 2009 CL final","Cameroonian who scored in 2009 CL final, had been at United youth"]},
+    {type:'trait',label:"Name a player who played for Liverpool AND won the FA Cup with a different club",c1:"Liverpool",c2:null,trait:"won the FA Cup with a different club",
+     ans:["Michael Owen","Owen","Fernando Torres","Torres","Raheem Sterling","Sterling","Philippe Coutinho","Coutinho","Daniel Sturridge","Sturridge","Xabi Alonso","Alonso","Peter Crouch","Crouch","Robbie Keane","Keane","Jermaine Pennant","Pennant"],
+     hints:["Won it with Man Utd after leaving Liverpool","Won it with Chelsea after his big move","English winger who won it with Man City"]},
+    {type:'trait',label:"Name a player who played for Leicester AND won a league title abroad",c1:"Leicester",c2:null,trait:"won a league title abroad",
+     ans:["Riyad Mahrez","Mahrez","N'Golo Kante","Kante","Robert Huth","Huth","Esteban Cambiasso","Cambiasso","Danny Drinkwater","Drinkwater","Shinji Okazaki","Okazaki"],
+     hints:["Algerian who later won in Saudi Arabia","French midfielder who won in France and England","Argentine who won Serie A with Inter before Leicester"]},
+    {type:'trait',label:"Name a player who played for West Ham AND represented England at a major tournament",c1:"West Ham",c2:null,trait:"represented England at a major tournament",
+     ans:["Frank Lampard","Lampard","Rio Ferdinand","Ferdinand","Michael Carrick","Carrick","Joe Cole","Cole","Glen Johnson","Johnson","Jermain Defoe","Defoe","Declan Rice","Rice","Aaron Cresswell","Cresswell","Jarrod Bowen","Bowen"],
+     hints:["Midfield legend from the academy, multiple tournaments","Centre-back who went to Leeds then Man Utd","Young midfielder who starred at Euro 2020"]},
+    {type:'trait',label:"Name a player who played for Blackburn AND won the Premier League",c1:"Blackburn",c2:null,trait:"won the Premier League",
+     ans:["Alan Shearer","Shearer","Chris Sutton","Sutton","Tim Sherwood","Sherwood","Henning Berg","Berg","Graeme Le Saux","Le Saux","David Batty","Batty","Colin Hendry","Hendry","Jason Wilcox","Wilcox","Jeff Kenna","Kenna","Stuart Ripley","Ripley","Tim Flowers","Flowers"],
+     hints:["Prolific striker, won it with Blackburn in 1995","Scottish centre-back, part of the title team","English midfielder who captained the 1995 side"]},
+    {type:'trait',label:"Name a player who played for Man City AND won the Treble",c1:"Man City",c2:null,trait:"won the Treble in 2023",
+     ans:["Erling Haaland","Haaland","Kevin De Bruyne","De Bruyne","Bernardo Silva","Silva","Jack Grealish","Grealish","Phil Foden","Foden","Ilkay Gundogan","Gundogan","Ederson","John Stones","Stones","Ruben Dias","Dias","Kyle Walker","Walker","Rodri"],
+     hints:["Norwegian striker who scored 52 goals","Belgian playmaker, engine of the team","English winger from the academy"]},
+    {type:'trait',label:"Name a player who played for Chelsea AND been relegated from the Premier League",c1:"Chelsea",c2:null,trait:"been relegated from the Premier League",
+     ans:["Romelu Lukaku","Lukaku","Ross Barkley","Barkley","Demba Ba","Ba","Loic Remy","Remy","Scott Parker","Parker","Gary Cahill","Cahill","Victor Moses","Moses"],
+     hints:["Belgian striker relegated with West Brom before Chelsea","Senegalese striker relegated with Newcastle","English midfielder relegated with different clubs"]},
+    {type:'trait',label:"Name a player who played for Aston Villa AND scored in a European final",c1:"Aston Villa",c2:null,trait:"scored in a European final",
+     ans:["Peter Withe","Withe","Gary Shaw","Shaw","Dwight Yorke","Yorke","Gareth Barry","Barry","Dion Dublin","Dublin","John Carew","Carew"],
+     hints:["Scored the winning goal in the 1982 European Cup final","Trinidad and Tobago striker who later scored in a CL final for Man Utd"]},
+    {type:'trait',label:"Name a player who played for Leeds AND played Champions League football with another PL club",c1:"Leeds",c2:null,trait:"played CL football with another PL club",
+     ans:["Rio Ferdinand","Ferdinand","Robbie Keane","Keane","Jonathan Woodgate","Woodgate","Danny Mills","Mills","Mark Viduka","Viduka","Raphinha","Jimmy Floyd Hasselbaink","Hasselbaink","Eric Cantona","Cantona"],
+     hints:["Centre-back who played CL at Man Utd","Irish striker who played CL at Spurs","Brazilian winger who went from Leeds to Barcelona"]},
+    {type:'trait',label:"Name a player who played for Southampton AND became a Premier League legend elsewhere",c1:"Southampton",c2:null,trait:"became a PL legend elsewhere",
+     ans:["Alan Shearer","Shearer","Matt Le Tissier","Le Tissier","Gareth Bale","Bale","Theo Walcott","Walcott","Alex Oxlade-Chamberlain","Oxlade-Chamberlain","Adam Lallana","Lallana","Luke Shaw","Shaw","Sadio Mane","Mane","Virgil van Dijk","Van Dijk"],
+     hints:["PL all-time top scorer started here","Welsh winger who became world class at Spurs","Dutch centre-back who went to Liverpool"]},
+    {type:'trait',label:"Name a player who played for Spurs AND won a World Cup",c1:"Spurs",c2:null,trait:"won a World Cup",
+     ans:["Ossie Ardiles","Ardiles","Ricky Villa","Villa","Hugo Lloris","Lloris","Emmanuel Adebayor","Adebayor","Jurgen Klinsmann","Klinsmann","Christian Eriksen","Eriksen"],
+     hints:["Argentine who won it in 1978 and then joined Spurs","French goalkeeper, captain, won 2018 WC","German striker who won 1990 WC, joined Spurs in 1994"]},
+    {type:'trait',label:"Name a player who played for Arsenal AND was top scorer in the Premier League",c1:"Arsenal",c2:null,trait:"was PL top scorer (Golden Boot)",
+     ans:["Thierry Henry","Henry","Robin van Persie","Van Persie","Pierre-Emerick Aubameyang","Aubameyang","Nicolas Anelka","Anelka","Emmanuel Adebayor","Adebayor","Alexis Sanchez","Sanchez","Ian Wright","Wright"],
+     hints:["Won it four times with Arsenal","Dutch striker who won it before leaving for Man Utd","Gabonese striker who shared the award"]},
+    {type:'trait',label:"Name a player who played for Man Utd AND featured in a World Cup final",c1:"Man Utd",c2:null,trait:"featured in a World Cup final",
+     ans:["Cristiano Ronaldo","Ronaldo","Paul Pogba","Pogba","Raphael Varane","Varane","Jaap Stam","Stam","Ruud van Nistelrooy","Van Nistelrooy","Bobby Charlton","Charlton","Nobby Stiles","Stiles","Martin Buchan","Buchan","Rio Ferdinand","Ferdinand","Wayne Rooney","Rooney","Michael Carrick","Carrick"],
+     hints:["Portuguese who played in 2006 WC final","French who won 2018 WC while at Man Utd","English 1966 WC winner, United legend"]},
+    {type:'trait',label:"Name a player who played for Liverpool AND won the Premier League Golden Boot",c1:"Liverpool",c2:null,trait:"won the Premier League Golden Boot",
+     ans:["Mohamed Salah","Salah","Luis Suarez","Suarez","Robbie Fowler","Fowler","Michael Owen","Owen","Fernando Torres","Torres","Sadio Mane","Mane"],
+     hints:["Egyptian who won it multiple times","Uruguayan who scored 31 in 2013-14","Young English striker who won it in the late 90s"]},
+    {type:'trait',label:"Name a player who played for Everton AND was sold for over 50 million pounds",c1:"Everton",c2:null,trait:"was sold for over 50 million pounds",
+     ans:["Romelu Lukaku","Lukaku","Richarlison","John Stones","Stones","Amadou Onana","Onana"],
+     hints:["Belgian striker sold to Man Utd for 75m","Brazilian sold to Spurs","English centre-back sold to Man City"]},
+    {type:'trait',label:"Name a player who played for Newcastle AND was sold for a club-record fee",c1:"Newcastle",c2:null,trait:"was sold for a club-record fee",
+     ans:["Andy Carroll","Carroll","Alan Shearer","Shearer","Michael Owen","Owen","Moussa Sissoko","Sissoko","Georginio Wijnaldum","Wijnaldum","Ayoze Perez","Perez"],
+     hints:["Tall striker sold to Liverpool for 35m","French midfielder sold to Spurs","Dutch midfielder sold to Liverpool"]},
+    {type:'trait',label:"Name a player who played for Chelsea AND scored in a Champions League final",c1:"Chelsea",c2:null,trait:"scored in a Champions League final",
+     ans:["Didier Drogba","Drogba","Kai Havertz","Havertz","Frank Lampard","Lampard","Olivier Giroud","Giroud","Fernando Torres","Torres"],
+     hints:["Ivory Coast legend, scored in 2012 final","German who scored the 2021 final winner","English legend who scored in 2008 final vs Man Utd"]},
+    {type:'trait',label:"Name a player who played for Man City AND won back-to-back Premier League titles",c1:"Man City",c2:null,trait:"won back-to-back PL titles",
+     ans:["Kevin De Bruyne","De Bruyne","Raheem Sterling","Sterling","Bernardo Silva","Silva","Ederson","Kyle Walker","Walker","Aymeric Laporte","Laporte","Ilkay Gundogan","Gundogan","Phil Foden","Foden","John Stones","Stones","Ruben Dias","Dias","Rodri","Erling Haaland","Haaland","Jack Grealish","Grealish"],
+     hints:["Belgian playmaker, won four in a row","English winger from the academy","Norwegian striker who joined for the run"]},
+    {type:'trait',label:"Name a player who played for Arsenal AND represented an African nation at AFCON",c1:"Arsenal",c2:null,trait:"represented an African nation at AFCON",
+     ans:["Kolo Toure","Toure","Emmanuel Adebayor","Adebayor","Nwankwo Kanu","Kanu","Lauren","Pierre-Emerick Aubameyang","Aubameyang","Alex Iwobi","Iwobi","Nicolas Pepe","Pepe","Thomas Partey","Partey","Mohamed Elneny","Elneny","William Saliba","Saliba","Emmanuel Eboue","Eboue","Gervinho","Alexandre Song","Song"],
+     hints:["Ivory Coast centre-back, Arsenal Invincible","Nigerian striker who won it with Arsenal","Gabonese captain and Arsenal striker"]},
+    {type:'trait',label:"Name a player who played for Wolves AND played in the PL for 10+ seasons",c1:"Wolves",c2:null,trait:"played in the PL for 10+ seasons",
+     ans:["Matt Jarvis","Jarvis","Joleon Lescott","Lescott","Sylvain Ebanks-Blake","Robbie Keane","Keane","Steven Fletcher","Fletcher","Conor Coady","Coady","Matt Doherty","Doherty"],
+     hints:["English defender who went on to play for Everton and City","Irish striker with a long PL career at multiple clubs","English centre-back who also played for Everton"]},
+    {type:'trait',label:"Name a player who played for Brentford AND played for a top-6 club",c1:"Brentford",c2:null,trait:"played for a top-6 PL club",
+     ans:["Ollie Watkins","Watkins","Said Benrahma","Benrahma","Neal Maupay","Maupay","Sergi Canos","Canos","Christian Eriksen","Eriksen","Ivan Toney","Toney"],
+     hints:["English striker who went to Aston Villa","Danish playmaker who joined Man Utd on a free","English striker who joined Arsenal"]},
+    {type:'trait',label:"Name a player who played for Brighton AND went on to a major European club",c1:"Brighton",c2:null,trait:"went on to a major European club",
+     ans:["Marc Cucurella","Cucurella","Moises Caicedo","Caicedo","Alexis Mac Allister","Mac Allister","Ben White","White","Leandro Trossard","Trossard","Yves Bissouma","Bissouma","Tariq Lamptey","Lamptey"],
+     hints:["Argentine World Cup winner who went to Liverpool","Spanish left-back who moved to Chelsea","Ecuadorian who joined Chelsea for over 100m"]},
+    {type:'trait',label:"Name a player who played for Fulham AND reached a World Cup semi-final",c1:"Fulham",c2:null,trait:"reached a World Cup semi-final",
+     ans:["Clint Dempsey","Dempsey","Bobby Zamora","Zamora","Brian McBride","McBride","Brede Hangeland","Hangeland","Moussa Dembele","Dembele","Simon Davies","Davies","Carlos Salcido","Salcido","Zoltan Gera","Gera"],
+     hints:["American striker, reached 2002 WC semi-final stage... actually QF","Norwegian defender at 2018 WC... no. Belgian midfielder who reached 2018 WC semi-final","Hungarian midfielder at 2006 WC... no"]},
+    {type:'trait',label:"Name a player who played for Crystal Palace AND scored 10+ PL goals in a season",c1:"Crystal Palace",c2:null,trait:"scored 10+ PL goals in a season",
+     ans:["Wilfried Zaha","Zaha","Christian Benteke","Benteke","Dwight Gayle","Gayle","Glenn Murray","Murray","Yannick Bolasie","Bolasie","Andrew Johnson","Johnson","Jean-Philippe Mateta","Mateta","Eberechi Eze","Eze","Michael Olise","Olise"],
+     hints:["Ivorian winger, Palace talisman for years","Belgian striker who scored for fun at Palace","English forward who netted 21 for Palace in 2004"]},
+    {type:'trait',label:"Name a player who played for Nott'm Forest AND won a European trophy",c1:"Nott'm Forest",c2:null,trait:"won a European trophy",
+     ans:["Peter Shilton","Shilton","John Robertson","Robertson","Trevor Francis","Francis","Viv Anderson","Anderson","Martin O'Neill","O'Neill","Kenny Burns","Burns","Larry Lloyd","Lloyd","Archie Gemmill","Gemmill","Tony Woodcock","Woodcock","Stuart Pearce","Pearce"],
+     hints:["England's most capped keeper, won European Cup with Forest","Scored the first ever million-pound goal in a European Cup final","Scottish winger who was key in both European Cup wins"]},
+    {type:'trait',label:"Name a player who played for Aston Villa AND was PFA Players' Player of the Year",c1:"Aston Villa",c2:null,trait:"was PFA Players' Player of the Year",
+     ans:["Mark Walters","Walters","David Platt","Platt","Paul McGrath","McGrath","Andy Gray","Gray","John Terry","Terry"],
+     hints:["Irish centre-back, won it in 1993","Former England midfielder who won it","Scottish striker who won it in 1977"]},
+    {type:'trait',label:"Name a player who played for Sunderland AND played for England",c1:"Sunderland",c2:null,trait:"played for England",
+     ans:["Michael Gray","Gray","Kevin Phillips","Phillips","Jermain Defoe","Defoe","Jordan Henderson","Henderson","Jordan Pickford","Pickford","Jack Colback","Colback","Darren Bent","Bent","Adam Johnson","Johnson","Stewart Downing","Downing","Danny Rose","Rose"],
+     hints:["Scored 30 PL goals in 1999-2000 season","Liverpool captain who started at Sunderland","England goalkeeper who came through Sunderland academy"]},
+    {type:'trait',label:"Name a player who played for Man City AND became an international manager",c1:"Man City",c2:null,trait:"became an international manager",
+     ans:["Stuart Pearce","Pearce","Patrick Vieira","Vieira","Dietmar Hamann","Hamann","Vincent Kompany","Kompany","David Platt","Platt","Mark Hughes","Hughes"],
+     hints:["Managed England U21s, played for City","French midfielder who managed Nice before potential national role","Welsh striker who managed Wales"]},
+    {type:'trait',label:"Name a player who played for Leicester AND played for England at a major tournament",c1:"Leicester",c2:null,trait:"played for England at a major tournament",
+     ans:["Gary Lineker","Lineker","Emile Heskey","Heskey","Jamie Vardy","Vardy","Harry Maguire","Maguire","Danny Drinkwater","Drinkwater","Demarai Gray","Gray","Ben Chilwell","Chilwell","James Maddison","Maddison"],
+     hints:["Leicester-born striker who won 1986 WC Golden Boot","Striker who starred at 2018 WC","Centre-back who became a fan favourite at 2018 WC"]},
+    {type:'trait',label:"Name a player who played for West Ham AND scored at an Olympics or World Cup",c1:"West Ham",c2:null,trait:"scored at an Olympics or World Cup",
+     ans:["Geoff Hurst","Hurst","Martin Peters","Peters","Bobby Moore","Moore","Javier Hernandez","Hernandez","Chicharito","Dimitri Payet","Payet","Michail Antonio","Antonio","Paolo Di Canio","Di Canio","Carlos Tevez","Tevez"],
+     hints:["Scored a hat-trick in the 1966 WC final","Also scored in the 1966 final for England","Mexican striker who scored at multiple World Cups"]}
     ];
 
-    // ─── State ───────────────────────────────────────────────────────
-    let queue=[], round=0, score=0, timerSecs=0, timerRef=null;
-    let foundThisRound=[], hintUsed=0, roundResults=[];
-    const TOTAL_ROUNDS=10, ROUND_TIME=60;
+    // ─── State ──────────────────────────────────────────────────────
+    let queue=[],round=0,score=0,timerSecs=0,timerRef=null,autoAdvanceRef=null;
+    let foundThisRound=[],foundNames=[],hintUsed=0,roundResults=[];
+    const TOTAL_ROUNDS=10,ROUND_TIME=60;
 
-    function shuffle(arr){return arr.slice().sort(()=>Math.random()-.5);}
+    function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+    function norm(s){return s.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ');}
 
-    function norm(s){
-        return s.trim().toLowerCase()
-            .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-            .replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ');
-    }
+    function $(id){return document.getElementById(id);}
 
-    // ─── Init ────────────────────────────────────────────────────────
+    // ─── Init ───────────────────────────────────────────────────────
     function initGame(){
-        queue=shuffle(PUZZLES).slice(0,TOTAL_ROUNDS);
-        round=0; score=0; roundResults=[];
-        document.getElementById('end-screen').style.display='none';
-        document.getElementById('game-area').style.display='';
-        document.getElementById('action-row')||0;
-        document.querySelectorAll('.action-row').forEach(el=>el.style.display='flex');
+        queue=shuffle(PUZZLES.slice()).slice(0,TOTAL_ROUNDS);
+        round=0;score=0;roundResults=[];
+        $('start-screen').style.display='none';
+        $('end-screen').style.display='none';
+        $('game-area').style.display='';
+        $('score-bar').style.display='flex';
+        $('timer-bar-wrap').style.display='';
+        $('action-row').style.display='flex';
         updateScoreBar();
         loadRound();
     }
 
     function updateScoreBar(){
-        document.getElementById('score-display').textContent=score;
-        document.getElementById('round-display').textContent=`${round+1}/${TOTAL_ROUNDS}`;
+        $('score-display').textContent=score;
+        $('round-display').textContent=(round+1)+'/'+TOTAL_ROUNDS;
+        $('found-count').textContent=foundThisRound.length;
     }
 
     function loadRound(){
         if(round>=TOTAL_ROUNDS){endGame();return;}
+        clearTimeout(autoAdvanceRef);
         const p=queue[round];
-        foundThisRound=[]; hintUsed=0;
-        document.getElementById('round-label').textContent=`Round ${round+1} of ${TOTAL_ROUNDS}`;
-        document.getElementById('club1-name').textContent=p.c1;
-        document.getElementById('club2-name').textContent=p.c2;
-        document.getElementById('club1-badge').innerHTML=clubBadge(p.c1);
-        document.getElementById('club2-badge').innerHTML=clubBadge(p.c2);
-        document.getElementById('player-input').value='';
-        document.getElementById('player-input').disabled=false;
-        document.getElementById('submit-btn').disabled=false;
-        document.getElementById('feedback').textContent='';
-        document.getElementById('feedback').className='feedback';
-        document.getElementById('hint-text').textContent='';
-        document.getElementById('hint-btn').disabled=false;
-        document.getElementById('found-section').style.display='none';
-        document.getElementById('found-list').innerHTML='';
-        document.getElementById('next-btn').style.display='none';
-        document.getElementById('skip-btn').style.display='';
+        foundThisRound=[];foundNames=[];hintUsed=0;
+
+        // Slide-in animation
+        const rc=$('round-content');
+        rc.classList.add('enter');
+        requestAnimationFrame(()=>requestAnimationFrame(()=>rc.classList.remove('enter')));
+
+        // Round label + type badge
+        const badge=$('type-badge');
+        if(p.type==='clubs'){
+            badge.textContent='Club Connector';badge.className='round-type-badge badge-clubs';
+        } else {
+            badge.textContent='Trait Challenge';badge.className='round-type-badge badge-trait';
+        }
+        $('round-label').innerHTML='Round '+(round+1)+' of '+TOTAL_ROUNDS+' '+badge.outerHTML;
+
+        // Question text
+        $('question-text').textContent=p.label;
+
+        // Cards
+        const rightCard=$('right-card');
+        $('club1-badge').innerHTML=clubBadge(p.c1);
+        $('club1-name').textContent=p.c1;
+
+        if(p.type==='clubs'){
+            rightCard.className='club-card';
+            $('club2-badge').innerHTML=clubBadge(p.c2);
+            $('club2-name').textContent=p.c2;
+        } else {
+            rightCard.className='trait-card';
+            const icon=p.trait.match(/world cup|international/i)?'&#127758;':'&#11088;';
+            $('club2-badge').innerHTML='<div class="trait-icon">'+icon+'</div>';
+            $('club2-name').textContent=p.trait;
+        }
+
+        // Reset UI
+        $('player-input').value='';
+        $('player-input').disabled=false;
+        $('submit-btn').disabled=false;
+        $('feedback').textContent='';
+        $('feedback').className='feedback';
+        $('hint-text').textContent='';
+        $('hint-btn').disabled=false;
+        $('found-section').style.display='none';
+        $('found-list').innerHTML='';
+        $('next-btn').style.display='none';
+        $('next-btn').classList.remove('pulse');
+        $('skip-btn').style.display='';
         updateScoreBar();
         startTimer();
-        document.getElementById('player-input').focus();
+        $('player-input').focus();
     }
 
-    // ─── Timer ───────────────────────────────────────────────────────
+    // ─── Timer ──────────────────────────────────────────────────────
     function startTimer(){
         clearInterval(timerRef);
         timerSecs=ROUND_TIME;
@@ -348,147 +684,211 @@
     }
 
     function renderTimer(){
-        const el=document.getElementById('timer-display');
+        const el=$('timer-display');
         el.textContent=timerSecs;
         el.className='score-val timer-val'+(timerSecs<=10?' low':'');
+        const bar=$('timer-bar');
+        bar.style.width=(timerSecs/ROUND_TIME*100)+'%';
+        bar.className='timer-bar'+(timerSecs<=10?' danger':'');
     }
 
     function timeUp(){
-        document.getElementById('player-input').disabled=true;
-        document.getElementById('submit-btn').disabled=true;
-        document.getElementById('hint-btn').disabled=true;
+        $('player-input').disabled=true;
+        $('submit-btn').disabled=true;
+        $('hint-btn').disabled=true;
         const p=queue[round];
-        showFeedback(`Time's up! A valid answer: ${p.ans[0]}`,'wrong');
-        document.getElementById('next-btn').style.display='';
-        document.getElementById('skip-btn').style.display='none';
-        if(foundThisRound.length===0){
-            roundResults.push({c1:p.c1,c2:p.c2,found:[],pts:0,skipped:false,timeUp:true});
+        // Find a display name (skip short aliases)
+        const displayAns=p.ans.find(a=>a.includes(' '))||p.ans[0];
+        showFeedback("Time's up! A valid answer: "+displayAns,'wrong');
+        $('next-btn').style.display='';
+        $('next-btn').classList.add('pulse');
+        $('skip-btn').style.display='none';
+        if(!roundResults[round]){
+            roundResults[round]={label:p.label,found:[],pts:0,skipped:false,timeUp:true};
+        } else {
+            roundResults[round].timeUp=true;
         }
+        autoAdvanceRef=setTimeout(()=>nextRound(),3000);
     }
 
-    // ─── Answer submission ───────────────────────────────────────────
+    // ─── Matching logic ─────────────────────────────────────────────
+    function matchAnswer(guess,ansList){
+        const g=norm(guess);
+        if(!g||g.length<2) return null;
+        // Group answers: full names followed by aliases
+        // We treat each answer individually
+        for(let i=0;i<ansList.length;i++){
+            const a=norm(ansList[i]);
+            if(a===g) return ansList[i];
+            // If guess is a surname and it matches
+            const parts=a.split(' ');
+            if(parts.length>1 && g===parts[parts.length-1] && g.length>2) return ansList[i];
+            // If answer is a single name alias and matches
+            if(parts.length===1 && a===g) return ansList[i];
+        }
+        return null;
+    }
+
+    function getDisplayName(matched,ansList){
+        // Return the longest version of the matched name (full name)
+        const n=norm(matched);
+        // Look for a full name that contains this
+        for(let i=0;i<ansList.length;i++){
+            if(norm(ansList[i])===n && ansList[i].includes(' ')) return ansList[i];
+        }
+        // Look for the entry just before this alias (full name)
+        const idx=ansList.indexOf(matched);
+        if(idx>0 && ansList[idx-1].includes(' ')) return ansList[idx-1];
+        return matched;
+    }
+
+    // ─── Submit ─────────────────────────────────────────────────────
     function submitAnswer(){
-        const input=document.getElementById('player-input');
+        const input=$('player-input');
         const raw=input.value.trim();
         if(!raw)return;
         const p=queue[round];
         const guess=norm(raw);
 
-        // Check duplicate
-        if(foundThisRound.map(f=>norm(f)).some(f=>f===guess)){
+        // Duplicate check
+        if(foundNames.some(f=>f===guess)){
             showFeedback('Already found!','duplicate');
-            input.select(); return;
+            input.select();return;
         }
 
-        // Check valid
-        const valid=p.ans.some(a=>norm(a)===guess||norm(a).includes(guess)||guess.includes(norm(a).split(' ')[1]||norm(a)));
-        const canonical=valid?p.ans.find(a=>norm(a)===guess||norm(a).includes(guess)||guess.includes(norm(a).split(' ')[1]||norm(a))):null;
+        const matched=matchAnswer(raw,p.ans);
+        if(matched){
+            const display=getDisplayName(matched,p.ans);
+            const normDisplay=norm(display);
 
-        if(valid&&canonical){
-            // Find the full display name (first alias that normalises to canonical)
-            const display=p.ans.find(a=>norm(a)===norm(canonical))||canonical;
-            const pts=foundThisRound.length===0?20:10;
+            // Check duplicate by display name
+            if(foundNames.includes(normDisplay)){
+                showFeedback('Already found!','duplicate');
+                input.select();return;
+            }
+
+            const isFirst=foundThisRound.length===0;
+            let pts=isFirst?20:10;
+            const speedBonus=(ROUND_TIME-timerSecs)<=20?5:0;
+            pts+=speedBonus;
             score+=pts;
             foundThisRound.push(display);
-            showFeedback(`✓ ${display} — +${pts} points!`,'correct');
+            foundNames.push(normDisplay);
+            const bonusText=speedBonus?' (incl. +5 speed bonus)':'';
+            showFeedback('Correct! '+display+' +'+pts+' pts'+bonusText,'correct');
             renderFound();
-            if(!roundResults.find(r=>r.c1===p.c1&&r.c2===p.c2)){
-                roundResults.push({c1:p.c1,c2:p.c2,found:[display],pts,skipped:false,timeUp:false});
+
+            if(!roundResults[round]){
+                roundResults[round]={label:p.label,found:[display],pts:pts,skipped:false,timeUp:false};
             } else {
-                const r=roundResults.find(r=>r.c1===p.c1&&r.c2===p.c2);
-                r.found.push(display); r.pts+=pts;
+                roundResults[round].found.push(display);
+                roundResults[round].pts+=pts;
             }
             updateScoreBar();
-            // After 3 found, show next button
             if(foundThisRound.length>=3){
-                document.getElementById('next-btn').style.display='';
+                $('next-btn').style.display='';
             }
         } else {
-            showFeedback('Not a valid connection — try again!','wrong');
+            showFeedback('Not a valid answer. Try again!','wrong');
+            input.classList.add('shake');
+            setTimeout(()=>input.classList.remove('shake'),400);
         }
         input.value='';
         input.focus();
     }
 
     function renderFound(){
-        const list=document.getElementById('found-list');
-        const sec=document.getElementById('found-section');
-        sec.style.display='';
+        const list=$('found-list');
+        $('found-section').style.display='';
         list.innerHTML=foundThisRound.map((name,i)=>{
             const pts=i===0?20:10;
-            return`<div class="found-chip">${name} <span class="chip-pts">+${pts}</span></div>`;
+            return '<div class="found-chip chip-flash">'+name+' <span class="chip-pts">+'+pts+'</span></div>';
         }).join('');
     }
 
     function showFeedback(msg,cls){
-        const el=document.getElementById('feedback');
+        const el=$('feedback');
         el.textContent=msg;
         el.className='feedback '+cls;
     }
 
-    // ─── Hint ────────────────────────────────────────────────────────
+    // ─── Hint ───────────────────────────────────────────────────────
     function useHint(){
         const p=queue[round];
         if(hintUsed>=p.hints.length)return;
         score=Math.max(0,score-5);
-        document.getElementById('hint-text').textContent='Hint: '+p.hints[hintUsed];
+        $('hint-text').textContent='Hint: '+p.hints[hintUsed];
         hintUsed++;
-        if(hintUsed>=p.hints.length)document.getElementById('hint-btn').disabled=true;
+        if(hintUsed>=p.hints.length) $('hint-btn').disabled=true;
         updateScoreBar();
     }
 
-    // ─── Navigation ──────────────────────────────────────────────────
+    // ─── Navigation ─────────────────────────────────────────────────
     function skipRound(){
         clearInterval(timerRef);
+        clearTimeout(autoAdvanceRef);
         const p=queue[round];
-        if(!roundResults.find(r=>r.c1===p.c1&&r.c2===p.c2)){
-            roundResults.push({c1:p.c1,c2:p.c2,found:foundThisRound.slice(),pts:0,skipped:true,timeUp:false});
+        const displayAns=p.ans.find(a=>a.includes(' '))||p.ans[0];
+        if(!roundResults[round]){
+            roundResults[round]={label:p.label,found:foundThisRound.slice(),pts:0,skipped:true,timeUp:false};
+        } else {
+            roundResults[round].skipped=true;
         }
-        showFeedback(`Skipped — a valid answer: ${p.ans[0]}`,'wrong');
-        document.getElementById('player-input').disabled=true;
-        document.getElementById('submit-btn').disabled=true;
-        document.getElementById('next-btn').style.display='';
-        document.getElementById('skip-btn').style.display='none';
+        showFeedback('Skipped. A valid answer: '+displayAns,'wrong');
+        $('player-input').disabled=true;
+        $('submit-btn').disabled=true;
+        $('hint-btn').disabled=true;
+        $('next-btn').style.display='';
+        $('skip-btn').style.display='none';
     }
 
     function nextRound(){
         clearInterval(timerRef);
+        clearTimeout(autoAdvanceRef);
+        if(!roundResults[round]){
+            const p=queue[round];
+            roundResults[round]={label:p.label,found:foundThisRound.slice(),pts:0,skipped:false,timeUp:false};
+        }
         round++;
         loadRound();
     }
 
-    // ─── End ─────────────────────────────────────────────────────────
+    // ─── End ────────────────────────────────────────────────────────
     function endGame(){
         clearInterval(timerRef);
-        document.getElementById('game-area').style.display='none';
-        document.querySelectorAll('.action-row').forEach(el=>el.style.display='none');
-        const end=document.getElementById('end-screen');
+        clearTimeout(autoAdvanceRef);
+        $('game-area').style.display='none';
+        $('action-row').style.display='none';
+        $('score-bar').style.display='none';
+        $('timer-bar-wrap').style.display='none';
+        const end=$('end-screen');
         end.style.display='block';
-        document.getElementById('end-score').textContent=score;
-        const max=TOTAL_ROUNDS*20+(TOTAL_ROUNDS-1)*10;
-        const pct=score/max;
-        let grade;
-        if(pct>=.8)grade='🏆 Premier League Expert!';
-        else if(pct>=.6)grade='⚽ Championship Quality';
-        else if(pct>=.4)grade='💪 League One Standard';
-        else grade='📖 Keep studying the game!';
-        document.getElementById('end-grade').textContent=grade;
+        $('end-score').textContent=score;
 
-        const rounds=document.getElementById('end-rounds');
+        let grade;
+        if(score>=180) grade='Premier League Expert';
+        else if(score>=120) grade='Championship Quality';
+        else if(score>=70) grade='League One Standard';
+        else grade='Keep studying the game';
+        $('end-grade').textContent=grade;
+
+        const rounds=$('end-rounds');
         rounds.innerHTML='<div style="font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#666;margin-bottom:12px;">Round by Round</div>'+
-            roundResults.map(r=>`<div class="end-round-item"><strong>${r.c1} + ${r.c2}</strong> — ${r.found.length?r.found.join(', '):(r.skipped?'Skipped':'Time up')} ${r.pts?`<span style="color:#8b5cf6;font-weight:700">+${r.pts}pts</span>`:''}</div>`).join('');
+            roundResults.filter(Boolean).map((r,i)=>{
+                const status=r.found.length?r.found.join(', '):(r.skipped?'Skipped':'Time up');
+                const pts=r.pts?'<span class="end-round-pts"> +'+r.pts+'pts</span>':'';
+                return '<div class="end-round-item"><strong>R'+(i+1)+':</strong> '+status+pts+'</div>';
+            }).join('');
     }
 
-    // ─── Keyboard ────────────────────────────────────────────────────
+    // ─── Keyboard ───────────────────────────────────────────────────
     document.addEventListener('keydown',e=>{
         if(e.key==='Enter'){
-            const ni=document.getElementById('next-btn');
-            if(ni.style.display!=='none'){nextRound();return;}
+            const ni=$('next-btn');
+            if(ni&&ni.style.display!=='none'){nextRound();return;}
             submitAnswer();
         }
     });
-
-    initGame();
     </script>
 </body>
 </html>
