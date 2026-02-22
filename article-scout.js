@@ -918,7 +918,7 @@ async function fetchFootballData() {
     const fromDateUpcoming = today.toISOString().split('T')[0];
     const toDateUpcoming = twoWeeksOut.toISOString().split('T')[0];
     await delay(C.API_CALL_DELAY_MS);
-    const upcomingRes = await apiCall(`/fixtures?league=${league}&season=${season}&from=${fromDateUpcoming}&to=${toDateUpcoming}&status=NS-TBD`);
+    const upcomingRes = await apiCall(`/fixtures?league=${league}&season=${season}&from=${fromDateUpcoming}&to=${toDateUpcoming}`);
     if (upcomingRes.response) {
       data.upcomingFixtures = upcomingRes.response.map(m => ({
         fixtureId: m.fixture.id,
@@ -1717,11 +1717,13 @@ async function factCheckArticle(article, footballData, research) {
   // Step 1: Extract key claims to verify via web search
   let webVerification = '';
   try {
+    const currentYear = new Date().getFullYear();
     const claimsPrompt = `Extract the 3-5 most important factual claims from this article that should be verified. Focus on: match scores, transfer fees, league positions, player stats, and specific quotes.
 
 ARTICLE: ${article.bodyHTML}
 
-Return ONLY a JSON array of short search queries to verify each claim. Example: ["Liverpool 4-1 Newcastle result January 2026", "Mohamed Salah Premier League goals 2025-26"]`;
+IMPORTANT: All search queries must include the year ${currentYear} or season 2025-26, NOT older seasons.
+Return ONLY a JSON array of short search queries to verify each claim. Example: ["Liverpool 4-1 Newcastle result ${currentYear}", "Mohamed Salah Premier League goals 2025-26 season"]`;
 
     const claimsResult = await callLLM(claimsPrompt, 'Extract key factual claims as search queries. Return only a JSON array.', { temperature: 0.1 });
     const claimsMatch = claimsResult.match(/\[[\s\S]*\]/);
@@ -3162,11 +3164,14 @@ Return ONLY a JSON object:
         console.log(`[Scout]   Issues: ${verification.issues.join('; ')}`);
       }
 
-      // Fail if confidence is very low or marked inaccurate with serious issues
-      if (!verification.accurate && verification.confidence <= 4) {
+      // Fail if marked inaccurate with any issues, or if confidence is very low
+      if (!verification.accurate && verification.issues && verification.issues.length >= 2) {
+        return { passed: false, reason: `Factual issues detected (${verification.issues.length}): ${verification.issues.slice(0, 2).join('; ')}` };
+      }
+      if (!verification.accurate && verification.confidence <= 5) {
         return { passed: false, reason: `Low accuracy confidence (${verification.confidence}/10): ${verification.verdict}` };
       }
-      if (verification.issues && verification.issues.length >= 3 && verification.confidence <= 5) {
+      if (verification.issues && verification.issues.length >= 3 && verification.confidence <= 6) {
         return { passed: false, reason: `Too many factual issues (${verification.issues.length}): ${verification.issues.slice(0, 2).join('; ')}` };
       }
     }
