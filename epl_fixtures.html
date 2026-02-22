@@ -104,142 +104,143 @@
     <script src="/index.js"></script>
     <script>
     (function(){
-        const RAPID_KEY = '015c3572fdmsh9f6f6598e6ec003p1fb385jsn529d908dcb43';
-        const DIRECT_KEY = '2108d2f78df78e9e61f4a29878d49581';
-        const LEAGUE = 39;
-        const now = new Date();
-        const SEASON = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
-        const TODAY = now.toISOString().split('T')[0];
+        const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard';
 
-        const LIVE_S = new Set(['1H','HT','2H','ET','P','LIVE','INT']);
-        const FIN_S  = new Set(['FT','AET','PEN','AWD','WO']);
+        function dateStr(offset){
+            const d = new Date();
+            d.setDate(d.getDate() + offset);
+            return d.toISOString().slice(0,10).replace(/-/g,'');
+        }
 
-        const LOGOS = {
-            "Arsenal":"https://resources.premierleague.com/premierleague/badges/50/t3.png",
-            "Aston Villa":"https://resources.premierleague.com/premierleague/badges/50/t7.png",
-            "Bournemouth":"https://resources.premierleague.com/premierleague/badges/50/t91.png",
-            "Brentford":"https://resources.premierleague.com/premierleague/badges/50/t94.png",
-            "Brighton":"https://resources.premierleague.com/premierleague/badges/50/t36.png",
-            "Chelsea":"https://resources.premierleague.com/premierleague/badges/50/t8.png",
-            "Crystal Palace":"https://resources.premierleague.com/premierleague/badges/50/t31.png",
-            "Everton":"https://resources.premierleague.com/premierleague/badges/50/t11.png",
-            "Fulham":"https://resources.premierleague.com/premierleague/badges/50/t54.png",
-            "Ipswich":"https://resources.premierleague.com/premierleague/badges/50/t40.png",
-            "Leeds":"https://resources.premierleague.com/premierleague/badges/50/t2.png",
-            "Leicester":"https://resources.premierleague.com/premierleague/badges/50/t13.png",
-            "Liverpool":"https://resources.premierleague.com/premierleague/badges/50/t14.png",
-            "Man City":"https://resources.premierleague.com/premierleague/badges/50/t43.png",
-            "Man Utd":"https://resources.premierleague.com/premierleague/badges/50/t1.png",
-            "Newcastle":"https://resources.premierleague.com/premierleague/badges/50/t4.png",
-            "Nott'm Forest":"https://resources.premierleague.com/premierleague/badges/50/t17.png",
-            "Southampton":"https://resources.premierleague.com/premierleague/badges/50/t20.png",
-            "Spurs":"https://resources.premierleague.com/premierleague/badges/50/t6.png",
-            "West Ham":"https://resources.premierleague.com/premierleague/badges/50/t21.png",
-            "Wolves":"https://resources.premierleague.com/premierleague/badges/50/t39.png"
-        };
-        const NAME_MAP = {
-            "AFC Bournemouth":"Bournemouth","Brighton and Hove Albion":"Brighton",
-            "Ipswich Town":"Ipswich","Leeds United":"Leeds","Leicester City":"Leicester",
-            "Manchester City":"Man City","Manchester United":"Man Utd",
-            "Newcastle United":"Newcastle","Nottingham Forest":"Nott'm Forest",
-            "Tottenham Hotspur":"Spurs","West Ham United":"West Ham",
-            "Wolverhampton Wanderers":"Wolves","Arsenal":"Arsenal","Aston Villa":"Aston Villa",
-            "Brentford":"Brentford","Chelsea":"Chelsea","Crystal Palace":"Crystal Palace",
-            "Everton":"Everton","Fulham":"Fulham","Liverpool":"Liverpool","Southampton":"Southampton"
-        };
-        function norm(n){return NAME_MAP[n]||n;}
-        function logo(name){
-            const n=norm(name);
-            const u=LOGOS[n];
-            if(u)return`<img class="team-logo" src="${u}" alt="${n}" loading="lazy" onerror="this.style.display='none'">`;
-            return`<div class="team-fallback">${n.slice(0,3).toUpperCase()}</div>`;
+        function isoToKey(iso){ return iso.slice(0,10); }
+
+        const todayKey = new Date().toISOString().slice(0,10);
+
+        function fmtKey(key){
+            if(key === todayKey) return 'Today';
+            const tom = new Date(todayKey);
+            tom.setDate(tom.getDate()+1);
+            if(key === tom.toISOString().slice(0,10)) return 'Tomorrow';
+            return new Date(key+'T12:00:00Z').toLocaleDateString('en-GB',{weekday:'short',month:'short',day:'numeric'});
         }
-        function fmtDate(iso){
-            const d=new Date(iso);
-            const t=d.toISOString().split('T')[0];
-            if(t===TODAY)return'Today';
-            const tm=new Date(TODAY+'T00:00:00Z');tm.setDate(tm.getDate()+1);
-            if(t===tm.toISOString().split('T')[0])return'Tomorrow';
-            return d.toLocaleDateString('en-GB',{weekday:'short',month:'short',day:'numeric'});
+
+        function parseEvent(ev){
+            const comp = ev.competitions[0];
+            const home = comp.competitors.find(c=>c.homeAway==='home');
+            const away = comp.competitors.find(c=>c.homeAway==='away');
+            const st = ev.status.type;
+            const d = new Date(ev.date);
+            const time = d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/London'});
+            return {
+                dateKey: isoToKey(ev.date),
+                homeName: home.team.displayName,
+                homeLogo: home.team.logo || '',
+                homeScore: home.score || '0',
+                homeWin: home.winner === true,
+                awayName: away.team.displayName,
+                awayLogo: away.team.logo || '',
+                awayScore: away.score || '0',
+                awayWin: away.winner === true,
+                state: st.state,        // pre / in / post
+                detail: st.shortDetail || st.detail || time,
+                completed: st.completed,
+                time
+            };
         }
-        function statusInfo(f){
-            const s=f.fixture.status.short, el=f.fixture.status.elapsed;
-            if(s==='HT')return{txt:'HT',cls:'halftime'};
-            if(s==='FT')return{txt:'FT',cls:'finished'};
-            if(s==='AET')return{txt:'AET',cls:'finished'};
-            if(s==='PEN')return{txt:'Pens',cls:'finished'};
-            if(LIVE_S.has(s))return{txt:`${el||0}'`,cls:'live'};
-            const d=new Date(f.fixture.date);
-            return{txt:d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/London'}),cls:'upcoming'};
+
+        function teamEl(name, logo, side, isWinner){
+            const img = logo
+                ? `<img class="team-logo" src="${logo}" alt="${name}" loading="lazy" onerror="this.style.display='none'">`
+                : `<div class="team-fallback">${name.slice(0,3).toUpperCase()}</div>`;
+            const nameEl = `<span class="team-name${isWinner?' winner':''}">${name}</span>`;
+            return side === 'home'
+                ? `<div class="team home">${nameEl}${img}</div>`
+                : `<div class="team away">${img}${nameEl}</div>`;
         }
-        function card(f){
-            const hn=norm(f.teams.home.name), an=norm(f.teams.away.name);
-            const hs=f.goals.home, as_=f.goals.away;
-            const st=f.fixture.status.short;
-            const live=LIVE_S.has(st), fin=FIN_S.has(st);
-            const {txt,cls}=statusInfo(f);
-            const hwin=fin&&hs>as_, awin=fin&&as_>hs;
-            const showScore=live||fin;
-            const liveEl=live?`<span class="live-dot"></span>`:'';
-            const center=showScore
-                ?`<div class="match-score"><span class="${hwin?'winner':''}">${hs??0}</span><span class="score-sep">–</span><span class="${awin?'winner':''}">${as_??0}</span></div>
-                   <span class="match-status ${cls}">${liveEl}${txt}</span>`
-                :`<span class="match-status upcoming">${txt}</span>`;
-            return`<div class="match-card${live?' is-live':fin?' is-finished':''}">
-                <div class="team home"><span class="team-name${hwin?' winner':''}">${hn}</span>${logo(f.teams.home.name)}</div>
+
+        function card(ev){
+            const live = ev.state === 'in';
+            const fin  = ev.state === 'post';
+            const showScore = live || fin;
+
+            let statusCls = 'upcoming', statusTxt = ev.time;
+            if(ev.detail === 'HT') { statusCls='halftime'; statusTxt='HT'; }
+            else if(fin)           { statusCls='finished'; statusTxt='FT'; }
+            else if(live)          { statusCls='live'; statusTxt=ev.detail; }
+
+            const liveEl = live ? '<span class="live-dot"></span>' : '';
+            const center = showScore
+                ? `<div class="match-score">
+                       <span class="${ev.homeWin?'winner':''}">${ev.homeScore}</span>
+                       <span class="score-sep">–</span>
+                       <span class="${ev.awayWin?'winner':''}">${ev.awayScore}</span>
+                   </div>
+                   <span class="match-status ${statusCls}">${liveEl}${statusTxt}</span>`
+                : `<span class="match-status upcoming">${statusTxt}</span>`;
+
+            return `<div class="match-card${live?' is-live':fin?' is-finished':''}">
+                ${teamEl(ev.homeName, ev.homeLogo, 'home', ev.homeWin)}
                 <div class="match-center">${center}</div>
-                <div class="team away">${logo(f.teams.away.name)}<span class="team-name${awin?' winner':''}">${an}</span></div>
+                ${teamEl(ev.awayName, ev.awayLogo, 'away', ev.awayWin)}
             </div>`;
         }
-        function groupByDate(fixtures){
-            const g={};
-            fixtures.forEach(f=>{const d=f.fixture.date.split('T')[0];(g[d]=g[d]||[]).push(f);});
-            return g;
-        }
-        function renderGroups(grouped,container){
-            let html='';
-            for(const d of Object.keys(grouped).sort()){
-                html+=`<div class="date-group"><span class="date-label">${fmtDate(d+'T12:00:00Z')}</span><div class="match-list">${grouped[d].map(card).join('')}</div></div>`;
-            }
-            container.innerHTML=html||'<div class="empty-state">No fixtures found</div>';
+
+        function renderGroups(groups, container, sortAsc){
+            const keys = Object.keys(groups).sort();
+            if(!sortAsc) keys.reverse();
+            let html = '';
+            keys.forEach(k => {
+                html += `<div class="date-group">
+                    <span class="date-label">${fmtKey(k)}</span>
+                    <div class="match-list">${groups[k].map(card).join('')}</div>
+                </div>`;
+            });
+            container.innerHTML = html || '<div class="empty-state">No fixtures found</div>';
         }
 
-        async function fetchAPI(params){
-            const qs=new URLSearchParams(params).toString();
-            try{
-                const r=await fetch(`https://v3.football.api-sports.io/fixtures?${qs}`,{headers:{'x-apisports-key':DIRECT_KEY}});
-                if(r.ok){const d=await r.json();if(Array.isArray(d.response))return d.response;}
-            }catch(e){}
-            try{
-                const r=await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?${qs}`,{headers:{'x-rapidapi-host':'api-football-v1.p.rapidapi.com','x-rapidapi-key':RAPID_KEY}});
-                if(r.ok){const d=await r.json();if(Array.isArray(d.response))return d.response;}
-            }catch(e){}
-            return null;
+        async function fetchDate(yyyymmdd){
+            try {
+                const r = await fetch(`${ESPN}?dates=${yyyymmdd}`);
+                if(!r.ok) return [];
+                const data = await r.json();
+                return (data.events || []).map(parseEvent);
+            } catch(e){ return []; }
         }
 
         async function load(){
-            const [recent,upcoming]=await Promise.all([
-                fetchAPI({league:LEAGUE,season:SEASON,last:10}),
-                fetchAPI({league:LEAGUE,season:SEASON,next:20})
-            ]);
+            // Fetch past 14 days + next 28 days in parallel
+            const offsets = [];
+            for(let i=-14;i<=28;i++) offsets.push(i);
+            const results = await Promise.all(offsets.map(o => fetchDate(dateStr(o))));
+            const all = results.flat();
 
-            const recentSec=document.getElementById('results-section');
-            const recentCon=document.getElementById('results-container');
-            if(recent&&recent.length>0){
-                recentSec.style.display='';
-                const fin=recent.filter(f=>FIN_S.has(f.fixture.status.short)||LIVE_S.has(f.fixture.status.short));
-                renderGroups(groupByDate(fin.reverse()),recentCon);
-            }
+            const pastGroups = {}, futureGroups = {};
+            all.forEach(ev => {
+                if(ev.state === 'post'){
+                    (pastGroups[ev.dateKey] = pastGroups[ev.dateKey]||[]).push(ev);
+                } else {
+                    (futureGroups[ev.dateKey] = futureGroups[ev.dateKey]||[]).push(ev);
+                }
+            });
 
-            const upCon=document.getElementById('upcoming-container');
-            if(upcoming&&upcoming.length>0){
-                renderGroups(groupByDate(upcoming),upCon);
+            const recentSec = document.getElementById('results-section');
+            const recentCon = document.getElementById('results-container');
+            if(Object.keys(pastGroups).length > 0){
+                recentSec.style.display = '';
+                renderGroups(pastGroups, recentCon, false); // newest first
             } else {
-                upCon.innerHTML='<div class="empty-state">No upcoming fixtures found</div>';
+                recentCon.innerHTML = '<div class="empty-state">No recent results</div>';
             }
 
-            const meta=document.getElementById('page-meta');
-            meta.textContent='Updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+            const upCon = document.getElementById('upcoming-container');
+            if(Object.keys(futureGroups).length > 0){
+                renderGroups(futureGroups, upCon, true); // soonest first
+            } else {
+                upCon.innerHTML = '<div class="empty-state">No upcoming fixtures found</div>';
+            }
+
+            document.getElementById('page-meta').textContent =
+                'Updated ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
         }
 
         load();
