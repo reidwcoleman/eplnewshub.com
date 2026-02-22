@@ -587,12 +587,30 @@ function isTooSimilar(candidateTitle, existingTitles) {
   return false;
 }
 
-async function pickTopics(newsItems, count) {
+async function pickTopics(newsItems, count, footballData) {
   const headlines = newsItems.map((n, i) => `${i + 1}. ${n.title}`).join('\n');
   const recentTitles = getRecentArticleTitles();
   const recentList = recentTitles.length > 0
     ? `\n\nARTICLES ALREADY PUBLISHED IN THE LAST 2 WEEKS (DO NOT pick similar topics):\n${recentTitles.map(t => '- ' + t).join('\n')}`
     : '';
+
+  // Build fixture context for the LLM to use for previews/recaps
+  let fixtureContext = '';
+  if (footballData) {
+    if (footballData.upcomingFixtures && footballData.upcomingFixtures.length > 0) {
+      fixtureContext += '\n\nUPCOMING REAL FIXTURES (use these for match preview articles — do NOT invent fixtures):\n';
+      footballData.upcomingFixtures.forEach(m => {
+        const d = new Date(m.date);
+        fixtureContext += `- ${m.home} vs ${m.away} — ${d.toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' })}${m.round ? ' (' + m.round + ')' : ''}\n`;
+      });
+    }
+    if (footballData.recentResults && footballData.recentResults.length > 0) {
+      fixtureContext += '\n\nRECENT REAL RESULTS (use these for match recap articles — do NOT invent scores):\n';
+      footballData.recentResults.forEach(m => {
+        fixtureContext += `- ${m.home} ${m.homeGoals}-${m.awayGoals} ${m.away} (${new Date(m.date).toLocaleDateString('en-GB')})\n`;
+      });
+    }
+  }
 
   const systemPrompt = `You are an editorial assistant for EPL News Hub. Pick the ${count} most interesting AND DIVERSE stories.
 
@@ -604,14 +622,20 @@ CRITICAL RULE — SOCCER ONLY:
 
 IMPORTANT RULES:
 - VARIETY IS CRITICAL: Pick stories about DIFFERENT teams, players, and topics. Never pick 2+ stories about the same person or team.
-- Mix article types: include match previews, match reviews/overviews, tactical analysis, transfer news, player spotlights, title/relegation race analysis — NOT just managerial news.
-- Prioritise match content (previews, results, tactical breakdowns) and player performances over off-field stories.
+- Mix article types: include match previews, match reviews/recaps, tactical analysis, transfer news, player spotlights, title/relegation race analysis — NOT just managerial news.
+- Prioritise match content (previews, recaps, tactical breakdowns) and player performances over off-field stories.
 - Each picked story MUST be about a different subject. If 2 headlines are about the same topic, only pick the best one.
 ${recentTitles.length > 0 ? '- NEVER pick a topic that is similar to any article already published in the last 2 weeks (listed below). Pick something completely fresh and different.' : ''}
 
-Return ONLY a JSON array of objects with "index" (1-based from the headlines list), "category" (News, Transfers, Analysis, Match Reports, or Player Focus), "angle" (unique hook), and "title" (compelling article title). No other text.`;
+MATCH CONTENT REQUIREMENTS:
+- At least 1 of your picks MUST be a Match Preview (upcoming fixture) or Match Recap (recent result) using the REAL fixture data provided below.
+- For MATCH PREVIEWS: use "index": 0 if no headline matches, set category to "Match Reports", and write a preview title like "Arsenal vs Chelsea: Tactical Preview and Predictions"
+- For MATCH RECAPS: use "index": 0 if no headline matches, set category to "Match Reports", and write a recap title like "Liverpool 2-1 Man City: How Slot's Side Seized Control"
+- NEVER invent match scores or fixtures. Only use the real upcoming fixtures and recent results listed below.
 
-  const result = await callLLM(`Today's top football headlines:\n\n${headlines}${recentList}\n\nPick the best ${count} DIVERSE topics.`, systemPrompt, { temperature: 0.5 });
+Return ONLY a JSON array of objects with "index" (1-based from the headlines list, or 0 for fixture-based articles), "category" (News, Transfers, Analysis, Match Reports, or Player Focus), "angle" (unique hook), and "title" (compelling article title). No other text.`;
+
+  const result = await callLLM(`Today's top football headlines:\n\n${headlines}${recentList}${fixtureContext}\n\nPick the best ${count} DIVERSE topics.`, systemPrompt, { temperature: 0.5 });
   const jsonMatch = result.match(/\[[\s\S]*\]/);
   if (!jsonMatch) throw new Error('Failed to parse topic selection: ' + result);
   return JSON.parse(jsonMatch[0]);
@@ -721,7 +745,7 @@ async function fetchFootballData() {
     return null;
   }
 
-  const data = { standings: null, recentResults: null, topScorers: null };
+  const data = { standings: null, recentResults: null, upcomingFixtures: null, topScorers: null };
 
   async function apiCall(endpoint) {
     const res = await fetch(`https://v3.football.api-sports.io${endpoint}`, {
@@ -772,6 +796,22 @@ async function fetchFootballData() {
       console.log(`[Scout] ✓ Fetched ${data.recentResults.length} recent match results`);
     }
 
+    // Upcoming fixtures (next 14 days)
+    const twoWeeksOut = new Date(today.getTime() + 14 * 86400000);
+    const fromDateUpcoming = today.toISOString().split('T')[0];
+    const toDateUpcoming = twoWeeksOut.toISOString().split('T')[0];
+    const upcomingRes = await apiCall(`/fixtures?league=${league}&season=${season}&from=${fromDateUpcoming}&to=${toDateUpcoming}&status=NS-TBD-1H-2H-HT`);
+    if (upcomingRes.response) {
+      data.upcomingFixtures = upcomingRes.response.map(m => ({
+        home: m.teams.home.name,
+        away: m.teams.away.name,
+        date: m.fixture.date,
+        venue: m.fixture.venue ? m.fixture.venue.name : null,
+        round: m.league.round
+      }));
+      console.log(`[Scout] ✓ Fetched ${data.upcomingFixtures.length} upcoming fixtures`);
+    }
+
     // Top scorers
     const scorersRes = await apiCall(`/players/topscorers?league=${league}&season=${season}`);
     if (scorersRes.response) {
@@ -806,6 +846,15 @@ function formatFootballDataForPrompt(data) {
     text += '\n--- RECENT RESULTS (last 7 days) ---\n';
     data.recentResults.forEach(m => {
       text += `${m.home} ${m.homeGoals}-${m.awayGoals} ${m.away} (${new Date(m.date).toLocaleDateString()})\n`;
+    });
+  }
+
+  if (data.upcomingFixtures && data.upcomingFixtures.length > 0) {
+    text += '\n--- UPCOMING FIXTURES (next 14 days) ---\n';
+    data.upcomingFixtures.forEach(m => {
+      const matchDate = new Date(m.date).toLocaleDateString('en-GB', { weekday: 'short', month: 'short', day: 'numeric' });
+      const matchTime = new Date(m.date).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      text += `${m.home} vs ${m.away} — ${matchDate} ${matchTime}${m.venue ? ' at ' + m.venue : ''}${m.round ? ' (' + m.round + ')' : ''}\n`;
     });
   }
 
@@ -1050,6 +1099,7 @@ ABSOLUTE REQUIREMENT — SOCCER ONLY:
 CRITICAL ACCURACY RULES — READ CAREFULLY:
 - You have been given RESEARCHED SOURCE MATERIAL below. ONLY use facts, stats, quotes, and scores that appear in this source material.
 - NEVER invent match scores, transfer fees, quotes, or statistics. If the source material doesn't contain a specific fact, DO NOT make it up.
+- NEVER invent or predict final scores for matches that haven't been played yet. For previews, analyse form and tactics but do NOT write fake scorelines.
 - If you're unsure about a specific stat or detail, omit it rather than guess. Vague but correct is better than specific but wrong.
 - Quotes MUST come from the source material. If a quote is attributed to someone in the sources, use it. Do NOT fabricate quotes.
 - Match scores, league positions, and points totals MUST match the source material exactly.
@@ -1152,7 +1202,8 @@ WRITING QUALITY:
 
 STRUCTURE REQUIREMENTS:
 - 5-6 h2 sections minimum, each exploring a genuinely different angle (not just rewording the same point)
-- For MATCH REPORTS: The Match (key moments), Tactical Analysis (formations, pressing, buildup), Key Performers, The Manager's Perspective, What This Means for the Table, Looking Ahead
+- For MATCH RECAPS: The Match (key moments with real scores only), Tactical Analysis (formations, pressing, buildup), Key Performers, The Manager's Perspective, What This Means for the Table, Looking Ahead
+- For MATCH PREVIEWS: Form Guide (recent results), Head-to-Head (historical context), Tactical Matchup (how the systems interact), Key Battles (player vs player), Predicted Lineup & Formation, Prediction & Analysis
 - For TRANSFERS: The Deal, Player Profile & Style of Play, Tactical Fit, What This Means for the Squad, The Financial Picture, How They Compare
 - For ANALYSIS: include data tables where relevant using <table> tags
 - Do NOT use blockquotes or pull quotes — write everything as regular paragraphs
@@ -1518,7 +1569,7 @@ function getRelatedArticles(currentTitle, currentCategory, currentTags, maxCount
 
 // ─── HTML Article Template ───────────────────────────────────────────────────
 
-function buildArticleHTML(article, filename, date, imageFile, sources) {
+function buildArticleHTML(article, filename, date, imageFile) {
   const dateObj = new Date(date);
   const dateFormatted = dateObj.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
   const isoDate = date + 'T00:00:00Z';
@@ -1554,25 +1605,6 @@ function buildArticleHTML(article, filename, date, imageFile, sources) {
                 </div>
               </a>`;
     }).join('');
-  })();
-
-  // Build sources HTML
-  const sourcesHTML = (() => {
-    if (!sources || !sources.length) return '';
-    const uniqueOrigins = [...new Set(sources
-      .filter(s => s.origin && s.text && s.text.length > 200)
-      .map(s => s.origin)
-    )];
-    if (!uniqueOrigins.length) return '';
-    const items = uniqueOrigins.map(o => `<li>${o.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</li>`).join('\n                    ');
-    return `
-            <!-- Sources -->
-            <section class="sources-section reveal">
-                <h2>Sources</h2>
-                <ul class="sources-list">
-                    ${items}
-                </ul>
-            </section>`;
   })();
 
   return `<!DOCTYPE html>
@@ -2179,42 +2211,6 @@ function buildArticleHTML(article, filename, date, imageFile, sources) {
             border-top: 1px solid var(--card-border);
         }
 
-        /* ── SOURCES ── */
-        .sources-section {
-            margin-top: 48px;
-            padding-top: 32px;
-            border-top: 1px solid var(--card-border);
-        }
-
-        .sources-section h2 {
-            font-family: var(--font-display);
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--ash);
-            margin-bottom: 16px;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
-        }
-
-        .sources-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .sources-list li {
-            font-family: var(--font-body);
-            font-size: 13px;
-            color: var(--ash);
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(240, 236, 228, 0.04);
-            line-height: 1.5;
-        }
-
-        .sources-list li:last-child {
-            border-bottom: none;
-        }
-
         /* ── COMMENTS ── */
         .comments-section {
             margin-top: 56px;
@@ -2433,8 +2429,6 @@ function buildArticleHTML(article, filename, date, imageFile, sources) {
                 <h2 class="related-section-title">More from EPL News Hub</h2>
                 <div class="related-grid">${relatedHTML}</div>
             </section>
-
-            ${sourcesHTML}
 
             <!-- Comments Section -->
             <section class="comments-section reveal">
@@ -2940,19 +2934,19 @@ async function runScout(count = 1) {
   const news = await gatherNews();
   if (news.length === 0) { console.log('[Scout] No news found. Aborting.'); return; }
 
-  // Step 2: Pick topics (request extras as backups in case some fail research)
+  // Step 2: Fetch real football data (needed for topic selection and article generation)
+  console.log('[Scout] Fetching real-time football data...');
+  const footballData = await fetchFootballData();
+
+  // Step 3: Pick topics (request extras as backups in case some fail research)
   console.log('[Scout] Selecting best topics via AI...');
   let topics;
-  try { topics = await pickTopics(news, count + 10); }
+  try { topics = await pickTopics(news, count + 10, footballData); }
   catch (e) { console.error('[Scout] Topic selection failed:', e.message); return; }
 
   console.log(`[Scout] Selected ${topics.length} topic(s) (need ${count}, extras are backups):\n`);
   topics.forEach((t, i) => console.log(`  ${i + 1}. [${t.category}] ${t.title}`));
   console.log('');
-
-  // Step 2.5: Fetch real football data for fact verification
-  console.log('[Scout] Fetching real-time football data...');
-  const footballData = await fetchFootballData();
 
   // Step 3: Generate each article (stop once we've published enough)
   const publishedTitles = [];
@@ -2960,7 +2954,10 @@ async function runScout(count = 1) {
     if (publishedTitles.length >= count) break; // already published enough
 
     try {
-      const newsItem = news[topic.index - 1] || news[0];
+      // For fixture-based articles (index 0), create a synthetic news item from the topic
+      const newsItem = topic.index > 0
+        ? (news[topic.index - 1] || news[0])
+        : { title: topic.title, description: topic.angle, link: null };
       const date = new Date().toISOString().split('T')[0];
       const slug = topic.title
         .toLowerCase()
@@ -3041,7 +3038,7 @@ async function runScout(count = 1) {
       const imageFile = imageResult ? imageResult.filename : null;
 
       // Step 5: Create HTML file
-      const html = buildArticleHTML(article, filename, date, imageFile, research.sources);
+      const html = buildArticleHTML(article, filename, date, imageFile);
       fs.writeFileSync(path.join(ARTICLES_DIR, filename), html);
       console.log(`[Scout] Created: articles/${filename}`);
 
