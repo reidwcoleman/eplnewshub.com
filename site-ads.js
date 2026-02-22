@@ -185,10 +185,6 @@
     }
   }
 
-  function insertBefore(newNode, refNode) {
-    refNode.parentNode.insertBefore(newNode, refNode);
-  }
-
   // Find the main content area of any page
   function findMainContent() {
     return (
@@ -200,29 +196,133 @@
     );
   }
 
-  // Get significant child elements (skip tiny elements, scripts, styles)
-  function getContentSections(parent) {
+  // Get visible content children of an element
+  function getVisibleChildren(parent) {
+    var result = [];
     var children = parent.children;
-    var sections = [];
     for (var i = 0; i < children.length; i++) {
       var el = children[i];
       var tag = el.tagName;
-
-      // Skip non-content elements
       if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK' || tag === 'META') continue;
-
-      // Skip hidden elements
       if (el.offsetHeight === 0 && el.offsetWidth === 0) continue;
-
-      // Skip header/footer includes (they have their own treatment)
-      if (el.classList.contains('header') || el.classList.contains('footer')) continue;
-
-      // Skip elements that are just wrappers with no real content
       if (el.offsetHeight < 20) continue;
-
-      sections.push(el);
+      if (el.classList.contains('sa-ad-unit')) continue;
+      if (el.classList.contains('header') || el.classList.contains('footer')) continue;
+      result.push(el);
     }
-    return sections;
+    return result;
+  }
+
+  // Check if an element uses a vertical (block/column) layout
+  function isVerticalLayout(el) {
+    var style = window.getComputedStyle(el);
+    var display = style.display;
+    if (display === 'block' || display === 'flow-root' || display === 'list-item') return true;
+    if (display === 'flex') {
+      var dir = style.flexDirection;
+      return dir === 'column' || dir === 'column-reverse';
+    }
+    if (display === 'grid') {
+      var cols = style.gridTemplateColumns;
+      if (!cols || cols === 'none') return true;
+      var colParts = cols.split(/\s+/).filter(function (c) { return c && c !== '0px'; });
+      return colParts.length <= 1;
+    }
+    return false;
+  }
+
+  // Check if an element uses a multi-column grid or flex-row wrap layout
+  function isMultiColumnGrid(el) {
+    var style = window.getComputedStyle(el);
+    if (style.display === 'grid') {
+      var cols = style.gridTemplateColumns;
+      if (cols && cols !== 'none') {
+        var colParts = cols.split(/\s+/).filter(function (c) { return c && c !== '0px'; });
+        return colParts.length > 1;
+      }
+    }
+    if (style.display === 'flex') {
+      var dir = style.flexDirection;
+      if (dir === 'row' || dir === 'row-reverse') {
+        if (style.flexWrap === 'wrap' || style.flexWrap === 'wrap-reverse') {
+          return el.children.length > 2;
+        }
+      }
+    }
+    return false;
+  }
+
+  // Split a multi-column grid into sub-grids with ad insertion points between them
+  function splitGrid(gridEl, groupSize) {
+    var visible = getVisibleChildren(gridEl);
+    if (visible.length <= groupSize) return null;
+
+    var parent = gridEl.parentNode;
+    if (!parent) return null;
+
+    var groups = [];
+    for (var i = 0; i < visible.length; i += groupSize) {
+      groups.push(visible.slice(i, i + groupSize));
+    }
+    if (groups.length <= 1) return null;
+
+    var adPoints = [];
+
+    for (var g = 0; g < groups.length; g++) {
+      var subGrid = document.createElement('div');
+      subGrid.className = gridEl.className;
+
+      groups[g].forEach(function (child) {
+        subGrid.appendChild(child);
+      });
+
+      parent.insertBefore(subGrid, gridEl);
+
+      if (g < groups.length - 1) {
+        adPoints.push(subGrid);
+      }
+    }
+
+    gridEl.remove();
+    return adPoints;
+  }
+
+  // Recursively flatten the DOM tree into ad placement points
+  // Drills into tall vertical containers, splits multi-column grids
+  function collectPlacementPoints(parent, depth) {
+    if (depth > 4) return [];
+
+    var visible = getVisibleChildren(parent);
+    if (visible.length === 0) return [];
+
+    var points = [];
+
+    for (var i = 0; i < visible.length; i++) {
+      var el = visible[i];
+
+      // If element is tall with children, try to drill deeper for better placement
+      if (el.offsetHeight > 600 && el.children.length > 2) {
+        if (isMultiColumnGrid(el)) {
+          // Split the grid into sub-grids with ad points between
+          var splits = splitGrid(el, 6);
+          if (splits) {
+            points = points.concat(splits);
+            continue;
+          }
+        } else if (isVerticalLayout(el)) {
+          // Drill into vertical containers
+          var inner = collectPlacementPoints(el, depth + 1);
+          if (inner.length > 1) {
+            points = points.concat(inner);
+            continue;
+          }
+        }
+      }
+
+      points.push(el);
+    }
+
+    return points;
   }
 
   function placeAds() {
@@ -233,7 +333,7 @@
     var main = findMainContent();
     if (!main) return;
 
-    // Find the deepest single-child container (some pages nest containers)
+    // Unwrap single-child nesting (some pages nest containers deeply)
     var content = main;
     while (content.children.length === 1 && content.firstElementChild &&
            !content.firstElementChild.classList.contains('header') &&
@@ -245,46 +345,44 @@
       content = child;
     }
 
-    var sections = getContentSections(content);
-    if (sections.length === 0) return;
+    // Collect placement points by drilling into the DOM tree
+    var points = collectPlacementPoints(content, 0);
+    if (points.length < 2) return;
 
     var adsPlaced = 0;
     var maxAds = 5;
+    var MIN_GAP = 800; // minimum pixels between ads
+    var FIRST_GAP = 300; // smaller gap for the first ad
+    var lastAdY = 0;
 
-    // Determine placement interval based on section count
-    // Aim for an ad every 2-3 sections, max 5 ads
-    var interval;
-    if (sections.length <= 3) {
-      interval = 1; // Ad after every section (but max 2 on small pages)
-      maxAds = Math.min(2, sections.length);
-    } else if (sections.length <= 6) {
-      interval = 2;
-      maxAds = 3;
-    } else {
-      interval = Math.max(2, Math.floor(sections.length / 5));
-      maxAds = 5;
-    }
+    for (var i = 0; i < points.length - 1 && adsPlaced < maxAds; i++) {
+      var el = points[i];
+      if (!el.parentNode) continue;
 
-    // Place ads between content sections
-    for (var i = 0; i < sections.length && adsPlaced < maxAds; i++) {
-      // Place after every `interval` sections, starting after the first
-      if ((i + 1) % interval === 0 && i < sections.length - 1) {
+      var rect = el.getBoundingClientRect();
+      var bottomY = rect.bottom + window.scrollY;
+      var gapNeeded = adsPlaced === 0 ? FIRST_GAP : MIN_GAP;
+
+      if (bottomY - lastAdY >= gapNeeded) {
         var ad = createAdUnit('sa-' + (adsPlaced + 1));
-        insertAfter(ad, sections[i]);
+        insertAfter(ad, el);
         pushAdSlot();
         adsPlaced++;
+        lastAdY = bottomY;
       }
     }
 
-    // Always place one ad at the bottom of content if we haven't hit max
-    if (adsPlaced < maxAds && sections.length > 0) {
-      var lastSection = sections[sections.length - 1];
-      // Only if we didn't just place one after the last section
-      if (!lastSection.nextElementSibling || !lastSection.nextElementSibling.classList.contains('sa-ad-unit')) {
-        var bottomAd = createAdUnit('sa-bottom');
-        insertAfter(bottomAd, lastSection);
-        pushAdSlot();
-        adsPlaced++;
+    // Bottom ad if enough distance from last ad
+    if (adsPlaced < maxAds && points.length > 0) {
+      var last = points[points.length - 1];
+      if (last.parentNode &&
+          (!last.nextElementSibling || !last.nextElementSibling.classList.contains('sa-ad-unit'))) {
+        var lastRect = last.getBoundingClientRect();
+        var lastY = lastRect.bottom + window.scrollY;
+        if (lastY - lastAdY >= 400) {
+          insertAfter(createAdUnit('sa-bottom'), last);
+          pushAdSlot();
+        }
       }
     }
   }
@@ -359,6 +457,26 @@
     if (!document.querySelector('.sa-ad-unit') && !shouldSkip()) {
       placeAds();
     }
+
+    // Fallback: if content is loaded dynamically (e.g. news.html fetches articles.json),
+    // watch for content being added and place ads once it appears
+    if (!document.querySelector('.sa-ad-unit') && !shouldSkip()) {
+      var main = findMainContent();
+      if (main) {
+        var contentObserver = new MutationObserver(function () {
+          if (!document.querySelector('.sa-ad-unit') && !shouldSkip()) {
+            var visible = getVisibleChildren(main);
+            if (visible.length > 2) {
+              contentObserver.disconnect();
+              setTimeout(placeAds, 200);
+            }
+          }
+        });
+        contentObserver.observe(main, { childList: true, subtree: true });
+        setTimeout(function () { contentObserver.disconnect(); }, 10000);
+      }
+    }
+
     killRogueAds();
   });
 })();
