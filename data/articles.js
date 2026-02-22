@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-the-biggest-stories-and-what-they-mean-for-th-2026-02-22',
+    title: 'Premier League 2025-26: The Season of Chaos, Calvert-Lewin\'s Resurgence, and the Wolves Crisis',
+    excerpt: 'From the revolving doors at the managerial hotseat to Dominic Calvert-Lewin\'s unexpected resurgence and Wolves\' historic struggles, this season has been one of the most dramatic in Premier League history.',
+    image: '/scout-premier-league-the-biggest-stories-and-what-they-mean-for-th.png',
+    category: 'News',
+    date: '2026-02-22',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', '2025-26 season', 'managerial changes', 'Wolves crisis', 'Calvert-Lewin']
+  },
+  {
     id: 'chelseas-defensive-collapse-how-the-blues-are-setting-fire-t-2026-02-22',
     title: 'Chelsea\'s Defensive Collapse: How the Blues Are Setting Fire to Points',
     excerpt: 'Chelsea have dropped 19 points from winning positions this season, with their defensive frailties and poor home form proving costly.',
