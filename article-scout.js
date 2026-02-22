@@ -31,6 +31,9 @@ const ARTICLES_DIR = path.join(ROOT, 'articles');
 const ARTICLES_JSON = path.join(ROOT, 'articles.json');
 const DATA_ARTICLES_JS = path.join(ROOT, 'data', 'articles.js');
 const SITEMAP = path.join(ROOT, 'sitemap.xml');
+const FEED_XML = path.join(ROOT, 'feed.xml');
+const NEWS_SITEMAP = path.join(ROOT, 'news-sitemap.xml');
+const INDEXNOW_KEY = '7fd9afb553684a99a770e42cbf34d197';
 const SCOUT_LOG = path.join(ROOT, 'scout-log.json');
 const SCOUT_PID = path.join(ROOT, '.scout-pid');
 const SERVICE_ACCOUNT_PATH = path.join(ROOT, 'google-service-account.json');
@@ -3075,7 +3078,13 @@ async function runScout(count = 1) {
     console.error('[Scout] Match predictions failed:', e.message);
   }
 
-  // Step 12: Push to GitHub
+  // Step 13: Regenerate RSS feed and news sitemap
+  if (publishedTitles.length > 0) {
+    regenerateFeed();
+    regenerateNewsSitemap();
+  }
+
+  // Step 14: Push to GitHub
   if (publishedTitles.length > 0) {
     gitPush(publishedTitles);
   }
@@ -3156,6 +3165,109 @@ No other text, just the JSON array.`;
   try { return JSON.parse(jsonMatch[0]); } catch { return []; }
 }
 
+// ─── Feed & News Sitemap Regeneration ────────────────────────────────────────
+
+function escapeXml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+
+function regenerateFeed() {
+  try {
+    const articles = JSON.parse(fs.readFileSync(ARTICLES_JSON, 'utf-8'));
+    const latest = articles.slice(0, 30);
+    const now = new Date().toUTCString();
+
+    const items = latest.map(a => {
+      const imgUrl = a.image || '';
+      const ext = path.extname(imgUrl).toLowerCase();
+      const mimeMap = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif' };
+      const mime = mimeMap[ext] || 'image/jpeg';
+      const enclosure = imgUrl ? `\n      <enclosure url="${escapeXml(imgUrl)}" type="${mime}"/>` : '';
+      return `    <item>
+      <title>${escapeXml(a.title)}</title>
+      <link>https://eplnewshub.com/articles/${a.file}</link>
+      <guid isPermaLink="true">https://eplnewshub.com/articles/${a.file}</guid>
+      <description>${escapeXml(a.description || '')}</description>
+      <pubDate>${new Date(a.date + 'T00:00:00Z').toUTCString()}</pubDate>${enclosure}
+    </item>`;
+    }).join('\n');
+
+    const feed = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>EPL News Hub - Premier League News</title>
+    <link>https://eplnewshub.com/</link>
+    <description>Latest Premier League news, transfer updates, match analysis, and expert coverage.</description>
+    <language>en-gb</language>
+    <managingEditor>info@eplnewshub.com (EPL News Hub)</managingEditor>
+    <webMaster>info@eplnewshub.com (EPL News Hub)</webMaster>
+    <lastBuildDate>${now}</lastBuildDate>
+    <image>
+      <url>https://eplnewshub.com/eplnewshubnewlogo.png</url>
+      <title>EPL News Hub - Premier League News</title>
+      <link>https://eplnewshub.com/</link>
+    </image>
+    <atom:link href="https://pubsubhubbub.appspot.com/" rel="hub"/>
+    <atom:link href="https://eplnewshub.com/feed.xml" rel="self" type="application/rss+xml"/>
+${items}
+  </channel>
+</rss>
+`;
+    fs.writeFileSync(FEED_XML, feed);
+    console.log(`[Scout] Regenerated feed.xml with ${latest.length} articles`);
+  } catch (e) {
+    console.error(`[Scout] Failed to regenerate feed.xml: ${e.message}`);
+  }
+}
+
+function regenerateNewsSitemap() {
+  try {
+    const articles = JSON.parse(fs.readFileSync(ARTICLES_JSON, 'utf-8'));
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    const cutoff = twoDaysAgo.toISOString().split('T')[0];
+
+    const recent = articles.filter(a => a.date >= cutoff);
+
+    const urls = recent.map(a => `  <url>
+    <loc>https://eplnewshub.com/articles/${a.file}</loc>
+    <news:news>
+      <news:publication>
+        <news:name>EPL News Hub</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>${a.date}T00:00:00+00:00</news:publication_date>
+      <news:title>${escapeXml(a.title)}</news:title>
+    </news:news>
+  </url>`).join('\n');
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+${urls}
+</urlset>
+`;
+    fs.writeFileSync(NEWS_SITEMAP, sitemap);
+    console.log(`[Scout] Regenerated news-sitemap.xml with ${recent.length} articles (last 2 days)`);
+  } catch (e) {
+    console.error(`[Scout] Failed to regenerate news-sitemap.xml: ${e.message}`);
+  }
+}
+
+async function pingPubSubHubbub() {
+  try {
+    const body = 'hub.mode=publish&hub.url=' + encodeURIComponent('https://eplnewshub.com/feed.xml');
+    const res = await fetch('https://pubsubhubbub.appspot.com/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body
+    });
+    console.log(`[Scout] PubSubHubbub ping: status ${res.status}`);
+  } catch (e) {
+    console.log(`[Scout] PubSubHubbub ping failed: ${e.message}`);
+  }
+}
+
 // ─── Google Indexing API ─────────────────────────────────────────────────────
 
 async function requestIndexing(articleUrl) {
@@ -3181,28 +3293,17 @@ async function requestIndexing(articleUrl) {
     console.error(`[Scout] Google Indexing API failed: ${e.message}`);
   }
 
-  // 2. IndexNow (Bing, Yandex, etc.)
+  // 2. IndexNow (Bing, Yandex, etc.) — hardcoded key
   try {
-    const indexNowKey = process.env.INDEXNOW_KEY;
-    if (indexNowKey) {
-      const res = await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=${indexNowKey}`);
-      console.log(`[Scout] IndexNow: ${articleUrl} — status ${res.status}`);
-    }
+    const indexNowUrl = `https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=${INDEXNOW_KEY}&keyLocation=${encodeURIComponent('https://eplnewshub.com/' + INDEXNOW_KEY + '.txt')}`;
+    const res = await fetch(indexNowUrl);
+    console.log(`[Scout] IndexNow: ${articleUrl} — status ${res.status}`);
   } catch (e) {
     console.log(`[Scout] IndexNow failed: ${e.message}`);
   }
 
-  // 3. Ping sitemap to Google and Bing
-  try {
-    const sitemapUrl = 'https://www.eplnewshub.com/sitemap.xml';
-    const [googleRes, bingRes] = await Promise.allSettled([
-      fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`),
-      fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`)
-    ]);
-    console.log(`[Scout] Sitemap ping: Google=${googleRes.status === 'fulfilled' ? googleRes.value.status : 'failed'}, Bing=${bingRes.status === 'fulfilled' ? bingRes.value.status : 'failed'}`);
-  } catch (e) {
-    console.log(`[Scout] Sitemap ping failed: ${e.message}`);
-  }
+  // 3. PubSubHubbub ping (triggers near-instant Google crawl)
+  await pingPubSubHubbub();
 }
 
 async function generateMatchPredictions() {
