@@ -1,6 +1,39 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'liverpools-lineup-vs-nottingham-forest-key-players-and-tacti-2026-02-22',
+    title: 'Liverpool\'s Lineup vs Nottingham Forest: Key Players and Tactics',
+    excerpt: 'A deep dive into Liverpool\'s probable lineup and tactics against Nottingham Forest, including the impact of new signings and experimental formations',
+    image: '/scout-liverpools-lineup-vs-nottingham-forest-key-players-and-tacti.jpg',
+    category: 'Player Focus',
+    date: '2026-02-22',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Liverpool', 'Nottingham Forest', 'Premier League', 'lineup', 'tactics']
+  },
+  {
+    id: 'tottenham-vs-arsenal-predictions-team-news-and-tactical-insi-2026-02-22',
+    title: 'Tottenham vs Arsenal: A North London Derby to Remember',
+    excerpt: 'The North London derby is one of the most highly anticipated matches in the Premier League, and this season\'s encounter between Tottenham Hotspur and Arsenal did not disappoint. We take a closer look at the match, the teams, and the tactical insight',
+    image: '/scout-tottenham-vs-arsenal-predictions-team-news-and-tactical-insi.jpg',
+    category: 'Match Reports',
+    date: '2026-02-22',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Tottenham', 'Arsenal', 'North London derby', 'Premier League']
+  },
+  {
+    id: 'premier-league-roundup-mac-allisters-late-heroics-and-more-2026-02-22',
+    title: 'Premier League Roundup: Mac Allister\'s Late Heroics and More',
+    excerpt: 'Liverpool\'s late victory over Nottingham Forest keeps their Champions League hopes alive, while the hosts\' relegation worries deepen',
+    image: '/scout-premier-league-roundup-mac-allisters-late-heroics-and-more.jpg',
+    category: 'Match Reports',
+    date: '2026-02-22',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Premier League', 'Liverpool', 'Nottingham Forest', 'Alexis Mac Allister']
+  },
+  {
     id: 'premier-league-the-biggest-stories-and-what-they-mean-for-th-2026-02-22',
     title: 'Premier League 2025-26: The Season of Chaos, Calvert-Lewin\'s Resurgence, and the Wolves Crisis',
     excerpt: 'From the revolving doors at the managerial hotseat to Dominic Calvert-Lewin\'s unexpected resurgence and Wolves\' historic struggles, this season has been one of the most dramatic in Premier League history.',
