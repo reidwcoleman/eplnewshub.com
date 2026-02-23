@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'nottingham-forest-0-1-liverpool-how-the-reds-secured-a-narro-2026-02-23',
+    title: 'Nottingham Forest 0-1 Liverpool: How the Reds Secured a Narrow Victory',
+    excerpt: 'Liverpool\'s late winner by Alexis Mac Allister in the 97th minute secured a crucial three points, moving them level on points with Chelsea and Manchester United.',
+    image: '/scout-nottingham-forest-0-1-liverpool-how-the-reds-secured-a-narro.webp',
+    category: 'Match Reports',
+    date: '2026-02-23',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Liverpool', 'Nottingham Forest', 'Premier League', 'Alexis Mac Allister', 'Virgil van Dijk', 'Arne Slot', 'Steve Cooper']
+  },
+  {
     id: 'crystal-palace-transfer-news-live-updates-on-deals-signings-2026-02-23',
     title: 'Crystal Palace Transfer News: Live Updates on Deals, Signings, and Rumors',
     excerpt: 'Crystal Palace is actively involved in transfer negotiations during the transfer window, with bids accepted and medical checks underway. Stay updated with the latest developments.',
