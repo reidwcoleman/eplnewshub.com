@@ -243,8 +243,16 @@
                 'Updated ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
         }
 
-        load();
-        setInterval(load, 5*60*1000);
+        let refreshTimer = null;
+        async function loadAndSchedule(){
+            await load();
+            // Check if any live matches are active right now
+            const hasLive = document.querySelector('.is-live') !== null;
+            if(refreshTimer) clearTimeout(refreshTimer);
+            refreshTimer = setTimeout(loadAndSchedule, hasLive ? 60*1000 : 5*60*1000);
+        }
+
+        loadAndSchedule();
     })();
     </script>
 </body>

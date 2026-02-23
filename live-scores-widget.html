@@ -1,22 +1,25 @@
-<!-- Upcoming Fixtures Widget -->
+<!-- Live Scores & Fixtures Widget -->
 <div class="live-scores-widget">
     <div class="widget-header">
-        <h2 class="widget-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.7;">
+        <h2 class="widget-title" id="lsw-title">
+            <span class="lsw-live-dot" id="lsw-dot" style="display:none"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.7;flex-shrink:0">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                 <line x1="16" y1="2" x2="16" y2="6"></line>
                 <line x1="8" y1="2" x2="8" y2="6"></line>
                 <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
-            Upcoming Fixtures
+            <span id="lsw-title-text">Fixtures &amp; Scores</span>
         </h2>
-        <a href="/epl_fixtures.html" class="view-all-link">View All Fixtures →</a>
+        <div style="display:flex;align-items:center;gap:10px">
+            <span id="lsw-updated" style="font-family:'Inter',sans-serif;font-size:11px;color:#555"></span>
+            <a href="/epl_fixtures.html" class="view-all-link">View All →</a>
+        </div>
     </div>
-
-    <div class="scores-container" id="live-scores-container">
-        <div class="loading-state">
-            <div class="loading-spinner"></div>
-            <p>Loading upcoming fixtures...</p>
+    <div class="scores-container" id="lsw-container">
+        <div class="lsw-loading">
+            <div class="lsw-spinner"></div>
+            <p>Loading...</p>
         </div>
     </div>
 </div>
@@ -30,16 +33,14 @@
         margin: 48px 0;
         box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
     }
-
     .widget-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 24px;
-        padding-bottom: 16px;
+        margin-bottom: 20px;
+        padding-bottom: 14px;
         border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-
     .widget-title {
         font-family: 'Inter', sans-serif;
         font-size: 18px;
@@ -51,534 +52,300 @@
         gap: 10px;
         letter-spacing: -0.2px;
     }
-
+    .lsw-live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ef4444;
+        animation: lsw-blink 1.2s ease-in-out infinite;
+        flex-shrink: 0;
+    }
+    @keyframes lsw-blink { 0%,100%{opacity:1} 50%{opacity:.3} }
     .view-all-link {
         font-family: 'Inter', sans-serif;
         font-size: 12px;
         font-weight: 600;
         color: #8b5cf6;
         text-decoration: none;
-        transition: all 0.2s ease;
-        letter-spacing: 0.02em;
         padding: 6px 12px;
-        background: rgba(139, 92, 246, 0.1);
+        background: rgba(139,92,246,0.1);
         border-radius: 6px;
+        transition: all .2s;
+        white-space: nowrap;
     }
-
-    .view-all-link:hover {
-        background: rgba(139, 92, 246, 0.2);
-        color: #a78bfa;
+    .view-all-link:hover { background: rgba(139,92,246,0.2); color: #a78bfa; }
+    .scores-container { display: flex; flex-direction: column; gap: 0; }
+    .lsw-loading {
+        display: flex; flex-direction: column; align-items: center;
+        justify-content: center; padding: 40px 0; gap: 14px;
     }
-
-    .scores-container {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .loading-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 48px 0;
-        gap: 16px;
-    }
-
-    .loading-spinner {
-        width: 40px;
-        height: 40px;
-        border: 3px solid rgba(255,255,255,0.1);
-        border-top: 3px solid #8b5cf6;
+    .lsw-spinner {
+        width: 36px; height: 36px;
+        border: 3px solid rgba(255,255,255,0.08);
+        border-top-color: #8b5cf6;
         border-radius: 50%;
-        animation: spin 1s linear infinite;
+        animation: lsw-spin .9s linear infinite;
     }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .loading-state p {
+    @keyframes lsw-spin { to { transform: rotate(360deg); } }
+    .lsw-loading p { font-family: 'Inter',sans-serif; font-size: 13px; color: #666; margin:0; }
+    .lsw-section-label {
         font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        color: #888888;
-    }
-
-    .date-group {
-        margin-bottom: 16px;
-    }
-
-    .date-group:last-child {
-        margin-bottom: 0;
-    }
-
-    .date-header {
-        font-family: 'Inter', sans-serif;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 700;
-        letter-spacing: 1px;
+        letter-spacing: 1.2px;
         text-transform: uppercase;
         color: #8b5cf6;
-        margin-bottom: 10px;
-        padding: 8px 12px;
-        background: rgba(139, 92, 246, 0.08);
-        border-radius: 8px;
+        background: rgba(139,92,246,0.08);
+        padding: 5px 10px;
+        border-radius: 6px;
         display: inline-block;
+        margin: 12px 0 8px;
     }
-
-    .date-fixtures {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
+    .lsw-section-label:first-child { margin-top: 0; }
+    .lsw-section-label.live-label {
+        color: #ef4444;
+        background: rgba(239,68,68,0.1);
     }
-
-    .match-card {
+    .lsw-date-group { margin-bottom: 4px; }
+    .lsw-date-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+        color: #666;
+        padding: 8px 2px 4px;
+        display: block;
+    }
+    .lsw-match-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
+    .lsw-card {
         display: grid;
         grid-template-columns: 1fr auto 1fr;
         align-items: center;
-        gap: 16px;
-        padding: 14px 18px;
+        gap: 12px;
+        padding: 11px 14px;
         background: rgba(255,255,255,0.02);
         border: 1px solid rgba(255,255,255,0.05);
         border-radius: 10px;
-        transition: all 0.2s ease;
-        cursor: pointer;
+        transition: background .2s, border-color .2s;
     }
-
-    .match-card:hover {
-        background: rgba(255,255,255,0.05);
-        border-color: rgba(139, 92, 246, 0.3);
-        transform: translateX(4px);
+    .lsw-card:hover { background: rgba(255,255,255,0.045); border-color: rgba(139,92,246,0.25); }
+    .lsw-card.is-live { border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.03); }
+    .lsw-team { display: flex; align-items: center; gap: 8px; }
+    .lsw-team.home { justify-content: flex-end; }
+    .lsw-badge {
+        width: 26px; height: 26px;
+        object-fit: contain; flex-shrink: 0;
     }
-
-    .team {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .team.home {
-        justify-content: flex-end;
-        text-align: right;
-    }
-
-    .team-logo {
-        width: 32px;
-        height: 32px;
-        object-fit: contain;
-        flex-shrink: 0;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-    }
-
-    .team.home .team-logo {
-        order: 1;
-    }
-
-    .team-badge-fallback {
-        width: 32px;
-        height: 32px;
+    .lsw-team.home .lsw-badge { order: 1; }
+    .lsw-badge-fb {
+        width: 26px; height: 26px;
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 10px;
-        font-weight: 700;
-        color: #fff;
-        flex-shrink: 0;
-        text-transform: uppercase;
-        background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        background: rgba(139,92,246,0.2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 8px; font-weight: 700; color: #8b5cf6;
+        flex-shrink: 0; text-transform: uppercase;
     }
-
-    .team.home .team-badge-fallback {
-        order: 1;
-    }
-
-    .team-name {
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 600;
-        color: #f5f5f5;
-        letter-spacing: 0.01em;
-    }
-
-    .match-center {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        min-width: 80px;
-        padding: 0 8px;
-    }
-
-    .match-vs {
-        font-family: 'Inter', sans-serif;
-        font-size: 10px;
-        font-weight: 700;
-        color: #555;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-    }
-
-    .match-time {
+    .lsw-team.home .lsw-badge-fb { order: 1; }
+    .lsw-name {
         font-family: 'Inter', sans-serif;
         font-size: 13px;
-        font-weight: 700;
-        color: #f5f5f5;
-        background: rgba(255,255,255,0.08);
-        padding: 4px 10px;
-        border-radius: 4px;
+        font-weight: 600;
+        color: #e8e8e8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 110px;
     }
-
-    .no-matches {
-        text-align: center;
-        padding: 48px 20px;
-        color: #888888;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
+    .lsw-name.winner { color: #fff; }
+    .lsw-center {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 3px; min-width: 72px;
     }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .live-scores-widget {
-            padding: 20px 16px;
-            margin: 32px -16px;
-            border-left: none;
-            border-right: none;
-            border-radius: 0;
-        }
-
-        .widget-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .widget-title {
-            font-size: 16px;
-        }
-
-        .match-card {
-            gap: 10px;
-            padding: 12px 14px;
-        }
-
-        .team-name {
-            font-size: 13px;
-        }
-
-        .team-logo {
-            width: 26px;
-            height: 26px;
-        }
-
-        .team-badge-fallback {
-            width: 26px;
-            height: 26px;
-            font-size: 9px;
-        }
-
-        .match-center {
-            min-width: 70px;
-        }
-
-        .match-time {
-            font-size: 12px;
-            padding: 3px 8px;
-        }
+    .lsw-score {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 17px; font-weight: 700;
+        font-variant-numeric: tabular-nums; color: #f5f5f5; line-height: 1;
     }
-
-    @media (max-width: 480px) {
-        .team-name {
-            display: none;
-        }
-
-        .team-logo {
-            width: 36px;
-            height: 36px;
-        }
-
-        .team-badge-fallback {
-            width: 36px;
-            height: 36px;
-            font-size: 11px;
-        }
-
-        .match-card {
-            gap: 12px;
-            padding: 10px 12px;
-            border-radius: 8px;
-        }
-
-        .match-center {
-            min-width: 60px;
-        }
-
-        .match-time {
-            font-size: 11px;
-            padding: 3px 6px;
-        }
-
-        .live-scores-widget {
-            padding: 16px 12px;
-            margin: 24px -12px;
-        }
-
-        .widget-title {
-            font-size: 15px;
-        }
+    .lsw-score-sep { color: #444; font-size: 13px; }
+    .lsw-status {
+        font-size: 10px; font-weight: 700; letter-spacing: .3px;
+        padding: 2px 7px; border-radius: 4px;
     }
+    .lsw-status.live { color: #ef4444; background: rgba(239,68,68,.12); }
+    .lsw-status.fin  { color: #555;    background: rgba(255,255,255,.04); }
+    .lsw-status.pre  { color: #e8e8e8; background: rgba(255,255,255,.07); }
+    .lsw-status.ht   { color: #f59e0b; background: rgba(245,158,11,.12); }
+    .lsw-live-pip { display:inline-block; width:5px; height:5px; border-radius:50%; background:#ef4444; animation:lsw-blink 1.2s infinite; vertical-align:middle; margin-right:2px; }
+    .lsw-empty { text-align:center; padding:32px; color:#555; font-family:'Inter',sans-serif; font-size:13px; }
 
-    @media (max-width: 360px) {
-        .live-scores-widget {
-            padding: 14px 10px;
-            margin: 20px -10px;
-        }
-
-        .match-card {
-            gap: 8px;
-            padding: 8px 10px;
-        }
-
-        .team-logo, .team-badge-fallback {
-            width: 30px;
-            height: 30px;
-        }
-
-        .match-center {
-            min-width: 50px;
-        }
+    @media(max-width:768px){
+        .live-scores-widget { padding:20px 16px; margin:32px -16px; border-left:none; border-right:none; border-radius:0; }
+        .widget-header { flex-direction:column; align-items:flex-start; gap:10px; }
+        .widget-title { font-size:16px; }
+        .lsw-name { font-size:12px; max-width:90px; }
+        .lsw-card { padding:10px 12px; gap:8px; }
+    }
+    @media(max-width:480px){
+        .lsw-name { display:none; }
+        .lsw-badge, .lsw-badge-fb { width:32px; height:32px; }
+        .lsw-center { min-width:60px; }
+        .live-scores-widget { padding:16px 12px; margin:24px -12px; }
     }
 </style>
 
 <script>
-(function() {
-    // Team logo URLs from Premier League resources
-    const teamLogos = {
-        "Arsenal": "https://resources.premierleague.com/premierleague/badges/50/t3.png",
-        "Aston Villa": "https://resources.premierleague.com/premierleague/badges/50/t7.png",
-        "Bournemouth": "https://resources.premierleague.com/premierleague/badges/50/t91.png",
-        "Brentford": "https://resources.premierleague.com/premierleague/badges/50/t94.png",
-        "Brighton": "https://resources.premierleague.com/premierleague/badges/50/t36.png",
-        "Chelsea": "https://resources.premierleague.com/premierleague/badges/50/t8.png",
-        "Crystal Palace": "https://resources.premierleague.com/premierleague/badges/50/t31.png",
-        "Everton": "https://resources.premierleague.com/premierleague/badges/50/t11.png",
-        "Fulham": "https://resources.premierleague.com/premierleague/badges/50/t54.png",
-        "Ipswich": "https://resources.premierleague.com/premierleague/badges/50/t40.png",
-        "Leeds": "https://resources.premierleague.com/premierleague/badges/50/t2.png",
-        "Leicester": "https://resources.premierleague.com/premierleague/badges/50/t13.png",
-        "Liverpool": "https://resources.premierleague.com/premierleague/badges/50/t14.png",
-        "Man City": "https://resources.premierleague.com/premierleague/badges/50/t43.png",
-        "Man Utd": "https://resources.premierleague.com/premierleague/badges/50/t1.png",
-        "Newcastle": "https://resources.premierleague.com/premierleague/badges/50/t4.png",
-        "Nott'm Forest": "https://resources.premierleague.com/premierleague/badges/50/t17.png",
-        "Southampton": "https://resources.premierleague.com/premierleague/badges/50/t20.png",
-        "Spurs": "https://resources.premierleague.com/premierleague/badges/50/t6.png",
-        "West Ham": "https://resources.premierleague.com/premierleague/badges/50/t21.png",
-        "Wolves": "https://resources.premierleague.com/premierleague/badges/50/t39.png"
-    };
+(function(){
+    const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard';
+    const container = document.getElementById('lsw-container');
+    const titleText = document.getElementById('lsw-title-text');
+    const dot = document.getElementById('lsw-dot');
+    const updated = document.getElementById('lsw-updated');
+    let liveTimer = null;
 
-    // Team name mapping for API responses
-    const teamNameMap = {
-        "Arsenal": "Arsenal",
-        "Aston Villa": "Aston Villa",
-        "AFC Bournemouth": "Bournemouth",
-        "Bournemouth": "Bournemouth",
-        "Brentford": "Brentford",
-        "Brighton and Hove Albion": "Brighton",
-        "Brighton": "Brighton",
-        "Chelsea": "Chelsea",
-        "Crystal Palace": "Crystal Palace",
-        "Everton": "Everton",
-        "Fulham": "Fulham",
-        "Ipswich Town": "Ipswich",
-        "Ipswich": "Ipswich",
-        "Leeds United": "Leeds",
-        "Leeds": "Leeds",
-        "Leicester City": "Leicester",
-        "Leicester": "Leicester",
-        "Liverpool": "Liverpool",
-        "Manchester City": "Man City",
-        "Man City": "Man City",
-        "Manchester United": "Man Utd",
-        "Man Utd": "Man Utd",
-        "Newcastle United": "Newcastle",
-        "Newcastle": "Newcastle",
-        "Nottingham Forest": "Nott'm Forest",
-        "Nott'm Forest": "Nott'm Forest",
-        "Southampton": "Southampton",
-        "Tottenham Hotspur": "Spurs",
-        "Spurs": "Spurs",
-        "West Ham United": "West Ham",
-        "West Ham": "West Ham",
-        "Wolverhampton Wanderers": "Wolves",
-        "Wolves": "Wolves"
-    };
-
-    // Fallback fixture data (Gameweek 27 - Feb 22-23 2026)
-    const fallbackFixtures = [
-        { home: "Man City", away: "Newcastle", date: "Feb 22", time: "12:30" },
-        { home: "Aston Villa", away: "Leeds", date: "Feb 22", time: "15:00" },
-        { home: "Bournemouth", away: "Nott'm Forest", date: "Feb 22", time: "15:00" },
-        { home: "Crystal Palace", away: "Fulham", date: "Feb 22", time: "15:00" },
-        { home: "Arsenal", away: "West Ham", date: "Feb 22", time: "17:30" },
-        { home: "Liverpool", away: "Man Utd", date: "Feb 23", time: "16:30" }
-    ];
-
-    function convertTo12Hour(time24) {
-        const [hours, minutes] = time24.split(':');
-        const hour = parseInt(hours, 10);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        const hour12 = hour % 12 || 12;
-        return `${hour12}:${minutes} ${ampm}`;
+    function dateStr(offset){
+        const d = new Date();
+        d.setDate(d.getDate() + offset);
+        return d.toISOString().slice(0,10).replace(/-/g,'');
     }
 
-    function normalizeTeamName(name) {
-        return teamNameMap[name] || name;
+    const todayKey = new Date().toISOString().slice(0,10);
+    function fmtKey(k){
+        if(k === todayKey) return 'Today';
+        const tom = new Date(todayKey); tom.setDate(tom.getDate()+1);
+        if(k === tom.toISOString().slice(0,10)) return 'Tomorrow';
+        return new Date(k+'T12:00:00Z').toLocaleDateString('en-GB',{weekday:'short',month:'short',day:'numeric'});
     }
 
-    function getTeamLogo(team) {
-        const normalizedTeam = normalizeTeamName(team);
-        const logoUrl = teamLogos[normalizedTeam];
-        if (logoUrl) {
-            return `<img class="team-logo" src="${logoUrl}" alt="${normalizedTeam}" onerror="this.style.display='none'">`;
-        }
-        return `<div class="team-badge-fallback">${team.substring(0, 3).toUpperCase()}</div>`;
+    function parseEvent(ev){
+        const comp = ev.competitions[0];
+        const home = comp.competitors.find(c=>c.homeAway==='home');
+        const away = comp.competitors.find(c=>c.homeAway==='away');
+        const st = ev.status.type;
+        const d = new Date(ev.date);
+        const time = d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/London'});
+        return {
+            dateKey: ev.date.slice(0,10),
+            homeName: home.team.displayName,
+            homeLogo: home.team.logo||'',
+            homeScore: home.score||'0',
+            homeWin: home.winner===true,
+            awayName: away.team.displayName,
+            awayLogo: away.team.logo||'',
+            awayScore: away.score||'0',
+            awayWin: away.winner===true,
+            state: st.state,
+            detail: st.shortDetail||st.detail||'',
+            time
+        };
     }
 
-    function formatDate(dateStr) {
-        const date = new Date(dateStr);
-        const options = { month: 'short', day: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
+    function badge(logo, name, side){
+        const el = logo
+            ? `<img class="lsw-badge" src="${logo}" alt="${name}" loading="lazy" onerror="this.style.display='none'">`
+            : `<div class="lsw-badge-fb">${name.slice(0,3).toUpperCase()}</div>`;
+        const nameEl = `<span class="lsw-name${false?' winner':''}">${name}</span>`;
+        if(side==='home') return `<div class="lsw-team home"><span class="lsw-name">${name}</span>${el}</div>`;
+        return `<div class="lsw-team away">${el}<span class="lsw-name">${name}</span></div>`;
     }
 
-    function renderFixtures(fixtures) {
-        const container = document.getElementById('live-scores-container');
+    function card(ev){
+        const live = ev.state==='in', fin = ev.state==='post';
+        let sCls='pre', sTxt=ev.time;
+        if(ev.detail==='HT'){sCls='ht';sTxt='HT';}
+        else if(fin){sCls='fin';sTxt='FT';}
+        else if(live){sCls='live';sTxt=ev.detail;}
+        const pip = live ? '<span class="lsw-live-pip"></span>' : '';
+        const showScore = live||fin;
+        const center = showScore
+            ? `<div class="lsw-score">
+                   <span class="${ev.homeWin?'winner':''}">${ev.homeScore}</span>
+                   <span class="lsw-score-sep">–</span>
+                   <span class="${ev.awayWin?'winner':''}">${ev.awayScore}</span>
+               </div>
+               <span class="lsw-status ${sCls}">${pip}${sTxt}</span>`
+            : `<span class="lsw-status pre">${sTxt}</span>`;
+        const homeEl = `<div class="lsw-team home">
+            <span class="lsw-name${ev.homeWin?' winner':''}">${ev.homeName}</span>
+            ${ev.homeLogo?`<img class="lsw-badge" src="${ev.homeLogo}" alt="${ev.homeName}" loading="lazy" onerror="this.style.display='none'">`:
+            `<div class="lsw-badge-fb">${ev.homeName.slice(0,3).toUpperCase()}</div>`}
+        </div>`;
+        const awayEl = `<div class="lsw-team away">
+            ${ev.awayLogo?`<img class="lsw-badge" src="${ev.awayLogo}" alt="${ev.awayName}" loading="lazy" onerror="this.style.display='none'">`:
+            `<div class="lsw-badge-fb">${ev.awayName.slice(0,3).toUpperCase()}</div>`}
+            <span class="lsw-name${ev.awayWin?' winner':''}">${ev.awayName}</span>
+        </div>`;
+        return `<div class="lsw-card${live?' is-live':''}">${homeEl}<div class="lsw-center">${center}</div>${awayEl}</div>`;
+    }
 
-        if (!fixtures || fixtures.length === 0) {
-            container.innerHTML = '<div class="no-matches">No upcoming fixtures available</div>';
-            return;
-        }
+    async function fetchDate(d){
+        try {
+            const r = await fetch(`${ESPN}?dates=${d}`);
+            if(!r.ok) return [];
+            const data = await r.json();
+            return (data.events||[]).map(parseEvent);
+        } catch(e){ return []; }
+    }
 
-        // Group fixtures by date
-        const grouped = {};
-        fixtures.forEach(match => {
-            if (!grouped[match.date]) {
-                grouped[match.date] = [];
-            }
-            grouped[match.date].push(match);
-        });
+    async function load(){
+        // Today + next 7 days for upcoming
+        const offsets = [0,1,2,3,4,5,6,7];
+        const results = await Promise.all(offsets.map(o=>fetchDate(dateStr(o))));
+        const all = results.flat();
+
+        const liveEvents = all.filter(e=>e.state==='in');
+        const todayEvents = all.filter(e=>e.dateKey===todayKey && e.state!=='in');
+        const futureEvents = all.filter(e=>e.dateKey>todayKey);
 
         let html = '';
-        for (const date in grouped) {
-            html += `<div class="date-group">`;
-            html += `<div class="date-header">${date}</div>`;
-            html += `<div class="date-fixtures">`;
-            html += grouped[date].map(match => `
-                <div class="match-card">
-                    <div class="team home">
-                        <span class="team-name">${normalizeTeamName(match.home)}</span>
-                        ${getTeamLogo(match.home)}
-                    </div>
-                    <div class="match-center">
-                        <div class="match-time">${convertTo12Hour(match.time)}</div>
-                    </div>
-                    <div class="team away">
-                        ${getTeamLogo(match.away)}
-                        <span class="team-name">${normalizeTeamName(match.away)}</span>
-                    </div>
-                </div>
-            `).join('');
-            html += `</div></div>`;
+        let hasLive = liveEvents.length > 0;
+
+        // LIVE section
+        if(hasLive){
+            html += `<span class="lsw-section-label live-label">● Live Now</span>`;
+            html += `<div class="lsw-match-list">${liveEvents.map(card).join('')}</div>`;
         }
+
+        // Today section (non-live)
+        if(todayEvents.length > 0){
+            html += `<span class="lsw-section-label">${hasLive ? 'Today — Other' : 'Today'}</span>`;
+            html += `<div class="lsw-match-list">${todayEvents.map(card).join('')}</div>`;
+        }
+
+        // Upcoming by date (cap at 3 dates)
+        if(futureEvents.length > 0){
+            const groups = {};
+            futureEvents.forEach(e=>{ (groups[e.dateKey]=groups[e.dateKey]||[]).push(e); });
+            const dates = Object.keys(groups).sort().slice(0,3);
+            html += `<span class="lsw-section-label">Upcoming</span>`;
+            dates.forEach(k=>{
+                html += `<div class="lsw-date-group">
+                    <span class="lsw-date-label">${fmtKey(k)}</span>
+                    <div class="lsw-match-list">${groups[k].map(card).join('')}</div>
+                </div>`;
+            });
+        }
+
+        if(!html) html = '<div class="lsw-empty">No matches to display</div>';
 
         container.innerHTML = html;
-    }
 
-    async function fetchLiveFixtures() {
-        // Calculate current season (Aug+ = current year, Jan-Jul = previous year)
-        const now = new Date();
-        const apiSeason = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
-
-        // Try multiple API sources
-        const apis = [
-            // API-Football via RapidAPI
-            {
-                url: `https://api-football-v1.p.rapidapi.com/v3/fixtures?league=39&season=${apiSeason}&next=6`,
-                headers: {
-                    'x-rapidapi-host': 'api-football-v1.p.rapidapi.com',
-                    'x-rapidapi-key': '015c3572fdmsh9f6f6598e6ec003p1fb385jsn529d908dcb43'
-                },
-                parse: (data) => {
-                    if (data?.response?.length > 0) {
-                        return data.response.slice(0, 6).map(match => {
-                            const matchDate = new Date(match.fixture.date);
-                            return {
-                                home: match.teams.home.name,
-                                away: match.teams.away.name,
-                                date: formatDate(matchDate),
-                                time: matchDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-                            };
-                        });
-                    }
-                    return null;
-                }
-            },
-            // CORS proxy with football-data.org
-            {
-                url: 'https://corsproxy.io/?' + encodeURIComponent('https://api.football-data.org/v4/competitions/PL/matches?status=SCHEDULED'),
-                headers: {},
-                parse: (data) => {
-                    if (data?.matches?.length > 0) {
-                        return data.matches.slice(0, 6).map(match => {
-                            const matchDate = new Date(match.utcDate);
-                            return {
-                                home: match.homeTeam.shortName || match.homeTeam.name,
-                                away: match.awayTeam.shortName || match.awayTeam.name,
-                                date: formatDate(matchDate),
-                                time: matchDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-                            };
-                        });
-                    }
-                    return null;
-                }
-            }
-        ];
-
-        for (const api of apis) {
-            try {
-                const response = await fetch(api.url, { headers: api.headers });
-                if (!response.ok) continue;
-
-                const data = await response.json();
-                const fixtures = api.parse(data);
-                if (fixtures && fixtures.length > 0) {
-                    console.log('Live fixtures loaded successfully');
-                    return fixtures;
-                }
-            } catch (error) {
-                console.log('API attempt failed:', error.message);
-            }
-        }
-
-        console.log('All APIs failed, using fallback data');
-        return null;
-    }
-
-    async function init() {
-        // Try to fetch live data first
-        const liveFixtures = await fetchLiveFixtures();
-
-        if (liveFixtures && liveFixtures.length > 0) {
-            renderFixtures(liveFixtures);
+        // Update title
+        if(hasLive){
+            titleText.textContent = 'Live Scores';
+            dot.style.display = '';
         } else {
-            // Use fallback data
-            renderFixtures(fallbackFixtures);
+            titleText.textContent = 'Fixtures & Scores';
+            dot.style.display = 'none';
         }
+
+        updated.textContent = 'Updated ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+
+        // Smart refresh: 60s when live, 5min otherwise
+        if(liveTimer) clearTimeout(liveTimer);
+        liveTimer = setTimeout(load, hasLive ? 60*1000 : 5*60*1000);
     }
 
-    // Initialize
-    init();
+    load();
 })();
 </script>
