@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'sheffield-wednesdays-relegation-what-went-wrong-for-the-owls-2026-02-23',
+    title: 'Sheffield Wednesday\'s Relegation: What Went Wrong for the Owls?',
+    excerpt: 'Sheffield Wednesday\'s earliest relegation in English football history has left fans reeling. What led to this downfall?',
+    image: '/scout-sheffield-wednesdays-relegation-what-went-wrong-for-the-owls.jpg',
+    category: 'Analysis',
+    date: '2026-02-23',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Sheffield Wednesday', 'relegation', 'League One', 'Sheffield United', 'Championship']
+  },
+  {
     id: 'liverpools-lineup-vs-nottingham-forest-key-players-and-tacti-2026-02-22',
     title: 'Liverpool\'s Lineup vs Nottingham Forest: Key Players and Tactics',
     excerpt: 'A deep dive into Liverpool\'s probable lineup and tactics against Nottingham Forest, including the impact of new signings and experimental formations',
