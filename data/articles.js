@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-2025-26-the-current-standings-and-what-they-m-2026-02-23',
+    title: 'Premier League 2025-26: Unpacking the Current Standings and Season Implications',
+    excerpt: 'As the Premier League 2025-26 season unfolds, the current standings offer insights into the title and relegation races. We analyze the implications of the latest standings and what they mean for the teams involved.',
+    image: '/scout-premier-league-2025-26-the-current-standings-and-what-they-m.webp',
+    category: 'Analysis',
+    date: '2026-02-23',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', '2025-26 season', 'standings', 'title race', 'relegation battle']
+  },
+  {
     id: 'liverpools-lineup-vs-nottingham-forest-key-players-and-tacti-2026-02-22',
     title: 'Liverpool\'s Lineup vs Nottingham Forest: Key Players and Tactics',
     excerpt: 'A deep dive into Liverpool\'s probable lineup and tactics against Nottingham Forest, including the impact of new signings and experimental formations',
