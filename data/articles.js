@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'crystal-palace-transfer-news-live-updates-on-deals-signings-2026-02-23',
+    title: 'Crystal Palace Transfer News: Live Updates on Deals, Signings, and Rumors',
+    excerpt: 'Crystal Palace is actively involved in transfer negotiations during the transfer window, with bids accepted and medical checks underway. Stay updated with the latest developments.',
+    image: '/scout-crystal-palace-transfer-news-live-updates-on-deals-signings.jpg',
+    category: 'Transfers',
+    date: '2026-02-23',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['Crystal Palace', 'transfers', 'Premier League', 'Jorgen Strand Larsen', 'Jean-Phillipe Mateta']
+  },
+  {
+    id: 'arsenals-resilience-how-they-answered-questions-and-stood-up-2026-02-23',
+    title: 'Arsenal\'s Resilience: Answering Questions and Standing Up to Man City',
+    excerpt: 'Arsenal\'s win against Tottenham and draw with Wolves have raised questions, but they\'ve shown their resilience in the title race. Gary Neville weighs in on their chances.',
+    image: '/scout-arsenals-resilience-how-they-answered-questions-and-stood-up.jpg',
+    category: 'Analysis',
+    date: '2026-02-23',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Arsenal', 'Manchester City', 'Premier League', 'title race']
+  },
+  {
     id: 'sheffield-wednesdays-relegation-what-went-wrong-for-the-owls-2026-02-23',
     title: 'Sheffield Wednesday\'s Relegation: What Went Wrong for the Owls?',
     excerpt: 'Sheffield Wednesday\'s earliest relegation in English football history has left fans reeling. What led to this downfall?',
