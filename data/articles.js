@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'leicester-citys-fight-for-survival-the-latest-updates-2026-02-24',
+    title: 'Leicester City\'s Fight for Survival: The Latest Updates',
+    excerpt: 'Leicester City is fighting for survival in the Premier League as they appeal a six-point deduction and brace for further sanctions. The latest updates on their battle.',
+    image: '/scout-leicester-citys-fight-for-survival-the-latest-updates.jpg',
+    category: 'News',
+    date: '2026-02-24',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Leicester City', 'Premier League', 'points deduction', 'Gary Rowett', 'survival battle']
+  },
+  {
+    id: 'liverpools-90th-minute-magic-how-the-reds-dominate-late-stag-2026-02-24',
+    title: 'Liverpool\'s 90th-Minute Magic: How the Reds Dominate Late Stages',
+    excerpt: 'Liverpool\'s knack for scoring late goals has become a defining feature of their season, with the Reds extending their Premier League record for 90th-minute winners.',
+    image: '/scout-liverpools-90th-minute-magic-how-the-reds-dominate-late-stag.jpg',
+    category: 'Analysis',
+    date: '2026-02-24',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Liverpool', 'Premier League', 'Arne Slot', 'Alexis Mac Allister', '90th-minute winners']
+  },
+  {
     id: 'james-milner-sets-new-record-for-most-premier-league-appeara-2026-02-24',
     title: 'James Milner Sets New Record for Most Premier League Appearances',
     excerpt: 'James Milner has cemented his legacy in the Premier League by setting a new record for the most appearances, surpassing Gareth Barry\'s long-standing mark',
