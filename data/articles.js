@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'james-milner-sets-new-record-for-most-premier-league-appeara-2026-02-24',
+    title: 'James Milner Sets New Record for Most Premier League Appearances',
+    excerpt: 'James Milner has cemented his legacy in the Premier League by setting a new record for the most appearances, surpassing Gareth Barry\'s long-standing mark',
+    image: '/scout-james-milner-sets-new-record-for-most-premier-league-appeara.jpg',
+    category: 'Player Focus',
+    date: '2026-02-24',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['James Milner', 'Premier League', 'record', 'appearances', 'Gareth Barry']
+  },
+  {
+    id: 'real-madrid-barcelona-eye-rodri-as-arsenal-lead-fresneda-rac-2026-02-24',
+    title: 'Real Madrid, Barcelona Eye Rodri as Arsenal Lead Fresneda Race',
+    excerpt: 'The transfer saga surrounding Rodri and Ivan Fresneda is heating up, with multiple top clubs vying for their signatures',
+    image: '/scout-real-madrid-barcelona-eye-rodri-as-arsenal-lead-fresneda-rac.webp',
+    category: 'Transfers',
+    date: '2026-02-24',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Rodri', 'Ivan Fresneda', 'Real Madrid', 'Barcelona', 'Arsenal', 'Manchester City', 'Transfer News']
+  },
+  {
     id: 'nottingham-forest-0-1-liverpool-how-the-reds-secured-a-narro-2026-02-23',
     title: 'Nottingham Forest 0-1 Liverpool: How the Reds Secured a Narrow Victory',
     excerpt: 'Liverpool\'s late winner by Alexis Mac Allister in the 97th minute secured a crucial three points, moving them level on points with Chelsea and Manchester United.',
