@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'benjamin-sesko-the-rising-star-who-secured-manchester-united-2026-02-24',
+    title: 'Benjamin Sesko: The Rising Star Who Secured Manchester United\'s Victory',
+    excerpt: 'Benjamin Sesko\'s winning goal against Everton showcases his growing impact on Manchester United\'s success. With a previous goal against West Ham, Sesko is proving to be a key player for the Red Devils.',
+    image: '/scout-benjamin-sesko-the-rising-star-who-secured-manchester-united.jpg',
+    category: 'Player Focus',
+    date: '2026-02-24',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Benjamin Sesko', 'Manchester United', 'Everton', 'Premier League']
+  },
+  {
     id: 'leicester-citys-fight-for-survival-the-latest-updates-2026-02-24',
     title: 'Leicester City\'s Fight for Survival: The Latest Updates',
     excerpt: 'Leicester City is fighting for survival in the Premier League as they appeal a six-point deduction and brace for further sanctions. The latest updates on their battle.',
