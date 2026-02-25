@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'real-madrid-vs-benfica-tactical-preview-and-key-battles-2026-02-25',
+    title: 'Real Madrid vs Benfica: Tactical Preview and Key Battles',
+    excerpt: 'As Real Madrid and Benfica prepare to face off in a high-stakes Champions League quarter-final, we analyze the tactical nuances and key battles that will define this rematch.',
+    image: '/scout-real-madrid-vs-benfica-tactical-preview-and-key-battles.jpg',
+    category: 'Match Reports',
+    date: '2026-02-25',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Real Madrid', 'Benfica', 'Champions League', 'Tactical Analysis', 'Key Battles']
+  },
+  {
+    id: 'could-tottenham-be-relegated-a-deep-dive-into-the-form-table-2026-02-25',
+    title: 'Could Tottenham Be Relegated? A Deep Dive into the Form Table',
+    excerpt: 'Tottenham\'s disastrous run of form has seen them collect just four points from nine games. With key players potentially departing, we examine the numbers and tactics behind their relegation battle.',
+    image: '/scout-could-tottenham-be-relegated-a-deep-dive-into-the-form-table.jpg',
+    category: 'Analysis',
+    date: '2026-02-25',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Tottenham Hotspur', 'Premier League', 'relegation battle', 'form table', 'Igor Tudor']
+  },
+  {
     id: 'how-much-premier-league-prize-money-will-each-team-get-this-2026-02-25',
     title: 'The Financial Battlefield: Breaking Down Premier League Prize Money for the 2023/24 Season',
     excerpt: 'The Premier League\'s financial landscape is as competitive as the pitch. We analyze the prize money distribution and its impact on club strategies.',
