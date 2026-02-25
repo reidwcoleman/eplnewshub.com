@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'how-much-premier-league-prize-money-will-each-team-get-this-2026-02-25',
+    title: 'The Financial Battlefield: Breaking Down Premier League Prize Money for the 2023/24 Season',
+    excerpt: 'The Premier League\'s financial landscape is as competitive as the pitch. We analyze the prize money distribution and its impact on club strategies.',
+    image: '/scout-how-much-premier-league-prize-money-will-each-team-get-this.png',
+    category: 'News',
+    date: '2026-02-25',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'financial analysis', 'prize money', 'football finances', 'Premier League distribution']
+  },
+  {
     id: 'benjamin-seskos-red-hot-form-the-stats-behind-his-premier-le-2026-02-25',
     title: 'Benjamin Sesko\'s Red-Hot Form: The Stats Behind His Premier League Impact',
     excerpt: 'Benjamin Sesko\'s goal-scoring rate of 1.65 per 90 minutes is a Premier League revelation. Here\'s why his form could redefine Manchester United\'s season.',
