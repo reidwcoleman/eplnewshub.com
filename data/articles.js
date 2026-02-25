@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'benjamin-seskos-red-hot-form-the-stats-behind-his-premier-le-2026-02-25',
+    title: 'Benjamin Sesko\'s Red-Hot Form: The Stats Behind His Premier League Impact',
+    excerpt: 'Benjamin Sesko\'s goal-scoring rate of 1.65 per 90 minutes is a Premier League revelation. Here\'s why his form could redefine Manchester United\'s season.',
+    image: '/scout-benjamin-seskos-red-hot-form-the-stats-behind-his-premier-le.png',
+    category: 'Player Focus',
+    date: '2026-02-25',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Benjamin Sesko', 'Manchester United', 'Premier League', 'goal-scoring', 'football analysis']
+  },
+  {
     id: 'benjamin-sesko-the-rising-star-who-secured-manchester-united-2026-02-24',
     title: 'Benjamin Sesko: The Rising Star Who Secured Manchester United\'s Victory',
     excerpt: 'Benjamin Sesko\'s winning goal against Everton showcases his growing impact on Manchester United\'s success. With a previous goal against West Ham, Sesko is proving to be a key player for the Red Devils.',
