@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-roundup-key-matches-and-standings-update-2026-02-26',
+    title: 'Premier League Roundup: Key Matches and Standings Update',
+    excerpt: 'Manchester United\'s narrow win over Everton and Arsenal\'s victory over Tottenham Hotspur highlight a weekend of crucial Premier League action. Here\'s a detailed breakdown of the key matches and standings.',
+    image: '/scout-premier-league-roundup-key-matches-and-standings-update.jpg',
+    category: 'News',
+    date: '2026-02-26',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'Manchester United', 'Arsenal', 'Chelsea', 'Tottenham Hotspur', 'Burnley', 'Aston Villa', 'Leeds United', 'Bournemouth']
+  },
+  {
+    id: 'everton-0-1-man-utd-how-seskos-late-strike-decided-the-game-2026-02-26',
+    title: 'Everton 0-1 Man Utd: How Sesko\'s Late Strike Decided the Game',
+    excerpt: 'Benjamin Sesko\'s late strike was the decisive moment in a scrappy slog that ended Everton\'s hopes and propelled Manchester United into fourth place.',
+    image: '/scout-everton-0-1-man-utd-how-seskos-late-strike-decided-the-game.jpg',
+    category: 'Match Reports',
+    date: '2026-02-26',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Everton', 'Manchester United', 'Benjamin Sesko', 'Premier League', 'Match Analysis']
+  },
+  {
     id: 'real-madrid-vs-benfica-tactical-preview-and-key-battles-2026-02-25',
     title: 'Real Madrid vs Benfica: Tactical Preview and Key Battles',
     excerpt: 'As Real Madrid and Benfica prepare to face off in a high-stakes Champions League quarter-final, we analyze the tactical nuances and key battles that will define this rematch.',
