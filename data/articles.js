@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'chelsea-told-they-sold-an-amazing-player-for-just-7m-who-was-2026-02-26',
+    title: 'Chelsea\'s £7m Surprise: Who Was the \'Amazing\' Player They Sold?',
+    excerpt: 'A £7 million transfer fee for a player described as \'amazing\' and \'brilliant\' has raised eyebrows. Who was it, and why did Chelsea let them go?',
+    image: '/scout-chelsea-told-they-sold-an-amazing-player-for-just-7m-who-was.jpg',
+    category: 'Transfers',
+    date: '2026-02-26',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Chelsea', 'transfers', 'Cole Palmer', 'Premier League', 'football transfers']
+  },
+  {
+    id: 'brighton-vs-manchester-city-tactical-preview-and-predictions-2026-02-26',
+    title: 'Brighton vs Manchester City: Tactical Preview and Predictions',
+    excerpt: 'As Brighton travels to the Etihad Stadium, we analyze the tactical setups, key battles, and what this match means for both teams in the Premier League title race.',
+    image: '/scout-brighton-vs-manchester-city-tactical-preview-and-predictions.png',
+    category: 'Match Reports',
+    date: '2026-02-26',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Brighton', 'Manchester City', 'Premier League', 'Tactical Preview', 'Predictions', 'Pep Guardiola', 'Fabian Hürzeler']
+  },
+  {
     id: 'premier-league-roundup-key-matches-and-standings-update-2026-02-26',
     title: 'Premier League Roundup: Key Matches and Standings Update',
     excerpt: 'Manchester United\'s narrow win over Everton and Arsenal\'s victory over Tottenham Hotspur highlight a weekend of crucial Premier League action. Here\'s a detailed breakdown of the key matches and standings.',
