@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'newcastle-united-vs-qarabag-tactical-preview-and-predictions-2026-02-26',
+    title: 'Newcastle United vs Qarabag: The Tactical Blueprint for a Routine Victory',
+    excerpt: 'With a five-goal first-leg advantage, Newcastle United holds all the cards against Qarabag in a match that will shape both clubs\' European trajectories.',
+    image: '/scout-newcastle-united-vs-qarabag-tactical-preview-and-predictions.jpg',
+    category: 'Match Reports',
+    date: '2026-02-26',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Newcastle United', 'Qarabag', 'Champions League', 'Tactical Analysis', 'Football Tactics']
+  },
+  {
     id: 'chelsea-told-they-sold-an-amazing-player-for-just-7m-who-was-2026-02-26',
     title: 'Chelsea\'s £7m Surprise: Who Was the \'Amazing\' Player They Sold?',
     excerpt: 'A £7 million transfer fee for a player described as \'amazing\' and \'brilliant\' has raised eyebrows. Who was it, and why did Chelsea let them go?',
