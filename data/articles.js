@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'how-to-watch-arsenal-vs-chelsea-live-tv-and-streaming-guide-2026-02-27',
+    title: 'How to Watch Arsenal vs Chelsea Live: TV and Streaming Guide',
+    excerpt: 'The Arsenal vs Chelsea match is a must-watch Premier League fixture. Here\'s how to catch every moment live on TV and streaming services.',
+    image: '/scout-how-to-watch-arsenal-vs-chelsea-live-tv-and-streaming-guide.jpg',
+    category: 'Match Reports',
+    date: '2026-02-27',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['Arsenal', 'Chelsea', 'Premier League', 'London derby', 'live stream', 'TV guide']
+  },
+  {
+    id: 'premier-leagues-netflix-style-streaming-service-a-game-chang-2026-02-27',
+    title: 'Premier League\'s \'Premflix\': How a Singapore Launch Could Redefine Global Football',
+    excerpt: 'The Premier League is set to launch its own streaming service, \'Premflix\', in Singapore for the 2026-27 season. This move could redefine how global fans access live football.',
+    image: '/scout-premier-leagues-netflix-style-streaming-service-a-game-chang.jpg',
+    category: 'News',
+    date: '2026-02-27',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'streaming service', 'Premflix', 'Singapore', 'football broadcasting', 'global fans']
+  },
+  {
     id: 'everton-vs-arsenal-the-behind-the-scenes-battle-for-a-fair-m-2026-02-27',
     title: 'Everton vs Arsenal: The Behind-the-Scenes Battle for a Fair Match',
     excerpt: 'Behind-the-scenes talks and potential player returns could alter the course of Everton\'s crucial Premier League encounter with Arsenal.',
