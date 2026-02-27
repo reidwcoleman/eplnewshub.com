@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'arsenal-vs-chelsea-tactical-preview-and-predictions-2026-02-27',
+    title: 'Arsenal vs Chelsea: Tactical Preview and Predictions',
+    excerpt: 'Arsenal\'s defensive resurgence meets Chelsea\'s inconsistent form in a pivotal London derby. Here\'s what to expect.',
+    image: '/scout-arsenal-vs-chelsea-tactical-preview-and-predictions.jpg',
+    category: 'Match Reports',
+    date: '2026-02-27',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Arsenal', 'Chelsea', 'Premier League', 'Tactical Preview', 'Predictions', 'London Derby']
+  },
+  {
     id: 'how-to-watch-arsenal-vs-chelsea-live-tv-and-streaming-guide-2026-02-27',
     title: 'How to Watch Arsenal vs Chelsea Live: TV and Streaming Guide',
     excerpt: 'The Arsenal vs Chelsea match is a must-watch Premier League fixture. Here\'s how to catch every moment live on TV and streaming services.',
