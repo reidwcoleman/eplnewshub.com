@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'everton-vs-arsenal-the-behind-the-scenes-battle-for-a-fair-m-2026-02-27',
+    title: 'Everton vs Arsenal: The Behind-the-Scenes Battle for a Fair Match',
+    excerpt: 'Behind-the-scenes talks and potential player returns could alter the course of Everton\'s crucial Premier League encounter with Arsenal.',
+    image: '/scout-everton-vs-arsenal-the-behind-the-scenes-battle-for-a-fair-m.jpg',
+    category: 'Match Reports',
+    date: '2026-02-27',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Everton', 'Arsenal', 'Premier League', 'Richarlison', 'Match Rescheduling', 'Football Rivalry']
+  },
+  {
+    id: 'man-city-vs-leeds-midfield-mastery-leads-to-comfortable-vict-2026-02-27',
+    title: 'Man City vs Leeds: Midfield Mastery Leads to Comfortable Victory',
+    excerpt: 'Manchester City\'s midfield trio of Rodri, Kevin De Bruyne, and Phil Foden dismantled Leeds United\'s counter-attacking strategy with a display of precision and control.',
+    image: '/scout-man-city-vs-leeds-midfield-mastery-leads-to-comfortable-vict.jpg',
+    category: 'Match Reports',
+    date: '2026-02-27',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Manchester City', 'Leeds United', 'Premier League', 'midfield dominance', 'tactical analysis', 'Phil Foden']
+  },
+  {
     id: 'premier-league-2025-26-the-current-standings-and-what-they-m-2026-02-23',
     title: 'Premier League 2025-26: Unpacking the Current Standings and Season Implications',
     excerpt: 'As the Premier League 2025-26 season unfolds, the current standings offer insights into the title and relegation races. We analyze the implications of the latest standings and what they mean for the teams involved.',
