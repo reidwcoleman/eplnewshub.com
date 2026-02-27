@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SITEMAP_URL = 'https://www.eplnewshub.com/sitemap.xml';
+const NEWS_SITEMAP_URL = 'https://www.eplnewshub.com/news-sitemap.xml';
 const SERVICE_ACCOUNT_PATH = path.join(__dirname, '../../google-service-account.json');
 
 async function main() {
@@ -22,6 +23,13 @@ async function main() {
         method: 'PUT'
       });
       console.log(`[Sitemap] Google Search Console API: submitted sitemap — status ${res.status}`);
+
+      // Also submit the news sitemap
+      const newsRes = await client.request({
+        url: `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps/${encodeURIComponent(NEWS_SITEMAP_URL)}`,
+        method: 'PUT'
+      });
+      console.log(`[Sitemap] Google Search Console API: submitted news-sitemap — status ${newsRes.status}`);
     } else {
       console.log('[Sitemap] No service account key found, skipping Search Console API.');
     }

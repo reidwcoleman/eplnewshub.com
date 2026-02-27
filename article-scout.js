@@ -3267,6 +3267,7 @@ async function runScout(count = 1) {
 
   // Step 3: Generate each article (stop once we've published enough)
   const publishedTitles = [];
+  const publishedFilenames = [];
   for (const topic of topics) {
     if (publishedTitles.length >= count) break; // already published enough
 
@@ -3374,33 +3375,40 @@ async function runScout(count = 1) {
       // Step 10: Log
       updateScoutLog({ title: article.title, filename, category: article.category, date, image: imageFile });
       publishedTitles.push(article.title);
+      publishedFilenames.push(filename);
 
       console.log(`[Scout] Published: ${article.title}\n`);
-
-      // Step 11: Request Google indexing
-      const articleUrl = `https://www.eplnewshub.com/articles/${filename}`;
-      await requestIndexing(articleUrl);
     } catch (e) {
       console.error(`[Scout] Failed to generate article for "${topic.title}":`, e.message);
     }
   }
 
-  // Step 12: Generate match predictions
+  // Step 11: Generate match predictions
   try {
     await generateMatchPredictions();
   } catch (e) {
     console.error('[Scout] Match predictions failed:', e.message);
   }
 
-  // Step 13: Regenerate RSS feed and news sitemap
+  // Step 12: Regenerate RSS feed and news sitemap
   if (publishedTitles.length > 0) {
     regenerateFeed();
     regenerateNewsSitemap();
   }
 
-  // Step 14: Push to GitHub
+  // Step 13: Push to GitHub FIRST — articles must be live before notifying search engines
   if (publishedTitles.length > 0) {
     gitPush(publishedTitles);
+  }
+
+  // Step 14: Wait for Vercel to deploy, then notify search engines
+  if (publishedTitles.length > 0) {
+    console.log('[Scout] Waiting 60s for Vercel deployment before notifying search engines...');
+    await new Promise(r => setTimeout(r, 60000));
+    for (const filename of publishedFilenames) {
+      const articleUrl = `https://www.eplnewshub.com/articles/${filename}`;
+      await requestIndexing(articleUrl);
+    }
   }
 
   clearScoutPid();
