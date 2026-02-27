@@ -1514,8 +1514,8 @@ STYLE:
 
 Return your article in this exact JSON format (no other text):
 {
-  "title": "Article title",
-  "metaDescription": "150 char SEO meta description",
+  "title": "Compelling title: frontload the most newsworthy keyword, keep under 60 chars, use power words (e.g. numbers, 'why', 'how', colons for tension). E.g: 'Arsenal's 5 Worst Defensive Errors This Season'",
+  "metaDescription": "150-char meta description that drives clicks: open with a hook or surprising fact, include the primary keyword in first 20 chars, end with implied value (e.g. 'Here\\'s what the data shows'). Never start with the site name.",
   "keywords": "comma, separated, keywords",
   "category": "News|Transfers|Analysis|Match Reports|Player Focus",
   "categoryLabel": "Premier League Analysis",
@@ -1928,6 +1928,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
     <meta name="description" content="${article.metaDescription.replace(/"/g, '&quot;')}">
     <meta name="author" content="EPL News Hub">
     <meta name="keywords" content="${article.keywords}">
+    <meta name="news_keywords" content="${article.keywords}">
     <meta name="robots" content="index, follow">
 
     <title>${encodedTitle} | EPL News Hub</title>
@@ -2773,7 +2774,8 @@ function buildArticleHTML(article, filename, date, imageFile) {
       "dateModified": "${isoDate}",
       "mainEntityOfPage": { "@type": "WebPage", "@id": "${articleUrl}" },
       "articleSection": "${article.category}",
-      "keywords": "${article.keywords}"
+      "keywords": "${article.keywords}",
+      "wordCount": ${Math.round(article.bodyHTML.replace(/<[^>]+>/g, '').length / 5)}
     }
     </script>
 
@@ -2989,8 +2991,8 @@ function updateSitemap(filename, date) {
     <url>
         <loc>https://www.eplnewshub.com/articles/${filename}</loc>
         <lastmod>${date}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <changefreq>daily</changefreq>
+        <priority>0.7</priority>
     </url>`;
 
   sitemap = sitemap.replace('</urlset>', newEntry + '\n</urlset>');

@@ -11,5 +11,31 @@
       "src": "/api/(.*)",
       "dest": "comments-server.js"
     }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)\\.(?:css|js|woff2?|png|jpg|jpeg|gif|svg|ico|webp)$",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/articles/(.*)\\.html$",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.html$",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=1800, stale-while-revalidate=86400" }
+      ]
+    },
+    {
+      "source": "/(sitemap|news-sitemap|feed)\\.(?:xml)$",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    }
   ]
 }
