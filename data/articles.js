@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-darts-night-four-highlights-from-belfast-2026-02-28',
+    title: 'Stephen Bunting Dominates Night Four: Premier League Darts Belfast Recap',
+    excerpt: 'Stephen Bunting claimed victory at Night Four of the Premier League Darts in Belfast, defeating Gian van Veen in a thrilling performance. Josh Rock\'s nine-darter stole the show.',
+    image: '/scout-premier-league-darts-night-four-highlights-from-belfast.jpg',
+    category: 'News',
+    date: '2026-02-28',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['Premier League Darts', 'Stephen Bunting', 'Gian van Veen', 'Josh Rock', 'Belfast', 'PDC']
+  },
+  {
+    id: 'liverpool-tops-premier-league-wage-bill-rankings-what-it-mea-2026-02-28',
+    title: 'Liverpool\'s Wage Bill Surge: What It Means for the Reds\' Future',
+    excerpt: 'With the highest wage bill in the Premier League, Liverpool\'s financial strategy is under scrutiny. What does this mean for their squad and future ambitions?',
+    image: '/scout-liverpool-tops-premier-league-wage-bill-rankings-what-it-mea.webp',
+    category: 'Analysis',
+    date: '2026-02-28',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Liverpool', 'Premier League', 'wage bill', 'financial analysis', 'football finances']
+  },
+  {
     id: 'champions-league-round-of-16-odds-how-premier-league-teams-s-2026-02-28',
     title: 'Champions League Round of 16 Odds: How Premier League Teams Stack Up',
     excerpt: 'With six Premier League teams in the Champions League round of 16, we break down the odds and what each team must do to advance.',
