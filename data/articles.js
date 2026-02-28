@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'liverpool-vs-west-ham-predicted-lineup-and-key-team-news-2026-02-28',
+    title: 'Liverpool vs West Ham: The Tactical Battle That Could Define Their Seasons',
+    excerpt: 'As Liverpool and West Ham United prepare to meet at Anfield, the tactical battle between Jurgen Klopp and David Moyes could shape both clubs\' seasons. Here\'s what to expect.',
+    image: '/scout-liverpool-vs-west-ham-predicted-lineup-and-key-team-news.jpg',
+    category: 'Match Reports',
+    date: '2026-02-28',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Liverpool', 'West Ham', 'Premier League', 'Tactical Analysis', 'Jurgen Klopp', 'David Moyes']
+  },
+  {
     id: 'champions-league-round-of-16-odds-how-premier-league-teams-s-2026-02-28',
     title: 'Champions League Round of 16 Odds: How Premier League Teams Stack Up',
     excerpt: 'With six Premier League teams in the Champions League round of 16, we break down the odds and what each team must do to advance.',
