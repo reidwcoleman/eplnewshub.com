@@ -31,6 +31,7 @@ const ARTICLES_DIR = path.join(ROOT, 'articles');
 const ARTICLES_JSON = path.join(ROOT, 'articles.json');
 const DATA_ARTICLES_JS = path.join(ROOT, 'data', 'articles.js');
 const SITEMAP = path.join(ROOT, 'sitemap.xml');
+const SITEMAP_ARTICLES = path.join(ROOT, 'sitemap-articles.xml');
 const FEED_XML = path.join(ROOT, 'feed.xml');
 const NEWS_SITEMAP = path.join(ROOT, 'news-sitemap.xml');
 const INDEXNOW_KEY = '7fd9afb553684a99a770e42cbf34d197';
@@ -2979,25 +2980,31 @@ function updateDataArticlesJs(article, filename, date, imageFile) {
 // ─── Update sitemap.xml ──────────────────────────────────────────────────────
 
 function updateSitemap(filename, date) {
-  let sitemap = fs.readFileSync(SITEMAP, 'utf-8');
+  // Write to sitemap-articles.xml (the dedicated article sitemap)
+  let articlesSitemap = fs.readFileSync(SITEMAP_ARTICLES, 'utf-8');
 
   // Prevent duplicate entries
-  if (sitemap.includes(`/articles/${filename}`)) {
-    console.log('[Scout] Article already in sitemap.xml, skipping');
+  if (articlesSitemap.includes(`/articles/${filename}`)) {
+    console.log('[Scout] Article already in sitemap-articles.xml, skipping');
     return;
   }
 
-  const newEntry = `
-    <url>
-        <loc>https://www.eplnewshub.com/articles/${filename}</loc>
-        <lastmod>${date}</lastmod>
-        <changefreq>daily</changefreq>
-        <priority>0.7</priority>
-    </url>`;
+  const newEntry = `  <url>
+    <loc>https://www.eplnewshub.com/articles/${filename}</loc>
+    <lastmod>${date}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>`;
 
-  sitemap = sitemap.replace('</urlset>', newEntry + '\n</urlset>');
-  fs.writeFileSync(SITEMAP, sitemap);
-  console.log('[Scout] Updated sitemap.xml');
+  articlesSitemap = articlesSitemap.replace('</urlset>', newEntry + '\n</urlset>');
+  fs.writeFileSync(SITEMAP_ARTICLES, articlesSitemap);
+
+  // Also update the sitemap index lastmod so Google knows to re-fetch it
+  let index = fs.readFileSync(SITEMAP, 'utf-8');
+  index = index.replace(/(sitemap-articles\.xml[^<]*<\/loc>\s*<lastmod>)[^<]+(<\/lastmod>)/, `$1${date}$2`);
+  fs.writeFileSync(SITEMAP, index);
+
+  console.log('[Scout] Updated sitemap-articles.xml and sitemap index');
 }
 
 // ─── Scout Log ───────────────────────────────────────────────────────────────

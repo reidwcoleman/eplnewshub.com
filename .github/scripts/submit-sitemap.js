@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SITEMAP_URL = 'https://www.eplnewshub.com/sitemap.xml';
+const SITEMAP_ARTICLES_URL = 'https://www.eplnewshub.com/sitemap-articles.xml';
 const NEWS_SITEMAP_URL = 'https://www.eplnewshub.com/news-sitemap.xml';
 const SERVICE_ACCOUNT_PATH = path.join(__dirname, '../../google-service-account.json');
 
@@ -24,7 +25,14 @@ async function main() {
       });
       console.log(`[Sitemap] Google Search Console API: submitted sitemap — status ${res.status}`);
 
-      // Also submit the news sitemap
+      // Submit the dedicated articles sitemap (highest priority)
+      const articlesRes = await client.request({
+        url: `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps/${encodeURIComponent(SITEMAP_ARTICLES_URL)}`,
+        method: 'PUT'
+      });
+      console.log(`[Sitemap] Google Search Console API: submitted sitemap-articles — status ${articlesRes.status}`);
+
+      // Submit the news sitemap
       const newsRes = await client.request({
         url: `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps/${encodeURIComponent(NEWS_SITEMAP_URL)}`,
         method: 'PUT'
@@ -37,17 +45,23 @@ async function main() {
     console.error(`[Sitemap] Google Search Console API failed: ${e.message}`);
   }
 
-  // 2. Ping Google with sitemap
+  // 2. Ping Google with both sitemaps
   try {
     const res = await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}`);
-    console.log(`[Sitemap] Google ping: status ${res.status}`);
+    console.log(`[Sitemap] Google ping (index): status ${res.status}`);
   } catch (e) {
     console.error(`[Sitemap] Google ping failed: ${e.message}`);
+  }
+  try {
+    const res = await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(SITEMAP_ARTICLES_URL)}`);
+    console.log(`[Sitemap] Google ping (articles): status ${res.status}`);
+  } catch (e) {
+    console.error(`[Sitemap] Google articles ping failed: ${e.message}`);
   }
 
   // 3. Ping Bing with sitemap
   try {
-    const res = await fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}`);
+    const res = await fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(SITEMAP_ARTICLES_URL)}`);
     console.log(`[Sitemap] Bing ping: status ${res.status}`);
   } catch (e) {
     console.error(`[Sitemap] Bing ping failed: ${e.message}`);
@@ -57,7 +71,7 @@ async function main() {
   try {
     const indexNowKey = process.env.INDEXNOW_KEY;
     if (indexNowKey) {
-      const sitemapPath = path.join(__dirname, '../../sitemap.xml');
+      const sitemapPath = path.join(__dirname, '../../sitemap-articles.xml');
       if (fs.existsSync(sitemapPath)) {
         const sitemap = fs.readFileSync(sitemapPath, 'utf-8');
         // Extract all article URLs
