@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'champions-league-round-of-16-odds-how-premier-league-teams-s-2026-02-28',
+    title: 'Champions League Round of 16 Odds: How Premier League Teams Stack Up',
+    excerpt: 'With six Premier League teams in the Champions League round of 16, we break down the odds and what each team must do to advance.',
+    image: '/scout-champions-league-round-of-16-odds-how-premier-league-teams-s.jpg',
+    category: 'Analysis',
+    date: '2026-02-28',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Champions League', 'Premier League', 'Manchester City', 'Arsenal', 'Chelsea', 'round of 16', 'football analysis']
+  },
+  {
+    id: 'man-citys-tough-road-to-the-champions-league-final-why-their-2026-02-28',
+    title: 'Man City\'s Tough Road to the Champions League Final: Why Their Draw is the Toughest',
+    excerpt: 'An in-depth look at Manchester City\'s challenging route to the Champions League final and how it compares to their Premier League rivals.',
+    image: '/scout-man-citys-tough-road-to-the-champions-league-final-why-their.png',
+    category: 'Analysis',
+    date: '2026-02-28',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Manchester City', 'Champions League', 'Real Madrid', 'Premier League', 'Football Analysis']
+  },
+  {
     id: 'arsenal-vs-chelsea-tactical-preview-and-predictions-2026-02-27',
     title: 'Arsenal vs Chelsea: Tactical Preview and Predictions',
     excerpt: 'Arsenal\'s defensive resurgence meets Chelsea\'s inconsistent form in a pivotal London derby. Here\'s what to expect.',
