@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'champions-league-last-16-draw-how-man-city-arsenal-and-liver-2026-02-28',
+    title: 'Champions League Last 16 Draw: How Man City, Arsenal, and Liverpool Fared',
+    excerpt: 'The Champions League last 16 draw has set the stage for some thrilling encounters involving Premier League clubs. Here\'s a detailed look at how Manchester City, Arsenal, and Liverpool fared in the draw.',
+    image: '/scout-champions-league-last-16-draw-how-man-city-arsenal-and-liver.jpg',
+    category: 'News',
+    date: '2026-02-28',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Champions League', 'Manchester City', 'Arsenal', 'Liverpool', 'Premier League']
+  },
+  {
     id: 'premier-league-darts-night-four-highlights-from-belfast-2026-02-28',
     title: 'Stephen Bunting Dominates Night Four: Premier League Darts Belfast Recap',
     excerpt: 'Stephen Bunting claimed victory at Night Four of the Premier League Darts in Belfast, defeating Gian van Veen in a thrilling performance. Josh Rock\'s nine-darter stole the show.',
