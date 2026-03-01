@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'fulham-vs-tottenham-prediction-team-news-and-key-battles-2026-03-01',
+    title: 'Fulham vs Tottenham: Key Battles, Injury Returns, and Relegation Stakes',
+    excerpt: 'With two key players set to return, Tottenham faces Fulham in a must-win clash that could define their season. Here\'s the full breakdown.',
+    image: '/scout-fulham-vs-tottenham-prediction-team-news-and-key-battles.jpg',
+    category: 'Match Reports',
+    date: '2026-03-01',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Fulham', 'Tottenham', 'Premier League', 'Relegation Battle', 'Igor Tudor']
+  },
+  {
     id: 'var-controversy-how-burnley-were-denied-a-historic-comeback-2026-03-01',
     title: 'VAR Controversy: How Burnley Were Denied a Historic Comeback',
     excerpt: 'A seven-goal thriller turned into a heated debate as VAR played a pivotal role in Burnley\'s denied comeback against Brentford.',
