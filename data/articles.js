@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'var-controversy-how-burnley-were-denied-a-historic-comeback-2026-03-01',
+    title: 'VAR Controversy: How Burnley Were Denied a Historic Comeback',
+    excerpt: 'A seven-goal thriller turned into a heated debate as VAR played a pivotal role in Burnley\'s denied comeback against Brentford.',
+    image: '/scout-var-controversy-how-burnley-were-denied-a-historic-comeback.jpg',
+    category: 'Analysis',
+    date: '2026-03-01',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['VAR', 'Burnley', 'Brentford', 'Premier League', 'Scott Parker', 'football controversy']
+  },
+  {
+    id: 'liverpool-2-1-west-ham-how-klopps-tactics-secured-a-vital-wi-2026-03-01',
+    title: 'How Klopp\'s Tactics Secured Liverpool\'s 5-2 Win Over West Ham',
+    excerpt: 'A tactical breakdown of Liverpool\'s dominant 5-2 victory over West Ham United, highlighting Klopp\'s set-piece strategies and West Ham\'s defensive struggles.',
+    image: '/scout-liverpool-2-1-west-ham-how-klopps-tactics-secured-a-vital-wi.webp',
+    category: 'Match Reports',
+    date: '2026-03-01',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Liverpool', 'West Ham', 'Premier League', 'Tactical Analysis', 'Set-Piece Goals']
+  },
+  {
     id: 'champions-league-last-16-draw-how-man-city-arsenal-and-liver-2026-02-28',
     title: 'Champions League Last 16 Draw: How Man City, Arsenal, and Liverpool Fared',
     excerpt: 'The Champions League last 16 draw has set the stage for some thrilling encounters involving Premier League clubs. Here\'s a detailed look at how Manchester City, Arsenal, and Liverpool fared in the draw.',
