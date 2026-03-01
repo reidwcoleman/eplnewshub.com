@@ -2,14 +2,13 @@ const fs = require('fs');
 const path = require('path');
 
 const SITEMAP_URL = 'https://eplnewshub.com/sitemap.xml';
-const SITEMAP_ARTICLES_URL = 'https://eplnewshub.com/sitemap-articles.xml';
 const NEWS_SITEMAP_URL = 'https://eplnewshub.com/news-sitemap.xml';
 const SERVICE_ACCOUNT_PATH = path.join(__dirname, '../../google-service-account.json');
 
 async function main() {
   console.log('[Sitemap] Daily sitemap submission starting...');
 
-  // 1. Submit sitemap via Google Search Console API
+  // 1. Submit sitemaps via Google Search Console API
   try {
     if (fs.existsSync(SERVICE_ACCOUNT_PATH)) {
       const { GoogleAuth } = require('google-auth-library');
@@ -19,76 +18,57 @@ async function main() {
       });
       const client = await auth.getClient();
       const siteUrl = 'https://eplnewshub.com/';
+
       const res = await client.request({
         url: `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps/${encodeURIComponent(SITEMAP_URL)}`,
         method: 'PUT'
       });
-      console.log(`[Sitemap] Google Search Console API: submitted sitemap — status ${res.status}`);
+      console.log(`[Sitemap] Search Console: submitted sitemap.xml — status ${res.status}`);
 
-      // Submit the dedicated articles sitemap (highest priority)
-      const articlesRes = await client.request({
-        url: `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps/${encodeURIComponent(SITEMAP_ARTICLES_URL)}`,
-        method: 'PUT'
-      });
-      console.log(`[Sitemap] Google Search Console API: submitted sitemap-articles — status ${articlesRes.status}`);
-
-      // Submit the news sitemap
       const newsRes = await client.request({
         url: `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps/${encodeURIComponent(NEWS_SITEMAP_URL)}`,
         method: 'PUT'
       });
-      console.log(`[Sitemap] Google Search Console API: submitted news-sitemap — status ${newsRes.status}`);
+      console.log(`[Sitemap] Search Console: submitted news-sitemap.xml — status ${newsRes.status}`);
     } else {
       console.log('[Sitemap] No service account key found, skipping Search Console API.');
     }
   } catch (e) {
-    console.error(`[Sitemap] Google Search Console API failed: ${e.message}`);
+    console.error(`[Sitemap] Search Console API failed: ${e.message}`);
   }
 
-  // 2. Ping Google with both sitemaps
+  // 2. Ping Google
   try {
     const res = await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}`);
-    console.log(`[Sitemap] Google ping (index): status ${res.status}`);
+    console.log(`[Sitemap] Google ping: status ${res.status}`);
   } catch (e) {
     console.error(`[Sitemap] Google ping failed: ${e.message}`);
   }
-  try {
-    const res = await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(SITEMAP_ARTICLES_URL)}`);
-    console.log(`[Sitemap] Google ping (articles): status ${res.status}`);
-  } catch (e) {
-    console.error(`[Sitemap] Google articles ping failed: ${e.message}`);
-  }
 
-  // 3. Ping Bing with sitemap
+  // 3. Ping Bing
   try {
-    const res = await fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(SITEMAP_ARTICLES_URL)}`);
+    const res = await fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}`);
     console.log(`[Sitemap] Bing ping: status ${res.status}`);
   } catch (e) {
     console.error(`[Sitemap] Bing ping failed: ${e.message}`);
   }
 
-  // 4. IndexNow batch submit recent URLs from sitemap
+  // 4. IndexNow batch — last 10 article URLs from sitemap.xml
   try {
     const indexNowKey = process.env.INDEXNOW_KEY;
     if (indexNowKey) {
-      const sitemapPath = path.join(__dirname, '../../sitemap-articles.xml');
+      const sitemapPath = path.join(__dirname, '../../sitemap.xml');
       if (fs.existsSync(sitemapPath)) {
         const sitemap = fs.readFileSync(sitemapPath, 'utf-8');
-        // Extract all article URLs
-        const urlMatches = [...sitemap.matchAll(/<loc>(https:\/\/www\.eplnewshub\.com\/articles\/[^<]+)<\/loc>/g)];
-        // Get the last 10 URLs (most recently added)
+        const urlMatches = [...sitemap.matchAll(/<loc>(https:\/\/eplnewshub\.com\/articles\/[^<]+)<\/loc>/g)];
         const recentUrls = urlMatches.slice(-10).map(m => m[1]);
         if (recentUrls.length > 0) {
           const res = await fetch('https://api.indexnow.org/indexnow', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              host: 'eplnewshub.com',
-              key: indexNowKey,
-              urlList: recentUrls
-            })
+            body: JSON.stringify({ host: 'eplnewshub.com', key: indexNowKey, urlList: recentUrls })
           });
-          console.log(`[Sitemap] IndexNow batch: submitted ${recentUrls.length} recent URLs — status ${res.status}`);
+          console.log(`[Sitemap] IndexNow batch: ${recentUrls.length} URLs — status ${res.status}`);
         }
       }
     } else {

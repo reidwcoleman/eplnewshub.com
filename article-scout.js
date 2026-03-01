@@ -31,7 +31,6 @@ const ARTICLES_DIR = path.join(ROOT, 'articles');
 const ARTICLES_JSON = path.join(ROOT, 'articles.json');
 const DATA_ARTICLES_JS = path.join(ROOT, 'data', 'articles.js');
 const SITEMAP = path.join(ROOT, 'sitemap.xml');
-const SITEMAP_ARTICLES = path.join(ROOT, 'sitemap-articles.xml');
 const FEED_XML = path.join(ROOT, 'feed.xml');
 const NEWS_SITEMAP = path.join(ROOT, 'news-sitemap.xml');
 const INDEXNOW_KEY = '7fd9afb553684a99a770e42cbf34d197';
@@ -2981,6 +2980,8 @@ function updateDataArticlesJs(article, filename, date, imageFile) {
 
 function updateSitemap(filename, date) {
   const url = `https://eplnewshub.com/articles/${filename}`;
+  let sitemap = fs.readFileSync(SITEMAP, 'utf-8');
+  if (sitemap.includes(url)) return;
 
   const newEntry = `    <url>
         <loc>${url}</loc>
@@ -2988,22 +2989,9 @@ function updateSitemap(filename, date) {
         <changefreq>daily</changefreq>
     </url>`;
 
-  // 1. Add to sitemap.xml (main sitemap)
-  let mainSitemap = fs.readFileSync(SITEMAP, 'utf-8');
-  if (!mainSitemap.includes(url)) {
-    mainSitemap = mainSitemap.replace('</urlset>', newEntry + '\n</urlset>');
-    fs.writeFileSync(SITEMAP, mainSitemap);
-  }
-
-  // 2. Add to sitemap-articles.xml (dedicated article sitemap)
-  let articlesSitemap = fs.readFileSync(SITEMAP_ARTICLES, 'utf-8');
-  if (!articlesSitemap.includes(url)) {
-    const articlesEntry = `  <url>\n    <loc>${url}</loc>\n    <lastmod>${date}</lastmod>\n    <changefreq>daily</changefreq>\n  </url>`;
-    articlesSitemap = articlesSitemap.replace('</urlset>', articlesEntry + '\n</urlset>');
-    fs.writeFileSync(SITEMAP_ARTICLES, articlesSitemap);
-  }
-
-  console.log(`[Scout] Added ${url} to sitemap.xml and sitemap-articles.xml`);
+  sitemap = sitemap.replace('</urlset>', newEntry + '\n</urlset>');
+  fs.writeFileSync(SITEMAP, sitemap);
+  console.log(`[Scout] Added ${url} to sitemap.xml`);
 }
 
 // ─── Scout Log ───────────────────────────────────────────────────────────────
