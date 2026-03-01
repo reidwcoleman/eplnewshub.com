@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const SITEMAP_URL = 'https://www.eplnewshub.com/sitemap.xml';
-const SITEMAP_ARTICLES_URL = 'https://www.eplnewshub.com/sitemap-articles.xml';
-const NEWS_SITEMAP_URL = 'https://www.eplnewshub.com/news-sitemap.xml';
+const SITEMAP_URL = 'https://eplnewshub.com/sitemap.xml';
+const SITEMAP_ARTICLES_URL = 'https://eplnewshub.com/sitemap-articles.xml';
+const NEWS_SITEMAP_URL = 'https://eplnewshub.com/news-sitemap.xml';
 const SERVICE_ACCOUNT_PATH = path.join(__dirname, '../../google-service-account.json');
 
 async function main() {
@@ -18,7 +18,7 @@ async function main() {
         scopes: ['https://www.googleapis.com/auth/webmasters']
       });
       const client = await auth.getClient();
-      const siteUrl = 'https://www.eplnewshub.com/';
+      const siteUrl = 'https://eplnewshub.com/';
       const res = await client.request({
         url: `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps/${encodeURIComponent(SITEMAP_URL)}`,
         method: 'PUT'
@@ -83,7 +83,7 @@ async function main() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              host: 'www.eplnewshub.com',
+              host: 'eplnewshub.com',
               key: indexNowKey,
               urlList: recentUrls
             })

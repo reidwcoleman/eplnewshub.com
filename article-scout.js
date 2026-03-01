@@ -2939,7 +2939,7 @@ function updateArticlesJson(filename, title, description, date, imageFile) {
   articles.unshift({
     file: filename,
     title: title,
-    image: imageFile ? `https://www.eplnewshub.com${imageFile}` : 'https://www.eplnewshub.com/eplnewshubnewlogo.png',
+    image: imageFile ? `https://eplnewshub.com${imageFile}` : 'https://eplnewshub.com/eplnewshubnewlogo.png',
     date: date,
     description: description.slice(0, 200)
   });
@@ -2990,7 +2990,7 @@ function updateSitemap(filename, date) {
   }
 
   const newEntry = `  <url>
-    <loc>https://www.eplnewshub.com/articles/${filename}</loc>
+    <loc>https://eplnewshub.com/articles/${filename}</loc>
     <lastmod>${date}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
@@ -3413,7 +3413,7 @@ async function runScout(count = 1) {
     console.log('[Scout] Waiting 60s for Vercel deployment before notifying search engines...');
     await new Promise(r => setTimeout(r, 60000));
     for (const filename of publishedFilenames) {
-      const articleUrl = `https://www.eplnewshub.com/articles/${filename}`;
+      const articleUrl = `https://eplnewshub.com/articles/${filename}`;
       await requestIndexing(articleUrl);
     }
   }
