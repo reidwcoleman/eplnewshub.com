@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-live-updates-man-united-host-crystal-palace-2026-03-01',
+    title: 'Man United 2-1 Palace: Red Devils Move to Third with Hard-Fought Win',
+    excerpt: 'Manchester United defeated Crystal Palace 2-1 in a thrilling Premier League encounter, moving them to third in the table. Here\'s the full story.',
+    image: '/scout-premier-league-live-updates-man-united-host-crystal-palace.jpg',
+    category: 'News',
+    date: '2026-03-01',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['Manchester United', 'Crystal Palace', 'Premier League', 'football', 'soccer']
+  },
+  {
+    id: 'premier-leagues-radical-shift-why-relegation-has-been-scrapp-2026-03-01',
+    title: 'Premier League\'s Radical Shift: Why Relegation Has Been Scrapped',
+    excerpt: 'Starting from the 2026-27 season, the Premier League will scrap traditional promotion and relegation, opting for an application-based system. This radical shift aims to address financial sustainability and attract more investment.',
+    image: '/scout-premier-leagues-radical-shift-why-relegation-has-been-scrapp.jpg',
+    category: 'News',
+    date: '2026-03-01',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'relegation', 'financial sustainability', 'investment', 'rugby']
+  },
+  {
     id: 'fulham-vs-tottenham-prediction-team-news-and-key-battles-2026-03-01',
     title: 'Fulham vs Tottenham: Key Battles, Injury Returns, and Relegation Stakes',
     excerpt: 'With two key players set to return, Tottenham faces Fulham in a must-win clash that could define their season. Here\'s the full breakdown.',
