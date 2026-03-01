@@ -2986,7 +2986,6 @@ function updateSitemap(filename, date) {
         <loc>${url}</loc>
         <lastmod>${date}</lastmod>
         <changefreq>daily</changefreq>
-        <priority>0.8</priority>
     </url>`;
 
   // 1. Add to sitemap.xml (main sitemap)
@@ -2999,7 +2998,7 @@ function updateSitemap(filename, date) {
   // 2. Add to sitemap-articles.xml (dedicated article sitemap)
   let articlesSitemap = fs.readFileSync(SITEMAP_ARTICLES, 'utf-8');
   if (!articlesSitemap.includes(url)) {
-    const articlesEntry = `  <url>\n    <loc>${url}</loc>\n    <lastmod>${date}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.8</priority>\n  </url>`;
+    const articlesEntry = `  <url>\n    <loc>${url}</loc>\n    <lastmod>${date}</lastmod>\n    <changefreq>daily</changefreq>\n  </url>`;
     articlesSitemap = articlesSitemap.replace('</urlset>', articlesEntry + '\n</urlset>');
     fs.writeFileSync(SITEMAP_ARTICLES, articlesSitemap);
   }
