@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'nottingham-forest-transfer-news-live-updates-and-rumors-2026-03-01',
+    title: 'Nottingham Forest\'s Transfer Moves: A Strategic Pivot for Premier League Survival',
+    excerpt: 'With Premier League survival hanging in the balance, Nottingham Forest are making bold moves in the transfer market. Here’s what their latest targets say about their strategy.',
+    image: '/scout-nottingham-forest-transfer-news-live-updates-and-rumors.jpg',
+    category: 'Transfers',
+    date: '2026-03-01',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Nottingham Forest', 'Premier League', 'Transfers', 'Kostas Tsimikas', 'Fer Lopez', 'Elliot Anderson']
+  },
+  {
     id: 'liverpool-vs-west-ham-predicted-lineup-and-key-team-news-2026-02-28',
     title: 'Liverpool vs West Ham: The Tactical Battle That Could Define Their Seasons',
     excerpt: 'As Liverpool and West Ham United prepare to meet at Anfield, the tactical battle between Jurgen Klopp and David Moyes could shape both clubs\' seasons. Here\'s what to expect.',
