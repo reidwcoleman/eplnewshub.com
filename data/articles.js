@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'vars-role-in-burnleys-heartbreaking-defeat-a-tactical-and-em-2026-03-02',
+    title: 'How VAR Denied Burnley One of Their Greatest Comebacks',
+    excerpt: 'A tactical and emotional breakdown of how VAR decisions influenced Burnley\'s heartbreaking defeat to Brentford.',
+    image: '/scout-vars-role-in-burnleys-heartbreaking-defeat-a-tactical-and-em.jpg',
+    category: 'Analysis',
+    date: '2026-03-02',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Burnley', 'Brentford', 'VAR', 'Premier League', 'Vincent Kompany', 'football analysis', 'VAR decisions', 'Burnley FC', 'Brentford FC']
+  },
+  {
+    id: 'premier-league-rescheduling-how-evertons-clash-with-arsenal-2026-03-02',
+    title: 'Everton vs Arsenal Rescheduled: How Premier League Fixtures Impact Teams',
+    excerpt: 'The Premier League\'s decision to reschedule Everton\'s clash with Arsenal highlights the complexities of balancing domestic and European commitments. Here\'s how it impacts both clubs.',
+    image: '/scout-premier-league-rescheduling-how-evertons-clash-with-arsenal.jpg',
+    category: 'News',
+    date: '2026-03-02',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['Premier League', 'Everton', 'Arsenal', 'fixture rescheduling', 'Champions League', 'football fixtures', 'sports news']
+  },
+  {
     id: 'premier-league-recap-arsenals-victory-over-chelsea-and-manch-2026-03-02',
     title: 'Premier League Recap: Arsenal\'s Dominance and Manchester United\'s Resurgence',
     excerpt: 'Arsenal solidified their position at the top of the Premier League with a crucial win over Chelsea, while Manchester United continued their impressive form with a victory over Crystal Palace.',
