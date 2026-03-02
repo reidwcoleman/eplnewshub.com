@@ -2768,7 +2768,7 @@ function buildArticleHTML(article, filename, date, imageFile) {
       "headline": "${escapedTitle}",
       "description": "${article.metaDescription.replace(/"/g, '\\"')}",
       "image": "https://eplnewshub.com${heroImage}",
-      "author": { "@type": "Organization", "name": "EPL News Hub", "url": "https://eplnewshub.com" },
+      "author": { "@type": "Person", "name": "${(article.authorName || 'EPL News Hub').replace(/"/g, '\\"')}", "url": "https://eplnewshub.com" },
       "publisher": { "@type": "Organization", "name": "EPL News Hub", "logo": { "@type": "ImageObject", "url": "https://eplnewshub.com/eplnewshubnewlogo.png" } },
       "datePublished": "${isoDate}",
       "dateModified": "${isoDate}",
@@ -2776,6 +2776,17 @@ function buildArticleHTML(article, filename, date, imageFile) {
       "articleSection": "${article.category}",
       "keywords": "${article.keywords}",
       "wordCount": ${Math.round(article.bodyHTML.replace(/<[^>]+>/g, '').length / 5)}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://eplnewshub.com/" },
+        { "@type": "ListItem", "position": 2, "name": "${article.category}", "item": "https://eplnewshub.com/news.html" },
+        { "@type": "ListItem", "position": 3, "name": "${escapedTitle}", "item": "${articleUrl}" }
+      ]
     }
     </script>
 
