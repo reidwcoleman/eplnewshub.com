@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'crystal-palace-transfer-rumors-whos-next-for-the-eagles-2026-03-02',
+    title: 'Crystal Palace Transfer News: Summer Overhaul Ahead',
+    excerpt: 'Crystal Palace are gearing up for a significant summer of transition as head coach Oliver Glasner prepares to step down. Who will be the next arrivals at Selhurst Park?',
+    image: '/scout-crystal-palace-transfer-rumors-whos-next-for-the-eagles.jpg',
+    category: 'Transfers',
+    date: '2026-03-02',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Crystal Palace', 'Premier League', 'Transfers', 'Oliver Glasner', 'Dwight McNeil']
+  },
+  {
     id: 'vars-role-in-burnleys-heartbreaking-defeat-a-tactical-and-em-2026-03-02',
     title: 'How VAR Denied Burnley One of Their Greatest Comebacks',
     excerpt: 'A tactical and emotional breakdown of how VAR decisions influenced Burnley\'s heartbreaking defeat to Brentford.',
