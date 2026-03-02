@@ -1514,9 +1514,9 @@ STYLE:
 
 Return your article in this exact JSON format (no other text):
 {
-  "title": "Compelling title: frontload the most newsworthy keyword, keep under 60 chars, use power words (e.g. numbers, 'why', 'how', colons for tension). E.g: 'Arsenal's 5 Worst Defensive Errors This Season'",
-  "metaDescription": "150-char meta description that drives clicks: open with a hook or surprising fact, include the primary keyword in first 20 chars, end with implied value (e.g. 'Here\\'s what the data shows'). Never start with the site name.",
-  "keywords": "comma, separated, keywords",
+  "title": "SEO-optimised title: frontload the primary search keyword people actually type (e.g. 'Arsenal transfer news', 'Premier League top scorers', 'Man City injury update'). Under 60 chars. Use power words: numbers, 'why', 'how', 'best', 'worst', colons for tension. Target long-tail phrases with real search volume. E.g: 'Arsenal's 5 Worst Defensive Errors This Season' or 'Why Man City Are Struggling: The Full Breakdown'",
+  "metaDescription": "150-char meta description targeting the same search terms as the title. Open with the primary keyword or a surprising fact within the first 20 chars. Include secondary keywords naturally (team names, player names, competition). End with implied value. Never start with the site name. E.g: 'Arsenal injury news: Saka doubt for north London derby as Arteta confirms squad concerns ahead of Sunday'",
+  "keywords": "8-12 comma-separated keywords targeting real search queries: include the main topic, team names, player names, competition name, and 2-3 long-tail phrases people search for (e.g. 'Arsenal transfer news today', 'best Premier League strikers 2025', 'how to watch Premier League')",
   "category": "News|Transfers|Analysis|Match Reports|Player Focus",
   "categoryLabel": "Premier League Analysis",
   "dek": "A compelling 1-2 sentence subheadline/dek that expands on the title",
