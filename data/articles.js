@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-recap-arsenals-victory-over-chelsea-and-manch-2026-03-02',
+    title: 'Premier League Recap: Arsenal\'s Dominance and Manchester United\'s Resurgence',
+    excerpt: 'Arsenal solidified their position at the top of the Premier League with a crucial win over Chelsea, while Manchester United continued their impressive form with a victory over Crystal Palace.',
+    image: '/scout-premier-league-recap-arsenals-victory-over-chelsea-and-manch.jpg',
+    category: 'Match Reports',
+    date: '2026-03-02',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Premier League', 'Arsenal', 'Chelsea', 'Manchester United', 'Crystal Palace', 'football', 'soccer', 'match report']
+  },
+  {
+    id: 'var-denies-burnley-one-of-the-greatest-comebacks-how-technol-2026-03-02',
+    title: 'VAR Denies Burnley One of the Greatest Comebacks: How Technology Changed the Game',
+    excerpt: 'Burnley\'s potential historic comeback was halted by a VAR offside call, sparking debate over the role of technology in football.',
+    image: '/scout-var-denies-burnley-one-of-the-greatest-comebacks-how-technol.jpg',
+    category: 'Analysis',
+    date: '2026-03-02',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['VAR', 'Burnley', 'Brentford', 'Premier League', 'Sean Dyche', 'football technology', 'offside', 'VAR controversy']
+  },
+  {
     id: 'nottingham-forest-transfer-news-live-updates-and-rumors-2026-03-01',
     title: 'Nottingham Forest\'s Transfer Moves: A Strategic Pivot for Premier League Survival',
     excerpt: 'With Premier League survival hanging in the balance, Nottingham Forest are making bold moves in the transfer market. Here’s what their latest targets say about their strategy.',
