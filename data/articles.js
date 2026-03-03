@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'mason-mounts-future-why-premier-league-clubs-are-circling-2026-03-03',
+    title: 'Mason Mount\'s Future: Why Premier League Clubs Are Circling',
+    excerpt: 'Mason Mount\'s future at Manchester United is under scrutiny as Premier League clubs eye a potential move. Here\'s what we know.',
+    image: '/scout-mason-mounts-future-why-premier-league-clubs-are-circling.png',
+    category: 'Transfers',
+    date: '2026-03-03',
+    readTime: '8 min read',
+    featured: true,
+    tags: ['Mason Mount', 'Manchester United', 'Premier League', 'Transfers', 'Football Gossip']
+  },
+  {
     id: 'crystal-palace-transfer-rumors-whos-next-for-the-eagles-2026-03-02',
     title: 'Crystal Palace Transfer News: Summer Overhaul Ahead',
     excerpt: 'Crystal Palace are gearing up for a significant summer of transition as head coach Oliver Glasner prepares to step down. Who will be the next arrivals at Selhurst Park?',
