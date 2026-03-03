@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'fpl-injury-update-haaland-oreilly-rice-wilson-maguire-cucure-2026-03-03',
+    title: 'FPL Injury Update: Haaland, O\'Reilly, Rice, Wilson, Maguire, Cucurella Latest for GW 29',
+    excerpt: 'The latest injury updates for FPL managers ahead of GW 29, including news on Haaland, O\'Reilly, Rice, Wilson, Maguire, and Cucurella',
+    image: '/scout-fpl-injury-update-haaland-oreilly-rice-wilson-maguire-cucure.jpg',
+    category: 'News',
+    date: '2026-03-03',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['FPL', 'Injury Update', 'Haaland', 'O\'Reilly', 'Rice', 'Wilson', 'Maguire', 'Cucurella']
+  },
+  {
     id: 'mason-mounts-future-why-premier-league-clubs-are-circling-2026-03-03',
     title: 'Mason Mount\'s Future: Why Premier League Clubs Are Circling',
     excerpt: 'Mason Mount\'s future at Manchester United is under scrutiny as Premier League clubs eye a potential move. Here\'s what we know.',
