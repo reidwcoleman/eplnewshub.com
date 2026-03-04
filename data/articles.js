@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'bournemouth-transfers-latest-news-rumours-and-gossip-live-up-2026-03-04',
+    title: 'Bournemouth Transfers: What\'s Next for the Cherries as They Seek to Strengthen Their Squad?',
+    excerpt: 'A comprehensive look at the latest transfer news and rumours surrounding Bournemouth as they seek to strengthen their squad for the remainder of the season.',
+    image: '/scout-bournemouth-transfers-latest-news-rumours-and-gossip-live-up.jpg',
+    category: 'Transfers',
+    date: '2026-03-04',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Bournemouth', 'transfers', 'Premier League']
+  },
+  {
+    id: 'aston-villa-transfer-news-rumours-and-gossip-live-updates-an-2026-03-04',
+    title: 'Aston Villa Transfer News: What\'s Really Happening Behind the Scenes?',
+    excerpt: 'The transfer window is open, and Aston Villa is at the center of several transfer rumors and deals. We break down what\'s really happening behind the scenes.',
+    image: '/scout-aston-villa-transfer-news-rumours-and-gossip-live-updates-an.jpg',
+    category: 'Transfers',
+    date: '2026-03-04',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Aston Villa', 'transfer news', 'Manchester United', 'Premier League', 'transfer market']
+  },
+  {
     id: 'fpl-injury-update-haaland-oreilly-rice-wilson-maguire-cucure-2026-03-03',
     title: 'FPL Injury Update: Haaland, O\'Reilly, Rice, Wilson, Maguire, Cucurella Latest for GW 29',
     excerpt: 'The latest injury updates for FPL managers ahead of GW 29, including news on Haaland, O\'Reilly, Rice, Wilson, Maguire, and Cucurella',
