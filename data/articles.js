@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'how-to-watch-man-city-vs-nottingham-forest-tv-channel-and-li-2026-03-04',
+    title: 'How to Watch Man City vs Nottingham Forest: TV Channel and Live Stream for Premier League Today',
+    excerpt: 'Find out how to watch the highly anticipated match between Manchester City and Nottingham Forest, including TV channel and live stream details. Get the latest Premier League news and analysis here.',
+    image: '/scout-how-to-watch-man-city-vs-nottingham-forest-tv-channel-and-li.jpg',
+    category: 'Match Reports',
+    date: '2026-03-04',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Manchester City', 'Nottingham Forest', 'Premier League', 'TV Guide', 'Live Stream']
+  },
+  {
     id: 'bournemouth-transfers-latest-news-rumours-and-gossip-live-up-2026-03-04',
     title: 'Bournemouth Transfers: What\'s Next for the Cherries as They Seek to Strengthen Their Squad?',
     excerpt: 'A comprehensive look at the latest transfer news and rumours surrounding Bournemouth as they seek to strengthen their squad for the remainder of the season.',
