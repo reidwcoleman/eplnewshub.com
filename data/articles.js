@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'tottenham-vs-crystal-palace-tactical-preview-and-predictions-2026-03-05',
+    title: 'Tottenham vs Crystal Palace: Tactical Preview and Predictions',
+    excerpt: 'Tottenham and Crystal Palace meet in a must-win match for both teams. Can Spurs break their winless streak and turn their season around, or will Palace secure their safety?',
+    image: '/scout-tottenham-vs-crystal-palace-tactical-preview-and-predictions.jpg',
+    category: 'Match Reports',
+    date: '2026-03-05',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Tottenham', 'Crystal Palace', 'Premier League', 'tactical preview', 'predictions']
+  },
+  {
     id: 'newcastle-vs-man-utd-live-premier-league-score-match-updates-2026-03-05',
     title: 'Newcastle vs Man Utd: Premier League LIVE!',
     excerpt: 'Newcastle United take on Manchester United in a crucial Premier League match. Get the latest score, match updates, team news, stream and highlights.',
