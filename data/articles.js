@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'newcastle-vs-man-utd-live-premier-league-score-match-updates-2026-03-05',
+    title: 'Newcastle vs Man Utd: Premier League LIVE!',
+    excerpt: 'Newcastle United take on Manchester United in a crucial Premier League match. Get the latest score, match updates, team news, stream and highlights.',
+    image: '/scout-newcastle-vs-man-utd-live-premier-league-score-match-updates.jpg',
+    category: 'Match Reports',
+    date: '2026-03-05',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Newcastle United', 'Manchester United', 'Premier League', 'Match Reports']
+  },
+  {
     id: 'how-to-watch-man-city-vs-nottingham-forest-tv-channel-and-li-2026-03-04',
     title: 'How to Watch Man City vs Nottingham Forest: TV Channel and Live Stream for Premier League Today',
     excerpt: 'Find out how to watch the highly anticipated match between Manchester City and Nottingham Forest, including TV channel and live stream details. Get the latest Premier League news and analysis here.',
