@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'wolves-vs-liverpool-fa-cup-preview-and-predictions-2026-03-07',
+    title: 'Wolves vs Liverpool: FA Cup Rematch Preview and Predictions',
+    excerpt: 'Wolves\' 2-1 win over Liverpool in the Premier League has set the stage for an FA Cup rematch, with Liverpool seeking revenge and Wolves looking to continue their resurgence.',
+    image: '/scout-wolves-vs-liverpool-fa-cup-preview-and-predictions.jpg',
+    category: 'Match Reports',
+    date: '2026-03-07',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Wolves vs Liverpool', 'FA Cup rematch', 'Wolves vs Liverpool result', 'Liverpool vs Wolves', 'Wolves FA Cup', 'Liverpool FA Cup']
+  },
+  {
     id: 'tottenham-vs-crystal-palace-tactical-preview-and-predictions-2026-03-05',
     title: 'Tottenham vs Crystal Palace: Tactical Preview and Predictions',
     excerpt: 'Tottenham and Crystal Palace meet in a must-win match for both teams. Can Spurs break their winless streak and turn their season around, or will Palace secure their safety?',
