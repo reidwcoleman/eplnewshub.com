@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'football-latest-news-and-gossip-updates-from-around-the-leag-2026-03-07',
+    title: 'Football Latest News and Gossip: Updates from Around the League',
+    excerpt: 'Get the latest football news and gossip from around the league, including updates on Rodrygo\'s injury and Ryan Gravenberch\'s new contract',
+    image: '/scout-football-latest-news-and-gossip-updates-from-around-the-leag.jpg',
+    category: 'News',
+    date: '2026-03-07',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League news', 'Rodrygo injury', 'Ryan Gravenberch contract', 'football gossip', 'transfer news']
+  },
+  {
     id: 'wolves-vs-liverpool-fa-cup-preview-and-predictions-2026-03-07',
     title: 'Wolves vs Liverpool: FA Cup Rematch Preview and Predictions',
     excerpt: 'Wolves\' 2-1 win over Liverpool in the Premier League has set the stage for an FA Cup rematch, with Liverpool seeking revenge and Wolves looking to continue their resurgence.',
