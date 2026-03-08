@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'rangers-vs-celtic-scottish-cup-quarter-final-preview-and-pre-2026-03-08',
+    title: 'Rangers vs Celtic: Scottish Cup Quarter-Final Preview and Predictions',
+    excerpt: 'The highly anticipated Scottish Cup quarter-final match between Rangers and Celtic is set to take place at Ibrox, with the winner gaining confidence and momentum for the rest of the season. Peter Lovenkrands shares his thoughts on the match and the i',
+    image: '/scout-rangers-vs-celtic-scottish-cup-quarter-final-preview-and-pre.jpg',
+    category: 'Match Reports',
+    date: '2026-03-08',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Rangers vs Celtic', 'Scottish Cup quarter-final', 'Old Firm rivalry', 'Ibrox', 'Peter Lovenkrands', 'Andreas Skov Olsen']
+  },
+  {
     id: 'wrexham-2-4-chelsea-aet-blues-survive-fa-cup-scare-with-extr-2026-03-08',
     title: 'Chelsea\'s FA Cup Escape: How the Blues Survived Wrexham\'s Upset Bid',
     excerpt: 'Chelsea survived a major scare against Wrexham, coming from behind to win 4-2 in extra time and book their place in the FA Cup quarter-finals',
