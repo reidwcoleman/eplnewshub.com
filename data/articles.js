@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'wrexham-2-4-chelsea-blues-edge-out-minnows-in-extra-time-thr-2026-03-08',
+    title: 'Wrexham 2-4 Chelsea: Blues Edge Out Minnows in Extra-Time Thriller',
+    excerpt: 'Chelsea narrowly escaped an FA Cup upset against Wrexham, winning 4-2 in extra time after a thrilling match that saw the Blues pushed to their limits',
+    image: '/scout-wrexham-2-4-chelsea-blues-edge-out-minnows-in-extra-time-thr.jpg',
+    category: 'Match Reports',
+    date: '2026-03-08',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Chelsea', 'Wrexham', 'FA Cup', 'Premier League']
+  },
+  {
     id: 'liverpool-transfer-news-live-updates-rumours-and-gossip-2026-03-03',
     title: 'Liverpool Transfer News: Live Updates, Rumours, and Gossip',
     excerpt: 'Liverpool\'s transfer plans remain unchanged despite an unexpected twist, but Jarell Quansah\'s departure has sparked rumors of a potential transfer U-turn',
