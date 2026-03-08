@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'wrexham-2-4-chelsea-aet-blues-survive-fa-cup-scare-with-extr-2026-03-08',
+    title: 'Chelsea\'s FA Cup Escape: How the Blues Survived Wrexham\'s Upset Bid',
+    excerpt: 'Chelsea survived a major scare against Wrexham, coming from behind to win 4-2 in extra time and book their place in the FA Cup quarter-finals',
+    image: '/scout-wrexham-2-4-chelsea-aet-blues-survive-fa-cup-scare-with-extr.jpg',
+    category: 'Match Reports',
+    date: '2026-03-08',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Chelsea', 'Wrexham', 'FA Cup', 'fifth round', 'extra time', 'Premier League', 'Championship']
+  },
+  {
     id: 'football-latest-news-and-gossip-updates-from-around-the-leag-2026-03-07',
     title: 'Football Latest News and Gossip: Updates from Around the League',
     excerpt: 'Get the latest football news and gossip from around the league, including updates on Rodrygo\'s injury and Ryan Gravenberch\'s new contract',
