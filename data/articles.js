@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'the-great-escape-which-teams-will-avoid-relegation-and-how-2026-03-09',
+    title: 'The Great Escape: Which Teams Will Avoid Relegation and How?',
+    excerpt: 'As the Premier League relegation battle reaches its climax, which teams will avoid the drop and how?',
+    image: '/scout-the-great-escape-which-teams-will-avoid-relegation-and-how.webp',
+    category: 'Analysis',
+    date: '2026-03-09',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Premier League relegation', 'West Ham', 'Wolves', 'relegation battle', 'Premier League analysis']
+  },
+  {
     id: 'wrexham-2-4-chelsea-blues-edge-out-minnows-in-extra-time-thr-2026-03-08',
     title: 'Wrexham 2-4 Chelsea: Blues Edge Out Minnows in Extra-Time Thriller',
     excerpt: 'Chelsea narrowly escaped an FA Cup upset against Wrexham, winning 4-2 in extra time after a thrilling match that saw the Blues pushed to their limits',
