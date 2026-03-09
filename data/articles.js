@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'leeds-3-0-norwich-fa-cup-quarter-final-berth-secured-whats-n-2026-03-09',
+    title: 'Leeds March On: FA Cup Quarter-Final Berth Secured, What\'s Next for the Whites?',
+    excerpt: 'Leeds United secured a convincing 3-0 win over Norwich City in the FA Cup fifth round, booking their place in the quarter-finals for the first time in two decades. We examine the key moments and look ahead to their next challenge',
+    image: '/scout-leeds-3-0-norwich-fa-cup-quarter-final-berth-secured-whats-n.jpg',
+    category: 'Match Reports',
+    date: '2026-03-09',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Leeds United', 'FA Cup', 'Norwich City', 'Premier League', 'Daniel Farke']
+  },
+  {
     id: 'the-great-escape-which-teams-will-avoid-relegation-and-how-2026-03-09',
     title: 'The Great Escape: Which Teams Will Avoid Relegation and How?',
     excerpt: 'As the Premier League relegation battle reaches its climax, which teams will avoid the drop and how?',
