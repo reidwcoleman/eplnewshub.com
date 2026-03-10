@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'man-city-vs-liverpool-fa-cup-quarter-final-tactical-preview-2026-03-10',
+    title: 'Man City vs Liverpool: FA Cup Quarter-Final Tactical Preview and Predictions',
+    excerpt: 'The FA Cup quarter-final match between Man City and Liverpool promises to be an exciting encounter, with both teams looking to advance to the semi-finals. Here\'s a tactical preview of the match, including key battles to watch and predictions for the',
+    image: '/scout-man-city-vs-liverpool-fa-cup-quarter-final-tactical-preview.jpg',
+    category: 'Match Reports',
+    date: '2026-03-10',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Man City', 'Liverpool', 'FA Cup', 'quarter-final', 'tactical preview', 'predictions']
+  },
+  {
     id: 'leeds-3-0-norwich-fa-cup-quarter-final-berth-secured-whats-n-2026-03-09',
     title: 'Leeds March On: FA Cup Quarter-Final Berth Secured, What\'s Next for the Whites?',
     excerpt: 'Leeds United secured a convincing 3-0 win over Norwich City in the FA Cup fifth round, booking their place in the quarter-finals for the first time in two decades. We examine the key moments and look ahead to their next challenge',
