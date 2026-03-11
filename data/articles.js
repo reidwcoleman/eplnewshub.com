@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'fa-cup-quarter-final-draw-recap-key-matches-and-upset-opport-2026-03-11',
+    title: 'FA Cup Quarter-Final Draw Recap: Key Matches and Upset Opportunities',
+    excerpt: 'The FA Cup quarter-final draw has thrown up some exciting matches, with Man City facing Liverpool and Chelsea hosting Port Vale. We take a look at the key matches and upset opportunities',
+    image: '/scout-fa-cup-quarter-final-draw-recap-key-matches-and-upset-opport.jpg',
+    category: 'News',
+    date: '2026-03-11',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['FA Cup', 'quarter-final draw', 'Man City', 'Liverpool', 'Chelsea', 'Port Vale']
+  },
+  {
     id: 'man-city-vs-liverpool-fa-cup-quarter-final-tactical-preview-2026-03-10',
     title: 'Man City vs Liverpool: FA Cup Quarter-Final Tactical Preview and Predictions',
     excerpt: 'The FA Cup quarter-final match between Man City and Liverpool promises to be an exciting encounter, with both teams looking to advance to the semi-finals. Here\'s a tactical preview of the match, including key battles to watch and predictions for the',
