@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'brentford-v-wolverhampton-wanderers-premier-league-match-pre-2026-03-12',
+    title: 'Brentford\'s Top-Half Finish Hopes: A Deep Dive Ahead of Wolves Clash',
+    excerpt: 'Brentford\'s quest for a top-half finish in the Premier League continues as they face Wolverhampton Wanderers at the Gtech Community Stadium. With a strong home record and Thiago\'s impressive goal-scoring form, can they overcome Wolves\' recent resu',
+    image: '/scout-brentford-v-wolverhampton-wanderers-premier-league-match-pre.jpg',
+    category: 'Match Reports',
+    date: '2026-03-12',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Brentford', 'Wolverhampton Wanderers', 'Premier League', 'top-half finish', 'Thiago', 'Rob Edwards']
+  },
+  {
     id: 'the-next-big-things-five-eredivisie-wonderkids-on-premier-le-2026-03-12',
     title: 'Eredivisie Wonderkids: The Next Generation of Premier League Stars',
     excerpt: 'The Eredivisie has a reputation for producing talented young players, and Premier League clubs are taking notice. We identify the top wonderkids being scouted by English giants.',
