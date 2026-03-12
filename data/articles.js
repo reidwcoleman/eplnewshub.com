@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'the-next-big-things-five-eredivisie-wonderkids-on-premier-le-2026-03-12',
+    title: 'Eredivisie Wonderkids: The Next Generation of Premier League Stars',
+    excerpt: 'The Eredivisie has a reputation for producing talented young players, and Premier League clubs are taking notice. We identify the top wonderkids being scouted by English giants.',
+    image: '/scout-the-next-big-things-five-eredivisie-wonderkids-on-premier-le.jpg',
+    category: 'Transfers',
+    date: '2026-03-12',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Eredivisie', 'Premier League', 'wonderkids', 'scouting', 'transfers']
+  },
+  {
     id: 'fa-cup-quarter-final-draw-recap-key-matches-and-upset-opport-2026-03-11',
     title: 'FA Cup Quarter-Final Draw Recap: Key Matches and Upset Opportunities',
     excerpt: 'The FA Cup quarter-final draw has thrown up some exciting matches, with Man City facing Liverpool and Chelsea hosting Port Vale. We take a look at the key matches and upset opportunities',
