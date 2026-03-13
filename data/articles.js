@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'englands-champions-league-spot-in-jeopardy-which-nations-wil-2026-03-13',
+    title: 'England\'s Champions League Spot in Jeopardy: Nations on the Rise',
+    excerpt: 'England\'s grip on the UEFA coefficient table is loosening, and other nations are poised to strike. We analyze the contenders and their chances of claiming an extra Champions League spot.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Analysis',
+    date: '2026-03-13',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Champions League', 'UEFA Coefficient Table', 'England', 'Spain', 'Germany', 'Premier League', 'European Competition']
+  },
+  {
     id: 'brentford-v-wolverhampton-wanderers-premier-league-match-pre-2026-03-12',
     title: 'Brentford\'s Top-Half Finish Hopes: A Deep Dive Ahead of Wolves Clash',
     excerpt: 'Brentford\'s quest for a top-half finish in the Premier League continues as they face Wolverhampton Wanderers at the Gtech Community Stadium. With a strong home record and Thiago\'s impressive goal-scoring form, can they overcome Wolves\' recent resu',
