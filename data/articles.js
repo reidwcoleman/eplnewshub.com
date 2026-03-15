@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'chelsea-0-1-newcastle-how-the-magpies-pulled-off-the-upset-2026-03-15',
+    title: 'Chelsea 0-1 Newcastle: Magpies\' Shock Win',
+    excerpt: 'Newcastle pulled off a stunning upset at Stamford Bridge, Gordon\'s goal securing a 0-1 win over Chelsea',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-15',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Chelsea', 'Newcastle', 'Premier League', 'Gordon', 'Sky Sports', 'Outlook India']
+  },
+  {
     id: 'arsenal-2-0-everton-how-artetas-side-secured-a-crucial-win-2026-03-15',
     title: 'Arsenal 2-0 Everton: How Arteta\'s Tactics Dominated',
     excerpt: 'A deep dive into Arsenal\'s dominant performance against Everton, showcasing Mikel Arteta\'s tactical masterclass and the impact of their substitutes.',
