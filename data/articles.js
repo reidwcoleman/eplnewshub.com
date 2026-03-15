@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'arsenal-2-0-everton-how-artetas-side-secured-a-crucial-win-2026-03-15',
+    title: 'Arsenal 2-0 Everton: How Arteta\'s Tactics Dominated',
+    excerpt: 'A deep dive into Arsenal\'s dominant performance against Everton, showcasing Mikel Arteta\'s tactical masterclass and the impact of their substitutes.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-15',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Arsenal', 'Everton', 'Premier League', 'Mikel Arteta', 'Max Dowman']
+  },
+  {
+    id: 'manchester-united-vs-aston-villa-tactical-preview-and-predic-2026-03-15',
+    title: 'Manchester United vs Aston Villa: Tactical Breakdown of a Crucial Premier League Clash',
+    excerpt: 'A deep dive into the tactical nuances, team news, and historical context ahead of Manchester United\'s clash with Aston Villa at Old Trafford.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-15',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Manchester United', 'Aston Villa', 'Premier League', 'Tactical Analysis', 'Michael Carrick', 'Unai Emery', 'Old Trafford', 'Champions League']
+  },
+  {
     id: 'englands-champions-league-spot-in-jeopardy-which-nations-wil-2026-03-13',
     title: 'England\'s Champions League Spot in Jeopardy: Nations on the Rise',
     excerpt: 'England\'s grip on the UEFA coefficient table is loosening, and other nations are poised to strike. We analyze the contenders and their chances of claiming an extra Champions League spot.',
