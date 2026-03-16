@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'one-of-the-best-left-backs-in-the-premier-league-is-coming-t-2026-03-16',
+    title: 'Antonee Robinson to Liverpool: Why This Deal Makes Sense for Both Sides',
+    excerpt: 'The American defender is set to become Liverpool\'s new left-back, addressing a critical position ahead of a potential title challenge.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Player Focus',
+    date: '2026-03-16',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Antonee Robinson', 'Liverpool FC', 'Premier League transfers', 'Fulham FC', 'Andy Robertson']
+  },
+  {
     id: 'chelsea-0-1-newcastle-how-the-magpies-pulled-off-the-upset-2026-03-15',
     title: 'Chelsea 0-1 Newcastle: Magpies\' Shock Win',
     excerpt: 'Newcastle pulled off a stunning upset at Stamford Bridge, Gordon\'s goal securing a 0-1 win over Chelsea',
