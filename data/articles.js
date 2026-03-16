@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'eduardo-camavingas-50m-price-tag-four-premier-league-clubs-i-2026-03-16',
+    title: 'Eduardo Camavinga\'s €50m Price Tag: Four Premier League Clubs in the Running',
+    excerpt: 'Real Madrid have set a €50m price tag for Eduardo Camavinga, with four Premier League clubs interested in signing the versatile midfielder',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-03-16',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Eduardo Camavinga', 'Real Madrid', 'Liverpool', 'Manchester United', 'Manchester City', 'Chelsea', 'Premier League', 'Transfer News']
+  },
+  {
     id: 'one-of-the-best-left-backs-in-the-premier-league-is-coming-t-2026-03-16',
     title: 'Antonee Robinson to Liverpool: Why This Deal Makes Sense for Both Sides',
     excerpt: 'The American defender is set to become Liverpool\'s new left-back, addressing a critical position ahead of a potential title challenge.',
