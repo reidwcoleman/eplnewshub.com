@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'chelsea-fined-1075m-how-premier-league-rules-were-broken-and-2026-03-17',
+    title: 'Chelsea Fined £10.75m: How Premier League Rules Were Broken and What’s Next',
+    excerpt: 'A record fine and ban for Chelsea after breaching Premier League rules. We analyze the details and what it means for the club\'s future.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-03-17',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Chelsea', 'Premier League', 'fine', 'breach', 'rules', 'Roman Abramovich', 'Todd Boehly']
+  },
+  {
     id: 'match-officials-for-matchweek-31-who-will-take-charge-of-the-2026-03-17',
     title: 'Match Officials for Matchweek 31: Who\'s in Charge?',
     excerpt: 'The Premier League has announced the match officials for Matchweek 31, with several high-profile referees taking charge of key fixtures',
