@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'match-officials-for-matchweek-31-who-will-take-charge-of-the-2026-03-17',
+    title: 'Match Officials for Matchweek 31: Who\'s in Charge?',
+    excerpt: 'The Premier League has announced the match officials for Matchweek 31, with several high-profile referees taking charge of key fixtures',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-03-17',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Premier League', 'Matchweek 31', 'Referees', 'Stuart Attwell', 'Darren England', 'Anthony Taylor']
+  },
+  {
     id: 'eduardo-camavingas-50m-price-tag-four-premier-league-clubs-i-2026-03-16',
     title: 'Eduardo Camavinga\'s €50m Price Tag: Four Premier League Clubs in the Running',
     excerpt: 'Real Madrid have set a €50m price tag for Eduardo Camavinga, with four Premier League clubs interested in signing the versatile midfielder',
