@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'west-ham-transfer-news-building-a-competitive-squad-for-the-2026-03-18',
+    title: 'West Ham Transfer News: Building a Competitive Squad for the Title Challenge',
+    excerpt: 'As West Ham sit 4th on 45 points, a deep dive into their transfer strategy and squad evolution under their current management reveals both promise and pitfalls',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Analysis',
+    date: '2026-03-18',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['West Ham', 'transfer news', 'title challenge', 'Premier League', 'squad evolution', 'management strategy']
+  },
+  {
     id: 'chelsea-fined-1075m-how-premier-league-rules-were-broken-and-2026-03-17',
     title: 'Chelsea Fined £10.75m: How Premier League Rules Were Broken and What’s Next',
     excerpt: 'A record fine and ban for Chelsea after breaching Premier League rules. We analyze the details and what it means for the club\'s future.',
