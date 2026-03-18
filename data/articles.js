@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'scottish-premiership-the-teams-defying-expectations-and-what-2026-03-18',
+    title: 'The Unlikely Challengers: Unpacking the Epic Scottish Premiership Title Race',
+    excerpt: 'A four-way title race in the Scottish Premiership has left fans and pundits alike scratching their heads. Who are the teams defying expectations, and what\'s driving their success?',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-03-18',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Scottish Premiership', 'title race', 'Hearts', 'Celtic', 'Rangers', 'Old Firm', 'Scottish football']
+  },
+  {
     id: 'west-ham-transfer-news-building-a-competitive-squad-for-the-2026-03-18',
     title: 'West Ham Transfer News: Building a Competitive Squad for the Title Challenge',
     excerpt: 'As West Ham sit 4th on 45 points, a deep dive into their transfer strategy and squad evolution under their current management reveals both promise and pitfalls',
