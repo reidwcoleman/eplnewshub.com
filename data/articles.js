@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'england-still-lead-the-way-which-nations-will-win-the-race-f-2026-03-19',
+    title: 'England\'s UEFA Coefficient Lead: Which Nations Will Secure Extra Champions League Spots?',
+    excerpt: 'The Premier League\'s strong performance in European competitions has given England a significant lead in the UEFA coefficient rankings, but other nations are closing in on the top spots.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Analysis',
+    date: '2026-03-19',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['UEFA coefficient rankings', 'Premier League', 'LaLiga', 'Champions League', 'European football']
+  },
+  {
     id: 'scottish-premiership-the-teams-defying-expectations-and-what-2026-03-18',
     title: 'The Unlikely Challengers: Unpacking the Epic Scottish Premiership Title Race',
     excerpt: 'A four-way title race in the Scottish Premiership has left fans and pundits alike scratching their heads. Who are the teams defying expectations, and what\'s driving their success?',
