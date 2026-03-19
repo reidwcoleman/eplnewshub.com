@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'ac-milan-open-to-rafael-leo-sale-as-man-united-contact-ajax-2026-03-19',
+    title: 'AC Milan Open to Rafael Leão Sale as Man United Contact Ajax for Mika Godts',
+    excerpt: 'AC Milan\'s openness to selling key player Rafael Leão has raised eyebrows, while Manchester United\'s interest in Ajax\'s Mika Godts suggests a busy transfer window ahead',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-03-19',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['AC Milan', 'Rafael Leão', 'Manchester United', 'Mika Godts', 'Ajax', 'transfer news']
+  },
+  {
+    id: 'bournemouth-vs-manchester-united-premier-league-preview-and-2026-03-19',
+    title: 'Bournemouth vs Manchester United: Crunch Time in the Premier League',
+    excerpt: 'The Cherries aim to extend their unbeaten run against the Red Devils, while Manchester United seek to consolidate their top-four position',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-19',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'Bournemouth', 'Manchester United', 'Michael Carrick', 'Bruno Fernandes', 'Benjamin Sesko']
+  },
+  {
     id: 'manchester-united-transfer-news-casemiro-replacement-contend-2026-03-19',
     title: 'Manchester United Transfer News: Top Contenders to Replace Casemiro',
     excerpt: 'Manchester United is on the hunt for a new midfielder to replace the aging Casemiro, with several top contenders in the running',
