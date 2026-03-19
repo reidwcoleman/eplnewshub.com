@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'manchester-united-transfer-news-casemiro-replacement-contend-2026-03-19',
+    title: 'Manchester United Transfer News: Top Contenders to Replace Casemiro',
+    excerpt: 'Manchester United is on the hunt for a new midfielder to replace the aging Casemiro, with several top contenders in the running',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-03-19',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Manchester United', 'Transfer News', 'Premier League', 'Midfielders']
+  },
+  {
     id: 'england-still-lead-the-way-which-nations-will-win-the-race-f-2026-03-19',
     title: 'England\'s UEFA Coefficient Lead: Which Nations Will Secure Extra Champions League Spots?',
     excerpt: 'The Premier League\'s strong performance in European competitions has given England a significant lead in the UEFA coefficient rankings, but other nations are closing in on the top spots.',
