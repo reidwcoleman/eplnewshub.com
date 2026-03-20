@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'arsenal-vs-man-city-carabao-cup-final-prediction-kick-off-ti-2026-03-20',
+    title: 'Arsenal vs Man City: Carabao Cup Final Preview',
+    excerpt: 'Arsenal and Man City clash in the Carabao Cup final, with the winner gaining a psychological edge in the Premier League title race. Get the latest preview, team news, and TV details.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Analysis',
+    date: '2026-03-20',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Arsenal', 'Man City', 'Carabao Cup', 'Premier League']
+  },
+  {
     id: 'ac-milan-open-to-rafael-leo-sale-as-man-united-contact-ajax-2026-03-19',
     title: 'AC Milan Open to Rafael Leão Sale as Man United Contact Ajax for Mika Godts',
     excerpt: 'AC Milan\'s openness to selling key player Rafael Leão has raised eyebrows, while Manchester United\'s interest in Ajax\'s Mika Godts suggests a busy transfer window ahead',
