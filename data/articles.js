@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'liverpool-xi-vs-brighton-confirmed-team-news-predicted-lineu-2026-03-20',
+    title: 'Liverpool XI vs Brighton: Confirmed Team News and Predicted Lineup',
+    excerpt: 'Liverpool will be without Mohamed Salah for this weekend’s Premier League clash against Brighton, but who will Slot choose to replace him?',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-20',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Liverpool', 'Brighton', 'Premier League', 'Team News', 'Predicted Lineup', 'Injury Latest']
+  },
+  {
     id: 'arsenal-vs-man-city-carabao-cup-final-prediction-kick-off-ti-2026-03-20',
     title: 'Arsenal vs Man City: Carabao Cup Final Preview',
     excerpt: 'Arsenal and Man City clash in the Carabao Cup final, with the winner gaining a psychological edge in the Premier League title race. Get the latest preview, team news, and TV details.',
