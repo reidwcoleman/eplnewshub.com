@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'leeds-united-vs-brentford-premier-league-preview-tactical-ba-2026-03-21',
+    title: 'Leeds vs Brentford: Premier League Tactical Battle',
+    excerpt: 'Leeds United host Brentford in a crucial Premier League clash, with both teams looking to gain momentum in the league',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-03-21',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Leeds United', 'Brentford', 'Premier League', 'match preview', 'team news', 'stats', 'head-to-head']
+  },
+  {
     id: 'brentford-transfers-latest-targets-and-long-term-squad-plann-2026-03-21',
     title: 'Brentford Transfer Strategy: Building for Mid-Table Success',
     excerpt: 'Brentford is one of the Premier League clubs with reported transfer activity, but what are their targets and long-term squad plans? We analyze the Bees\' strategy for sustained mid-table success.',
