@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'brentford-transfers-latest-targets-and-long-term-squad-plann-2026-03-21',
+    title: 'Brentford Transfer Strategy: Building for Mid-Table Success',
+    excerpt: 'Brentford is one of the Premier League clubs with reported transfer activity, but what are their targets and long-term squad plans? We analyze the Bees\' strategy for sustained mid-table success.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-03-21',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Brentford FC', 'Premier League transfers', 'January 2026 transfer window', 'mid-table success']
+  },
+  {
+    id: 'brighton-vs-liverpool-kick-off-delayed-as-premier-league-rel-2026-03-21',
+    title: 'Brighton vs Liverpool: 15-Minute Kick-Off Delay Amid Traffic Chaos',
+    excerpt: 'The highly anticipated match between Brighton and Liverpool has been delayed by 15 minutes due to a road traffic accident on the A27, causing congestion and delaying fan arrivals. The Premier League has issued an official statement, confirming the ne',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-21',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Brighton vs Liverpool', 'Premier League', 'kick-off delay', 'traffic accident', 'A27', 'Amex Stadium']
+  },
+  {
     id: 'newcastle-transfer-news-how-eddie-howe-is-building-a-sustain-2026-03-21',
     title: 'Newcastle Transfer News: Building a Sustainable Squad',
     excerpt: 'Eddie Howe is building a sustainable squad at Newcastle, but the path to success is fraught with financial challenges and transfer speculation',
