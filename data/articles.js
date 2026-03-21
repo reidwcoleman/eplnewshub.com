@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'newcastle-transfer-news-how-eddie-howe-is-building-a-sustain-2026-03-21',
+    title: 'Newcastle Transfer News: Building a Sustainable Squad',
+    excerpt: 'Eddie Howe is building a sustainable squad at Newcastle, but the path to success is fraught with financial challenges and transfer speculation',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-03-21',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Newcastle United', 'Eddie Howe', 'John McGinn', 'Premier League', 'Transfer News']
+  },
+  {
+    id: 'everton-vs-chelsea-tactical-preview-and-predictions-2026-03-21',
+    title: 'Everton vs Chelsea: Tactical Battle for European Ambitions',
+    excerpt: 'The Toffees aim to close the gap on the top six, while Chelsea seeks to revive their Champions League hopes. A thrilling encounter awaits at Hill Dickinson Stadium.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-21',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Everton vs Chelsea', 'Premier League', 'European Ambitions', 'Tactical Analysis']
+  },
+  {
     id: 'liverpool-xi-vs-brighton-confirmed-team-news-predicted-lineu-2026-03-20',
     title: 'Liverpool XI vs Brighton: Confirmed Team News and Predicted Lineup',
     excerpt: 'Liverpool will be without Mohamed Salah for this weekend’s Premier League clash against Brighton, but who will Slot choose to replace him?',
