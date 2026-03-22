@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'newcastle-1-2-sunderland-how-a-league-worst-defence-cost-the-2026-03-22',
+    title: 'Newcastle 1-2 Sunderland: Title Hopes Dented by League-Worst Defence',
+    excerpt: 'A shocking 90th-minute winner for Sunderland has left Newcastle\'s title hopes hanging by a thread, as their league-worst defence continues to haunt them',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-22',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Newcastle', 'Sunderland', 'Tyne-Wear derby', 'Premier League', 'Eddie Howe']
+  },
+  {
+    id: 'premier-league-match-stopped-how-racist-abuse-forces-footbal-2026-03-22',
+    title: 'Premier League Match Stopped: How Racist Abuse Forces Football to Confront Its Ugly Truth',
+    excerpt: 'A disturbing incident of racist abuse directed at Sunderland\'s Lutsharel Geertruida during the Tyne-Wear derby against Newcastle has brought the ugly truth of racism in football to the forefront, prompting a temporary halt to the match and sparking ',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-03-22',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'Racism', 'Newcastle', 'Sunderland', 'Lutsharel Geertruida']
+  },
+  {
     id: 'arsenal-transfer-news-who-could-fill-the-gaps-in-artetas-squ-2026-03-22',
     title: 'Arsenal Transfer News: Who Could Fill the Gaps in Arteta\'s Squad Next Season?',
     excerpt: 'Arsenal\'s transfer business is set to be a key factor in their title bid next season, but who could the Gunners bring in to strengthen their squad?',
