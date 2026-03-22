@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'everton-3-0-chelsea-how-dyches-side-shocked-the-blues-with-c-2026-03-22',
+    title: 'Everton 3-0 Chelsea: Clinical Toffees Expose Blues’ Defensive Woes',
+    excerpt: 'A dominant display from Everton saw them dismantle Chelsea 3-0 at home, with Beto\'s double and Iliman Ndiaye\'s curled effort condemning the Blues to their fourth consecutive defeat',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-22',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Everton', 'Chelsea', 'Premier League', 'Sean Dyche', 'Liam Rosenior']
+  },
+  {
     id: 'leeds-united-vs-brentford-premier-league-preview-tactical-ba-2026-03-21',
     title: 'Leeds vs Brentford: Premier League Tactical Battle',
     excerpt: 'Leeds United host Brentford in a crucial Premier League clash, with both teams looking to gain momentum in the league',
