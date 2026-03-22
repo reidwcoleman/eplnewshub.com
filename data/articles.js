@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'arsenal-transfer-news-who-could-fill-the-gaps-in-artetas-squ-2026-03-22',
+    title: 'Arsenal Transfer News: Who Could Fill the Gaps in Arteta\'s Squad Next Season?',
+    excerpt: 'Arsenal\'s transfer business is set to be a key factor in their title bid next season, but who could the Gunners bring in to strengthen their squad?',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-03-22',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Arsenal transfer news', 'Mikel Arteta', 'summer signings', 'Premier League']
+  },
+  {
     id: 'everton-3-0-chelsea-how-dyches-side-shocked-the-blues-with-c-2026-03-22',
     title: 'Everton 3-0 Chelsea: Clinical Toffees Expose Blues’ Defensive Woes',
     excerpt: 'A dominant display from Everton saw them dismantle Chelsea 3-0 at home, with Beto\'s double and Iliman Ndiaye\'s curled effort condemning the Blues to their fourth consecutive defeat',
