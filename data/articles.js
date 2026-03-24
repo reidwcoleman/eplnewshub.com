@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'tottenham-vs-nottingham-forest-tv-channel-live-stream-and-ki-2026-03-24',
+    title: 'Tottenham vs Nottingham Forest: How to Watch Today\'s Premier League Clash',
+    excerpt: 'Get all the information you need to watch Tottenham take on Nottingham Forest in the Premier League, including TV channels, live streams, and kick-off time',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-24',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Tottenham', 'Nottingham Forest', 'Premier League', 'live stream', 'TV channel', 'match preview']
+  },
+  {
+    id: 'how-much-premier-league-prize-money-will-each-team-get-a-ful-2026-03-24',
+    title: 'Premier League Prize Money Breakdown: How Much Each Team Will Get',
+    excerpt: 'The Premier League\'s £2.83 billion prize money pot is set to be distributed among its 20 teams, with a significant increase in earnings expected for the 2025/26 season.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Analysis',
+    date: '2026-03-24',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Premier League', 'Premier League prize money', 'Premier League finances', 'Premier League teams']
+  },
+  {
     id: 'newcastle-1-2-sunderland-how-a-league-worst-defence-cost-the-2026-03-22',
     title: 'Newcastle 1-2 Sunderland: Title Hopes Dented by League-Worst Defence',
     excerpt: 'A shocking 90th-minute winner for Sunderland has left Newcastle\'s title hopes hanging by a thread, as their league-worst defence continues to haunt them',
