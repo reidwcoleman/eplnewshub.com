@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'newcastle-united-vs-sunderland-how-the-1-2-result-exposes-de-2026-03-25',
+    title: 'Newcastle United vs Sunderland: Rivalry Analysis in North East Derby',
+    excerpt: 'The North East derby between Newcastle United and Sunderland is one of the most intense rivalries in English football, with a rich history and passionate fan base. This article delves into the context and implications of their matches, exploring the ',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Analysis',
+    date: '2026-03-25',
+    readTime: '25 min read',
+    featured: true,
+    tags: ['Newcastle United', 'Sunderland', 'North East derby', 'Premier League', 'football rivalry']
+  },
+  {
     id: 'arsenals-title-hopes-hit-by-injury-crisis-six-key-players-fo-2026-03-25',
     title: 'Arsenal’s Title Hopes Hit by Injury Crisis',
     excerpt: 'Arsenal\'s title hopes have been dealt a significant blow as six key players, including Declan Rice and Gabriel Magalhães, have been forced out of international duty due to injuries, leaving the team battling an injury crisis that threatens their tit',
