@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-free-transfers-harry-wilson-bernardo-silva-an-2026-03-25',
+    title: 'Premier League Free Transfers: Top Players Who Could Leave This Summer',
+    excerpt: 'The summer transfer window is set to be a busy one, with several high-profile players potentially leaving their teams as free agents. Harry Wilson, Bernardo Silva, and Ibrahima Konate are just a few of the top players who could be on the move.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-03-25',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Premier League', 'transfers', 'Harry Wilson', 'Bernardo Silva', 'Ibrahima Konate']
+  },
+  {
+    id: 'lamia-vs-asteras-tripolis-live-score-and-key-moments-2026-03-25',
+    title: 'Lamia vs Asteras Tripolis: 0-0 Draw in Greek Super League',
+    excerpt: 'A tactical stalemate in the Greek Super League as Lamia and Asteras Tripolis share the spoils in a 0-0 draw. We break down the key moments, stats, and implications from the match.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-25',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Lamia', 'Asteras Tripolis', 'Greek Super League', 'match report', 'stats', 'analysis']
+  },
+  {
     id: 'newcastle-united-vs-sunderland-how-the-1-2-result-exposes-de-2026-03-25',
     title: 'Newcastle United vs Sunderland: Rivalry Analysis in North East Derby',
     excerpt: 'The North East derby between Newcastle United and Sunderland is one of the most intense rivalries in English football, with a rich history and passionate fan base. This article delves into the context and implications of their matches, exploring the ',
