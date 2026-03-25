@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'arsenals-title-hopes-hit-by-injury-crisis-six-key-players-fo-2026-03-25',
+    title: 'Arsenal’s Title Hopes Hit by Injury Crisis',
+    excerpt: 'Arsenal\'s title hopes have been dealt a significant blow as six key players, including Declan Rice and Gabriel Magalhães, have been forced out of international duty due to injuries, leaving the team battling an injury crisis that threatens their tit',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-03-25',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Arsenal', 'Injury Crisis', 'Premier League', 'FA Cup', 'Declan Rice', 'Gabriel Magalhães']
+  },
+  {
+    id: 'chelseas-enzo-fernndez-hits-back-at-real-madrid-transfer-rum-2026-03-25',
+    title: 'Enzo Fernández Transfer News: Chelsea Star Hits Back at Real Madrid Rumours',
+    excerpt: 'Chelsea\'s Enzo Fernández addresses Real Madrid transfer rumours, reaffirming his commitment to the Blues amidst a tumultuous season',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Player Focus',
+    date: '2026-03-25',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Enzo Fernández', 'Chelsea FC', 'Real Madrid', 'Transfer News', 'Premier League', 'Argentina National Team', '2026 FIFA World Cup']
+  },
+  {
     id: 'tottenham-vs-nottingham-forest-tv-channel-live-stream-and-ki-2026-03-24',
     title: 'Tottenham vs Nottingham Forest: How to Watch Today\'s Premier League Clash',
     excerpt: 'Get all the information you need to watch Tottenham take on Nottingham Forest in the Premier League, including TV channels, live streams, and kick-off time',
