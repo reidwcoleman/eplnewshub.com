@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'uefa-champions-league-on-tnt-sports-how-to-watch-and-live-st-2026-03-26',
+    title: 'Champions League on TNT Sports: How to Watch and Live Stream',
+    excerpt: 'The UEFA Champions League is available to watch on TNT Sports, along with Premier League matches and the UEFA Europa League. Here\'s what you need to know about schedules, key dates, and more.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-03-26',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['UEFA Champions League', 'TNT Sports', 'Premier League', 'UEFA Europa League', 'how to watch', 'live stream']
+  },
+  {
+    id: 'premier-league-title-race-how-it-stands-and-remaining-fixtur-2026-03-26',
+    title: 'Premier League Title Race: Arsenal\'s 9-Point Lead and Remaining Fixtures',
+    excerpt: 'Arsenal are in pole position to win their first Premier League title since 2004, but Manchester City are still in the hunt and will look to close the gap when the two teams meet at the Etihad Stadium on 18-19 April',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Analysis',
+    date: '2026-03-26',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'Arsenal', 'Manchester City', 'Champions League', 'FA Cup']
+  },
+  {
     id: 'premier-league-free-transfers-harry-wilson-bernardo-silva-an-2026-03-25',
     title: 'Premier League Free Transfers: Top Players Who Could Leave This Summer',
     excerpt: 'The summer transfer window is set to be a busy one, with several high-profile players potentially leaving their teams as free agents. Harry Wilson, Bernardo Silva, and Ibrahima Konate are just a few of the top players who could be on the move.',
