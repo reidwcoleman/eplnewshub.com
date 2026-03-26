@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'shelbourne-vs-derry-city-live-irish-premier-league-derby-2026-03-26',
+    title: 'Shelbourne vs Derry City Live: Irish Premier League Derby',
+    excerpt: 'The highly anticipated derby match between Shelbourne and Derry City in the Irish Premier League promises to be an intense and closely contested affair.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-26',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Shelbourne', 'Derry City', 'Irish Premier League', 'Derby', 'Football', 'League of Ireland']
+  },
+  {
     id: 'uefa-champions-league-on-tnt-sports-how-to-watch-and-live-st-2026-03-26',
     title: 'Champions League on TNT Sports: How to Watch and Live Stream',
     excerpt: 'The UEFA Champions League is available to watch on TNT Sports, along with Premier League matches and the UEFA Europa League. Here\'s what you need to know about schedules, key dates, and more.',
