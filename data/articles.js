@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'malta-vs-luxembourg-live-uefa-nations-league-scores-highligh-2026-03-27',
+    title: 'Malta 0-2 Luxembourg: UEFA Nations League Relegation Playoff',
+    excerpt: 'Luxembourg dominates Malta in the first leg of the UEFA Nations League relegation playoff, taking a 2-0 lead into the second leg',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-27',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['UEFA Nations League', 'Malta', 'Luxembourg', 'relegation playoff']
+  },
+  {
     id: 'olise-to-liverpool-bayern-munich-shed-light-on-release-claus-2026-03-27',
     title: 'Olise to Liverpool: Bayern Munich Clarify Release Clause',
     excerpt: 'Bayern Munich Sporting Director Max Eberl confirms Olise\'s contract has no release clause, amid Liverpool\'s reported £173 million interest',
