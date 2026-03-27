@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'olise-to-liverpool-bayern-munich-shed-light-on-release-claus-2026-03-27',
+    title: 'Olise to Liverpool: Bayern Munich Clarify Release Clause',
+    excerpt: 'Bayern Munich Sporting Director Max Eberl confirms Olise\'s contract has no release clause, amid Liverpool\'s reported £173 million interest',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-03-27',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Michael Olise', 'Liverpool', 'Bayern Munich', 'Transfer News', 'Release Clause']
+  },
+  {
     id: 'shelbourne-vs-derry-city-live-irish-premier-league-derby-2026-03-26',
     title: 'Shelbourne vs Derry City Live: Irish Premier League Derby',
     excerpt: 'The highly anticipated derby match between Shelbourne and Derry City in the Irish Premier League promises to be an intense and closely contested affair.',
