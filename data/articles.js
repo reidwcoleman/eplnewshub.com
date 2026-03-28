@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'julian-alvarez-set-for-new-offer-as-world-class-transfer-ple-2026-03-28',
+    title: 'Julian Alvarez Set for New Offer as World-Class Transfer Plea Made - Arsenal\'s Transfer Plea',
+    excerpt: 'Arsenal\'s pursuit of Julian Alvarez is heating up, with the Gunners set to make a new offer for the highly sought-after striker. But what does this mean for the team\'s chances in the Premier League, and how will it impact their squad?',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfer News',
+    date: '2026-03-28',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Arsenal transfer news', 'Julian Alvarez', 'transfer plea', 'Premier League']
+  },
+  {
     id: 'premier-league-rivals-circle-marcus-rashford-as-man-utd-face-2026-03-28',
     title: 'Premier League Rivals Eye Marcus Rashford as Man Utd Face Uncertainty',
     excerpt: 'Manchester United has received an approach from Premier League rivals for Marcus Rashford, sparking uncertainty over the star forward\'s future at Old Trafford',
