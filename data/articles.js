@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-home-game-against-fulham-rearranged-how-it-af-2026-03-28',
+    title: 'Premier League Home Game Rearrangement: Impact on Arsenal\'s Season',
+    excerpt: 'The rearrangement of Arsenal\'s home game against Fulham could have significant implications for their season. We analyze the potential impact on their campaign.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-28',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Arsenal', 'Premier League', 'Fulham', 'fixture rearrangement', 'season impact']
+  },
+  {
     id: 'julian-alvarez-set-for-new-offer-as-world-class-transfer-ple-2026-03-28',
     title: 'Julian Alvarez Set for New Offer as World-Class Transfer Plea Made - Arsenal\'s Transfer Plea',
     excerpt: 'Arsenal\'s pursuit of Julian Alvarez is heating up, with the Gunners set to make a new offer for the highly sought-after striker. But what does this mean for the team\'s chances in the Premier League, and how will it impact their squad?',
