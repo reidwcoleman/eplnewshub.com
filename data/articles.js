@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-rivals-circle-marcus-rashford-as-man-utd-face-2026-03-28',
+    title: 'Premier League Rivals Eye Marcus Rashford as Man Utd Face Uncertainty',
+    excerpt: 'Manchester United has received an approach from Premier League rivals for Marcus Rashford, sparking uncertainty over the star forward\'s future at Old Trafford',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-03-28',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Manchester United', 'Marcus Rashford', 'Premier League', 'Transfer News']
+  },
+  {
     id: 'malta-vs-luxembourg-live-uefa-nations-league-scores-highligh-2026-03-27',
     title: 'Malta 0-2 Luxembourg: UEFA Nations League Relegation Playoff',
     excerpt: 'Luxembourg dominates Malta in the first leg of the UEFA Nations League relegation playoff, taking a 2-0 lead into the second leg',
