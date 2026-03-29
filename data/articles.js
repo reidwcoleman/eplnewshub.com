@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'chelsea-offered-to-give-74m-man-utd-star-anything-he-wanted-2026-03-29',
+    title: 'Chelsea\'s £74m Gamble: What the Lavish Offer Reveals',
+    excerpt: 'A closer look at Chelsea\'s audacious bid for a Manchester United star and what it means for their summer transfer plans',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-03-29',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Chelsea transfer news', 'Manchester United', 'Premier League transfers', 'Benjamin Šeško']
+  },
+  {
     id: 'scottish-premiership-can-celtic-or-rangers-break-the-deadloc-2026-03-29',
     title: 'Scottish Premiership: Can Celtic or Rangers Break the Deadlock?',
     excerpt: 'The Scottish Premiership title race is heating up, with Celtic and Rangers locked in a fierce battle for domestic and European glory',
