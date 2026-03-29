@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'scottish-premiership-can-celtic-or-rangers-break-the-deadloc-2026-03-29',
+    title: 'Scottish Premiership: Can Celtic or Rangers Break the Deadlock?',
+    excerpt: 'The Scottish Premiership title race is heating up, with Celtic and Rangers locked in a fierce battle for domestic and European glory',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Analysis',
+    date: '2026-03-29',
+    readTime: '12 min read',
+    featured: true,
+    tags: ['Scottish Premiership', 'Celtic', 'Rangers', 'Old Firm derby', 'title race', 'European implications']
+  },
+  {
     id: 'premier-league-home-game-against-fulham-rearranged-how-it-af-2026-03-28',
     title: 'Premier League Home Game Rearrangement: Impact on Arsenal\'s Season',
     excerpt: 'The rearrangement of Arsenal\'s home game against Fulham could have significant implications for their season. We analyze the potential impact on their campaign.',
