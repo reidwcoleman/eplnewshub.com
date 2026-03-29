@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'arsenal-vs-fulham-rescheduled-fixture-adds-pressure-to-title-2026-03-29',
+    title: 'Arsenal vs Fulham: Rescheduled Fixture Adds Pressure to Title Push',
+    excerpt: 'The rescheduled Fulham match adds scheduling pressure to Arsenal\'s title push, with key fixtures against Manchester City and West Ham looming',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-03-29',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Arsenal', 'Fulham', 'Premier League', 'title push', 'rescheduled fixture']
+  },
+  {
     id: 'chelsea-offered-to-give-74m-man-utd-star-anything-he-wanted-2026-03-29',
     title: 'Chelsea\'s £74m Gamble: What the Lavish Offer Reveals',
     excerpt: 'A closer look at Chelsea\'s audacious bid for a Manchester United star and what it means for their summer transfer plans',
