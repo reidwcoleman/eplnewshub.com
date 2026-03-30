@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'arsenals-bold-double-deal-who-could-be-on-the-move-2026-03-30',
+    title: 'Arsenal\'s Bold Double Deal: Who Could Be on the Move?',
+    excerpt: 'Arsenal are reportedly willing to sell Gabriel Jesus and Gabriel Martinelli this summer, with Atletico Madrid interested in the Brazilian duo. What does this mean for the Gunners\' squad and their summer transfer plans?',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-03-30',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Arsenal', 'Gabriel Jesus', 'Gabriel Martinelli', 'Atletico Madrid', 'Premier League transfers']
+  },
+  {
+    id: 'igor-tudors-exit-how-tottenhams-managerial-chaos-unfolded-2026-03-30',
+    title: 'Igor Tudor\'s Exit: How Tottenham\'s Managerial Chaos Unfolded',
+    excerpt: 'Tottenham Hotspur\'s managerial merry-go-round continues as Igor Tudor exits after just 44 days in charge, leaving the club in a precarious position in the Premier League',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-03-30',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Tottenham Hotspur', 'Igor Tudor', 'Premier League', 'Relegation Battle', 'Roberto De Zerbi']
+  },
+  {
     id: 'arsenal-vs-fulham-rescheduled-fixture-adds-pressure-to-title-2026-03-29',
     title: 'Arsenal vs Fulham: Rescheduled Fixture Adds Pressure to Title Push',
     excerpt: 'The rescheduled Fulham match adds scheduling pressure to Arsenal\'s title push, with key fixtures against Manchester City and West Ham looming',
