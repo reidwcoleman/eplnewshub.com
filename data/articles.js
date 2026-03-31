@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'james-trafford-increasingly-likely-to-sign-for-one-premier-l-2026-03-31',
+    title: 'James Trafford Transfer News: Why Newcastle Lead the Race',
+    excerpt: 'Newcastle United are increasingly likely to sign Manchester City goalkeeper James Trafford, with the Magpies favourites to secure his signature ahead of Tottenham',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-03-31',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['James Trafford', 'Newcastle United', 'Tottenham Hotspur', 'Manchester City', 'Transfer News', 'Premier League']
+  },
+  {
     id: 'tottenhams-top-5-managerial-candidates-who-can-deliver-stabi-2026-03-31',
     title: 'Tottenham\'s Top 5 Managerial Candidates: Who Can Deliver Stability and Avoid the Drop?',
     excerpt: 'Tottenham\'s search for a new manager is underway, but who can deliver the stability needed to avoid relegation? We analyze the top 5 candidates and what they bring to the table.',
