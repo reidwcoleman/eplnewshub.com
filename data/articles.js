@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'tottenhams-top-5-managerial-candidates-who-can-deliver-stabi-2026-03-31',
+    title: 'Tottenham\'s Top 5 Managerial Candidates: Who Can Deliver Stability and Avoid the Drop?',
+    excerpt: 'Tottenham\'s search for a new manager is underway, but who can deliver the stability needed to avoid relegation? We analyze the top 5 candidates and what they bring to the table.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Analysis',
+    date: '2026-03-31',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Tottenham', 'managerial candidates', 'relegation', 'stability', 'Thomas Frank', 'Igor Tudor']
+  },
+  {
     id: 'arsenals-bold-double-deal-who-could-be-on-the-move-2026-03-30',
     title: 'Arsenal\'s Bold Double Deal: Who Could Be on the Move?',
     excerpt: 'Arsenal are reportedly willing to sell Gabriel Jesus and Gabriel Martinelli this summer, with Atletico Madrid interested in the Brazilian duo. What does this mean for the Gunners\' squad and their summer transfer plans?',
