@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'tnt-sports-to-show-liverpool-v-chelsea-in-may-as-race-for-ch-2026-04-02',
+    title: 'Liverpool v Chelsea: Champions League Implications Heat Up in May',
+    excerpt: 'The highly anticipated match between Liverpool and Chelsea in May will be broadcast on TNT Sports, as the two teams battle for a spot in the Champions League, with the Premier League\'s top teams competing for a coveted spot in the prestigious tourna',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-04-02',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Liverpool', 'Chelsea', 'Premier League', 'Champions League qualification', 'TNT Sports']
+  },
+  {
     id: 'james-trafford-increasingly-likely-to-sign-for-one-premier-l-2026-03-31',
     title: 'James Trafford Transfer News: Why Newcastle Lead the Race',
     excerpt: 'Newcastle United are increasingly likely to sign Manchester City goalkeeper James Trafford, with the Magpies favourites to secure his signature ahead of Tottenham',
