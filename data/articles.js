@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'liverpool-defender-ibrahima-konate-increasingly-likely-to-st-2026-04-07',
+    title: 'Ibrahima Konate to Stay: Why Liverpool\'s Defensive Future Looks Bright',
+    excerpt: 'Liverpool\'s defensive future is looking brighter with Ibrahima Konate\'s contract negotiations progressing positively, but what does this mean for the team\'s Champions League ambitions?',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Player Focus',
+    date: '2026-04-07',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Ibrahima Konate', 'Liverpool FC', 'contract negotiations', 'defender', 'Anfield']
+  },
+  {
     id: 'tnt-sports-to-show-liverpool-v-chelsea-in-may-as-race-for-ch-2026-04-02',
     title: 'Liverpool v Chelsea: Champions League Implications Heat Up in May',
     excerpt: 'The highly anticipated match between Liverpool and Chelsea in May will be broadcast on TNT Sports, as the two teams battle for a spot in the Champions League, with the Premier League\'s top teams competing for a coveted spot in the prestigious tourna',
