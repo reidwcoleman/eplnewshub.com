@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'recent-premier-league-results-trends-and-takeaways-2026-04-08',
+    title: 'Premier League Trends: Analyzing Recent Results',
+    excerpt: 'A deep dive into the latest Premier League results, including trends, takeaways, and what they mean for the rest of the season',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-04-08',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'recent results', 'trends', 'takeaways', '2025/26 season']
+  },
+  {
     id: 'liverpool-defender-ibrahima-konate-increasingly-likely-to-st-2026-04-07',
     title: 'Ibrahima Konate to Stay: Why Liverpool\'s Defensive Future Looks Bright',
     excerpt: 'Liverpool\'s defensive future is looking brighter with Ibrahima Konate\'s contract negotiations progressing positively, but what does this mean for the team\'s Champions League ambitions?',
