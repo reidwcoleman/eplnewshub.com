@@ -1,6 +1,28 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'fc-bayern-munich-2-1-real-madrid-champions-league-match-reca-2026-04-09',
+    title: 'Bayern Munich Edge Real Madrid 2-1: Champions League Quarter-Final Analysis',
+    excerpt: 'Bayern Munich have taken a significant step towards the Champions League semi-finals with a hard-fought 2-1 win over Real Madrid in the first leg of their quarter-final tie',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-04-09',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Champions League', 'Bayern Munich', 'Real Madrid', 'Harry Kane', 'Luis Diaz']
+  },
+  {
+    id: 'brentford-v-everton-match-preview-and-predictions-2026-04-09',
+    title: 'Brentford v Everton: Crunch Time in the European Qualification Race',
+    excerpt: 'Brentford and Everton face off in a pivotal match that could significantly impact their chances of securing a European spot, with both teams currently separated by just goal difference in the league table',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-04-09',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Brentford', 'Everton', 'Premier League', 'European qualification', 'match preview']
+  },
+  {
     id: 'recent-premier-league-results-trends-and-takeaways-2026-04-08',
     title: 'Premier League Trends: Analyzing Recent Results',
     excerpt: 'A deep dive into the latest Premier League results, including trends, takeaways, and what they mean for the rest of the season',
