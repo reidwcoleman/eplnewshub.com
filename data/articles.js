@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'chelsea-0-3-manchester-city-haaland-and-foden-run-riot-in-ti-2026-04-15',
+    title: 'Man City\'s Title Credentials: Haaland and Foden Shine in 3-0 Win',
+    excerpt: 'Erling Haaland\'s hat-trick and Phil Foden\'s outstanding performance propel Manchester City to a convincing 3-0 victory over Chelsea, solidifying their title aspirations',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-04-15',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Manchester City', 'Chelsea', 'Premier League', 'Erling Haaland', 'Phil Foden', 'title-worthy display']
+  },
+  {
     id: 'fc-bayern-munich-2-1-real-madrid-champions-league-match-reca-2026-04-09',
     title: 'Bayern Munich Edge Real Madrid 2-1: Champions League Quarter-Final Analysis',
     excerpt: 'Bayern Munich have taken a significant step towards the Champions League semi-finals with a hard-fought 2-1 win over Real Madrid in the first leg of their quarter-final tie',
