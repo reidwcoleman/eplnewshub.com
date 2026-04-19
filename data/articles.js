@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'transfer-news-liverpool-join-adam-wharton-race-as-arsenal-tr-2026-04-19',
+    title: 'Transfer News: Liverpool Join Adam Wharton Race as Arsenal Track Wonderkid',
+    excerpt: 'The summer transfer window is heating up, with top-tier clubs Liverpool, Manchester United, and Real Madrid eyeing Crystal Palace midfielder Adam Wharton, while Arsenal keep tabs on 16-year-old Leicester City wonderkid Jeremy Monga',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-04-19',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Adam Wharton', 'Jeremy Monga', 'Liverpool', 'Manchester United', 'Real Madrid', 'Arsenal', 'transfer news', 'Premier League']
+  },
+  {
     id: 'chelsea-0-3-manchester-city-haaland-and-foden-run-riot-in-ti-2026-04-15',
     title: 'Man City\'s Title Credentials: Haaland and Foden Shine in 3-0 Win',
     excerpt: 'Erling Haaland\'s hat-trick and Phil Foden\'s outstanding performance propel Manchester City to a convincing 3-0 victory over Chelsea, solidifying their title aspirations',
