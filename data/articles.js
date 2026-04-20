@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'newcastle-transfer-news-building-for-the-future-amid-title-r-2026-04-20',
+    title: 'Newcastle Transfer News: Building for the Future Amid Title Race',
+    excerpt: 'Newcastle United are navigating a complex transfer landscape as they balance short-term ambitions with long-term planning, with several key players facing uncertain futures',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-04-20',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Newcastle United', 'Transfer News', 'Premier League', 'Sandro Tonali', 'Bruno Guimaraes', 'Callum Wilson', 'Alexander Isak']
+  },
+  {
     id: 'transfer-news-liverpool-join-adam-wharton-race-as-arsenal-tr-2026-04-19',
     title: 'Transfer News: Liverpool Join Adam Wharton Race as Arsenal Track Wonderkid',
     excerpt: 'The summer transfer window is heating up, with top-tier clubs Liverpool, Manchester United, and Real Madrid eyeing Crystal Palace midfielder Adam Wharton, while Arsenal keep tabs on 16-year-old Leicester City wonderkid Jeremy Monga',
