@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'man-city-vs-brentford-tactical-preview-and-predictions-2026-05-08',
+    title: 'Man City vs Brentford: Tactical Preview and Predictions',
+    excerpt: 'Manchester City host Brentford in a crucial Premier League match. Get the latest analysis, odds, and predictions for the game.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-05-08',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Manchester City', 'Brentford', 'Premier League', 'prediction', 'odds', 'betting tips']
+  },
+  {
     id: 'newcastle-transfer-news-building-for-the-future-amid-title-r-2026-04-20',
     title: 'Newcastle Transfer News: Building for the Future Amid Title Race',
     excerpt: 'Newcastle United are navigating a complex transfer landscape as they balance short-term ambitions with long-term planning, with several key players facing uncertain futures',
