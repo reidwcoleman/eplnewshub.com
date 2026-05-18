@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'brentford-transfers-latest-news-rumours-and-gossip-live-upda-2026-05-18',
+    title: 'Brentford transfer news and updates',
+    excerpt: 'Get the latest Brentford transfer news, updates and gossip from Sky Sports and other sources',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-05-18',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Brentford FC', 'Premier League', 'Transfer News', 'Football']
+  },
+  {
     id: 'man-city-vs-brentford-tactical-preview-and-predictions-2026-05-08',
     title: 'Man City vs Brentford: Tactical Preview and Predictions',
     excerpt: 'Manchester City host Brentford in a crucial Premier League match. Get the latest analysis, odds, and predictions for the game.',
