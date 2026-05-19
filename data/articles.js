@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'chelsea-vs-tottenham-tactical-preview-and-predictions-2026-05-19',
+    title: 'Chelsea vs Tottenham: Tactical Preview and Predictions',
+    excerpt: 'Upcoming clash between two top teams, with Chelsea seeking to bounce back from recent struggles and Tottenham looking to establish consistency',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Match Reports',
+    date: '2026-05-19',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Chelsea vs Tottenham', 'Premier League predictions', 'Chelsea FC', 'Tottenham Hotspur', 'football analysis', 'betting tips']
+  },
+  {
     id: 'brentford-transfers-latest-news-rumours-and-gossip-live-upda-2026-05-18',
     title: 'Brentford transfer news and updates',
     excerpt: 'Get the latest Brentford transfer news, updates and gossip from Sky Sports and other sources',
