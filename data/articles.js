@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'darwin-nunez-makes-decision-over-liverpool-return-after-chel-2026-06-08',
+    title: 'Darwin Nunez Return to Liverpool: Chelsea Approach Clarifies Reds\' Stance',
+    excerpt: 'The Uruguayan striker\'s future hangs in the balance as multiple suitors emerge, but what does this mean for Liverpool and their attacking lineup?',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Player Focus',
+    date: '2026-06-08',
+    readTime: '15 min read',
+    featured: true,
+    tags: ['Darwin Nunez', 'Liverpool', 'Chelsea', 'Barcelona', 'Premier League', 'transfer news']
+  },
+  {
     id: 'chelsea-vs-tottenham-tactical-preview-and-predictions-2026-05-19',
     title: 'Chelsea vs Tottenham: Tactical Preview and Predictions',
     excerpt: 'Upcoming clash between two top teams, with Chelsea seeking to bounce back from recent struggles and Tottenham looking to establish consistency',
