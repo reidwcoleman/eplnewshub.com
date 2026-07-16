@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'premier-league-and-efl-summer-transfer-window-2026-key-dates-2026-07-16',
+    title: 'Premier League and EFL Summer Transfer Window 2026: Key Dates Revealed',
+    excerpt: 'The Premier League and EFL have announced the key dates for the 2026 summer transfer window, with the window set to open on 1 July and close on 31 July. Get the latest on the key dates and what to expect from the 2026/27 season.',
+    image: '/eplnewshubnewlogo.png',
+    category: 'News',
+    date: '2026-07-16',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Premier League', 'EFL', 'summer transfer window', '2026', 'key dates', 'Deadline Day']
+  },
+  {
     id: 'darwin-nunez-makes-decision-over-liverpool-return-after-chel-2026-06-08',
     title: 'Darwin Nunez Return to Liverpool: Chelsea Approach Clarifies Reds\' Stance',
     excerpt: 'The Uruguayan striker\'s future hangs in the balance as multiple suitors emerge, but what does this mean for Liverpool and their attacking lineup?',
