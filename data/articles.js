@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'are-new-arsenal-signings-imminent-arteta-insists-a-lot-is-ha-2026-07-31',
+    title: 'Arsenal Transfer News: Arteta Hints at Summer Signings',
+    excerpt: 'Arsenal manager Mikel Arteta has hinted that the club is set to make new signings in the summer transfer window, saying \'a lot is happening\' in the market. What can we expect from the Gunners this summer?',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-07-31',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Arsenal', 'Mikel Arteta', 'Premier League', 'transfers']
+  },
+  {
     id: 'premier-league-and-efl-summer-transfer-window-2026-key-dates-2026-07-16',
     title: 'Premier League and EFL Summer Transfer Window 2026: Key Dates Revealed',
     excerpt: 'The Premier League and EFL have announced the key dates for the 2026 summer transfer window, with the window set to open on 1 July and close on 31 July. Get the latest on the key dates and what to expect from the 2026/27 season.',
