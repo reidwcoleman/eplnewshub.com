@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'bruno-guimaraes-transfer-news-arsenal-open-talks-to-sign-new-2026-08-04',
+    title: 'Bruno Guimaraes Transfer News: Arsenal Open Talks',
+    excerpt: 'Arsenal have opened talks to sign Newcastle captain Bruno Guimaraes, with the Gunners pushing to complete the transfer, but Newcastle have rejected their opening offer',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Transfers',
+    date: '2026-08-04',
+    readTime: '10 min read',
+    featured: true,
+    tags: ['Arsenal', 'Newcastle', 'Bruno Guimaraes', 'Transfer News', 'Premier League']
+  },
+  {
     id: 'are-new-arsenal-signings-imminent-arteta-insists-a-lot-is-ha-2026-07-31',
     title: 'Arsenal Transfer News: Arteta Hints at Summer Signings',
     excerpt: 'Arsenal manager Mikel Arteta has hinted that the club is set to make new signings in the summer transfer window, saying \'a lot is happening\' in the market. What can we expect from the Gunners this summer?',
