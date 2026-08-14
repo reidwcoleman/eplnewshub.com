@@ -1,6 +1,17 @@
 // Articles data for EPL News Hub
 export const articles = [
   {
+    id: 'who-am-i-guess-premier-league-star-no-24-the-ultimate-quiz-2026-08-14',
+    title: 'Guess The Star: Uncovering The Identity of Premier League Star No 24',
+    excerpt: 'The BBC Sport \'Who Am I?\' quiz series puts your knowledge of Premier League footballers to the test, with a new challenge to identify \'Guess Premier League star No 24\'',
+    image: '/eplnewshubnewlogo.png',
+    category: 'Player Focus',
+    date: '2026-08-14',
+    readTime: '20 min read',
+    featured: true,
+    tags: ['Premier League', 'BBC Sport', 'football quiz', 'player identification']
+  },
+  {
     id: 'bruno-guimaraes-transfer-news-arsenal-open-talks-to-sign-new-2026-08-04',
     title: 'Bruno Guimaraes Transfer News: Arsenal Open Talks',
     excerpt: 'Arsenal have opened talks to sign Newcastle captain Bruno Guimaraes, with the Gunners pushing to complete the transfer, but Newcastle have rejected their opening offer',
